@@ -133,6 +133,14 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
     private boolean failIfNoTests;
 
     /**
+     * Set this to true to ignore a failure during testing. Its use is NOT RECOMMENDED, but quite
+     * convenient on occasion.
+     * 
+     * @parameter expression="${maven.test.failure.ignore}" default-value="false"
+     */
+    private boolean testFailureIgnore;
+
+    /**
      * The directory containing generated test classes of the project being tested.
      * 
      * @parameter expression="${project.build.outputDirectory}"
@@ -350,8 +358,13 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         if (succeeded) {
             getLog().info("All tests passed!");
         } else {
-            throw new MojoFailureException("There are test failures.\n\nPlease refer to " + reportsDirectory
-                    + " for the individual test results.");
+            String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
+                    + " for the individual test results.";
+            if (testFailureIgnore) {
+                getLog().error(errorMessage);
+            } else {
+                throw new MojoFailureException(errorMessage);
+            }
         }
     }
 

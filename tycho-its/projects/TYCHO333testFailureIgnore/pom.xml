@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.sonatype.tycho.tychoits.TYCHO333testFailureIgnore</groupId>
+	<artifactId>test.testFailureIgnore</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>eclipse-test-plugin</packaging>
+	<name>Surefire testFailureIgnore property test</name>
+
+	<properties>
+		<!--		<p2.repo>http://download.eclipse.org/releases/galileo</p2.repo>-->
+		<p2.repo>http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/releases/galileo/
+		</p2.repo>
+		<!-- failing test must be ignored if this property is set -->
+		<maven.test.failure.ignore>true</maven.test.failure.ignore>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>p2</id>
+			<layout>p2</layout>
+			<url>${p2.repo}</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
