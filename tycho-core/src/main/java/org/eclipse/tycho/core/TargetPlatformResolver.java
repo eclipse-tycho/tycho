@@ -15,7 +15,9 @@ import java.util.List;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 
 /**
  * Target platform content resolver. TODO This interface and its implementations require further
@@ -26,4 +28,7 @@ public interface TargetPlatformResolver {
 
     public TargetPlatform resolvePlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies);
+
+    public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
+            TargetPlatform targetPlatform, Logger logger);
 }

@@ -47,6 +47,7 @@ import org.apache.maven.settings.Server;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.tycho.ArtifactKey;
@@ -57,6 +58,9 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.maven.MavenDependencyInjector;
+import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
+import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformResolver;
@@ -87,6 +91,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
     @Requirement
     private EquinoxServiceFactory equinox;
+
+    @Requirement
+    private BundleReader bundleReader;
 
     @Requirement
     private PlexusContainer plexus;
@@ -490,5 +497,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         this.resolverFactory = equinox.getService(P2ResolverFactory.class);
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
         this.sourcesGenerator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=source-bundle)");
+    }
+
+    public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
+            TargetPlatform targetPlatform, Logger logger) {
+        MavenDependencyInjector.injectMavenDependencies(project, targetPlatform, bundleReader, logger);
     }
 }

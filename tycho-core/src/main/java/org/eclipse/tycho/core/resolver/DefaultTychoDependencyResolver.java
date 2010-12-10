@@ -27,9 +27,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.maven.MavenDependencyCollector;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
-import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
 import org.eclipse.tycho.resolver.TychoDependencyResolver;
@@ -47,9 +45,6 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
-
-    @Requirement
-    private BundleReader bundleReader;
 
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
@@ -100,8 +95,7 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         dr.resolve(session, project);
 
-        MavenDependencyCollector dependencyCollector = new MavenDependencyCollector(project, bundleReader, logger);
-        dr.getDependencyWalker(project).walk(dependencyCollector);
+        resolver.injectDependenciesIntoMavenModel(project, dr, targetPlatform, logger);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder();

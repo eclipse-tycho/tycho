@@ -11,13 +11,14 @@
 package org.eclipse.tycho.test.p2Repository.transitive;
 
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -44,15 +45,23 @@ public class TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
     @Test
     public void testEclipseRepositoryTransitive() throws IOException {
         File pluginsDir = new File(verifier.getBasedir(), MODULE_TRANSITIVE + "/target/repository/plugins");
-        Assert.assertTrue(checkFileWithPrefixExists(pluginsDir, "org.eclipse.osgi_"));
-        Assert.assertTrue(checkFileWithPrefixExists(pluginsDir, "org.junit_"));
+        assertTrue(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle1_"));
+
+        assertTrue(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle2_"));
+        assertTrue(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle3_"));
+        assertTrue(checkFileWithPrefixExists(pluginsDir, "org.eclipse.osgi_"));
+        assertTrue(checkFileWithPrefixExists(pluginsDir, "org.junit_"));
     }
 
     @Test
     public void testEclipseRepositoryNonTransitive() throws IOException {
         File pluginsDir = new File(verifier.getBasedir(), MODULE_NON_TRANSITIVE + "/target/repository/plugins");
-        Assert.assertFalse(checkFileWithPrefixExists(pluginsDir, "org.eclipse.osgi_"));
-        Assert.assertFalse(checkFileWithPrefixExists(pluginsDir, "org.junit_"));
+        assertTrue(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle1_"));
+
+        assertFalse(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle2_"));
+        assertFalse(checkFileWithPrefixExists(pluginsDir, "tycho551.bundle3_"));
+        assertFalse(checkFileWithPrefixExists(pluginsDir, "org.eclipse.osgi_"));
+        assertFalse(checkFileWithPrefixExists(pluginsDir, "org.junit_"));
     }
 
     private boolean checkFileWithPrefixExists(File dir, String prefix) {

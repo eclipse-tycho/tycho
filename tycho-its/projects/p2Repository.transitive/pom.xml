@@ -12,13 +12,20 @@
 		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
 	</properties>
 
+	<!-- with bug TYCHO-554, the build order was not computed correctly - bundle3 was built last -->
 	<modules>
-		<module>bundle1</module>
-		<module>feature</module>
 		<module>repository-includedOnly</module>
-
 		<!-- this was new with TYCHO-551: all transitively referenced units/artifacts are packed into the p2 repository -->
 		<module>repository-allDependencies</module>
+
+		<!-- the feature includes bundle1, and references bundle3 -->
+		<module>feature</module>
+		<!-- bundle1 imports a package from bundle2 -->
+		<module>bundle1</module>
+
+		<!-- with bug TYCHO-554, the repository-allDependencies build failed because bundle2 & bundle3 are not visible when mirroring  -->
+		<module>bundle3</module>
+		<module>bundle2</module>
 	</modules>
 
 	<build>

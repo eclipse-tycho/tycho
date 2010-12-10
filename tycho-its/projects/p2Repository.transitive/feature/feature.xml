@@ -16,6 +16,10 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import plugin="tycho551.bundle3"/>
+   </requires>
+
    <plugin
          id="tycho551.bundle1"
          download-size="0"

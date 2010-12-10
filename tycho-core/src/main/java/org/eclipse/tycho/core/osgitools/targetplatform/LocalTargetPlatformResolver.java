@@ -31,6 +31,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -39,6 +40,8 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.maven.MavenDependencyCollector;
+import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -64,6 +67,9 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
 
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
+
+    @Requirement
+    private BundleReader bundleReader;
 
     private boolean isSubdir(File parent, File child) {
         return child.getAbsolutePath().startsWith(parent.getAbsolutePath());
@@ -245,5 +251,11 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject) {
         // TODO Auto-generated method stub
 
+    }
+
+    public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
+            TargetPlatform targetPlatform, Logger logger) {
+        MavenDependencyCollector dependencyCollector = new MavenDependencyCollector(project, bundleReader, logger);
+        projectType.getDependencyWalker(project).walk(dependencyCollector);
     }
 }
