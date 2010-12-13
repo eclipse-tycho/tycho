@@ -90,12 +90,8 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         // this tells framework to use our classloader as parent, so it can see classes that we see
         properties.put("osgi.parentClassloader", "fwk");
 
-        // this tells framework to check parent classloader first
-        // TODO specific package names
-        properties.put("org.osgi.framework.bootdelegation", "*");
-
         List<String> packagesExtra = equinoxLocator.getSystemPackagesExtra();
-        if (packagesExtra != null && !packagesExtra.isEmpty()) {
+        if (packagesExtra.size() > 0) {
             StringBuilder sb = new StringBuilder();
             for (String pkg : packagesExtra) {
                 if (sb.length() > 0) {
@@ -103,6 +99,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 }
                 sb.append(pkg);
             }
+            // make the system bundle export the given packages and load them from the parent class loader
             properties.put("org.osgi.framework.system.packages.extra", sb.toString());
         }
 
