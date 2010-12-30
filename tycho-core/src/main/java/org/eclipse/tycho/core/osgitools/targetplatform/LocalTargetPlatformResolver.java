@@ -255,6 +255,9 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             TargetPlatform targetPlatform, Logger logger) {
+        // walk depencencies for consistency
+        projectType.checkForMissingDependencies(project);
+
         MavenDependencyCollector dependencyCollector = new MavenDependencyCollector(project, bundleReader, logger);
         projectType.getDependencyWalker(project).walk(dependencyCollector);
     }

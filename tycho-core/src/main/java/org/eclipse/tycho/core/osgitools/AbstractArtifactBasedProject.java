@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -35,7 +34,7 @@ public abstract class AbstractArtifactBasedProject extends AbstractTychoProject 
     protected abstract ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment);
 
     @Override
-    public void resolve(MavenSession session, MavenProject project) {
+    public void checkForMissingDependencies(MavenProject project) {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
         // this throws exceptions when dependencies are missing

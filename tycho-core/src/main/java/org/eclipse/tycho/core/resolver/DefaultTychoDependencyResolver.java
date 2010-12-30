@@ -93,7 +93,7 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         dr.setTargetPlatform(session, project, targetPlatform);
 
-        dr.resolve(session, project);
+        dr.resolveClassPath(session, project);
 
         resolver.injectDependenciesIntoMavenModel(project, dr, targetPlatform, logger);
 

@@ -20,6 +20,7 @@ import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
@@ -52,7 +53,17 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         // do nothing by default
     }
 
-    public abstract void resolve(MavenSession session, MavenProject project);
+    /**
+     * @deprecated Only needed for {@link LocalTargetPlatformResolver}; p2 resolver checks
+     *             consistency itself
+     */
+    @Deprecated
+    public void checkForMissingDependencies(MavenProject project) {
+    }
+
+    public void resolveClassPath(MavenSession session, MavenProject project) {
+        // do nothing by default
+    }
 
     protected TargetEnvironment[] getEnvironments(MavenProject project, TargetEnvironment environment) {
         if (environment != null) {
