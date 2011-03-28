@@ -11,13 +11,19 @@
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 final class SegmentHelper {
+    static boolean segmentEqualsOrIsEndSegment(String[] segments, int segmentIndex, String string) {
+        boolean comparingToEndSegment = segments.length == segmentIndex;
+        if (string == null) {
+            return comparingToEndSegment;
+        }
+        return segmentEquals(segments, segmentIndex, string);
+    }
 
     static boolean segmentEquals(String[] segments, int segmentIndex, String string) {
         if (segmentIndex < segments.length) {
             return string.equals(segments[segmentIndex]);
-        } else {
-            return false;
         }
+        return false;
     }
 
     static String segmentsToString(String[] keySegments, char separator) {

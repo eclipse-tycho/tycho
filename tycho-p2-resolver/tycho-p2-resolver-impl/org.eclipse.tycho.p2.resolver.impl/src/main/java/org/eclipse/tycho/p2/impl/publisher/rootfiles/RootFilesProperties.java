@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.runtime.IPath;
 
 public class RootFilesProperties {
 
@@ -22,19 +27,32 @@ public class RootFilesProperties {
         private final String chmodPermissionPattern;
 
         public Permission(String path, String chmodPermissionPattern) {
-            this.path = path.trim();
+            this.path = path;
             this.chmodPermissionPattern = chmodPermissionPattern;
         }
 
         public String[] toP2Format() {
             return new String[] { chmodPermissionPattern, path };
         }
-
     }
+
+    /**
+     * Absolute source location of a root file to the relative path that describes the location of
+     * the root file in the installed product.
+     */
+    private Map<File, IPath> fileSourceToDestinationMap = new HashMap<File, IPath>();
 
     private List<Permission> permissions = new ArrayList<Permission>();
 
     private StringBuilder links = new StringBuilder();
+
+    public Map<File, IPath> getFiles() {
+        return fileSourceToDestinationMap;
+    }
+
+    public void addFiles(Map<File, IPath> fileSourceToDestinationMap) {
+        this.fileSourceToDestinationMap.putAll(fileSourceToDestinationMap);
+    }
 
     public Collection<Permission> getPermissions() {
         return permissions;
@@ -53,7 +71,7 @@ public class RootFilesProperties {
     public void addLinks(String[] linkValueSegments) {
         verifySpecifiedInPairs(linkValueSegments);
         for (String segment : linkValueSegments) {
-            addTrimmedLinkSegment(segment);
+            addLinkSegment(segment);
         }
     }
 
@@ -65,10 +83,10 @@ public class RootFilesProperties {
         }
     }
 
-    private void addTrimmedLinkSegment(String segment) {
+    private void addLinkSegment(String segment) {
         if (links.length() > 0) {
             links.append(',');
         }
-        links.append(segment.trim());
+        links.append(segment);
     }
 }

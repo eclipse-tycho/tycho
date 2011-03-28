@@ -21,9 +21,9 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.p2.impl.publisher.FeatureRootAdviceTest;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
+import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -134,7 +134,7 @@ public class FeatureRootfileArtifactRepositoryTest {
 
     private FeatureRootAdvice createFeatureRootAdvice() {
         return new FeatureRootAdvice(rootPropertiesWithGlobalAndWindowsFiles(),
-                FeatureRootAdviceTest.RESOURCES_FEATURE_PROJ_REL_PATH, "artifactId");
+                FeatureRootAdviceTest.FEATURE_PROJECT_TEST_RESOURCE_ROOT, "artifactId");
     }
 
     private MavenPropertiesAdvice createMavenPropertyAdvice() {
