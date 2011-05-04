@@ -1,3 +1,3 @@
 <site>
-  <feature id="feature01" url="feature01_1.0.0.qualifier" version="1.0.0.qualifier"/>
+  <feature id="feature01" url="features/feature01_1.0.0.qualifier.jar" version="1.0.0.qualifier"/>
 </site>

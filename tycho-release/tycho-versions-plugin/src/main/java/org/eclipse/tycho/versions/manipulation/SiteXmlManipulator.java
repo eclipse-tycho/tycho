@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Beat Strasser (Inventage AG) - preserve feature url in site.xml
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -38,12 +39,24 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
                         logger.info("  site.xml//site/feature/@id=" + feature.getId() + "/@version: "
                                 + change.getVersion() + " => " + change.getNewVersion());
                         feature.setVersion(change.getNewVersion());
-                        String newUrl = feature.getId() + "_" + change.getNewVersion();
-                        ((SiteFeatureRef) feature).setUrl(newUrl);
+
+                        SiteFeatureRef siteFeature = (SiteFeatureRef) feature;
+                        String oldUrl = siteFeature.getUrl();
+                        String newUrl = rewriteFeatureUrl(oldUrl, change);
+                        logger.info("  site.xml//site/feature/@id=" + feature.getId() + "/@url: " + oldUrl + " => "
+                                + newUrl);
+                        siteFeature.setUrl(newUrl);
                     }
                 }
             }
         }
+    }
+
+    String rewriteFeatureUrl(String url, VersionChange change) {
+        if (url != null) {
+            return url.replaceAll("\\Q" + change.getVersion() + "\\E", change.getNewVersion());
+        }
+        return null;
     }
 
     private UpdateSite getSiteXml(ProjectMetadata project) {
