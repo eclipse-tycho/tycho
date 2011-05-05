@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
+
 /**
  * List of p2 repositories for a p2 operation. Instances of this class store a list of metadata and
  * artifact repositories each, preserving the order in which the repositories were added.
@@ -44,6 +46,16 @@ public final class RepositoryReferences {
      */
     public void addArtifactRepository(File artifactRepositoryLocation) {
         artifactRepos.add(artifactRepositoryLocation.toURI());
+    }
+
+    /**
+     * Adds the artifact repository which is stored in memory under the given key.
+     * 
+     * @param artifactRepositoryLocation
+     *            A key identifying a repository registered on the artifact repository blackboard.
+     */
+    public void addArtifactRepository(RepositoryBlackboardKey blackboardKey) {
+        artifactRepos.add(blackboardKey.toURI());
     }
 
     /**

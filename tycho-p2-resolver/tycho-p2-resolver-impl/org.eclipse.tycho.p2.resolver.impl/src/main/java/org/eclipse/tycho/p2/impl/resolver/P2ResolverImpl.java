@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -33,6 +34,8 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
 import org.eclipse.tycho.p2.resolver.impl.ResolutionContextImpl;
+import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
+import org.eclipse.tycho.repository.registry.impl.ArtifactRepositoryBlackboard;
 
 @SuppressWarnings("restriction")
 public class P2ResolverImpl implements P2Resolver {
@@ -101,6 +104,12 @@ public class P2ResolverImpl implements P2Resolver {
 
         context.downloadArtifacts(newState);
 
+        // TODO check if needed by all callers
+        IArtifactRepository resolutionContextArtifactRepo = context.getSupplementaryArtifactRepository();
+        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey.forResolutionContextArtifacts(projectLocation);
+        ArtifactRepositoryBlackboard.putRepository(blackboardKey, resolutionContextArtifactRepo);
+        logger.debug("Registered artifact repository " + blackboardKey);
+
         return toResolutionResult(newState);
     }
 
@@ -117,6 +126,7 @@ public class P2ResolverImpl implements P2Resolver {
             }
         }
 
+        // TODO instead of adding them to the TP, we could also register it in memory as metadata repo
         collectNonReactorIUs(result, newState);
         return result;
     }

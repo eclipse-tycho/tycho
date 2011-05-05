@@ -28,6 +28,7 @@ import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.metadata.MetadataSerializable;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
 /**
  * Tool to obtain the list of p2 repositories that contain the dependencies of a module.
@@ -81,6 +82,8 @@ public class RepositoryReferenceTool {
         }
 
         addRepositoriesOfReferencedModules(repositories, module);
+
+        repositories.addArtifactRepository(RepositoryBlackboardKey.forResolutionContextArtifacts(module.getBasedir()));
 
         // metadata and artifacts of target platform
         File targetPlatform = materializeTargetPlatformRepository(module);

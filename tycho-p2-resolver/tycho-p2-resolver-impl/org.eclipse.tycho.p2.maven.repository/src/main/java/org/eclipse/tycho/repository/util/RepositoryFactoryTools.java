@@ -41,10 +41,18 @@ public class RepositoryFactoryTools {
     }
 
     public static ProvisionException unsupportedCreation(String repositoryType) {
+        String message = "Cannot create repositories of type " + repositoryType;
+        return new ProvisionException(newUnsupportedCreationStatus(message));
+    }
+
+    public static ProvisionException unsupportedCreation(Class<?> factoryClass) {
+        String message = "The factory " + factoryClass.getName() + " cannot create repositories";
+        return new ProvisionException(newUnsupportedCreationStatus(message));
+    }
+
+    private static Status newUnsupportedCreationStatus(String message) {
         // none of the codes defined in ProvisionException really fit
         int errorCode = 0;
-        Status errorStatus = new Status(IStatus.ERROR, Activator.ID, errorCode, "Cannot create repositories of type "
-                + repositoryType, null);
-        return new ProvisionException(errorStatus);
+        return new Status(IStatus.ERROR, Activator.ID, errorCode, message, null);
     }
 }

@@ -97,6 +97,7 @@ public class ResolutionContextImpl implements ResolutionContext {
         this.monitor = new LoggingProgressMonitor(logger);
 
         this.localMavenRepositoryRoot = localMavenRepositoryRoot;
+        this.bundlesPublisher = new ResolutionContextBundlePublisher(localMavenRepositoryRoot, logger);
     }
 
     // ---------------------------------------------------------------------
@@ -167,20 +168,19 @@ public class ResolutionContextImpl implements ResolutionContext {
     private ResolutionContextBundlePublisher bundlesPublisher;
 
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact) {
-        if (bundlesPublisher == null) {
-            bundlesPublisher = new ResolutionContextBundlePublisher(localMavenRepositoryRoot, logger);
-        }
         IInstallableUnit bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
         if (bundleIU != null)
             addMavenArtifact(new ClassifiedLocation(artifact), artifact, Collections.singleton(bundleIU));
     }
 
-    // everything not in local maven repo
-    public IArtifactRepository getTransientArtifactRepository() {
-        if (bundlesPublisher == null)
-            return null;
-        else
-            return bundlesPublisher.getArtifactRepoOfPublishedBundles();
+    /**
+     * Returns an {@link IArtifactRepository} instance containing those artifacts in the resolution
+     * context which are not in the normal p2 view of the local Maven repository.
+     * 
+     * @see ResolutionContextImpl#downloadArtifacts(Collection)
+     */
+    public IArtifactRepository getSupplementaryArtifactRepository() {
+        return bundlesPublisher.getArtifactRepoOfPublishedBundles();
     }
 
     // ------------------------------------------------------------
