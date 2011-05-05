@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bundle01
 Bundle-SymbolicName: TYCHO0214
  versionChange.bundle01
-Bundle-Version: 1.0.1.qualifierrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
- rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
- rrrrrrrrrrrrrrrrrrr
+Bundle-Version: 1.0.1.qualifierrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+ rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+ rrrrrrrrrrrrrrrrrrrrr
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

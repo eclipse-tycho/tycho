@@ -19,7 +19,7 @@ public class ManifestAttribute {
     private List<String> lines = new ArrayList<String>();
 
     public ManifestAttribute(String str) {
-        lines.add(str);
+        lines.add(chopNewLine(str));
     }
 
     public ManifestAttribute(String name, String value) {
@@ -27,29 +27,49 @@ public class ManifestAttribute {
     }
 
     public void add(String str) {
-        lines.add(str);
+        String choppedLine = chopNewLine(str);
+
+        if (!choppedLine.substring(0, 1).startsWith(" ")) {
+            throw new IllegalArgumentException("Additional attribute lines must start with a space.");
+        }
+        if (choppedLine.contains("\n") || choppedLine.contains("\r")) {
+            throw new IllegalArgumentException("Additional attribute line must not consist of multiple lines");
+        }
+
+        lines.add(choppedLine);
     }
 
-    public void writeTo(Writer w) throws IOException {
-        for (int i = 0; i < lines.size(); i++) {
-            if (i > 0) {
-                w.write("\r\n ");
+    private String chopNewLine(String str) {
+        if (str.length() > 0) {
+            char lastChar = str.charAt(str.length() - 1);
+            if (lastChar == '\n' || lastChar == '\r' || lastChar == '\u2028' || lastChar == '\u2029'
+                    || lastChar == '\u0085') // see Scanner#LINE_SEPARATOR_PATTERN
+            {
+                return str.substring(0, str.length() - (str.endsWith("\r\n") ? 2 : 1));
             }
-            w.write(lines.get(i));
+        }
+        return str;
+    }
+
+    /**
+     * Writes the lines to {@code w} using the given line termination chars. There will be a
+     * trailing newline!
+     */
+    public void writeTo(Writer w, String lineTermination) throws IOException {
+        for (String line : lines) {
+            w.write(line);
+            w.write(lineTermination);
         }
     }
 
     public boolean hasName(String name) {
-        if (lines.size() > 0) {
-            return lines.get(0).startsWith(name + ": ");
-        }
-        return false;
+        return lines.get(0).startsWith(name + ": ");
     }
 
     public String getValue() {
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            sb.append(line);
+        StringBuilder sb = new StringBuilder(lines.get(0));
+        for (int i = 1; i < lines.size(); i++) {
+            sb.append(lines.get(i).substring(1));
         }
 
         int idx = sb.indexOf(": ");
@@ -61,12 +81,14 @@ public class ManifestAttribute {
     }
 
     public void set(String name, String value) {
+        String attribute = (name != null ? name.trim() : "") + ": " + (value != null ? value.trim() : "");
+
         lines.clear();
-        StringBuilder sb = new StringBuilder(name + ": " + value);
-        for (int i = 71; i < sb.length(); i += 73) {
-            sb.insert(i, "\r\n ");
+        while (attribute.length() > 71) {
+            lines.add(attribute.substring(0, 70));
+            attribute = " " + attribute.substring(70);
         }
-        lines.add(sb.toString());
+        lines.add(attribute);
     }
 
 }
