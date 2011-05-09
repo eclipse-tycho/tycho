@@ -12,7 +12,6 @@ package org.eclipse.tycho.p2.facade;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,8 +35,6 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
@@ -68,15 +65,12 @@ import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.model.Target;
-import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.facade.internal.MavenRepositoryReader;
 import org.eclipse.tycho.p2.facade.internal.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.P2Logger;
 import org.eclipse.tycho.p2.resolver.P2ResolutionResult;
@@ -257,7 +251,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 }
                 externalArtifacts.add(artifact);
             }
-            addPomDependenciesToTargetPlatform(session, externalArtifacts, project, resolver);
+            PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
+                    getLogger());
+            pomDependencyProcessor.addPomDependenciesToResolutionContext(project, externalArtifacts, resolver);
         }
 
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
@@ -430,64 +426,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         // conflicting dependencies do not make sense for products and bundles
         return false;
-    }
-
-    private void addPomDependenciesToTargetPlatform(MavenSession session, Collection<Artifact> artifacts,
-            MavenProject project, P2Resolver resolver) {
-        final LocalTychoRepositoryIndex artifactsIndex = new LocalTychoRepositoryIndex(new File(session
-                .getLocalRepository().getBasedir()), LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
-        final List<ArtifactRepository> remoteArtifactRepositories = project.getRemoteArtifactRepositories();
-
-        for (Artifact artifact : artifacts) {
-            final Artifact p2ArtifactData = repositorySystem.createArtifactWithClassifier(artifact.getGroupId(),
-                    artifact.getArtifactId(), artifact.getVersion(), RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS,
-                    RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
-            final ArtifactResolutionResult result = resolveArtifact(p2ArtifactData, remoteArtifactRepositories);
-            if (result.isSuccess()) {
-                // add to .meta/localArtifacts.properties
-                artifactsIndex.addProject(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
-            } else {
-                // TODO as part of TYCHO-570: generate p2 artifact entry
-            }
-        }
-
-        try {
-            artifactsIndex.save();
-        } catch (IOException e) {
-            throw new RuntimeException("I/O error while updating p2 view on local Maven repository", e);
-        }
-
-        for (Artifact artifact : artifacts) {
-            final Artifact p2MetadataData = repositorySystem.createArtifactWithClassifier(artifact.getGroupId(),
-                    artifact.getArtifactId(), artifact.getVersion(), RepositoryLayoutHelper.EXTENSION_P2_METADATA,
-                    RepositoryLayoutHelper.CLASSIFIER_P2_METADATA);
-            final ArtifactResolutionResult result = resolveArtifact(p2MetadataData, remoteArtifactRepositories);
-            if (result.isSuccess()) {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("P2TargetPlatformResolver: Using existing metadata of " + artifact.toString());
-                }
-                resolver.addTychoArtifact(new ArtifactFacade(artifact), new ArtifactFacade(p2MetadataData));
-            } else {
-                /*
-                 * TODO The generated metadata is "depencency only" metadata. (Just by coincidence
-                 * this is currently full metadata.) Since this POM depencency metadata may be
-                 * copied into an eclipse-repository or p2-enabled RCP installation, it shall be
-                 * documented that the generated metadata must be full metadata.
-                 */
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("P2resolver.addMavenArtifact " + artifact.toString());
-                }
-                resolver.addMavenArtifact(new ArtifactFacade(artifact));
-            }
-        }
-
-    }
-
-    private ArtifactResolutionResult resolveArtifact(Artifact artifact, List<ArtifactRepository> repositories) {
-        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-        request.setArtifact(artifact);
-        request.setRemoteRepositories(repositories);
-        return repositorySystem.resolve(request);
     }
 
     protected DefaultTargetPlatform newDefaultTargetPlatform(MavenSession session, Map<File, ReactorProject> projects,
