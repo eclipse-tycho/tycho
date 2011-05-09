@@ -36,6 +36,7 @@ import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
+import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
@@ -69,7 +70,6 @@ import org.eclipse.tycho.p2.facade.internal.MavenRepositoryReader;
 import org.eclipse.tycho.p2.facade.internal.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.P2Logger;
@@ -92,6 +92,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     @Requirement
     private RepositorySystem repositorySystem;
 
+    @Requirement
+    private ResolutionErrorHandler resolutionErrorHelper;
+
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
 
@@ -106,8 +109,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     private DependencyMetadataGenerator generator;
 
     private DependencyMetadataGenerator sourcesGenerator;
-
-    private P2Generator pomDependenciesGenerator;
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
@@ -252,7 +253,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 externalArtifacts.add(artifact);
             }
             PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
-                    getLogger());
+                    getLogger(), resolutionErrorHelper);
             pomDependencyProcessor.addPomDependenciesToResolutionContext(project, externalArtifacts, resolver);
         }
 
@@ -497,6 +498,5 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         this.resolverFactory = equinox.getService(P2ResolverFactory.class);
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
         this.sourcesGenerator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=source-bundle)");
-        this.pomDependenciesGenerator = equinox.getService(P2Generator.class);
     }
 }
