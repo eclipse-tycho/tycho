@@ -57,8 +57,7 @@
 							</exportPackages>
 							<manifestAttributes>
 								<Bundle-SymbolicName>org.eclipse.tycho.surefire.osgibooter;singleton:=true</Bundle-SymbolicName>
-								<Bundle-RequiredExecutionEnvironment>J2SE-1.5,
-									JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+								<Bundle-RequiredExecutionEnvironment>J2SE-1.5,JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
 								<Require-Bundle>org.eclipse.equinox.app,org.eclipse.osgi,org.junit,org.eclipse.ui.workbench;resolution:=optional,org.eclipse.core.runtime;resolution:=optional</Require-Bundle>
 								<Eclipse-AutoStart>true</Eclipse-AutoStart>
 								<Bundle-Activator>org.eclipse.tycho.surefire.osgibooter.Activator</Bundle-Activator>
