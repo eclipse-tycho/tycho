@@ -66,6 +66,7 @@ import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
@@ -81,10 +82,9 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.resolver.P2Logger;
-import org.eclipse.tycho.p2.resolver.P2RepositoryCache;
-import org.eclipse.tycho.p2.resolver.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2RepositoryCache;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
 @SuppressWarnings("restriction")
 public class P2ResolverImpl implements P2Resolver {
@@ -145,7 +145,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     private final List<IRequirement> additionalRequirements = new ArrayList<IRequirement>();
 
-    private P2Logger logger;
+    private MavenLogger logger;
 
     private boolean offline;
 
@@ -645,7 +645,7 @@ public class P2ResolverImpl implements P2Resolver {
         artifactRepositories.add(artifactRepository);
     }
 
-    public void setLogger(P2Logger logger) {
+    public void setLogger(MavenLogger logger) {
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
     }

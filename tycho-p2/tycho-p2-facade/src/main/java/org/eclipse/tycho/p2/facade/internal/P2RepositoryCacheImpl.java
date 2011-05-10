@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.resolver.P2RepositoryCache;
+import org.eclipse.tycho.p2.resolver.facade.P2RepositoryCache;
 
 @Component(role = P2RepositoryCacheImpl.class)
 public class P2RepositoryCacheImpl implements P2RepositoryCache {

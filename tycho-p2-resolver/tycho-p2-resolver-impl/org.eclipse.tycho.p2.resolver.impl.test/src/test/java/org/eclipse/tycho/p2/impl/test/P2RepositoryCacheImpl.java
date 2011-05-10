@@ -12,7 +12,7 @@ package org.eclipse.tycho.p2.impl.test;
 
 import java.net.URI;
 
-import org.eclipse.tycho.p2.resolver.P2RepositoryCache;
+import org.eclipse.tycho.p2.resolver.facade.P2RepositoryCache;
 
 public class P2RepositoryCacheImpl implements P2RepositoryCache {
 

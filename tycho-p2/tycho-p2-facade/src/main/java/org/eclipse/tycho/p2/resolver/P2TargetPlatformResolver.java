@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade;
+package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,6 +56,7 @@ import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformResolver;
@@ -72,10 +73,9 @@ import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.resolver.P2Logger;
-import org.eclipse.tycho.p2.resolver.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.P2Resolver;
-import org.eclipse.tycho.p2.resolver.P2ResolverFactory;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 @Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
 public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver implements TargetPlatformResolver,
@@ -165,7 +165,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         resolver.setOffline(session.isOffline());
 
-        resolver.setLogger(new P2Logger() {
+        resolver.setLogger(new MavenLogger() {
             public void debug(String message) {
                 if (message != null && message.length() > 0) {
                     getLogger().info(message); // TODO

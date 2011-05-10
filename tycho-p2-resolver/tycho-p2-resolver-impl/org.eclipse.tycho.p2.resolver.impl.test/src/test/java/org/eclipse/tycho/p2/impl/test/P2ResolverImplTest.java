@@ -35,9 +35,9 @@ import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenera
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.resolver.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.P2Resolver;
-import org.eclipse.tycho.p2.resolver.P2ResolutionResult.Entry;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.junit.After;
 import org.junit.Assert;
@@ -133,7 +133,7 @@ public class P2ResolverImplTest {
         impl.setRepositoryCache(new P2RepositoryCacheImpl());
         impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
         impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
 
         File bundle = new File("resources/resolver/bundle01").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
@@ -165,12 +165,12 @@ public class P2ResolverImplTest {
 
         // prime local repository
         P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
         resolveFromHttp(impl, url);
 
         // now go offline and resolve again
         impl = new P2ResolverImpl();
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
         impl.setOffline(true);
         List<P2ResolutionResult> results = resolveFromHttp(impl, url);
 
@@ -206,7 +206,7 @@ public class P2ResolverImplTest {
         impl.setRepositoryCache(new P2RepositoryCacheImpl());
         impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
         impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
 
         impl.setEnvironments(getEnvironments());
 
@@ -250,7 +250,7 @@ public class P2ResolverImplTest {
     @Test
     public void duplicateInstallableUnit() throws Exception {
         P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
         impl.setRepositoryCache(new P2RepositoryCacheImpl());
         impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
         impl.setEnvironments(getEnvironments());
@@ -281,7 +281,7 @@ public class P2ResolverImplTest {
         P2ResolverImpl impl = new P2ResolverImpl();
         impl.setRepositoryCache(new P2RepositoryCacheImpl());
         impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
 
         File bundle = new File("resources/resolver/feature01").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
@@ -308,7 +308,7 @@ public class P2ResolverImplTest {
         P2ResolverImpl impl = new P2ResolverImpl();
         impl.setRepositoryCache(new P2RepositoryCacheImpl());
         impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
 
         File feature = new File("resources/sourcebundles/feature01").getCanonicalFile();
         String featureId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
@@ -363,7 +363,7 @@ public class P2ResolverImplTest {
         impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
         // launchers currently cannot be disabled (see TYCHO-511/TYCHO-512)
         impl.addP2Repository(new File("resources/repositories/launchers").getCanonicalFile().toURI());
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
 
         File projectDir = new File("resources/resolver/repository").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.repository";
@@ -402,7 +402,7 @@ public class P2ResolverImplTest {
         impl.setRepositoryCache(new P2RepositoryCacheImpl());
         impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
         impl.addP2Repository(new File("resources/repositories/e361").getCanonicalFile().toURI());
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
 
         File bundle = new File("resources/resolver/bundleUsesSWT").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
@@ -542,7 +542,7 @@ public class P2ResolverImplTest {
         P2ResolverImpl impl = new P2ResolverImpl();
         impl.setRepositoryCache(new P2RepositoryCacheImpl());
         impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.setLogger(new NullP2Logger());
+        impl.setLogger(new NullMavenLogger());
         impl.setEnvironments(getEnvironments());
 
         impl.addP2Repository(new File("resources/reactor-vs-external/extrepo").getCanonicalFile().toURI());

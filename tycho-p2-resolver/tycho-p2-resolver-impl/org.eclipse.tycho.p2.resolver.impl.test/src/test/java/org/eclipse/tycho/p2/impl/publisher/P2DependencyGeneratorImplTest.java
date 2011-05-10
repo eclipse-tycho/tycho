@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
-import org.eclipse.tycho.p2.resolver.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.p2.impl.publisher.Utils;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.resolver.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
 /**
  * This class handles definitions of root files in build.properties according to

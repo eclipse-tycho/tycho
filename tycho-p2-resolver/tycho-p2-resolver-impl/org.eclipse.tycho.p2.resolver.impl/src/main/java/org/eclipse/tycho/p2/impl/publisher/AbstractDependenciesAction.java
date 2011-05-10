@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.p2.resolver.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
 @SuppressWarnings("restriction")
 public abstract class AbstractDependenciesAction extends AbstractPublisherAction {

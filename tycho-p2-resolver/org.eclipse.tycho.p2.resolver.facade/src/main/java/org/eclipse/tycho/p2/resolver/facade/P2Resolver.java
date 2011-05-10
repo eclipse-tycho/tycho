@@ -8,13 +8,14 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2.resolver.facade;
 
 import java.io.File;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
@@ -66,7 +67,7 @@ public interface P2Resolver {
 
     public P2ResolutionResult collectProjectDependencies(File projectLocation);
 
-    public void setLogger(P2Logger logger);
+    public void setLogger(MavenLogger logger);
 
     public void setRepositoryCache(P2RepositoryCache repositoryCache);
 

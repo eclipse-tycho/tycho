@@ -24,15 +24,15 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.impl.publisher.FeatureDependenciesAction;
-import org.eclipse.tycho.p2.resolver.P2Logger;
 
 @SuppressWarnings("restriction")
 public class DependencyCollector extends ResolutionStrategy {
-    private final P2Logger logger;
+    private final MavenLogger logger;
 
-    public DependencyCollector(P2Logger logger) {
+    public DependencyCollector(MavenLogger logger) {
         this.logger = logger;
     }
 

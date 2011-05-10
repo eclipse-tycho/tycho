@@ -45,7 +45,7 @@ import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.resolver.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
 @SuppressWarnings("restriction")
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {

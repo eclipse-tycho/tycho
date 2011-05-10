@@ -11,13 +11,13 @@
 package org.eclipse.tycho.p2.impl.resolver;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.tycho.p2.resolver.P2Logger;
+import org.eclipse.tycho.core.facade.MavenLogger;
 
 public class LoggingProgressMonitor implements IProgressMonitor {
 
-    private final P2Logger logger;
+    private final MavenLogger logger;
 
-    public LoggingProgressMonitor(P2Logger logger) {
+    public LoggingProgressMonitor(MavenLogger logger) {
         this.logger = logger;
     }
 

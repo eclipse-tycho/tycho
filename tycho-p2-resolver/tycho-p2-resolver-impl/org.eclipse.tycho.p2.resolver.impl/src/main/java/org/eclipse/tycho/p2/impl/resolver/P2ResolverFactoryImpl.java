@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.resolver;
 
-import org.eclipse.tycho.p2.resolver.P2Resolver;
-import org.eclipse.tycho.p2.resolver.P2ResolverFactory;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 

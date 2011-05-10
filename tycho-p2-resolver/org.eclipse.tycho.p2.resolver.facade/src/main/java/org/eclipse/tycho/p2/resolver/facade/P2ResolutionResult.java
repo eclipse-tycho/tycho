@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2.resolver.facade;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - reuse p2 data of POM dependencies if available (bug 342851)
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade;
+package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,10 +25,11 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.resolver.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
 public class PomDependencyProcessor {
 

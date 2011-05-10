@@ -29,9 +29,10 @@ Export-Package: org.eclipse.tycho.p2.impl;x-friends:="org.eclipse.tycho.p2.impl.
  org.eclipse.tycho.p2.impl.publisher.rootfiles;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.repo;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.resolver;x-friends:="org.eclipse.tycho.p2.impl.test"
-Import-Package: org.eclipse.tycho.p2.metadata,
+Import-Package: org.eclipse.tycho.core.facade,
+ org.eclipse.tycho.p2.metadata,
  org.eclipse.tycho.p2.repository,
- org.eclipse.tycho.p2.resolver
+ org.eclipse.tycho.p2.resolver.facade
 Service-Component: OSGI-INF/generator.xml,
  OSGI-INF/metadataserializable.xml,
  OSGI-INF/proxyfacade.xml,

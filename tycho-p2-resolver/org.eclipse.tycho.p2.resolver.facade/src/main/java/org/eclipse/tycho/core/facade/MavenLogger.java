@@ -8,9 +8,12 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.core.facade;
 
-public interface P2Logger {
+/**
+ * Maven logger for Tycho OSGi runtime.
+ */
+public interface MavenLogger {
     public void info(String message);
 
     public void debug(String message);

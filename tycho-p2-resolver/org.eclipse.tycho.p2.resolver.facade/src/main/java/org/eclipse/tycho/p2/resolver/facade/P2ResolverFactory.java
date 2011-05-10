@@ -8,25 +8,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.test;
+package org.eclipse.tycho.p2.resolver.facade;
 
-import org.eclipse.tycho.p2.resolver.P2Logger;
-
-public class NullP2Logger implements P2Logger {
-
-    public void info(String message) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void debug(String message) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public boolean isDebugEnabled() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
+public interface P2ResolverFactory {
+    public P2Resolver createResolver();
 }

@@ -31,7 +31,7 @@ public class DependencyCollectorTest {
 
     @Test
     public void missingDependencies() {
-        DependencyCollector dc = new DependencyCollector(new NullP2Logger());
+        DependencyCollector dc = new DependencyCollector(new NullMavenLogger());
 
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         String time = Long.toString(System.currentTimeMillis());

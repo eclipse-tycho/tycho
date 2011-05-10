@@ -39,7 +39,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.tycho.p2.resolver.P2Logger;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 @SuppressWarnings("restriction")
@@ -48,9 +48,9 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
 
     private final Map<String, String> properties;
 
-    private final P2Logger logger;
+    private final MavenLogger logger;
 
-    public ProjectorResolutionStrategy(Map<String, String> properties, P2Logger logger) {
+    public ProjectorResolutionStrategy(Map<String, String> properties, MavenLogger logger) {
         this.properties = properties;
         this.logger = logger;
     }

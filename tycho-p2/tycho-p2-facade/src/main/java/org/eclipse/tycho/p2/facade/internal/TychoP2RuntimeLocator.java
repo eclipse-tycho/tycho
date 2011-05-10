@@ -42,10 +42,10 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
     /**
      * List of packages exported by org.eclipse.tycho.p2 artifact/bundle.
      */
-    public static final String[] SYSTEM_PACKAGES_EXTRA = { "org.eclipse.tycho.p2.metadata",
-            "org.eclipse.tycho.p2.repository", "org.eclipse.tycho.p2.resolver", "org.eclipse.tycho.p2.tools",
-            "org.eclipse.tycho.p2.tools.director", "org.eclipse.tycho.p2.tools.publisher",
-            "org.eclipse.tycho.p2.tools.mirroring" };
+    public static final String[] SYSTEM_PACKAGES_EXTRA = { "org.eclipse.tycho.core.facade",
+            "org.eclipse.tycho.p2.metadata", "org.eclipse.tycho.p2.repository", "org.eclipse.tycho.p2.resolver.facade",
+            "org.eclipse.tycho.p2.tools", "org.eclipse.tycho.p2.tools.director",
+            "org.eclipse.tycho.p2.tools.publisher", "org.eclipse.tycho.p2.tools.mirroring" };
 
     @Requirement
     private Logger logger;
