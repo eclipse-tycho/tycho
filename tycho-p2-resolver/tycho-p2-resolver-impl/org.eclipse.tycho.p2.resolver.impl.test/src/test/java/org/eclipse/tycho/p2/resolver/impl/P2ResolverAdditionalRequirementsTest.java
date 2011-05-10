@@ -42,8 +42,7 @@ public class P2ResolverAdditionalRequirementsTest {
 
     @Before
     public void initBlankResolver() {
-        impl = new P2ResolverImpl();
-        impl.setLogger(new NullMavenLogger());
+        impl = new P2ResolverImpl(new NullMavenLogger());
     }
 
     @Test

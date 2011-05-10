@@ -34,6 +34,7 @@ import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,12 +43,15 @@ public class P2ResolverTest {
 
     private DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
 
-    private P2ResolverImpl impl;
+    private P2Resolver impl;
 
-    static void addMavenProject(P2ResolverImpl impl, File basedir, String packaging, String id) throws IOException {
+    private ResolutionContext context;
+
+    static void addMavenProject(ResolutionContext context, File basedir, String packaging, String id)
+            throws IOException {
         String version = "1.0.0-SNAPSHOT";
 
-        impl.addMavenArtifact(new ArtifactMock(basedir.getCanonicalFile(), id, id, version, packaging));
+        context.addMavenArtifact(new ArtifactMock(basedir.getCanonicalFile(), id, id, version, packaging));
     }
 
     static File getLocalRepositoryLocation() throws IOException {
@@ -70,39 +74,23 @@ public class P2ResolverTest {
         return environments;
     }
 
-    static void delete(File dir) {
-        if (dir == null || !dir.exists()) {
-            return;
-        }
-
-        if (dir.isDirectory()) {
-            File[] members = dir.listFiles();
-            if (members != null) {
-                for (File member : members) {
-                    delete(member);
-                }
-            }
-        }
-
-        Assert.assertTrue("Delete " + dir.getAbsolutePath(), dir.delete());
-    }
-
     @Before
     public void initDefaultResolver() throws Exception {
-        impl = new P2ResolverImpl();
-        impl.setLogger(new NullMavenLogger());
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
+        NullMavenLogger logger = new NullMavenLogger();
+        context = new ResolutionContextImpl(logger);
+        context.setRepositoryCache(new P2RepositoryCacheImpl());
+        context.setLocalRepositoryLocation(getLocalRepositoryLocation());
+        impl = new P2ResolverImpl(logger);
         impl.setEnvironments(getEnvironments());
     }
 
     public void stopResolver() {
-        impl.stop();
+        context.stop();
     }
 
     @Test
     public void basic() throws Exception {
-        impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
+        context.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
 
         File bundle = new File("resources/resolver/bundle01").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
@@ -112,9 +100,9 @@ public class P2ResolverTest {
         ArtifactMock a = new ArtifactMock(bundle, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_PLUGIN);
         a.setDependencyMetadata(generator.generateMetadata(a, getEnvironments()));
 
-        impl.addReactorArtifact(a);
+        context.addReactorArtifact(a);
 
-        List<P2ResolutionResult> results = impl.resolveProject(bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -125,7 +113,7 @@ public class P2ResolverTest {
 
     @Test
     public void siteConflictingDependenciesResolver() throws IOException {
-        impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
+        context.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
 
         File[] projects = new File[] { new File("resources/siteresolver/bundle342").getCanonicalFile(),
                 new File("resources/siteresolver/bundle352").getCanonicalFile(),
@@ -133,15 +121,15 @@ public class P2ResolverTest {
                 new File("resources/siteresolver/feature352").getCanonicalFile(),
                 new File("resources/siteresolver/site").getCanonicalFile() };
 
-        addMavenProject(impl, projects[0], P2Resolver.TYPE_ECLIPSE_PLUGIN, "bundle342");
-        addMavenProject(impl, projects[1], P2Resolver.TYPE_ECLIPSE_PLUGIN, "bundle352");
-        addMavenProject(impl, projects[2], P2Resolver.TYPE_ECLIPSE_FEATURE, "feature342");
-        addMavenProject(impl, projects[3], P2Resolver.TYPE_ECLIPSE_FEATURE, "feature352");
+        addMavenProject(context, projects[0], P2Resolver.TYPE_ECLIPSE_PLUGIN, "bundle342");
+        addMavenProject(context, projects[1], P2Resolver.TYPE_ECLIPSE_PLUGIN, "bundle352");
+        addMavenProject(context, projects[2], P2Resolver.TYPE_ECLIPSE_FEATURE, "feature342");
+        addMavenProject(context, projects[3], P2Resolver.TYPE_ECLIPSE_FEATURE, "feature352");
 
         File basedir = projects[4];
-        addMavenProject(impl, basedir, P2Resolver.TYPE_ECLIPSE_UPDATE_SITE, "site");
+        addMavenProject(context, basedir, P2Resolver.TYPE_ECLIPSE_UPDATE_SITE, "site");
 
-        P2ResolutionResult result = impl.collectProjectDependencies(basedir);
+        P2ResolutionResult result = impl.collectProjectDependencies(context, basedir);
 
         Assert.assertEquals(projects.length, result.getArtifacts().size());
         for (File project : projects) {
@@ -174,11 +162,11 @@ public class P2ResolverTest {
                 "featureA2", "1.0.0-SNAPSHOT", P2Resolver.TYPE_ECLIPSE_FEATURE);
         a2.setDependencyMetadata(generator.generateMetadata(a2, getEnvironments()));
 
-        impl.addReactorArtifact(a1);
-        impl.addReactorArtifact(a2);
+        context.addReactorArtifact(a1);
+        context.addReactorArtifact(a2);
 
         try {
-            impl.resolveProject(projectLocation);
+            impl.resolveProject(context, projectLocation);
             fail();
         } catch (DuplicateReactorIUsException e) {
             // TODO proper assertion
@@ -192,9 +180,9 @@ public class P2ResolverTest {
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
         String version = "1.0.0-SNAPSHOT";
 
-        impl.addMavenArtifact(new ArtifactMock(bundle, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_FEATURE));
+        context.addMavenArtifact(new ArtifactMock(bundle, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_FEATURE));
 
-        List<P2ResolutionResult> results = impl.resolveProject(bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -213,21 +201,21 @@ public class P2ResolverTest {
         ArtifactMock f = new ArtifactMock(feature, featureId, featureId, featureVersion,
                 P2Resolver.TYPE_ECLIPSE_FEATURE);
         f.setDependencyMetadata(generator.generateMetadata(f, getEnvironments()));
-        impl.addReactorArtifact(f);
+        context.addReactorArtifact(f);
 
         File bundle = new File("resources/sourcebundles/bundle01").getCanonicalFile();
         String bundleId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
         String bundleVersion = "1.0.0-SNAPSHOT";
         ArtifactMock b = new ArtifactMock(bundle, bundleId, bundleId, bundleVersion, P2Resolver.TYPE_ECLIPSE_PLUGIN);
         b.setDependencyMetadata(generator.generateMetadata(b, getEnvironments()));
-        impl.addReactorArtifact(b);
+        context.addReactorArtifact(b);
 
         ArtifactMock sb = new ArtifactMock(bundle, bundleId, bundleId, bundleVersion, P2Resolver.TYPE_ECLIPSE_PLUGIN,
                 "sources");
         sb.setDependencyMetadata(new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb, getEnvironments()));
-        impl.addReactorArtifact(sb);
+        context.addReactorArtifact(sb);
 
-        List<P2ResolutionResult> results = impl.resolveProject(feature);
+        List<P2ResolutionResult> results = impl.resolveProject(context, feature);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -250,24 +238,24 @@ public class P2ResolverTest {
 
     @Test
     public void eclipseRepository() throws Exception {
-        impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
+        context.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
         // launchers currently cannot be disabled (see TYCHO-511/TYCHO-512)
-        impl.addP2Repository(new File("resources/repositories/launchers").getCanonicalFile().toURI());
+        context.addP2Repository(new File("resources/repositories/launchers").getCanonicalFile().toURI());
 
         File projectDir = new File("resources/resolver/repository").getCanonicalFile();
-        String groupId = "org.eclipse.tycho.p2.impl.resolver.test.repository";
+        String groupId = "org.eclipse.tycho.p2.context.resolver.test.repository";
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.repository";
         String version = "1.0.0-SNAPSHOT";
 
-        addMavenProject(impl, new File("resources/resolver/bundle01"), P2Resolver.TYPE_ECLIPSE_PLUGIN, "bundle01");
+        addMavenProject(context, new File("resources/resolver/bundle01"), P2Resolver.TYPE_ECLIPSE_PLUGIN, "bundle01");
 
         ArtifactMock module = new ArtifactMock(projectDir, groupId, artifactId, version,
                 P2Resolver.TYPE_ECLIPSE_REPOSITORY);
         module.setDependencyMetadata(generator.generateMetadata(module, getEnvironments()));
 
-        impl.addReactorArtifact(module);
+        context.addReactorArtifact(module);
 
-        List<P2ResolutionResult> results = impl.resolveProject(projectDir);
+        List<P2ResolutionResult> results = impl.resolveProject(context, projectDir);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -283,7 +271,7 @@ public class P2ResolverTest {
 
     @Test
     public void bundleUsesSWT() throws Exception {
-        impl.addP2Repository(new File("resources/repositories/e361").getCanonicalFile().toURI());
+        context.addP2Repository(new File("resources/repositories/e361").getCanonicalFile().toURI());
 
         File bundle = new File("resources/resolver/bundleUsesSWT").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
@@ -293,9 +281,9 @@ public class P2ResolverTest {
         ArtifactMock a = new ArtifactMock(bundle, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_PLUGIN);
         a.setDependencyMetadata(generator.generateMetadata(a, getEnvironments()));
 
-        impl.addReactorArtifact(a);
+        context.addReactorArtifact(a);
 
-        List<P2ResolutionResult> results = impl.resolveProject(bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -324,22 +312,22 @@ public class P2ResolverTest {
 
     @Test
     public void reactorVsExternal() throws Exception {
-        impl.addP2Repository(new File("resources/reactor-vs-external/extrepo").getCanonicalFile().toURI());
+        context.addP2Repository(new File("resources/reactor-vs-external/extrepo").getCanonicalFile().toURI());
 
         ArtifactMock bundle01 = new ArtifactMock(new File("resources/reactor-vs-external/bundle01").getCanonicalFile(),
                 "groupId", "org.sonatype.tycho.p2.impl.resolver.test.bundle01", "1.0.0.qualifier",
                 P2Resolver.TYPE_ECLIPSE_PLUGIN);
         bundle01.setDependencyMetadata(generator.generateMetadata(bundle01, getEnvironments()));
-        impl.addReactorArtifact(bundle01);
+        context.addReactorArtifact(bundle01);
 
         ArtifactMock feature01 = new ArtifactMock(
                 new File("resources/reactor-vs-external/feature01").getCanonicalFile(), "groupId",
                 "org.sonatype.tycho.p2.impl.resolver.test.feature01", "1.0.0.qualifier",
                 P2Resolver.TYPE_ECLIPSE_FEATURE);
         feature01.setDependencyMetadata(generator.generateMetadata(feature01, getEnvironments()));
-        impl.addReactorArtifact(feature01);
+        context.addReactorArtifact(feature01);
 
-        List<P2ResolutionResult> results = impl.resolveProject(feature01.getLocation());
+        List<P2ResolutionResult> results = impl.resolveProject(context, feature01.getLocation());
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);

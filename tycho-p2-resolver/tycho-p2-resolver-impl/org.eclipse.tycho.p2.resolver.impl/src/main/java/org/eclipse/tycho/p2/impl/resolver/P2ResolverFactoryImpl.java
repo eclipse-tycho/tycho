@@ -10,13 +10,20 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.resolver;
 
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
+import org.eclipse.tycho.p2.resolver.impl.ResolutionContextImpl;
 
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
-    public P2Resolver createResolver() {
-        return new P2ResolverImpl();
+    public ResolutionContext createResolutionContext(MavenLogger logger) {
+        return new ResolutionContextImpl(logger);
+    }
+
+    public P2Resolver createResolver(MavenLogger logger) {
+        return new P2ResolverImpl(logger);
     }
 
 }

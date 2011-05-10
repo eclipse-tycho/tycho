@@ -11,15 +11,8 @@
 package org.eclipse.tycho.p2.resolver.facade;
 
 import java.io.File;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
-
-import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 public interface P2Resolver {
     /** @see org.eclipse.tycho.ArtifactKey */
@@ -47,38 +40,13 @@ public interface P2Resolver {
 
     public static final String ANY_QUALIFIER = "qualifier";
 
-    public void addReactorArtifact(IReactorArtifactFacade project);
-
-    public void addMavenArtifact(IArtifactFacade artifact);
-
-    public void addTychoArtifact(IArtifactFacade artifact, IArtifactFacade p2MetadataData);
-
-    public void addP2Repository(URI location);
-
-    public void addMavenRepository(URI location, TychoRepositoryIndex projectIndex, RepositoryReader contentLocator);
-
-    public void setLocalRepositoryLocation(File location);
-
     public void setEnvironments(List<Map<String, String>> properties);
 
     public void addDependency(String type, String id, String versionRange);
 
-    public List<P2ResolutionResult> resolveProject(File location);
+    public List<P2ResolutionResult> resolveProject(ResolutionContext context, File location);
 
-    public P2ResolutionResult collectProjectDependencies(File projectLocation);
+    public P2ResolutionResult collectProjectDependencies(ResolutionContext context, File projectLocation);
 
-    public void setLogger(MavenLogger logger);
-
-    public void setRepositoryCache(P2RepositoryCache repositoryCache);
-
-    public void setCredentials(URI location, String username, String password);
-
-    public void setOffline(boolean offline);
-
-    /**
-     * Releases all resources used by the resolver instance
-     */
-    public void stop();
-
-    public P2ResolutionResult resolveMetadata(Map<String, String> properties);
+    public P2ResolutionResult resolveMetadata(ResolutionContext context, Map<String, String> properties);
 }

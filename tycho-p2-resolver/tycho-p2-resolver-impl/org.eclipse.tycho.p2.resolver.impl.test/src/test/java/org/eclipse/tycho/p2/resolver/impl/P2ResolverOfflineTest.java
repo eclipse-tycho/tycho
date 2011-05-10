@@ -11,7 +11,6 @@
 package org.eclipse.tycho.p2.resolver.impl;
 
 import static org.eclipse.tycho.p2.resolver.impl.P2ResolverTest.addMavenProject;
-import static org.eclipse.tycho.p2.resolver.impl.P2ResolverTest.delete;
 import static org.eclipse.tycho.p2.resolver.impl.P2ResolverTest.getEnvironments;
 import static org.eclipse.tycho.p2.resolver.impl.P2ResolverTest.getLocalRepositoryLocation;
 
@@ -26,14 +25,32 @@ import org.eclipse.tycho.p2.impl.test.NullMavenLogger;
 import org.eclipse.tycho.p2.impl.test.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class P2ResolverOfflineTest {
 
     private HttpServer server;
+    private String servedUrl;
+    private ResolutionContext context;
+    private P2Resolver impl;
+
+    @Before
+    public void initResolver() {
+        NullMavenLogger logger = new NullMavenLogger();
+        context = new ResolutionContextImpl(logger);
+        impl = new P2ResolverImpl(logger);
+    }
+
+    @Before
+    public void startHttpServer() throws Exception {
+        server = HttpServer.startServer();
+        servedUrl = server.addServer("e342", new File("resources/repositories/e342"));
+    }
 
     @After
     public void stopHttpServer() throws Exception {
@@ -44,38 +61,33 @@ public class P2ResolverOfflineTest {
         }
     }
 
-    protected List<P2ResolutionResult> resolveFromHttp(P2ResolverImpl impl, String url) throws IOException,
-            URISyntaxException {
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.addP2Repository(new URI(url));
+    private List<P2ResolutionResult> resolveFromHttp(ResolutionContext context, P2Resolver impl, String url)
+            throws IOException, URISyntaxException {
+        context.setRepositoryCache(new P2RepositoryCacheImpl());
+        context.setLocalRepositoryLocation(getLocalRepositoryLocation());
+        context.addP2Repository(new URI(url));
 
         impl.setEnvironments(getEnvironments());
 
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
         File bundle = new File("resources/resolver/bundle01").getCanonicalFile();
 
-        addMavenProject(impl, bundle, P2Resolver.TYPE_ECLIPSE_PLUGIN, groupId);
+        addMavenProject(context, bundle, P2Resolver.TYPE_ECLIPSE_PLUGIN, groupId);
 
-        List<P2ResolutionResult> results = impl.resolveProject(bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
         return results;
     }
 
     @Test
     public void offline() throws Exception {
-        server = HttpServer.startServer();
-        String url = server.addServer("e342", new File("resources/repositories/e342"));
 
         // prime local repository
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setLogger(new NullMavenLogger());
-        resolveFromHttp(impl, url);
+        resolveFromHttp(context, impl, servedUrl);
 
         // now go offline and resolve again
-        impl = new P2ResolverImpl();
-        impl.setLogger(new NullMavenLogger());
-        impl.setOffline(true);
-        List<P2ResolutionResult> results = resolveFromHttp(impl, url);
+        context = new ResolutionContextImpl(new NullMavenLogger());
+        context.setOffline(true);
+        List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -86,16 +98,12 @@ public class P2ResolverOfflineTest {
 
     @Test
     public void offlineNoLocalCache() throws Exception {
-        server = HttpServer.startServer();
-        String url = server.addServer("e342", new File("resources/repositories/e342"));
-
         delete(getLocalRepositoryLocation());
 
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setOffline(true);
+        context.setOffline(true);
 
         try {
-            resolveFromHttp(impl, url);
+            resolveFromHttp(context, impl, servedUrl);
             Assert.fail();
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,4 +111,20 @@ public class P2ResolverOfflineTest {
         }
     }
 
+    static void delete(File dir) {
+        if (dir == null || !dir.exists()) {
+            return;
+        }
+
+        if (dir.isDirectory()) {
+            File[] members = dir.listFiles();
+            if (members != null) {
+                for (File member : members) {
+                    delete(member);
+                }
+            }
+        }
+
+        Assert.assertTrue("Delete " + dir.getAbsolutePath(), dir.delete());
+    }
 }

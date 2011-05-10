@@ -76,6 +76,7 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
 
 @Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
 public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver implements TargetPlatformResolver,
@@ -145,27 +146,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return false;
     }
 
-    public TargetPlatform resolvePlatform(MavenSession session, MavenProject project,
+    public TargetPlatform resolvePlatform(final MavenSession session, final MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
-        P2Resolver resolver = resolverFactory.createResolver();
-
-        try {
-            return doResolvePlatform(session, project, reactorProjects, dependencies, resolver);
-        } finally {
-            resolver.stop();
-        }
-    }
-
-    protected TargetPlatform doResolvePlatform(final MavenSession session, final MavenProject project,
-            List<ReactorProject> reactorProjects, List<Dependency> dependencies, P2Resolver resolver) {
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-
-        resolver.setRepositoryCache(repositoryCache);
-
-        resolver.setOffline(session.isOffline());
-
-        resolver.setLogger(new MavenLogger() {
+        MavenLogger loggerForOsgiImpl = new MavenLogger() {
             public void debug(String message) {
                 if (message != null && message.length() > 0) {
                     getLogger().info(message); // TODO
@@ -181,25 +164,48 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             public boolean isDebugEnabled() {
                 return getLogger().isDebugEnabled() && DebugUtils.isDebugEnabled(session, project);
             }
-        });
+        };
+
+        ResolutionContext resolutionContext = resolverFactory.createResolutionContext(loggerForOsgiImpl);
+        P2Resolver osgiResolverImpl = resolverFactory.createResolver(loggerForOsgiImpl);
+
+        try {
+            return doResolvePlatform(session, project, reactorProjects, dependencies, resolutionContext,
+                    osgiResolverImpl);
+        } finally {
+            resolutionContext.stop();
+        }
+    }
+
+    protected TargetPlatform doResolvePlatform(final MavenSession session, final MavenProject project,
+            List<ReactorProject> reactorProjects, List<Dependency> dependencies, ResolutionContext resolutionContext,
+            P2Resolver resolver) {
+        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
+                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+
+        resolutionContext.setRepositoryCache(repositoryCache);
+
+        resolutionContext.setOffline(session.isOffline());
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
-        resolver.setLocalRepositoryLocation(new File(session.getLocalRepository().getBasedir()));
+        resolutionContext.setLocalRepositoryLocation(new File(session.getLocalRepository().getBasedir()));
 
-        resolver.setEnvironments(getEnvironments(configuration));
+        List<Map<String, String>> environments = getEnvironments(configuration);
+        resolutionContext.setEnvironments(environments);
+        resolver.setEnvironments(environments);
 
         for (ReactorProject otherProject : reactorProjects) {
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("P2resolver.addMavenProject " + otherProject.getId());
             }
             projects.put(otherProject.getBasedir(), otherProject);
-            resolver.addReactorArtifact(new ReactorArtifactFacade(otherProject, null));
+            resolutionContext.addReactorArtifact(new ReactorArtifactFacade(otherProject, null));
 
             Map<String, Set<Object>> dependencyMetadata = otherProject.getDependencyMetadata();
             if (dependencyMetadata != null) {
                 for (String classifier : dependencyMetadata.keySet()) {
-                    resolver.addReactorArtifact(new ReactorArtifactFacade(otherProject, classifier));
+                    resolutionContext.addReactorArtifact(new ReactorArtifactFacade(otherProject, classifier));
                 }
             }
         }
@@ -254,7 +260,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
             PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
                     getLogger(), resolutionErrorHelper);
-            pomDependencyProcessor.addPomDependenciesToResolutionContext(project, externalArtifacts, resolver);
+            pomDependencyProcessor.addPomDependenciesToResolutionContext(project, externalArtifacts, resolutionContext);
         }
 
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
@@ -271,10 +277,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                     try {
                         Authentication auth = repository.getAuthentication();
                         if (auth != null) {
-                            resolver.setCredentials(uri, auth.getUsername(), auth.getPassword());
+                            resolutionContext.setCredentials(uri, auth.getUsername(), auth.getPassword());
                         }
 
-                        resolver.addP2Repository(uri);
+                        resolutionContext.addP2Repository(uri);
 
                         getLogger().debug(
                                 "Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
@@ -302,7 +308,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                                 repositoryCache.putRepositoryIndex(repositoryKey, index);
                             }
 
-                            resolver.addMavenRepository(uri, index, reader);
+                            resolutionContext.addMavenRepository(uri, index, reader);
                             getLogger().debug(
                                     "Added Maven repository " + repository.getId() + " (" + repository.getUrl() + ")");
                         } catch (FileNotFoundException e) {
@@ -350,7 +356,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                                     Server server = session.getSettings().getServer(id);
 
                                     if (server != null) {
-                                        resolver.setCredentials(uri, server.getUsername(), server.getPassword());
+                                        resolutionContext.setCredentials(uri, server.getUsername(),
+                                                server.getPassword());
                                     } else {
                                         getLogger().info(
                                                 "Unknown server id=" + id + " for repository location="
@@ -359,7 +366,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                                 }
 
                                 try {
-                                    resolver.addP2Repository(uri);
+                                    resolutionContext.addP2Repository(uri);
                                 } catch (Exception e) {
                                     String msg = "Failed to access p2 repository " + uri
                                             + ", will try to use local cache. Reason: " + e.getMessage();
@@ -390,7 +397,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
 
         if (!isAllowConflictingDependencies(project, configuration)) {
-            List<P2ResolutionResult> results = resolver.resolveProject(project.getBasedir());
+            List<P2ResolutionResult> results = resolver.resolveProject(resolutionContext, project.getBasedir());
 
             MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform();
 
@@ -408,7 +415,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
             return multiPlatform;
         } else {
-            P2ResolutionResult result = resolver.collectProjectDependencies(project.getBasedir());
+            P2ResolutionResult result = resolver.collectProjectDependencies(resolutionContext, project.getBasedir());
 
             return newDefaultTargetPlatform(session, projects, result);
         }

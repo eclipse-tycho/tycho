@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
+import org.eclipse.tycho.core.facade.MavenLogger;
+
 public interface P2ResolverFactory {
-    public P2Resolver createResolver();
+
+    public ResolutionContext createResolutionContext(MavenLogger logger);
+
+    public P2Resolver createResolver(MavenLogger logger);
 }

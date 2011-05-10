@@ -29,7 +29,7 @@ import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
 
 public class PomDependencyProcessor {
 
@@ -47,7 +47,7 @@ public class PomDependencyProcessor {
     }
 
     void addPomDependenciesToResolutionContext(MavenProject project, Collection<Artifact> transitivePomDependencies,
-            P2Resolver resolutionContext) {
+            ResolutionContext resolutionContext) {
         final LocalTychoRepositoryIndex p2ArtifactsInLocalRepo = loadIndexOfP2ArtifactsInLocalMavenRepo();
 
         for (Artifact artifact : transitivePomDependencies) {
@@ -109,7 +109,7 @@ public class PomDependencyProcessor {
     }
 
     private void addPomDependencyWithExistingP2Metadata(Artifact artifact, Artifact p2MetadataArtifact,
-            P2Resolver resolutionContext) {
+            ResolutionContext resolutionContext) {
         resolutionContext.addTychoArtifact(new ArtifactFacade(artifact), new ArtifactFacade(p2MetadataArtifact));
     }
 
