@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.test;
+package org.eclipse.tycho.p2.resolver.impl;
 
 import static org.junit.Assert.fail;
 
@@ -34,16 +34,19 @@ import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverImpl;
+import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.test.NullMavenLogger;
+import org.eclipse.tycho.p2.impl.test.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class P2ResolverImplTest {
+public class P2ResolverTest {
     private HttpServer server;
 
     private DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
