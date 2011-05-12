@@ -14,8 +14,6 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,11 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
@@ -41,63 +34,27 @@ import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.test.util.HttpServer;
-import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class P2ResolverTest {
-    private HttpServer server;
 
     private DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
 
-    private static final String BUNDLE_NAMESPACE = "osgi.bundle";
+    private P2ResolverImpl impl;
 
-    private static final String IU_NAMESPACE = IInstallableUnit.NAMESPACE_IU_ID;
-
-    private static final String BUNDLE_TYPE = "eclipse-plugin";
-
-    private static final String IU_TYPE = P2Resolver.TYPE_INSTALLABLE_UNIT;
-
-    private static final String TARGET_UNIT_ID = "testbundleName";
-
-    @After
-    public void stopHttpServer() throws Exception {
-        HttpServer _server = server;
-        server = null;
-        if (_server != null) {
-            _server.stop();
-        }
-    }
-
-    private void addMavenProject(P2ResolverImpl impl, File basedir, String packaging, String id) throws IOException {
+    static void addMavenProject(P2ResolverImpl impl, File basedir, String packaging, String id) throws IOException {
         String version = "1.0.0-SNAPSHOT";
 
         impl.addMavenArtifact(new ArtifactMock(basedir.getCanonicalFile(), id, id, version, packaging));
     }
 
-    protected List<P2ResolutionResult> resolveFromHttp(P2ResolverImpl impl, String url) throws IOException,
-            URISyntaxException {
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.addP2Repository(new URI(url));
-
-        impl.setEnvironments(getEnvironments());
-
-        String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
-        File bundle = new File("resources/resolver/bundle01").getCanonicalFile();
-
-        addMavenProject(impl, bundle, P2Resolver.TYPE_ECLIPSE_PLUGIN, groupId);
-
-        List<P2ResolutionResult> results = impl.resolveProject(bundle);
-        return results;
-    }
-
-    protected File getLocalRepositoryLocation() throws IOException {
+    static File getLocalRepositoryLocation() throws IOException {
         return new File("target/localrepo").getCanonicalFile();
     }
 
-    private List<Map<String, String>> getEnvironments() {
+    static List<Map<String, String>> getEnvironments() {
         ArrayList<Map<String, String>> environments = new ArrayList<Map<String, String>>();
 
         Map<String, String> properties = new LinkedHashMap<String, String>();
@@ -130,20 +87,27 @@ public class P2ResolverTest {
         Assert.assertTrue("Delete " + dir.getAbsolutePath(), dir.delete());
     }
 
-    @Test
-    public void basic() throws Exception {
-        P2ResolverImpl impl = new P2ResolverImpl();
+    @Before
+    public void initDefaultResolver() throws Exception {
+        impl = new P2ResolverImpl();
+        impl.setLogger(new NullMavenLogger());
         impl.setRepositoryCache(new P2RepositoryCacheImpl());
         impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
+        impl.setEnvironments(getEnvironments());
+    }
+
+    public void stopResolver() {
+        impl.stop();
+    }
+
+    @Test
+    public void basic() throws Exception {
         impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
-        impl.setLogger(new NullMavenLogger());
 
         File bundle = new File("resources/resolver/bundle01").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
         String version = "1.0.0-SNAPSHOT";
-
-        impl.setEnvironments(getEnvironments());
 
         ArtifactMock a = new ArtifactMock(bundle, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_PLUGIN);
         a.setDependencyMetadata(generator.generateMetadata(a, getEnvironments()));
@@ -152,66 +116,16 @@ public class P2ResolverTest {
 
         List<P2ResolutionResult> results = impl.resolveProject(bundle);
 
-        impl.stop();
-
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
         Assert.assertEquals(2, result.getArtifacts().size());
         Assert.assertEquals(1, result.getNonReactorUnits().size());
-    }
-
-    @Test
-    public void offline() throws Exception {
-        server = HttpServer.startServer();
-        String url = server.addServer("e342", new File("resources/repositories/e342"));
-
-        // prime local repository
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setLogger(new NullMavenLogger());
-        resolveFromHttp(impl, url);
-
-        // now go offline and resolve again
-        impl = new P2ResolverImpl();
-        impl.setLogger(new NullMavenLogger());
-        impl.setOffline(true);
-        List<P2ResolutionResult> results = resolveFromHttp(impl, url);
-
-        Assert.assertEquals(1, results.size());
-        P2ResolutionResult result = results.get(0);
-
-        Assert.assertEquals(2, result.getArtifacts().size());
-        Assert.assertEquals(1, result.getNonReactorUnits().size());
-    }
-
-    @Test
-    public void offlineNoLocalCache() throws Exception {
-        server = HttpServer.startServer();
-        String url = server.addServer("e342", new File("resources/repositories/e342"));
-
-        delete(getLocalRepositoryLocation());
-
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setOffline(true);
-
-        try {
-            resolveFromHttp(impl, url);
-            Assert.fail();
-        } catch (Exception e) {
-            e.printStackTrace();
-            // TODO better assertion
-        }
     }
 
     @Test
     public void siteConflictingDependenciesResolver() throws IOException {
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
         impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
-        impl.setLogger(new NullMavenLogger());
-
-        impl.setEnvironments(getEnvironments());
 
         File[] projects = new File[] { new File("resources/siteresolver/bundle342").getCanonicalFile(),
                 new File("resources/siteresolver/bundle352").getCanonicalFile(),
@@ -229,8 +143,6 @@ public class P2ResolverTest {
 
         P2ResolutionResult result = impl.collectProjectDependencies(basedir);
 
-        impl.stop();
-
         Assert.assertEquals(projects.length, result.getArtifacts().size());
         for (File project : projects) {
             assertContainLocation(result, project);
@@ -241,7 +153,7 @@ public class P2ResolverTest {
         Assert.assertEquals(0, result.getNonReactorUnits().size());
     }
 
-    private void assertContainLocation(P2ResolutionResult result, File location) {
+    private static void assertContainLocation(P2ResolutionResult result, File location) {
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
             if (entry.getLocation().equals(location)) {
                 return;
@@ -252,12 +164,6 @@ public class P2ResolverTest {
 
     @Test
     public void duplicateInstallableUnit() throws Exception {
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setLogger(new NullMavenLogger());
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.setEnvironments(getEnvironments());
-
         File projectLocation = new File("resources/duplicate-iu/featureA").getCanonicalFile();
 
         ArtifactMock a1 = new ArtifactMock(projectLocation, "groupId", "featureA", "1.0.0-SNAPSHOT",
@@ -281,22 +187,14 @@ public class P2ResolverTest {
 
     @Test
     public void featureInstallableUnits() throws Exception {
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.setLogger(new NullMavenLogger());
-
         File bundle = new File("resources/resolver/feature01").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
         String version = "1.0.0-SNAPSHOT";
 
-        impl.setEnvironments(getEnvironments());
         impl.addMavenArtifact(new ArtifactMock(bundle, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_FEATURE));
 
         List<P2ResolutionResult> results = impl.resolveProject(bundle);
-
-        impl.stop();
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -308,11 +206,6 @@ public class P2ResolverTest {
 
     @Test
     public void sourceBundle() throws Exception {
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.setLogger(new NullMavenLogger());
-
         File feature = new File("resources/sourcebundles/feature01").getCanonicalFile();
         String featureId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
         String featureVersion = "1.0.0-SNAPSHOT";
@@ -334,10 +227,7 @@ public class P2ResolverTest {
         sb.setDependencyMetadata(new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb, getEnvironments()));
         impl.addReactorArtifact(sb);
 
-        impl.setEnvironments(getEnvironments());
-
         List<P2ResolutionResult> results = impl.resolveProject(feature);
-        impl.stop();
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -360,20 +250,14 @@ public class P2ResolverTest {
 
     @Test
     public void eclipseRepository() throws Exception {
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
         impl.addP2Repository(new File("resources/repositories/e342").getCanonicalFile().toURI());
         // launchers currently cannot be disabled (see TYCHO-511/TYCHO-512)
         impl.addP2Repository(new File("resources/repositories/launchers").getCanonicalFile().toURI());
-        impl.setLogger(new NullMavenLogger());
 
         File projectDir = new File("resources/resolver/repository").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.repository";
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.repository";
         String version = "1.0.0-SNAPSHOT";
-
-        impl.setEnvironments(getEnvironments());
 
         addMavenProject(impl, new File("resources/resolver/bundle01"), P2Resolver.TYPE_ECLIPSE_PLUGIN, "bundle01");
 
@@ -384,8 +268,6 @@ public class P2ResolverTest {
         impl.addReactorArtifact(module);
 
         List<P2ResolutionResult> results = impl.resolveProject(projectDir);
-
-        impl.stop();
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -401,18 +283,12 @@ public class P2ResolverTest {
 
     @Test
     public void bundleUsesSWT() throws Exception {
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
         impl.addP2Repository(new File("resources/repositories/e361").getCanonicalFile().toURI());
-        impl.setLogger(new NullMavenLogger());
 
         File bundle = new File("resources/resolver/bundleUsesSWT").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
         String version = "1.0.0-SNAPSHOT";
-
-        impl.setEnvironments(getEnvironments());
 
         ArtifactMock a = new ArtifactMock(bundle, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_PLUGIN);
         a.setDependencyMetadata(generator.generateMetadata(a, getEnvironments()));
@@ -420,8 +296,6 @@ public class P2ResolverTest {
         impl.addReactorArtifact(a);
 
         List<P2ResolutionResult> results = impl.resolveProject(bundle);
-
-        impl.stop();
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -433,11 +307,11 @@ public class P2ResolverTest {
         assertContainsUnit("org.eclipse.swt.gtk.linux.x86_64", result.getNonReactorUnits());
     }
 
-    private void assertContainsUnit(String unitID, Set<?> units) {
+    private static void assertContainsUnit(String unitID, Set<?> units) {
         Assert.assertFalse("Unit " + unitID + " not found", getInstallableUnits(unitID, units).isEmpty());
     }
 
-    private List<IInstallableUnit> getInstallableUnits(String unitID, Set<?> units) {
+    private static List<IInstallableUnit> getInstallableUnits(String unitID, Set<?> units) {
         List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
         for (Object unitObject : units) {
             IInstallableUnit unit = (IInstallableUnit) unitObject;
@@ -449,105 +323,7 @@ public class P2ResolverTest {
     }
 
     @Test
-    public void testExactVersionMatchInTargetDefinitionUnit() {
-        P2ResolverImpl impl = new P2ResolverImpl();
-
-        String olderVersion = "2.3.3";
-        String version = "2.3.4";
-        String newerVersion = "2.3.5";
-
-        String exactVersionMatchRange = "[" + version + "," + version + "]";
-        impl.addDependency(IU_TYPE, TARGET_UNIT_ID, exactVersionMatchRange);
-        impl.addDependency(BUNDLE_TYPE, TARGET_UNIT_ID, exactVersionMatchRange);
-
-        List<IRequirement> requirements = impl.getAdditionalRequirements();
-
-        IInstallableUnit matchingIU = createIU(version);
-        assertIUMatchesRequirements(matchingIU, requirements);
-
-        IInstallableUnit newerIU = createIU(newerVersion);
-        assertIUDoesNotMatchRequirements(newerIU, requirements);
-
-        IInstallableUnit olderIU = createIU(olderVersion);
-        assertIUDoesNotMatchRequirements(olderIU, requirements);
-    }
-
-    private static void assertIUMatchesRequirements(IInstallableUnit unit, List<IRequirement> requirements) {
-        for (IRequirement requirement : requirements) {
-            Assert.assertTrue("IU " + unit + " must match requirement " + requirement, requirement.isMatch(unit));
-        }
-    }
-
-    private static void assertIUDoesNotMatchRequirements(IInstallableUnit unit, List<IRequirement> requirements) {
-        for (IRequirement requirement : requirements) {
-            Assert.assertFalse("IU " + unit + " must not match requirement " + requirement, requirement.isMatch(unit));
-        }
-    }
-
-    @Test
-    public void testZeroVersionInTargetDefinitionUnit() {
-        String zeroVersion = "0.0.0";
-        String arbitraryVersion = "2.5.8";
-
-        P2ResolverImpl impl = new P2ResolverImpl();
-
-        impl.addDependency(IU_TYPE, TARGET_UNIT_ID, zeroVersion);
-        impl.addDependency(BUNDLE_TYPE, TARGET_UNIT_ID, zeroVersion);
-
-        List<IRequirement> additionalRequirements = impl.getAdditionalRequirements();
-
-        IInstallableUnit iu = createIU(arbitraryVersion);
-
-        Assert.assertTrue("Requires version 0.0.0; should be satisfied by any version", additionalRequirements.get(0)
-                .isMatch(iu));
-        Assert.assertTrue("Requires version 0.0.0; should be satisfied by any version", additionalRequirements.get(1)
-                .isMatch(iu));
-    }
-
-    @Test
-    public void testNullVersionInTargetDefinitionUnit() {
-
-        String nullVersion = null;
-        String arbitraryVersion = "2.5.8";
-
-        P2ResolverImpl impl = new P2ResolverImpl();
-
-        impl.addDependency(IU_TYPE, TARGET_UNIT_ID, nullVersion);
-        impl.addDependency(BUNDLE_TYPE, TARGET_UNIT_ID, nullVersion);
-
-        List<IRequirement> additionalRequirements = impl.getAdditionalRequirements();
-
-        IInstallableUnit iu = createIU(arbitraryVersion);
-
-        Assert.assertTrue("Given version was null; should be satisfied by any version", additionalRequirements.get(0)
-                .isMatch(iu));
-        Assert.assertTrue("Given version was null; should be satisfied by any version", additionalRequirements.get(1)
-                .isMatch(iu));
-    }
-
-    @Test
-    public void testAddDependencyWithVersionRange() {
-        P2ResolverImpl impl = new P2ResolverImpl();
-        String range = "[2.0.0,3.0.0)";
-        impl.addDependency(IU_TYPE, TARGET_UNIT_ID, range);
-        impl.addDependency(BUNDLE_TYPE, TARGET_UNIT_ID, range);
-        List<IRequirement> additionalRequirements = impl.getAdditionalRequirements();
-        String matchingVersion = "2.5.8";
-        IInstallableUnit iu = createIU(matchingVersion);
-        Assert.assertTrue("version range " + range + " should be satisfied by " + matchingVersion,
-                additionalRequirements.get(0).isMatch(iu));
-        Assert.assertTrue("version range " + range + " should be satisfied by " + matchingVersion,
-                additionalRequirements.get(1).isMatch(iu));
-    }
-
-    @Test
     public void reactorVsExternal() throws Exception {
-        P2ResolverImpl impl = new P2ResolverImpl();
-        impl.setRepositoryCache(new P2RepositoryCacheImpl());
-        impl.setLocalRepositoryLocation(getLocalRepositoryLocation());
-        impl.setLogger(new NullMavenLogger());
-        impl.setEnvironments(getEnvironments());
-
         impl.addP2Repository(new File("resources/reactor-vs-external/extrepo").getCanonicalFile().toURI());
 
         ArtifactMock bundle01 = new ArtifactMock(new File("resources/reactor-vs-external/bundle01").getCanonicalFile(),
@@ -575,19 +351,4 @@ public class P2ResolverTest {
             Assert.assertEquals("1.0.0.qualifier", entry.getVersion());
         }
     }
-
-    private static IInstallableUnit createIU(String version) {
-        InstallableUnitDescription iud = new InstallableUnitDescription();
-        iud.setId(TARGET_UNIT_ID);
-        Version osgiVersion = Version.create(version);
-        iud.setVersion(osgiVersion);
-        List<IProvidedCapability> list = new ArrayList<IProvidedCapability>();
-        list.add(MetadataFactory.createProvidedCapability(IU_NAMESPACE, TARGET_UNIT_ID, osgiVersion));
-        list.add(MetadataFactory.createProvidedCapability(BUNDLE_NAMESPACE, TARGET_UNIT_ID, osgiVersion));
-        iud.addProvidedCapabilities(list);
-
-        IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
-        return iu;
-    }
-
 }
