@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.impl;
 
-import static org.eclipse.tycho.p2.resolver.impl.P2ResolverTest.addMavenProject;
-import static org.eclipse.tycho.p2.resolver.impl.P2ResolverTest.getEnvironments;
 import static org.eclipse.tycho.p2.resolver.impl.P2ResolverTest.getLocalRepositoryLocation;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
@@ -28,17 +30,16 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
 import org.eclipse.tycho.test.util.HttpServer;
+import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class P2ResolverOfflineTest {
+public class P2ResolverOfflineTest extends P2ResolverTestBase {
 
     private HttpServer server;
     private String servedUrl;
-    private ResolutionContext context;
-    private P2Resolver impl;
 
     @Before
     public void initResolver() {
@@ -70,10 +71,9 @@ public class P2ResolverOfflineTest {
 
         impl.setEnvironments(getEnvironments());
 
-        String groupId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
-        File bundle = new File("resources/resolver/bundle01").getCanonicalFile();
-
-        addMavenProject(context, bundle, P2Resolver.TYPE_ECLIPSE_PLUGIN, groupId);
+        String id = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
+        File bundle = ResourceUtil.resourceFile("resolver/bundle01");
+        addReactorProject(bundle, P2Resolver.TYPE_ECLIPSE_PLUGIN, id);
 
         List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
         return results;
@@ -107,8 +107,8 @@ public class P2ResolverOfflineTest {
             resolveFromHttp(context, impl, servedUrl);
             Assert.fail();
         } catch (Exception e) {
-            e.printStackTrace();
-            // TODO better assertion
+            assertThat(e.getCause(), is(ProvisionException.class));
+            assertThat(e.getMessage(), containsString("offline"));
         }
     }
 

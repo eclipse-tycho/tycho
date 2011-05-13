@@ -93,7 +93,7 @@ public class P2ResolverImpl implements P2Resolver {
         context.assertNoDuplicateReactorUIs();
 
         strategy.setAvailableInstallableUnits(context.gatherAvailableInstallableUnits(monitor));
-        LinkedHashSet<IInstallableUnit> projectIUs = context.getProjectIUs(projectLocation);
+        LinkedHashSet<IInstallableUnit> projectIUs = context.getReactorProjectIUs(projectLocation);
         strategy.setRootInstallableUnits(projectIUs);
         strategy.setAdditionalRequirements(additionalRequirements);
 

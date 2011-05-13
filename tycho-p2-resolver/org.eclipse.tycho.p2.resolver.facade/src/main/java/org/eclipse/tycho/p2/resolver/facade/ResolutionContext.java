@@ -32,9 +32,9 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 public interface ResolutionContext {
     public void addReactorArtifact(IReactorArtifactFacade project);
 
-    public void addMavenArtifact(IArtifactFacade artifact);
+    public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact);
 
-    public void addTychoArtifact(IArtifactFacade artifact, IArtifactFacade p2MetadataData);
+    public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
 
     public void addP2Repository(URI location);
 

@@ -65,13 +65,15 @@ public class PomDependencyProcessor {
                     logger.debug("P2TargetPlatformResolver: Using existing metadata of " + artifact.toString());
                 }
 
-                addPomDependencyWithExistingP2Metadata(artifact, p2Data.p2MetadataXml.artifact, resolutionContext);
+                resolutionContext.addArtifactWithExistingMetadata(new ArtifactFacade(artifact), new ArtifactFacade(
+                        p2Data.p2MetadataXml.artifact));
 
                 /*
                  * Since the p2artifacts.xml exists on disk, we can add the artifact to the (global)
                  * p2 artifact repository view of local Maven repository. Then, the artifact is
                  * available in the build.
                  */
+                // TODO this should happen in resolution context
                 p2ArtifactsInLocalRepo.addProject(artifact.getGroupId(), artifact.getArtifactId(),
                         artifact.getVersion());
 
@@ -84,16 +86,7 @@ public class PomDependencyProcessor {
                     logger.debug("P2resolver.addMavenArtifact " + artifact.toString());
                 }
 
-                /*
-                 * TODO The generated metadata is "depencency only" metadata. (Just by coincidence
-                 * this is currently full metadata.) Since this POM depencency metadata may be
-                 * copied into an eclipse-repository or p2-enabled RCP installation, it shall be
-                 * documented that the generated metadata must be full metadata.
-                 */
-                // TODO move metadata generation out of the p2 resolver
-                resolutionContext.addMavenArtifact(new ArtifactFacade(artifact));
-
-                // TODO as part of TYCHO-570: generate and collect p2 artifact entry
+                resolutionContext.publishAndAddArtifactIfBundleArtifact(new ArtifactFacade(artifact));
 
             } else {
                 failDueToPartialP2Data(artifact, p2Data);
@@ -106,11 +99,6 @@ public class PomDependencyProcessor {
             throw new RuntimeException(
                     "I/O error while updating p2 artifact repository view on local Maven repository", e);
         }
-    }
-
-    private void addPomDependencyWithExistingP2Metadata(Artifact artifact, Artifact p2MetadataArtifact,
-            ResolutionContext resolutionContext) {
-        resolutionContext.addTychoArtifact(new ArtifactFacade(artifact), new ArtifactFacade(p2MetadataArtifact));
     }
 
     /**

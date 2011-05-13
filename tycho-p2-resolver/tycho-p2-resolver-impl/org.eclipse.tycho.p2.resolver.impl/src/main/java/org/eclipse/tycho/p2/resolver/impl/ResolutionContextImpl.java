@@ -93,9 +93,7 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     // ---------------------------------------------------------------------
 
-    private Map<ClassifiedLocation, IArtifactFacade> mavenArtifacts = new HashMap<ClassifiedLocation, IArtifactFacade>();
-
-    private Map<ClassifiedLocation, Set<IInstallableUnit>> mavenLocations = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
+    private Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
 
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
 
@@ -109,7 +107,9 @@ public class ResolutionContextImpl implements ResolutionContext {
     public void addReactorArtifact(IReactorArtifactFacade artifact) {
         Set<IInstallableUnit> units = toSet(artifact.getDependencyMetadata(), IInstallableUnit.class);
 
-        addMavenArtifact(artifact, units);
+        ClassifiedLocation key = new ClassifiedLocation(artifact);
+        reactorProjectIUs.put(key, units);
+        addMavenArtifact(key, artifact, units);
 
         for (IInstallableUnit unit : units) {
             reactorInstallableUnitIds.add(unit.getId());
@@ -130,16 +130,16 @@ public class ResolutionContextImpl implements ResolutionContext {
         return set;
     }
 
-    public void addTychoArtifact(IArtifactFacade artifact, IArtifactFacade p2MetadataData) {
+    public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile) {
         try {
-            addMavenArtifact(artifact, readUnits(p2MetadataData));
+            addMavenArtifact(new ClassifiedLocation(artifact), artifact, readUnits(p2MetadataFile));
         } catch (IOException e) {
             throw new RuntimeException("failed to read p2 metadata", e);
         }
     }
 
-    private Set<IInstallableUnit> readUnits(IArtifactFacade p2MetadataData) throws IOException {
-        FileInputStream inputStream = new FileInputStream(p2MetadataData.getLocation());
+    private Set<IInstallableUnit> readUnits(IArtifactFacade p2MetadataFile) throws IOException {
+        FileInputStream inputStream = new FileInputStream(p2MetadataFile.getLocation());
         try {
             MetadataIO io = new MetadataIO();
             return io.readXML(inputStream);
@@ -148,11 +148,7 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
     }
 
-    private void addMavenArtifact(IArtifactFacade artifact, Set<IInstallableUnit> units) {
-        ClassifiedLocation key = new ClassifiedLocation(artifact);
-        mavenArtifacts.put(key, artifact);
-        mavenLocations.put(key, units);
-
+    void addMavenArtifact(ClassifiedLocation key, IArtifactFacade artifact, Set<IInstallableUnit> units) {
         for (IInstallableUnit unit : units) {
             mavenInstallableUnits.put(unit, artifact);
             if (logger.isDebugEnabled()) {
@@ -167,13 +163,13 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     private ResolutionContextBundlePublisher bundlesPublisher;
 
-    public void addMavenArtifact(IArtifactFacade artifact) {
+    public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact) {
         if (bundlesPublisher == null) {
             bundlesPublisher = new ResolutionContextBundlePublisher(logger);
         }
         IInstallableUnit bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
         if (bundleIU != null)
-            addMavenArtifact(artifact, Collections.singleton(bundleIU));
+            addMavenArtifact(new ClassifiedLocation(artifact), artifact, Collections.singleton(bundleIU));
     }
 
     // everything not in local maven repo
@@ -529,18 +525,16 @@ public class ResolutionContextImpl implements ResolutionContext {
         Map<IInstallableUnit, Set<File>> reactorUIs = new HashMap<IInstallableUnit, Set<File>>();
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<IInstallableUnit, Set<File>>();
 
-        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : mavenLocations.entrySet()) {
-            if (mavenArtifacts.get(entry.getKey()) instanceof IReactorArtifactFacade) {
-                for (IInstallableUnit iu : entry.getValue()) {
-                    Set<File> locations = reactorUIs.get(iu);
-                    if (locations == null) {
-                        locations = new LinkedHashSet<File>();
-                        reactorUIs.put(iu, locations);
-                    }
-                    locations.add(entry.getKey().getLocation());
-                    if (locations.size() > 1) {
-                        duplicateReactorUIs.put(iu, locations);
-                    }
+        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : reactorProjectIUs.entrySet()) {
+            for (IInstallableUnit iu : entry.getValue()) {
+                Set<File> locations = reactorUIs.get(iu);
+                if (locations == null) {
+                    locations = new LinkedHashSet<File>();
+                    reactorUIs.put(iu, locations);
+                }
+                locations.add(entry.getKey().getLocation());
+                if (locations.size() > 1) {
+                    duplicateReactorUIs.put(iu, locations);
                 }
             }
         }
@@ -550,15 +544,19 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
     }
 
-    public LinkedHashSet<IInstallableUnit> getProjectIUs(File location) {
+    public LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectRoot) {
         LinkedHashSet<IInstallableUnit> ius = new LinkedHashSet<IInstallableUnit>();
+        boolean projectExists = false;
 
-        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : mavenLocations.entrySet()) {
-            if (location.equals(entry.getKey().getLocation())) {
+        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : reactorProjectIUs.entrySet()) {
+            if (projectRoot.equals(entry.getKey().getLocation())) {
                 ius.addAll(entry.getValue());
+                projectExists = true;
             }
         }
 
+        if (!projectExists)
+            throw new IllegalArgumentException("Not a reactor project: " + projectRoot);
         return ius;
     }
 

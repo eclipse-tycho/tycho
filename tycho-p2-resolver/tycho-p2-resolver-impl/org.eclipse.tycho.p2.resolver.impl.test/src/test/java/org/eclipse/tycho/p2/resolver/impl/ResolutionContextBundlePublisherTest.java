@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.resolver.impl;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasGAV;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasId;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasVersion;
+import static org.eclipse.tycho.test.util.ResourceUtil.resourceFile;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -40,8 +41,7 @@ public class ResolutionContextBundlePublisherTest {
 
     @Test
     public void testPomDependencyOnBundle() throws Exception {
-        File bundleFile = new File("resources/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar")
-                .getCanonicalFile();
+        File bundleFile = resourceFile("pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar");
         IArtifactFacade bundleArtifact = new ArtifactMock(bundleFile, DUMMY_GROUP_ID, DUMMY_ARTIFACT_ID, DUMMY_VERSION,
                 "jar");
 
@@ -56,7 +56,7 @@ public class ResolutionContextBundlePublisherTest {
 
     @Test
     public void testPomDependencyOnPlainJar() throws Exception {
-        File jarFile = new File("resources/pom-dependencies/non-bundle.jar").getCanonicalFile();
+        File jarFile = resourceFile("pom-dependencies/non-bundle.jar");
         IArtifactFacade jarArtifact = new ArtifactMock(jarFile, DUMMY_GROUP_ID, DUMMY_ARTIFACT_ID, DUMMY_VERSION, "jar");
 
         IInstallableUnit unit = subject.attemptToPublishBundle(jarArtifact);
@@ -66,7 +66,7 @@ public class ResolutionContextBundlePublisherTest {
 
     @Test
     public void testPomDependencyOnOtherType() throws Exception {
-        File otherFile = new File("resources/pom-dependencies/other-type.xml").getCanonicalFile();
+        File otherFile = resourceFile("pom-dependencies/other-type.xml");
         IArtifactFacade otherArtifact = new ArtifactMock(otherFile, DUMMY_GROUP_ID, DUMMY_ARTIFACT_ID, DUMMY_VERSION,
                 "pom");
 
