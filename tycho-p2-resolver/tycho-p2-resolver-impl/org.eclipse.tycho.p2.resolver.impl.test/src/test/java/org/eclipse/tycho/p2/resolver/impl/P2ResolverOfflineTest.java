@@ -20,8 +20,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverImpl;
-import org.eclipse.tycho.p2.impl.test.NullMavenLogger;
+import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.impl.test.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -41,7 +42,7 @@ public class P2ResolverOfflineTest {
 
     @Before
     public void initResolver() {
-        NullMavenLogger logger = new NullMavenLogger();
+        MavenLogger logger = new MavenLoggerStub();
         context = new ResolutionContextImpl(logger);
         impl = new P2ResolverImpl(logger);
     }
@@ -85,7 +86,7 @@ public class P2ResolverOfflineTest {
         resolveFromHttp(context, impl, servedUrl);
 
         // now go offline and resolve again
-        context = new ResolutionContextImpl(new NullMavenLogger());
+        context = new ResolutionContextImpl(new MavenLoggerStub());
         context.setOffline(true);
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 

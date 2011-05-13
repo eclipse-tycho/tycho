@@ -42,7 +42,7 @@ public class DependencyCollector extends ResolutionStrategy {
 
         LinkedHashSet<IStatus> errors = new LinkedHashSet<IStatus>();
 
-        if (logger.isDebugEnabled()) {
+        if (logger.isExtendedDebugEnabled()) {
             logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false, monitor));
             logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
             logger.debug("Extra IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
@@ -54,7 +54,7 @@ public class DependencyCollector extends ResolutionStrategy {
             collectIncludedIUs(result, errors, iu, true, monitor);
         }
 
-        if (logger.isDebugEnabled()) {
+        if (logger.isExtendedDebugEnabled()) {
             logger.debug("Collected IUs:\n" + ResolverDebugUtils.toDebugString(result, false));
         }
 

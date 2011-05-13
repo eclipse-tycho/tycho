@@ -67,6 +67,7 @@ import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.model.Target;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.MavenRepositoryReader;
 import org.eclipse.tycho.p2.facade.internal.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
@@ -148,23 +149,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
     public TargetPlatform resolvePlatform(final MavenSession session, final MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
-        MavenLogger loggerForOsgiImpl = new MavenLogger() {
-            public void debug(String message) {
-                if (message != null && message.length() > 0) {
-                    getLogger().info(message); // TODO
-                }
-            }
 
-            public void info(String message) {
-                if (message != null && message.length() > 0) {
-                    getLogger().info(message);
-                }
-            }
-
-            public boolean isDebugEnabled() {
-                return getLogger().isDebugEnabled() && DebugUtils.isDebugEnabled(session, project);
-            }
-        };
+        MavenLogger loggerForOsgiImpl = new MavenLoggerAdapter(getLogger(), DebugUtils.isDebugEnabled(session, project));
 
         ResolutionContext resolutionContext = resolverFactory.createResolutionContext(loggerForOsgiImpl);
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(loggerForOsgiImpl);

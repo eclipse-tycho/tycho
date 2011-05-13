@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverImpl;
-import org.eclipse.tycho.p2.impl.test.NullMavenLogger;
+import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class P2ResolverAdditionalRequirementsTest {
 
     @Before
     public void initBlankResolver() {
-        impl = new P2ResolverImpl(new NullMavenLogger());
+        impl = new P2ResolverImpl(new MavenLoggerStub());
     }
 
     @Test

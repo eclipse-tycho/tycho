@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.tycho.p2.impl.resolver.DependencyCollector;
-import org.eclipse.tycho.p2.impl.test.NullMavenLogger;
+import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class DependencyCollectorTest {
 
     @Test
     public void missingDependencies() {
-        DependencyCollector dc = new DependencyCollector(new NullMavenLogger());
+        DependencyCollector dc = new DependencyCollector(new MavenLoggerStub());
 
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         String time = Long.toString(System.currentTimeMillis());

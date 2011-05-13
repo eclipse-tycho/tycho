@@ -12,21 +12,35 @@ package org.eclipse.tycho.p2.impl.test;
 
 import org.eclipse.tycho.core.facade.MavenLogger;
 
-public class NullMavenLogger implements MavenLogger {
+public class MavenLoggerStub implements MavenLogger {
+
+    private final boolean failOnWarning;
+
+    public MavenLoggerStub() {
+        this(false);
+    }
+
+    public MavenLoggerStub(boolean failOnWarning) {
+        this.failOnWarning = failOnWarning;
+    }
+
+    public void warn(String message, Throwable cause) {
+        if (failOnWarning)
+            throw new RuntimeException("Unexpected warning: " + message, cause);
+    }
 
     public void info(String message) {
-        // TODO Auto-generated method stub
-
     }
 
     public void debug(String message) {
-        // TODO Auto-generated method stub
+    }
 
+    public boolean isExtendedDebugEnabled() {
+        // run through message preparation code in tests
+        return true;
     }
 
     public boolean isDebugEnabled() {
-        // TODO Auto-generated method stub
-        return false;
+        return true;
     }
-
 }

@@ -23,12 +23,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
-import org.eclipse.tycho.p2.impl.test.NullMavenLogger;
+import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.impl.test.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -76,7 +77,7 @@ public class P2ResolverTest {
 
     @Before
     public void initDefaultResolver() throws Exception {
-        NullMavenLogger logger = new NullMavenLogger();
+        MavenLogger logger = new MavenLoggerStub();
         context = new ResolutionContextImpl(logger);
         context.setRepositoryCache(new P2RepositoryCacheImpl());
         context.setLocalRepositoryLocation(getLocalRepositoryLocation());

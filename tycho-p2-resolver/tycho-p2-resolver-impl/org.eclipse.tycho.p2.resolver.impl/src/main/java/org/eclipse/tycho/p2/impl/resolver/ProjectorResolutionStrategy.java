@@ -71,7 +71,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
         rootWithExtraIUs.addAll(rootIUs);
         rootWithExtraIUs.addAll(extraIUs);
 
-        if (logger.isDebugEnabled()) {
+        if (logger.isExtendedDebugEnabled()) {
             logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false, monitor));
             logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
             logger.debug("Extra IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
@@ -85,7 +85,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
                     slicer.getStatus()));
         }
 
-        if (logger.isDebugEnabled()) {
+        if (logger.isExtendedDebugEnabled()) {
             logger.debug("Slice:\n" + ResolverDebugUtils.toDebugString(slice, false, monitor));
         }
 
@@ -105,7 +105,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
 
         fixSWT(newState, newSelectionContext, monitor);
 
-        if (logger.isDebugEnabled()) {
+        if (logger.isExtendedDebugEnabled()) {
             logger.debug("Resolved IUs:\n" + ResolverDebugUtils.toDebugString(newState, false));
         }
 

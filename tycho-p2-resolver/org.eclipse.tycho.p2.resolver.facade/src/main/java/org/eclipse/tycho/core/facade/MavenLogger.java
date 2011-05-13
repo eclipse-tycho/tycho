@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    SAP AG - extended interface for more general use
  *******************************************************************************/
 package org.eclipse.tycho.core.facade;
 
@@ -14,9 +15,13 @@ package org.eclipse.tycho.core.facade;
  * Maven logger for Tycho OSGi runtime.
  */
 public interface MavenLogger {
+    public void warn(String message, Throwable cause);
+
     public void info(String message);
 
     public void debug(String message);
 
     public boolean isDebugEnabled();
+
+    public boolean isExtendedDebugEnabled();
 }
