@@ -63,7 +63,6 @@ import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
-import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
@@ -94,8 +93,6 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     // ---------------------------------------------------------------------
 
-    private final P2GeneratorImpl generator = new P2GeneratorImpl(true);
-
     private Map<ClassifiedLocation, IArtifactFacade> mavenArtifacts = new HashMap<ClassifiedLocation, IArtifactFacade>();
 
     private Map<ClassifiedLocation, Set<IInstallableUnit>> mavenLocations = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
@@ -103,12 +100,6 @@ public class ResolutionContextImpl implements ResolutionContext {
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
 
     private Set<String> reactorInstallableUnitIds = new HashSet<String>();
-
-    /**
-     * Target runtime environment properties
-     */
-    @Deprecated
-    private List<Map<String, String>> environments;
 
     public ResolutionContextImpl(MavenLogger logger) {
         this.logger = logger;
@@ -137,20 +128,6 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
 
         return set;
-    }
-
-    @Deprecated
-    public void setEnvironments(List<Map<String, String>> environments) {
-        this.environments = environments;
-    }
-
-    public void addMavenArtifact(IArtifactFacade artifact) {
-        LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-
-        // TODO the target platform environments must not have an effect!!
-        generator.generateMetadata(artifact, environments, units, null);
-
-        addMavenArtifact(artifact, units);
     }
 
     public void addTychoArtifact(IArtifactFacade artifact, IArtifactFacade p2MetadataData) {
@@ -187,6 +164,27 @@ public class ResolutionContextImpl implements ResolutionContext {
     }
 
     // ----------------------------------------------------------
+
+    private ResolutionContextBundlePublisher bundlesPublisher;
+
+    public void addMavenArtifact(IArtifactFacade artifact) {
+        if (bundlesPublisher == null) {
+            bundlesPublisher = new ResolutionContextBundlePublisher(logger);
+        }
+        IInstallableUnit bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
+        if (bundleIU != null)
+            addMavenArtifact(artifact, Collections.singleton(bundleIU));
+    }
+
+    // everything not in local maven repo
+    public IArtifactRepository getTransientArtifactRepository() {
+        if (bundlesPublisher == null)
+            return null;
+        else
+            return bundlesPublisher.getArtifactRepoOfProcessedBundles();
+    }
+
+    // ------------------------------------------------------------
 
     /**
      * All known P2 metadata repositories, including maven local repository

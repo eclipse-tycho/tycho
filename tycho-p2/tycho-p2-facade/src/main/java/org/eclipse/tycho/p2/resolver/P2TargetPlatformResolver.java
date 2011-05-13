@@ -177,9 +177,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         resolutionContext.setLocalRepositoryLocation(new File(session.getLocalRepository().getBasedir()));
 
-        List<Map<String, String>> environments = getEnvironments(configuration);
-        resolutionContext.setEnvironments(environments);
-        resolver.setEnvironments(environments);
+        resolver.setEnvironments(getEnvironments(configuration));
 
         for (ReactorProject otherProject : reactorProjects) {
             if (getLogger().isDebugEnabled()) {

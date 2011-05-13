@@ -13,8 +13,6 @@ package org.eclipse.tycho.p2.resolver.facade;
 
 import java.io.File;
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
@@ -47,8 +45,6 @@ public interface ResolutionContext {
     public void setCredentials(URI location, String username, String password);
 
     public void setOffline(boolean offline);
-
-    public void setEnvironments(List<Map<String, String>> properties);
 
     /**
      * Releases all resources used by the resolver instance

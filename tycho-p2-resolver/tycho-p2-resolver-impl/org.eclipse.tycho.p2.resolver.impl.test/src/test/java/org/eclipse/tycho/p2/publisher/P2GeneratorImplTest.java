@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.publisher;
 
+import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasGAV;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -43,7 +45,7 @@ public class P2GeneratorImplTest {
         IInstallableUnit sourceBundleUnit = getUnit("foo.source", units);
         assertNotNull(sourceBundleUnit);
         assertEquals(Version.create("0.0.1"), sourceBundleUnit.getVersion());
-        assertEquals("sources", sourceBundleUnit.getProperties().get("maven-classifier"));
+        assertThat(sourceBundleUnit, hasGAV("org.acme", "foo", "0.0.1", "sources"));
         ITouchpointData touchPointData = sourceBundleUnit.getTouchpointData().iterator().next();
         String manifestContent = touchPointData.getInstruction("manifest").getBody();
         Manifest manifest = new Manifest(new ByteArrayInputStream(manifestContent.getBytes("UTF-8")));
