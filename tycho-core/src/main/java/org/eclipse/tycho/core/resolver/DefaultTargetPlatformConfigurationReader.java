@@ -53,15 +53,15 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 addTargetEnvironments(result, project, configuration);
 
-                result.setResolver(getTargetPlatformResolver(configuration));
+                setTargetPlatformResolver(result, configuration);
 
-                result.setTarget(getTarget(session, project, configuration));
+                setTarget(result, session, project, configuration);
 
-                result.setPomDependencies(getPomDependencies(configuration));
+                setPomDependencies(result, configuration);
 
-                result.setAllowConflictingDependencies(getAllowConflictingDependencies(configuration));
+                setAllowConflictingDependencies(result, configuration);
 
-                result.setIgnoreTychoRepositories(getIgnoreTychoRepositories(configuration));
+                setIgnoreTychoRepositories(result, configuration);
             }
         }
 
@@ -87,13 +87,13 @@ public class DefaultTargetPlatformConfigurationReader {
         return result;
     }
 
-    private Boolean getAllowConflictingDependencies(Xpp3Dom configuration) {
+    private void setAllowConflictingDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom allowConflictingDependenciesDom = configuration.getChild("allowConflictingDependencies");
         if (allowConflictingDependenciesDom == null) {
-            return null;
+            return;
         }
 
-        return Boolean.parseBoolean(allowConflictingDependenciesDom.getValue());
+        result.setAllowConflictingDependencies(Boolean.parseBoolean(allowConflictingDependenciesDom.getValue()));
     }
 
     private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project, Xpp3Dom configuration) {
@@ -124,40 +124,41 @@ public class DefaultTargetPlatformConfigurationReader {
         return null;
     }
 
-    private boolean getIgnoreTychoRepositories(Xpp3Dom configuration) {
+    private void setIgnoreTychoRepositories(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom ignoreTychoRepositoriesDom = configuration.getChild("ignoreTychoRepositories");
         if (ignoreTychoRepositoriesDom == null) {
-            return true;
+            return;
         }
 
-        return Boolean.parseBoolean(ignoreTychoRepositoriesDom.getValue());
+        result.setIgnoreTychoRepositories(Boolean.parseBoolean(ignoreTychoRepositoriesDom.getValue()));
     }
 
-    private String getPomDependencies(Xpp3Dom configuration) {
+    private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom pomDependenciesDom = configuration.getChild("pomDependencies");
         if (pomDependenciesDom == null) {
-            return null;
+            return;
         }
 
-        return pomDependenciesDom.getValue();
+        result.setPomDependencies(pomDependenciesDom.getValue());
     }
 
-    private Target getTarget(MavenSession session, MavenProject project, Xpp3Dom configuration) {
+    private void setTarget(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
+            Xpp3Dom configuration) {
         Xpp3Dom targetDom = configuration.getChild("target");
         if (targetDom == null) {
-            return null;
+            return;
         }
 
         Xpp3Dom artifactDom = targetDom.getChild("artifact");
         if (artifactDom == null) {
-            return null;
+            return;
         }
 
         Xpp3Dom groupIdDom = artifactDom.getChild("groupId");
         Xpp3Dom artifactIdDom = artifactDom.getChild("artifactId");
         Xpp3Dom versionDom = artifactDom.getChild("version");
         if (groupIdDom == null || artifactIdDom == null || versionDom == null) {
-            return null;
+            return;
         }
         Xpp3Dom classifierDom = artifactDom.getChild("classifier");
 
@@ -192,20 +193,20 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         try {
-            return Target.read(targetFile);
+            result.setTarget(Target.read(targetFile));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String getTargetPlatformResolver(Xpp3Dom configuration) {
+    private void setTargetPlatformResolver(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom resolverDom = configuration.getChild("resolver");
 
         if (resolverDom == null) {
-            return null;
+            return;
         }
 
-        return resolverDom.getValue();
+        result.setResolver(resolverDom.getValue());
     }
 
     private TargetEnvironment newTargetEnvironment(Xpp3Dom environmentDom) {
