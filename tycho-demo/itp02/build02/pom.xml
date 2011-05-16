@@ -26,6 +26,11 @@
       <artifactId>pomfirst-bundle</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>tycho.demo.itp02</groupId>
+      <artifactId>pomfirst-thirdparty</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <repositories>

@@ -10,10 +10,12 @@
  *******************************************************************************/
 package tycho.demo.itp02.pomfirst;
 
+import org.codehaus.plexus.util.StringUtils;
+
 public class PomFirst {
 
     public String getMessage() {
-        return "maven-bundle-plugin";
+        return StringUtils.clean("maven-bundle-plugin");
     }
 
 }
