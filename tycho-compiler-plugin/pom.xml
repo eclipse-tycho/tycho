@@ -83,7 +83,6 @@
 		<dependency>
 			<groupId>bcel</groupId>
 			<artifactId>bcel</artifactId>
-			<version>5.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
