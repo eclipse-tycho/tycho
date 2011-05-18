@@ -44,6 +44,7 @@
 		<resources-plugin.version>2.4.3</resources-plugin.version>
 		<install-plugin.version>2.3.1</install-plugin.version>
 		<deploy-plugin.version>2.5</deploy-plugin.version>
+		<clean-plugin.version>2.4.1</clean-plugin.version>
 	</properties>
 
 	<build>

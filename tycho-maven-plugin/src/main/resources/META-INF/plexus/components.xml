@@ -291,7 +291,7 @@
               <initialize>
                 <!-- P2 publisher application will accumulate the published content in resulting repositories.
                 The build needs to guarantee that legacy build content is removed from output folder prior to each build. -->
-              	org.apache.maven.plugins:maven-clean-plugin:clean
+              	org.apache.maven.plugins:maven-clean-plugin:${clean-plugin.version}:clean
               </initialize>
               <package>
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-products,
