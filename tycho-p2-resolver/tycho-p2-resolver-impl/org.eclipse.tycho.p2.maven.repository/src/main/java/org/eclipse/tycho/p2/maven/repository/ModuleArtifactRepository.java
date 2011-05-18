@@ -11,15 +11,9 @@
 package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -53,42 +47,8 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
     }
 
     @Override
-    public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-        return getRawArtifact(descriptor, destination, monitor);
-    }
-
-    @SuppressWarnings("restriction")
-    public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-        GAV gav = RepositoryLayoutHelper.getGAV(descriptor.getProperties());
-        String classifier = descriptor.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
-        if (gav == null) {
-            return new Status(IStatus.ERROR, Activator.ID, "Maven coordinates in artifact "
-                    + descriptor.getArtifactKey().toExternalForm() + " are missing");
-        }
-
-        try {
-            String extension = null; // not needed
-            InputStream source = getContentLocator().getContents(gav, classifier, extension);
-
-            // copy to destination and close source 
-            FileUtils.copyStream(source, true, destination, false);
-        } catch (IOException e) {
-            return new Status(IStatus.ERROR, Activator.ID, "I/O exception while reading artifact "
-                    + descriptor.getArtifactKey().toExternalForm(), e);
-        }
-
-        return Status.OK_STATUS;
-    }
-
-    @Override
     public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IStatus resolve(IArtifactDescriptor descriptor) {
-        // nothing to do
-        return Status.OK_STATUS;
     }
 
     static boolean canAttemptRead(File repositoryDir) {

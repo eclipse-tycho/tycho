@@ -7,11 +7,13 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    SAP AG - make readable as p2 artifact repository
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +25,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -38,19 +41,22 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
+/**
+ * Base class for p2 artifact repositories with GAV-based artifact storage.
+ */
 public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRepository {
     public static final String VERSION = "1.0.0";
 
     private static final IArtifactDescriptor[] ARTIFACT_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
 
+    // TODO where do we need multiple descriptors per artifact key? do we support storing pack200 compressed files in the local Maven repo?
     protected Map<IArtifactKey, Set<IArtifactDescriptor>> descriptorsMap = new HashMap<IArtifactKey, Set<IArtifactDescriptor>>();
 
     protected Set<IArtifactDescriptor> descriptors = new HashSet<IArtifactDescriptor>();
 
     private final RepositoryReader contentLocator;
 
-    private final TychoRepositoryIndex projectIndex;
-
+    @Deprecated
     protected AbstractMavenArtifactRepository(URI uri, TychoRepositoryIndex projectIndex,
             RepositoryReader contentLocator) {
         this(Activator.getProvisioningAgent(), uri, projectIndex, contentLocator);
@@ -58,15 +64,18 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
     protected AbstractMavenArtifactRepository(IProvisioningAgent agent, URI uri, TychoRepositoryIndex projectIndex,
             RepositoryReader contentLocator) {
-        super(agent, "Maven Local Repository", AbstractMavenArtifactRepository.class.getName(), VERSION, uri, null,
-                null, null);
-        this.projectIndex = projectIndex;
-        this.contentLocator = contentLocator;
+        this(agent, uri, contentLocator);
 
-        loadMaven();
+        loadMaven(projectIndex);
     }
 
-    protected void loadMaven() {
+    protected AbstractMavenArtifactRepository(IProvisioningAgent agent, URI uri, RepositoryReader contentLocator) {
+        super(agent, "Maven Local Repository", AbstractMavenArtifactRepository.class.getName(), VERSION, uri, null,
+                null, null);
+        this.contentLocator = contentLocator;
+    }
+
+    protected void loadMaven(TychoRepositoryIndex projectIndex) {
         final ArtifactsIO io = new ArtifactsIO();
 
         for (final GAV gav : projectIndex.getProjectGAVs()) {
@@ -76,15 +85,8 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
                 try {
                     final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
                     for (IArtifactDescriptor descriptor : gavDescriptors) {
-                        final IArtifactKey key = descriptor.getArtifactKey();
-                        Set<IArtifactDescriptor> descriptorsForKey = descriptorsMap.get(key);
-                        if (descriptorsForKey == null) {
-                            descriptorsForKey = new HashSet<IArtifactDescriptor>();
-                            descriptorsMap.put(key, descriptorsForKey);
-                        }
-                        descriptorsForKey.add(descriptor);
+                        internalAddDescriptor(descriptor);
                     }
-                    descriptors.addAll(gavDescriptors);
                 } finally {
                     is.close();
                 }
@@ -97,12 +99,16 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
     @Override
     public boolean contains(IArtifactDescriptor descriptor) {
-        return descriptor != null && descriptors.contains(descriptor);
+        if (descriptor == null)
+            throw new NullPointerException();
+        return descriptors.contains(descriptor);
     }
 
     @Override
     public boolean contains(IArtifactKey key) {
-        return key != null && descriptorsMap.containsKey(key);
+        if (key == null)
+            throw new NullPointerException();
+        return descriptorsMap.containsKey(key);
     }
 
     @Override
@@ -125,27 +131,41 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         return contentLocator;
     }
 
-    public abstract IStatus resolve(IArtifactDescriptor descriptor);
+    public IStatus resolve(IArtifactDescriptor descriptor) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public void addDescriptor(IArtifactDescriptor descriptor) {
         super.addDescriptor(descriptor);
+        internalAddDescriptor(descriptor);
+    }
 
+    protected final void internalAddDescriptor(IArtifactDescriptor descriptor) {
         descriptors.add(descriptor);
 
         IArtifactKey key = descriptor.getArtifactKey();
+        Set<IArtifactDescriptor> descriptorsForKey = descriptorsMap.get(key);
 
-        Set<IArtifactDescriptor> keyDescriptors = descriptorsMap.get(key);
-
-        if (keyDescriptors == null) {
-            keyDescriptors = new HashSet<IArtifactDescriptor>();
-            descriptorsMap.put(key, keyDescriptors);
+        if (descriptorsForKey == null) {
+            descriptorsForKey = new HashSet<IArtifactDescriptor>();
+            descriptorsMap.put(key, descriptorsForKey);
         }
 
-        keyDescriptors.add(descriptor);
+        descriptorsForKey.add(descriptor);
     }
 
-    public GAV getGAV(IArtifactDescriptor descriptor) {
+    // TODO shouldn't this be implemented in the super class from p2?
+    @Override
+    public void addDescriptors(IArtifactDescriptor[] descriptors) {
+        super.addDescriptors(descriptors);
+
+        for (IArtifactDescriptor descriptor : descriptors) {
+            addDescriptor(descriptor);
+        }
+    }
+
+    GAV getGAV(IArtifactDescriptor descriptor) {
         GAV gav = RepositoryLayoutHelper.getGAV(((ArtifactDescriptor) descriptor).getProperties());
 
         if (gav == null) {
@@ -167,6 +187,7 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         };
     }
 
+    // TODO shouldn't this be implemented in the super class from p2?
     @Override
     public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
         SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
@@ -185,4 +206,35 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
             monitor.done();
         }
     }
+
+    @Override
+    public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+        // default: the artifacts are stored raw and don't need further processing
+        return getRawArtifact(descriptor, destination, monitor);
+    }
+
+    @SuppressWarnings("restriction")
+    public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+        // TODO consolidate this logic with org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository.getLocationFile(IArtifactDescriptor) 
+        GAV gav = getGAV(descriptor);
+        String classifier = RepositoryLayoutHelper.getClassifier(descriptor.getProperties());
+        String extension = RepositoryLayoutHelper.getExtension(descriptor.getProperties());
+
+        if ("packed".equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
+            classifier = "pack200";
+            extension = "jar.pack.gz";
+        }
+
+        try {
+            InputStream source = contentLocator.getContents(gav, classifier, extension);
+
+            // copy to destination and close source 
+            FileUtils.copyStream(source, true, destination, false);
+        } catch (IOException e) {
+            return new Status(IStatus.ERROR, Activator.ID, "I/O exception while reading artifact "
+                    + gav.toExternalForm() + ":" + classifier + ":" + extension, e);
+        }
+        return Status.OK_STATUS;
+    }
+
 }

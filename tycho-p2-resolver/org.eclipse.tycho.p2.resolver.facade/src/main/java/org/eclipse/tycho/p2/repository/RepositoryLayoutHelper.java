@@ -88,11 +88,20 @@ public class RepositoryLayoutHelper {
         return sb.toString();
     }
 
+    public static GAV getP2Gav(String classifier, String id, String version) {
+        // Should match MavenDependencyCollector#createSystemScopeDependency
+        return new GAV("p2." + classifier, id, version);
+    }
+
+    // TODO these methods do not belong here - they should go to GAV or some kind of GAV helper
+    // TODO writing to Maps should be implemented next to reading
+
     public static GAV getGAV(Map properties) {
         String groupId = (String) properties.get(PROP_GROUP_ID);
         String artifactId = (String) properties.get(PROP_ARTIFACT_ID);
         String version = (String) properties.get(PROP_VERSION);
 
+        // TODO partial information should be an error!?
         return getGAV(groupId, artifactId, version);
     }
 
@@ -104,8 +113,13 @@ public class RepositoryLayoutHelper {
         return null;
     }
 
-    public static GAV getP2Gav(String classifier, String id, String version) {
-        // Should match MavenDependencyCollector#createSystemScopeDependency
-        return new GAV("p2." + classifier, id, version);
+    // TODO it would be useful to have a GAV+C+T class
+    public static String getClassifier(Map properties) {
+        return (String) properties.get(PROP_CLASSIFIER);
+    }
+
+    public static String getExtension(Map properties) {
+        String explicitExtension = (String) properties.get(PROP_EXTENSION);
+        return explicitExtension == null ? DEFAULT_EXTERNSION : explicitExtension;
     }
 }

@@ -15,16 +15,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -113,14 +108,6 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
     }
 
     @Override
-    public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-        // we believe we do not need to implement artifact pre and post processing as in the
-        // org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository
-        // because the P2 mirroring has already done that
-        return getRawArtifact(descriptor, destination, monitor);
-    }
-
-    @Override
     public synchronized OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
         GAV gav = RepositoryLayoutHelper.getGAV(descriptor.getProperties());
 
@@ -155,31 +142,6 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         }
     }
 
-    public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-        URI location = getLocation(descriptor);
-        try {
-            InputStream source = location.toURL().openStream();
-            try {
-                copyStream(source, destination);
-            } finally {
-                source.close();
-            }
-        } catch (MalformedURLException e) {
-            return new Status(IStatus.ERROR, Activator.ID, "Invalid location in artifact descriptor: " + descriptor, e);
-        } catch (IOException e) {
-            return new Status(IStatus.ERROR, Activator.ID, "Could not retrieve artifact from location: " + location, e);
-        }
-        return Status.OK_STATUS;
-    }
-
-    private static void copyStream(final InputStream source, final OutputStream destination) throws IOException {
-        final byte[] buffer = new byte[8192];
-        int length;
-        while ((length = source.read(buffer)) != -1) {
-            destination.write(buffer, 0, length);
-        }
-    }
-
     public File getBasedir() {
         return new File(getLocation());
     }
@@ -194,24 +156,20 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
     }
 
     private File getLocationFile(IArtifactDescriptor descriptor) {
+        // TODO consolidate with org.eclipse.tycho.p2.maven.repository.AbstractMavenArtifactRepository.getRawArtifact(IArtifactDescriptor, OutputStream, IProgressMonitor)
         GAV gav = getGAV(descriptor);
+        String classifier = RepositoryLayoutHelper.getClassifier(descriptor.getProperties());
+        String extension = RepositoryLayoutHelper.getExtension(descriptor.getProperties());
 
-        File basedir = getBasedir();
-
-        String classifier = descriptor.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
-        String extension = descriptor.getProperty(RepositoryLayoutHelper.PROP_EXTENSION);
-
+        // TODO where does this magic come from? the logic behind this should be made explicit and e.g. moved into a separate class
+        // TODO bring together with other pack200 magic in org.eclipse.tycho.p2.maven.repository.MavenArtifactRepository.downloadArtifact(IArtifactDescriptor, OutputStream)
         if ("packed".equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
             classifier = "pack200";
             extension = "jar.pack.gz";
         }
 
+        File basedir = getBasedir();
         return new File(basedir, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
-    }
-
-    @Override
-    public IStatus resolve(IArtifactDescriptor descriptor) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -245,6 +203,8 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         getLocationFile(descriptor).delete();
 
         changedDescriptors.remove(descriptor.getArtifactKey());
+        // TODO this doesn't work if the descriptor is not in changedDescriptors
+        // TODO who needs this method?
     }
 
 }
