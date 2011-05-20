@@ -49,8 +49,7 @@ public interface PublisherService {
             throws FacadeException, IllegalStateException;
 
     /**
-     * Stops this PublisherService instance. This shuts down and unregisters internally used
-     * services.
+     * Stops this PublisherService instance. This releases internally used resources.
      */
     void stop();
 }

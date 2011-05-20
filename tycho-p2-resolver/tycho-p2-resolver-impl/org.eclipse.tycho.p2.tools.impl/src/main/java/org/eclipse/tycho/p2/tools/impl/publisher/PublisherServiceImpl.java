@@ -18,10 +18,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.tycho.p2.tools.BuildContext;
@@ -30,34 +28,19 @@ import org.eclipse.tycho.p2.tools.publisher.PublisherService;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 @SuppressWarnings("restriction")
-public class PublisherServiceImpl implements PublisherService {
+class PublisherServiceImpl implements PublisherService {
 
     private final BuildContext context;
 
-    private final IPublisherInfo publisherInfo;
+    PublisherInfoTemplate configuration;
 
-    private IProvisioningAgent agent;
-
-    /**
-     * Creates a new service to execute certain publisher actions.
-     * 
-     * @param context
-     *            Context information about the running Maven build.
-     * @param publisherInfo
-     *            The publisher info with target and context repositories configured.
-     * @param agent
-     *            The provisioning agent used to populate the publisher info. The responsibility for
-     *            this instance is passed to the newly created instance.
-     */
-    PublisherServiceImpl(BuildContext context, IPublisherInfo publisherInfo, IProvisioningAgent agent) {
+    public PublisherServiceImpl(BuildContext context, PublisherInfoTemplate publisherConfiguration) {
         this.context = context;
-        this.publisherInfo = publisherInfo;
-        this.agent = agent;
+        this.configuration = publisherConfiguration;
     }
 
     public Collection<IInstallableUnit> publishCategories(File categoryDefinition) throws FacadeException,
             IllegalStateException {
-        checkRunning();
 
         /*
          * At this point, we expect that the category.xml file does no longer contain any
@@ -78,7 +61,6 @@ public class PublisherServiceImpl implements PublisherService {
 
     public Collection<IInstallableUnit> publishProduct(File productDefinition, File launcherBinaries, String flavor)
             throws FacadeException, IllegalStateException {
-        checkRunning();
 
         IProductDescriptor productDescriptor = null;
         try {
@@ -98,7 +80,7 @@ public class PublisherServiceImpl implements PublisherService {
     private Collection<IInstallableUnit> executePublisher(IPublisherAction action) throws FacadeException {
         ResultSpyAction resultSpy = new ResultSpyAction();
         IPublisherAction[] actions = new IPublisherAction[] { action, resultSpy };
-        Publisher publisher = new Publisher(publisherInfo);
+        Publisher publisher = new Publisher(configuration.newPublisherInfo());
 
         IStatus result = publisher.publish(actions, null);
         if (!result.isOK()) {
@@ -118,14 +100,6 @@ public class PublisherServiceImpl implements PublisherService {
     }
 
     public void stop() {
-        if (agent != null) {
-            agent.stop();
-            agent = null;
-        }
-    }
-
-    private void checkRunning() throws IllegalStateException {
-        if (agent == null)
-            throw new IllegalStateException("Attempt to access stopped publisher service: " + this); //$NON-NLS-1$
+        configuration.stopAgent();
     }
 }

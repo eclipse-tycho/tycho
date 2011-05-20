@@ -20,6 +20,11 @@ public interface PublisherServiceFactory {
     /**
      * Creates a {@link PublisherService} instance that can be used to publish artifacts. The
      * results are stored as metadata and artifacts repository at the given location.
+     * <p>
+     * Note: Only one <code>PublisherService</code> instance shall be active at a time for each
+     * project, so that certain sub-folders of the target folder can be used as storage location of
+     * an unsynchronised cache.
+     * </p>
      * 
      * @param targetRepository
      *            The location of the output repository; if the output repository exists, new
@@ -28,7 +33,7 @@ public interface PublisherServiceFactory {
      *            Context metadata repositories that may be consulted by the publishers; note that
      *            artifact repository references in the argument are ignored
      * @param context
-     *            Context information about the current build
+     *            Context information about the current project
      * @return A new {@link PublisherService} instance. The caller is responsible to call
      *         <tt>stop</tt> on the instance after use
      * @throws FacadeException
