@@ -17,13 +17,12 @@ import org.junit.Test;
 public class PackageRootFilesTest extends AbstractTychoIntegrationTest {
 
     @Override
-    @SuppressWarnings("unchecked")
     protected Verifier getVerifier(String test) throws Exception {
         Verifier verifier = super.getVerifier(test);
 
-        verifier.getCliOptions().add("-Dosgi.os=macosx");
-        verifier.getCliOptions().add("-Dosgi.ws=carbon");
-        verifier.getCliOptions().add("-Dosgi.arch=x86");
+        verifier.getSystemProperties().setProperty("osgi.os", "macosx");
+        verifier.getSystemProperties().setProperty("osgi.ws", "carbon");
+        verifier.getSystemProperties().setProperty("osgi.arch", "x86");
 
         return verifier;
     }

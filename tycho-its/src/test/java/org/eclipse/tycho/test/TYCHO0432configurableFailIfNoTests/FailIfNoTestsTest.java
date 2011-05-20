@@ -21,7 +21,7 @@ public class FailIfNoTestsTest extends AbstractTychoIntegrationTest {
     @Test
     public void testNoTestsNoFailure() throws Exception {
         Verifier verifier = getVerifier("/TYCHO0432configurableFailIfNoTests");
-        verifier.getCliOptions().add("-DfailIfNoTests=false");
+        verifier.getSystemProperties().setProperty("failIfNoTests", "false");
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
     }

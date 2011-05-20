@@ -17,6 +17,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,13 +27,13 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
     public void testLocalMavenRepository() throws Exception {
         // build01
         Verifier v01 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build01", false);
-        v01.getCliOptions().add("-Dp2.repo=" + toURI(new File("repositories/e342")));
+        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
         // build02, some dependencies come from local, some from remote repositories
         Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false);
-        v02.getCliOptions().add("-Dp2.repo=" + toURI(new File("repositories/e342")));
+        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
         v02.executeGoal("install");
         v02.verifyErrorFreeLog();
         File site = new File(v02.getBasedir(), "build02.site01/target/site");
@@ -56,8 +57,8 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
         new File(localBasedir, LocalTychoRepositoryIndex.METADATA_INDEX_RELPATH).delete();
 
         // install build01
-        v01.getCliOptions().add("-Dp2.repo=" + toURI(new File("repositories/e342")));
-        v01.getCliOptions().add("-Dmaven.test.skip=true");
+        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+        v01.getSystemProperties().setProperty("maven.test.skip", "true");
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
@@ -76,8 +77,8 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
 
         // build02
         Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false);
-        v02.getCliOptions().add("-Dp2.repo=" + toURI(new File("repositories/e342")));
-        v02.getCliOptions().add("-Drepo.snapshots=" + toURI(remoteBasedir));
+        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
+        v02.getSystemProperties().setProperty("repo.snapshots", toURI(remoteBasedir).toString());
         v02.executeGoal("install");
         v02.verifyErrorFreeLog();
 

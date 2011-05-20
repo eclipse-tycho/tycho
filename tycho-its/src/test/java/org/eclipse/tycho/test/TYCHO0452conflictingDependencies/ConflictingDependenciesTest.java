@@ -14,14 +14,15 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class ConflictingDependenciesTest extends AbstractTychoIntegrationTest {
     @Test
     public void test() throws Exception {
         Verifier verifier = getVerifier("/TYCHO0452conflictingDependencies", false);
-        verifier.getCliOptions().add("-De342-p2.repo=" + toURI(new File("repositories/e342")));
-        verifier.getCliOptions().add("-De352-p2.repo=" + toURI(new File("repositories/e352")));
+        verifier.getSystemProperties().setProperty("e342-p2.repo", P2Repositories.ECLIPSE_342.toString());
+        verifier.getSystemProperties().setProperty("e352-p2.repo", P2Repositories.ECLIPSE_352.toString());
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
 

@@ -18,19 +18,17 @@ import junit.framework.Assert;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.UpdateSiteUtil;
-import org.junit.Test;
 
 /* java -jar \eclipse\plugins\org.eclipse.equinox.launcher_1.0.1.R33x_v20080118.jar -application org.eclipse.update.core.siteOptimizer -digestBuilder -digestOutputDir=d:\temp\eclipse\digest -siteXML=D:\sonatype\workspace\tycho\tycho-its\projects\tycho129\tycho.demo.site\target\site\site.xml  -jarProcessor -processAll -pack -outputDir d:\temp\eclipse\site D:\sonatype\workspace\tycho\tycho-its\projects\tycho129\tycho.demo.site\target\site */
 public class SignJarsTestDisabled extends AbstractTychoIntegrationTest {
 
     //@Test
-    @SuppressWarnings("unchecked")
     public void signSite() throws Exception {
         Verifier verifier = getVerifier("/tycho134");
-        verifier.getCliOptions().add("-Dkeystore=" + getResourceFile("tycho134/.keystore").getAbsolutePath());
-        verifier.getCliOptions().add("-Dstorepass=sonatype-keystore");
-        verifier.getCliOptions().add("-Dalias=tycho");
-        verifier.getCliOptions().add("-Dkeypass=tycho-signing");
+        verifier.getSystemProperties().setProperty("keystore", getResourceFile("tycho134/.keystore").getAbsolutePath());
+        verifier.getSystemProperties().setProperty("storepass", "sonatype-keystore");
+        verifier.getSystemProperties().setProperty("alias", "tycho");
+        verifier.getSystemProperties().setProperty("keypass", "tycho-signing");
 
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();

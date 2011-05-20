@@ -18,17 +18,12 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.zip.ZipException;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.TYCHO188P2EnabledRcp.Util;
+import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.NodeList;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -38,14 +33,12 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
     static final String QUALIFIER = "forced";
     static final String MODULE = "eclipse-repository";
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testProductBuild() throws Exception {
         Verifier verifier = new Tycho465RootFilesTest().getVerifier("/TYCHO465RootFiles", false);
 
-        verifier.getCliOptions().add("-DforceContextQualifier=" + Tycho465RootFilesTest.QUALIFIER);
-        verifier.getCliOptions().add(
-                "-Dp2.repo=" + new File("repositories/e342").getCanonicalFile().toURI().normalize().toString());
+        verifier.getSystemProperties().setProperty("forceContextQualifier", Tycho465RootFilesTest.QUALIFIER.toString());
+        verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
 
         verifier.executeGoal("install");
         verifier.verifyErrorFreeLog();
@@ -65,9 +58,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
         // to the project and are available from the local repository
         Verifier eclipseRepoProjectVerifier = getVerifier("/TYCHO465RootFiles/eclipse-repository", false);
 
-        eclipseRepoProjectVerifier.getCliOptions().add("-DforceContextQualifier=" + Tycho465RootFilesTest.QUALIFIER);
-        eclipseRepoProjectVerifier.getCliOptions().add(
-                "-Dp2.repo=" + new File("repositories/e342").getCanonicalFile().toURI().normalize().toString());
+        eclipseRepoProjectVerifier.getSystemProperties().setProperty("forceContextQualifier",
+                Tycho465RootFilesTest.QUALIFIER.toString());
+        eclipseRepoProjectVerifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
 
         eclipseRepoProjectVerifier.executeGoal("verify");
         eclipseRepoProjectVerifier.verifyErrorFreeLog();

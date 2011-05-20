@@ -29,13 +29,12 @@ import org.junit.Test;
 
 public class BuildQualifierTest extends AbstractTychoIntegrationTest {
 
-    @SuppressWarnings("unchecked")
     @Test
     public void checkProduct() throws Exception {
         Verifier verifier = getVerifier("/TYCHO197buildqualifier/product-test");
 
         final String timestamp = "20022002-2002";
-        verifier.getCliOptions().add("-DforceContextQualifier=" + timestamp);
+        verifier.getSystemProperties().setProperty("forceContextQualifier", timestamp);
         verifier.executeGoal("install");
         verifier.verifyErrorFreeLog();
 
@@ -66,13 +65,12 @@ public class BuildQualifierTest extends AbstractTychoIntegrationTest {
         Assert.assertEquals("Invalid Bundle-Version at plugin Manifest.MF", version, bundleVersion);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void checkSite() throws Exception {
         Verifier verifier = getVerifier("/TYCHO197buildqualifier/site-test");
 
         final String timestamp = "20022002-2002";
-        verifier.getCliOptions().add("-DforceContextQualifier=" + timestamp);
+        verifier.getSystemProperties().setProperty("forceContextQualifier", timestamp);
         verifier.executeGoal("install");
         verifier.verifyErrorFreeLog();
 

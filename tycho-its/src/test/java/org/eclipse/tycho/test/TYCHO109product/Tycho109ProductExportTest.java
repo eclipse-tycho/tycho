@@ -111,7 +111,7 @@ public class Tycho109ProductExportTest extends AbstractTychoIntegrationTest {
         }
 
         Verifier verifier = getVerifier("/TYCHO109product/product-nozip/product");
-        verifier.getCliOptions().add("-Dtycho.product.createArchive=false");
+        verifier.getSystemProperties().setProperty("tycho.product.createArchive", "false");
 
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();

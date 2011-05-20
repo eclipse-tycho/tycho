@@ -17,6 +17,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.model.Target;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
+import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
 
     @Test
     public void testRepository() throws Exception {
-        String url = server.addServer("foo", new File("repositories/e342"));
+        String url = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/e342"));
 
         Verifier verifier = getVerifier("/TYCHO319passwordProtectedP2Repository", false, new File(
                 "projects/TYCHO319passwordProtectedP2Repository/settings.xml"));
@@ -49,7 +50,7 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
 
     @Test
     public void testTargetDefinition() throws Exception {
-        String url = server.addServer("foo", new File("repositories/e342"));
+        String url = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/e342"));
 
         Verifier verifier = getVerifier("/TYCHO319passwordProtectedP2Repository", false, new File(
                 "projects/TYCHO319passwordProtectedP2Repository/settings.xml"));

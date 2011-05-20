@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO551TransitiveP2Repo;
 
+import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -30,8 +32,7 @@ public class TYCHO551TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
     @BeforeClass
     public static void buildFeatureAndBundlesAndRepos() throws Exception {
         verifier = new TYCHO551TransitiveP2RepoTest().getVerifier("/TYCHO551TransitiveP2Repo", false);
-        verifier.getCliOptions().add(
-                "-Dp2.repo=" + new File("repositories/e352").getCanonicalFile().toURI().normalize().toString());
+        verifier.getSystemProperties().setProperty("p2.repo", ECLIPSE_352.toString());
         /*
          * Do not execute "install" to ensure that features and bundles can be included directly
          * from the build results of the local reactor.

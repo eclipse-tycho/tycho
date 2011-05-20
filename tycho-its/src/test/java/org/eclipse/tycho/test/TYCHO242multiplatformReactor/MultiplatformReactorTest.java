@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class MultiplatformReactorTest extends AbstractTychoIntegrationTest {
@@ -21,7 +22,7 @@ public class MultiplatformReactorTest extends AbstractTychoIntegrationTest {
     @Test
     public void testMultiplatformReactorBuild() throws Exception {
         Verifier verifier = getVerifier("/TYCHO242multiplatformReactor", false);
-        verifier.getCliOptions().add("-DtestRepository=" + new File("repositories/e342").getCanonicalFile().toURI());
+        verifier.getSystemProperties().setProperty("testRepository", P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
 

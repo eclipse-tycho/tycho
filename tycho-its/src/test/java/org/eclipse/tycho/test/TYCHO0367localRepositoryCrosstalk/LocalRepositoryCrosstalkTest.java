@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO0367localRepositoryCrosstalk;
 
-import java.io.File;
-
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class LocalRepositoryCrosstalkTest extends AbstractTychoIntegrationTest {
@@ -21,13 +20,13 @@ public class LocalRepositoryCrosstalkTest extends AbstractTychoIntegrationTest {
     public void test() throws Exception {
         // run e352 test first
         Verifier v01 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle02", false);
-        v01.getCliOptions().add("-Dp2.repo=" + toURI(new File("repositories/e352")));
+        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_352.toString());
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
         // now run e342 test, it should not "see" e352 artifacts in local repo
         Verifier v02 = getVerifier("/TYCHO0367localRepositoryCrosstalk/bundle01", false);
-        v02.getCliOptions().add("-Dp2.repo=" + toURI(new File("repositories/e342")));
+        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
         v02.executeGoal("install");
         v02.verifyErrorFreeLog();
     }

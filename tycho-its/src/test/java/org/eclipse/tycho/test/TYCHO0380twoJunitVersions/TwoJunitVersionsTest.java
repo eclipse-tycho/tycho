@@ -22,7 +22,8 @@ public class TwoJunitVersionsTest extends AbstractTychoIntegrationTest {
         String targetPlatform = new File("repositories/junit4").getCanonicalPath();
 
         Verifier verifier = getVerifier("/TYCHO0380twoJunitVersions", false);
-        verifier.getCliOptions().add("-Dtycho.targetPlatform=" + targetPlatform.replace('\\', '/'));
+        verifier.getSystemProperties()
+                .setProperty("tycho.targetPlatform", targetPlatform.replace('\\', '/').toString());
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
 

@@ -14,13 +14,14 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class ProductP2TargetPlatformResolverTest extends AbstractTychoIntegrationTest {
     @Test
     public void testBasic() throws Exception {
         Verifier verifier = getVerifier("/TYCHO0294ProductP2TargetPlatformResolver");
-        verifier.getCliOptions().add("-Dp2.repo=" + toURI(new File("repositories/e342")));
+        verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoal("install");
         verifier.verifyErrorFreeLog();
 

@@ -11,7 +11,6 @@
 package org.eclipse.tycho.test;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
 public class TYCHO45Test extends AbstractTychoIntegrationTest {
@@ -23,15 +22,15 @@ public class TYCHO45Test extends AbstractTychoIntegrationTest {
         Verifier verifier = getVerifier("TYCHO45");
 
         // generate poms
-        verifier.getCliOptions().add("-DgroupId=tycho45");
-        verifier.getCliOptions().add("-DtestSuite=tests.suite");
+        verifier.getSystemProperties().setProperty("groupId", "tycho45");
+        verifier.getSystemProperties().setProperty("testSuite", "tests.suite");
         verifier.setAutoclean(false);
         verifier.setLogFileName("log-init.txt");
         verifier.executeGoal("org.eclipse.tycho:tycho-pomgenerator-plugin:" + tychoVersion + ":generate-poms");
         verifier.verifyErrorFreeLog();
 
         // run the build
-        verifier.getCliOptions().add("-DtestClass=tests.suite.AllTests");
+        verifier.getSystemProperties().setProperty("testClass", "tests.suite.AllTests");
         verifier.setLogFileName("log-test.txt");
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
