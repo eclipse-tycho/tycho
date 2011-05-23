@@ -23,7 +23,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;

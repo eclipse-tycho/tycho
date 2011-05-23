@@ -13,7 +13,6 @@ package org.eclipse.tycho.test;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 

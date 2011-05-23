@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.eclipse.tycho.plugins.p2.P2MetadataMojo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

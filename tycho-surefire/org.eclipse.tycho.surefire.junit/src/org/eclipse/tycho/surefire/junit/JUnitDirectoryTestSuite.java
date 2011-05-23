@@ -18,17 +18,17 @@
  */
 package org.eclipse.tycho.surefire.junit;
 
+import java.io.File;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+
 import junit.framework.Test;
 
 import org.apache.maven.surefire.suite.AbstractDirectoryTestSuite;
 import org.apache.maven.surefire.testset.PojoTestSet;
 import org.apache.maven.surefire.testset.SurefireTestSet;
 import org.apache.maven.surefire.testset.TestSetFailedException;
-
-import java.io.File;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 
 /**
  * Test suite for JUnit tests based on a directory of Java test classes.

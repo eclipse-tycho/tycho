@@ -22,7 +22,6 @@ import org.apache.maven.it.util.cli.CommandLineUtils;
 import org.apache.maven.it.util.cli.Commandline;
 import org.apache.maven.it.util.cli.StreamConsumer;
 import org.apache.maven.it.util.cli.WriterStreamConsumer;
-import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.DefaultHandler;

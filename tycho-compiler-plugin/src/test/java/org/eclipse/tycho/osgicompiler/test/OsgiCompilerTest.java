@@ -20,9 +20,9 @@ import org.apache.bcel.classfile.JavaClass;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
+import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 import copied.org.apache.maven.plugin.CompilationFailureException;
 

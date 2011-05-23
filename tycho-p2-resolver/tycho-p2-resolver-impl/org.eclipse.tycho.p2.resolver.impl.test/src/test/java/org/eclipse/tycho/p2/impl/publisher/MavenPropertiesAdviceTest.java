@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.Map;
 
-import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.junit.Test;
 

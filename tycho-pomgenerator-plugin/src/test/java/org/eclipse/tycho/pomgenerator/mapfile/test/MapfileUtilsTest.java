@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomgenerator.mapfile.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import org.eclipse.tycho.pomgenerator.mapfile.MapEntry;
 import org.eclipse.tycho.pomgenerator.mapfile.MapfileUtils;

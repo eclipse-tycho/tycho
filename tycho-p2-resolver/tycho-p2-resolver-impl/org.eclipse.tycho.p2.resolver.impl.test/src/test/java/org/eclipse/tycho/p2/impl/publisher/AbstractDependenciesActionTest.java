@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.tycho.p2.impl.publisher.AbstractDependenciesAction;
 import org.junit.Before;
 import org.junit.Test;
 

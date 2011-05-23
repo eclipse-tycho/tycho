@@ -15,7 +15,6 @@ import java.io.IOException;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.plugins.p2.publisher.PublishProductMojo;
 import org.eclipse.tycho.plugins.p2.publisher.PublishProductMojo.Product;
 import org.eclipse.tycho.testing.TestUtil;
 import org.junit.After;

@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.p2.impl.publisher.FeatureRootAdviceTest;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
-import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.junit.Assert;

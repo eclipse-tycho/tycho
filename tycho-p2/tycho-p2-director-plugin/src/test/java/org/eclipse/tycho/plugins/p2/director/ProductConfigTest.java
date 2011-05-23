@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.tycho.plugins.p2.director.Product;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
