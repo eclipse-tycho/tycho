@@ -7,14 +7,36 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    SAP AG - provide local artifact location; added documentation
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Interface to obtain artifacts from GAV-indexed repositories.
+ */
 public interface RepositoryReader {
 
+    /**
+     * Returns the content of the identified artifact.
+     * 
+     * @return an input stream for reading the artifact; never <code>null</code>
+     * @throws IOException
+     *             if the artifact does not exist or cannot be obtained.
+     */
     InputStream getContents(GAV gav, String classifier, String extension) throws IOException;
+
+    /**
+     * Returns the permanent, local file system location of the identified artifact. This may
+     * trigger a download of the artifact if necessary.
+     * 
+     * @return the local location of the artifact; never <code>null</code>
+     * @throws IOException
+     *             if the artifact does not exist or cannot be obtained.
+     */
+    File getLocalArtifactLocation(GAV gav, String classifier, String extension) throws IOException;
 
 }

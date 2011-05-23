@@ -7,10 +7,12 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - make readable as p2 artifact repository
+ *    SAP AG - make readable as p2 artifact repository; implement IFileArtifactRepository
  *******************************************************************************/
+
 package org.eclipse.tycho.p2.maven.repository;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,6 +35,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
@@ -44,7 +47,8 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 /**
  * Base class for p2 artifact repositories with GAV-based artifact storage.
  */
-public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRepository {
+public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRepository implements
+        IFileArtifactRepository {
     public static final String VERSION = "1.0.0";
 
     private static final IArtifactDescriptor[] ARTIFACT_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
@@ -215,7 +219,7 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
     @SuppressWarnings("restriction")
     public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-        // TODO consolidate this logic with org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository.getLocationFile(IArtifactDescriptor) 
+        // TODO consolidate this logic with getArtifactFile
         GAV gav = getGAV(descriptor);
         String classifier = RepositoryLayoutHelper.getClassifier(descriptor.getProperties());
         String extension = RepositoryLayoutHelper.getExtension(descriptor.getProperties());
@@ -237,4 +241,34 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         return Status.OK_STATUS;
     }
 
+    public File getArtifactFile(IArtifactKey key) {
+        Set<IArtifactDescriptor> descriptors = descriptorsMap.get(key);
+        if (descriptors.isEmpty())
+            return null;
+        else {
+            // TODO determine which one is the raw artifact, i.e. not the pack200 artifact 
+            return getArtifactFile(descriptors.iterator().next());
+        }
+    }
+
+    public File getArtifactFile(IArtifactDescriptor descriptor) {
+        // TODO consolidate this logic with getRawArtifact
+        GAV gav = getGAV(descriptor);
+        String classifier = RepositoryLayoutHelper.getClassifier(descriptor.getProperties());
+        String extension = RepositoryLayoutHelper.getExtension(descriptor.getProperties());
+
+        // TODO where does this magic come from? the logic behind this should be made explicit and e.g. moved into a separate class
+        // TODO bring together with other pack200 magic in org.eclipse.tycho.p2.maven.repository.MavenArtifactRepository.downloadArtifact(IArtifactDescriptor, OutputStream)
+        if ("packed".equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
+            classifier = "pack200";
+            extension = "jar.pack.gz";
+        }
+
+        try {
+            return contentLocator.getLocalArtifactLocation(gav, classifier, extension);
+        } catch (IOException e) {
+            // TODO revise getLocalArtifactLocation implementation: if it wouldn't download remote artifacts, we wouldn't need the IOException
+            throw new RuntimeException(e);
+        }
+    }
 }

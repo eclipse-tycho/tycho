@@ -11,15 +11,13 @@
 package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.tycho.p2.repository.AbstractRepositoryReader;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 /**
@@ -38,16 +36,16 @@ public class ModuleMetadataRepository extends AbstractMavenMetadataRepository {
         return new MemoryTychoRepositoryIndex(Collections.<GAV> singletonList(null));
     }
 
-    private static class ModuleMetadataReader implements RepositoryReader {
+    private static class ModuleMetadataReader extends AbstractRepositoryReader {
         private final File repositoryDir;
 
         public ModuleMetadataReader(File location) {
             this.repositoryDir = location;
         }
 
-        public InputStream getContents(GAV gav, String classifier, String extension) throws IOException {
+        public File getLocalArtifactLocation(GAV gav, String classifier, String extension) throws IOException {
             if (RepositoryLayoutHelper.CLASSIFIER_P2_METADATA.equals(classifier)) {
-                return new FileInputStream(new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA));
+                return new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA);
             } else {
                 // AbstractMavenMetadataRepository doesn't call this method for anything other than the p2metadata artifact
                 throw new IllegalArgumentException();

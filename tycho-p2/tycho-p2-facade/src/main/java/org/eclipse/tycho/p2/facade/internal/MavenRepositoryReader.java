@@ -27,15 +27,15 @@ import org.apache.maven.repository.ArtifactTransferFailedException;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.tycho.p2.repository.AbstractRepositoryReader;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 
 /**
  * Implementation of RepositoryReader interface that delegates to Maven repository subsystem to
  * retrieve artifacts from remote repository.
  */
 @Component(role = MavenRepositoryReader.class, instantiationStrategy = "per-lookup")
-public class MavenRepositoryReader implements RepositoryReader {
+public class MavenRepositoryReader extends AbstractRepositoryReader {
     @Requirement
     private RepositorySystem repositorySystem;
 
@@ -43,7 +43,7 @@ public class MavenRepositoryReader implements RepositoryReader {
 
     private ArtifactRepository localRepository;
 
-    public InputStream getContents(GAV gav, String classifier, String extension) throws IOException {
+    public File getLocalArtifactLocation(GAV gav, String classifier, String extension) throws IOException {
         Artifact a = repositorySystem.createArtifactWithClassifier(gav.getGroupId(), gav.getArtifactId(),
                 gav.getVersion(), extension, classifier);
 
@@ -61,7 +61,7 @@ public class MavenRepositoryReader implements RepositoryReader {
             throw exception;
         }
 
-        return new FileInputStream(a.getFile());
+        return a.getFile();
     }
 
     public InputStream getRepositoryMetaData(String remoteRelpath) throws IOException {

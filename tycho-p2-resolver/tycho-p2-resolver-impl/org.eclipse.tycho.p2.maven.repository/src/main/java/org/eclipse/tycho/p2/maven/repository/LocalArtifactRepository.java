@@ -16,7 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -142,7 +141,7 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         }
     }
 
-    public File getBasedir() {
+    private File getBasedir() {
         return new File(getLocation());
     }
 
@@ -151,30 +150,10 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         return true;
     }
 
-    public URI getLocation(IArtifactDescriptor descriptor) {
-        return getLocationFile(descriptor).toURI();
-    }
-
-    private File getLocationFile(IArtifactDescriptor descriptor) {
-        // TODO consolidate with org.eclipse.tycho.p2.maven.repository.AbstractMavenArtifactRepository.getRawArtifact(IArtifactDescriptor, OutputStream, IProgressMonitor)
-        GAV gav = getGAV(descriptor);
-        String classifier = RepositoryLayoutHelper.getClassifier(descriptor.getProperties());
-        String extension = RepositoryLayoutHelper.getExtension(descriptor.getProperties());
-
-        // TODO where does this magic come from? the logic behind this should be made explicit and e.g. moved into a separate class
-        // TODO bring together with other pack200 magic in org.eclipse.tycho.p2.maven.repository.MavenArtifactRepository.downloadArtifact(IArtifactDescriptor, OutputStream)
-        if ("packed".equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
-            classifier = "pack200";
-            extension = "jar.pack.gz";
-        }
-
-        File basedir = getBasedir();
-        return new File(basedir, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
-    }
-
     @Override
     public boolean contains(IArtifactDescriptor descriptor) {
-        return super.contains(descriptor) && getLocationFile(descriptor).canRead();
+        // TODO there should not be a descriptor if the file doesn't exist!
+        return super.contains(descriptor) && getArtifactFile(descriptor).canRead();
     }
 
     @Override
@@ -200,7 +179,7 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         }
 
         descriptors.remove(descriptor);
-        getLocationFile(descriptor).delete();
+        getArtifactFile(descriptor).delete();
 
         changedDescriptors.remove(descriptor.getArtifactKey());
         // TODO this doesn't work if the descriptor is not in changedDescriptors

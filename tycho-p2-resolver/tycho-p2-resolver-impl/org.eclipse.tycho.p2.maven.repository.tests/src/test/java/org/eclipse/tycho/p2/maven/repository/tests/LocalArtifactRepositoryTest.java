@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -66,19 +65,18 @@ public class LocalArtifactRepositoryTest {
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
 
-        URI location = repo.getLocation(desc);
         Assert.assertEquals(new File(basedir,
-                "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar").toURI(), location);
+                "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar"), repo
+                .getArtifactFile(desc));
 
         ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] { new ProcessingStepDescriptor(
                 "org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) };
         desc.setProcessingSteps(steps);
         desc.setProperty(IArtifactDescriptor.FORMAT, "packed");
 
-        location = repo.getLocation(desc);
         Assert.assertEquals(new File(basedir,
-                "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0-pack200.jar.pack.gz")
-                .toURI(), location);
+                "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0-pack200.jar.pack.gz"),
+                repo.getArtifactFile(desc));
     }
 
     private ArtifactDescriptor newBundleArtifactDescriptor(boolean maven) {
@@ -101,9 +99,8 @@ public class LocalArtifactRepositoryTest {
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
 
-        URI location = repo.getLocation(desc);
         Assert.assertEquals(new File(basedir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar").toURI(), location);
+                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo.getArtifactFile(desc));
     }
 
     @Test
@@ -113,23 +110,23 @@ public class LocalArtifactRepositoryTest {
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
 
         Assert.assertEquals(new File(basedir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar").toURI(), repo
-                .getLocation(desc));
+                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo
+                .getArtifactFile(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, "classifier.value");
         Assert.assertEquals(new File(basedir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.jar")
-                .toURI(), repo.getLocation(desc));
+                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.jar"),
+                repo.getArtifactFile(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, "zip");
         Assert.assertEquals(new File(basedir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.zip")
-                .toURI(), repo.getLocation(desc));
+                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.zip"),
+                repo.getArtifactFile(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, null);
         Assert.assertEquals(new File(basedir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.zip").toURI(), repo
-                .getLocation(desc));
+                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.zip"), repo
+                .getArtifactFile(desc));
     }
 
     @Test

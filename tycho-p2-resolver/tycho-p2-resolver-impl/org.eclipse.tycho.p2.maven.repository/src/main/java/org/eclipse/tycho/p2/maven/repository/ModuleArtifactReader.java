@@ -13,7 +13,6 @@ package org.eclipse.tycho.p2.maven.repository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -21,6 +20,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.p2.repository.AbstractRepositoryReader;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
@@ -31,7 +31,7 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
  * 
  * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
  */
-class ModuleArtifactReader implements RepositoryReader {
+class ModuleArtifactReader extends AbstractRepositoryReader {
     private File localArtifactsFile;
 
     private final Map<String, File> artifacts;
@@ -41,7 +41,7 @@ class ModuleArtifactReader implements RepositoryReader {
         this.artifacts = readArtifactLocations(this.localArtifactsFile);
     }
 
-    public InputStream getContents(GAV gav, String classifier, String extension) throws IOException {
+    public File getLocalArtifactLocation(GAV gav, String classifier, String extension) throws IOException {
         // GAV parameter may only refer to current module; TODO verify this?
 
         File artifactFile = artifacts.get(classifier);
@@ -49,7 +49,7 @@ class ModuleArtifactReader implements RepositoryReader {
             throw new IllegalStateException("Classifier " + classifier + " is missing in "
                     + localArtifactsFile.getAbsolutePath());
         }
-        return new FileInputStream(artifactFile);
+        return artifactFile;
     }
 
     private static Map<String, File> readArtifactLocations(File mapFile) throws ProvisionException {

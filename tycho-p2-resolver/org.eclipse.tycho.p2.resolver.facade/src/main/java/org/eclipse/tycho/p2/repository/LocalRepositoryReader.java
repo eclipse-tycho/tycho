@@ -11,24 +11,18 @@
 package org.eclipse.tycho.p2.repository;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
-public class LocalRepositoryReader implements RepositoryReader {
+public class LocalRepositoryReader extends AbstractRepositoryReader {
 
-    private final File basedir;
+    private final File localMavenRepositoryRoot;
 
-    public LocalRepositoryReader(File basedir) {
-        this.basedir = basedir;
+    public LocalRepositoryReader(File localMavenRepositoryRoot) {
+        this.localMavenRepositoryRoot = localMavenRepositoryRoot;
     }
 
-    public InputStream getContents(GAV gav, String classifier, String extension) throws IOException {
-        return getContents(RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
-    }
-
-    public InputStream getContents(String remoteRelpath) throws IOException {
-        return new FileInputStream(new File(basedir, remoteRelpath));
+    public File getLocalArtifactLocation(GAV gav, String classifier, String extension) throws IOException {
+        return new File(localMavenRepositoryRoot, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
     }
 
 }

@@ -51,7 +51,6 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
@@ -565,13 +564,6 @@ public class ResolutionContextImpl implements ResolutionContext {
     }
 
     public File getLocalArtifactFile(IArtifactKey key) {
-        for (IArtifactDescriptor descriptor : localRepository.getArtifactDescriptors(key)) {
-            URI uri = localRepository.getLocation(descriptor);
-            if (uri != null) {
-                return new File(uri);
-            }
-        }
-
-        return null;
+        return localRepository.getArtifactFile(key);
     }
 }
