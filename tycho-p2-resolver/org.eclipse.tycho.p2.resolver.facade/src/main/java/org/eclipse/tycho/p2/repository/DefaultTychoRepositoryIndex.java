@@ -40,8 +40,8 @@ public class DefaultTychoRepositoryIndex implements TychoRepositoryIndex {
     protected DefaultTychoRepositoryIndex() {
     }
 
-    public DefaultTychoRepositoryIndex(RepositoryReader repositoryReader) throws IOException {
-        gavs = read(repositoryReader.getContents(INDEX_RELPATH));
+    public DefaultTychoRepositoryIndex(InputStream indexFileContent) throws IOException {
+        gavs = read(indexFileContent);
     }
 
     protected static Set<GAV> read(InputStream is) throws IOException {

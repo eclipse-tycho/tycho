@@ -41,11 +41,6 @@ class ModuleArtifactReader implements RepositoryReader {
         this.artifacts = readArtifactLocations(this.localArtifactsFile);
     }
 
-    public InputStream getContents(String remoteRelpath) throws IOException {
-        // can only return artifacts by classifier
-        throw new UnsupportedOperationException();
-    }
-
     public InputStream getContents(GAV gav, String classifier, String extension) throws IOException {
         // GAV parameter may only refer to current module; TODO verify this?
 

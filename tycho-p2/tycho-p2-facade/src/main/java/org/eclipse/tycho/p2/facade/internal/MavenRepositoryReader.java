@@ -64,7 +64,7 @@ public class MavenRepositoryReader implements RepositoryReader {
         return new FileInputStream(a.getFile());
     }
 
-    public InputStream getContents(String remoteRelpath) throws IOException {
+    public InputStream getRepositoryMetaData(String remoteRelpath) throws IOException {
         if (repositories.size() != 1) {
             throw new IllegalStateException("Ambiguous repository request");
         }

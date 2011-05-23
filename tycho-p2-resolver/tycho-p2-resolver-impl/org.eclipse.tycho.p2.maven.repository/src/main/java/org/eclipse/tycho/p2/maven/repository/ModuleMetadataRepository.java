@@ -54,11 +54,6 @@ public class ModuleMetadataRepository extends AbstractMavenMetadataRepository {
             }
         }
 
-        public InputStream getContents(String remoteRelpath) throws IOException {
-            // not needed
-            throw new UnsupportedOperationException();
-        }
-
     }// end nested class
 
     static boolean canAttemptRead(File repositoryDir) {

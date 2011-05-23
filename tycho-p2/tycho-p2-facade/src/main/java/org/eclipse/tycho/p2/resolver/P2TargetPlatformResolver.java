@@ -287,7 +287,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                             String repositoryKey = getRepositoryKey(repository);
                             TychoRepositoryIndex index = repositoryCache.getRepositoryIndex(repositoryKey);
                             if (index == null) {
-                                index = new DefaultTychoRepositoryIndex(reader);
+                                index = new DefaultTychoRepositoryIndex(
+                                        reader.getRepositoryMetaData(DefaultTychoRepositoryIndex.INDEX_RELPATH));
 
                                 repositoryCache.putRepositoryIndex(repositoryKey, index);
                             }
