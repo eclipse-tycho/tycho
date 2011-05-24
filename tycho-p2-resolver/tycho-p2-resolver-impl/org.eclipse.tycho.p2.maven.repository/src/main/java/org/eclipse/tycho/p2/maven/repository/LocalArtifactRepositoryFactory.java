@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
+import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
 
 public class LocalArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 

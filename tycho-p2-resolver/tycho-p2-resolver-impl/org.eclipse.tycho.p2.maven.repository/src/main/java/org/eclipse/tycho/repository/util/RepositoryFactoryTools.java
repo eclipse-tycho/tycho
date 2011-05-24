@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.maven.repository;
+package org.eclipse.tycho.repository.util;
 
 import java.io.File;
 import java.net.URI;
@@ -17,13 +17,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 
-class RepositoryFactoryTools {
+public class RepositoryFactoryTools {
     /**
      * Returns the given {@link URI} as {@link File}, or <code>null</code> if the given URI does not
      * have a "file:" scheme.
      */
-    static File asFile(URI location) {
+    public static File asFile(URI location) {
         if ("file".equals(location.getScheme())) {
             return new File(location);
         } else {
@@ -31,7 +32,7 @@ class RepositoryFactoryTools {
         }
     }
 
-    static void verifyModifiableNotRequested(int flags, String repositoryType) throws ProvisionException {
+    public static void verifyModifiableNotRequested(int flags, String repositoryType) throws ProvisionException {
         if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) != 0) {
             Status errorStatus = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_READ_ONLY,
                     "Cannot create writable repositories of type " + repositoryType, null);
@@ -39,11 +40,10 @@ class RepositoryFactoryTools {
         }
     }
 
-    static ProvisionException unsupportedCreation(String repositoryType) {
-        Status errorStatus = new Status(IStatus.ERROR, Activator.ID, 0 /*
-                                                                        * none of the defined codes
-                                                                        * really fit
-                                                                        */, "Cannot create repositories of type "
+    public static ProvisionException unsupportedCreation(String repositoryType) {
+        // none of the codes defined in ProvisionException really fit
+        int errorCode = 0;
+        Status errorStatus = new Status(IStatus.ERROR, Activator.ID, errorCode, "Cannot create repositories of type "
                 + repositoryType, null);
         return new ProvisionException(errorStatus);
     }
