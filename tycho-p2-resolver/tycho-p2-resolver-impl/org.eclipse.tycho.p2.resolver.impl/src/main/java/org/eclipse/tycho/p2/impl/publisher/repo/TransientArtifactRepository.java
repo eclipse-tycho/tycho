@@ -12,7 +12,7 @@ package org.eclipse.tycho.p2.impl.publisher.repo;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
+import java.net.URI;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -37,6 +37,8 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
     public TransientArtifactRepository() {
         super(null, "TransientArtifactRepository", TransientArtifactRepository.class.getName(), "1.0.0", null, null,
                 null, null);
+        super.setLocation(URI.create("memory:" + getClass().getName() + "@"
+                + Integer.toHexString(System.identityHashCode(this))));
     }
 
     @Override
@@ -76,7 +78,7 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
 
     @Override
     public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
-        descriptors.add(descriptor);
+        addDescriptor(descriptor);
         return new OutputStream() {
             @Override
             public void write(int b) throws IOException {
@@ -86,12 +88,15 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
 
     @Override
     public void addDescriptor(IArtifactDescriptor descriptor) {
+        keys.add(descriptor.getArtifactKey());
         descriptors.add(descriptor);
     }
 
     @Override
     public void addDescriptors(IArtifactDescriptor[] descriptors) {
-        this.descriptors.addAll(Arrays.asList(descriptors));
+        for (IArtifactDescriptor descriptor : descriptors) {
+            addDescriptor(descriptor);
+        }
     }
 
     public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {

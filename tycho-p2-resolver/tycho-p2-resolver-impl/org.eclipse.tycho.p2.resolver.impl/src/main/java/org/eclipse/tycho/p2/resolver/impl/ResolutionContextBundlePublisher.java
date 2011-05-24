@@ -11,10 +11,14 @@
 package org.eclipse.tycho.p2.resolver.impl;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.net.URI;
 import java.util.Collection;
+import java.util.Set;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -22,19 +26,35 @@ import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.AbstractMavenArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 @SuppressWarnings("restriction")
 public class ResolutionContextBundlePublisher {
 
     private final MavenLogger logger;
+    private final PublishedBundlesArtifactRepository publishedArtifacts;
 
-    public ResolutionContextBundlePublisher(MavenLogger logger) {
+    public ResolutionContextBundlePublisher(File localMavenRepositoryRoot, MavenLogger logger) {
+        this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepositoryRoot);
+        this.logger = logger;
+    }
+
+    // for testing
+    ResolutionContextBundlePublisher(RepositoryReader localMavenRepoProvider, MavenLogger logger) {
+        this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepoProvider);
         this.logger = logger;
     }
 
@@ -57,50 +77,39 @@ public class ResolutionContextBundlePublisher {
      * tracing the origin of artifact.
      * </p>
      * 
-     * @param artifact
+     * @param mavenArtifact
      *            An artifact in local file system.
      * @return the p2 metadata of the artifact, or <code>null</code> if the artifact isn't a valid
      *         OSGi bundle.
      */
-    public IInstallableUnit attemptToPublishBundle(IArtifactFacade artifact) {
-        if (!isAvailableAsLocalFile(artifact)) {
+    IInstallableUnit attemptToPublishBundle(IArtifactFacade mavenArtifact) {
+        if (!isAvailableAsLocalFile(mavenArtifact)) {
             // this should have been ensured by the caller
-            throw new IllegalArgumentException("Not an artifact file: " + artifact.getLocation());
+            throw new IllegalArgumentException("Not an artifact file: " + mavenArtifact.getLocation());
         }
-        if (isCertainlyNoBundle(artifact)) {
+        if (isCertainlyNoBundle(mavenArtifact)) {
             return null;
         }
 
-        // inlined and stripped down from: generator.generateMetadata(artifact, environments, units, null);
-        PublisherInfo publisherInfo = new PublisherInfo();
-        publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
-        publisherInfo.setArtifactRepository(new TransientArtifactRepository());
-        // TODO remember artifacts
-
-        publisherInfo.addAdvice(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact
-                .getVersion(), artifact.getClassidier()));
-        IPublisherAction[] actions = new IPublisherAction[] { new BundlesAction(new File[] { artifact.getLocation() }) };
-        PublisherResult result = new PublisherResult();
-        Publisher publisher = new Publisher(publisherInfo, result);
-        IStatus status = publisher.publish(actions, null);
+        PublisherRun publisherRun = new PublisherRun(mavenArtifact);
+        IStatus status = publisherRun.execute();
 
         if (!status.isOK()) {
             /**
-             * If publishing of a jar fails, it is simply not added to the resolution context.
-             * However the BundlesAction (currently) never reports failures, so we want to see if we
-             * ever should get here.
+             * If publishing of a jar fails, it is simply not added to the resolution context. The
+             * BundlesAction already ignores non-bundle JARs silently, so an error status here
+             * indicates a caught exception that we at least want to see.
              */
             logger.warn(StatusTool.collectProblems(status), status.getException());
         }
 
-        Collection<IInstallableUnit> units = result.getIUs(null, null);
-        if (units.size() > 1) {
-            throw new AssertionFailedException("BundlesAction produced more than one IU for " + artifact.getLocation());
-        } else if (units.size() == 1) {
-            return units.iterator().next();
-        } else {
-            return null;
+        IInstallableUnit publishedIU = publisherRun.getPublishedUnitIfExists();
+        if (publishedIU != null) {
+            IArtifactDescriptor publishedArtifact = publisherRun.getPublishedArtifactDescriptor();
+            publishedArtifacts.addDescriptor(publishedArtifact, mavenArtifact);
         }
+
+        return publishedIU;
     }
 
     private boolean isAvailableAsLocalFile(IArtifactFacade artifact) {
@@ -112,8 +121,117 @@ public class ResolutionContextBundlePublisher {
         return !artifact.getLocation().getName().endsWith(".jar");
     }
 
-    IArtifactRepository getArtifactRepoOfProcessedBundles() {
-        // TODO implement
-        throw new UnsupportedOperationException();
+    IArtifactRepository getArtifactRepoOfPublishedBundles() {
+        return publishedArtifacts;
+    }
+
+    private static class PublisherRun {
+
+        private final IArtifactFacade mavenArtifact;
+
+        private PublisherInfo publisherInfo;
+        private TransientArtifactRepository collectedDescriptors;
+        private PublisherResult publisherResult;
+
+        PublisherRun(IArtifactFacade artifact) {
+            this.mavenArtifact = artifact;
+        }
+
+        IStatus execute() {
+            publisherInfo = new PublisherInfo();
+            enableArtifactDescriptorCollection();
+            enableUnitAnnotationWithGAV();
+
+            BundlesAction bundlesAction = new BundlesAction(new File[] { mavenArtifact.getLocation() });
+            IStatus status = executePublisherAction(bundlesAction);
+            return status;
+        }
+
+        private void enableArtifactDescriptorCollection() {
+            publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
+            collectedDescriptors = new TransientArtifactRepository();
+            publisherInfo.setArtifactRepository(collectedDescriptors);
+        }
+
+        private void enableUnitAnnotationWithGAV() {
+            MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact.getGroupId(),
+                    mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), mavenArtifact.getClassidier());
+            publisherInfo.addAdvice(advice);
+        }
+
+        private IStatus executePublisherAction(BundlesAction action) {
+            IPublisherAction[] actions = new IPublisherAction[] { action };
+            publisherResult = new PublisherResult();
+            return new Publisher(publisherInfo, publisherResult).publish(actions, null);
+        }
+
+        IInstallableUnit getPublishedUnitIfExists() {
+            Collection<IInstallableUnit> units = publisherResult.getIUs(null, null);
+            if (units.isEmpty()) {
+                // the BundlesAction simply does not create any IUs if the JAR is not a bundle
+                return null;
+            } else if (units.size() == 1) {
+                return units.iterator().next();
+            } else {
+                throw new AssertionFailedException("BundlesAction produced more than one IU for "
+                        + mavenArtifact.getLocation());
+            }
+        }
+
+        IArtifactDescriptor getPublishedArtifactDescriptor() {
+            Set<IArtifactDescriptor> descriptors = collectedDescriptors.getArtifactDescriptors();
+            if (descriptors.isEmpty()) {
+                throw new AssertionFailedException("BundlesAction did not create an artifact entry for "
+                        + mavenArtifact.getLocation());
+            } else if (descriptors.size() == 1) {
+                return descriptors.iterator().next();
+            } else {
+                throw new AssertionFailedException("BundlesAction created more than one artifact entry for "
+                        + mavenArtifact.getLocation());
+            }
+        }
+    }
+
+    private static class PublishedBundlesArtifactRepository extends AbstractMavenArtifactRepository implements
+            IFileArtifactRepository {
+
+        PublishedBundlesArtifactRepository(File localMavenRepositoryRoot) {
+            this(new LocalRepositoryReader(localMavenRepositoryRoot));
+        }
+
+        PublishedBundlesArtifactRepository(RepositoryReader artifactProvider) {
+            super(Activator.getProvisioningAgent(), null, artifactProvider);
+            super.setLocation(URI.create("memory:" + getClass().getName() + "@"
+                    + Integer.toHexString(System.identityHashCode(this))));
+        }
+
+        @Override
+        public boolean isModifiable() {
+            // allow artifacts to be added...
+            return true;
+        }
+
+        @Override
+        public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
+            // ... but only artifacts already in the local Maven repositories - for these only a descriptor is added 
+            throw new AssertionFailedException("Unexpected method call");
+        }
+
+        void addDescriptor(IArtifactDescriptor descriptor, IArtifactFacade mavenArtifact) {
+            addDescriptor(createDescriptorWithGAV(descriptor, mavenArtifact));
+        }
+
+        private static ArtifactDescriptor createDescriptorWithGAV(IArtifactDescriptor descriptor,
+                IArtifactFacade mavenArtifact) {
+            ArtifactDescriptor internalDescriptor = new ArtifactDescriptor(descriptor);
+            // set the GAV properties so that the artifact is read from the GAV location
+            // TODO join all the artifact addressing logic of AbstractMavenArtifactRepository somewhere
+            internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, mavenArtifact.getGroupId());
+            internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, mavenArtifact.getArtifactId());
+            internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_VERSION, mavenArtifact.getVersion());
+            internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, null);
+            internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, null);
+            return internalDescriptor;
+        }
     }
 }

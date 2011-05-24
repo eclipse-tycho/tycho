@@ -164,7 +164,7 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact) {
         if (bundlesPublisher == null) {
-            bundlesPublisher = new ResolutionContextBundlePublisher(logger);
+            bundlesPublisher = new ResolutionContextBundlePublisher(localRepositoryLocation, logger);
         }
         IInstallableUnit bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
         if (bundleIU != null)
@@ -176,7 +176,7 @@ public class ResolutionContextImpl implements ResolutionContext {
         if (bundlesPublisher == null)
             return null;
         else
-            return bundlesPublisher.getArtifactRepoOfProcessedBundles();
+            return bundlesPublisher.getArtifactRepoOfPublishedBundles();
     }
 
     // ------------------------------------------------------------

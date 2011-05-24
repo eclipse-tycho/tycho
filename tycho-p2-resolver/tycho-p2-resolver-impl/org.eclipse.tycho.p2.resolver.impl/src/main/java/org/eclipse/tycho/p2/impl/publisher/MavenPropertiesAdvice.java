@@ -40,6 +40,7 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
     }
 
     public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
+        // TODO this is a nasty hack, and it doesn't even work; see org.eclipse.equinox.p2.publisher.AbstractPublisherAction.processArtifactPropertiesAdvice(IInstallableUnit, IArtifactDescriptor, IPublisherInfo) 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
