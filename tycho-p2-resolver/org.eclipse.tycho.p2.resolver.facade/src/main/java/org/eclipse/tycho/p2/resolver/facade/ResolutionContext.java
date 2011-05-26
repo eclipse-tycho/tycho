@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
-import java.io.File;
 import java.net.URI;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -50,7 +49,5 @@ public interface ResolutionContext {
      * Releases all resources used by the resolver instance
      */
     public void stop();
-
-    public void setLocalRepositoryLocation(File location);
 
 }

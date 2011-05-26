@@ -152,7 +152,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         MavenLogger loggerForOsgiImpl = new MavenLoggerAdapter(getLogger(), DebugUtils.isDebugEnabled(session, project));
 
-        ResolutionContext resolutionContext = resolverFactory.createResolutionContext(loggerForOsgiImpl);
+        File localRepositoryRoot = new File(session.getLocalRepository().getBasedir());
+        ResolutionContext resolutionContext = resolverFactory.createResolutionContext(localRepositoryRoot,
+                loggerForOsgiImpl);
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(loggerForOsgiImpl);
 
         try {
@@ -174,8 +176,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         resolutionContext.setOffline(session.isOffline());
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
-
-        resolutionContext.setLocalRepositoryLocation(new File(session.getLocalRepository().getBasedir()));
 
         resolver.setEnvironments(getEnvironments(configuration));
 

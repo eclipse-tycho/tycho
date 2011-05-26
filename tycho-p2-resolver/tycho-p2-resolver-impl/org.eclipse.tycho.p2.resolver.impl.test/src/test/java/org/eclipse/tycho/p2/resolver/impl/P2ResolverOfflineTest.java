@@ -42,9 +42,9 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
     private String servedUrl;
 
     @Before
-    public void initResolver() {
+    public void initResolver() throws Exception {
         MavenLogger logger = new MavenLoggerStub();
-        context = new ResolutionContextImpl(logger);
+        context = new ResolutionContextImpl(getLocalRepositoryLocation(), logger);
         impl = new P2ResolverImpl(logger);
     }
 
@@ -66,7 +66,6 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
     private List<P2ResolutionResult> resolveFromHttp(ResolutionContext context, P2Resolver impl, String url)
             throws IOException, URISyntaxException {
         context.setRepositoryCache(new P2RepositoryCacheImpl());
-        context.setLocalRepositoryLocation(getLocalRepositoryLocation());
         context.addP2Repository(new URI(url));
 
         impl.setEnvironments(getEnvironments());
@@ -86,7 +85,7 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
         resolveFromHttp(context, impl, servedUrl);
 
         // now go offline and resolve again
-        context = new ResolutionContextImpl(new MavenLoggerStub());
+        context = new ResolutionContextImpl(getLocalRepositoryLocation(), new MavenLoggerStub());
         context.setOffline(true);
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 

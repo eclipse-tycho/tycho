@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - moved resolution context and actifact downloading out of p2 resolver
+ *    SAP AG - moved resolution context and download of artifacts out of p2 resolver
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.impl;
 
@@ -90,6 +90,15 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     private final IProgressMonitor monitor;
 
+    private File localMavenRepositoryRoot;
+
+    public ResolutionContextImpl(File localMavenRepositoryRoot, MavenLogger logger) {
+        this.logger = logger;
+        this.monitor = new LoggingProgressMonitor(logger);
+
+        this.localMavenRepositoryRoot = localMavenRepositoryRoot;
+    }
+
     // ---------------------------------------------------------------------
 
     private Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
@@ -97,11 +106,6 @@ public class ResolutionContextImpl implements ResolutionContext {
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
 
     private Set<String> reactorInstallableUnitIds = new HashSet<String>();
-
-    public ResolutionContextImpl(MavenLogger logger) {
-        this.logger = logger;
-        this.monitor = new LoggingProgressMonitor(logger);
-    }
 
     public void addReactorArtifact(IReactorArtifactFacade artifact) {
         Set<IInstallableUnit> units = toSet(artifact.getDependencyMetadata(), IInstallableUnit.class);
@@ -164,7 +168,7 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact) {
         if (bundlesPublisher == null) {
-            bundlesPublisher = new ResolutionContextBundlePublisher(localRepositoryLocation, logger);
+            bundlesPublisher = new ResolutionContextBundlePublisher(localMavenRepositoryRoot, logger);
         }
         IInstallableUnit bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
         if (bundleIU != null)
@@ -197,8 +201,6 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     private IProvisioningAgent agent;
 
-    private File localRepositoryLocation;
-
     public void addP2Repository(URI location) {
         // check metadata cache, first
         IMetadataRepository metadataRepository = (IMetadataRepository) repositoryCache.getMetadataRepository(location);
@@ -214,16 +216,12 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
 
         if (agent == null) {
-            if (localRepositoryLocation == null) {
-                throw new IllegalStateException("Maven local repository location is null");
-            }
-
             try {
                 agent = Activator.newProvisioningAgent();
 
                 TychoP2RepositoryCacheManager cacheMgr = new TychoP2RepositoryCacheManager();
                 cacheMgr.setOffline(offline);
-                cacheMgr.setLocalRepositoryLocation(localRepositoryLocation);
+                cacheMgr.setLocalRepositoryLocation(localMavenRepositoryRoot);
 
                 agent.registerService(CacheManager.SERVICE_NAME, cacheMgr);
             } catch (ProvisionException e) {
@@ -311,6 +309,7 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     public void setRepositoryCache(P2RepositoryCache repositoryCache) {
         this.repositoryCache = repositoryCache;
+        initP2ViewsOfLocalMavenRepository();
     }
 
     // --------------------------------------------------------------------------------
@@ -387,21 +386,20 @@ public class ResolutionContextImpl implements ResolutionContext {
     /** maven local repository as P2 IMetadataRepository */
     private LocalMetadataRepository localMetadataRepository;
 
-    public void setLocalRepositoryLocation(File location) {
-        this.localRepositoryLocation = location;
-        URI uri = location.toURI();
+    private void initP2ViewsOfLocalMavenRepository() {
+        URI uri = localMavenRepositoryRoot.toURI();
 
         localRepository = (LocalArtifactRepository) repositoryCache.getArtifactRepository(uri);
         localMetadataRepository = (LocalMetadataRepository) repositoryCache.getMetadataRepository(uri);
 
         if (localRepository == null || localMetadataRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(location);
-            LocalTychoRepositoryIndex artifactsIndex = new LocalTychoRepositoryIndex(location,
+            RepositoryReader contentLocator = new LocalRepositoryReader(localMavenRepositoryRoot);
+            LocalTychoRepositoryIndex artifactsIndex = new LocalTychoRepositoryIndex(localMavenRepositoryRoot,
                     LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
-            LocalTychoRepositoryIndex metadataIndex = new LocalTychoRepositoryIndex(location,
+            LocalTychoRepositoryIndex metadataIndex = new LocalTychoRepositoryIndex(localMavenRepositoryRoot,
                     LocalTychoRepositoryIndex.METADATA_INDEX_RELPATH);
 
-            localRepository = new LocalArtifactRepository(location, artifactsIndex, contentLocator);
+            localRepository = new LocalArtifactRepository(localMavenRepositoryRoot, artifactsIndex, contentLocator);
             localMetadataRepository = new LocalMetadataRepository(uri, metadataIndex, contentLocator);
 
             repositoryCache.putRepository(uri, localMetadataRepository, localRepository);
