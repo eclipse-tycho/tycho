@@ -19,6 +19,7 @@ import java.util.zip.ZipFile;
 import junit.framework.Assert;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.it.util.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.packaging.PackageUpdateSiteMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
@@ -48,7 +49,15 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         // org.eclipse.tycho:tycho-packaging-plugin:${project.version}:update-site,org.eclipse.tycho:tycho-p2-plugin:${project.version}:update-site-p2-metadata,
         File siteFolder = new File(targetFolder, "site");
         siteFolder.mkdirs();
-        new File(siteFolder, "site.xml").createNewFile();
+        File siteXml = new File(siteFolder, "site.xml");
+        siteXml.createNewFile();
+        FileUtils.fileAppend(siteXml.getAbsolutePath(),
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><site associateSitesURL=\"associate-sites.xml\"></site>");
+        File associateSitesFile = new File(siteFolder, "associate-sites.xml");
+        FileUtils
+                .fileAppend(
+                        associateSitesFile.getAbsolutePath(),
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"http://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>");
         new File(siteFolder, "content.xml").createNewFile();
         new File(siteFolder, "artifacts.xml").createNewFile();
 
@@ -84,6 +93,27 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         // setVariableValueToObject( packagemojo, "archiveSite", Boolean.FALSE );
         packagemojo.execute();
         checkSiteZip();
+    }
+
+    public void testAssociateSitsURLSite() throws Exception {
+        setVariableValueToObject(packagemojo, "archiveSite", Boolean.TRUE);
+
+        packagemojo.execute();
+        checkSiteZip();
+
+        File assemblyZip = new File(targetFolder, "site_assembly.zip");
+        Assert.assertTrue(assemblyZip.exists());
+        List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
+        Assert.assertTrue(attachedArtifacts.size() == 1);
+        Assert.assertTrue(attachedArtifacts.get(0).getFile().equals(assemblyZip));
+        Assert.assertTrue(attachedArtifacts.get(0).getClassifier().equals("assembly"));
+        Assert.assertTrue(attachedArtifacts.get(0).getType().equals("zip"));
+        ZipFile zip = new ZipFile(assemblyZip);
+        try {
+            assertNotNull(zip.getEntry("associate-sites.xml"));
+        } finally {
+            zip.close();
+        }
     }
 
     private void checkSiteZip() throws ZipException, IOException {

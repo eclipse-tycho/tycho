@@ -47,9 +47,15 @@ public class UpdateSite {
 
     private final Document document;
 
+	private String associateSitesUrl;
+
     public UpdateSite(Document document) {
         this.document = document;
         this.dom = document.getRootElement();
+
+		if (dom.getAttribute("associateSitesURL") != null) {
+			associateSitesUrl = dom.getAttributeValue("associateSitesURL");
+		}
     }
 
     public List<SiteFeatureRef> getFeatures() {
@@ -126,4 +132,8 @@ public class UpdateSite {
         String pack200 = dom.getAttributeValue("pack200");
         return "true".equals(pack200);
     }
+
+	public String getAssociateSitesUrl() {
+		return associateSitesUrl;
+	}
 }

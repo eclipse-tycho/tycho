@@ -83,6 +83,14 @@ public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
 
             File file = new File(target, "site.xml");
             UpdateSite.write(site, file);
+			
+			// Copy the associate sites file, if necessary
+			if (site.getAssociateSitesUrl() != null) {
+				File srcAssociateSitesFile = new File(basedir, site.getAssociateSitesUrl());
+				if (srcAssociateSitesFile.exists()) {
+					FileUtils.copyFile(srcAssociateSitesFile, new File(target + File.separator + site.getAssociateSitesUrl()));
+				}
+			}
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
