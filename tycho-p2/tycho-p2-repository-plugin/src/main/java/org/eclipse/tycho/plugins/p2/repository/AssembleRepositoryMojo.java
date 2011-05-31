@@ -18,6 +18,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
+import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationService;
@@ -86,7 +87,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
             }
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
-            mirrorApp.mirror(sources, destination, rootIUs, getBuildContext(), flags, repositoryName);
+            mirrorApp.mirror(sources, new DestinationRepositoryDescriptor(destination, repositoryName), rootIUs,
+                    getBuildContext(), flags);
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
         }

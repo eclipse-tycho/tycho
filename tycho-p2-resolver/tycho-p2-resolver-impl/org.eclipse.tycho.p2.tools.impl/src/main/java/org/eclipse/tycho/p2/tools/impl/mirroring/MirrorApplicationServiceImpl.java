@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.impl.mirroring;
 
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +25,7 @@ import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
@@ -38,8 +38,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static final String MIRROR_FAILURE_MESSAGE = "Copying p2 repository content failed";
 
-    public void mirror(RepositoryReferences sources, File destination, Collection<?> rootUnits, BuildContext context,
-            int flags, String name) throws FacadeException {
+    public void mirror(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
+            Collection<?> rootUnits, BuildContext context, int flags) throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
             final MirrorApplication mirrorApp = new MirrorApplication(agent);
@@ -47,9 +47,9 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             setSourceRepositories(mirrorApp, sources);
 
             final RepositoryDescriptor destinationDescriptor = new RepositoryDescriptor();
-            destinationDescriptor.setLocation(destination.toURI());
+            destinationDescriptor.setLocation(destination.getLocation().toURI());
             destinationDescriptor.setAppend(true);
-            destinationDescriptor.setName(name);
+            destinationDescriptor.setName(destination.getName());
             boolean compressed = (flags & REPOSITORY_COMPRESS) != 0;
             destinationDescriptor.setCompressed(compressed);
             if ((flags & MIRROR_ARTIFACTS) != 0) {

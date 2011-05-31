@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
-import java.io.File;
 import java.util.Collection;
 
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 
@@ -51,9 +51,8 @@ public interface MirrorApplicationService {
      * @param sources
      *            The p2 repositories from which dependencies and artifacts are copied
      * @param destination
-     *            The location of the p2 repository that shall be written to. The location must be a
-     *            directory, which may be empty. Existing content is not overwritten but is appended
-     *            to.
+     *            The p2 repository that shall be written to. The location must be a directory,
+     *            which may be empty. Existing content is not overwritten but is appended to.
      * @param rootUnits
      *            A set of installable units that span the content to be copied. Note that the given
      *            installable units are written into the destination p2 repository without checking
@@ -67,11 +66,9 @@ public interface MirrorApplicationService {
      *            Additional options. flag is a <em>bitwise OR</em>'ed combination of
      *            {@link #MIRROR_ARTIFACTS}, {@link #INCLUDE_ALL_DEPENDENCIES},
      *            {@link #REPOSITORY_COMPRESS}
-     * @param name
-     *            The name for the target repository.
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
-    public void mirror(RepositoryReferences sources, File destination, Collection<?/* IInstallableUnit */> rootUnits,
-            BuildContext context, int flags, String name) throws FacadeException;
+    public void mirror(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
+            Collection<?/* IInstallableUnit */> rootUnits, BuildContext context, int flags) throws FacadeException;
 }
