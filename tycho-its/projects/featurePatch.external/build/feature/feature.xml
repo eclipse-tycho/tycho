@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="featurePatch.external.combine.feature"
+      version="1.0.0.qualifier">
+
+   <includes
+         id="org.eclipse.example.original_feature"
+         version="1.0.0"/>
+   <includes
+         id="org.eclipse.example.feature_patch"
+         version="1.0.0"/>
+
+</feature>

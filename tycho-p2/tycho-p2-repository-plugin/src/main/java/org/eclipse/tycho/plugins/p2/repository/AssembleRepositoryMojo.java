@@ -15,8 +15,11 @@ import java.util.Collection;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.logging.LogEnabled;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -26,7 +29,7 @@ import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationService;
 /**
  * @goal assemble-repository
  */
-public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
+public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements LogEnabled {
     /**
      * Defines whether the artifacts of the included products, features, and bundles shall be
      * assembled into a p2 artifact repository. If <code>false</code>, only a p2 metadata repository
@@ -66,6 +69,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     /** @component */
     private EquinoxServiceFactory p2;
 
+    private Logger logger;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             File destination = getAssemblyRepositoryLocation();
@@ -88,7 +93,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
             mirrorApp.mirror(sources, new DestinationRepositoryDescriptor(destination, repositoryName), rootIUs,
-                    getBuildContext(), flags);
+                    getBuildContext(), flags, new MavenLoggerAdapter(logger, false));
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
         }
@@ -97,5 +102,9 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     protected RepositoryReferences getVisibleRepositories() throws MojoExecutionException, MojoFailureException {
         int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
         return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
+    }
+
+    public void enableLogging(Logger logger) {
+        this.logger = logger;
     }
 }

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2011 SAP AG and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - http://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    SAP AG - initial API and implementation
+ -->
+
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>tycho-its-project.featurePatch.external</groupId>
+	<artifactId>parent</artifactId>
+	<packaging>pom</packaging>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<modules>
+		<module>repository</module>
+		<module>feature</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>ecl342</id>
+			<url>${ecl342}</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>ecl352</id>
+			<url>${ecl352}</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>repo-with-patch</id>
+			<url>${repo-with-patch}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+
+</project>

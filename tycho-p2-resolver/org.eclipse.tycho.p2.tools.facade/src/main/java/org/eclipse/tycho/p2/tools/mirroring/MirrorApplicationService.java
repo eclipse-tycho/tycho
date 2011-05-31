@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.tools.mirroring;
 
 import java.util.Collection;
 
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -66,9 +67,12 @@ public interface MirrorApplicationService {
      *            Additional options. flag is a <em>bitwise OR</em>'ed combination of
      *            {@link #MIRROR_ARTIFACTS}, {@link #INCLUDE_ALL_DEPENDENCIES},
      *            {@link #REPOSITORY_COMPRESS}
+     * @param logger
+     *            The maven logger
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
     public void mirror(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?/* IInstallableUnit */> rootUnits, BuildContext context, int flags) throws FacadeException;
+            Collection<?/* IInstallableUnit */> rootUnits, BuildContext context, int flags, MavenLogger logger)
+            throws FacadeException;
 }

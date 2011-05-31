@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -39,7 +40,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     private static final String MIRROR_FAILURE_MESSAGE = "Copying p2 repository content failed";
 
     public void mirror(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?> rootUnits, BuildContext context, int flags) throws FacadeException {
+            Collection<?> rootUnits, BuildContext context, int flags, MavenLogger logger) throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
             final MirrorApplication mirrorApp = new MirrorApplication(agent);
@@ -72,30 +73,30 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
             List<TargetEnvironment> environments = context.getEnvironments();
             if (environments == null) {
-                mirrorForAllEnvironments(mirrorApp, options);
+                mirrorForAllEnvironments(mirrorApp, options, logger);
             } else {
-                mirrorForSpecifiedEnvironments(mirrorApp, options, environments);
+                mirrorForSpecifiedEnvironments(mirrorApp, options, environments, logger);
             }
         } finally {
             agent.stop();
         }
     }
 
-    private void mirrorForAllEnvironments(final MirrorApplication mirrorApp, final SlicingOptions options)
-            throws FacadeException {
+    private void mirrorForAllEnvironments(final MirrorApplication mirrorApp, final SlicingOptions options,
+            MavenLogger logger) throws FacadeException {
         options.forceFilterTo(true);
-        executeMirroring(mirrorApp, options);
+        executeMirroring(mirrorApp, options, logger);
     }
 
     private void mirrorForSpecifiedEnvironments(final MirrorApplication mirrorApp, final SlicingOptions options,
-            List<TargetEnvironment> environments) throws FacadeException {
+            List<TargetEnvironment> environments, MavenLogger logger) throws FacadeException {
         // TODO the p2 mirror tool should support mirroring multiple environments at once
         for (TargetEnvironment environment : environments) {
             Map<String, String> filter = environment.toFilter();
             addFilterForFeatureJARs(filter);
             options.setFilter(filter);
 
-            executeMirroring(mirrorApp, options);
+            executeMirroring(mirrorApp, options, logger);
         }
     }
 
@@ -106,9 +107,10 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         filter.put("org.eclipse.update.install.features", "true");
     }
 
-    private void executeMirroring(MirrorApplication mirrorApp, SlicingOptions options) throws FacadeException {
+    private void executeMirroring(MirrorApplication mirrorApp, SlicingOptions options, MavenLogger logger)
+            throws FacadeException {
         try {
-            LogListener logListener = new LogListener();
+            LogListener logListener = new LogListener(logger);
             mirrorApp.setLog(logListener);
             // mirrorApp.setValidate( true ); // TODO Broken; fix at Eclipse
 
@@ -116,13 +118,11 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
             IStatus returnStatus = mirrorApp.run(null);
             checkStatus(returnStatus);
-            /*
-             * Treat the slicer warnings (typically "unable to satisfy dependency") as errors
-             * because some expected content is missing.
-             */
-            for (IStatus logStatus : logListener.getSlicerProblems()) {
-                checkStatus(logStatus);
-            }
+
+            // TODO if there was any message, we should print out a link to a wiki page explaining the messages
+//            if (logListener.hasLogged())
+//                logger.warn("see wiki page TODO", null);
+
         } catch (ProvisionException e) {
             throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
         }
@@ -159,22 +159,26 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     static class LogListener implements IArtifactMirrorLog {
-        List<IStatus> entries = new ArrayList<IStatus>();
+        private static final String MIRROR_APP_MESSAGE_PREFIX = "Mirror application: ";
+
+        private final MavenLogger logger;
+
+        LogListener(MavenLogger logger) {
+            this.logger = logger;
+        }
 
         public void log(IArtifactDescriptor descriptor, IStatus status) {
-            // artifact comparator result -> ignore
+            if (!status.isOK())
+                logger.debug(MIRROR_APP_MESSAGE_PREFIX + StatusTool.collectProblems(status));
         }
 
         public void log(IStatus status) {
-            entries.add(status);
+            if (!status.isOK())
+                logger.warn(MIRROR_APP_MESSAGE_PREFIX + StatusTool.collectProblems(status), null);
         }
 
         public void close() {
         }
 
-        List<IStatus> getSlicerProblems() {
-            // TODO request from Eclipse that they identify the slicer warnings with a dedicated code
-            return entries;
-        }
     }
 }
