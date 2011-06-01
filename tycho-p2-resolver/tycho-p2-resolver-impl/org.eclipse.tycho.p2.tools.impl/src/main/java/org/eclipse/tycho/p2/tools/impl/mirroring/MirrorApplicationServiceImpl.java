@@ -60,21 +60,42 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             }
             mirrorApp.addDestination(destinationDescriptor);
 
-            mirrorApp.setSourceIUs(toInstallableUnitList(rootUnits));
+            if (rootUnits == null) {
+                // mirror everything
+            } else {
+                mirrorApp.setSourceIUs(toInstallableUnitList(rootUnits));
+            }
 
             final SlicingOptions options = new SlicingOptions();
             boolean includeAllDepenendcies = (flags & INCLUDE_ALL_DEPENDENCIES) != 0;
             options.considerStrictDependencyOnly(!includeAllDepenendcies);
 
-            for (TargetEnvironment environment : context.getEnvironments()) {
-                Map<String, String> filter = environment.toFilter();
-                addFilterForFeatureJARs(filter);
-                options.setFilter(filter);
-
-                executeMirroring(mirrorApp, options);
+            List<TargetEnvironment> environments = context.getEnvironments();
+            if (environments == null) {
+                mirrorForAllEnvironments(mirrorApp, options);
+            } else {
+                mirrorForSpecifiedEnvironments(mirrorApp, options, environments);
             }
         } finally {
             agent.stop();
+        }
+    }
+
+    private void mirrorForAllEnvironments(final MirrorApplication mirrorApp, final SlicingOptions options)
+            throws FacadeException {
+        options.forceFilterTo(true);
+        executeMirroring(mirrorApp, options);
+    }
+
+    private void mirrorForSpecifiedEnvironments(final MirrorApplication mirrorApp, final SlicingOptions options,
+            List<TargetEnvironment> environments) throws FacadeException {
+        // TODO the p2 mirror tool should support mirroring multiple environments at once
+        for (TargetEnvironment environment : environments) {
+            Map<String, String> filter = environment.toFilter();
+            addFilterForFeatureJARs(filter);
+            options.setFilter(filter);
+
+            executeMirroring(mirrorApp, options);
         }
     }
 

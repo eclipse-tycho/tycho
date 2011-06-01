@@ -58,7 +58,8 @@ public interface MirrorApplicationService {
      *            A set of installable units that span the content to be copied. Note that the given
      *            installable units are written into the destination p2 repository without checking
      *            if they are actually present in the source repositories. Therefore only units from
-     *            the source repositories should be passed via this parameter.
+     *            the source repositories should be passed via this parameter. Alternatively, this
+     *            parameter may be <code>null</code> to mirror all units available in the sources.
      * @param context
      *            Build context information; in particular this parameter defines a filter for
      *            environment specific installable units

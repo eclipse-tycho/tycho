@@ -31,11 +31,21 @@ public final class RepositoryReferences {
      * Adds the metadata repository at the given location.
      * 
      * @param metadataRepositoryLocation
-     *            The folder containing the metadata repository file ( <code>content.xml</code> or
+     *            The folder containing the metadata repository file (<code>content.xml</code> or
      *            <code>content.jar</code>)
      */
     public void addMetadataRepository(File metadataRepositoryLocation) {
         metadataRepos.add(metadataRepositoryLocation.toURI());
+    }
+
+    /**
+     * Adds the metadata repository at the given location.
+     * 
+     * @param metadataRepositoryLocation
+     *            A URL pointing to a p2 metadata repository
+     */
+    public void addMetadataRepository(URI metadataRepository) {
+        metadataRepos.add(metadataRepository);
     }
 
     /**
@@ -46,6 +56,16 @@ public final class RepositoryReferences {
      */
     public void addArtifactRepository(File artifactRepositoryLocation) {
         artifactRepos.add(artifactRepositoryLocation.toURI());
+    }
+
+    /**
+     * Adds the artifact repository at the given location.
+     * 
+     * @param artifactRepositoryLocation
+     *            A URL pointing to a p2 artifact repository
+     */
+    public void addArtifactRepository(URI artifactRepository) {
+        artifactRepos.add(artifactRepository);
     }
 
     /**
