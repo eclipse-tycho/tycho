@@ -190,23 +190,24 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     }
 
     public File getEntry(File bundleLocation, String path) {
+        final File result;
         if (bundleLocation.isDirectory()) {
-            File file = new File(bundleLocation, path);
-            return file.exists() ? file : null;
-        }
-        try {
-            zipUnArchiver.setSourceFile(bundleLocation);
-            File outputDirectory = new File(cacheDir, bundleLocation.getName());
-            zipUnArchiver.extract(path, outputDirectory);
-            File result = new File(outputDirectory, path);
-            if (result.exists()) {
-                return result;
-            } else {
-                getLogger().warn("Could not read bundle entry " + bundleLocation + "!/" + path);
-                return null;
+            result = new File(bundleLocation, path);
+        } else {
+            try {
+                zipUnArchiver.setSourceFile(bundleLocation);
+                File outputDirectory = new File(cacheDir, bundleLocation.getName());
+                zipUnArchiver.extract(path, outputDirectory);
+                result = new File(outputDirectory, path);
+            } catch (ArchiverException e) {
+                throw new RuntimeException(e);
             }
-        } catch (ArchiverException e) {
-            throw new RuntimeException(e);
+        }
+        if (result.exists()) {
+            return result;
+        } else {
+            getLogger().debug("Bundle-ClassPath entry " + path + " does not exist in" + bundleLocation);
+            return null;
         }
     }
 }
