@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>348326featurePatch</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <tycho-version>0.12.0</tycho-version>
+    <e342-url>http://download.eclipse.org/releases/ganymede</e342-url>
+    <e352-url>http://download.eclipse.org/releases/galileo</e352-url>
+  </properties>
+
+  <modules>
+    <module>feature</module>
+    <module>feature.patch</module>
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>e342</id>
+      <url>${e342-url}</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>e352</id>
+      <url>${e352-url}</url>
+      <layout>p2</layout>
+    </repository>
+  </repositories>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

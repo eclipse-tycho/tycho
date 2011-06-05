@@ -88,6 +88,11 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
         Set<IRequirement> required = new LinkedHashSet<IRequirement>();
 
         for (FeatureEntry entry : feature.getEntries()) {
+            if (entry.isPatch()) {
+                // this entry declares the feature being patch. it does not introduce any additional content in the
+                // target platform
+                continue;
+            }
             VersionRange range;
             if (entry.isRequires()) {
                 range = getVersionRange(entry);
