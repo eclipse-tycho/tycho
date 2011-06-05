@@ -40,6 +40,7 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.ArchiveEntryUtils;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -124,6 +125,11 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
      * @component
      */
     private BundleReader manifestReader;
+
+    /**
+     * @component
+     */
+    private Logger logger;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!productConfigurationFile.exists()) {
@@ -268,7 +274,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
      * 
      * Not supported are the properties root.permissions and root.link.
      * 
-     * @see http
+     * @see http 
      *      ://help.eclipse.org/ganymede/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles
      *      .htm
      * @throws MojoExecutionException
@@ -557,7 +563,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         // make launcher executable
         try {
             getLog().debug("running chmod");
-            ArchiveEntryUtils.chmod(launcher, 0755, null);
+            ArchiveEntryUtils.chmod(launcher, 0755, logger);
         } catch (ArchiverException e) {
             throw new MojoExecutionException("Unable to make launcher being executable", e);
         }
