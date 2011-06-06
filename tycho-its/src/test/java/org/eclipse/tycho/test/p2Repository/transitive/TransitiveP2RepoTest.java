@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO551TransitiveP2Repo;
+package org.eclipse.tycho.test.p2Repository.transitive;
 
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
 
@@ -21,17 +21,17 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TYCHO551TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
+public class TransitiveP2RepoTest extends AbstractTychoIntegrationTest {
 
-    private static final String MODULE_NON_TRANSITIVE = "repository";
+    private static final String MODULE_NON_TRANSITIVE = "repository-includedOnly";
 
-    private static final String MODULE_TRANSITIVE = "repository-transitive";
+    private static final String MODULE_TRANSITIVE = "repository-allDependencies";
 
     private static Verifier verifier;
 
     @BeforeClass
     public static void buildFeatureAndBundlesAndRepos() throws Exception {
-        verifier = new TYCHO551TransitiveP2RepoTest().getVerifier("/TYCHO551TransitiveP2Repo", false);
+        verifier = new TransitiveP2RepoTest().getVerifier("p2Repository.transitive", false);
         verifier.getSystemProperties().setProperty("p2.repo", ECLIPSE_352.toString());
         /*
          * Do not execute "install" to ensure that features and bundles can be included directly
