@@ -74,7 +74,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false, monitor));
             logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
-            logger.debug("Extra IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
+            logger.debug("Extra IUs:\n" + ResolverDebugUtils.toDebugString(extraIUs, true));
         }
 
         Slicer slicer = new Slicer(availableIUs, newSelectionContext, false);
