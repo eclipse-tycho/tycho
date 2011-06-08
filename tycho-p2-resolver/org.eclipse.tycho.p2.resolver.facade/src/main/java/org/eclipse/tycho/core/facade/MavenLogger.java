@@ -15,6 +15,9 @@ package org.eclipse.tycho.core.facade;
  * Maven logger for Tycho OSGi runtime.
  */
 public interface MavenLogger {
+
+    public void warn(String message);
+
     public void warn(String message, Throwable cause);
 
     public void info(String message);
@@ -24,4 +27,5 @@ public interface MavenLogger {
     public boolean isDebugEnabled();
 
     public boolean isExtendedDebugEnabled();
+
 }

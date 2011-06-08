@@ -35,6 +35,10 @@ public class MavenLoggerAdapter implements MavenLogger {
         }
     }
 
+    public void warn(String message) {
+        warn(message, null);
+    }
+
     public void warn(String message, Throwable cause) {
         if (!isEmpty(message)) {
             logger.warn(message, cause);

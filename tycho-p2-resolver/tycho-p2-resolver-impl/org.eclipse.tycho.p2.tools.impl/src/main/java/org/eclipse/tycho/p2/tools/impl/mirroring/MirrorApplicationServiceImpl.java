@@ -118,10 +118,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
             IStatus returnStatus = mirrorApp.run(null);
             checkStatus(returnStatus);
-
-            // TODO if there was any message, we should print out a link to a wiki page explaining the messages
-//            if (logListener.hasLogged())
-//                logger.warn("see wiki page TODO", null);
+            logListener.showHelpForLoggedMessages();
 
         } catch (ProvisionException e) {
             throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
@@ -159,22 +156,37 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     static class LogListener implements IArtifactMirrorLog {
-        private static final String MIRROR_APP_MESSAGE_PREFIX = "Mirror application: ";
+        private static final String MIRROR_TOOL_MESSAGE_PREFIX = "Mirror tool: ";
+        private static final URI MIRROR_TOOL_MESSAGE_HELP = URI
+                .create("http://wiki.eclipse.org/Tycho_Messages_Explained#Mirror_tool");
 
         private final MavenLogger logger;
+        private boolean hasLogged = false;
 
         LogListener(MavenLogger logger) {
             this.logger = logger;
         }
 
         public void log(IArtifactDescriptor descriptor, IStatus status) {
-            if (!status.isOK())
-                logger.debug(MIRROR_APP_MESSAGE_PREFIX + StatusTool.collectProblems(status));
+            if (!status.isOK()) {
+                logger.debug(MIRROR_TOOL_MESSAGE_PREFIX + StatusTool.collectProblems(status));
+                hasLogged = true;
+            }
         }
 
         public void log(IStatus status) {
-            if (!status.isOK())
-                logger.warn(MIRROR_APP_MESSAGE_PREFIX + StatusTool.collectProblems(status), null);
+            if (!status.isOK()) {
+                logger.warn(MIRROR_TOOL_MESSAGE_PREFIX + StatusTool.collectProblems(status));
+                hasLogged = true;
+            }
+        }
+
+        public void showHelpForLoggedMessages() {
+            if (hasLogged) {
+                logger.warn("More information on the preceding warning(s) can be found here:");
+                logger.warn("- " + MIRROR_TOOL_MESSAGE_HELP);
+            }
+
         }
 
         public void close() {
