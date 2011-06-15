@@ -35,6 +35,9 @@ public final class DirectorMojo extends AbstractProductMojo {
     /** @parameter default-value="DefaultProfile" */
     private String profile;
 
+    /** @parameter default-value="true" */
+    private boolean installFeatures;
+
     /** @component */
     private RepositoryReferenceTool repositoryReferenceTool;
 
@@ -59,7 +62,7 @@ public final class DirectorMojo extends AbstractProductMojo {
                         "-installIU", product.getId(), //
                         "-destination", destination.getAbsolutePath(), //
                         "-profile", profile, //
-                        "-profileProperties", "org.eclipse.update.install.features=true", //
+                        "-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures), //
                         "-roaming", //
                         "-p2.os", env.getOs(), "-p2.ws", env.getWs(), "-p2.arch", env.getArch() };
                 getLog().info("Calling director with arguments: " + Arrays.toString(args));
