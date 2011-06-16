@@ -60,8 +60,6 @@ public class DefaultTargetPlatformConfigurationReader {
                 setPomDependencies(result, configuration);
 
                 setAllowConflictingDependencies(result, configuration);
-
-                setIgnoreTychoRepositories(result, configuration);
             }
         }
 
@@ -122,15 +120,6 @@ public class DefaultTargetPlatformConfigurationReader {
             return newTargetEnvironment(environmentDom);
         }
         return null;
-    }
-
-    private void setIgnoreTychoRepositories(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom ignoreTychoRepositoriesDom = configuration.getChild("ignoreTychoRepositories");
-        if (ignoreTychoRepositoriesDom == null) {
-            return;
-        }
-
-        result.setIgnoreTychoRepositories(Boolean.parseBoolean(ignoreTychoRepositoriesDom.getValue()));
     }
 
     private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {

@@ -16,6 +16,7 @@ import java.net.URI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 /**
@@ -29,8 +30,8 @@ public class TychoP2RepositoryCacheManager extends CacheManager {
 
     private File localRepositoryLocation;
 
-    public TychoP2RepositoryCacheManager() {
-        super(null);
+    public TychoP2RepositoryCacheManager(Transport transport) {
+        super(null, transport);
     }
 
     @Override

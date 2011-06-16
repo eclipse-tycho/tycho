@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -23,8 +24,8 @@ public class MavenMirrorRequest extends MirrorRequest {
 
     private final LocalArtifactRepository localRepository;
 
-    public MavenMirrorRequest(IArtifactKey key, LocalArtifactRepository localRepository) {
-        super(key, localRepository, null, null);
+    public MavenMirrorRequest(IArtifactKey key, LocalArtifactRepository localRepository, Transport transport) {
+        super(key, localRepository, null, null, transport);
 
         this.localRepository = localRepository;
     }

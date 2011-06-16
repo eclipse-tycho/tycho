@@ -9,7 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - apply DRY principle
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver.impl;
+package org.eclipse.tycho.p2.impl.resolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
+import org.eclipse.tycho.p2.impl.resolver.ResolutionContextImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;

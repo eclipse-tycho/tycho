@@ -44,7 +44,7 @@
 		1. Run "mvn clean install" in tycho-p2-resolver folder. This is necessary to populate local repo with information
 		   about org.eclipse.tycho.noopsecurity bundle
 		2. If necessary, change p2 repository url in tycho-p2-resolver/pom.xml
-		3. In this folder, run mvn -Dtycho.mode=maven -Dtycho-version=0.11.0-SNAPSHOT org.eclipse.tycho.extras:tycho-version-bump-plugin:0.11.0-SNAPSHOT:update-product
+		3. In this folder, run mvn -Dtycho.mode=maven -Dtycho-version=0.11.0-SNAPSHOT org.sonatype.tycho.extras:tycho-version-bump-plugin:0.11.0-SNAPSHOT:update-product
 		4. Edit tycho-p2-runtime.product and remove version lock on org.eclipse.tycho.noopsecurity bundle
 
 		Luckily, we don't need to include new p2 version too often.

@@ -9,7 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - apply DRY principle
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver.impl;
+package org.eclipse.tycho.p2.impl.resolver;
 
 import static org.eclipse.tycho.p2.resolver.facade.P2Resolver.TYPE_ECLIPSE_FEATURE;
 import static org.eclipse.tycho.p2.resolver.facade.P2Resolver.TYPE_ECLIPSE_PLUGIN;
@@ -30,10 +30,10 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
+import org.eclipse.tycho.p2.impl.resolver.P2ResolverFactoryImpl;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
-import org.eclipse.tycho.p2.impl.test.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.junit.Assert;
@@ -49,8 +49,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Before
     public void initDefaultResolver() throws Exception {
         MavenLogger logger = new MavenLoggerStub();
-        context = new ResolutionContextImpl(getLocalRepositoryLocation(), logger);
-        context.setRepositoryCache(new P2RepositoryCacheImpl());
+        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), false, logger);
         impl = new P2ResolverImpl(logger);
         impl.setEnvironments(getEnvironments());
     }

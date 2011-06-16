@@ -8,44 +8,43 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.internal;
+package org.eclipse.tycho.p2.impl.resolver;
 
 import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.util.HashMap;
 
-import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.resolver.facade.P2RepositoryCache;
 
-@Component(role = P2RepositoryCacheImpl.class)
 public class P2RepositoryCacheImpl implements P2RepositoryCache {
 
-    private HashMap<URI, SoftReference<Object>> artifactRepositories = new HashMap<URI, SoftReference<Object>>();
+    private HashMap<URI, SoftReference<IArtifactRepository>> artifactRepositories = new HashMap<URI, SoftReference<IArtifactRepository>>();
 
-    private HashMap<URI, SoftReference<Object>> metadataRepositories = new HashMap<URI, SoftReference<Object>>();
+    private HashMap<URI, SoftReference<IMetadataRepository>> metadataRepositories = new HashMap<URI, SoftReference<IMetadataRepository>>();
 
     private HashMap<String, TychoRepositoryIndex> indexes = new HashMap<String, TychoRepositoryIndex>();
 
-    public Object getArtifactRepository(URI uri) {
+    public IArtifactRepository getArtifactRepository(URI uri) {
         return dereference(artifactRepositories.get(uri));
     }
 
-    private Object dereference(SoftReference<Object> reference) {
+    private <T> T dereference(SoftReference<T> reference) {
         return reference != null ? reference.get() : null;
     }
 
-    public Object getMetadataRepository(URI uri) {
+    public IMetadataRepository getMetadataRepository(URI uri) {
         return dereference(metadataRepositories.get(uri));
     }
 
-    public void putRepository(URI uri, Object metadataRepository, Object artifactRepository) {
+    public void putRepository(URI uri, IMetadataRepository metadataRepository, IArtifactRepository artifactRepository) {
         if (metadataRepository != null) {
-            metadataRepositories.put(uri, new SoftReference<Object>(metadataRepository));
+            metadataRepositories.put(uri, new SoftReference<IMetadataRepository>(metadataRepository));
         }
 
         if (artifactRepository != null) {
-            artifactRepositories.put(uri, new SoftReference<Object>(artifactRepository));
+            artifactRepositories.put(uri, new SoftReference<IArtifactRepository>(artifactRepository));
         }
     }
 

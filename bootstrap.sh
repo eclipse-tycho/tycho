@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Location of Eclipse SDK with RCP Delta pack
-#TYCHO_TEST_TARGET_PLATFORM="-Dtycho.testTargetPlatform=/opt/eclipse-3.6-rcp/eclipse"
+TYCHO_TEST_TARGET_PLATFORM="-Dtycho.testTargetPlatform=/opt/eclipse-3.7-rcp/eclipse"
 
 # location of maven used to build bootstrap tycho distribution
 TYCHO_M2_HOME=/opt/maven

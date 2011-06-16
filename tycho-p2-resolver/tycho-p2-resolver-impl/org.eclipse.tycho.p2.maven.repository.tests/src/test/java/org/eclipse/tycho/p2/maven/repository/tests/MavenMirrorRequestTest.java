@@ -15,6 +15,7 @@ import java.io.File;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -31,12 +32,14 @@ import org.eclipse.tycho.p2.maven.repository.MavenMirrorRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings("restriction")
 public class MavenMirrorRequestTest {
     private IProgressMonitor monitor = new NullProgressMonitor();
 
     @Test
     public void testMirror() throws Exception {
         IProvisioningAgent agent = Activator.getProvisioningAgent();
+        Transport transport = (Transport) agent.getService(Transport.SERVICE_NAME);
 
         IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent
                 .getService(IArtifactRepositoryManager.SERVICE_NAME);
@@ -54,7 +57,7 @@ public class MavenMirrorRequestTest {
         InstallableUnitDescription iud = new InstallableUnitDescription();
         IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
 
-        MavenMirrorRequest request = new MavenMirrorRequest(key, localRepository);
+        MavenMirrorRequest request = new MavenMirrorRequest(key, localRepository, transport);
 
         repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
 

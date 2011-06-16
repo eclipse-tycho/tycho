@@ -13,9 +13,6 @@ package org.eclipse.tycho.test.TYCHO0209tychoRepositoryRoundtrip;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Assert;
@@ -46,45 +43,4 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
         v03.verifyErrorFreeLog();
     }
 
-    @Test
-    public void testRemoteRepository() throws Exception {
-        Verifier v01 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build01", false);
-
-        // cleanup old tycho index
-        File localBasedir = new File(v01.localRepo);
-        new File(localBasedir, DefaultTychoRepositoryIndex.INDEX_RELPATH).delete();
-        new File(localBasedir, LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH).delete();
-        new File(localBasedir, LocalTychoRepositoryIndex.METADATA_INDEX_RELPATH).delete();
-
-        // install build01
-        v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
-        v01.getSystemProperties().setProperty("maven.test.skip", "true");
-        v01.executeGoal("install");
-        v01.verifyErrorFreeLog();
-
-        // now lets fake remote repo
-        String build01relpath = "org/codehaus/tycho/tychoits/tycho0209/build01";
-        File remoteBasedir = new File("target/remoterepo/");
-        FileUtils.copyDirectory(new File(localBasedir, build01relpath), new File(remoteBasedir, build01relpath));
-        FileUtils.copyFile(new File(localBasedir, LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH), new File(
-                remoteBasedir, DefaultTychoRepositoryIndex.INDEX_RELPATH));
-
-        // cleanup localrepo once again
-        new File(localBasedir, DefaultTychoRepositoryIndex.INDEX_RELPATH).delete();
-        new File(localBasedir, LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH).delete();
-        new File(localBasedir, LocalTychoRepositoryIndex.METADATA_INDEX_RELPATH).delete();
-        FileUtils.deleteDirectory(new File(remoteBasedir, build01relpath));
-
-        // build02
-        Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false);
-        v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
-        v02.getSystemProperties().setProperty("repo.snapshots", toURI(remoteBasedir).toString());
-        v02.executeGoal("install");
-        v02.verifyErrorFreeLog();
-
-        File site = new File(v02.getBasedir(), "build02.site01/target/site");
-
-        Assert.assertEquals(2, new File(site, "features").listFiles().length);
-        Assert.assertEquals(3, new File(site, "plugins").listFiles().length);
-    }
 }

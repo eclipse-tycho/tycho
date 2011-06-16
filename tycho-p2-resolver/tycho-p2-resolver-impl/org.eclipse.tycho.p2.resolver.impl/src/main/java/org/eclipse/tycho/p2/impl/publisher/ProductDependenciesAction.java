@@ -16,11 +16,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.osgi.service.environment.Constants;
-import org.eclipse.tycho.p2.impl.publisher.model.VersionedName2;
 
 @SuppressWarnings("restriction")
 public class ProductDependenciesAction extends AbstractDependenciesAction {
@@ -55,8 +56,9 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
                 addRequiredCapability(required, id, version, null);
             }
         } else {
-            for (IVersionedId plugin : (List<IVersionedId>) product.getBundles(true)) {
-                addRequiredCapability(required, plugin.getId(), plugin.getVersion(), getFilter(plugin));
+            for (FeatureEntry plugin : ((ProductFile) product).getProductEntries()) {
+                addRequiredCapability(required, plugin.getId(), Version.parseVersion(plugin.getVersion()),
+                        getFilter(plugin));
             }
         }
 
@@ -74,13 +76,12 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
         return required;
     }
 
-    private String getFilter(IVersionedId name) {
-        if (!(name instanceof VersionedName2)) {
+    private String getFilter(FeatureEntry entry) {
+        if (entry.getOS() == null && entry.getWS() == null && entry.getArch() == null) {
             return null;
         }
 
-        VersionedName2 name2 = (VersionedName2) name;
-        return getFilter(name2.getOs(), name2.getWs(), name2.getArch());
+        return getFilter(entry.getOS(), entry.getWS(), entry.getArch());
     }
 
     private void addNativeRequirements(Set<IRequirement> required, String os, String ws, String arch) {

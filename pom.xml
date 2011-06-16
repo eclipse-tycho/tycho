@@ -54,44 +54,44 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- 
-			Version corresponds to Eclipse 3.6.2
+			Version corresponds to the BAD Eclipse 3.7RC4
 
-			EQUINOX_VERSION=3.6.2.R36x_v20110210
+			EQUINOX_VERSION=3.7.0.v20110524
 
-			/opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar -Dsources=org.eclipse.osgi.source_$EQUINOX_VERSION.jar \
-				-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar
+/opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar -Dsources=org.eclipse.osgi.source_$EQUINOX_VERSION.jar \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar
 
-			/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar \
-				-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
-				-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
+	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
 
-			/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi.source_$EQUINOX_VERSION.jar -Dclassifier=sources \
-				-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
-				-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi.source_$EQUINOX_VERSION.jar -Dclassifier=sources \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
+	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
 
 			Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
 		 -->
-		<equinoxVersion>3.6.2.R36x_v20110210</equinoxVersion>
+		<equinoxVersion>3.7.0.v20110524</equinoxVersion>
 
 		<!-- 
-			Version corresponds to Eclipse 3.6.1
+			Version corresponds to the BAD Eclipse 3.7RC4
 			
-			JDT_VERSION=3.6.2.v_A76_R36x
+			JDT_VERSION=3.7.0.v_B61
 			
-			/opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar -Dsources=org.eclipse.jdt.core.source_$JDT_VERSION.jar \
-				-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar
+/opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar -Dsources=org.eclipse.jdt.core.source_$JDT_VERSION.jar \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar
 
-			/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar \
-				-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
-				-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
+	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
 
-			/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core.source_$JDT_VERSION.jar -Dclassifier=sources \
-				-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
-				-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core.source_$JDT_VERSION.jar -Dclassifier=sources \
+	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
+	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
 
 			Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
 		 -->
-		<jdtVersion>3.6.2.v_A76_R36x</jdtVersion>
+		<jdtVersion>3.7.0.v_B61</jdtVersion>
 
 		<!-- version of tycho used by this build -->
 		<tychoBootstrapVersion>0.11.1</tychoBootstrapVersion>

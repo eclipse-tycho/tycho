@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver.impl;
+package org.eclipse.tycho.p2.impl.resolver;
 
 import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.containsEntry;
 import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.entry;
@@ -25,6 +25,7 @@ import java.io.File;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.tycho.p2.impl.resolver.ResolutionContextBundlePublisher;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;

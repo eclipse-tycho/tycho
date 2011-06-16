@@ -29,8 +29,6 @@ public class TargetPlatformConfiguration {
 
     private String pomDependencies;
 
-    private boolean ignoreTychoRepositories = true;
-
     private Boolean allowConflictingDependencies;
 
     /**
@@ -69,14 +67,6 @@ public class TargetPlatformConfiguration {
 
     public String getPomDependencies() {
         return pomDependencies;
-    }
-
-    public void setIgnoreTychoRepositories(boolean ignoreTychoRepositories) {
-        this.ignoreTychoRepositories = ignoreTychoRepositories;
-    }
-
-    public boolean isIgnoreTychoRepositories() {
-        return ignoreTychoRepositories;
     }
 
     public boolean isImplicitTargetEnvironment() {

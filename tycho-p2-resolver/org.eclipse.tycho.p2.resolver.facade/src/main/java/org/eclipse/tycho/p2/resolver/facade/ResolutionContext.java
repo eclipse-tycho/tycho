@@ -15,8 +15,6 @@ import java.net.URI;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 /**
  * The resolution context is the content against which the dependencies of a project can be
@@ -37,13 +35,7 @@ public interface ResolutionContext {
 
     public void addP2Repository(URI location);
 
-    public void addMavenRepository(URI location, TychoRepositoryIndex projectIndex, RepositoryReader contentLocator);
-
-    public void setRepositoryCache(P2RepositoryCache repositoryCache);
-
     public void setCredentials(URI location, String username, String password);
-
-    public void setOffline(boolean offline);
 
     /**
      * Releases all resources used by the resolver instance

@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver.impl;
+package org.eclipse.tycho.p2.impl.resolver;
 
 import java.io.File;
 import java.io.OutputStream;

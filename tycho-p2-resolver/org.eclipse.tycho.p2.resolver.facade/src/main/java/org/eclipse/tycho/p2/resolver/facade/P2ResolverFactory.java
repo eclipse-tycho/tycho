@@ -16,7 +16,7 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 
 public interface P2ResolverFactory {
 
-    public ResolutionContext createResolutionContext(File localMavenRepositoryRoot, MavenLogger logger);
+    public ResolutionContext createResolutionContext(File localMavenRepositoryRoot, boolean offline, MavenLogger logger);
 
     public P2Resolver createResolver(MavenLogger logger);
 }

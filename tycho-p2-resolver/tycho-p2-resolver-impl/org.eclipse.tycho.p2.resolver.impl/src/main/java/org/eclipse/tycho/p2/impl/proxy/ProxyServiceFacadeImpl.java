@@ -19,6 +19,7 @@ import org.eclipse.core.internal.net.Activator;
 import org.eclipse.core.internal.net.ProxyData;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.tycho.p2.metadata.ProxyServiceFacade;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -88,7 +89,7 @@ public class ProxyServiceFacadeImpl implements ProxyServiceFacade {
     }
 
     public void clearPersistentProxySettings() {
-        Preferences netPreferences = Activator.getInstance().getPreferences();
+        Preferences netPreferences = ConfigurationScope.INSTANCE.getNode(Activator.ID);
         try {
             recursiveClear(netPreferences);
             netPreferences.flush();

@@ -11,7 +11,6 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,7 +43,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
-import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -72,12 +70,8 @@ import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.model.Target;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
-import org.eclipse.tycho.p2.facade.internal.MavenRepositoryReader;
-import org.eclipse.tycho.p2.facade.internal.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
@@ -96,9 +90,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     private BundleReader bundleReader;
 
     @Requirement
-    private PlexusContainer plexus;
-
-    @Requirement
     private RepositorySystem repositorySystem;
 
     @Requirement
@@ -106,9 +97,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
-
-    @Requirement
-    private P2RepositoryCacheImpl repositoryCache;
 
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
@@ -161,7 +149,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         File localRepositoryRoot = new File(session.getLocalRepository().getBasedir());
         ResolutionContext resolutionContext = resolverFactory.createResolutionContext(localRepositoryRoot,
-                loggerForOsgiImpl);
+                session.isOffline(), loggerForOsgiImpl);
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(loggerForOsgiImpl);
 
         try {
@@ -177,10 +165,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             P2Resolver resolver) {
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-
-        resolutionContext.setRepositoryCache(repositoryCache);
-
-        resolutionContext.setOffline(session.isOffline());
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
@@ -283,38 +267,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                         } else {
                             getLogger().warn(msg);
                         }
-                    }
-                } else {
-                    if (!configuration.isIgnoreTychoRepositories() && !session.isOffline()) {
-                        try {
-                            MavenRepositoryReader reader = plexus.lookup(MavenRepositoryReader.class);
-                            reader.setArtifactRepository(repository);
-                            reader.setLocalRepository(session.getLocalRepository());
-
-                            String repositoryKey = getRepositoryKey(repository);
-                            TychoRepositoryIndex index = repositoryCache.getRepositoryIndex(repositoryKey);
-                            if (index == null) {
-                                index = new DefaultTychoRepositoryIndex(
-                                        reader.getRepositoryMetaData(DefaultTychoRepositoryIndex.INDEX_RELPATH));
-
-                                repositoryCache.putRepositoryIndex(repositoryKey, index);
-                            }
-
-                            resolutionContext.addMavenRepository(uri, index, reader);
-                            getLogger().debug(
-                                    "Added Maven repository " + repository.getId() + " (" + repository.getUrl() + ")");
-                        } catch (FileNotFoundException e) {
-                            // it happens
-                        } catch (Exception e) {
-                            getLogger().debug("Unable to initialize remote Tycho repository", e);
-                        }
-                    } else {
-                        String msg = "Ignoring Maven repository " + repository.getId() + " (" + repository.getUrl()
-                                + ")";
-                        if (session.isOffline()) {
-                            msg += " while in offline mode";
-                        }
-                        getLogger().debug(msg);
                     }
                 }
             } catch (MalformedURLException e) {
@@ -469,13 +421,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
 
         return environments;
-    }
-
-    private String getRepositoryKey(ArtifactRepository repository) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(repository.getId());
-        sb.append('|').append(repository.getUrl());
-        return sb.toString();
     }
 
     private String getMirror(Target.Repository location, List<Mirror> mirrors) {

@@ -33,7 +33,6 @@ import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
-import org.eclipse.tycho.p2.resolver.impl.ResolutionContextImpl;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 import org.eclipse.tycho.repository.registry.impl.ArtifactRepositoryBlackboard;
 

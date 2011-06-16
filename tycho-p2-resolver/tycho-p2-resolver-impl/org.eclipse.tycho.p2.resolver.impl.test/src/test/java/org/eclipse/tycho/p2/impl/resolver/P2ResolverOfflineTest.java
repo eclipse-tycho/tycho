@@ -8,9 +8,9 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver.impl;
+package org.eclipse.tycho.p2.impl.resolver;
 
-import static org.eclipse.tycho.p2.resolver.impl.P2ResolverTest.getLocalRepositoryLocation;
+import static org.eclipse.tycho.p2.impl.resolver.P2ResolverTest.getLocalRepositoryLocation;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
@@ -23,9 +23,9 @@ import java.util.List;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.impl.resolver.P2ResolverFactoryImpl;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverImpl;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
-import org.eclipse.tycho.p2.impl.test.P2RepositoryCacheImpl;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
@@ -44,7 +44,7 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
     @Before
     public void initResolver() throws Exception {
         MavenLogger logger = new MavenLoggerStub();
-        context = new ResolutionContextImpl(getLocalRepositoryLocation(), logger);
+        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), false, logger);
         impl = new P2ResolverImpl(logger);
     }
 
@@ -65,7 +65,6 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
 
     private List<P2ResolutionResult> resolveFromHttp(ResolutionContext context, P2Resolver impl, String url)
             throws IOException, URISyntaxException {
-        context.setRepositoryCache(new P2RepositoryCacheImpl());
         context.addP2Repository(new URI(url));
 
         impl.setEnvironments(getEnvironments());
@@ -85,8 +84,8 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
         resolveFromHttp(context, impl, servedUrl);
 
         // now go offline and resolve again
-        context = new ResolutionContextImpl(getLocalRepositoryLocation(), new MavenLoggerStub());
-        context.setOffline(true);
+        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), true,
+                new MavenLoggerStub());
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 
         Assert.assertEquals(1, results.size());
@@ -100,7 +99,8 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
     public void offlineNoLocalCache() throws Exception {
         delete(getLocalRepositoryLocation());
 
-        context.setOffline(true);
+        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), true,
+                new MavenLoggerStub());
 
         try {
             resolveFromHttp(context, impl, servedUrl);
