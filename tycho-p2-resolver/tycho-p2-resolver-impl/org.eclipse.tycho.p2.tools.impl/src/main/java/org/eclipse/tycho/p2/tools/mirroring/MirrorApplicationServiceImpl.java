@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.impl.mirroring;
+package org.eclipse.tycho.p2.tools.mirroring;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.impl.Activator;
-import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationService;
+import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 @SuppressWarnings("restriction")

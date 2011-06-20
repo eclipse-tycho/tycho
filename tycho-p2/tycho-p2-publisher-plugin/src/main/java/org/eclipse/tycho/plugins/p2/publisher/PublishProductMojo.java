@@ -30,7 +30,7 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.publisher.PublisherService;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
 /**
  * This goal invokes the product publisher for each product file found.

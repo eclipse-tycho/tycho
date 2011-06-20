@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.mirroring;
+package org.eclipse.tycho.p2.tools.mirroring.facade;
 
 import java.util.Collection;
 

@@ -23,8 +23,8 @@ import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.publisher.PublisherService;
-import org.eclipse.tycho.p2.tools.publisher.PublisherServiceFactory;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
 

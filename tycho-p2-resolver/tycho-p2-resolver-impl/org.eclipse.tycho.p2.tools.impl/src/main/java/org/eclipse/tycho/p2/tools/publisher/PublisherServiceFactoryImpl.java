@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.impl.publisher;
+package org.eclipse.tycho.p2.tools.publisher;
 
 import java.io.File;
 
@@ -17,8 +17,8 @@ import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.impl.Activator;
-import org.eclipse.tycho.p2.tools.publisher.PublisherService;
-import org.eclipse.tycho.p2.tools.publisher.PublisherServiceFactory;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 

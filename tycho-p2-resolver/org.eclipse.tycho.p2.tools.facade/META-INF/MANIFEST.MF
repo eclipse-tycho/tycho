@@ -6,9 +6,9 @@ Bundle-Description: Exposes tools for manipulating p2 data, which are implemente
 Bundle-SymbolicName: org.eclipse.tycho.p2.tools.facade
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.tycho.p2.tools,
- org.eclipse.tycho.p2.tools.director,
- org.eclipse.tycho.p2.tools.mirroring,
- org.eclipse.tycho.p2.tools.publisher
+ org.eclipse.tycho.p2.tools.director.facade,
+ org.eclipse.tycho.p2.tools.mirroring.facade,
+ org.eclipse.tycho.p2.tools.publisher.facade
 Import-Package: org.eclipse.tycho.core.facade,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.repository.registry.facade

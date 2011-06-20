@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.publisher;
+package org.eclipse.tycho.p2.tools.publisher.facade;
 
 import java.io.File;
 import java.util.Collection;

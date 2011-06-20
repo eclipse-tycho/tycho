@@ -24,7 +24,7 @@ import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationService;
+import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 
 /**
  * @goal assemble-repository

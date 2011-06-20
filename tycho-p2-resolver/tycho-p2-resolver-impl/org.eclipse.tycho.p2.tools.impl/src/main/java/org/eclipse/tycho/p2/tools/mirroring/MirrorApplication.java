@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.impl.mirroring;
+package org.eclipse.tycho.p2.tools.mirroring;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 

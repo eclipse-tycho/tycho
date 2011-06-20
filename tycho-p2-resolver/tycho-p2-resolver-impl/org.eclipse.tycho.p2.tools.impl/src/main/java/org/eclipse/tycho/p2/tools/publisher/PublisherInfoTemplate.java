@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - don't share publisher info instances between publisher calls (bug 346532)
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.impl.publisher;
+package org.eclipse.tycho.p2.tools.publisher;
 
 import java.io.File;
 import java.net.URI;

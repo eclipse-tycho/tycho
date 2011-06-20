@@ -19,9 +19,9 @@ Require-Bundle: org.eclipse.equinox.p2.director.app;bundle-version="[1.0.200,2.0
 Import-Package: org.eclipse.tycho.core.facade,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.p2.tools,
- org.eclipse.tycho.p2.tools.director,
- org.eclipse.tycho.p2.tools.mirroring,
- org.eclipse.tycho.p2.tools.publisher,
+ org.eclipse.tycho.p2.tools.director.facade,
+ org.eclipse.tycho.p2.tools.mirroring.facade,
+ org.eclipse.tycho.p2.tools.publisher.facade,
  org.eclipse.tycho.p2.util,
  org.osgi.framework;version="[1.5.0,2.0.0)"
 Service-Component: OSGI-INF/directorapp.xml, OSGI-INF/publisherfactory.xml, OSGI-INF/mirrorapp.xml

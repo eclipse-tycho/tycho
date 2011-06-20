@@ -21,7 +21,7 @@ import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.director.DirectorApplicationWrapper;
+import org.eclipse.tycho.p2.tools.director.facade.DirectorApplicationWrapper;
 
 /**
  * @phase package

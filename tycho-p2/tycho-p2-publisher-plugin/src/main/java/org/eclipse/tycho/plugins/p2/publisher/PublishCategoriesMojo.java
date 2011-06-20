@@ -20,7 +20,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.publisher.PublisherService;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
 /**
  * This goal invokes the category publisher and publishes category information.
