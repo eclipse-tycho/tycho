@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.CollectionResult;
-import org.eclipse.tycho.p2.impl.resolver.DependencyCollector;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.junit.Assert;
 import org.junit.Test;
