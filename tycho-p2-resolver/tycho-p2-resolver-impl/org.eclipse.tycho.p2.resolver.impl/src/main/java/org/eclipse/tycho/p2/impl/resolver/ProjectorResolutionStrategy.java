@@ -28,7 +28,6 @@ import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -99,7 +98,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
             logger.info(newSelectionContext.toString());
             logger.info(explanation.toString());
 
-            throw new RuntimeException(new ProvisionException(s));
+            throw new RuntimeException(StatusTool.collectProblems(s), s.getException());
         }
         Collection<IInstallableUnit> newState = projector.extractSolution();
 
