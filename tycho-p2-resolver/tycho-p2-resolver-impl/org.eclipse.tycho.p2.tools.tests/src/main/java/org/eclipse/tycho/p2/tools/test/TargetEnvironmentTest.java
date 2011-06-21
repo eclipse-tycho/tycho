@@ -8,12 +8,13 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools;
+package org.eclipse.tycho.p2.tools.test;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
 
+import org.eclipse.tycho.p2.tools.TargetEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -23,7 +23,9 @@ Import-Package: org.eclipse.tycho.core.facade,
  org.eclipse.tycho.p2.tools.mirroring.facade,
  org.eclipse.tycho.p2.tools.publisher.facade,
  org.eclipse.tycho.p2.util,
+ org.eclipse.tycho.repository.registry.facade,
  org.osgi.framework;version="[1.5.0,2.0.0)"
 Service-Component: OSGI-INF/directorapp.xml, OSGI-INF/publisherfactory.xml, OSGI-INF/mirrorapp.xml
 Bundle-Activator: org.eclipse.tycho.p2.tools.impl.Activator
 Bundle-Vendor: %providerName
+Bundle-ActivationPolicy: lazy

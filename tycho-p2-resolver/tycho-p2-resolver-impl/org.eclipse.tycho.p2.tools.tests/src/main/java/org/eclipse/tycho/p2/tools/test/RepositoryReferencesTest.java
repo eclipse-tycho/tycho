@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools;
+package org.eclipse.tycho.p2.tools.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 
+import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 import org.junit.Before;
 import org.junit.Test;
