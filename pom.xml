@@ -54,9 +54,9 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- 
-			Version corresponds to the BAD Eclipse 3.7RC4
+			Version corresponds to the Eclipse 3.7
 
-			EQUINOX_VERSION=3.7.0.v20110524
+			EQUINOX_VERSION=3.7.0.v20110613
 
 /opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar -Dsources=org.eclipse.osgi.source_$EQUINOX_VERSION.jar \
 	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar
@@ -71,10 +71,10 @@
 
 			Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
 		 -->
-		<equinoxVersion>3.7.0.v20110524</equinoxVersion>
+		<equinoxVersion>3.7.0.v20110613</equinoxVersion>
 
 		<!-- 
-			Version corresponds to the BAD Eclipse 3.7RC4
+			Version corresponds to the Eclipse 3.7
 			
 			JDT_VERSION=3.7.0.v_B61
 			
