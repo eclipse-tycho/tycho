@@ -34,9 +34,13 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
             throws EquinoxLaunchingException {
         Commandline cli = new Commandline();
 
-        String executable = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-        if (File.separatorChar == '\\') {
-            executable = executable + ".exe";
+        String executable = configuration.getJvmExecutable();
+        if (executable == null || "".equals(executable)) {
+            // use the same JVM as the one used to run Maven (the "java.home" one)
+            executable = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+            if (File.separatorChar == '\\') {
+                executable = executable + ".exe";
+            }
         }
         cli.setExecutable(executable);
 

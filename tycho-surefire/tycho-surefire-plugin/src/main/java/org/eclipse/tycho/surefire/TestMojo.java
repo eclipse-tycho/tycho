@@ -38,6 +38,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.toolchain.Toolchain;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -322,6 +324,9 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
      */
     private OsgiBundleProject osgiBundle;
 
+    /** @component */
+    private ToolchainManager toolchainManager;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip || skipExec) {
             getLog().info("Skipping tests");
@@ -558,8 +563,24 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         return result == 0;
     }
 
+    private Toolchain getToolchain() {
+        Toolchain tc = null;
+        if (toolchainManager != null) {
+            tc = toolchainManager.getToolchainFromBuildContext("jdk", session);
+        }
+        return tc;
+    }
+
     LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime, File workspace) throws MalformedURLException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(testRuntime);
+
+        String executable = null;
+        Toolchain tc = getToolchain();
+        if (tc != null) {
+            getLog().info("Toolchain in tycho-surefire-plugin: " + tc);
+            executable = tc.findTool("java");
+        }
+        cli.setJvmExecutable(executable);
 
         cli.setWorkingDirectory(project.getBasedir());
 

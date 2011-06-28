@@ -21,6 +21,8 @@ import org.eclipse.tycho.equinox.launching.EquinoxInstallation;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 
 public class EquinoxLaunchConfiguration implements LaunchConfiguration {
+    private String jvmExecutable;
+
     private File workingDirectory;
 
     private final Map<String, String> env = new LinkedHashMap<String, String>();
@@ -41,6 +43,14 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
 
     public Map<String, String> getEnvironment() {
         return env;
+    }
+
+    public void setJvmExecutable(String jvmExecutable) {
+        this.jvmExecutable = jvmExecutable;
+    }
+
+    public String getJvmExecutable() {
+        return jvmExecutable;
     }
 
     public void setWorkingDirectory(File workingDirectory) {
