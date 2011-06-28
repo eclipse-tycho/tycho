@@ -78,7 +78,7 @@ public class MirrorApplicationServiceTest {
 
     @Test
     public void testMirrorFeatureWithContent() throws Exception {
-        subject.mirror(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context,
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context,
                 DEFAULT_FLAGS, logger);
 
         assertEquals(Collections.emptyList(), logger.warnings);
@@ -88,7 +88,7 @@ public class MirrorApplicationServiceTest {
 
     @Test
     public void testMirrorPatch() throws Exception {
-        subject.mirror(sourceRepos("patch", "e352"), destinationRepo, seedFor(FEATURE_PATCH_IU), context,
+        subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo, seedFor(FEATURE_PATCH_IU), context,
                 DEFAULT_FLAGS, logger);
 
         assertEquals(Collections.emptyList(), logger.warnings);
@@ -98,7 +98,7 @@ public class MirrorApplicationServiceTest {
 
     @Test
     public void testMirrorFeatureAndPatch() throws Exception {
-        subject.mirror(sourceRepos("patch", "e352"), destinationRepo, seedFor(SIMPLE_FEATURE_IU, FEATURE_PATCH_IU),
+        subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo, seedFor(SIMPLE_FEATURE_IU, FEATURE_PATCH_IU),
                 context, DEFAULT_FLAGS, logger);
 
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
@@ -117,13 +117,13 @@ public class MirrorApplicationServiceTest {
          * since it is not easy to distinguish between patched and unpatched dependencies, only a
          * warning is issued.
          */
-        subject.mirror(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, DEFAULT_FLAGS,
+        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, DEFAULT_FLAGS,
                 logger);
 
         assertTrue(logger.warnings.size() > 0);
     }
 
-    private static RepositoryReferences sourceRepos(String... repoIds) {
+    static RepositoryReferences sourceRepos(String... repoIds) {
         RepositoryReferences result = new RepositoryReferences();
         for (String repoId : repoIds) {
             result.addMetadataRepository(ResourceUtil.resolveTestResource("resources/repositories/" + repoId));
@@ -151,11 +151,11 @@ public class MirrorApplicationServiceTest {
         return Collections.singleton(requirement);
     }
 
-    private static File repoFile(DestinationRepositoryDescriptor repo, String path) {
+    static File repoFile(DestinationRepositoryDescriptor repo, String path) {
         return new File(repo.getLocation(), path);
     }
 
-    private static class MemoryLog implements MavenLogger {
+    static class MemoryLog implements MavenLogger {
         List<String> warnings = new ArrayList<String>();
 
         public void warn(String message) {

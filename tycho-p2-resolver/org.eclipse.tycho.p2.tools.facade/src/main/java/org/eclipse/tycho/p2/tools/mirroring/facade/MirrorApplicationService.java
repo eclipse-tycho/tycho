@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring.facade;
 
+import java.io.File;
 import java.util.Collection;
 
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -54,25 +55,47 @@ public interface MirrorApplicationService {
      * @param destination
      *            The p2 repository that shall be written to. The location must be a directory,
      *            which may be empty. Existing content is not overwritten but is appended to.
-     * @param rootUnits
+     * @param seedUnits
      *            A set of installable units that span the content to be copied. Note that the given
      *            installable units are written into the destination p2 repository without checking
      *            if they are actually present in the source repositories. Therefore only units from
-     *            the source repositories should be passed via this parameter. Alternatively, this
-     *            parameter may be <code>null</code> to mirror all units available in the sources.
+     *            the source repositories should be passed via this parameter.
      * @param context
      *            Build context information; in particular this parameter defines a filter for
      *            environment specific installable units
      * @param flags
-     *            Additional options. flag is a <em>bitwise OR</em>'ed combination of
-     *            {@link #MIRROR_ARTIFACTS}, {@link #INCLUDE_ALL_DEPENDENCIES},
+     *            Additional options as <em>bitwise OR</em>'ed combination of
+     *            {@link #MIRROR_ARTIFACTS}, {@link #INCLUDE_ALL_DEPENDENCIES}, and
      *            {@link #REPOSITORY_COMPRESS}
      * @param logger
      *            The maven logger
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
-    public void mirror(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?/* IInstallableUnit */> rootUnits, BuildContext context, int flags, MavenLogger logger)
+    public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
+            Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, int flags, MavenLogger logger)
             throws FacadeException;
+
+    /**
+     * Copies all installable units from the source repositories to the destination repository. The
+     * corresponding artifacts are also copied if the {@link #INCLUDE_ALL_DEPENDENCIES} flag is set.
+     * 
+     * @param sources
+     *            The p2 repositories whose content shall be copied.
+     * @param destination
+     *            The p2 repository that shall be written to. The location must be a directory,
+     *            which may be empty. Existing content is not overwritten but is appended to.
+     * @param flags
+     *            Additional options as <em>bitwise OR</em>'ed combination of
+     *            {@link #MIRROR_ARTIFACTS} and {@link #REPOSITORY_COMPRESS}
+     * @param tempDirectory
+     *            A directory for storing temporary results. Typically the build target folder of a
+     *            module.
+     * @param logger
+     *            The maven logger
+     * @throws FacadeException
+     *             if a checked exception occurs while mirroring
+     */
+    void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination, int flags,
+            File tempDirectory, MavenLogger logger) throws FacadeException;
 }

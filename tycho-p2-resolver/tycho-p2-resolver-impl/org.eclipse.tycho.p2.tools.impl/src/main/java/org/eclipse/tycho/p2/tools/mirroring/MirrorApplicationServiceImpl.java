@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,65 +40,96 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static final String MIRROR_FAILURE_MESSAGE = "Copying p2 repository content failed";
 
-    public void mirror(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?> rootUnits, BuildContext context, int flags, MavenLogger logger) throws FacadeException {
-        IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
+    public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination, int flags,
+            File tempDirectory, MavenLogger logger) throws FacadeException {
+        IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
-            final MirrorApplication mirrorApp = new MirrorApplication(agent);
+            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, flags, agent);
 
-            setSourceRepositories(mirrorApp, sources);
+            try {
+                mirrorApp.setLog(new LogListener(logger));
 
-            final RepositoryDescriptor destinationDescriptor = new RepositoryDescriptor();
-            destinationDescriptor.setLocation(destination.getLocation().toURI());
-            destinationDescriptor.setAppend(true);
-            destinationDescriptor.setName(destination.getName());
-            boolean compressed = (flags & REPOSITORY_COMPRESS) != 0;
-            destinationDescriptor.setCompressed(compressed);
-            if ((flags & MIRROR_ARTIFACTS) != 0) {
-                // metadata and artifacts is the default
-            } else {
-                // only mirror metadata
-                destinationDescriptor.setKind(RepositoryDescriptor.KIND_METADATA);
-            }
-            mirrorApp.addDestination(destinationDescriptor);
+                IStatus returnStatus = mirrorApp.run(null);
+                checkStatus(returnStatus);
 
-            if (rootUnits == null) {
-                // mirror everything
-            } else {
-                mirrorApp.setSourceIUs(toInstallableUnitList(rootUnits));
-            }
-
-            final SlicingOptions options = new SlicingOptions();
-            boolean includeAllDepenendcies = (flags & INCLUDE_ALL_DEPENDENCIES) != 0;
-            options.considerStrictDependencyOnly(!includeAllDepenendcies);
-
-            List<TargetEnvironment> environments = context.getEnvironments();
-            if (environments == null) {
-                mirrorForAllEnvironments(mirrorApp, options, logger);
-            } else {
-                mirrorForSpecifiedEnvironments(mirrorApp, options, environments, logger);
+            } catch (ProvisionException e) {
+                throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
             }
         } finally {
             agent.stop();
         }
     }
 
-    private void mirrorForAllEnvironments(final MirrorApplication mirrorApp, final SlicingOptions options,
-            MavenLogger logger) throws FacadeException {
-        options.forceFilterTo(true);
-        executeMirroring(mirrorApp, options, logger);
+    public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
+            Collection<?> seedUnits, BuildContext context, int flags, MavenLogger logger) throws FacadeException {
+        IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
+        try {
+            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, flags, agent);
+
+            // mirror scope: seed units...
+            mirrorApp.setSourceIUs(toInstallableUnitList(seedUnits));
+
+            // ... plus inclusions/dependencies
+            SlicingOptions options = new SlicingOptions();
+            boolean includeAllDependencies = (flags & INCLUDE_ALL_DEPENDENCIES) != 0;
+            options.considerStrictDependencyOnly(!includeAllDependencies);
+
+            // TODO the p2 mirror tool should support mirroring multiple environments at once
+            for (TargetEnvironment environment : context.getEnvironments()) {
+                Map<String, String> filter = environment.toFilter();
+                addFilterForFeatureJARs(filter);
+                options.setFilter(filter);
+                mirrorApp.setSlicingOptions(options);
+
+                try {
+                    LogListener logListener = new LogListener(logger);
+                    mirrorApp.setLog(logListener);
+
+                    IStatus returnStatus = mirrorApp.run(null);
+                    checkStatus(returnStatus);
+                    logListener.showHelpForLoggedMessages();
+
+                } catch (ProvisionException e) {
+                    throw new FacadeException(
+                            MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
+                }
+            }
+        } finally {
+            agent.stop();
+        }
     }
 
-    private void mirrorForSpecifiedEnvironments(final MirrorApplication mirrorApp, final SlicingOptions options,
-            List<TargetEnvironment> environments, MavenLogger logger) throws FacadeException {
-        // TODO the p2 mirror tool should support mirroring multiple environments at once
-        for (TargetEnvironment environment : environments) {
-            Map<String, String> filter = environment.toFilter();
-            addFilterForFeatureJARs(filter);
-            options.setFilter(filter);
+    private static MirrorApplication createMirrorApplication(RepositoryReferences sources,
+            DestinationRepositoryDescriptor destination, int flags, IProvisioningAgent agent) {
+        final MirrorApplication mirrorApp = new MirrorApplication(agent);
 
-            executeMirroring(mirrorApp, options, logger);
+        List<RepositoryDescriptor> sourceDescriptors = createSourceDescriptors(sources);
+        for (RepositoryDescriptor sourceDescriptor : sourceDescriptors) {
+            mirrorApp.addSource(sourceDescriptor);
         }
+        mirrorApp.addDestination(createDestinationDescriptor(destination, flags));
+
+        // mirrorApp.setValidate( true ); // TODO Broken; fix at Eclipse
+
+        return mirrorApp;
+    }
+
+    private static RepositoryDescriptor createDestinationDescriptor(DestinationRepositoryDescriptor destination,
+            int flags) {
+        final RepositoryDescriptor destinationDescriptor = new RepositoryDescriptor();
+        destinationDescriptor.setLocation(destination.getLocation().toURI());
+        destinationDescriptor.setAppend(true);
+        destinationDescriptor.setName(destination.getName());
+        boolean compressed = (flags & REPOSITORY_COMPRESS) != 0;
+        destinationDescriptor.setCompressed(compressed);
+
+        if ((flags & MIRROR_ARTIFACTS) != 0) {
+            // metadata and artifacts is the default
+        } else {
+            // only mirror metadata
+            destinationDescriptor.setKind(RepositoryDescriptor.KIND_METADATA);
+        }
+        return destinationDescriptor;
     }
 
     /**
@@ -107,36 +139,20 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         filter.put("org.eclipse.update.install.features", "true");
     }
 
-    private void executeMirroring(MirrorApplication mirrorApp, SlicingOptions options, MavenLogger logger)
-            throws FacadeException {
-        try {
-            LogListener logListener = new LogListener(logger);
-            mirrorApp.setLog(logListener);
-            // mirrorApp.setValidate( true ); // TODO Broken; fix at Eclipse
-
-            mirrorApp.setSlicingOptions(options);
-
-            IStatus returnStatus = mirrorApp.run(null);
-            checkStatus(returnStatus);
-            logListener.showHelpForLoggedMessages();
-
-        } catch (ProvisionException e) {
-            throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
-        }
+    private static List<RepositoryDescriptor> createSourceDescriptors(RepositoryReferences sources) {
+        List<RepositoryDescriptor> result = new ArrayList<RepositoryDescriptor>();
+        createSourceRepositories(result, sources.getMetadataRepositories(), RepositoryDescriptor.KIND_METADATA);
+        createSourceRepositories(result, sources.getArtifactRepositories(), RepositoryDescriptor.KIND_ARTIFACT);
+        return result;
     }
 
-    private static void setSourceRepositories(MirrorApplication mirrorApp, RepositoryReferences sources) {
-        setSourceRepositories(mirrorApp, sources.getMetadataRepositories(), RepositoryDescriptor.KIND_METADATA);
-        setSourceRepositories(mirrorApp, sources.getArtifactRepositories(), RepositoryDescriptor.KIND_ARTIFACT);
-    }
-
-    private static void setSourceRepositories(MirrorApplication mirrorApp, Collection<URI> repositoryLocations,
-            String repositoryKind) {
+    private static void createSourceRepositories(List<RepositoryDescriptor> result,
+            Collection<URI> repositoryLocations, String repositoryKind) {
         for (URI repositoryLocation : repositoryLocations) {
             RepositoryDescriptor repository = new RepositoryDescriptor();
             repository.setKind(repositoryKind);
             repository.setLocation(repositoryLocation);
-            mirrorApp.addSource(repository);
+            result.add(repository);
         }
     }
 

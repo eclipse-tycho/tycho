@@ -92,7 +92,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements Lo
             }
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
-            mirrorApp.mirror(sources, new DestinationRepositoryDescriptor(destination, repositoryName), rootIUs,
+            mirrorApp.mirrorReactor(sources, new DestinationRepositoryDescriptor(destination, repositoryName), rootIUs,
                     getBuildContext(), flags, new MavenLoggerAdapter(logger, false));
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
