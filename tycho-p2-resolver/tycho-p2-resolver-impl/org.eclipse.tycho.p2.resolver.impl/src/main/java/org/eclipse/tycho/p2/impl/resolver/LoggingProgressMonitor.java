@@ -39,10 +39,11 @@ public class LoggingProgressMonitor implements IProgressMonitor {
     }
 
     public void setTaskName(String name) {
+        logger.info(name);
     }
 
     public void subTask(String name) {
-        logger.debug(name);
+        logger.info(name);
     }
 
     public void worked(int work) {
