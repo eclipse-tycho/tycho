@@ -10,6 +10,8 @@
    <requires>
       <import plugin="required.bundle"/>
       <import feature="required.feature" version="1.0.0"/>
+      <import plugin="another.required.bundle" version="[1.0.0,2.0.0)" match="versionRange"/>
+      <import feature="another.required.feature" version="[1.0.0,2.0.0)" match="versionRange"/>
    </requires>
 
    <plugin

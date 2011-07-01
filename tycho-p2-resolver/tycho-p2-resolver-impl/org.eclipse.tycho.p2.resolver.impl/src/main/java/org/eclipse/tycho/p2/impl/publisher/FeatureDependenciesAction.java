@@ -50,19 +50,21 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
     }
 
     /**
-     * Copy&Paste from 3.6M7
+     * Copy&Paste from 3.7
      * org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction.getVersionRange(FeatureEntry)
      */
     private VersionRange getVersionRange(FeatureEntry entry) {
         String versionSpec = entry.getVersion();
         if (versionSpec == null)
             return VersionRange.emptyRange;
+        String match = entry.getMatch();
+        if ("versionRange".equals(match)) //$NON-NLS-1$
+            return new VersionRange(versionSpec);
         Version version = Version.parseVersion(versionSpec);
         if (version.equals(Version.emptyVersion))
             return VersionRange.emptyRange;
         if (!entry.isRequires())
             return new VersionRange(version, true, version, true);
-        String match = entry.getMatch();
         if (match == null)
             // TODO should really be returning VersionRange.emptyRange here...
             return null;

@@ -22,6 +22,8 @@ import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -79,7 +81,15 @@ public class P2DependencyGeneratorImplTest {
 
         assertEquals("org.eclipse.tycho.p2.impl.test.feature.feature.group", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-        assertEquals(4, unit.getRequirements().size());
+        List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
+        assertEquals(6, requirements.size());
+
+        IMatchExpression<IInstallableUnit> matches = requirements.get(4).getMatches();
+        assertEquals(
+                "providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2 && x.version < $3)",
+                matches.toString());
+        assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+        assertEquals(Version.parseVersion("2.0.0"), matches.getParameters()[3]);
 
         assertEquals(0, artifacts.size());
     }
