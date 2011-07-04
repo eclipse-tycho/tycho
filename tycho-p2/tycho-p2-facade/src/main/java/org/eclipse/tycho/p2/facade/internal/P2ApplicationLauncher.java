@@ -120,7 +120,12 @@ public class P2ApplicationLauncher {
 
                 return launcher.execute(launchConfiguration, forkedProcessTimeoutInSeconds);
             } finally {
-                FileUtils.deleteDirectory(installationFolder);
+                try {
+                    FileUtils.deleteDirectory(installationFolder);
+                } catch (IOException e) {
+                    // this may happen if child process did not close all file handles
+                    logger.warn("Failed to delete temp folder " + installationFolder);
+                }
             }
         } catch (Exception e) {
             // TODO better exception?
