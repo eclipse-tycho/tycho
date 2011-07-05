@@ -153,7 +153,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             getLogger().debug(resolver.toDebugString(state));
         }
 
-        BundleDescription bundleDescription = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
+        BundleDescription bundleDescription;
+        try {
+            bundleDescription = state.getBundleByLocation(project.getBasedir().getCanonicalPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         List<ClasspathEntry> classpath = new ArrayList<ClasspathEntry>();
 
@@ -195,7 +200,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     public State getResolverState(MavenProject project) {
         TargetPlatform platform = getTargetPlatform(project);
-
         return getResolverState(project, platform);
     }
 

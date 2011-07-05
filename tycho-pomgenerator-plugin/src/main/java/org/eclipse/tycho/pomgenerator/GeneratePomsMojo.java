@@ -556,7 +556,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         if (result.add(basedir)) {
             try {
                 State state = resolver.newResolvedState(basedir, platform);
-                BundleDescription bundle = state.getBundleByLocation(basedir.getAbsolutePath());
+                BundleDescription bundle = state.getBundleByLocation(basedir.getCanonicalPath());
                 if (bundle != null) {
                     for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(
                             state.getStateHelper(), bundle)) {
@@ -570,12 +570,18 @@ public class GeneratePomsMojo extends AbstractMojo {
                     getLog().warn("Not an OSGi bundle " + basedir.toString());
                 }
             } catch (BundleException e) {
-                if (getLog().isDebugEnabled()) {
-                    getLog().warn("Could not determine bundle dependencies", e);
-                } else {
-                    getLog().warn("Could not determine bundle dependencies: " + e.getMessage());
-                }
+                warnNoBundleDependencies(e);
+            } catch (IOException e) {
+                warnNoBundleDependencies(e);
             }
+        }
+    }
+
+    private void warnNoBundleDependencies(Exception e) {
+        if (getLog().isDebugEnabled()) {
+            getLog().warn("Could not determine bundle dependencies", e);
+        } else {
+            getLog().warn("Could not determine bundle dependencies: " + e.getMessage());
         }
     }
 

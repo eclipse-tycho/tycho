@@ -59,7 +59,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         TargetPlatform platform = (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);
 
         State state = resolver.newResolvedState(project, platform);
-        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
+        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getCanonicalPath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
         Assert.assertEquals(3, dependencies.size());

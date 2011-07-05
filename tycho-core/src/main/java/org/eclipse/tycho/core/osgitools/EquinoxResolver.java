@@ -11,6 +11,7 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -60,7 +61,7 @@ public class EquinoxResolver {
 
         resolveState(state);
 
-        BundleDescription bundleDescription = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
+        BundleDescription bundleDescription = state.getBundleByLocation(getCanonicalPath(project.getBasedir()));
 
         assertResolved(state, bundleDescription);
 
@@ -74,7 +75,7 @@ public class EquinoxResolver {
 
         resolveState(state);
 
-        BundleDescription bundleDescription = state.getBundleByLocation(basedir.getAbsolutePath());
+        BundleDescription bundleDescription = state.getBundleByLocation(getCanonicalPath(basedir));
 
         assertResolved(state, bundleDescription);
 
@@ -161,7 +162,7 @@ public class EquinoxResolver {
 
         Dictionary mf = loadManifest(bundleLocation);
 
-        BundleDescription descriptor = factory.createBundleDescription(state, mf, bundleLocation.getAbsolutePath(), id);
+        BundleDescription descriptor = factory.createBundleDescription(state, mf, getCanonicalPath(bundleLocation), id);
 
         if (override) {
             BundleDescription[] conflicts = state.getBundles(descriptor.getSymbolicName());
@@ -176,6 +177,14 @@ public class EquinoxResolver {
         }
 
         state.addBundle(descriptor);
+    }
+
+    private static String getCanonicalPath(File file) throws BundleException {
+        try {
+            return file.getCanonicalPath();
+        } catch (IOException e) {
+            throw new BundleException(e.getMessage(), e);
+        }
     }
 
     private Dictionary loadManifest(File bundleLocation) {
