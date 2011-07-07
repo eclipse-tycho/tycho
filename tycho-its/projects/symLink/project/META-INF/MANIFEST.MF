@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle Plug-inn
+Bundle-SymbolicName: symlink;singleton:=true
+Bundle-Version: 1.0.0
