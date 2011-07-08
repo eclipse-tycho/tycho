@@ -16,7 +16,6 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-
 // TODO need to create separate project structure somehow
 public class MNGECLIPSE999DIrectTestPluginInvocationTest extends AbstractTychoIntegrationTest {
 

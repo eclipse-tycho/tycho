@@ -10,24 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionResult;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.plugin.testing.SilentLog;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.classpath.ClasspathEntry;
-import org.eclipse.tycho.core.TargetPlatform;
-import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
-import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
-import org.eclipse.tycho.testing.CompoundRuntimeException;
+import src.main.java.org.eclipse.tycho.core.TargetPlatform;
+import src.main.java.org.eclipse.tycho.core.TychoProject;
+import src.main.java.org.eclipse.tycho.core.osgitools.DefaultBundleReader;
+import src.main.java.org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 
 public class TychoTest extends AbstractTychoMojoTestCase {
 

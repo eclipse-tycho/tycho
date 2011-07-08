@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.eclipse.tycho.ArtifactKey;
-
 /**
  * Validates project Maven and OSGi versions. For SNAPSHOT versions, OSGi version qualifier must be
  * ".qualifier" and unqualified Maven and OSGi versions must be equal. For RELEASE versions, OSGi
