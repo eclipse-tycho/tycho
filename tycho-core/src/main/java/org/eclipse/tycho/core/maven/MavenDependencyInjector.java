@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.maven;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,6 +32,9 @@ import org.osgi.framework.Constants;
 
 public final class MavenDependencyInjector {
 
+    /* see RepositoryLayoutHelper#getP2Gav */
+    private static final String P2_GROUPID_PREFIX = "p2.";
+
     /**
      * Injects the dependencies of a project (as determined by the p2 target platform resolver) back
      * into the Maven model.
@@ -46,6 +50,25 @@ public final class MavenDependencyInjector {
         for (ArtifactDescriptor artifact : target.getArtifacts()) {
             generator.addDependency(artifact);
         }
+    }
+
+    /**
+     * Filters out the system scope artifacts added through this class.
+     * 
+     * @param artifacts
+     *            the list of the resolved artifacts of a project which may have dependencies
+     *            injected by this class
+     * @return the list of artifacts required by non-injected POM dependencies.
+     */
+    public static List<Artifact> filterInjectedDependencies(Collection<? extends Artifact> artifacts) {
+        List<Artifact> filteredArtifacts = new ArrayList<Artifact>();
+        for (Artifact artifact : artifacts) {
+            if (artifact.getGroupId().startsWith(P2_GROUPID_PREFIX) && artifact.getScope() == Artifact.SCOPE_SYSTEM)
+                continue; // came through injected dependency -> remove
+            else
+                filteredArtifacts.add(artifact);
+        }
+        return filteredArtifacts;
     }
 
     private static final List<String> DOT_CLASSPATH = Collections.singletonList(".");
@@ -128,8 +151,7 @@ public final class MavenDependencyInjector {
     }
 
     private Dependency createSystemScopeDependency(ArtifactKey artifactKey, File location) {
-        /* see RepositoryLayoutHelper#getP2Gav */
-        return createSystemScopeDependency(artifactKey, "p2." + artifactKey.getType(), location);
+        return createSystemScopeDependency(artifactKey, P2_GROUPID_PREFIX + artifactKey.getType(), location);
     }
 
     private Dependency createSystemScopeDependency(ArtifactKey artifactKey, String groupId, File location) {

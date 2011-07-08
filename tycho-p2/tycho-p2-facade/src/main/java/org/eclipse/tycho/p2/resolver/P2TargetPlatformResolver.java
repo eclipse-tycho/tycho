@@ -233,9 +233,12 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 }
                 externalArtifacts.add(artifact);
             }
+            List<Artifact> explicitArtifacts = MavenDependencyInjector
+                    .filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
             PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
                     getLogger(), resolutionErrorHelper);
-            pomDependencyProcessor.addPomDependenciesToResolutionContext(project, externalArtifacts, resolutionContext);
+            pomDependencyProcessor.addPomDependenciesToResolutionContext(project, explicitArtifacts,
+                    resolutionContext);
         }
 
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
