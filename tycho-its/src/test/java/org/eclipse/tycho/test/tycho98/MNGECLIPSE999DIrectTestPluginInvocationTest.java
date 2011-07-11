@@ -13,9 +13,9 @@ package org.eclipse.tycho.test.tycho98;
 import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-import src.main.java.org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 
 // TODO need to create separate project structure somehow
 public class MNGECLIPSE999DIrectTestPluginInvocationTest extends AbstractTychoIntegrationTest {
