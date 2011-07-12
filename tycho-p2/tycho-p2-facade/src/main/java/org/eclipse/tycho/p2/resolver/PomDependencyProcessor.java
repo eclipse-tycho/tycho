@@ -17,10 +17,6 @@ import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -36,14 +32,11 @@ public class PomDependencyProcessor {
     private final MavenSession session;
     private final RepositorySystem repositorySystem;
     private final Logger logger;
-    private final ResolutionErrorHandler resolutionErrorHelper;
 
-    public PomDependencyProcessor(MavenSession session, RepositorySystem repositorySystem, Logger logger,
-            ResolutionErrorHandler resolutionErrorHelper) {
+    public PomDependencyProcessor(MavenSession session, RepositorySystem repositorySystem, Logger logger) {
         this.session = session;
         this.repositorySystem = repositorySystem;
         this.logger = logger;
-        this.resolutionErrorHelper = resolutionErrorHelper;
     }
 
     void addPomDependenciesToResolutionContext(MavenProject project, Collection<Artifact> transitivePomDependencies,
@@ -52,7 +45,7 @@ public class PomDependencyProcessor {
 
         for (Artifact artifact : transitivePomDependencies) {
             P2DataArtifacts p2Data = new P2DataArtifacts(artifact);
-            p2Data.attemptDownload(project.getRemoteArtifactRepositories());
+            p2Data.resolve(session, project.getRemoteArtifactRepositories());
 
             if (p2Data.p2MetadataXml.isAvailable() && p2Data.p2ArtifactsXml.isAvailable()) {
                 /*
@@ -123,14 +116,6 @@ public class PomDependencyProcessor {
         String message = "Only one of the p2 data artifacts " + p2MetadataFileName + "/" + p2ArtifactsFileName
                 + " of the POM dependency " + artifactGAV + " could be resolved";
 
-        try {
-            resolutionErrorHelper.throwErrors(p2Data.p2MetadataXml.resolutionRequest,
-                    p2Data.p2MetadataXml.resolutionResult);
-            resolutionErrorHelper.throwErrors(p2Data.p2ArtifactsXml.resolutionRequest,
-                    p2Data.p2ArtifactsXml.resolutionResult);
-        } catch (ArtifactResolutionException e) {
-            throw new RuntimeException(message, e);
-        }
         throw new RuntimeException(message);
     }
 
@@ -151,31 +136,27 @@ public class PomDependencyProcessor {
             return new ResolvableArtifact(artifact);
         }
 
-        void attemptDownload(List<ArtifactRepository> remoteMavenRepositories) {
-            p2MetadataXml.resolve(repositorySystem, remoteMavenRepositories);
-            p2ArtifactsXml.resolve(repositorySystem, remoteMavenRepositories);
+        void resolve(MavenSession session, List<ArtifactRepository> remoteMavenRepositories) {
+            p2MetadataXml.resolve(repositorySystem, session, remoteMavenRepositories);
+            p2ArtifactsXml.resolve(repositorySystem, session, remoteMavenRepositories);
         }
 
     }
 
     private static class ResolvableArtifact {
         final Artifact artifact;
-        ArtifactResolutionRequest resolutionRequest = null;
-        ArtifactResolutionResult resolutionResult = null;
 
         ResolvableArtifact(Artifact artifact) {
             this.artifact = artifact;
         }
 
-        void resolve(RepositorySystem repositorySystem, List<ArtifactRepository> remoteMavenRepositories) {
-            resolutionRequest = new ArtifactResolutionRequest();
-            resolutionRequest.setArtifact(artifact);
-            resolutionRequest.setRemoteRepositories(remoteMavenRepositories);
-            resolutionResult = repositorySystem.resolve(resolutionRequest);
+        void resolve(RepositorySystem repositorySystem, MavenSession session,
+                List<ArtifactRepository> remoteMavenRepositories) {
+            session.getLocalRepository().find(artifact);
         }
 
         boolean isAvailable() {
-            return resolutionResult.isSuccess();
+            return artifact.getFile() != null && artifact.getFile().canRead();
         }
     }
 }

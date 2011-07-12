@@ -35,7 +35,6 @@ import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
-import org.apache.maven.artifact.resolver.ResolutionErrorHandler;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
@@ -91,9 +90,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
     @Requirement
     private RepositorySystem repositorySystem;
-
-    @Requirement
-    private ResolutionErrorHandler resolutionErrorHelper;
 
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
@@ -233,12 +229,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 }
                 externalArtifacts.add(artifact);
             }
-            List<Artifact> explicitArtifacts = MavenDependencyInjector
-                    .filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
+            List<Artifact> explicitArtifacts = MavenDependencyInjector.filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
             PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
-                    getLogger(), resolutionErrorHelper);
-            pomDependencyProcessor.addPomDependenciesToResolutionContext(project, explicitArtifacts,
-                    resolutionContext);
+                    getLogger());
+            pomDependencyProcessor.addPomDependenciesToResolutionContext(project, explicitArtifacts, resolutionContext);
         }
 
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
