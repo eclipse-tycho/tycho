@@ -132,9 +132,9 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     /**
      * Comma separated list of root project folders. If specified, generated pom.xml files will only
-     * include root projects and projects directly and indirectly referecned by the root projects.
+     * include root projects and projects directly and indirectly referenced by the root projects.
      * 
-     * @parameter expression="${rootProjects}" default-value=".tests"
+     * @parameter expression="${rootProjects}"
      */
     private String rootProjects;
 
