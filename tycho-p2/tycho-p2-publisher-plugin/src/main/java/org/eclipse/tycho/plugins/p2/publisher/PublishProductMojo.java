@@ -27,8 +27,10 @@ import org.eclipse.tycho.buildversion.VersioningHelper;
 import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.FeatureRef;
+import org.eclipse.tycho.model.Launcher;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.model.ProductConfiguration.ConfigIni;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
@@ -72,9 +74,10 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     /**
      * Prepare the product file for the Eclipse publisher application.
      * <p>
-     * Copies the product file and, if present, corresponding p2 advice file to a working directory.
-     * The folder is named after the product ID (stored in the 'uid' attribute!), and the p2 advice
-     * file is renamed to "p2.inf" so that the publisher application finds it.
+     * Copies the product file and, if present, corresponding p2 advice file and other files
+     * referenced in the .product file via relative path to a working directory. The folder is named
+     * after the product ID (stored in the 'uid' attribute!), and the p2 advice file is renamed to
+     * "p2.inf" so that the publisher application finds it.
      * </p>
      */
     static Product prepareBuildProduct(Product product, File targetDir, String qualifier) throws MojoExecutionException {
@@ -89,10 +92,43 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                     new File(buildProductDir, "p2.inf"));
             ProductConfiguration.write(productConfiguration, buildProduct.productFile);
             copyP2Inf(product.p2infFile, buildProduct.p2infFile);
-
+            copyReferencedFiles(productConfiguration, product.productFile.getParentFile(), buildProductDir);
             return buildProduct;
         } catch (IOException e) {
-            throw new MojoExecutionException("I/O exception while writing product definition to disk", e);
+            throw new MojoExecutionException(
+                    "I/O exception while writing product definition or copying launcher icons", e);
+        }
+    }
+
+    private static void copyReferencedFiles(ProductConfiguration productConfiguration, File sourceDir, File targetDir)
+            throws IOException {
+        Launcher launcher = productConfiguration.getLauncher();
+        List<String> relativePaths = new ArrayList<String>();
+        if (launcher != null) {
+            relativePaths.addAll(launcher.getLinuxIcon().values());
+            relativePaths.addAll(launcher.getWindowsIcon().values());
+            relativePaths.addAll(launcher.getSolarisIcon().values());
+            relativePaths.addAll(launcher.getMacosxIcon().values());
+        }
+        ConfigIni configIni = productConfiguration.getConfigIni();
+        if (configIni != null) {
+            relativePaths.add(configIni.getLinuxConfigIni());
+            relativePaths.add(configIni.getWin32ConfigIni());
+            relativePaths.add(configIni.getSolarisConfigIni());
+            relativePaths.add(configIni.getMacosxConfigIni());
+        }
+        copyFiles(sourceDir, targetDir, relativePaths);
+    }
+
+    private static void copyFiles(File sourceDir, File targetDir, List<String> relativePaths) throws IOException {
+        for (String relativePath : relativePaths) {
+            if (relativePath == null) {
+                continue;
+            }
+            File sourceFile = new File(sourceDir, relativePath);
+            if (sourceFile.isFile()) {
+                FileUtils.copyFile(sourceFile, new File(targetDir, relativePath));
+            }
         }
     }
 

@@ -3,12 +3,26 @@
 
 <product uid="testproduct" id="branding-id" version="0.1.0.qualifier" useFeatures="true" includeLaunchers="true">
 
-   <configIni use="default">
+   <configIni use="custom">
+      <linux>configs/config_linux.ini</linux>
+      <macosx>configs/config_macosx.ini</macosx>
+      <solaris>configs/config_solaris.ini</solaris>
+      <win32>configs/config_win32.ini</win32>
    </configIni>
 
    <launcherArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
+
+   <launcher name="myRCP">
+      <linux icon="icons/linux.xpm"/>
+      <win useIco="true">
+         <ico path="icons/win.ico"/>
+      </win>
+      <macosx icon="icons/mac.ico"/>
+      <solaris
+            solarisLarge="icons/solaris.ico"/>>
+   </launcher>
 
    <plugins>
       <plugin id="test.plugin" version="0.1.0.qualifier"/>

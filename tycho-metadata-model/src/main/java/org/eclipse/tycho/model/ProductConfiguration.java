@@ -217,4 +217,61 @@ public class ProductConfiguration {
         }
         return linux.getAttributeValue("icon");
     }
+
+    public ConfigIni getConfigIni() {
+        Element configIniElement = dom.getChild("configIni");
+        if (configIniElement == null) {
+            return null;
+        }
+        return new ConfigIni(configIniElement);
+    }
+
+    public static class ConfigIni {
+        private String linuxConfigIni;
+        private String macosxConfigIni;
+        private String solarisConfigIni;
+        private String win32ConfigIni;
+        private boolean useDefault = true;
+
+        private ConfigIni(Element configIniElement) {
+            useDefault = "default".equals(configIniElement.getAttribute("use"));
+            linuxConfigIni = getOsSpecificConfigIni(configIniElement, "linux");
+            macosxConfigIni = getOsSpecificConfigIni(configIniElement, "macosx");
+            solarisConfigIni = getOsSpecificConfigIni(configIniElement, "solaris");
+            win32ConfigIni = getOsSpecificConfigIni(configIniElement, "win32");
+        }
+
+        public boolean isUseDefault() {
+            return useDefault;
+        }
+
+        private String getOsSpecificConfigIni(Element configIniElement, String os) {
+            Element osElement = configIniElement.getChild(os);
+            if (osElement != null) {
+                String trimmedValue = osElement.getTrimmedText();
+                if (trimmedValue.length() > 0) {
+                    return trimmedValue;
+                }
+            }
+            return null;
+        }
+
+        public String getLinuxConfigIni() {
+            return linuxConfigIni;
+        }
+
+        public String getMacosxConfigIni() {
+            return macosxConfigIni;
+        }
+
+        public String getSolarisConfigIni() {
+            return solarisConfigIni;
+        }
+
+        public String getWin32ConfigIni() {
+            return win32ConfigIni;
+        }
+
+    }
+
 }

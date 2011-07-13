@@ -88,8 +88,21 @@ public class PublishProductMojoUnitTest {
         Assert.assertEquals(new File(buildBasedir, "products/testproduct/p2.inf"), buildProduct.getP2infFile());
         Assert.assertTrue(new File(buildBasedir, "products/testproduct/p2.inf").exists());
 
+        File buildProductRootDir = new File(buildBasedir, "products/testproduct");
+        assertFileExists("icons/linux.xpm", buildProductRootDir);
+        assertFileExists("icons/mac.ico", buildProductRootDir);
+        assertFileExists("icons/solaris.ico", buildProductRootDir);
+        assertFileExists("icons/win.ico", buildProductRootDir);
+        assertFileExists("configs/config_linux.ini", buildProductRootDir);
+        assertFileExists("configs/config_macosx.ini", buildProductRootDir);
+        assertFileExists("configs/config_win32.ini", buildProductRootDir);
+        assertFileExists("configs/config_solaris.ini", buildProductRootDir);
         ProductConfiguration productConfiguration = ProductConfiguration.read(buildProduct.getProductFile());
         Assert.assertEquals("0.1.0.buildQualifier", productConfiguration.getVersion());
+    }
+
+    private void assertFileExists(String relativePath, File dir) {
+        Assert.assertTrue(new File(dir, relativePath).isFile());
     }
 
     @Test
