@@ -324,16 +324,17 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                     }
                 }
 
-                for (Target.Unit unit : location.getUnits()) {
-                    String versionRange;
-                    if ("0.0.0".equals(unit.getVersion())) {
-                        versionRange = unit.getVersion();
-                    } else {
-                        // perfect version match
-                        versionRange = "[" + unit.getVersion() + "," + unit.getVersion() + "]";
-                    }
-                    resolver.addDependency(P2Resolver.TYPE_INSTALLABLE_UNIT, unit.getId(), versionRange);
-                }
+                // TODO the target platform needs to be resolved separately and not treated as additional dependencies (bug 342808)
+//                for (Target.Unit unit : location.getUnits()) {
+//                    String versionRange;
+//                    if ("0.0.0".equals(unit.getVersion())) {
+//                        versionRange = unit.getVersion();
+//                    } else {
+//                        // perfect version match
+//                        versionRange = "[" + unit.getVersion() + "," + unit.getVersion() + "]";
+//                    }
+//                    resolver.addDependency(P2Resolver.TYPE_INSTALLABLE_UNIT, unit.getId(), versionRange);
+//                }
             }
         }
 
