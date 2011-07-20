@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
@@ -72,6 +73,7 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
+import org.eclipse.tycho.p2.util.StatusTool;
 
 // This class has been split off from P2Resolver; TODO divide even further
 @SuppressWarnings("restriction")
@@ -441,16 +443,21 @@ public class ResolutionContextImpl implements ResolutionContext {
             }
         }
 
+        CompositeArtifactRepository allArtifactRepositories = CompositeArtifactRepository.createMemoryComposite(agent);
         for (IArtifactRepository artifactRepository : artifactRepositories) {
-            artifactRepository.getArtifacts(requests.toArray(ARTIFACT_REQUEST_ARRAY), monitor);
-
-            requests = filterCompletedRequests(requests);
+            allArtifactRepositories.addChild(artifactRepository.getLocation());
         }
+        IStatus result = allArtifactRepositories.getArtifacts(requests.toArray(ARTIFACT_REQUEST_ARRAY), monitor);
+        if (!result.isOK()) {
+            throw new RuntimeException(StatusTool.collectProblems(result), result.getException()); // TODO find root exception - the MultiStatus probably doesn't have one
+        }
+        requests = filterCompletedRequests(requests);
 
         localRepository.save();
         localMetadataRepository.save();
 
         // check for locally installed artifacts, which are not available from any remote repo
+        // TODO do this before downloading? (see enhancement request 342808)
         for (Iterator<MavenMirrorRequest> iter = requests.iterator(); iter.hasNext();) {
             MavenMirrorRequest request = iter.next();
             if (localRepository.contains(request.getArtifactKey())) {
