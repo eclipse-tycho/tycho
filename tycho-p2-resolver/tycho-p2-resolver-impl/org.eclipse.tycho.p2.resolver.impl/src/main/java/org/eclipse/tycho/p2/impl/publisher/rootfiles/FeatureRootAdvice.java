@@ -34,7 +34,6 @@ import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
  * <li>root.folder.&lt;subfolder&gt;
  * <li>root.&lt;config&gt;.folder.&lt;subfolder&gt;
  * </ul>
- * Also patterns (*, ** and ?) as values for root files and permissions are not yet supported.
  */
 @SuppressWarnings("restriction")
 public class FeatureRootAdvice implements IFeatureRootAdvice {
@@ -125,7 +124,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
     }
 
     public IPathComputer getRootFileComputer(final String configSpec) {
-        final Map<File, IPath> filesMap = propertiesPerConfig.get(ConfigSpec.createFromWsOsArch(configSpec)).getFiles();
+        final FileToPathMap filesMap = propertiesPerConfig.get(ConfigSpec.createFromWsOsArch(configSpec)).getFileMap();
 
         return new IPathComputer() {
             public void reset() {
@@ -167,7 +166,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
     }
 
     private void addFiles(RootFilesProperties rootProperties, FileSetDescriptor rootFilesDescriptor) {
-        Map<File, IPath> sourceToDestinationMap = rootProperties.getFiles();
+        FileToPathMap sourceToDestinationMap = rootProperties.getFileMap();
         if (sourceToDestinationMap == null)
             return;
         Set<File> sourceFiles = sourceToDestinationMap.keySet();
@@ -187,7 +186,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
     }
 
     private static void ensureRootFilesConfigured(RootFilesProperties rootProperties, ConfigSpec configuration) {
-        if (rootProperties.getFiles().size() == 0) {
+        if (rootProperties.getFileMap().keySet().size() == 0) {
             String message;
             if (configuration.equals(ConfigSpec.GLOBAL)) {
                 message = "Cannot set permissions or symbolic links if there are no root files";

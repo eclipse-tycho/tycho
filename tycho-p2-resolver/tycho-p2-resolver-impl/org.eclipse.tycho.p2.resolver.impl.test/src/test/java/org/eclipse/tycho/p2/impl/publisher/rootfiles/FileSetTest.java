@@ -11,11 +11,9 @@
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 import java.io.File;
-import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.junit.Test;
 
@@ -83,9 +81,17 @@ public class FileSetTest {
     }
 
     @Test
+    public void testNoDefaultExcludes() {
+        FileSet recursiveFileSet = new FileSet(null, "test/**", false);
+        Assert.assertTrue(recursiveFileSet.matches(new Path("test/CVS/foo.txt")));
+        Assert.assertTrue(recursiveFileSet.matches(new Path("test/.git/foo.txt")));
+        Assert.assertTrue(recursiveFileSet.matches(new Path("test/.svn/foo.txt")));
+    }
+
+    @Test
     public void testScan() {
         FileSet txtFileset = new FileSet(new File("resources/rootfiles"), "**/*.txt");
-        Map<File, IPath> result = txtFileset.scan();
-        Assert.assertEquals(4, result.size());
+        FileToPathMap result = txtFileset.scan();
+        Assert.assertEquals(4, result.keySet().size());
     }
 }

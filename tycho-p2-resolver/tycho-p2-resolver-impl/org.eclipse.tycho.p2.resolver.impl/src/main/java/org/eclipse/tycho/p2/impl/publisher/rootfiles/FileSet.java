@@ -12,9 +12,7 @@ package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IPath;
@@ -67,22 +65,34 @@ public class FileSet {
             "**/.darcs-temp-mail" };
 
     private File baseDir;
+
     private Pattern includePattern;
-    private List<Pattern> excludePatterns;
+    private List<Pattern> defaultExcludePatterns;
+    private boolean useDefaultExcludes;
+
+    /**
+     * Equivalent to {@link #FileSet(File, String, boolean)} with useDefaultExludes == true.
+     */
+    public FileSet(File baseDir, String pattern) {
+        this(baseDir, pattern, true);
+    }
 
     /**
      * Creates a fileset.
      * 
      * @param baseDir
      *            the base directory to scan
-     * @param antFileIncludePattern
+     * @param pattern
      *            ant file inclusion pattern (relative to baseDir). Wildcards **,* and ? are
      *            supported.
+     * @param useDefaultExcludes
+     *            whether to use default file excludes for typical SCM metadata files.
      */
-    public FileSet(File baseDir, String antFileIncludePattern) {
+    public FileSet(File baseDir, String pattern, boolean useDefaultExcludes) {
         this.baseDir = baseDir;
-        this.includePattern = convertToRegexPattern(antFileIncludePattern);
-        this.excludePatterns = createDefaultExcludePatterns();
+        this.useDefaultExcludes = useDefaultExcludes;
+        this.includePattern = convertToRegexPattern(pattern);
+        this.defaultExcludePatterns = createDefaultExcludePatterns();
     }
 
     private List<Pattern> createDefaultExcludePatterns() {
@@ -99,21 +109,27 @@ public class FileSet {
      */
     boolean matches(IPath path) {
         String slashifiedPath = path.toPortableString();
-        for (Pattern excludePattern : excludePatterns) {
-            if (excludePattern.matcher(slashifiedPath).matches()) {
-                return false;
+        if (useDefaultExcludes) {
+            for (Pattern excludePattern : defaultExcludePatterns) {
+                if (excludePattern.matcher(slashifiedPath).matches()) {
+                    return false;
+                }
             }
         }
         return includePattern.matcher(slashifiedPath).matches();
     }
 
+    public File getBaseDir() {
+        return baseDir;
+    }
+
     /**
      * Scan the filesystem below baseDir for matching files.
      * 
-     * @return map File -> basedir-relative path
+     * @return map canonical File -> basedir-relative path
      */
-    public Map<File, IPath> scan() {
-        Map<File, IPath> result = new HashMap<File, IPath>();
+    public FileToPathMap scan() {
+        FileToPathMap result = new FileToPathMap();
         recursiveScan(baseDir, result, Path.fromOSString(baseDir.getAbsolutePath()));
         return result;
     }
@@ -158,7 +174,7 @@ public class FileSet {
         return Pattern.compile(sb.toString());
     }
 
-    private void recursiveScan(File file, Map<File, IPath> result, IPath baseDirPath) {
+    private void recursiveScan(File file, FileToPathMap result, IPath baseDirPath) {
         if (file.isDirectory()) {
             for (File subFile : file.listFiles()) {
                 if (subFile.isDirectory()) {
@@ -172,7 +188,7 @@ public class FileSet {
         }
     }
 
-    private void addFileIfMatch(File file, Map<File, IPath> result, IPath baseDir) {
+    private void addFileIfMatch(File file, FileToPathMap result, IPath baseDir) {
         IPath relativePath = Path.fromOSString(file.getAbsolutePath()).makeRelativeTo(baseDir);
         if (matches(relativePath)) {
             result.put(file, relativePath);

@@ -11,12 +11,6 @@
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 
 public class RootFilePatternParser {
 
@@ -24,9 +18,12 @@ public class RootFilePatternParser {
 
     private final RootFilesProperties target;
 
-    public RootFilePatternParser(File baseDir, RootFilesProperties target) {
+    private boolean useDefaultExcludes;
+
+    public RootFilePatternParser(File baseDir, RootFilesProperties target, boolean useDefaultExcludes) {
         this.baseDir = baseDir;
         this.target = target;
+        this.useDefaultExcludes = useDefaultExcludes;
     }
 
     /**
@@ -42,8 +39,8 @@ public class RootFilePatternParser {
      * <li>root=absolute:/rootfiles1
      * <li>root=absolute:file:/eclipse/about.html
      * </ul>
-     * Configurations like root.<os.ws.arch> is also supported here but patterns, subfolder and
-     * permissions so far are not supported. <br>
+     * Configurations like root.<os.ws.arch> is also supported here but subfolders so far are not
+     * supported. <br>
      * Following wrongly specified cases are simply ignored when trying to find root files<br>
      * <ol>
      * <li>root = license.html -> licence.html exists but is not a directory (contrary to PDE
@@ -56,54 +53,57 @@ public class RootFilePatternParser {
      * correct 'absolute:file:')
      * </ol>
      * 
-     * @param rootFileEntryValue
-     *            specified comma separated root files
-     * @return the root files information parsed from the <code>rootFileEntryValue</code> parameter.
-     *         If parsing lead to non valid root files cases then an empty Map is returned.
+     * @param paths
+     *            root file paths
      */
     void addFilesFromPatterns(String[] paths) {
         for (String path : paths) {
-            target.addFiles(collectRootFilesMap(parseRootFilePath(path, baseDir)));
+            RootFilePath rootFilePath = new RootFilePath(path, baseDir);
+            target.addFiles(rootFilePath.toFileSet(useDefaultExcludes).scan());
         }
     }
 
-    static File parseRootFilePath(String path, File baseDir) {
-        boolean isAbsolute = false;
-        final String absoluteString = "absolute:";
-        if (path.startsWith(absoluteString)) {
-            isAbsolute = true;
-            path = path.substring(absoluteString.length());
+    static class RootFilePath {
+
+        private static final String ABSOLUTE_PREFIX = "absolute:";
+        private static final String FILE_PREFIX = "file:";
+
+        private String path;
+        private File baseDir;
+        private boolean isAbsolute = false;
+        private boolean isFile = false;
+
+        public RootFilePath(String path, File baseDir) {
+            this.path = parse(path);
+            this.baseDir = baseDir;
         }
 
-        String fileString = "file:";
-        if (path.startsWith(fileString)) {
-            path = path.substring(fileString.length());
-        }
-
-        return (isAbsolute ? new File(path) : new File(baseDir, path).getAbsoluteFile());
-        // TODO we should prevent non-absolute "absolute:" paths
-    }
-
-    static Map<File, IPath> collectRootFilesMap(File rootFile) {
-        if (rootFile.isFile()) {
-            return Collections.singletonMap(rootFile, Path.fromOSString(rootFile.getName()));
-        }
-        return collectRootFilesMap(rootFile, Path.fromOSString(rootFile.getAbsolutePath()));
-    }
-
-    static Map<File, IPath> collectRootFilesMap(File file, IPath basePath) {
-        Map<File, IPath> files = new HashMap<File, IPath>();
-
-        if (!file.exists())
-            return Collections.emptyMap();
-        File[] dirFiles = file.listFiles();
-        for (File dirFile : dirFiles) {
-            files.put(dirFile, Path.fromOSString(dirFile.getAbsolutePath()).makeRelativeTo(basePath));
-            if (dirFile.isDirectory()) {
-                files.putAll(collectRootFilesMap(dirFile, basePath));
+        public FileSet toFileSet(boolean useDefaultExcludes) {
+            File file = isAbsolute ? new File(path) : new File(baseDir, path);
+            String pattern;
+            File fileSetBasedir;
+            if (isFile) {
+                fileSetBasedir = file.getParentFile();
+                pattern = file.getName();
+            } else {
+                fileSetBasedir = file;
+                pattern = "**/*";
             }
+            return new FileSet(fileSetBasedir, pattern, useDefaultExcludes);
         }
-        return files;
+
+        private String parse(String path) {
+            if (path.startsWith(ABSOLUTE_PREFIX)) {
+                isAbsolute = true;
+                path = path.substring(ABSOLUTE_PREFIX.length());
+            }
+            if (path.startsWith(FILE_PREFIX)) {
+                isFile = true;
+                path = path.substring(FILE_PREFIX.length());
+            }
+            return path;
+        }
+
     }
 
 }

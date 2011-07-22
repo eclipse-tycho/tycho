@@ -76,9 +76,13 @@ public class RootPropertiesParser {
 
     String[] valueSegments;
 
+    private boolean useDefaultExcludes;
+
     public RootPropertiesParser(File baseDir, Properties buildProperties) {
         this.baseDir = baseDir;
         this.buildProperties = buildProperties;
+        this.useDefaultExcludes = Boolean.parseBoolean(buildProperties.getProperty("rootFiles.useDefaultExcludes",
+                "true"));
     }
 
     public HashMap<ConfigSpec, RootFilesProperties> getPermissionsAndLinksResult() {
@@ -134,7 +138,7 @@ public class RootPropertiesParser {
     void storeRootPropertyValue(RootKeyType keyType, String parameterInKey, RootFilesProperties target) {
         switch (keyType) {
         case FILE:
-            RootFilePatternParser filePatternParser = new RootFilePatternParser(baseDir, target);
+            RootFilePatternParser filePatternParser = new RootFilePatternParser(baseDir, target, useDefaultExcludes);
             filePatternParser.addFilesFromPatterns(valueSegments);
             break;
         case FOLDER:

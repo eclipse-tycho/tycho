@@ -10,14 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.eclipse.core.runtime.IPath;
 
 public class RootFilesProperties {
 
@@ -40,17 +35,17 @@ public class RootFilesProperties {
      * Absolute source location of a root file to the relative path that describes the location of
      * the root file in the installed product.
      */
-    private Map<File, IPath> fileSourceToDestinationMap = new HashMap<File, IPath>();
+    private FileToPathMap fileSourceToDestinationMap = new FileToPathMap();
 
     private List<Permission> permissions = new ArrayList<Permission>();
 
     private StringBuilder links = new StringBuilder();
 
-    public Map<File, IPath> getFiles() {
+    public FileToPathMap getFileMap() {
         return fileSourceToDestinationMap;
     }
 
-    public void addFiles(Map<File, IPath> fileSourceToDestinationMap) {
+    public void addFiles(FileToPathMap fileSourceToDestinationMap) {
         this.fileSourceToDestinationMap.putAll(fileSourceToDestinationMap);
     }
 
