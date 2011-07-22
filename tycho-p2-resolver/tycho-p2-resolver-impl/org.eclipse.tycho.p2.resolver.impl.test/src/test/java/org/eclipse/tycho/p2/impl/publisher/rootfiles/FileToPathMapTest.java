@@ -33,7 +33,7 @@ public class FileToPathMapTest {
         map.put(new File("/tmp/test.txt"), new Path("test"));
         map.put(new File("/tmp/foo/../test.txt"), new Path("test2"));
         assertEquals(1, map.size());
-        assertEquals(map.get(new File("/tmp/bar\\../test.txt")), new Path("test2"));
+        assertEquals(new Path("test2"), map.get(new File("/tmp/bar/../test.txt")));
     }
 
     @Test
