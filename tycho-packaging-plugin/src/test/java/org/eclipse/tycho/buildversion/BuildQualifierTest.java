@@ -8,16 +8,17 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.buildnumber.test;
+package org.eclipse.tycho.buildversion;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.buildversion.BuildQualifierMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class BuildQualifierTest extends AbstractTychoMojoTestCase {
@@ -148,6 +149,24 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
         assertEquals("0.0.1", project.getProperties().get(BuildQualifierMojo.UNQUALIFIED_VERSION_PROPERTY));
         assertEquals("123456", project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
+    }
+
+    public void testTimeZone() {
+        final TimeZone oldTimeZone = TimeZone.getDefault();
+        try {
+            final Date date = new Date(0L);
+            String qualiferCreatedInGMTTimeZone = createTimeStampInTimeZone("GMT", date);
+            String qualiferCreatedInGMTPlus2TimeZone = createTimeStampInTimeZone("GMT+02:00", date);
+            assertEquals(qualiferCreatedInGMTPlus2TimeZone, qualiferCreatedInGMTTimeZone);
+        } finally {
+            TimeZone.setDefault(oldTimeZone);
+        }
+    }
+
+    private String createTimeStampInTimeZone(String timeZone, Date date) {
+        TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
+        BuildQualifierMojo mojo = new BuildQualifierMojo();
+        return mojo.getQualifier(date);
     }
 
     private MavenProject getProject(MavenExecutionRequest request) throws Exception {

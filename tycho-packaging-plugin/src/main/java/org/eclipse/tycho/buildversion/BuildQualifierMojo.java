@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -58,11 +59,12 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     private MavenSession session;
 
     /**
-     * Specify a message format as specified by java.text.SimpleDateFormat.
+     * Specify a message format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
+     * Default value is "yyyyMMddHHmm".
      * 
-     * @parameter default-value="yyyyMMddHHmm"
+     * @parameter
      */
-    private SimpleDateFormat format;
+    private SimpleDateFormat format = createUTCDateFormat("yyyyMMddHHmm");
 
     /**
      * @parameter default-value="${project.basedir}/build.properties"
@@ -75,7 +77,13 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     private String forceContextQualifier;
 
     public void setFormat(String format) {
-        this.format = new SimpleDateFormat(format);
+        this.format = createUTCDateFormat(format);
+    }
+
+    private SimpleDateFormat createUTCDateFormat(String format) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat;
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -105,11 +113,15 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
         if (qualifier == null) {
             Date timestamp = getSessionTimestamp();
-            qualifier = format.format(timestamp);
+            qualifier = getQualifier(timestamp);
         }
 
         project.getProperties().put(BUILD_QUALIFIER_PROPERTY, qualifier);
         project.getProperties().put(UNQUALIFIED_VERSION_PROPERTY, getUnqualifiedVersion());
+    }
+
+    String getQualifier(Date timestamp) {
+        return format.format(timestamp);
     }
 
     private String getUnqualifiedVersion() {
