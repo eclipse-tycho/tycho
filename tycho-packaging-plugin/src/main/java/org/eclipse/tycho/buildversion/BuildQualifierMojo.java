@@ -60,11 +60,10 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     /**
      * Specify a message format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
-     * Default value is "yyyyMMddHHmm".
      * 
-     * @parameter
+     * @parameter default-value="yyyyMMddHHmm"
      */
-    private SimpleDateFormat format = createUTCDateFormat("yyyyMMddHHmm");
+    private SimpleDateFormat format;
 
     /**
      * @parameter default-value="${project.basedir}/build.properties"
@@ -76,14 +75,10 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
      */
     private String forceContextQualifier;
 
-    public void setFormat(String format) {
-        this.format = createUTCDateFormat(format);
-    }
-
-    private SimpleDateFormat createUTCDateFormat(String format) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return dateFormat;
+    // setter is needed to make sure we always use UTC
+    public void setFormat(String formatString) {
+        format = new SimpleDateFormat(formatString);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {

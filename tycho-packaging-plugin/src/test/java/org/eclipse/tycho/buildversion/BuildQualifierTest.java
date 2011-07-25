@@ -166,6 +166,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     private String createTimeStampInTimeZone(String timeZone, Date date) {
         TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
         BuildQualifierMojo mojo = new BuildQualifierMojo();
+        mojo.setFormat("yyyyMMddHHmm");
         return mojo.getQualifier(date);
     }
 
