@@ -144,13 +144,18 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         MavenLogger loggerForOsgiImpl = new MavenLoggerAdapter(getLogger(), DebugUtils.isDebugEnabled(session, project));
 
         File localRepositoryRoot = new File(session.getLocalRepository().getBasedir());
+
+        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
+                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+
         ResolutionContext resolutionContext = resolverFactory.createResolutionContext(localRepositoryRoot,
-                session.isOffline(), loggerForOsgiImpl);
+                session.isOffline(), configuration.isDisableP2Mirrors(), loggerForOsgiImpl);
+
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(loggerForOsgiImpl);
 
         try {
             return doResolvePlatform(session, project, reactorProjects, dependencies, resolutionContext,
-                    osgiResolverImpl);
+                    osgiResolverImpl, configuration);
         } finally {
             resolutionContext.stop();
         }
@@ -158,9 +163,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
     protected TargetPlatform doResolvePlatform(final MavenSession session, final MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies, ResolutionContext resolutionContext,
-            P2Resolver resolver) {
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+            P2Resolver resolver, TargetPlatformConfiguration configuration) {
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 

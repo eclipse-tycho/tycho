@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class P2ResolverOfflineTest extends P2ResolverTestBase {
+    private static final boolean DISABLE_MIRRORS = false;
 
     private HttpServer server;
     private String servedUrl;
@@ -42,7 +43,8 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
     @Before
     public void initResolver() throws Exception {
         MavenLogger logger = new MavenLoggerStub();
-        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), false, logger);
+        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), false,
+                DISABLE_MIRRORS, logger);
         impl = new P2ResolverImpl(logger);
     }
 
@@ -83,7 +85,7 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
 
         // now go offline and resolve again
         context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), true,
-                new MavenLoggerStub());
+                DISABLE_MIRRORS, new MavenLoggerStub());
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 
         Assert.assertEquals(1, results.size());
@@ -98,7 +100,7 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
         delete(getLocalRepositoryLocation());
 
         context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), true,
-                new MavenLoggerStub());
+                DISABLE_MIRRORS, new MavenLoggerStub());
 
         try {
             resolveFromHttp(context, impl, servedUrl);

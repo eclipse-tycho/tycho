@@ -31,6 +31,8 @@ public class TargetPlatformConfiguration {
 
     private Boolean allowConflictingDependencies;
 
+    private boolean disableP2Mirrors;
+
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -83,5 +85,13 @@ public class TargetPlatformConfiguration {
 
     public Boolean getAllowConflictingDependencies() {
         return allowConflictingDependencies;
+    }
+
+    public void setDisableP2Mirrors(boolean disableP2Mirrors) {
+        this.disableP2Mirrors = disableP2Mirrors;
+    }
+
+    public boolean isDisableP2Mirrors() {
+        return disableP2Mirrors;
     }
 }

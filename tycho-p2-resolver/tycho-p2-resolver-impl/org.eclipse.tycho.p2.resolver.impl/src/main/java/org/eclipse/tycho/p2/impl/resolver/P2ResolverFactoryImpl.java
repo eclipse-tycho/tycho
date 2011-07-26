@@ -26,10 +26,10 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     public ResolutionContextImpl createResolutionContext(File localMavenRepositoryRoot, boolean offline,
-            MavenLogger logger) {
+            boolean disableP2Mirrors, MavenLogger logger) {
         IProvisioningAgent agent = getProvisioningAgent(localMavenRepositoryRoot, offline);
 
-        return new ResolutionContextImpl(agent, localMavenRepositoryRoot, offline, logger);
+        return new ResolutionContextImpl(agent, localMavenRepositoryRoot, offline, disableP2Mirrors, logger);
     }
 
     public P2ResolverImpl createResolver(MavenLogger logger) {

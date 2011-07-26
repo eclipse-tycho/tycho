@@ -60,6 +60,8 @@ public class DefaultTargetPlatformConfigurationReader {
                 setPomDependencies(result, configuration);
 
                 setAllowConflictingDependencies(result, configuration);
+
+                setDisableP2Mirrors(result, configuration);
             }
         }
 
@@ -83,6 +85,16 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return result;
+    }
+
+    private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom disableP2mirrorsDom = configuration.getChild("disableP2Mirrors");
+        if (disableP2mirrorsDom == null) {
+            return;
+        }
+
+        result.setDisableP2Mirrors(Boolean.parseBoolean(disableP2mirrorsDom.getValue()));
+
     }
 
     private void setAllowConflictingDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {

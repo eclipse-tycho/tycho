@@ -87,7 +87,10 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     private final IProvisioningAgent agent;
 
-    ResolutionContextImpl(IProvisioningAgent agent, File localMavenRepositoryRoot, boolean offline, MavenLogger logger) {
+    private final boolean disableP2Mirrors;
+
+    ResolutionContextImpl(IProvisioningAgent agent, File localMavenRepositoryRoot, boolean offline,
+            boolean disableP2Mirrors, MavenLogger logger) {
         this.agent = agent;
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
@@ -110,6 +113,8 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
 
         this.offline = offline;
+
+        this.disableP2Mirrors = disableP2Mirrors;
 
         this.bundlesPublisher = new ResolutionContextBundlePublisher(localMavenRepositoryRoot, logger);
 
@@ -259,7 +264,10 @@ public class ResolutionContextImpl implements ResolutionContext {
                 artifactRepository = artifactRepositoryManager.loadRepository(location, monitor);
                 artifactRepositories.add(artifactRepository);
 
-                forceSingleThreadedDownload(artifactRepositoryManager, artifactRepository);
+                forceSingleThreadedDownload(artifactRepository);
+                if (disableP2Mirrors) {
+                    forceMirrorsDisabled(artifactRepository);
+                }
             }
 
             repositoryCache.putRepository(location, metadataRepository, artifactRepository);
@@ -270,34 +278,46 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
     }
 
-    protected void forceSingleThreadedDownload(IArtifactRepositoryManager artifactRepositoryManager,
-            IArtifactRepository artifactRepository) {
+    protected void forceSingleThreadedDownload(IArtifactRepository artifactRepository) {
         try {
             if (artifactRepository instanceof SimpleArtifactRepository) {
-                forceSingleThreadedDownload((SimpleArtifactRepository) artifactRepository);
+                OrderedProperties p = getProperties(artifactRepository);
+                p.put(org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.PROP_MAX_THREADS,
+                        "1");
             } else if (artifactRepository instanceof CompositeArtifactRepository) {
-                forceSingleThreadedDownload(artifactRepositoryManager, (CompositeArtifactRepository) artifactRepository);
+                List<URI> children = ((CompositeArtifactRepository) artifactRepository).getChildren();
+                for (URI child : children) {
+                    forceSingleThreadedDownload(artifactRepositoryManager.loadRepository(child, monitor));
+                }
             }
         } catch (Exception e) {
             // we've tried
         }
     }
 
-    protected void forceSingleThreadedDownload(IArtifactRepositoryManager artifactRepositoryManager,
-            CompositeArtifactRepository artifactRepository) throws ProvisionException {
-        List<URI> children = artifactRepository.getChildren();
-        for (URI child : children) {
-            forceSingleThreadedDownload(artifactRepositoryManager,
-                    artifactRepositoryManager.loadRepository(child, monitor));
+    private void forceMirrorsDisabled(IArtifactRepository artifactRepository) throws ProvisionException {
+        if (artifactRepository instanceof SimpleArtifactRepository) {
+            try {
+                OrderedProperties p = getProperties(artifactRepository);
+                p.remove(org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.PROP_MIRRORS_URL);
+            } catch (Exception e) {
+                throw new RuntimeException("Could not disable p2 mirrors", e);
+            }
+        } else if (artifactRepository instanceof CompositeArtifactRepository) {
+            for (URI child : ((CompositeArtifactRepository) artifactRepository).getChildren()) {
+                forceMirrorsDisabled(artifactRepositoryManager.loadRepository(child, monitor));
+            }
         }
+
     }
 
-    protected void forceSingleThreadedDownload(SimpleArtifactRepository artifactRepository) throws SecurityException,
-            NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+    private OrderedProperties getProperties(IArtifactRepository artifactRepository) throws NoSuchFieldException,
+            IllegalAccessException {
+        // TODO there should be a better way to modify repository properties
         Field field = AbstractRepository.class.getDeclaredField("properties");
         field.setAccessible(true);
-        OrderedProperties p = (OrderedProperties) field.get(artifactRepository);
-        p.put(org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.PROP_MAX_THREADS, "1");
+        OrderedProperties p = (OrderedProperties) field.get((SimpleArtifactRepository) artifactRepository);
+        return p;
     }
 
     // --------------------------------------------------------------------------------
