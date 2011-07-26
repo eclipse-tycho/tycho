@@ -8,7 +8,7 @@
  * Contributors:
  *      Sonatype, Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug348326featurePatch;
+package org.eclipse.tycho.test.featurePatch.build;
 
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_342;
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
@@ -21,12 +21,12 @@ public class FeaturePatchTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testFeaturePatch() throws Exception {
-        Verifier verifier = getVerifier("/348326featurePatch", false);
+        Verifier verifier = getVerifier("featurePatch.build", false);
 
         verifier.getSystemProperties().setProperty("e342-url", ECLIPSE_342.toString());
         verifier.getSystemProperties().setProperty("e352-url", ECLIPSE_352.toString());
 
-        verifier.executeGoal("install");
+        verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     }
 }
