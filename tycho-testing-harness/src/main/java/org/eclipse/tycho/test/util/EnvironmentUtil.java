@@ -76,7 +76,11 @@ public class EnvironmentUtil {
     }
 
     public static String getTargetPlatforn() {
-        return getProperty("eclipse-dir");
+        return getProperty("its-target-platform");
+    }
+
+    public static String getTestSettings() {
+        return getProperty("its-settings");
     }
 
     public static String getMavenHome() {

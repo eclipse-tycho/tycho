@@ -48,18 +48,7 @@ public abstract class AbstractTychoIntegrationTest {
     }
 
     protected Verifier getVerifier(String test, boolean setTargetPlatform) throws Exception {
-        return getVerifier(test, setTargetPlatform, getDefaultSettings());
-    }
-
-    private static File getDefaultSettings() {
-        // alternative settings.xml, e.g. outside the source code repository
-        String userSpecifiedDefaultSettings = System.getProperty("tycho.testSettings");
-        if (userSpecifiedDefaultSettings != null) {
-            return new File(userSpecifiedDefaultSettings);
-        }
-
-        // default: settings.xml in the root of the integration test project (e.g. tycho-its/settings.xml)
-        return new File("settings.xml");
+        return getVerifier(test, setTargetPlatform, getSettings());
     }
 
     @SuppressWarnings("unchecked")
@@ -111,6 +100,24 @@ public abstract class AbstractTychoIntegrationTest {
 
     protected String getTargetPlatforn() {
         return EnvironmentUtil.getTargetPlatforn();
+    }
+
+    private static File getSettings() {
+        // alternative settings.xml, e.g. outside the source code repository
+        // - read from Eclipse launch configuration
+        String systemValue = System.getProperty("tycho.testSettings");
+        if (systemValue != null) {
+            return new File(systemValue);
+        }
+
+        // - read from command line
+        String commandLineValue = EnvironmentUtil.getTestSettings();
+        if (!commandLineValue.isEmpty()) {
+            return new File(commandLineValue);
+        }
+
+        // default: settings.xml in the root of the integration test project (e.g. tycho-its/settings.xml)
+        return new File("settings.xml");
     }
 
     protected String getMavenHome() {
