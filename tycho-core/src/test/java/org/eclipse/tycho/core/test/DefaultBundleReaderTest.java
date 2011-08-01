@@ -67,6 +67,23 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         assertNull(nonExistingFile);
     }
 
+    public void testGetEntryExtractionCache() throws Exception {
+        File bundleJar = getTestJar();
+        File extractedLog4jFile = bundleReader.getEntry(bundleJar, "lib/log4j.properties");
+        assertTrue(extractedLog4jFile.isFile());
+        long firstExtractionTimestamp = extractedLog4jFile.lastModified();
+        File extractedDir = bundleReader.getEntry(bundleJar, "lib/");
+        // make sure subdirectory of lib/ is extracted even if directory lib/ is already extracted
+        // due to previous extraction of "lib/log4j.properties"
+        assertTrue(new File(extractedDir, "subdir").isDirectory());
+        // extract the same file with older timestamp in archive again => must be a cache hit (skip extraction)
+        File olderContentBundleJar = new File(getBasedir(),
+                "src/test/resources/bundlereader/olderTimestamp/testNestedDirClasspath_1.0.0.201007261122.jar");
+        File log4jFileExtractedAgain = bundleReader.getEntry(olderContentBundleJar, "lib/log4j.properties");
+        assertEquals(log4jFileExtractedAgain.getCanonicalPath(), extractedLog4jFile.getCanonicalPath());
+        assertEquals(firstExtractionTimestamp, log4jFileExtractedAgain.lastModified());
+    }
+
     private File getTestJar() {
         return new File(getBasedir(), "src/test/resources/bundlereader/testNestedDirClasspath_1.0.0.201007261122.jar");
     }

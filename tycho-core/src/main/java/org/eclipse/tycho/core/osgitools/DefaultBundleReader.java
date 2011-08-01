@@ -15,9 +15,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -44,6 +46,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     private File cacheDir;
 
     private static final Map<File, Manifest> manifestCache = new HashMap<File, Manifest>();
+    private Set<String> extractedFiles = new HashSet<String>();
 
     @Requirement(hint = "zip")
     private UnArchiver zipUnArchiver;
@@ -195,11 +198,19 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
             result = new File(bundleLocation, path);
         } else {
             try {
-                zipUnArchiver.setSourceFile(bundleLocation);
                 File outputDirectory = new File(cacheDir, bundleLocation.getName());
-                zipUnArchiver.extract(path, outputDirectory);
                 result = new File(outputDirectory, path);
+                String resultPath = result.getCanonicalPath();
+                if (extractedFiles.contains(resultPath) && result.exists()) {
+                    return result;
+                } else {
+                    zipUnArchiver.setSourceFile(bundleLocation);
+                    zipUnArchiver.extract(path, outputDirectory);
+                    extractedFiles.add(resultPath);
+                }
             } catch (ArchiverException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
