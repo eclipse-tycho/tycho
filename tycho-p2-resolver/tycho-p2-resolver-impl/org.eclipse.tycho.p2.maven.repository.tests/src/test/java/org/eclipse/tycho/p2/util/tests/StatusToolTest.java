@@ -65,7 +65,7 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
         // extra comments are not really necessary, but not harmful either
-        assertEquals("\"Root message\": [, \"Info message\", , \"Error message\", \"Warning message\"]",
+        assertEquals("\"Root message\": [\"Info message\", \"Error message\", \"Warning message\"]",
                 StatusTool.collectProblems(status));
     }
 
@@ -75,6 +75,6 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
         // this has potential to throw an exception
-        assertEquals("\"Root message\": [, ]", StatusTool.collectProblems(status));
+        assertEquals("\"Root message\": []", StatusTool.collectProblems(status));
     }
 }

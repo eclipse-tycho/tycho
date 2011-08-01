@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.tools.publisher.facade;
 
 import java.io.File;
 
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -34,11 +35,13 @@ public interface PublisherServiceFactory {
      *            artifact repository references in the argument are ignored
      * @param context
      *            Context information about the current project
+     * @param logger
+     *            The Maven logger
      * @return A new {@link PublisherService} instance. The caller is responsible to call
      *         <tt>stop</tt> on the instance after use
      * @throws FacadeException
      *             if a checked exception occurs internally
      */
     PublisherService createPublisher(File targetRepository, RepositoryReferences contextRepositories,
-            BuildContext context) throws FacadeException;
+            BuildContext context, MavenLogger logger) throws FacadeException;
 }

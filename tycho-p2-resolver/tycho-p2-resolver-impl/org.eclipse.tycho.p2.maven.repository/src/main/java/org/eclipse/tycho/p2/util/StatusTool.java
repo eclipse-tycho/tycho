@@ -23,25 +23,35 @@ public class StatusTool {
         }
 
         StringBuilder result = new StringBuilder();
-        collectProblems(result, status);
+        collectStatusAndChildren(result, status);
         return result.toString();
     }
 
-    private static void collectProblems(StringBuilder result, IStatus status) {
-        result.append('"');
-        result.append(status.getMessage());
-        result.append('"');
+    private static void collectStatusAndChildren(StringBuilder result, IStatus status) {
+        collectStatusMessage(result, status);
         IStatus[] children = status.getChildren();
         if (children != null && children.length > 0) {
             result.append(": [");
-            for (IStatus childStatus : children) {
-                if (!childStatus.isOK()) {
-                    collectProblems(result, childStatus);
-                }
-                result.append(", ");
-            }
-            result.setLength(result.length() - 2);
+            collectChildren(result, children);
             result.append("]");
         }
+    }
+
+    private static void collectStatusMessage(StringBuilder result, IStatus status) {
+        result.append('"');
+        result.append(status.getMessage());
+        result.append('"');
+    }
+
+    private static void collectChildren(StringBuilder result, IStatus[] children) {
+        int trailingSeparatorChars = 0;
+        for (IStatus childStatus : children) {
+            if (!childStatus.isOK()) {
+                collectStatusAndChildren(result, childStatus);
+                result.append(", ");
+                trailingSeparatorChars = 2;
+            }
+        }
+        result.setLength(result.length() - trailingSeparatorChars);
     }
 }

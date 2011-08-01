@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -31,12 +32,13 @@ import org.eclipse.tycho.p2.util.StatusTool;
 class PublisherServiceImpl implements PublisherService {
 
     private final BuildContext context;
+    private final PublisherInfoTemplate configuration;
+    private final MavenLogger logger;
 
-    PublisherInfoTemplate configuration;
-
-    public PublisherServiceImpl(BuildContext context, PublisherInfoTemplate publisherConfiguration) {
+    public PublisherServiceImpl(BuildContext context, PublisherInfoTemplate publisherConfiguration, MavenLogger logger) {
         this.context = context;
         this.configuration = publisherConfiguration;
+        this.logger = logger;
     }
 
     public Collection<IInstallableUnit> publishCategories(File categoryDefinition) throws FacadeException,
@@ -83,11 +85,19 @@ class PublisherServiceImpl implements PublisherService {
         Publisher publisher = new Publisher(configuration.newPublisherInfo());
 
         IStatus result = publisher.publish(actions, null);
-        if (!result.isOK()) {
-            throw new FacadeException(StatusTool.collectProblems(result), result.getException());
-        }
+        handlePublisherStatus(result);
 
         return resultSpy.getAllIUs();
+    }
+
+    private void handlePublisherStatus(IStatus result) throws FacadeException {
+        if (result.matches(IStatus.INFO)) {
+            logger.info(StatusTool.collectProblems(result));
+        } else if (result.matches(IStatus.WARNING)) {
+            logger.warn(StatusTool.collectProblems(result));
+        } else if (!result.isOK()) {
+            throw new FacadeException(StatusTool.collectProblems(result), result.getException());
+        }
     }
 
     private Collection<IInstallableUnit> selectUnit(Collection<IInstallableUnit> units, String id) {
