@@ -20,7 +20,7 @@ import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class PomDependencyOnTychoArtifactTest extends AbstractTychoIntegrationTest {
+public class PomDependencyOnLocallyBuiltTychoArtifactTest extends AbstractTychoIntegrationTest {
 
     private static final GAV TEST_PROJECT_POM_DEPENDENCY = new GAV(
             "tycho-its-project.pomDependencyConsider.p2Data.reuse",
@@ -31,7 +31,7 @@ public class PomDependencyOnTychoArtifactTest extends AbstractTychoIntegrationTe
         setUpBundleWithSourceBundle();
 
         // project with POM dependency on the bundle with sources
-        Verifier verifier = getVerifier("pomDependencyConsider.p2Data.reuse.ReuseTest/testProject", false);
+        Verifier verifier = getVerifier("pomDependencyConsider.p2Data.reuse/testProject", false);
 
         // this fails unless the p2-metadata.xml is reused (because the POM dependency publisher doesn't create source bundles)
         verifier.executeGoal("verify");
@@ -50,13 +50,8 @@ public class PomDependencyOnTychoArtifactTest extends AbstractTychoIntegrationTe
         Assert.assertTrue(expectedSourceBundle.isFile());
     }
 
-    /**
-     * It would be good if the test project referenced a bundle with source bundle from Maven
-     * Central, but since I couldn't find one, we create one locally and make it appear as if it
-     * comes from remote.
-     */
     private void setUpBundleWithSourceBundle() throws Exception {
-        Verifier testDataProject = getVerifier("pomDependencyConsider.p2Data.reuse.ReuseTest/testDataBundle", false);
+        Verifier testDataProject = getVerifier("pomDependencyConsider.p2Data.reuse/testDataBundle", false);
         testDataProject.executeGoal("install");
         testDataProject.verifyErrorFreeLog();
 
