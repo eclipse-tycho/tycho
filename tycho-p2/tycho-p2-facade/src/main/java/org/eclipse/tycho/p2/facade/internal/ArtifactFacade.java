@@ -36,7 +36,8 @@ public class ArtifactFacade implements IArtifactFacade {
     }
 
     public String getVersion() {
-        return wrappedArtifact.getVersion();
+        // bug 352154: getVersion has expanded/non-expanded SNAPSHOT, depending on if the artifact is cached or available from remote 
+        return wrappedArtifact.getBaseVersion();
     }
 
     public String getPackagingType() {
