@@ -18,7 +18,7 @@ public class StatusTool {
      * Children with status severity {@link IStatus#OK} don't add to the constructed message.
      */
     public static String collectProblems(IStatus status) {
-        if (status.getChildren() == null || status.getChildren().length == 0) {
+        if (!hasChildren(status)) {
             return status.getMessage();
         }
 
@@ -29,10 +29,9 @@ public class StatusTool {
 
     private static void collectStatusAndChildren(StringBuilder result, IStatus status) {
         collectStatusMessage(result, status);
-        IStatus[] children = status.getChildren();
-        if (children != null && children.length > 0) {
+        if (hasChildren(status)) {
             result.append(": [");
-            collectChildren(result, children);
+            collectChildren(result, status.getChildren());
             result.append("]");
         }
     }
@@ -53,5 +52,28 @@ public class StatusTool {
             }
         }
         result.setLength(result.length() - trailingSeparatorChars);
+    }
+
+    public static Throwable findException(IStatus status) {
+        Throwable rootException = status.getException();
+        if (rootException != null)
+            return rootException;
+        if (hasChildren(status)) {
+            return findExceptionInChildren(status.getChildren());
+        }
+        return null;
+    }
+
+    private static Throwable findExceptionInChildren(IStatus[] children) {
+        for (IStatus child : children) {
+            Throwable childException = findException(child);
+            if (childException != null)
+                return childException;
+        }
+        return null;
+    }
+
+    private static boolean hasChildren(IStatus status) {
+        return status.getChildren() != null && status.getChildren().length > 0;
     }
 }

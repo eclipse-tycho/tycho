@@ -166,8 +166,9 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static void checkStatus(IStatus status) throws FacadeException {
         if (!status.isOK()) {
+            // TODO this can be deeply nested; also write to log using in multiple lines?
             throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(status),
-                    status.getException());
+                    StatusTool.findException(status));
         }
     }
 

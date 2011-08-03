@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.util.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -26,18 +27,45 @@ public class StatusToolTest {
         IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, "Simple error");
         // no extra quotes if no MultiStatus
         assertEquals("Simple error", StatusTool.collectProblems(status));
+        assertSame(null, StatusTool.findException(status));
+    }
+
+    @Test
+    public void testSimpleStatusWithException() {
+        Exception exception = new Exception();
+        IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, "Simple error", exception);
+        assertSame(exception, StatusTool.findException(status));
     }
 
     @Test
     public void testMultiStatus() {
+        Throwable exceptionChild2 = new Exception();
+        Throwable exceptionChild3 = new Exception();
         IStatus child1 = new Status(IStatus.ERROR, PLUGIN_ID, "Detail 1");
-        IStatus child2 = new Status(IStatus.ERROR, PLUGIN_ID, "Detail 2");
-        IStatus[] children = new IStatus[] { child1, child2 };
+        IStatus child2 = new Status(IStatus.ERROR, PLUGIN_ID, "Detail 2", exceptionChild2);
+        IStatus child3 = new Status(IStatus.ERROR, PLUGIN_ID, "Detail 3", exceptionChild3);
+        IStatus[] children = new IStatus[] { child1, child2, child3 };
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Complicated error. See children for details.",
                 null);
 
-        assertEquals("\"Complicated error. See children for details.\": [\"Detail 1\", \"Detail 2\"]",
+        assertEquals("\"Complicated error. See children for details.\": [\"Detail 1\", \"Detail 2\", \"Detail 3\"]",
                 StatusTool.collectProblems(status));
+
+        // take first exception found
+        assertSame(exceptionChild2, StatusTool.findException(status));
+    }
+
+    @Test
+    public void testMultiStatusWithOwnException() throws Exception {
+        Throwable exceptionRoot = new Exception();
+        MultiStatus root = new MultiStatus(PLUGIN_ID, 0, "Root message", exceptionRoot);
+
+        Throwable exceptionChild = new Exception();
+        IStatus child = new Status(IStatus.ERROR, PLUGIN_ID, "Child", exceptionChild);
+        root.add(child);
+
+        // prefer root exceptions over child exceptions
+        assertSame(exceptionRoot, StatusTool.findException(root));
     }
 
     @Test
