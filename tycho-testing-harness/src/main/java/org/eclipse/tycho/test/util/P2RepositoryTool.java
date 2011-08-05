@@ -1,6 +1,7 @@
 package org.eclipse.tycho.test.util;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,20 @@ public class P2RepositoryTool {
     public File getBundleArtifact(String bundleId, String version) {
         String pathInRepo = "plugins/" + bundleId + "_" + version + ".jar";
         return new File(repoLocation, pathInRepo);
+    }
+
+    public File getFeatureArtifact(String featureId, String version) {
+        String pathInRepo = "features/" + featureId + "_" + version + ".jar";
+        return new File(repoLocation, pathInRepo);
+    }
+
+    public File findFeatureArtifact(final String featureId) {
+        File[] matchingFeatures = new File(repoLocation, "features").listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.startsWith(featureId + "_");
+            }
+        });
+        return matchingFeatures[0];
     }
 
     public IU getUniqueIU(String unitId) throws Exception {

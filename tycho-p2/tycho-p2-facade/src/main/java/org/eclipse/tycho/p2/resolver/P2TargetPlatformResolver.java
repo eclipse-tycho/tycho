@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -67,7 +68,6 @@ import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.model.Target;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -75,6 +75,10 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 
 @Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
 public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver implements TargetPlatformResolver,
@@ -276,30 +280,32 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
         }
 
-        Target target = configuration.getTarget();
+        if (configuration.getTarget() != null) {
+            final TargetDefinitionFile target;
+            try {
+                target = TargetDefinitionFile.read(configuration.getTarget());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-        if (target != null) {
             Set<URI> uris = new HashSet<URI>();
 
-            for (Target.Location location : target.getLocations()) {
-                String type = location.getType();
-                if (!"InstallableUnit".equalsIgnoreCase(type)) {
-                    getLogger().warn("Target location type: " + type + " is not supported");
+            for (Location location : target.getLocations()) {
+                if (!(location instanceof InstallableUnitLocation)) {
                     continue;
                 }
-                for (Target.Repository repository : location.getRepositories()) {
+                for (TargetDefinition.Repository repository : ((InstallableUnitLocation) location).getRepositories()) {
 
                     try {
-                        URI uri = new URI(getMirror(repository, session.getRequest().getMirrors()));
+                        URI uri = getMirror(repository, session.getRequest().getMirrors());
                         if (uris.add(uri)) {
-                            if (session.isOffline()) {
-                                getLogger().debug("Ignored repository " + uri + " while in offline mode");
-                            } else {
+                            if (!session.isOffline()) {
                                 String id = repository.getId();
                                 if (id != null) {
                                     Server server = session.getSettings().getServer(id);
 
                                     if (server != null) {
+                                        // TODO don't do this via magic side-effects, but when loading repositories
                                         resolutionContext.setCredentials(uri, server.getUsername(),
                                                 server.getPassword());
                                     } else {
@@ -309,35 +315,20 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                                     }
                                 }
 
-                                try {
-                                    resolutionContext.addP2Repository(uri);
-                                } catch (Exception e) {
-                                    String msg = "Failed to access p2 repository " + uri
-                                            + ", will try to use local cache. Reason: " + e.getMessage();
-                                    if (getLogger().isDebugEnabled()) {
-                                        getLogger().warn(msg, e);
-                                    } else {
-                                        getLogger().warn(msg);
-                                    }
-                                }
+                                // TODO mirrors are no longer considered -> lookup mirrors when loading p2 repositories
                             }
                         }
                     } catch (URISyntaxException e) {
-                        getLogger().debug("Could not parse repository URL", e);
+                        throw new RuntimeException(e);
                     }
                 }
 
-                // TODO the target platform needs to be resolved separately and not treated as additional dependencies (bug 342808)
-//                for (Target.Unit unit : location.getUnits()) {
-//                    String versionRange;
-//                    if ("0.0.0".equals(unit.getVersion())) {
-//                        versionRange = unit.getVersion();
-//                    } else {
-//                        // perfect version match
-//                        versionRange = "[" + unit.getVersion() + "," + unit.getVersion() + "]";
-//                    }
-//                    resolver.addDependency(P2Resolver.TYPE_INSTALLABLE_UNIT, unit.getId(), versionRange);
-//                }
+                try {
+                    resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
+                } catch (TargetDefinitionResolutionException e) {
+                    throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget()
+                            + ": " + e.getMessage(), e);
+                }
             }
         }
 
@@ -424,19 +415,19 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return environments;
     }
 
-    private String getMirror(Target.Repository location, List<Mirror> mirrors) {
-        String url = location.getLocation();
+    private URI getMirror(TargetDefinition.Repository location, List<Mirror> mirrors) throws URISyntaxException {
+        URI p2RepositoryLocation = location.getLocation();
         String id = location.getId();
         if (id == null) {
-            id = url;
+            id = p2RepositoryLocation.toString();
         }
 
-        ArtifactRepository repository = repositorySystem.createArtifactRepository(id, url, p2layout,
-                P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
+        ArtifactRepository repository = repositorySystem.createArtifactRepository(id, p2RepositoryLocation.toString(),
+                p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
 
         Mirror mirror = repositorySystem.getMirror(repository, mirrors);
 
-        return mirror != null ? mirror.getUrl() : url;
+        return mirror != null ? new URI(mirror.getUrl()) : p2RepositoryLocation;
     }
 
     public void initialize() throws InitializationException {

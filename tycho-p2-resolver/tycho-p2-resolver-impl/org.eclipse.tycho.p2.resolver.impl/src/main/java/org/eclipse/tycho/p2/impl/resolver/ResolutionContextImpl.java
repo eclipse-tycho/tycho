@@ -73,6 +73,10 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolver;
+import org.eclipse.tycho.p2.target.TargetPlatformContent;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 // This class has been split off from P2Resolver; TODO divide even further
@@ -88,6 +92,12 @@ public class ResolutionContextImpl implements ResolutionContext {
     private final IProvisioningAgent agent;
 
     private final boolean disableP2Mirrors;
+
+    /** maven local repository as P2 IArtifactRepository */
+    private final LocalArtifactRepository localRepository;
+
+    /** maven local repository as P2 IMetadataRepository */
+    private final LocalMetadataRepository localMetadataRepository;
 
     ResolutionContextImpl(IProvisioningAgent agent, File localMavenRepositoryRoot, boolean offline,
             boolean disableP2Mirrors, MavenLogger logger) {
@@ -320,6 +330,17 @@ public class ResolutionContextImpl implements ResolutionContext {
         return p;
     }
 
+    // ------------------------------------------------------------------------------
+
+    // TODO have other target platform content contributors also add to this list
+    private List<TargetPlatformContent> content = new ArrayList<TargetPlatformContent>();
+
+    public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
+            throws TargetDefinitionResolutionException {
+        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, agent, logger);
+        content.add(resolver.resolveContent(definition));
+    }
+
     // --------------------------------------------------------------------------------
     // creating copy&paste from org.eclipse.equinox.internal.p2.repository.Credentials.forLocation(URI, boolean,
     // AuthenticationInfo)
@@ -379,18 +400,14 @@ public class ResolutionContextImpl implements ResolutionContext {
     public void stop() {
     }
 
-    // -----------------------------------------------------------------
-
-    /** maven local repository as P2 IArtifactRepository */
-    private final LocalArtifactRepository localRepository;
-
-    /** maven local repository as P2 IMetadataRepository */
-    private final LocalMetadataRepository localMetadataRepository;
-
     // -------------------------------------------------------------------------
 
     public IQueryable<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+
+        for (TargetPlatformContent contentPart : content) {
+            result.addAll(contentPart.getUnits());
+        }
 
         result.addAll(mavenInstallableUnits.keySet());
 
@@ -467,6 +484,13 @@ public class ResolutionContextImpl implements ResolutionContext {
         for (IArtifactRepository artifactRepository : artifactRepositories) {
             allArtifactRepositories.addChild(artifactRepository.getLocation());
         }
+        for (TargetPlatformContent contentPart : content) {
+            Collection<URI> repos = contentPart.getArtifactRepositoryLocations();
+            for (URI repo : repos) {
+                allArtifactRepositories.addChild(repo);
+            }
+        }
+
         IStatus result = allArtifactRepositories.getArtifacts(requests.toArray(ARTIFACT_REQUEST_ARRAY), monitor);
         if (!result.isOK()) {
             throw new RuntimeException(StatusTool.collectProblems(result), result.getException()); // TODO find root exception - the MultiStatus probably doesn't have one

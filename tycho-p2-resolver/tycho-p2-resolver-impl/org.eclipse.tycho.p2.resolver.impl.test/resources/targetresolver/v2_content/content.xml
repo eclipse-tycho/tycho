@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='trt.targetRepo' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='1312543738706'/>
+  </properties>
+  <units size='1'>
+    <unit id='trt.bundle.referenced' version='2.0.0.201108051319' singleton='false'>
+      <update id='trt.bundle.referenced' range='[0.0.0,2.0.0.201108051319)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Bundle required from the main bundle, but not included in the target feature'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle.referenced'/>
+        <property name='maven-version' value='2.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trt.bundle.referenced' version='2.0.0.201108051319'/>
+        <provided namespace='osgi.bundle' name='trt.bundle.referenced' version='2.0.0.201108051319'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='trt.bundle.referenced' version='2.0.0.201108051319'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Created-By: Apache Maven&#xA;Archiver-Version: Plexus Archiver&#xA;Build-Jdk: 1.6.0_26&#xA;Built-By: D051585&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 2.0.0.201108051319&#xA;Bundle-SymbolicName: trt.bundle.referenced&#xA;Bundle-Name: Bundle required from the main bundle, but not included in the target feature
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>

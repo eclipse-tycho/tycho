@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.core;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.tycho.model.Target;
 
 public class TargetPlatformConfiguration {
 
@@ -25,7 +24,7 @@ public class TargetPlatformConfiguration {
 
     private boolean implicitTargetEnvironment = true;
 
-    private Target target;
+    private File target;
 
     private String pomDependencies;
 
@@ -47,7 +46,7 @@ public class TargetPlatformConfiguration {
         return resolver;
     }
 
-    public Target getTarget() {
+    public File getTarget() {
         return target;
     }
 
@@ -59,7 +58,7 @@ public class TargetPlatformConfiguration {
         this.resolver = resolver;
     }
 
-    public void setTarget(Target target) {
+    public void setTarget(File target) {
         this.target = target;
     }
 

@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.model;
+package org.eclipse.tycho.p2.resolver;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -18,11 +18,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -30,21 +33,22 @@ import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
-public class Target {
+public class TargetDefinitionFile implements TargetDefinition {
+
     private static XMLParser parser = new XMLParser();
 
     private Element dom;
 
     private Document document;
 
-    public static class Location {
+    public static class IULocation implements TargetDefinition.InstallableUnitLocation {
         private final Element dom;
 
-        public Location(Element dom) {
+        public IULocation(Element dom) {
             this.dom = dom;
         }
 
-        public List<Unit> getUnits() {
+        public List<? extends TargetDefinition.Unit> getUnits() {
             ArrayList<Unit> units = new ArrayList<Unit>();
             for (Element unitDom : dom.getChildren("unit")) {
                 units.add(new Unit(unitDom));
@@ -52,26 +56,43 @@ public class Target {
             return Collections.unmodifiableList(units);
         }
 
-        public List<Repository> getRepositories() {
+        public List<? extends TargetDefinition.Repository> getRepositories() {
+            return getRepositoryImpls();
+        }
+
+        public List<Repository> getRepositoryImpls() {
             final List<Element> repositoryNodes = dom.getChildren("repository");
 
-            final List<Repository> repositories = new ArrayList<Target.Repository>(repositoryNodes.size());
+            final List<Repository> repositories = new ArrayList<TargetDefinitionFile.Repository>(repositoryNodes.size());
             for (Element node : repositoryNodes) {
                 repositories.add(new Repository(node));
             }
             return repositories;
         }
 
-        public String getType() {
+        public String getTypeDescription() {
             return dom.getAttributeValue("type");
         }
 
         public void setType(String type) {
             dom.setAttribute("type", type);
         }
+
     }
 
-    public static final class Repository {
+    public class OtherLocation implements Location {
+        private final String description;
+
+        public OtherLocation(String description) {
+            this.description = description;
+        }
+
+        public String getTypeDescription() {
+            return description;
+        }
+    }
+
+    public static final class Repository implements TargetDefinition.Repository {
         private final Element dom;
 
         public Repository(Element dom) {
@@ -83,8 +104,13 @@ public class Target {
             return dom.getAttributeValue("id");
         }
 
-        public String getLocation() {
-            return dom.getAttributeValue("location");
+        public URI getLocation() {
+            // TODO: check this earlier?
+            try {
+                return new URI(dom.getAttributeValue("location"));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         public void setLocation(String location) {
@@ -92,7 +118,7 @@ public class Target {
         }
     }
 
-    public static class Unit {
+    public static class Unit implements TargetDefinition.Unit {
         private final Element dom;
 
         public Unit(Element dom) {
@@ -112,32 +138,36 @@ public class Target {
         }
     }
 
-    public Target(Document document) {
+    public TargetDefinitionFile(Document document) {
         this.document = document;
         this.dom = document.getRootElement();
     }
 
-    public List<Location> getLocations() {
-        ArrayList<Location> locations = new ArrayList<Location>();
+    public List<? extends TargetDefinition.Location> getLocations() {
+        ArrayList<TargetDefinition.Location> locations = new ArrayList<TargetDefinition.Location>();
         Element locationsDom = dom.getChild("locations");
         if (locationsDom != null) {
             for (Element locationDom : locationsDom.getChildren("location")) {
-                locations.add(new Location(locationDom));
+                String type = locationDom.getAttributeValue("type");
+                if ("InstallableUnit".equals(type))
+                    locations.add(new IULocation(locationDom));
+                else
+                    locations.add(new OtherLocation(type));
             }
         }
         return Collections.unmodifiableList(locations);
     }
 
-    public static Target read(File file) throws IOException {
+    public static TargetDefinitionFile read(File file) throws IOException {
         FileInputStream input = new FileInputStream(file);
         try {
-            return new Target(parser.parse(new XMLIOSource(input)));
+            return new TargetDefinitionFile(parser.parse(new XMLIOSource(input)));
         } finally {
             IOUtil.close(input);
         }
     }
 
-    public static void write(Target target, File file) throws IOException {
+    public static void write(TargetDefinitionFile target, File file) throws IOException {
         OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
 
         Document document = target.document;

@@ -21,7 +21,6 @@ import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Platform;
 import org.eclipse.tycho.model.PluginRef;
-import org.eclipse.tycho.model.Target;
 import org.eclipse.tycho.model.UpdateSite;
 
 import de.pdark.decentxml.Document;
@@ -139,26 +138,6 @@ public class EclipseModelTest extends TestCase {
         assertEquals(transientFeature.getId(), updatedFeatures.get(0).getId());
         assertEquals(transientFeature.getUrl(), updatedFeatures.get(0).getUrl());
         assertEquals(transientFeature.getVersion(), updatedFeatures.get(0).getVersion());
-    }
-
-    public void testTarget() throws Exception {
-        Target target = Target.read(new File("src/test/resources/modelio/target.target"));
-
-        List<Target.Location> locations = target.getLocations();
-        assertEquals(2, locations.size());
-
-        Target.Location l01 = locations.get(0);
-        assertEquals(1, l01.getRepositories().size());
-        assertEquals("http://download.eclipse.org/eclipse/updates/3.5/", l01.getRepositories().get(0).getLocation());
-        assertEquals(1, l01.getUnits().size());
-        assertEquals("org.eclipse.platform.sdk", l01.getUnits().get(0).getId());
-        assertEquals("3.5.2.M20100211-1343", l01.getUnits().get(0).getVersion());
-
-        Target.Location l02 = locations.get(1);
-        assertEquals(5, l02.getUnits().size());
-        assertEquals(2, l02.getRepositories().size());
-        assertEquals("http://subclipse.tigris.org/update_1.6.x/", l02.getRepositories().get(0).getLocation());
-        assertEquals("http://download.eclipse.org/tools/mylyn/update/e3.4/", l02.getRepositories().get(1).getLocation());
     }
 
     public void testDefaultXmlEncoding() throws Exception {

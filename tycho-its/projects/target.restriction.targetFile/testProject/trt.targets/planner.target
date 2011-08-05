@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="planner" sequenceNumber="3">
+<locations>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="trt.targetFeature.feature.group" version="0.0.0"/>
+<repository location="../../repository/"/>
+</location>
+</locations>
+</target>

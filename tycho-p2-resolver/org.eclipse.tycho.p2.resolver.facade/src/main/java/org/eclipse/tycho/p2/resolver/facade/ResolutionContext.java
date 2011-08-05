@@ -12,9 +12,13 @@
 package org.eclipse.tycho.p2.resolver.facade;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 
 /**
  * The resolution context is the content against which the dependencies of a project can be
@@ -34,6 +38,9 @@ public interface ResolutionContext {
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile);
 
     public void addP2Repository(URI location);
+
+    public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
+            throws TargetDefinitionResolutionException;
 
     public void setCredentials(URI location, String username, String password);
 

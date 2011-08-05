@@ -3,6 +3,7 @@ Export-Package: org.eclipse.tycho.core.facade,
  org.eclipse.tycho.p2.metadata,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.p2.resolver.facade,
+ org.eclipse.tycho.p2.target.facade,
  org.eclipse.tycho.repository.registry.facade
 Bundle-Version: 0.13.0.qualifier
 Bundle-Name: Tycho p2 Resolver Maven/OSGi Facade (Incubation)

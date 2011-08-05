@@ -7,14 +7,19 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    SAP AG - added verification functionality
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.tycho.core.facade.MavenLogger;
 
 public class MavenLoggerStub implements MavenLogger {
 
     private final boolean failOnWarning;
+    private final List<String> warnings = new ArrayList<String>();
 
     public MavenLoggerStub() {
         this(false);
@@ -31,6 +36,11 @@ public class MavenLoggerStub implements MavenLogger {
     public void warn(String message, Throwable cause) {
         if (failOnWarning)
             throw new RuntimeException("Unexpected warning: " + message, cause);
+        warnings.add(message);
+    }
+
+    public List<String> getWarnings() {
+        return warnings;
     }
 
     public void info(String message) {

@@ -16,7 +16,18 @@ import java.io.IOException;
 public class ResourceUtil {
 
     public static File resourceFile(String path) throws IOException {
-        return new File("resources", path).getCanonicalFile();
-    }
+        File resolvedFile;
+        try {
+            resolvedFile = new File("resources", path).getCanonicalFile();
+        } catch (IOException e) {
+            // this should not happen in the expected test setup
+            throw new IllegalStateException("I/O error while resolving test resource \"" + path + "\" ", e);
+        }
 
+        if (!resolvedFile.canRead()) {
+            throw new IllegalStateException("Test resource \"" + path
+                    + "\" not found under \"resources\" in the project");
+        }
+        return resolvedFile;
+    }
 }

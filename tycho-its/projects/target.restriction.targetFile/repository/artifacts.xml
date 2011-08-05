@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='trt.targetRepo' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='1312543738690'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='5'>
+    <artifact classifier='osgi.bundle' id='trt.bundle.referenced' version='1.0.0.201108051343'>
+      <properties size='6'>
+        <property name='artifact.size' value='2026'/>
+        <property name='download.size' value='2026'/>
+        <property name='download.md5' value='7fc751a0e67ba3cb67db5be1934fe036'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle.referenced'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='trt.targetFeature' version='1.0.0.201108051343'>
+      <properties size='7'>
+        <property name='artifact.size' value='2287'/>
+        <property name='download.size' value='2287'/>
+        <property name='download.md5' value='4f5fb4d53bb135290e47adc12d95e596'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.targetFeature'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='trt.bundle' version='1.0.0.201108051343'>
+      <properties size='6'>
+        <property name='artifact.size' value='1967'/>
+        <property name='download.size' value='1967'/>
+        <property name='download.md5' value='492e661eeca0a4501b946332dc70c805'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='trt.bundle.optional' version='1.0.0.201108051328'>
+      <properties size='6'>
+        <property name='artifact.size' value='1992'/>
+        <property name='download.size' value='1992'/>
+        <property name='download.md5' value='a2a0b21e25c98aab51d2c14df8ac5050'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle.optional'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='trt.bundle.referenced' version='2.0.0.201108051319'>
+      <properties size='6'>
+        <property name='artifact.size' value='2033'/>
+        <property name='download.size' value='2033'/>
+        <property name='download.md5' value='e68f68970fe976e0de2c1fcbeea22964'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle.referenced'/>
+        <property name='maven-version' value='2.0.0-SNAPSHOT'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>

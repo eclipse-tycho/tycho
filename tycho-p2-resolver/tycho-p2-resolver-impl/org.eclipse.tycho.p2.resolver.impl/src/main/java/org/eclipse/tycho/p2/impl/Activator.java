@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl;
 
+import java.net.URI;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -32,15 +34,36 @@ public class Activator implements BundleActivator {
         this.context = context;
     }
 
+    /**
+     * @deprecated This method potentially creates multiple agent instances with the default
+     *             location. This leads to concurrent file system access with undefined outcome.
+     */
+    @Deprecated
     public static IProvisioningAgent newProvisioningAgent() throws ProvisionException {
         BundleContext context = getContext();
 
-        ServiceReference providerRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
-        IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(providerRef);
+        ServiceReference<IProvisioningAgentProvider> agentFactoryReference = context
+                .getServiceReference(IProvisioningAgentProvider.class);
+        IProvisioningAgentProvider agentFactory = context.getService(agentFactoryReference);
         try {
-            return provider.createAgent(null); // null == currently running system
+            return agentFactory.createAgent(null); // null == currently running system
         } finally {
-            context.ungetService(providerRef);
+            context.ungetService(agentFactoryReference);
+        }
+    }
+
+    public static IProvisioningAgent createProvisioningAgent(final URI targetLocation) throws ProvisionException {
+        if (targetLocation == null)
+            throw new IllegalArgumentException("Creating the default agent is not supported");
+
+        BundleContext context = getContext();
+        ServiceReference<IProvisioningAgentProvider> agentFactoryReference = context
+                .getServiceReference(IProvisioningAgentProvider.class);
+        IProvisioningAgentProvider agentFactory = context.getService(agentFactoryReference);
+        try {
+            return agentFactory.createAgent(targetLocation);
+        } finally {
+            context.ungetService(agentFactoryReference);
         }
     }
 

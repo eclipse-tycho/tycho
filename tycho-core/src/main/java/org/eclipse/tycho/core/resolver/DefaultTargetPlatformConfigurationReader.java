@@ -29,7 +29,6 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
-import org.eclipse.tycho.model.Target;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {
@@ -212,11 +211,7 @@ public class DefaultTargetPlatformConfigurationReader {
             targetFile = artifact.getFile();
         }
 
-        try {
-            result.setTarget(Target.read(targetFile));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        result.setTarget(targetFile);
     }
 
     private void setTargetPlatformResolver(TargetPlatformConfiguration result, Xpp3Dom configuration) {

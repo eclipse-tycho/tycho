@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-its-project.target.restriction.targetFile</groupId>
+	<artifactId>trt.parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>trt.feature</module>
+		<module>trt.targets</module>
+		<module>trt.assembly</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<artifact>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>trt.targets</artifactId>
+							<version>${project.version}</version>
+							<classifier>planner</classifier>
+						</artifact>
+					</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>with-slicer-target</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>target-platform-configuration</artifactId>
+						<version>${tycho-version}</version>
+						<configuration>
+							<target>
+								<artifact>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>trt.targets</artifactId>
+									<version>${project.version}</version>
+									<classifier>slicer</classifier>
+								</artifact>
+							</target>
+						</configuration>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

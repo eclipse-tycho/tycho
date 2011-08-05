@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='trt.targetRepo' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='1312543738706'/>
+  </properties>
+  <units size='6'>
+    <unit id='trt.targetFeature.feature.jar' version='1.0.0.201108051343'>
+      <properties size='6'>
+        <property name='org.eclipse.equinox.p2.name' value='Target platform feature, not containing the optional bundle, and restricting the version of the referenced feature'/>
+        <property name='org.eclipse.equinox.p2.description' value='[Enter Feature Description here.]'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://www.example.com/description'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.targetFeature'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trt.targetFeature.feature.jar' version='1.0.0.201108051343'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='trt.targetFeature' version='1.0.0.201108051343'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature' id='trt.targetFeature' version='1.0.0.201108051343'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license uri='http://www.example.com/license' url='http://www.example.com/license'>
+          [Enter License Description here.]
+        </license>
+      </licenses>
+      <copyright uri='http://www.example.com/copyright' url='http://www.example.com/copyright'>
+        [Enter Copyright Description here.]
+      </copyright>
+    </unit>
+    <unit id='trt.targetFeature.feature.group' version='1.0.0.201108051343' singleton='false'>
+      <update id='trt.targetFeature.feature.group' range='[0.0.0,1.0.0.201108051343)' severity='0'/>
+      <properties size='7'>
+        <property name='org.eclipse.equinox.p2.name' value='Target platform feature, not containing the optional bundle, and restricting the version of the referenced feature'/>
+        <property name='org.eclipse.equinox.p2.description' value='[Enter Feature Description here.]'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://www.example.com/description'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.targetFeature'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trt.targetFeature.feature.group' version='1.0.0.201108051343'/>
+      </provides>
+      <requires size='3'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='trt.bundle' range='[1.0.0.201108051343,1.0.0.201108051343]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='trt.bundle.referenced' range='[1.0.0.201108051343,1.0.0.201108051343]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='trt.targetFeature.feature.jar' range='[1.0.0.201108051343,1.0.0.201108051343]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license uri='http://www.example.com/license' url='http://www.example.com/license'>
+          [Enter License Description here.]
+        </license>
+      </licenses>
+      <copyright uri='http://www.example.com/copyright' url='http://www.example.com/copyright'>
+        [Enter Copyright Description here.]
+      </copyright>
+    </unit>
+    <unit id='trt.bundle.referenced' version='1.0.0.201108051343' singleton='false'>
+      <update id='trt.bundle.referenced' range='[0.0.0,1.0.0.201108051343)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Bundle required from the main bundle and included in the target feature'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle.referenced'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trt.bundle.referenced' version='1.0.0.201108051343'/>
+        <provided namespace='osgi.bundle' name='trt.bundle.referenced' version='1.0.0.201108051343'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='trt.bundle.referenced' version='1.0.0.201108051343'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Created-By: Apache Maven&#xA;Archiver-Version: Plexus Archiver&#xA;Build-Jdk: 1.6.0_26&#xA;Built-By: D051585&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 1.0.0.201108051343&#xA;Bundle-SymbolicName: trt.bundle.referenced&#xA;Bundle-Name: Bundle required from the main bundle and included in the target feature
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='trt.bundle' version='1.0.0.201108051343' singleton='false'>
+      <update id='trt.bundle' range='[0.0.0,1.0.0.201108051343)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Main bundle with range and optional dependencies'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trt.bundle' version='1.0.0.201108051343'/>
+        <provided namespace='osgi.bundle' name='trt.bundle' version='1.0.0.201108051343'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='trt.bundle.referenced' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='trt.bundle.optional' range='0.0.0' optional='true'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='trt.bundle' version='1.0.0.201108051343'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Archiver-Version: Plexus Archiver&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Built-By: D051585&#xA;Require-Bundle: trt.bundle.referenced,trt.bundle.optional;resolution:=optional&#xA;Bundle-Name: Main bundle with range and optional dependencies&#xA;Manifest-Version: 1.0&#xA;Build-Jdk: 1.6.0_26&#xA;Bundle-SymbolicName: trt.bundle&#xA;Bundle-Version: 1.0.0.201108051343&#xA;Created-By: Apache Maven
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='trt.bundle.optional' version='1.0.0.201108051328' singleton='false'>
+      <update id='trt.bundle.optional' range='[0.0.0,1.0.0.201108051328)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Bundle optionally required from the main bundle'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle.optional'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trt.bundle.optional' version='1.0.0.201108051328'/>
+        <provided namespace='osgi.bundle' name='trt.bundle.optional' version='1.0.0.201108051328'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='trt.bundle.optional' version='1.0.0.201108051328'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Created-By: Apache Maven&#xA;Archiver-Version: Plexus Archiver&#xA;Build-Jdk: 1.6.0_26&#xA;Built-By: D051585&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 1.0.0.201108051328&#xA;Bundle-SymbolicName: trt.bundle.optional&#xA;Bundle-Name: Bundle optionally required from the main bundle&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='trt.bundle.referenced' version='2.0.0.201108051319' singleton='false'>
+      <update id='trt.bundle.referenced' range='[0.0.0,2.0.0.201108051319)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Bundle required from the main bundle, but not included in the target feature'/>
+        <property name='maven-groupId' value='tycho-its-project.target.restriction.targetFile'/>
+        <property name='maven-artifactId' value='trt.bundle.referenced'/>
+        <property name='maven-version' value='2.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trt.bundle.referenced' version='2.0.0.201108051319'/>
+        <provided namespace='osgi.bundle' name='trt.bundle.referenced' version='2.0.0.201108051319'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='trt.bundle.referenced' version='2.0.0.201108051319'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Created-By: Apache Maven&#xA;Archiver-Version: Plexus Archiver&#xA;Build-Jdk: 1.6.0_26&#xA;Built-By: D051585&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 2.0.0.201108051319&#xA;Bundle-SymbolicName: trt.bundle.referenced&#xA;Bundle-Name: Bundle required from the main bundle, but not included in the target feature
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>
