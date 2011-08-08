@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -142,6 +143,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * Current build output jar
      */
     private BuildOutputJar outputJar;
+
+    private final Set<File> outputFolders = new LinkedHashSet<File>();
 
     /**
      * @component role="org.eclipse.tycho.core.TychoProject"

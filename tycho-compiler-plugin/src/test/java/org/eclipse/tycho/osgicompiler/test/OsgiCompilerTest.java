@@ -272,4 +272,18 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         mojo.execute();
         assertTrue(new File(projects.get(3).getBasedir(), "target/classes/a/A.class").canRead());
     }
+
+    public void test_embeddedNonClasspath() throws Exception {
+        File basedir = getBasedir("projects/embedednonclasspath");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+
+        assertTrue(new File(project.getBasedir(), "target/classes/src/Src.class").canRead());
+        assertTrue(new File(project.getBasedir(), "target/library.jar-classes/src2/Src2.class").canRead());
+
+        List<SourcepathEntry> sourcepath = getMojo(projects, project).getSourcepath();
+        assertEquals(2, sourcepath.size());
+    }
 }

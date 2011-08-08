@@ -165,7 +165,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         // project itself
         ArtifactDescriptor artifact = platform.getArtifact(project.getBasedir());
         ReactorProject projectProxy = DefaultReactorProject.adapt(project);
-        List<File> projectClasspath = getProjectClasspath(artifact, projectProxy, null);
+        List<File> projectClasspath = getThisProjectClasspath(artifact, projectProxy);
         classpath.add(new DefaultClasspathEntry(projectProxy, artifact.getKey(), projectClasspath, null));
 
         // build.properties/jars.extra.classpath
@@ -178,7 +178,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             ReactorProject otherProject = otherArtifact.getMavenProject();
             List<File> locations;
             if (otherProject != null) {
-                locations = getProjectClasspath(otherArtifact, otherProject, null);
+                locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
             } else {
                 locations = getBundleClasspath(otherArtifact);
             }
@@ -234,7 +234,39 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return classpath;
     }
 
-    private List<File> getProjectClasspath(ArtifactDescriptor bundle, ReactorProject otherProject, String nestedPath) {
+    /**
+     * Returns project compile classpath entries.
+     */
+    private List<File> getThisProjectClasspath(ArtifactDescriptor bundle, ReactorProject project) {
+        LinkedHashSet<File> classpath = new LinkedHashSet<File>();
+
+        EclipsePluginProject pdeProject = getEclipsePluginProject(project);
+
+        Map<String, BuildOutputJar> outputJars = pdeProject.getOutputJarMap();
+
+        // unconditionally add all output jars (even if does not exist or not on Bundle-ClassPath)
+        for (BuildOutputJar jar : outputJars.values()) {
+            classpath.add(jar.getOutputDirectory());
+        }
+
+        // Bundle-ClassPath entries that do not have associated output folders
+        // => assume it's checked into SCM or will be copied here later during build
+        for (String cp : parseBundleClasspath(bundle)) {
+            if (!outputJars.containsKey(cp)) {
+                classpath.add(new File(project.getBasedir(), cp));
+            }
+        }
+
+        return new ArrayList<File>(classpath);
+    }
+
+    /**
+     * Returns bundle classpath entries. If <code>nestedPath</code> is not <code>null</code>,
+     * returns single class folder that corresponds specified nestedPath. If <code>nestedPath</code>
+     * is <code>null</code>, returns entries specified in Bundle-ClassPath.
+     */
+    private List<File> getOtherProjectClasspath(ArtifactDescriptor bundle, ReactorProject otherProject,
+            String nestedPath) {
         LinkedHashSet<File> classpath = new LinkedHashSet<File>();
 
         EclipsePluginProject pdeProject = getEclipsePluginProject(otherProject);
@@ -286,7 +318,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 if (matchingBundle != null) {
                     List<File> locations;
                     if (matchingBundle.getMavenProject() != null) {
-                        locations = getProjectClasspath(matchingBundle, matchingBundle.getMavenProject(), path);
+                        locations = getOtherProjectClasspath(matchingBundle, matchingBundle.getMavenProject(), path);
                     } else if (path != null) {
                         locations = getBundleEntry(matchingBundle, path);
                     } else {
