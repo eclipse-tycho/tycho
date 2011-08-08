@@ -18,9 +18,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.model.Target;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
+import org.eclipse.tycho.test.util.TargetDefinitionUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,9 +47,7 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
         verifier.getSystemProperties().setProperty("p2.repo", url);
 
         File platformFile = new File(verifier.getBasedir(), "platform.target");
-        Target platform = Target.read(platformFile);
-        platform.getLocations().get(0).getRepositories().get(0).setLocation(url);
-        Target.write(platform, platformFile);
+        TargetDefinitionUtil.setRepositoryURLs(platformFile, url);
 
         verifier.setLogFileName("log-online.txt");
         verifier.executeGoal("integration-test");

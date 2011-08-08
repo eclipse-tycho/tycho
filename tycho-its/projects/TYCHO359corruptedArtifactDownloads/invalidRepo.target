@@ -6,7 +6,7 @@
     <location includeAllPlatforms="false" includeMode="planner"
       type="InstallableUnit">
       <unit id='tycho359.test.bundle' version='1.0.0' />
-      <repository location="projects/TYCHO359corruptedArtifactDownloads/repo/invalid" />
+      <repository location="repo/invalid" />
     </location>
   </locations>
 </target>

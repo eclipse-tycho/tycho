@@ -11,15 +11,12 @@
 package org.eclipse.tycho.test.TYCHO359corruptedArtifactDownloads;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.apache.maven.it.util.FileUtils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.eclipse.tycho.model.Target;
-import org.eclipse.tycho.model.Target.Repository;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.TargetDefinitionUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +41,7 @@ public class RecoveryAfterCorruptArtifactDownloadsTest extends AbstractTychoInte
         FileUtils.deleteDirectory(new File(new File(verifier.localRepo, "p2/osgi/bundle"), TESTED_BUNDLE_NAME));
 
         File targetFile = new File(verifier.getBasedir(), "invalidRepo.target");
-        convertLocationPathsToAbsoluteURIs(targetFile);
+        TargetDefinitionUtil.makeURLsAbsolute(targetFile, TargetDefinitionUtil.BaseLocation.TARGET_FILE);
 
         // test execution
         try {
@@ -63,35 +60,12 @@ public class RecoveryAfterCorruptArtifactDownloadsTest extends AbstractTychoInte
         Verifier verifier2 = getVerifier("/TYCHO359corruptedArtifactDownloads", false);
 
         File targetFile2 = new File(verifier2.getBasedir(), "validRepo.target");
-        convertLocationPathsToAbsoluteURIs(targetFile2);
+        TargetDefinitionUtil.makeURLsAbsolute(targetFile2, TargetDefinitionUtil.BaseLocation.TARGET_FILE);
 
         // test 2 execution
         verifier2.getCliOptions().add("-Pvalid-target-definition");
         verifier2.executeGoal("package");
 
         verifier2.verifyErrorFreeLog();
-    }
-
-    /**
-     * Reads the given targetFile and converts all paths in locations into absolute file URIs.
-     * 
-     * Paths are expected to be relative to tycho-its directory.
-     * 
-     * TODO move this to a util class at org.eclipse.tycho.test.util and reuse in other tests.
-     * 
-     * @param targetFile
-     *            the target definition file to be processed
-     */
-    private void convertLocationPathsToAbsoluteURIs(File targetFile) throws IOException, XmlPullParserException {
-        Target platform = Target.read(targetFile);
-
-        for (Target.Location location : platform.getLocations()) {
-            for (Repository repository : location.getRepositories()) {
-                File file = new File(repository.getLocation());
-                repository.setLocation(file.getCanonicalFile().toURI().toASCIIString());
-            }
-        }
-
-        Target.write(platform, targetFile);
     }
 }

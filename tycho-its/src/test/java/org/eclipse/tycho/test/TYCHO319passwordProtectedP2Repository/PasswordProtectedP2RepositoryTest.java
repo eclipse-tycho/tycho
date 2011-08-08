@@ -14,10 +14,10 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.model.Target;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
+import org.eclipse.tycho.test.util.TargetDefinitionUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,9 +56,7 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
                 "projects/TYCHO319passwordProtectedP2Repository/settings.xml"));
 
         File platformFile = new File(verifier.getBasedir(), "platform.target");
-        Target platform = Target.read(platformFile);
-        platform.getLocations().get(0).getRepositories().get(0).setLocation(url);
-        Target.write(platform, platformFile);
+        TargetDefinitionUtil.setRepositoryURLs(platformFile, url);
 
         verifier.getCliOptions().add("-P=target-definition");
         verifier.executeGoals(Arrays.asList("package", "-Dp2.repo=" + url));
