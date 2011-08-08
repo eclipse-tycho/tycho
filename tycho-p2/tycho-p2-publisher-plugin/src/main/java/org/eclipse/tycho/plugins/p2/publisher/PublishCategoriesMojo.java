@@ -11,6 +11,7 @@
 package org.eclipse.tycho.plugins.p2.publisher;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -58,9 +60,26 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
             File ret = new File(buildFolder, "category.xml");
             buildFolder.mkdirs();
             Category.write(category, ret);
+            copySiteI18nFiles(buildFolder);
             return ret;
         } catch (IOException e) {
             throw new MojoExecutionException("I/O exception while writing category definition to disk", e);
+        }
+    }
+
+    private void copySiteI18nFiles(File targetFolder) throws IOException {
+        File[] i18nFiles = getProject().getBasedir().listFiles(new FileFilter() {
+
+            public boolean accept(File file) {
+                String fileName = file.getName();
+                return fileName.startsWith("site") && fileName.endsWith(".properties");
+            }
+        });
+        if (i18nFiles == null) {
+            return;
+        }
+        for (File i18nFile : i18nFiles) {
+            FileUtils.copyFile(i18nFile, new File(targetFolder, i18nFile.getName()));
         }
     }
 
