@@ -83,17 +83,11 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements Lo
 
             RepositoryReferences sources = getVisibleRepositories();
 
-            int flags = compress ? MirrorApplicationService.REPOSITORY_COMPRESS : 0;
-            if (includeAllDependencies) {
-                flags = flags | MirrorApplicationService.INCLUDE_ALL_DEPENDENCIES;
-            }
-            if (createArtifactRepository) {
-                flags = flags | MirrorApplicationService.MIRROR_ARTIFACTS;
-            }
-
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
-            mirrorApp.mirrorReactor(sources, new DestinationRepositoryDescriptor(destination, repositoryName), rootIUs,
-                    getBuildContext(), flags, new MavenLoggerAdapter(logger, false));
+            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
+                    destination, repositoryName, compress, !createArtifactRepository, true);
+            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, rootIUs, getBuildContext(),
+                    includeAllDependencies, new MavenLoggerAdapter(logger, false));
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
         }

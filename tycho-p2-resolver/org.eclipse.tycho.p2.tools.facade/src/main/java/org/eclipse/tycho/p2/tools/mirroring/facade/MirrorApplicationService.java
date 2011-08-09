@@ -20,35 +20,12 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 
 public interface MirrorApplicationService {
-    /**
-     * Flag to indicate the repository metadata files (content.xml, artifacts.xml) of newly created
-     * p2 repositories shall be compressed.
-     */
-    public static final int REPOSITORY_COMPRESS = 1;
-
-    /**
-     * Flag to indicate that the target p2 repository shall include all transitive dependencies of
-     * the specified root IUs. This yields a self-contained repository.
-     */
-    public static final int INCLUDE_ALL_DEPENDENCIES = 2;
-
-    /**
-     * Flag to indicate whether all referenced artifacts shall be mirrored into an artifact
-     * repository. If this flag is not set, only the installable units are mirrored (and hence only
-     * a metadata repository is created).
-     */
-    public static final int MIRROR_ARTIFACTS = 4;
 
     /**
      * Copies the given installable units and their dependencies into the p2 repository at the
      * destination location. By default this only includes the units and their dependencies with
-     * strict versions (i.e. included content). Optionally, the following additional content is
-     * copied:
-     * <ul>
-     * <li>all transitive dependencies of the given units, if {@link #INCLUDE_ALL_DEPENDENCIES} is
-     * set</li>
-     * <li>all referenced artifacts, if {@link #MIRROR_ARTIFACTS} is set</li>
-     * </ul>
+     * strict versions (i.e. included content). Optionally, all transitive dependencies of the given
+     * units are also copied, if includeAllDependencies is set to <code>true</code>.
      * 
      * @param sources
      *            The p2 repositories from which dependencies and artifacts are copied
@@ -63,31 +40,32 @@ public interface MirrorApplicationService {
      * @param context
      *            Build context information; in particular this parameter defines a filter for
      *            environment specific installable units
-     * @param flags
-     *            Additional options as <em>bitwise OR</em>'ed combination of
-     *            {@link #MIRROR_ARTIFACTS}, {@link #INCLUDE_ALL_DEPENDENCIES}, and
-     *            {@link #REPOSITORY_COMPRESS}
+     * @param includeAllDependencies
+     *            Whether to include all transitive dependencies
      * @param logger
      *            The maven logger
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, int flags, MavenLogger logger)
-            throws FacadeException;
+            Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, boolean includeAllDependencies,
+            MavenLogger logger) throws FacadeException;
 
     /**
-     * Copies all installable units from the source repositories to the destination repository. The
-     * corresponding artifacts are also copied if the {@link #INCLUDE_ALL_DEPENDENCIES} flag is set.
+     * Copies installable units from the source repositories to the destination repository. The
+     * corresponding artifacts are also copied unless the mirror options specify otherwise.
      * 
      * @param sources
-     *            The p2 repositories whose content shall be copied.
+     *            The p2 repositories from which content shall be copied.
      * @param destination
      *            The p2 repository that shall be written to. The location must be a directory,
      *            which may be empty. Existing content is not overwritten but is appended to.
-     * @param flags
-     *            Additional options as <em>bitwise OR</em>'ed combination of
-     *            {@link #MIRROR_ARTIFACTS} and {@link #REPOSITORY_COMPRESS}
+     * @param seedUnits
+     *            A set of installable units that span the content to be mirrored. May be
+     *            <code>null</code> if all available IUs shall be copied. The given installable
+     *            units will be checked if they are actually present in the source repositories.
+     * @param mirrorOptions
+     *            various mirror options. Must not be <code>null</code>.
      * @param tempDirectory
      *            A directory for storing temporary results. Typically the build target folder of a
      *            module.
@@ -96,6 +74,7 @@ public interface MirrorApplicationService {
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
-    void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination, int flags,
-            File tempDirectory, MavenLogger logger) throws FacadeException;
+    void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
+            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, File tempDirectory, MavenLogger logger)
+            throws FacadeException;
 }
