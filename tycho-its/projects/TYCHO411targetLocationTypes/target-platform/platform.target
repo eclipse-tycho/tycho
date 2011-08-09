@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.5"?>
-
-<target name="platform">
-  <locations>
-    <location path="${resource_loc:/Libraries}" type="Profile"/>
-    <location path="${resource_loc:/Libraries/plugins}" type="Directory"/>
-  </locations>
-</target>
