@@ -97,6 +97,15 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     protected boolean useDefaultSourceExcludes;
 
     /**
+     * Whether source folders are required or not. If not required (the default), projects without
+     * source folders will be silently ignored.
+     * 
+     * @parameter default-value="false"
+     * @readonly
+     */
+    protected boolean requireSourceRoots;
+
+    /**
      * @component role="org.eclipse.tycho.core.TychoProject"
      */
     private Map<String, TychoProject> projectTypes;
@@ -111,7 +120,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
                     sources.addAll(getSourceDirs((String) entry.getValue()));
                 }
             }
-            if (sources.isEmpty()) {
+            if (requireSourceRoots && sources.isEmpty()) {
                 throw new MojoExecutionException("no source folders found in build.properties");
             }
             return sources;
@@ -251,8 +260,17 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     @Override
     protected boolean isRelevantProject(MavenProject project) {
         String packaging = project.getPackaging();
-        return org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging)
+        boolean relevant = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging)
                 || org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
+        if (!relevant) {
+            return false;
+        }
+        try {
+            return requireSourceRoots || !getSources(project).isEmpty();
+        } catch (MojoExecutionException e) {
+            // can't happen
+        }
+        return true;
     }
 
 }
