@@ -16,16 +16,20 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatform;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
+import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.eclipse.tycho.testing.CompoundRuntimeException;
 
@@ -262,5 +266,46 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals(
                 canonicalFile("src/test/resources/targetplatforms/basic/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar"),
                 classpath.get(3).getLocations().get(0).getCanonicalFile());
+    }
+
+    public void testImplicitTargetEnvironment() throws Exception {
+        File pom = new File(getBasedir("projects/implicitenvironment/simple"), "pom.xml");
+
+        MavenExecutionRequest request = newMavenExecutionRequest(pom);
+
+        List<MavenProject> projects = getSortedProjects(request);
+        assertEquals(1, projects.size());
+
+//        assertEquals("ambiguous", projects.get(0).getArtifactId());
+//        assertEquals("none", projects.get(0).getArtifactId());
+        assertEquals("simple", projects.get(0).getArtifactId());
+
+        DefaultTargetPlatformConfigurationReader resolver = lookup(DefaultTargetPlatformConfigurationReader.class);
+
+        MavenSession session;
+        TargetPlatformConfiguration configuration;
+        List<TargetEnvironment> environments;
+
+        // ambiguous
+//        session = newMavenSession(projects.get(0), projects);
+//        configuration = resolver.getTargetPlatformConfiguration(session, session.getCurrentProject());
+//        environments = configuration.getEnvironments();
+//        assertEquals(0, environments.size());
+
+        // none
+//        session = newMavenSession(projects.get(0), projects);
+//        configuration = resolver.getTargetPlatformConfiguration(session, session.getCurrentProject());
+//        environments = configuration.getEnvironments();
+//        assertEquals(0, environments.size());
+
+        // simple
+        session = newMavenSession(projects.get(0), projects);
+        configuration = resolver.getTargetPlatformConfiguration(session, session.getCurrentProject());
+        environments = configuration.getEnvironments();
+        assertEquals(1, environments.size());
+        TargetEnvironment env = environments.get(0);
+        assertEquals("foo", env.getOs());
+        assertEquals("bar", env.getWs());
+        assertEquals("munchy", env.getArch());
     }
 }

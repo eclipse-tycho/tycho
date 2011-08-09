@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.osgi.framework.internal.core.Constants;
+import org.eclipse.osgi.framework.internal.core.FilterImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.osgi.util.ManifestElement;
@@ -45,11 +48,12 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
+import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
 
 @Component(role = TychoProject.class, hint = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN)
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
@@ -386,4 +390,41 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return bundleReader.getEntry(bundle.getLocation(), cp);
     }
 
+    @Override
+    public TargetEnvironment getImplicitTargetEnvironment(MavenProject project) {
+        String filterStr = getManifestValue(Constants.ECLIPSE_PLATFORMFILTER, project);
+
+        if (filterStr != null) {
+            try {
+                FilterImpl filter = FilterImpl.newInstance(filterStr);
+
+                String ws = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_WS));
+                String os = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_OS));
+                String arch = sn(filter.getPrimaryKeyValue(PlatformPropertiesUtils.OSGI_ARCH));
+
+                // validate if os/ws/arch are not null and actually match the filter
+                if (ws != null && os != null && arch != null) {
+                    Map<String, String> properties = new HashMap<String, String>();
+                    properties.put(PlatformPropertiesUtils.OSGI_WS, ws);
+                    properties.put(PlatformPropertiesUtils.OSGI_OS, os);
+                    properties.put(PlatformPropertiesUtils.OSGI_ARCH, arch);
+
+                    if (filter.matches(properties)) {
+                        return new TargetEnvironment(os, ws, arch, null);
+                    }
+                }
+            } catch (InvalidSyntaxException e) {
+                // at least we tried...
+            }
+        }
+
+        return null;
+    }
+
+    private static String sn(String str) {
+        if (str != null && !"".equals(str.trim())) {
+            return str;
+        }
+        return null;
+    }
 }

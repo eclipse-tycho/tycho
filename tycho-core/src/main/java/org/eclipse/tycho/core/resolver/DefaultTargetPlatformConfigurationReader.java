@@ -11,6 +11,7 @@
 package org.eclipse.tycho.core.resolver;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.artifact.Artifact;
@@ -26,6 +27,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.model.Target;
 
@@ -36,6 +38,9 @@ public class DefaultTargetPlatformConfigurationReader {
 
     @Requirement
     private RepositorySystem repositorySystem;
+
+    @Requirement
+    private Map<String, TychoProject> projectTypes;
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project) {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
@@ -62,6 +67,20 @@ public class DefaultTargetPlatformConfigurationReader {
                 setAllowConflictingDependencies(result, configuration);
 
                 setDisableP2Mirrors(result, configuration);
+            }
+        }
+
+        if (result.getEnvironments().isEmpty()) {
+            TychoProject projectType = projectTypes.get(project.getPackaging());
+            if (projectType != null) {
+                TargetEnvironment env = projectType.getImplicitTargetEnvironment(project);
+                if (env != null) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Implicit target environment for " + project.toString() + ": " + env.toString());
+                    }
+
+                    result.addEnvironment(env);
+                }
             }
         }
 

@@ -80,4 +80,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         return environments.toArray(new TargetEnvironment[environments.size()]);
     }
 
+    public TargetEnvironment getImplicitTargetEnvironment(MavenProject project) {
+        return null;
+    }
 }

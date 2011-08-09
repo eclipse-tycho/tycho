@@ -44,4 +44,9 @@ public interface TychoProject {
     // implementation must not depend on target platform
     public ArtifactKey getArtifactKey(ReactorProject project);
 
+    /**
+     * Implicit target environment configuration present in project metadata, like, for example,
+     * Eclipse-PlatformFilter OSGi bundle manifest attribute.
+     */
+    public TargetEnvironment getImplicitTargetEnvironment(MavenProject project);
 }
