@@ -112,7 +112,7 @@ public abstract class AbstractTychoIntegrationTest {
 
         // - read from command line
         String commandLineValue = EnvironmentUtil.getTestSettings();
-        if (!commandLineValue.isEmpty()) {
+        if (commandLineValue != null) {
             return new File(commandLineValue);
         }
 

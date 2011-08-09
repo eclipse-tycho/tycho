@@ -80,7 +80,10 @@ public class EnvironmentUtil {
     }
 
     public static String getTestSettings() {
-        return getProperty("its-settings");
+        String value = getProperty("its-settings");
+        if (value.contains("$"))
+            return null;
+        return value;
     }
 
     public static String getMavenHome() {
