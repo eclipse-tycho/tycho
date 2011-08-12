@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: TYCHO357networkFailureTolerance
-Bundle-SymbolicName: TYCHO357networkFailureTolerance
-Bundle-Version: 0.0.1.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.junit,
- org.eclipse.core.runtime
