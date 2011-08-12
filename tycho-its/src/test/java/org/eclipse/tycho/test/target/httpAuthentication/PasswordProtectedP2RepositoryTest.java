@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO319passwordProtectedP2Repository;
+package org.eclipse.tycho.test.target.httpAuthentication;
 
 import java.io.File;
 import java.util.Arrays;
@@ -37,12 +37,13 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
         server.stop();
     }
 
+    // TODO these tests are not independent - the code under test seems to cache passwords, so the second test can pass even if the implementation is broken
     @Test
     public void testRepository() throws Exception {
         String url = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/e342"));
 
-        Verifier verifier = getVerifier("/TYCHO319passwordProtectedP2Repository", false, new File(
-                "projects/TYCHO319passwordProtectedP2Repository/settings.xml"));
+        Verifier verifier = getVerifier("target.httpAuthentication", false, new File(
+                "projects/target.httpAuthentication/settings.xml"));
         verifier.getCliOptions().add("-P=repository");
         verifier.executeGoals(Arrays.asList("package", "-Dp2.repo=" + url));
         verifier.verifyErrorFreeLog();
@@ -52,8 +53,8 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
     public void testTargetDefinition() throws Exception {
         String url = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/e342"));
 
-        Verifier verifier = getVerifier("/TYCHO319passwordProtectedP2Repository", false, new File(
-                "projects/TYCHO319passwordProtectedP2Repository/settings.xml"));
+        Verifier verifier = getVerifier("target.httpAuthentication", false, new File(
+                "projects/target.httpAuthentication/settings.xml"));
 
         File platformFile = new File(verifier.getBasedir(), "platform.target");
         TargetDefinitionUtil.setRepositoryURLs(platformFile, url);
