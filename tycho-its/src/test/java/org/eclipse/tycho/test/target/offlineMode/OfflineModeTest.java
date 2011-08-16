@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO338offlineMode;
+package org.eclipse.tycho.test.target.offlineMode;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -42,7 +42,7 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
     @Test
     @SuppressWarnings("unchecked")
     public void test() throws Exception {
-        Verifier verifier = getVerifier("/TYCHO338offlineMode", false);
+        Verifier verifier = getVerifier("target.offlineMode", false);
         String url = server.addServer("test", new File(verifier.getBasedir(), "repo"));
         verifier.getSystemProperties().setProperty("p2.repo", url);
 
