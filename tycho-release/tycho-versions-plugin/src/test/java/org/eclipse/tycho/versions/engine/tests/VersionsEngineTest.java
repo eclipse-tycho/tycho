@@ -225,6 +225,20 @@ public class VersionsEngineTest extends PlexusTestCase {
         assertPom(new File(basedir, "module"));
     }
 
+    public void testIgnoreWhitespace() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/ignorewhitespace");
+
+        VersionsEngine engine = lookup(VersionsEngine.class);
+        engine.addBasedir(basedir);
+        engine.addVersionChange("parent", "1.0.1.qualifier");
+        engine.apply();
+
+        assertPom(basedir);
+
+        assertPom(new File(basedir, "bundle"));
+        assertBundleManifest(new File(basedir, "bundle"));
+    }
+
     private void assertPom(File basedir) throws IOException {
         assertFileContent(new File(basedir, "pom.xml"));
     }

@@ -96,7 +96,7 @@ public class MutablePomFile {
 
     public String getVersion() {
         Element element = project.getChild("version");
-        return element != null ? element.getText() : null;
+        return element != null ? element.getText().trim() : null;
     }
 
     public String getEffectiveVersion() {
@@ -109,7 +109,7 @@ public class MutablePomFile {
 
     public String getPackaging() {
         Element packaging = project.getChild("packaging");
-        return packaging != null ? packaging.getText() : "jar";
+        return packaging != null ? packaging.getText().trim() : "jar";
     }
 
     public String getParentVersion() {
@@ -131,7 +131,7 @@ public class MutablePomFile {
 
     public String getArtifactId() {
         Element element = project.getChild("artifactId");
-        return element != null ? element.getText() : null;
+        return element != null ? element.getText().trim() : null;
     }
 
     public GAV getParent() {
@@ -143,7 +143,7 @@ public class MutablePomFile {
         LinkedHashSet<String> result = new LinkedHashSet<String>();
         for (Element modules : project.getChildren("modules")) {
             for (Element module : modules.getChildren("module")) {
-                result.add(module.getText());
+                result.add(module.getText().trim());
             }
         }
         return new ArrayList<String>(result);
