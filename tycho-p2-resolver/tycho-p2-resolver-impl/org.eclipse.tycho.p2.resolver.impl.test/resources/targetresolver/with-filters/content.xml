@@ -818,34 +818,9 @@
       </provides>
       <requires size='19'>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher' range='[1.0.101.R34x_v20081125,1.0.101.R34x_v20081125]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.solaris.sparc' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
-          <filter>
-            (&amp;(osgi.os=solaris)(osgi.ws=gtk)(osgi.arch=sparc))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.solaris.x86' range='0.0.0'>
-          <filter>
-            (&amp;(osgi.os=solaris)(osgi.ws=gtk)(osgi.arch=x86))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.solaris.sparc' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
-          <filter>
-            (&amp;(osgi.os=solaris)(osgi.ws=motif)(osgi.arch=sparc))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.carbon.macosx' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
           <filter>
             (&amp;(osgi.os=macosx)(osgi.ws=carbon))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.ppc' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
-          <filter>
-            (&amp;(osgi.os=linux)(osgi.ws=gtk)(osgi.arch=ppc))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.x86' range='[1.0.101.R34x_v20080805,1.0.101.R34x_v20080805]'>
-          <filter>
-            (&amp;(osgi.os=linux)(osgi.ws=gtk)(osgi.arch=x86))
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.x86_64' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
@@ -853,54 +828,9 @@
             (&amp;(osgi.os=linux)(osgi.ws=gtk)(osgi.arch=x86_64))
           </filter>
         </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.aix.ppc' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
-          <filter>
-            (&amp;(osgi.os=aix)(osgi.ws=motif)(osgi.arch=ppc))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.hpux.PA_RISC' range='[1.0.100.v20080303,1.0.100.v20080303]'>
-          <filter>
-            (&amp;(osgi.os=hpux)(osgi.ws=motif)(osgi.arch=PA_RISC))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.hpux.ia64_32' range='[1.0.2.R34x_v20081125,1.0.2.R34x_v20081125]'>
-          <filter>
-            (&amp;(osgi.os=hpux)(osgi.ws=motif)(osgi.arch=ia64_32))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.motif.linux.x86' range='[1.0.101.R34x_v20080805,1.0.101.R34x_v20080805]'>
-          <filter>
-            (&amp;(osgi.os=linux)(osgi.ws=motif)(osgi.arch=x86))
-          </filter>
-        </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.win32.win32.x86' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
           <filter>
             (&amp;(osgi.os=win32)(osgi.ws=win32)(osgi.arch=x86))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.win32.win32.x86_64' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
-          <filter>
-            (&amp;(osgi.os=win32)(osgi.ws=win32)(osgi.arch=x86_64))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.win32.win32.ia64' range='0.0.0'>
-          <filter>
-            (&amp;(osgi.os=win32)(osgi.ws=win32)(osgi.arch=ia64))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.wpf.win32.x86' range='[1.0.101.R34x_v20080731,1.0.101.R34x_v20080731]'>
-          <filter>
-            (&amp;(osgi.os=win32)(osgi.ws=wpf)(osgi.arch=x86))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.s390' range='0.0.0'>
-          <filter>
-            (&amp;(osgi.os=linux)(osgi.ws=gtk)(osgi.arch=s390))
-          </filter>
-        </required>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.s390x' range='0.0.0'>
-          <filter>
-            (&amp;(osgi.os=linux)(osgi.ws=gtk)(osgi.arch=s390x))
           </filter>
         </required>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.executable.feature.jar' range='[3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu,3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu]'>

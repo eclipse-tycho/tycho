@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="typo in includeMode">
+<locations>
+<location includeAllPlatforms="false" includeMode="slicher" type="InstallableUnit">
+</location>
+</locations>
+</target>

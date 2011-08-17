@@ -77,6 +77,7 @@ import org.eclipse.tycho.p2.target.TargetDefinitionResolver;
 import org.eclipse.tycho.p2.target.TargetPlatformContent;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 // This class has been split off from P2Resolver; TODO divide even further
@@ -336,7 +337,7 @@ public class ResolutionContextImpl implements ResolutionContext {
     private List<TargetPlatformContent> content = new ArrayList<TargetPlatformContent>();
 
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
-            throws TargetDefinitionResolutionException {
+            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
         TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, agent, logger);
         content.add(resolver.resolveContent(definition));
     }

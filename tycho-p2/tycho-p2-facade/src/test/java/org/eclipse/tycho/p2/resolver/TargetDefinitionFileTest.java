@@ -16,19 +16,20 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.junit.Test;
 
 public class TargetDefinitionFileTest {
     @Test
     public void testTarget() throws Exception {
-        TargetDefinitionFile target = TargetDefinitionFile.read(new File("src/test/resources/modelio/target.target"));
-
-        List<? extends Location> locations = target.getLocations();
+        List<? extends Location> locations = readTarget("target.target");
         assertEquals(2, locations.size());
 
         InstallableUnitLocation location = (InstallableUnitLocation) locations.get(0);
@@ -50,10 +51,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testLocationTypes() throws Exception {
-        TargetDefinitionFile target = TargetDefinitionFile.read(new File(
-                "src/test/resources/modelio/locationtypes.target"));
-
-        List<? extends Location> locations = target.getLocations();
+        List<? extends Location> locations = readTarget("locationtypes.target");
         assertEquals("Directory", locations.get(0).getTypeDescription());
         assertEquals("Profile", locations.get(1).getTypeDescription());
         assertEquals("Feature", locations.get(2).getTypeDescription());
@@ -64,4 +62,45 @@ public class TargetDefinitionFileTest {
         }
         assertTrue(locations.get(3) instanceof InstallableUnitLocation);
     }
+
+    @Test
+    public void testDefaultIncludeModeValues() throws Exception {
+        List<? extends Location> locations = readTarget("includeModes.target");
+        InstallableUnitLocation locationWithDefaults = (InstallableUnitLocation) locations.get(0);
+        assertEquals(IncludeMode.PLANNER, locationWithDefaults.getIncludeMode());
+        assertEquals(false, locationWithDefaults.includeAllEnvironments());
+    }
+
+    @Test
+    public void testExplictIncludeModeValues() throws Exception {
+        List<? extends Location> locations = readTarget("includeModes.target");
+        InstallableUnitLocation locationWithPlanner = (InstallableUnitLocation) locations.get(1);
+        InstallableUnitLocation locationWithSlicer = (InstallableUnitLocation) locations.get(2);
+        InstallableUnitLocation locationWithSlicerAndAllEnvironments = (InstallableUnitLocation) locations.get(3);
+        assertEquals(IncludeMode.PLANNER, locationWithPlanner.getIncludeMode());
+        assertEquals(IncludeMode.SLICER, locationWithSlicer.getIncludeMode());
+        assertEquals(false, locationWithSlicer.includeAllEnvironments());
+        assertEquals(IncludeMode.SLICER, locationWithSlicerAndAllEnvironments.getIncludeMode());
+        assertEquals(true, locationWithSlicerAndAllEnvironments.includeAllEnvironments());
+    }
+
+    @Test(expected = TargetDefinitionSyntaxException.class)
+    public void testInvalidXML() throws Exception {
+        readTarget("invalidXML.target");
+    }
+
+    @Test(expected = TargetDefinitionSyntaxException.class)
+    public void testInvalidIncludeMode() throws Exception {
+        List<? extends Location> locations = readTarget("invalidMode.target");
+
+        // allow exception to be thrown late
+        InstallableUnitLocation invalidIncludeModeLocation = (InstallableUnitLocation) locations.get(0);
+        invalidIncludeModeLocation.getIncludeMode();
+    }
+
+    private List<? extends Location> readTarget(String fileName) throws IOException {
+        TargetDefinitionFile target = TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName));
+        return target.getLocations();
+    }
+
 }

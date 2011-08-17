@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="allRepoTypes">
+<locations>
+<location type="InstallableUnit">
+</location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+</location>
+<location includeAllPlatforms="false" includeMode="slicer" type="InstallableUnit">
+</location>
+<location includeAllPlatforms="true" includeMode="slicer" type="InstallableUnit">
+</location>
+</locations>
+</target>

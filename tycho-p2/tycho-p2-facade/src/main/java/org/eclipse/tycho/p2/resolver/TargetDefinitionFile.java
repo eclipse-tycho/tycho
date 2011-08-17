@@ -26,10 +26,12 @@ import java.util.List;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
+import de.pdark.decentxml.XMLParseException;
 import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
@@ -78,6 +80,21 @@ public class TargetDefinitionFile implements TargetDefinition {
             dom.setAttribute("type", type);
         }
 
+        public IncludeMode getIncludeMode() {
+            String attributeValue = dom.getAttributeValue("includeMode");
+            if ("slicer".equals(attributeValue)) {
+                return IncludeMode.SLICER;
+            } else if ("planner".equals(attributeValue) || attributeValue == null) {
+                return IncludeMode.PLANNER;
+            }
+            throw new TargetDefinitionSyntaxException("Invalid value for attribute 'includeMode': " + attributeValue
+                    + "");
+        }
+
+        public boolean includeAllEnvironments() {
+            return Boolean.parseBoolean(dom.getAttributeValue("includeAllPlatforms"));
+        }
+
     }
 
     public class OtherLocation implements Location {
@@ -105,10 +122,10 @@ public class TargetDefinitionFile implements TargetDefinition {
         }
 
         public URI getLocation() {
-            // TODO: check this earlier?
             try {
                 return new URI(dom.getAttributeValue("location"));
             } catch (URISyntaxException e) {
+                // this should be checked earlier (but is currently ugly to do)
                 throw new RuntimeException(e);
             }
         }
@@ -162,6 +179,8 @@ public class TargetDefinitionFile implements TargetDefinition {
         FileInputStream input = new FileInputStream(file);
         try {
             return new TargetDefinitionFile(parser.parse(new XMLIOSource(input)));
+        } catch (XMLParseException e) {
+            throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(), e);
         } finally {
             IOUtil.close(input);
         }

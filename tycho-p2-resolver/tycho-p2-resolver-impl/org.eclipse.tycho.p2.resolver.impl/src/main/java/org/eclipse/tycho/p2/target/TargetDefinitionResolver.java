@@ -13,6 +13,8 @@ package org.eclipse.tycho.p2.target;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +25,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.director.Projector;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -44,11 +46,13 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 public class TargetDefinitionResolver {
@@ -66,21 +70,17 @@ public class TargetDefinitionResolver {
         this.metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
     }
 
-    public TargetPlatformContent resolveContent(TargetDefinition definition) throws TargetDefinitionResolutionException {
+    public TargetPlatformContent resolveContent(TargetDefinition definition) throws TargetDefinitionSyntaxException,
+            TargetDefinitionResolutionException {
 
-        List<LoadedLocation> loadedLocations = new ArrayList<LoadedLocation>(definition.getLocations().size());
-        List<IQueryable<IInstallableUnit>> availableUnits = new ArrayList<IQueryable<IInstallableUnit>>();
-        List<IInstallableUnit> seedUnits = new ArrayList<IInstallableUnit>();
         List<URI> artifactRepositories = new ArrayList<URI>();
+        IUResolver resolverRun = new IUResolver();
 
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation) {
                 InstallableUnitLocation iuLocationDefinition = (InstallableUnitLocation) locationDefinition;
+                resolverRun.addLocation(iuLocationDefinition);
 
-                LoadedLocation loadedLocation = new LoadedLocation(iuLocationDefinition);
-                loadedLocations.add(loadedLocation);
-                availableUnits.add(loadedLocation.getAvailableUnits());
-                seedUnits.addAll(loadedLocation.getSeedUnits());
                 for (Repository repository : iuLocationDefinition.getRepositories()) {
                     artifactRepositories.add(repository.getLocation());
                 }
@@ -89,67 +89,170 @@ public class TargetDefinitionResolver {
                         locationDefinition.getTypeDescription()));
             }
         }
-        Collection<IInstallableUnit> resolvedUnits = resolveWithPlanner(seedUnits,
-                QueryUtil.compoundQueryable(availableUnits));
-        return new ResolvedDefinition(resolvedUnits, artifactRepositories);
+        return new ResolvedDefinition(resolverRun.execute(), artifactRepositories);
     }
 
-    @SuppressWarnings("restriction")
-    private Collection<IInstallableUnit> resolveWithPlanner(List<IInstallableUnit> seedUnits,
-            IQueryable<IInstallableUnit> availableUnits) {
-        Collection<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+    private class IUResolver {
 
-        for (Map<String, String> environment : environments) {
-            Map<String, String> selectionContext = SimplePlanner.createSelectionContext(environment);
-            Collection<IInstallableUnit> resolvedUnits = resolveForPlatform(seedUnits, availableUnits, selectionContext);
-            result.addAll(resolvedUnits);
+        private List<LoadedLocation> locations = new ArrayList<LoadedLocation>();
+        List<IQueryable<IInstallableUnit>> availableUnits = new ArrayList<IQueryable<IInstallableUnit>>();
+        List<IInstallableUnit> seedUnits = new ArrayList<IInstallableUnit>();
+
+        private IncludeMode includeMode = null;
+        private Boolean includeAllEnvironments = null;
+
+        void addLocation(InstallableUnitLocation locationDefinition) {
+            setIncludeMode(locationDefinition.getIncludeMode());
+            setIncludeAllEnvironments(locationDefinition.includeAllEnvironments());
+
+            LoadedLocation loadedLocation = new LoadedLocation(locationDefinition);
+            locations.add(loadedLocation);
+
+            availableUnits.add(loadedLocation.getAvailableUnits());
+            seedUnits.addAll(loadedLocation.getSeedUnits());
         }
 
-        return result;
-    }
+        private void setIncludeAllEnvironments(Boolean newValue) {
+            if (!newValue.equals(includeAllEnvironments)) {
+                if (includeAllEnvironments != null) {
+                    throw new TargetDefinitionResolutionException(
+                            "The attribute 'includeAllPlatforms' must be the same for all locations");
+                }
+                includeAllEnvironments = newValue;
+            }
+        }
 
-    @SuppressWarnings("restriction")
-    private Collection<IInstallableUnit> resolveForPlatform(List<IInstallableUnit> seedUnits,
-            IQueryable<IInstallableUnit> availableUnits, Map<String, String> selectionContext) {
-        IProgressMonitor monitor = new NullProgressMonitor();
-        Slicer slicer = new Slicer(availableUnits, selectionContext, false);
-        IQueryable<IInstallableUnit> slice = slicer.slice(seedUnits.toArray(EMPTY_IU_ARRAY), monitor);
+        private void setIncludeMode(IncludeMode newValue) {
+            if (includeMode != newValue) {
+                if (includeMode != null) {
+                    throw new TargetDefinitionResolutionException("Include mode must be the same for all locations");
+                }
+                includeMode = newValue;
+            }
+        }
 
-        if (slice == null) {
+        Collection<IInstallableUnit> execute() {
+            if (locations.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            final Collection<IInstallableUnit> resolvedUnits;
+            switch (includeMode) {
+            case PLANNER:
+                resolvedUnits = resolveWithPlanner();
+                break;
+            case SLICER:
+                resolvedUnits = resolveWithSlicer();
+                break;
+            default:
+                throw new IllegalStateException();
+            }
+            return resolvedUnits;
+        }
+
+        private Collection<IInstallableUnit> resolveWithSlicer() {
+            IQueryable<IInstallableUnit> availableUnitsQueryable = QueryUtil.compoundQueryable(availableUnits);
+
+            Set<IInstallableUnit> result = new HashSet<IInstallableUnit>();
+            if (includeAllEnvironments) {
+                Map<String, String> selectionContext = Collections.emptyMap();
+                result.addAll(sliceForPlatform(seedUnits, availableUnitsQueryable, selectionContext));
+            } else {
+                for (Map<String, String> environment : environments) {
+                    Map<String, String> selectionContext = addFeatureJarFilter(environment);
+                    result.addAll(sliceForPlatform(seedUnits, availableUnitsQueryable, selectionContext));
+                }
+            }
+            return result;
+        }
+
+        @SuppressWarnings("restriction")
+        private Set<IInstallableUnit> sliceForPlatform(List<IInstallableUnit> seedUnits,
+                IQueryable<IInstallableUnit> availableUnits, Map<String, String> selectionContext) {
+            NullProgressMonitor monitor = new NullProgressMonitor();
+
+            boolean evalFilterTo = selectionContext.isEmpty();
+            Slicer slicer = new PermissiveSlicer(availableUnits, selectionContext, true, false, evalFilterTo, true,
+                    false);
+
+            IQueryable<IInstallableUnit> slice = slicer.slice(seedUnits.toArray(EMPTY_IU_ARRAY), monitor);
+
             MultiStatus slicerStatus = slicer.getStatus();
-            throw new TargetDefinitionResolutionException(StatusTool.collectProblems(slicerStatus),
-                    StatusTool.findException(slicer.getStatus()));
+            if (slicerStatus.matches(IStatus.WARNING | IStatus.ERROR | IStatus.CANCEL)) {
+                throw new TargetDefinitionResolutionException(StatusTool.collectProblems(slicerStatus),
+                        StatusTool.findException(slicer.getStatus()));
+            }
+
+            return slice.query(QueryUtil.ALL_UNITS, monitor).toSet();
         }
 
-        Projector projector = new Projector(slice, selectionContext, new HashSet<IInstallableUnit>(), false);
-        projector.encode(createMetaIU(seedUnits), EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(
-                EMPTY_IU_ARRAY) /* installed IUs */, seedUnits /* newRoots */, monitor);
-        IStatus s = projector.invokeSolver(monitor);
-
-        if (s.getSeverity() == IStatus.ERROR) {
-            Set<Explanation> explanation = projector.getExplanation(monitor);
-            throw new TargetDefinitionResolutionException(explanation.toString());
-        }
-        Collection<IInstallableUnit> resolvedUnits = projector.extractSolution();
-        return resolvedUnits;
-    }
-
-    private IInstallableUnit createMetaIU(Collection<IInstallableUnit> rootIUs) {
-        InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-        String time = Long.toString(System.currentTimeMillis());
-        iud.setId(time);
-        iud.setVersion(Version.createOSGi(0, 0, 0, time));
-
-        ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
-        for (IInstallableUnit iu : rootIUs) {
-            VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-            requirements
-                    .add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range,
-                            iu.getFilter(), 1 /* min */, iu.isSingleton() ? 1 : Integer.MAX_VALUE /* max */, true /* greedy */));
+        private Map<String, String> addFeatureJarFilter(Map<String, String> environment) {
+            final Map<String, String> selectionContext;
+            selectionContext = new HashMap<String, String>(environment);
+            selectionContext.put("org.eclipse.update.install.features", "true");
+            return selectionContext;
         }
 
-        iud.setRequirements(requirements.toArray(new IRequirement[requirements.size()]));
-        return MetadataFactory.createInstallableUnit(iud);
+        private Collection<IInstallableUnit> resolveWithPlanner() {
+            IQueryable<IInstallableUnit> availableUnitsQueryable = QueryUtil.compoundQueryable(availableUnits);
+            Collection<IInstallableUnit> result = new HashSet<IInstallableUnit>();
+
+            for (Map<String, String> environment : environments) {
+                Map<String, String> selectionContext = addFeatureJarFilter(environment);
+                Collection<IInstallableUnit> resolvedUnits = planForPlatform(seedUnits, availableUnitsQueryable,
+                        selectionContext);
+                result.addAll(resolvedUnits);
+            }
+
+            return result;
+        }
+
+        // TODO share this code with ProjectorResolutionStrategy
+        @SuppressWarnings("restriction")
+        private Collection<IInstallableUnit> planForPlatform(List<IInstallableUnit> seedUnits,
+                IQueryable<IInstallableUnit> availableUnits, Map<String, String> selectionContext) {
+            IProgressMonitor monitor = new NullProgressMonitor();
+            Slicer slicer = new Slicer(availableUnits, selectionContext, false);
+            IQueryable<IInstallableUnit> slice = slicer.slice(seedUnits.toArray(EMPTY_IU_ARRAY), monitor);
+
+            if (slice == null) {
+                MultiStatus slicerStatus = slicer.getStatus();
+                throw new TargetDefinitionResolutionException(StatusTool.collectProblems(slicerStatus),
+                        StatusTool.findException(slicer.getStatus()));
+            }
+
+            Projector projector = new Projector(slice, selectionContext, new HashSet<IInstallableUnit>(), false);
+            projector.encode(createMetaIU(seedUnits), EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(
+                    EMPTY_IU_ARRAY) /* installed IUs */, seedUnits /* newRoots */, monitor);
+            IStatus s = projector.invokeSolver(monitor);
+
+            if (s.getSeverity() == IStatus.ERROR) {
+                // TODO print the explanation in multiple lines (to fix bug 343968)
+                Set<Explanation> explanation = projector.getExplanation(monitor);
+                throw new TargetDefinitionResolutionException(explanation.toString());
+            }
+            Collection<IInstallableUnit> resolvedUnits = projector.extractSolution();
+            return resolvedUnits;
+        }
+
+        private IInstallableUnit createMetaIU(Collection<IInstallableUnit> rootIUs) {
+            InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+            String time = Long.toString(System.currentTimeMillis());
+            iud.setId(time);
+            iud.setVersion(Version.createOSGi(0, 0, 0, time));
+
+            ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
+            for (IInstallableUnit iu : rootIUs) {
+                VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
+                requirements
+                        .add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range,
+                                iu.getFilter(), 1 /* min */, iu.isSingleton() ? 1 : Integer.MAX_VALUE /* max */, true /* greedy */));
+            }
+
+            iud.setRequirements(requirements.toArray(new IRequirement[requirements.size()]));
+            return MetadataFactory.createInstallableUnit(iud);
+        }
+
     }
 
     private class LoadedLocation {
@@ -176,7 +279,7 @@ public class TargetDefinitionResolver {
             try {
                 return metadataManager.loadRepository(repository.getLocation(), null);
             } catch (ProvisionException e) {
-                throw new TargetDefinitionResolutionException("Failed to load metadata repository from URL "
+                throw new TargetDefinitionResolutionException("Failed to load metadata repository from location "
                         + repository.getLocation(), e);
             }
         }
@@ -198,7 +301,7 @@ public class TargetDefinitionResolver {
 
             if (queryResult.isEmpty()) {
                 throw new TargetDefinitionResolutionException(NLS.bind(
-                        "Unit {0}/{1} is not contained in the repositories in the same location",
+                        "Could not find \"{0}/{1}\" in the repositories of the current location",
                         unitReference.getId(), unitReference.getVersion()));
             }
             // if the repository contains the same iu/version twice, both are identical and
@@ -222,7 +325,7 @@ public class TargetDefinitionResolver {
             try {
                 return Version.parseVersion(unitReference.getVersion());
             } catch (IllegalArgumentException e) {
-                throw new TargetDefinitionResolutionException(NLS.bind("Cannot parse version \"{0}\" of unit \"{1}\"",
+                throw new TargetDefinitionSyntaxException(NLS.bind("Cannot parse version \"{0}\" of unit \"{1}\"",
                         unitReference.getVersion(), unitReference.getId()), e);
             }
         }

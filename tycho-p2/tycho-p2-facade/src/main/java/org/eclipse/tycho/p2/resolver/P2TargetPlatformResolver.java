@@ -79,6 +79,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
 @Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
 public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver implements TargetPlatformResolver,
@@ -284,6 +285,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             final TargetDefinitionFile target;
             try {
                 target = TargetDefinitionFile.read(configuration.getTarget());
+            } catch (TargetDefinitionSyntaxException e) {
+                throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
+                        + e.getMessage(), e);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -325,6 +329,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
                 try {
                     resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
+                } catch (TargetDefinitionSyntaxException e) {
+                    throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget()
+                            + ": " + e.getMessage(), e);
                 } catch (TargetDefinitionResolutionException e) {
                     throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget()
                             + ": " + e.getMessage(), e);

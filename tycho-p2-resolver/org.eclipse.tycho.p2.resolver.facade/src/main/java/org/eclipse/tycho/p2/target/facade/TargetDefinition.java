@@ -31,6 +31,14 @@ public interface TargetDefinition {
         public List<? extends Repository> getRepositories();
 
         public List<? extends Unit> getUnits();
+
+        public IncludeMode getIncludeMode();
+
+        public boolean includeAllEnvironments();
+    }
+
+    public enum IncludeMode {
+        SLICER, PLANNER
     }
 
     public interface Repository {

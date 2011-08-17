@@ -19,7 +19,6 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.TargetDefinitionUtil;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegrationTest {
@@ -48,7 +47,6 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
         assertTrue(p2Repo.findFeatureArtifact("trt.feature").isFile());
     }
 
-    @Ignore("Slicer mode is not yet supported - the planner is always used")
     @Test
     public void testContentAndVersionRestrictionWithSlicer() throws Exception {
         verifier = getVerifier("target.restriction.targetFile/testProject", false);
