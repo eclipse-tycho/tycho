@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
@@ -39,12 +40,21 @@ public abstract class AbstractVersionMojo extends AbstractMojo {
     protected Map<String, TychoProject> projectTypes;
 
     protected String getOSGiVersion() {
+        ArtifactKey osgiArtifact = getOSGiArtifact();
+        return osgiArtifact != null ? osgiArtifact.getVersion() : null;
+    }
+
+    protected String getOSGiId() {
+        ArtifactKey osgiArtifact = getOSGiArtifact();
+        return osgiArtifact != null ? osgiArtifact.getId() : null;
+    }
+
+    private ArtifactKey getOSGiArtifact() {
         TychoProject projectType = projectTypes.get(packaging);
         if (projectType == null) {
             return null;
         }
-
-        return projectType.getArtifactKey(DefaultReactorProject.adapt(project)).getVersion();
+        return projectType.getArtifactKey(DefaultReactorProject.adapt(project));
     }
 
 }
