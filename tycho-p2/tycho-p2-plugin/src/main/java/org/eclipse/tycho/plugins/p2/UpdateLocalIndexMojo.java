@@ -18,7 +18,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 
 /**
  * @goal update-local-index
@@ -34,7 +34,7 @@ public class UpdateLocalIndexMojo extends AbstractMojo {
         File location = new File(session.getLocalRepository().getBasedir());
 
         try {
-            LocalTychoRepositoryIndex.addProject(location, project.getGroupId(), project.getArtifactId(), project
+            FileBasedTychoRepositoryIndex.addProject(location, project.getGroupId(), project.getArtifactId(), project
                     .getArtifact().getVersion());
         } catch (IOException e) {
             throw new MojoExecutionException("Could not update local repository index", e);

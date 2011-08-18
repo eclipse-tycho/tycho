@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -71,15 +72,23 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
 
         for (GAV gav : projectIndex.getProjectGAVs()) {
             try {
-                InputStream is = contentLocator.getContents(gav, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA,
-                        RepositoryLayoutHelper.EXTENSION_P2_METADATA);
-                try {
-                    Set<IInstallableUnit> gavUnits = io.readXML(is);
+                File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
+                        RepositoryLayoutHelper.CLASSIFIER_P2_METADATA, RepositoryLayoutHelper.EXTENSION_P2_METADATA);
+                if (!localArtifactFileLocation.exists()) {
+                    // if files have been manually removed from the repository, simply adjust the meta info file (bug 351080)
+                    projectIndex.remove(gav);
+                    projectIndex.save();
+                } else {
+                    InputStream is = contentLocator.getContents(gav, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA,
+                            RepositoryLayoutHelper.EXTENSION_P2_METADATA);
+                    try {
+                        Set<IInstallableUnit> gavUnits = io.readXML(is);
 
-                    unitsMap.put(gav, gavUnits);
-                    units.addAll(gavUnits);
-                } finally {
-                    is.close();
+                        unitsMap.put(gav, gavUnits);
+                        units.addAll(gavUnits);
+                    } finally {
+                        is.close();
+                    }
                 }
             } catch (IOException e) {
                 // TODO throw properly typed exception if repository cannot be loaded

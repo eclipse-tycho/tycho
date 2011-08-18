@@ -10,10 +10,42 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.Set;
 
 public interface TychoRepositoryIndex {
 
-    List<GAV> getProjectGAVs();
+    /**
+     * Receive the set of GAVs contained in this index
+     * 
+     * @return an unmodifiable defensive copy of the GAV set contained in this index
+     */
+    Set<GAV> getProjectGAVs();
+
+    /**
+     * Adds a GAV to the index
+     * 
+     * @see {@link #save()}
+     * @param gav
+     */
+    void addProject(GAV gav);
+
+    /**
+     * Remove a GAV from the index.
+     * 
+     * @param gav
+     * @see {@link #save()}
+     */
+    void remove(GAV gav);
+
+    /**
+     * Changes performed via {@link #addProject(GAV)} , {@link #remove(GAV)} will only be reflected
+     * in the memory state of the index. In case the index is bound some persistence location (e.g.
+     * a file see {@link FileBasedTychoRepositoryIndex#createRepositoryIndex(java.io.File, String)})
+     * the method will store the current memory content to the persistence storage.
+     * 
+     * @throws IOException
+     */
+    void save() throws IOException;
 
 }

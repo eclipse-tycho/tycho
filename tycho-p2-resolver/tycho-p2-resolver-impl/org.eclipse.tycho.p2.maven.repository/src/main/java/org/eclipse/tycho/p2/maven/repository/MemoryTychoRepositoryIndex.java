@@ -10,19 +10,25 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
-public class MemoryTychoRepositoryIndex implements TychoRepositoryIndex {
-    private List<GAV> projectGAVs;
+public class MemoryTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
 
-    public MemoryTychoRepositoryIndex(List<GAV> projectGAVs) {
-        this.projectGAVs = projectGAVs;
+    public MemoryTychoRepositoryIndex(GAV... intitialContent) {
+        this(new HashSet<GAV>(Arrays.asList(intitialContent)));
     }
 
-    public List<GAV> getProjectGAVs() {
-        return projectGAVs;
+    public MemoryTychoRepositoryIndex(Set<GAV> intitialContent) {
+        super(intitialContent);
+    }
+
+    public void save() throws IOException {
+        // In memory only
     }
 }

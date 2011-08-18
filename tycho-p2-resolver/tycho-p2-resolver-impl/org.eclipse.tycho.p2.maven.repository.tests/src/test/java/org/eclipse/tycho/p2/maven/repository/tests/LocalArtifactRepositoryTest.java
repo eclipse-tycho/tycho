@@ -31,7 +31,9 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +59,29 @@ public class LocalArtifactRepositoryTest {
                 file.delete();
             }
         }
+    }
+
+    @Test
+    public void testOutdatedIndex() {
+        //create Repo with single artifact
+        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
+        repo.addDescriptor(desc);
+        repo.save();
+
+        // check: the artifact is in the index
+        TychoRepositoryIndex artifactIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(basedir,
+                FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+        Assert.assertFalse(artifactIndex.getProjectGAVs().isEmpty());
+
+        // delete artifact content from file system
+        deleteDir(new File(basedir, "p2"));
+
+        // create a new repo and check that the reference was gracefully removed from the index
+        repo = new LocalArtifactRepository(basedir);
+        artifactIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(basedir,
+                FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+        Assert.assertTrue(artifactIndex.getProjectGAVs().isEmpty());
     }
 
     @Test
@@ -100,7 +125,8 @@ public class LocalArtifactRepositoryTest {
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
 
         Assert.assertEquals(new File(basedir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo.getArtifactFile(desc));
+                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo
+                .getArtifactFile(desc));
     }
 
     @Test

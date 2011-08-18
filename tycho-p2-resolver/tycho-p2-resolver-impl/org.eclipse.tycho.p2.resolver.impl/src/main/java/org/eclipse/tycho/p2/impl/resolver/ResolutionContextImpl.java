@@ -70,8 +70,9 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
+import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolver;
 import org.eclipse.tycho.p2.target.TargetPlatformContent;
@@ -138,10 +139,10 @@ public class ResolutionContextImpl implements ResolutionContext {
 
         if (localRepository == null || localMetadataRepository == null) {
             RepositoryReader contentLocator = new LocalRepositoryReader(localMavenRepositoryRoot);
-            LocalTychoRepositoryIndex artifactsIndex = new LocalTychoRepositoryIndex(localMavenRepositoryRoot,
-                    LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
-            LocalTychoRepositoryIndex metadataIndex = new LocalTychoRepositoryIndex(localMavenRepositoryRoot,
-                    LocalTychoRepositoryIndex.METADATA_INDEX_RELPATH);
+            TychoRepositoryIndex artifactsIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(
+                    localMavenRepositoryRoot, FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+            TychoRepositoryIndex metadataIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(
+                    localMavenRepositoryRoot, FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
 
             localRepository = new LocalArtifactRepository(localMavenRepositoryRoot, artifactsIndex, contentLocator);
             localMetadataRepository = new LocalMetadataRepository(uri, metadataIndex, contentLocator);

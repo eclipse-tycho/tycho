@@ -12,7 +12,6 @@ package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.util.Collections;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -43,7 +42,7 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
     }
 
     private static TychoRepositoryIndex createSingletonIndex(final GAV moduleGAV) {
-        return new MemoryTychoRepositoryIndex(Collections.singletonList(moduleGAV));
+        return new MemoryTychoRepositoryIndex(moduleGAV);
     }
 
     @Override

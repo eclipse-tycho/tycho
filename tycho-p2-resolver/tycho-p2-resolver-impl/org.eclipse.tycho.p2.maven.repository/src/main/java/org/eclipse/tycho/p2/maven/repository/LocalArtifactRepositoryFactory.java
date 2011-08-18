@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
 
 public class LocalArtifactRepositoryFactory extends ArtifactRepositoryFactory {
@@ -36,7 +36,7 @@ public class LocalArtifactRepositoryFactory extends ArtifactRepositoryFactory {
         if ("file".equals(location.getScheme())) {
             final File localRepositoryDirectory = new File(location);
             if (localRepositoryDirectory.isDirectory()
-                    && new File(localRepositoryDirectory, LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH).exists()) {
+                    && new File(localRepositoryDirectory, FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH).exists()) {
                 return new LocalArtifactRepository(getAgent(), localRepositoryDirectory);
             }
         }

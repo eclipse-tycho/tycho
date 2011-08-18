@@ -29,9 +29,10 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.junit.Test;
 
 public class LocalMetadataRepositoryTest {
@@ -47,14 +48,14 @@ public class LocalMetadataRepositoryTest {
     }
 
     protected IMetadataRepository loadRepository(File location) throws ProvisionException {
-        return new LocalMetadataRepository(location.toURI(), new LocalTychoRepositoryIndex(location,
-                LocalTychoRepositoryIndex.METADATA_INDEX_RELPATH), new LocalRepositoryReader(location));
+        return new LocalMetadataRepository(location.toURI(), FileBasedTychoRepositoryIndex.createRepositoryIndex(
+                location, FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH), new LocalRepositoryReader(location));
     }
 
     protected LocalMetadataRepository createRepository(File location, String groupId, String artifactId, String version)
             throws ProvisionException {
         location.mkdirs();
-        File metadataFile = new File(location, LocalTychoRepositoryIndex.INDEX_RELPATH);
+        File metadataFile = new File(location, FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
         metadataFile.delete();
         metadataFile.getParentFile().mkdirs();
 
@@ -98,6 +99,49 @@ public class LocalMetadataRepositoryTest {
 
         Set<IInstallableUnit> ius = repository.getGAVs().get(RepositoryLayoutHelper.getGAV(iu.getProperties()));
         Assert.assertEquals(1, ius.size());
+    }
+
+    @Test
+    public void testOutdatedIndex() throws CoreException {
+        // create and fill repo
+        File location = new File("target/indexmetadataRepo");
+        LocalMetadataRepository repository = createRepository(location, "group", "artifact", "version");
+        InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+        iud.setId("test");
+        iud.setVersion(Version.parseVersion("1.0.0"));
+        iud.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, "group");
+        iud.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, "artifact");
+        iud.setProperty(RepositoryLayoutHelper.PROP_VERSION, "version");
+        IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
+        repository.addInstallableUnits(Arrays.asList(iu));
+        repository = (LocalMetadataRepository) loadRepository(location);
+
+        // check: the artifact is in the index
+        TychoRepositoryIndex metaIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(location,
+                FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
+        Assert.assertFalse(metaIndex.getProjectGAVs().isEmpty());
+
+        // delete artifact from file system
+        deleteDir(new File(location, "group"));
+
+        // create a new repo and check that the reference was gracefully removed from the index
+        repository = (LocalMetadataRepository) loadRepository(location);
+        metaIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(location,
+                FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
+        Assert.assertTrue(metaIndex.getProjectGAVs().isEmpty());
+
+    }
+
+    private void deleteDir(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDir(file);
+                }
+                file.delete();
+            }
+        }
     }
 
 }

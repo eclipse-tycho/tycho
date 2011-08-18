@@ -23,8 +23,10 @@ import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
+import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
 
 public class PomDependencyProcessor {
@@ -41,7 +43,7 @@ public class PomDependencyProcessor {
 
     void addPomDependenciesToResolutionContext(MavenProject project, Collection<Artifact> transitivePomDependencies,
             ResolutionContext resolutionContext) {
-        final LocalTychoRepositoryIndex p2ArtifactsInLocalRepo = loadIndexOfP2ArtifactsInLocalMavenRepo();
+        final TychoRepositoryIndex p2ArtifactsInLocalRepo = loadIndexOfP2ArtifactsInLocalMavenRepo();
 
         for (Artifact artifact : transitivePomDependencies) {
             P2DataArtifacts p2Data = new P2DataArtifacts(artifact);
@@ -67,8 +69,8 @@ public class PomDependencyProcessor {
                  * available in the build.
                  */
                 // TODO this should happen in resolution context
-                p2ArtifactsInLocalRepo.addProject(artifact.getGroupId(), artifact.getArtifactId(),
-                        artifact.getVersion());
+                p2ArtifactsInLocalRepo.addProject(new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact
+                        .getVersion()));
 
             } else if (!p2Data.p2MetadataXml.isAvailable() && !p2Data.p2ArtifactsXml.isAvailable()) {
                 /*
@@ -102,9 +104,10 @@ public class PomDependencyProcessor {
      * @see RepositoryReferenceTool#getVisibleRepositories(MavenProject, MavenSession, int)
      * @see org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository
      */
-    private LocalTychoRepositoryIndex loadIndexOfP2ArtifactsInLocalMavenRepo() {
+    private TychoRepositoryIndex loadIndexOfP2ArtifactsInLocalMavenRepo() {
         File localMavenRepository = new File(session.getLocalRepository().getBasedir());
-        return new LocalTychoRepositoryIndex(localMavenRepository, LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+        return FileBasedTychoRepositoryIndex.createRepositoryIndex(localMavenRepository,
+                FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
     }
 
     private void failDueToPartialP2Data(Artifact artifact, P2DataArtifacts p2Data) {

@@ -84,15 +84,24 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
         for (final GAV gav : projectIndex.getProjectGAVs()) {
             try {
-                final InputStream is = contentLocator.getContents(gav, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                        RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
-                try {
-                    final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
-                    for (IArtifactDescriptor descriptor : gavDescriptors) {
-                        internalAddDescriptor(descriptor);
+                File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
+                        RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+                if (!localArtifactFileLocation.exists()) {
+                    // if files have been manually removed from the repository, simply adjust the meta info file (bug 351080)
+                    projectIndex.remove(gav);
+                    projectIndex.save();
+                } else {
+                    final InputStream is = contentLocator.getContents(gav,
+                            RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
+                            RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+                    try {
+                        final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
+                        for (IArtifactDescriptor descriptor : gavDescriptors) {
+                            internalAddDescriptor(descriptor);
+                        }
+                    } finally {
+                        is.close();
                     }
-                } finally {
-                    is.close();
                 }
             } catch (IOException e) {
                 // TODO throw properly typed exception if repository cannot be loaded

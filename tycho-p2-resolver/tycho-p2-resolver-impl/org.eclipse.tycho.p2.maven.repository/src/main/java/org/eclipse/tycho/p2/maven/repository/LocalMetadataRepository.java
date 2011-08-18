@@ -20,7 +20,7 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -76,9 +76,8 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
     public void save() {
         File basedir = new File(getLocation());
 
-        // XXX lock
-        LocalTychoRepositoryIndex index = new LocalTychoRepositoryIndex(basedir,
-                LocalTychoRepositoryIndex.METADATA_INDEX_RELPATH);
+        TychoRepositoryIndex index = FileBasedTychoRepositoryIndex.createRepositoryIndex(basedir,
+                FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
 
         MetadataIO io = new MetadataIO();
 

@@ -12,7 +12,6 @@ package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.p2.repository.AbstractRepositoryReader;
@@ -33,7 +32,7 @@ public class ModuleMetadataRepository extends AbstractMavenMetadataRepository {
     }
 
     private static TychoRepositoryIndex createDummyIndex() {
-        return new MemoryTychoRepositoryIndex(Collections.<GAV> singletonList(null));
+        return new MemoryTychoRepositoryIndex(new GAV("g", "a", "v"));
     }
 
     private static class ModuleMetadataReader extends AbstractRepositoryReader {

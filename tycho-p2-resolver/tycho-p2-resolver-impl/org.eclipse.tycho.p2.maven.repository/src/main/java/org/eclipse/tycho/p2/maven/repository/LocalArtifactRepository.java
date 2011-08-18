@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.LocalTychoRepositoryIndex;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -41,8 +41,8 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
     }
 
     public LocalArtifactRepository(IProvisioningAgent agent, File location) {
-        super(agent, location.toURI(), new LocalTychoRepositoryIndex(location,
-                LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH), new LocalRepositoryReader(location));
+        super(agent, location.toURI(), FileBasedTychoRepositoryIndex.createRepositoryIndex(location,
+                FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH), new LocalRepositoryReader(location));
     }
 
     public LocalArtifactRepository(File location, TychoRepositoryIndex projectIndex, RepositoryReader contentLocator) {
@@ -52,8 +52,8 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
     private void saveMaven() {
         File location = getBasedir();
 
-        LocalTychoRepositoryIndex index = new LocalTychoRepositoryIndex(location,
-                LocalTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+        TychoRepositoryIndex index = FileBasedTychoRepositoryIndex.createRepositoryIndex(location,
+                FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
 
         ArtifactsIO io = new ArtifactsIO();
 
