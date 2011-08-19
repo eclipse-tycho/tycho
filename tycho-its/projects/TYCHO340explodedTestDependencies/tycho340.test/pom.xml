@@ -17,7 +17,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>org.eclipse.tycho.tychoits.tycho340.test</artifactId>
+  <artifactId>org.codehaus.tycho.tychoits.tycho0340.test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
 
   <build>

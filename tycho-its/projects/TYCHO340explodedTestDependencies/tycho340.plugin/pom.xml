@@ -17,7 +17,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>org.eclipse.tycho.tychoits.tycho340.plugin</artifactId>
+  <artifactId>org.codehaus.tycho.tychoits.tycho0340.plugin</artifactId>
   <packaging>eclipse-plugin</packaging>
 
 </project>

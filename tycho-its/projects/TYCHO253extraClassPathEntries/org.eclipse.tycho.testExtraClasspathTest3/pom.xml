@@ -12,7 +12,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.eclipse.tycho.TYCHO253extraClassPathEntries</groupId>
-  <artifactId>TYCHO253extraClassPathEntries.testExtraClasspathTest3</artifactId>
+  <artifactId>org.sonatype.tycho.testExtraClasspathTest3</artifactId>
   <packaging>eclipse-plugin</packaging>
   <version>1.0.0-SNAPSHOT</version>
 

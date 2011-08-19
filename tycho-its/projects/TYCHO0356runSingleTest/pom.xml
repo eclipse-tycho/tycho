@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>TYCHO0356runSingleTest</groupId>
-  <artifactId>bundle.test</artifactId>
+  <artifactId>TYCHO0356runSingleTest</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <packaging>eclipse-test-plugin</packaging>

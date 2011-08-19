@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>toolchains</groupId>
-  <artifactId>test</artifactId>
+  <artifactId>toolchains</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <packaging>eclipse-test-plugin</packaging>

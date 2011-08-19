@@ -6,6 +6,6 @@
     <artifactId>parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>feature</artifactId>
+  <artifactId>tycho309.feature</artifactId>
   <packaging>eclipse-feature</packaging>
 </project>

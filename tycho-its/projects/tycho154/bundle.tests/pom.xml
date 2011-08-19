@@ -6,6 +6,6 @@
     <artifactId>parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>bundle.test</artifactId>
+  <artifactId>bundle.tests</artifactId>
   <packaging>eclipse-test-plugin</packaging>
 </project>

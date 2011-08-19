@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>TYCHO351testSystemProperties</groupId>
-  <artifactId>test</artifactId>
+  <artifactId>TYCHO351testSystemProperties</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <packaging>eclipse-test-plugin</packaging>

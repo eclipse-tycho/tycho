@@ -10,7 +10,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>TYCHO319passwordProtectedP2Repository</groupId>
-  <artifactId>bundle</artifactId>
+  <artifactId>TYCHO319passwordProtectedP2Repository.bundle</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 

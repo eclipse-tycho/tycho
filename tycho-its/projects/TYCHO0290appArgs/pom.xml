@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>TYCHO0290appArgs</groupId>
-  <artifactId>test</artifactId>
+  <artifactId>TYCHO0290appArgs</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <packaging>eclipse-test-plugin</packaging>
