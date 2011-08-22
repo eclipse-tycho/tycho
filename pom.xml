@@ -315,7 +315,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>2.4</version>
+					<version>2.4.3</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -341,20 +341,22 @@
 		<developerConnection>scm:git:git@github.com:sonatype/sonatype-tycho.git</developerConnection>
 	</scm>
 
-	<repositories>
-		<repository>
-			<id>sonatype-release</id>
-			<url>http://repository.sonatype.org/content/groups/sonatype-public-grid</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-	</repositories>
+<!-- 	<repositories> -->
+<!-- 		<repository> -->
+<!-- 			<id>sonatype-release</id> -->
+<!-- 			<url>http://repository.sonatype.org/content/groups/sonatype-public-grid</url> -->
+<!-- 			<snapshots> -->
+<!-- 				<enabled>true</enabled> -->
+<!-- 			</snapshots> -->
+<!-- 			<releases> -->
+<!-- 				<enabled>true</enabled> -->
+<!-- 			</releases> -->
+<!-- 		</repository> -->
+<!-- 	</repositories> -->
 
 	<modules>
+		<module>tycho-p2-resolver</module>
+
 		<module>tycho-equinox-api</module>
 		<module>tycho-equinox</module>
 		<module>tycho-metadata-model</module>
