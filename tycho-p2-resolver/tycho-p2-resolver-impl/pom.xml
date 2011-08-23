@@ -40,12 +40,4 @@
 		<module>tycho-p2-runtime</module>
 	</modules>
 
-	<repositories>
-		<repository>
-			<id>eclipse</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/indigo</url>
-		</repository>
-	</repositories>
-
 </project>

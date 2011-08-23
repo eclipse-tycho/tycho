@@ -28,6 +28,8 @@
 	<name>Tycho OSGi Bundles Parent (Incubation)</name>
 
 	<modules>
+		<module>tycho-bundles-target</module>
+
 		<module>org.eclipse.tycho.p2.resolver.facade</module>
 		<module>org.eclipse.tycho.p2.tools.facade</module>
 
@@ -52,6 +54,14 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<resolver>p2</resolver>
+					<target>
+						<artifact>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>tycho-bundles-target</artifactId>
+							<version>${project.version}</version>
+							<classifier>build</classifier>
+						</artifact>
+					</target>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -65,28 +75,5 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>m2e</id>
-			<activation>
-				<property>
-					<name>m2e.version</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.maven.ide.eclipse</groupId>
-						<artifactId>lifecycle-mapping</artifactId>
-						<version>0.10.0</version>
-						<configuration>
-							<mappingId>org.sonatype.tycho.m2e.tychoLifecycleMapping</mappingId>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 </project>
