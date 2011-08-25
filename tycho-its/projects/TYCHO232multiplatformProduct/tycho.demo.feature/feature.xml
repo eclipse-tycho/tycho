@@ -69,9 +69,10 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.swt.carbon.macosx"
+         id="org.eclipse.swt.cocoa.macosx.x86_64"
          os="macosx"
-         ws="carbon"
+         ws="cocoa"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"

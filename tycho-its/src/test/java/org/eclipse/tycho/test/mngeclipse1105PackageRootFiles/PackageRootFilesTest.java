@@ -20,9 +20,10 @@ public class PackageRootFilesTest extends AbstractTychoIntegrationTest {
     protected Verifier getVerifier(String test) throws Exception {
         Verifier verifier = super.getVerifier(test);
 
+        // lock build environment to something specific
         verifier.getSystemProperties().setProperty("osgi.os", "macosx");
-        verifier.getSystemProperties().setProperty("osgi.ws", "carbon");
-        verifier.getSystemProperties().setProperty("osgi.arch", "x86");
+        verifier.getSystemProperties().setProperty("osgi.ws", "cocoa");
+        verifier.getSystemProperties().setProperty("osgi.arch", "x86_64");
 
         return verifier;
     }

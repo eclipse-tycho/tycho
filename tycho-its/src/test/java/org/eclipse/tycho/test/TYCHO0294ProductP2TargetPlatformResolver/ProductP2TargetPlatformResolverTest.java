@@ -29,7 +29,8 @@ public class ProductP2TargetPlatformResolverTest extends AbstractTychoIntegratio
 
         assertDirectoryExists(target,
                 "linux.gtk.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_*");
-        assertDirectoryExists(target, "macosx.carbon.x86/eclipse/plugins/org.eclipse.equinox.launcher.carbon.macosx_*");
+        assertDirectoryExists(target,
+                "macosx.cocoa.x86_64/eclipse/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64_*");
         assertDirectoryExists(target, "win32.win32.x86/eclipse/plugins/org.eclipse.equinox.launcher.win32.win32.x86_*");
     }
 

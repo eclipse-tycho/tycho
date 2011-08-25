@@ -19,7 +19,7 @@
 
    <launcherArgs>
       <vmArgsLin>-Xmx1500m</vmArgsLin>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Xmx1500m</vmArgsMac>
+      <vmArgsMac>-XstartOnFirstThread -Xmx1500m</vmArgsMac>
       <vmArgsWin>-Xmx640m -Dsun.java2d.noddraw=true</vmArgsWin>
    </launcherArgs>
 
@@ -58,7 +58,7 @@
       <plugin id="org.eclipse.jface.databinding"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.swt"/>
-      <plugin id="org.eclipse.swt.carbon.macosx" fragment="true"/>
+      <plugin id="org.eclipse.swt.cocoa.macosx.x86_64" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.ppc" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.x86" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
@@ -69,7 +69,7 @@
       <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.swt.wpf.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.ui"/>
-      <plugin id="org.eclipse.ui.carbon" fragment="true"/>
+      <plugin id="org.eclipse.ui.cocoa" fragment="true"/>
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.junit"/>
       <plugin id="tycho.demo" fragment=""/>

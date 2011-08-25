@@ -28,7 +28,7 @@ public class MultiplatformProductTest extends AbstractTychoIntegrationTest {
 
         // assert expanded product folders have proper swt fragments
         assertFileExists(targetdir, "linux.gtk.x86_64/eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64_*.jar");
-        assertFileExists(targetdir, "macosx.carbon.x86/eclipse/plugins/org.eclipse.swt.carbon.macosx_*.jar");
+        assertFileExists(targetdir, "macosx.cocoa.x86_64/eclipse/plugins/org.eclipse.swt.cocoa.macosx.x86_64_*.jar");
         assertFileExists(targetdir, "win32.win32.x86/eclipse/plugins/org.eclipse.swt.win32.win32.x86_*.jar");
 
         // assert native launchers
@@ -39,7 +39,7 @@ public class MultiplatformProductTest extends AbstractTychoIntegrationTest {
 
         // assert product zip was created for each target environment
         Assert.assertTrue(new File(targetdir, "tycho.demo.rcp-1.0.0-linux.gtk.x86_64.zip").canRead());
-        Assert.assertTrue(new File(targetdir, "tycho.demo.rcp-1.0.0-macosx.carbon.x86.zip").canRead());
+        Assert.assertTrue(new File(targetdir, "tycho.demo.rcp-1.0.0-macosx.cocoa.x86_64.zip").canRead());
         Assert.assertTrue(new File(targetdir, "tycho.demo.rcp-1.0.0-win32.win32.x86.zip").canRead());
     }
 
