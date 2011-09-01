@@ -109,9 +109,9 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                 return loadManifestFile(m);
             }
         } catch (IOException e) {
-            getLogger().warn("Exception reading bundle manifest", e);
+            getLogger().warn("Exception reading bundle manifest of " + bundleLocation, e);
         } catch (PluginConversionException e) {
-            getLogger().warn("Exception reading bundle manifest: " + e.getMessage());
+            getLogger().warn("Exception reading bundle manifest of " + bundleLocation, e);
         }
 
         // not a bundle
