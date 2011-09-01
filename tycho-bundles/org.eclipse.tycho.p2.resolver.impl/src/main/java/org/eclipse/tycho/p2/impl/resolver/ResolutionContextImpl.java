@@ -68,9 +68,9 @@ import org.eclipse.tycho.p2.maven.repository.MavenMirrorRequest;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
+import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
@@ -439,6 +439,18 @@ public class ResolutionContextImpl implements ResolutionContext {
         sub.done();
         // this is a real shame
         return new QueryableArray(result.toArray(new IInstallableUnit[result.size()]));
+    }
+
+    public void warnAboutLocalIus(Collection<IInstallableUnit> ius) {
+        final Set<IInstallableUnit> locallyResolvedIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null)
+                .toSet();
+        locallyResolvedIUs.retainAll(ius);
+        if (!locallyResolvedIUs.isEmpty()) {
+            logger.warn("The following locally built units have been used to resolve project dependencies:");
+        }
+        for (IInstallableUnit localIu : locallyResolvedIUs) {
+            logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
+        }
     }
 
     private static boolean isPartialIU(IInstallableUnit iu) {

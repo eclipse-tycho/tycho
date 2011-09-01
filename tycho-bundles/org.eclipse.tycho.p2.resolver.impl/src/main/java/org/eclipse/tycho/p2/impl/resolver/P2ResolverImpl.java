@@ -100,6 +100,7 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setAdditionalRequirements(additionalRequirements);
 
         Collection<IInstallableUnit> newState = strategy.resolve(monitor);
+        context.warnAboutLocalIus(newState);
 
         context.downloadArtifacts(newState);
 
