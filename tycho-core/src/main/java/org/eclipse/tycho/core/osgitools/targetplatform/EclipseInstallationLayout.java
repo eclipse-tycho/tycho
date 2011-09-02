@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.osgitools.targetplatform;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -46,6 +47,16 @@ import copy.org.eclipse.core.runtime.internal.adaptor.PluginConverterImpl;
 @Component(role = EclipseInstallationLayout.class, instantiationStrategy = "per-lookup")
 public class EclipseInstallationLayout extends AbstractLogEnabled {
 
+    private static final class FEATURE_FILTER implements FileFilter {
+        public boolean accept(File pathname) {
+            if (pathname.getName().startsWith(".")) {
+                // filter out all dot files (like .svn or .DS_Store).
+                return false;
+            }
+            return pathname.isDirectory() || pathname.getName().endsWith(".jar");
+        }
+    }
+
     public static final String PLUGINS = "plugins";
     public static final String FEATURES = "features";
 
@@ -63,10 +74,9 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
 
     public Set<File> getFeatures(File site) {
         Set<File> result = new LinkedHashSet<File>();
-
-        File[] plugins = new File(site, FEATURES).listFiles();
-        if (plugins != null) {
-            result.addAll(Arrays.asList(plugins));
+        File[] features = new File(site, FEATURES).listFiles(new FEATURE_FILTER());
+        if (features != null) {
+            result.addAll(Arrays.asList(features));
         }
 
         return result;
