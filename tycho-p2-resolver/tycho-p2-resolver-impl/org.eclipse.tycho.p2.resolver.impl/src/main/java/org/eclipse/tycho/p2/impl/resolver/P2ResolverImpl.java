@@ -209,7 +209,12 @@ public class P2ResolverImpl implements P2Resolver {
         } else if (P2Resolver.TYPE_ECLIPSE_PLUGIN.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, id,
                     new VersionRange(versionRange), null, false, true));
+        } else if (P2Resolver.TYPE_ECLIPSE_FEATURE.equals(type)) {
+            additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id
+                    + ".feature.group", new VersionRange(versionRange), null, false, true));
+            // TODO make ".feature.group" a constant in FeaturesAction
         }
+        // TODO else throw an exception
     }
 
     public List<IRequirement> getAdditionalRequirements() {
