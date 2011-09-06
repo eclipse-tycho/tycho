@@ -16,7 +16,7 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-p2-resolver-impl</artifactId>
+		<artifactId>tycho-bundles</artifactId>
 		<version>0.13.0-SNAPSHOT</version>
 	</parent>
 
@@ -41,9 +41,9 @@
 	<!--
 		Steps I use to update tycho-p2-runtime to use different p2 version
 
-		1. Run "mvn clean install" in tycho-p2-resolver folder. This is necessary to populate local repo with information
+		1. Run "mvn clean install" in tycho-bundles folder. This is necessary to populate local repo with information
 		   about org.eclipse.tycho.noopsecurity bundle
-		2. If necessary, change p2 repository url in tycho-p2-resolver/pom.xml
+		2. If necessary, change p2 repository url in tycho-bundles/pom.xml
 		3. In this folder, run mvn -Dtycho.mode=maven -Dtycho-version=0.11.0-SNAPSHOT org.sonatype.tycho.extras:tycho-version-bump-plugin:0.11.0-SNAPSHOT:update-product
 		4. Edit tycho-p2-runtime.product and remove version lock on org.eclipse.tycho.noopsecurity bundle
 

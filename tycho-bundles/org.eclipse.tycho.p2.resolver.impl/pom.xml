@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2010, 2011 SAP AG and others.
+ - Copyright (c) 2008, 2011 Sonatype Inc. and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
  - http://www.eclipse.org/legal/epl-v10.html
  -
  - Contributors:
- -    SAP AG - initial API and implementation
+ -    Sonatype Inc. - initial API and implementation
  -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -16,14 +16,13 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-p2-resolver-impl</artifactId>
+		<artifactId>tycho-bundles</artifactId>
 		<version>0.13.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
+	<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho p2 Tools Bundle (Incubation)</name>
-	<description>Implementation of tools for generating, copying, and using p2 repositories in Tycho</description>
+	<name>Tycho p2 Resolver Bundle (Incubation)</name>
 
 </project>

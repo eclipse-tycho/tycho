@@ -355,7 +355,7 @@
 <!-- 	</repositories> -->
 
 	<modules>
-		<module>tycho-p2-resolver</module>
+		<module>tycho-bundles</module>
 
 		<module>tycho-equinox-api</module>
 		<module>tycho-equinox</module>

@@ -16,28 +16,13 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-p2-resolver</artifactId>
+		<artifactId>tycho-bundles</artifactId>
 		<version>0.13.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>tycho-p2-resolver-impl</artifactId>
-	<packaging>pom</packaging>
+	<artifactId>org.eclipse.tycho.p2.resolver.facade</artifactId>
+	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho p2 Resolver Implementation Bundles Parent (Incubation)</name>
-
-	<modules>
-		<module>org.eclipse.tycho.p2.resolver.impl</module>
-		<module>org.eclipse.tycho.p2.maven.repository</module>
-		<module>org.eclipse.tycho.p2.tools.impl</module>
-		<module>org.eclipse.tycho.noopsecurity</module>
-
-		<!-- unit tests -->
-		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
-		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
-		<module>org.eclipse.tycho.p2.tools.tests</module>
-
-		<!-- OSGi runtime for Tycho -->
-		<module>tycho-p2-runtime</module>
-	</modules>
+	<name>Tycho p2 Resolver Maven/OSGi Facade (Incubation)</name>
 
 </project>

@@ -16,13 +16,13 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-p2-resolver</artifactId>
+		<artifactId>tycho-bundles</artifactId>
 		<version>0.13.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>org.eclipse.tycho.p2.resolver.facade</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	<artifactId>org.eclipse.tycho.p2.resolver.impl.test</artifactId>
+	<packaging>eclipse-test-plugin</packaging>
 
-	<name>Tycho p2 Resolver Maven/OSGi Facade (Incubation)</name>
+	<name>Tycho p2 Resolver Bundle Tests (Incubation)</name>
 
 </project>
