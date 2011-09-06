@@ -76,12 +76,14 @@ public class ResolutionContextLocalRepositoryTest {
         context.warnAboutLocalIus(Collections.singleton(localIu));
         assertEquals(Arrays.asList("The following locally built units have been used to resolve project dependencies:",
                 "  bundle/1.0.0"), logger.getWarnings());
+        assertDebugOutputIsPresent();
     }
 
     @Test
     public void testDontWarnAboutOtherIu() {
         context.warnAboutLocalIus(Collections.singleton(InstallableUnitUtil.createIU("bundle", "1.0.1")));
         assertTrue(logger.getWarnings().isEmpty());
+        assertDebugOutputIsPresent();
     }
 
     @Test
@@ -89,5 +91,11 @@ public class ResolutionContextLocalRepositoryTest {
         final Collection<IInstallableUnit> noIus = Collections.emptySet();
         context.warnAboutLocalIus(noIus);
         assertTrue(logger.getWarnings().isEmpty());
+        assertDebugOutputIsPresent();
+    }
+
+    private void assertDebugOutputIsPresent() {
+        assertEquals(Arrays.asList("The following installable units are available from the local repository:",
+                "  bundle/1.0.0"), logger.getDebugs());
     }
 }

@@ -441,14 +441,19 @@ public class ResolutionContextImpl implements ResolutionContext {
         return new QueryableArray(result.toArray(new IInstallableUnit[result.size()]));
     }
 
-    public void warnAboutLocalIus(Collection<IInstallableUnit> ius) {
-        final Set<IInstallableUnit> locallyResolvedIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null)
-                .toSet();
-        locallyResolvedIUs.retainAll(ius);
-        if (!locallyResolvedIUs.isEmpty()) {
+    public void warnAboutLocalIus(Collection<IInstallableUnit> usedIus) {
+        final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
+        if (logger.isDebugEnabled()) {
+            logger.debug("The following units are part of the target platform because they have been installed to the local repository:");
+            for (IInstallableUnit unit : localIUs) {
+                logger.debug("  " + unit.getId() + "/" + unit.getVersion());
+            }
+        }
+        localIUs.retainAll(usedIus);
+        if (!localIUs.isEmpty()) {
             logger.warn("The following locally built units have been used to resolve project dependencies:");
         }
-        for (IInstallableUnit localIu : locallyResolvedIUs) {
+        for (IInstallableUnit localIu : localIUs) {
             logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
         }
     }

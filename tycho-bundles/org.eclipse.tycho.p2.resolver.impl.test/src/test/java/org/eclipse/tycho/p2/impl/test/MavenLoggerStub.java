@@ -20,6 +20,7 @@ public class MavenLoggerStub implements MavenLogger {
 
     private final boolean failOnWarning;
     private final List<String> warnings = new ArrayList<String>();
+    private final List<String> debugs = new ArrayList<String>();
 
     public MavenLoggerStub() {
         this(false);
@@ -43,10 +44,15 @@ public class MavenLoggerStub implements MavenLogger {
         return warnings;
     }
 
+    public final List<String> getDebugs() {
+        return debugs;
+    }
+
     public void info(String message) {
     }
 
     public void debug(String message) {
+        debugs.add(message);
     }
 
     public boolean isExtendedDebugEnabled() {
