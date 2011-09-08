@@ -333,8 +333,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                     throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget()
                             + ": " + e.getMessage(), e);
                 } catch (TargetDefinitionResolutionException e) {
-                    throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget()
-                            + ": " + e.getMessage(), e);
+                    throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget(), e);
                 }
             }
         }

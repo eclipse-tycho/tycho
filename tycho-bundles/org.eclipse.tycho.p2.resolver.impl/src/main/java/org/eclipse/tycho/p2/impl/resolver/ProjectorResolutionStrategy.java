@@ -54,6 +54,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
         this.logger = logger;
     }
 
+    // TODO share code with TargetDefionitionResolver
     public Collection<IInstallableUnit> resolve(IProgressMonitor monitor) {
         Map<String, String> newSelectionContext = SimplePlanner.createSelectionContext(properties);
 
@@ -96,7 +97,11 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
             Set<Explanation> explanation = projector.getExplanation(monitor);
 
             logger.info(newSelectionContext.toString());
-            logger.info(explanation.toString());
+            logger.error("Cannot resolve project dependencies:");
+            for (Explanation explanationLine : explanation) {
+                logger.error("  " + explanationLine.toString());
+            }
+            logger.error("");
 
             throw new RuntimeException(StatusTool.collectProblems(s), s.getException());
         }

@@ -227,8 +227,13 @@ public class TargetDefinitionResolver {
             IStatus s = projector.invokeSolver(monitor);
 
             if (s.getSeverity() == IStatus.ERROR) {
-                // TODO print the explanation in multiple lines (to fix bug 343968)
                 Set<Explanation> explanation = projector.getExplanation(monitor);
+                logger.error("Cannot resolve target definition file:");
+                // explanation is sorted reasonably
+                for (Explanation explanationLine : explanation) {
+                    logger.error("  " + explanationLine.toString());
+                }
+                logger.error("");
                 throw new TargetDefinitionResolutionException(explanation.toString());
             }
             Collection<IInstallableUnit> resolvedUnits = projector.extractSolution();
