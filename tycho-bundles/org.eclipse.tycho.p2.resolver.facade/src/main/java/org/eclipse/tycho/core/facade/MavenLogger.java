@@ -16,6 +16,8 @@ package org.eclipse.tycho.core.facade;
  */
 public interface MavenLogger {
 
+    public void error(String message);
+
     public void warn(String message);
 
     public void warn(String message, Throwable cause);

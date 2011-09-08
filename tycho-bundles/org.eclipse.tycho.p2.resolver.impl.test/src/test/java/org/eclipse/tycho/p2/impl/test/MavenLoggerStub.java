@@ -30,13 +30,17 @@ public class MavenLoggerStub implements MavenLogger {
         this.failOnWarning = failOnWarning;
     }
 
+    public void error(String message) {
+        throw new RuntimeException("Error logged: " + message);
+    }
+
     public void warn(String message) {
         warn(message, null);
     }
 
     public void warn(String message, Throwable cause) {
         if (failOnWarning)
-            throw new RuntimeException("Unexpected warning: " + message, cause);
+            throw new RuntimeException("Unexpected warning logged: " + message, cause);
         warnings.add(message);
     }
 

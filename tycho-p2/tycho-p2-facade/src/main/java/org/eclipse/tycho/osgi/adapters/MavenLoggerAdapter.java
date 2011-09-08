@@ -45,6 +45,10 @@ public class MavenLoggerAdapter implements MavenLogger {
         }
     }
 
+    public void error(String message) {
+        logger.error(message);
+    }
+
     public boolean isDebugEnabled() {
         return logger.isDebugEnabled();
     }

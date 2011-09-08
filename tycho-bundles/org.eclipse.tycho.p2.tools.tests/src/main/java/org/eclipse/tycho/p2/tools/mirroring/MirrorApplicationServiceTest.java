@@ -155,6 +155,10 @@ public class MirrorApplicationServiceTest {
     static class MemoryLog implements MavenLogger {
         List<String> warnings = new ArrayList<String>();
 
+        public void error(String message) {
+            throw new RuntimeException(message);
+        }
+
         public void warn(String message) {
             warnings.add(message);
         }
