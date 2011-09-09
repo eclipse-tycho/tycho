@@ -25,5 +25,4 @@ public interface EquinoxEmbedder {
      */
     public <T> T getService(Class<T> clazz, String filter);
 
-    public void setNonFrameworkArgs(String[] strings);
 }

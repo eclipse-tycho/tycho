@@ -11,6 +11,8 @@
 package org.eclipse.tycho.equinox.embedder;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import java.util.Map;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.tycho.equinox.EquinoxRuntimeLocator;
 import org.osgi.framework.Bundle;
@@ -28,7 +31,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 @Component(role = EquinoxEmbedder.class)
-public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements EquinoxEmbedder {
+public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements EquinoxEmbedder, Disposable {
     @Requirement(role = EquinoxLifecycleListener.class)
     private Map<String, EquinoxLifecycleListener> lifecycleListeners;
 
@@ -37,7 +40,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
 
     private BundleContext frameworkContext;
 
-    private String[] nonFrameworkArgs;
+    private File secureStorage;
 
     public synchronized void start() throws Exception {
         if (frameworkContext != null) {
@@ -115,7 +118,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
 
         EclipseStarter.setInitialProperties(properties);
 
-        EclipseStarter.startup(nonFrameworkArgs != null ? nonFrameworkArgs : new String[0], null);
+        EclipseStarter.startup(getNonFrameworkArgs(), null);
 
         frameworkContext = EclipseStarter.getSystemBundleContext();
 
@@ -180,6 +183,26 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         return "reference:" + "file:" + file.getAbsoluteFile().toURI().normalize().getPath();
     }
 
+    private String[] getNonFrameworkArgs() {
+        try {
+            secureStorage = File.createTempFile("tycho", "secure_storage");
+            secureStorage.deleteOnExit();
+        } catch (IOException e) {
+            throw new EquinoxEmbedderException("Could not create Tycho secure store file", e);
+        }
+
+        List<String> nonFrameworkArgs = new ArrayList<String>();
+        nonFrameworkArgs.add("-eclipse.keyring");
+        nonFrameworkArgs.add(secureStorage.getAbsolutePath());
+        // TODO nonFrameworkArgs.add("-eclipse.password");
+        // nonFrameworkArgs.add("");
+        if (getLogger().isDebugEnabled()) {
+            nonFrameworkArgs.add("-debug");
+            nonFrameworkArgs.add("-consoleLog");
+        }
+        return nonFrameworkArgs.toArray(new String[0]);
+    }
+
     public <T> T getService(Class<T> clazz) {
         return getService(clazz, null);
     }
@@ -211,10 +234,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         return clazz.cast(frameworkContext.getService(serviceReferences[0]));
     }
 
-    public void setNonFrameworkArgs(String[] args) {
-        if (frameworkContext != null) {
-            throw new IllegalStateException("Cannot set non-framework arguments after the framework was started");
-        }
-        nonFrameworkArgs = args;
+    public void dispose() {
+        secureStorage.delete();
     }
 }
