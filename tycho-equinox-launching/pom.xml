@@ -17,7 +17,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>0.13.0-SNAPSHOT</version>
+		<version>0.14.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>tycho-equinox-launching</artifactId>
 
