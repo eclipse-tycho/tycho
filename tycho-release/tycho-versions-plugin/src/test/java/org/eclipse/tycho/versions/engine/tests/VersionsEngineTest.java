@@ -239,6 +239,18 @@ public class VersionsEngineTest extends PlexusTestCase {
         assertBundleManifest(new File(basedir, "bundle"));
     }
 
+    public void testWrongSnapshotVersion() throws Exception {
+        try {
+            VersionsEngine.assertIsOsgiVersion("1.2.3_SNAPSHOT");
+            fail("invalid version accepted");
+        } catch (NumberFormatException e) {
+        }
+    }
+
+    public void testAssertOsgiVersion() {
+        VersionsEngine.assertIsOsgiVersion("1.2.3.qualifier");
+    }
+
     private void assertPom(File basedir) throws IOException {
         assertFileContent(new File(basedir, "pom.xml"));
     }

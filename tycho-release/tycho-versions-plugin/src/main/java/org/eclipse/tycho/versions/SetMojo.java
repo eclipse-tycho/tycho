@@ -59,7 +59,11 @@ public class SetMojo extends AbstractMojo {
         if (newVersion == null || newVersion.length() == 0) {
             throw new MojoExecutionException("Missing required parameter newVersion");
         }
-
+        try {
+            VersionsEngine.assertIsOsgiVersion(VersionsEngine.toCanonicalVersion(newVersion));
+        } catch (RuntimeException e) {
+            throw new MojoExecutionException("Invalid version: " + newVersion, e);
+        }
         try {
             engine.addBasedir(session.getCurrentProject().getBasedir());
 

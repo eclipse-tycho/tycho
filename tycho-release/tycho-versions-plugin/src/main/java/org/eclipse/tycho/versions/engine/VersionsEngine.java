@@ -24,6 +24,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 import org.eclipse.tycho.versions.pom.Profile;
+import org.osgi.framework.Version;
 
 @Component(role = VersionsEngine.class, instantiationStrategy = "per-lookup")
 public class VersionsEngine {
@@ -148,6 +149,11 @@ public class VersionsEngine {
         }
 
         return version;
+    }
+
+    public static void assertIsOsgiVersion(String version) throws NumberFormatException, IllegalArgumentException,
+            NullPointerException {
+        new Version(version);
     }
 
     public static String toMavenVersion(String version) {
