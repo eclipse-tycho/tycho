@@ -12,6 +12,7 @@ package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,10 +49,16 @@ class ProductConfig {
              * is currently a limitation of this Maven plug-in - it can only be added to an
              * eclipse-repository module (which calls the tycho-p2-publisher-plugin).
              */
-            File[] productIDs = baseDir.listFiles();
-            products = new ArrayList<Product>(productIDs.length);
-            for (File file : productIDs) {
-                products.add(new Product(file.getName()));
+            if (baseDir.exists()) {
+                File[] productIDs = baseDir.listFiles();
+                products = new ArrayList<Product>(productIDs.length);
+                for (File file : productIDs) {
+                    products.add(new Product(file.getName()));
+                }
+            } else {
+                // the product publisher did not create the basedir. So there was no project definition file. Nothing to do.
+                // https://bugs.eclipse.org/bugs/show_bug.cgi?id=356716
+                products = Collections.emptyList();
             }
         }
     }

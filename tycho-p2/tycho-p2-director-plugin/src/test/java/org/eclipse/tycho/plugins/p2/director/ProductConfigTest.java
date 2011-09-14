@@ -118,6 +118,13 @@ public class ProductConfigTest {
         assertEquals(false, subject.uniqueAttachIds());
     }
 
+    @Test
+    public void testNotExistingProductsDir() throws Exception {
+        // https://bugs.eclipse.org/bugs/show_bug.cgi?id=356716
+        subject = new ProductConfig(null, new File(tempDir, "aNotExstistingFolder"));
+        assertTrue(subject.getProducts().isEmpty());
+    }
+
     private File createTempDir(String prefix) throws IOException {
         File directory = File.createTempFile(prefix, "");
         if (directory.delete()) {

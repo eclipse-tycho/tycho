@@ -86,7 +86,13 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
             qualifyVersions(productConfiguration, qualifier);
 
-            File buildProductDir = new File(targetDir, "products/" + productConfiguration.getId());
+            final String productId = productConfiguration.getId();
+            if (productId == null) {
+                throw new MojoExecutionException("The product file " + product.productFile.getName()
+                        + " does not contain the mandatory attribute 'uid'");
+            }
+
+            File buildProductDir = new File(targetDir, "products/" + productId);
             buildProductDir.mkdirs();
             final Product buildProduct = new Product(new File(buildProductDir, product.getProductFile().getName()),
                     new File(buildProductDir, "p2.inf"));

@@ -42,7 +42,11 @@ public final class DirectorMojo extends AbstractProductMojo {
     private RepositoryReferenceTool repositoryReferenceTool;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        for (Product product : getProductConfig().getProducts()) {
+        List<Product> products = getProductConfig().getProducts();
+        if (products.isEmpty()) {
+            getLog().info("No product definitions found. Nothing to do.");
+        }
+        for (Product product : products) {
             for (TargetEnvironment env : getEnvironments()) {
                 final DirectorApplicationWrapper director = p2.getService(DirectorApplicationWrapper.class);
                 int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
