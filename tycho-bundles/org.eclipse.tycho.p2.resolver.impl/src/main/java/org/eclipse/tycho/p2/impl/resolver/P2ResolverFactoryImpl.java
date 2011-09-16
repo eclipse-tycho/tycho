@@ -83,9 +83,13 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         if (agent == null) {
             try {
                 agent = Activator.newProvisioningAgent();
-
-                Transport transport = (Transport) agent.getService(Transport.SERVICE_NAME);
-
+                final Transport transport;
+                if (offline) {
+                    transport = new OfflineTransport();
+                    agent.registerService(Transport.SERVICE_NAME, transport);
+                } else {
+                    transport = (Transport) agent.getService(Transport.SERVICE_NAME);
+                }
                 // setup p2 cache manager
                 TychoP2RepositoryCacheManager cacheMgr = new TychoP2RepositoryCacheManager(transport);
                 cacheMgr.setOffline(offline);

@@ -60,7 +60,6 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
         Set<String> urls = new LinkedHashSet<String>(server.getAccessedUrls("test"));
-        urls.remove("/test/p2.index"); // p2 keeps asking for this, which is stupid (pascal's words, not mine)
         assertTrue(urls.toString(), urls.isEmpty());
     }
 
