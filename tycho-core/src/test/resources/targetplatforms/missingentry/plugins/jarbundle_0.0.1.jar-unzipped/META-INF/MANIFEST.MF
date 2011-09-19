@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Bundle-Name: jarbundle_0.0.1
-Bundle-SymbolicName: jarbundle ;singleton=true
-Bundle-Version: 0.0.1
-Bundle-ClassPath: missing_jar_entry.jar, .
-

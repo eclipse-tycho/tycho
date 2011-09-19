@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ClassPath: .,lib/lib.jar
-Bundle-Version: 1.0.0
-Bundle-Name: P003 Plug-in
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: p003
-

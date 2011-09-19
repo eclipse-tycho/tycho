@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ClassPath: lib/,.
-Bundle-Version: 1.0.0.201007261122
-Bundle-Name: TestNestedDirClasspath
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: testNestedDirClasspath
-

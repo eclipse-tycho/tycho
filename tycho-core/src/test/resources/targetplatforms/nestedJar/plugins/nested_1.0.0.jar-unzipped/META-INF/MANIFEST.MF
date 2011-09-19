@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ClassPath: .,lib/lib.jar,dir/
-Bundle-Version: 1.0.0
-Bundle-Name: External bundle with nested classpath
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: nested
-

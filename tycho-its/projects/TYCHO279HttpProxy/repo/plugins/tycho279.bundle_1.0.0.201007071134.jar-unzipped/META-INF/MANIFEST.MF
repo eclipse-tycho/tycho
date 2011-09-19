@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-Version: 1.0.0.201007071134
-Bundle-Name: tycho279.bundle
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: tycho279.bundle
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-
