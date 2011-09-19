@@ -1,0 +1,14 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>TYCHO0400indirectDependencies</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>A</module>
+    <module>B</module>
+    <module>C</module>
+  </modules>
+</project>

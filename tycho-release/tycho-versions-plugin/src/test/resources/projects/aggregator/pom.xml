@@ -1,0 +1,15 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>aggregator</groupId>
+  <artifactId>aggregator</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>parent</module>
+    <module>bundle</module>
+    <module>detached</module>
+  </modules>
+
+</project>

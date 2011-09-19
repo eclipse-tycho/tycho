@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: projectpriority.p002
+Bundle-Version: 0.0.2
+Bundle-ClassPath: .
+Bundle-Name: projectpriority.p002
+Require-Bundle: projectpriority.p001
+MavenArtifact-GroupId: projectpriority

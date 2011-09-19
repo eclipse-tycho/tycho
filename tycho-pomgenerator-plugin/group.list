@@ -1,0 +1,3 @@
+#this files contains a list of group-pattern=groupId
+org.eclipse.*=org.eclipse
+com.ibm.icu=com.ibm

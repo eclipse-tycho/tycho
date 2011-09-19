@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle02 Plug-in
+Bundle-SymbolicName: org.codehaus.tycho.tychoits.tycho0209.build01.bundle03
+Bundle-Version: 0.0.1.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.junit;bundle-version="3.8.2"

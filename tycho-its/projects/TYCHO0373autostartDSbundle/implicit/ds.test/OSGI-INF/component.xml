@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="bundle">
+   <implementation class="test.component.impl.Component"/>
+   <service>
+      <provide interface="test.component.IComponent"/>
+   </service>
+</scr:component>

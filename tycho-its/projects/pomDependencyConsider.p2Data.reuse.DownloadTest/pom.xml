@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>TYCHO570pomDependencyOnTychoArtifact</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>feature</module>
+		<module>repository</module>
+	</modules>
+
+	<dependencies>
+		<!-- The test uses this bundle for the following reasons:
+			* The bundle has been built by Tycho and has an attached p2artifacts artifact. 
+			  The test verifies that the p2artifacts.xml is downloaded and use in the 
+			  target platform. 
+			* In order to verify that the download happens, the p2artifact.xml must not 
+			  yet be present in the local Maven repository. This should be the case (at 
+			  least once) on most machines.
+			* Also, this particular bundle is used, because it has no dependencies - hence 
+			  we don't need any additional content in the target platform.
+		-->
+		<dependency>
+			<groupId>org.sonatype.tycho</groupId>
+			<artifactId>org.sonatype.tycho.p2</artifactId>
+			<version>0.11.0</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<pomDependencies>consider</pomDependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

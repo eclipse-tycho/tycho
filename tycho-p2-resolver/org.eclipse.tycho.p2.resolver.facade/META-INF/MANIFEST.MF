@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Export-Package: org.eclipse.tycho.p2.metadata,
+ org.eclipse.tycho.p2.repository,
+ org.eclipse.tycho.p2.resolver
+Bundle-Version: 0.13.0.qualifier
+Bundle-Name: Tycho p2 Resolver Maven/OSGi Facade (Incubation)
+Bundle-ManifestVersion: 2
+Bundle-Description: Tycho integrates Maven with Eclipse and OSGi
+Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.facade
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ JavaSE-1.6
+Bundle-Vendor: %providerName

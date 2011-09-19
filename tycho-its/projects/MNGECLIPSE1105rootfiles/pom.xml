@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>tycho-test</groupId>
+  <artifactId>MNGECLIPSE-1105</artifactId>
+  <version>1.0.0</version>
+  <packaging>eclipse-application</packaging>
+    
+  <properties>
+  	<generatedBuildProperties>root.properties</generatedBuildProperties>
+  </properties>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
+        <configuration>
+          <separateEnvironments>false</separateEnvironments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dummy bundle built as binary and source bundle
+Bundle-SymbolicName: pomDependencyConsider.p2Data.reuse.testDataBundle
+Bundle-Version: 0.0.1
+Bundle-ActivationPolicy: lazy
+Export-Package: tycho570

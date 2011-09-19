@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: bundle.tests Fragment
+Bundle-SymbolicName: bundle.tests;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Require-Bundle: org.junit;bundle-version="3.8.0",
+ bundle;bundle-version="0.0.1"

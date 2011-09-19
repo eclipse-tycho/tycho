@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<fragment>
+   <extension
+         point="tests.utils.tests">
+      <test
+            class="bundle.tests.ATest">
+      </test>
+      <test
+            class="bundle.tests.BTest">
+      </test>
+   </extension>
+
+</fragment>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="testproduct" id="branding-id" version="0.1.0.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <plugins>
+      <plugin id="test.plugin" version="0.1.0.qualifier"/>
+      <plugin id="test.plugin2" version="0.1.0.qual"/>
+   </plugins>
+
+   <features>
+      <feature id="test.feature" version="0.1.0.qualifier"/>
+      <feature id="test.feature2" version="0.1.0.qual"/>
+   </features>
+
+
+</product>

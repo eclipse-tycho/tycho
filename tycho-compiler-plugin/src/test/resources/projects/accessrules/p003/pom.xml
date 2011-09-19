@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>projects</artifactId>
+    <groupId>osgicompile</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>osgicompile</groupId>
+  <artifactId>p003</artifactId>
+  <packaging>eclipse-plugin</packaging>
+  <version>1.0.0</version>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-compiler-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <compileSourceRoots>
+            <compileSourceRoot>target/projects/accessrules/p001/src</compileSourceRoot>
+          </compileSourceRoots>
+          <compilerId>jdt</compilerId>
+          <outputDirectory>target/projects/p003/accessrules/target/classes</outputDirectory>
+          <buildDirectory>target/projects/p003/accessrules/target</buildDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

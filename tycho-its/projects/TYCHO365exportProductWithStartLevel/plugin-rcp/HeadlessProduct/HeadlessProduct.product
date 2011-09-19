@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Headless Product" id="HeadlessProduct.product" application="HeadlessProduct.application" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <launcher name="headless">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <plugins>
+      <plugin id="HeadlessPlugin"/>
+      <plugin id="org.eclipse.equinox.app"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="HeadlessPlugin" autoStart="true" startLevel="7" />
+      <plugin id="org.eclipse.equinox.app" autoStart="false" startLevel="6" />
+   </configurations>
+
+</product>

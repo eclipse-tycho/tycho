@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="product.id" version="0.0.1.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="tycho242.feature" version="0.0.1.qualifier"/>
+   </features>
+
+
+</product>

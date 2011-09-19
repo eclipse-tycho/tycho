@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: bundle Plug-in
+Bundle-SymbolicName: bundle
+Bundle-Version: 0.0.1.qualifier
+Bundle-ClassPath: simple.jar
+Export-Package: simple.jar

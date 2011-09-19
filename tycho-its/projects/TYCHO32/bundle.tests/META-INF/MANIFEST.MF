@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests Plug-in
+Bundle-SymbolicName: build.tests
+Bundle-Version: 0.0.1.qualifier
+Require-Bundle: org.junit;bundle-version="3.8.0"

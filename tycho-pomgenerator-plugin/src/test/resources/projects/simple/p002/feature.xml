@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="p002"
+      label="p002"
+      version="1.0.0"
+      provider-name="Sonatype, Inc."
+      plugin="org.maven.ide.eclipse">
+
+   <plugin
+         id="p001"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="p005"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

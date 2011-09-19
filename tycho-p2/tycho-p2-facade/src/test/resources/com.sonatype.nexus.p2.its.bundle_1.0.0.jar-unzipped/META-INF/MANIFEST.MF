@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: igor
+Build-Jdk: 1.6.0_10
+Extension-Name: com.sonatype.nexus.p2.its.bundle
+Implementation-Title: com.sonatype.nexus.p2.its.bundle
+Implementation-Version: 1.0.0
+MavenArtifact-BaseVersion: 1.0.0
+Bundle-Version: 1.0.0
+MavenArtifact-GroupId: com.sonatype.nexus.plugin.p2
+Bundle-Name: com.sonatype.nexus.p2.its.bundle
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: com.sonatype.nexus.p2.its.bundle;singleton:=true
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+

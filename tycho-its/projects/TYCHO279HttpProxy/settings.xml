@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <proxies>
+    <proxy>
+      <id>http</id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>localhost</host>
+      <port>WILL_BE_REPLACED</port>
+      <!-- it seems localhost is a nonProxyHost by default, next line will 
+        cause also localhost to be proxied. This is needed for the test because both 
+        http server and proxy server are running on localhost -->
+      <nonProxyHosts>DUMMY_NON_EXISTING_HOST</nonProxyHosts>
+    </proxy>
+  </proxies>
+</settings>

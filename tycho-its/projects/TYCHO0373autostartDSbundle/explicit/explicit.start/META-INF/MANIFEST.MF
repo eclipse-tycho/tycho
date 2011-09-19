@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Start
+Bundle-SymbolicName: explicit.start;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Activator: explicit.start.Activator
+Require-Bundle: system.bundle
+Export-Package: explicit.start

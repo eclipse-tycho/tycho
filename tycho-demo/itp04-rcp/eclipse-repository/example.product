@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Example Product" uid="example.product.id" id="example.product" application="example-bundle.application" version="0.1.0.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="example-feature" version="0.0.0"/>
+      <feature id="org.eclipse.rcp" version="0.0.0"/>
+      <feature id="org.eclipse.equinox.p2.user.ui" version="0.0.0"/>
+   </features>
+
+  <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+
+      <!-- Disable update manager. It seems as if this could be achieved by the first line, but in 
+           fact the second line sets reconcile to false (see org.eclipse.equinox.p2.publisher.eclipse.ConfigCUsAction#publishBundleCUs) -->
+      <property name="org.eclipse.update.reconcile" value="false" />
+      <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4"/>
+                                              
+   </configurations>
+   
+</product>

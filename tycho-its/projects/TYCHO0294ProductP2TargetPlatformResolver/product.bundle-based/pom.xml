@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>TYCHO0294ProductP2TargetPlatformResolver</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>product.bundle-based</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>eclipse-application</packaging>
+
+</project>

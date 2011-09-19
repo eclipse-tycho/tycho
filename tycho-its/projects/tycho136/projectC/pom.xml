@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>tycho136.projectC</groupId>
+  <artifactId>projectC</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>FeatureC</module>
+    <module>FeatureC.sdk</module>
+    <module>PluginC</module>
+    <module>PluginC.Extra</module>
+    <module>SiteC</module>
+  </modules>
+</project>

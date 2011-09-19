@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle Plug-in
+Bundle-SymbolicName: bundle
+Bundle-Version: 0.0.1.qualifier
+Bundle-ClassPath: .,
+ src2.jar,
+ src3.jar
+Export-Package: bundle.src,
+ bundle.src2,
+ bundle.src3

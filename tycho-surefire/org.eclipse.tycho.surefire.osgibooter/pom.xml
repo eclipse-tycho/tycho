@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - http://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    Sonatype Inc. - initial API and implementation
+ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-surefire</artifactId>
+		<version>0.13.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>org.eclipse.tycho.surefire.osgibooter</artifactId>
+	<packaging>eclipse-plugin</packaging>
+
+	<name>Tycho Surefire OSGi Booter Eclipse Application (Incubation)</name>
+
+	<profiles>
+		<profile>
+			<id>update-dependencies</id>
+
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.maven.surefire</groupId>
+					<artifactId>surefire-booter</artifactId>
+					<version>2.4.3</version>
+				</dependency>
+			</dependencies>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-packaging-plugin</artifactId>
+						<version>${project.version}</version>
+						<executions>
+							<execution>
+								<phase>process-classes</phase>
+								<goals>
+									<goal>generate-bundle</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<packageSources>false</packageSources>
+							<exportPackages>
+							</exportPackages>
+							<manifestAttributes>
+								<Bundle-SymbolicName>org.eclipse.tycho.surefire.osgibooter;singleton:=true</Bundle-SymbolicName>
+								<Bundle-RequiredExecutionEnvironment>J2SE-1.5,
+									JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+								<Require-Bundle>org.eclipse.equinox.app,org.eclipse.osgi,org.junit,org.eclipse.ui.workbench;resolution:=optional,org.eclipse.core.runtime;resolution:=optional</Require-Bundle>
+								<Eclipse-AutoStart>true</Eclipse-AutoStart>
+								<Bundle-Activator>org.eclipse.tycho.surefire.osgibooter.Activator</Bundle-Activator>
+							</manifestAttributes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+
+		</profile>
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>jars</outputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-api</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-booter</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>jars</directory>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<!--TODO TEXT. This plugin's configuration is used in m2e only. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-dependency-plugin</artifactId>
+										<versionRange>[2.1,)</versionRange>
+										<goals>
+											<goal>copy</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>

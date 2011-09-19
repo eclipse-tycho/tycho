@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>TYCHO0453expandReleaseVersion</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>site</artifactId>
+  <packaging>eclipse-update-site</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <configuration>
+          <allowConflictingDependencies>true</allowConflictingDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

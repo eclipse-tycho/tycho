@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config version="3.0" date="1212633019312" transient="false">
+    <site url="platform:/base/" policy="USER-EXCLUDE" updateable="true" enabled="true">
+    </site>
+</config>

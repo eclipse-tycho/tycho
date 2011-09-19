@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.tycho.p2.DirectorApplicationWrapper">
+   <implementation class="org.eclipse.tycho.p2.tools.impl.director.DirectorApplicationWrapperImpl"/>
+   <service>
+      <provide interface="org.eclipse.tycho.p2.tools.director.DirectorApplicationWrapper"/>
+   </service>
+</scr:component>

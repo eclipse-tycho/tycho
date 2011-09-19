@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - http://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -	 Sonatype Inc. - initial API and implementation
+ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-p2-resolver-impl</artifactId>
+		<version>0.13.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>tycho-p2-runtime</artifactId>
+	<packaging>eclipse-application</packaging>
+
+	<name>Tycho OSGi Runtime External Bundles (Incubation)</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>maven-osgi-packaging-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<separateEnvironments>false</separateEnvironments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!--
+		Steps I use to update tycho-p2-runtime to use different p2 version
+
+		1. Run "mvn clean install" in tycho-p2-resolver folder. This is necessary to populate local repo with information
+		   about org.eclipse.tycho.noopsecurity bundle
+		2. If necessary, change p2 repository url in tycho-p2-resolver/pom.xml
+		3. In this folder, run mvn -Dtycho.mode=maven -Dtycho-version=0.11.0-SNAPSHOT org.eclipse.tycho.extras:tycho-version-bump-plugin:0.11.0-SNAPSHOT:update-product
+		4. Edit tycho-p2-runtime.product and remove version lock on org.eclipse.tycho.noopsecurity bundle
+
+		Luckily, we don't need to include new p2 version too often.
+	-->
+</project>

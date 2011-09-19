@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>TYCHO0373autostartDSbundle.explicit</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <packaging>eclipse-test-plugin</packaging>
+  <artifactId>explicit.start.test</artifactId>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <configuration>
+          <bundleStartLevel>
+            <bundle>
+              <id>explicit.start</id>
+              <level>1</level>
+              <autoStart>true</autoStart>
+            </bundle>
+          </bundleStartLevel>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

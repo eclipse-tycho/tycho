@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: moduleorder.p002
+Bundle-Version: 0.0.1
+Bundle-ClassPath: .
+Bundle-Name: moduleorder.p002
+Export-Package: moduleorder.p002
+MavenArtifact-GroupId: moduleorder

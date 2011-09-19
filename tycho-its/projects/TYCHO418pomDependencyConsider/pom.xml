@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>TYCHO418pomDependencyConsider</groupId>
+  <artifactId>parent</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  
+  <properties>
+  	<tycho.targetPlatform>${java.io.tmpdir}</tycho.targetPlatform>
+  </properties>
+
+  <modules>
+    <module>bundle</module>
+    <module>feature</module>
+    <!-- can't resolve RCP dependencies due to TYCHO-294
+    <module>product</module>
+    -->
+    <module>site</module>
+  </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>TYCHO418pomDependencyConsider</groupId>
+      <artifactId>artifact</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <resolver>local</resolver>
+          <pomDependencies>consider</pomDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

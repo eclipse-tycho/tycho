@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>tycho136.projectB</groupId>
+  <artifactId>projectB</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>FeatureB</module>
+    <module>PluginB</module>
+    <module>PluginB.extra</module>
+    <module>SiteB</module>
+  </modules>
+</project>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<version>1.0.0-SNAPSHOT</version>
+	<groupId>org.eclipse.tycho.tychoits.TYCHO551TransitiveP2Repo</groupId>
+	<artifactId>parent</artifactId>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
+	</properties>
+
+	<modules>
+		<module>bundle1</module>
+		<module>feature</module>
+		<module>repository</module>
+		<module>repository-transitive</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>eclipse-3.4.2</id>
+			<layout>p2</layout>
+			<url>${p2.repo}</url>
+		</repository>
+	</repositories>
+</project>

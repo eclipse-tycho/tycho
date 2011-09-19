@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Sample Category"
+            id="PluginA.Extra">
+      </category>
+      <view
+            name="Sample View"
+            icon="icons/sample.gif"
+            category="PluginA.extra"
+            class="plugina.extra.views.SampleView"
+            id="plugina.extra.views.SampleView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
+         <view
+               ratio="0.5"
+               relative="org.eclipse.ui.views.TaskList"
+               relationship="right"
+               id="plugina.extra.views.SampleView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+
+</plugin>

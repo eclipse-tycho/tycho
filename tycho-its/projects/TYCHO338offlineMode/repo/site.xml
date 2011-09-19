@@ -1,0 +1,6 @@
+<site>
+  <feature id="tycho338.feature" url="features/tycho338.feature_0.0.1.201002180026.jar" version="0.0.1.201002180026">
+    <category name="test"/>
+  </feature>
+  <category-def name="test" label="Test"/>
+</site>

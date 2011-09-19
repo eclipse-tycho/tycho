@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unnamed - tycho.demo.workbench:tycho.demo.application:eclipse-plugin:1.0.0
+Bundle-SymbolicName: tycho.demo.application;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: tycho.demo.application.Activator
+Require-Bundle: org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ JavaSE-1.6

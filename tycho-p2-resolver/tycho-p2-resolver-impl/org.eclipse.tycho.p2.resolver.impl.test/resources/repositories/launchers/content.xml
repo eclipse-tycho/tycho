@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='launchers' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.compressed' value='false'/>
+    <property name='p2.timestamp' value='1276701781937'/>
+  </properties>
+  <units size='3'>
+    <unit id='org.eclipse.equinox.launcher.gtk.linux.x86_64' version='0.0.0'>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher.gtk.linux.x86_64' version='0.0.0'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.launcher.gtk.linux.x86_64' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+    <unit id='org.eclipse.equinox.launcher' version='0.0.0'>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.launcher' version='0.0.0'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.equinox.launcher' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+    <unit id='org.eclipse.equinox.executable.feature.group' version='0.0.0' singleton='false'>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.equinox.executable.feature.group' version='0.0.0'/>
+      </provides>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+  </units>
+</repository>

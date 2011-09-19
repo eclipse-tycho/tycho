@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="platform">
+  <locations>
+    <location includeAllPlatforms="false" includeMode="planner"
+      type="InstallableUnit">
+      <unit id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030' />
+      <repository id="test-server" location="[url]" />
+    </location>
+  </locations>
+</target>

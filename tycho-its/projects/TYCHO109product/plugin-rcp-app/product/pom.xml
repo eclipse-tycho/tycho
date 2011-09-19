@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>plugin-rcp-app</artifactId>
+    <groupId>tycho109</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>product</artifactId>
+  <version>1.0.0</version>
+  <packaging>eclipse-application</packaging>
+
+</project>

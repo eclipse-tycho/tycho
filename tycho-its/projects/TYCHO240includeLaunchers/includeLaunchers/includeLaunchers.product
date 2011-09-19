@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Tycho Demo" id="tycho.demo.application.product" application="tycho.demo.application.application" useFeatures="false" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="images/About130x165.gif"/>
+      <text>
+         %aboutText
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsLin>-Xmx1500m</vmArgsLin>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts -Xmx1500m</vmArgsMac>
+      <vmArgsWin>-Xmx640m -Dsun.java2d.noddraw=true</vmArgsWin>
+   </launcherArgs>
+
+   <windowImages i16="images/window16x16.gif" i32="images/window32x32.gif"/>
+
+   <splash
+      location="tycho.demo.application"
+      startupProgressRect="0,280,455,15"
+      startupMessageRect="7,220,441,20"
+      startupForegroundColor="400040" />
+   <launcher name="includedLauncher">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+
+</product>

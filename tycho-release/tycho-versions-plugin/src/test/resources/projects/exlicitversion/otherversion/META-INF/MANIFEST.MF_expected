@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-Version: 2.0.0.qualifier
+Bundle-Name: otherversion
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: otherversion
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+

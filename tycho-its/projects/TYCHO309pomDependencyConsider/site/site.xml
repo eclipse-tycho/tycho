@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/tycho309.feature_0.0.0.jar" id="tycho309.feature" version="0.0.0"/>
+</site>

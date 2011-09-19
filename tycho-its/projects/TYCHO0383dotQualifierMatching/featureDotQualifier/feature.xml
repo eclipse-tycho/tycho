@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="featureDotQualifier.feature"
+      label="featureDotQualifier.feature"
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="org.eclipse.osgi"
+         download-size="0"
+         install-size="0"
+         version="3.4.3.qualifier"
+         unpack="false"/>
+
+</feature>

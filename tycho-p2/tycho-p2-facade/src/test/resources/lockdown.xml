@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <lockdown name="foo1" id="bar" version="1.2.3"/>
+
+  <requiredFeatures>
+    <feature id="org.eclipse.jst.feature.group"  version="3.0.4.v200811190840-7U1959LJIHM6ogLbhvbrAnWtxuyM"/>
+  </requiredFeatures>
+
+  <targetPlatforms>
+    <platform os="win32" ws="win32" arch="x86"/>
+    <platform os="linux" ws="gtk" arch="x86_64"/>
+  </targetPlatforms>
+
+</configuration>

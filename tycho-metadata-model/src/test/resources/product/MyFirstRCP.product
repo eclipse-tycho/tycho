@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.4"?>
+
+<product name="My First RCP" id="MyFirstRCP.product1" application="MyFirstRCP.application" version="1.0.0" useFeatures="false">
+
+   <windowImages/>
+
+   <configIni>
+      <linux>linux.ini</linux>
+      <macosx>macosx.ini</macosx>
+      <solaris>solaris.ini</solaris>
+      <win32>win32.ini</win32>
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-all args</programArgs>
+      <programArgsLin>-linux args</programArgsLin>
+      <programArgsMac>-mac args</programArgsMac>
+      <programArgsSol>-solaris args</programArgsSol>
+      <programArgsWin>-win32 args</programArgsWin>
+      <vmArgs>-all vm</vmArgs>
+      <vmArgsLin>-linux vm</vmArgsLin>
+      <vmArgsMac>-mac vm</vmArgsMac>
+      <vmArgsSol>-solaris vm</vmArgsSol>
+      <vmArgsWin>-win32 vm</vmArgsWin>
+   </launcherArgs>
+
+   <plugins>
+      <plugin id="HeadlessProduct"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+   </plugins>
+
+   <launcher name="launchername">
+      <linux icon="XPM"/>
+      <macosx icon="icns"/>
+      <solaris
+            solarisLarge="large"
+            solarisMedium="medium"
+            solarisSmall="small"
+            solarisTiny="tiny"/>
+      <win useIco="false">
+         <ico path="iconon"/>
+         <bmp
+            winSmallHigh="16-32"
+            winSmallLow="16-8"
+            winMediumHigh="32-32"
+            winMediumLow="32-8"
+            winLargeHigh="48-32"
+            winLargeLow="48-8"/>
+      </win>
+   </launcher>
+   
+   <features>
+      <feature id="HeadlessFeature" version="1.0.0"/>
+      <feature id="org.eclipse.sdk" version="3.2.2.r322_v20070104-dCGKm0Ln38lm-8s"/>
+   </features>
+   
+</product>

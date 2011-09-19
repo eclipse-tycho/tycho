@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-Version: 2.0.0
+Bundle-Name: org.sonatype.tycho.p2.impl.resolver.test.bundle01
+Created-By: 1.6.0_23 (Sun Microsystems Inc.)
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.sonatype.tycho.p2.impl.resolver.test.bundle01
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+

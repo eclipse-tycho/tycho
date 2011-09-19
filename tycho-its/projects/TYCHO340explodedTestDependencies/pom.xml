@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.tycho.tychoits.tycho340</groupId>
+  <artifactId>parent</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>tycho340.plugin</module>
+    <module>tycho340.test</module>
+  </modules>
+
+  <properties>
+    <p2.repo>http://download.eclipse.org/releases/galileo</p2.repo>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>p2</id>
+      <layout>p2</layout>
+      <url>${p2.repo}</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <resolver>p2</resolver>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <distributionManagement>
+    <repository>
+      <id>tycho-its.local</id>
+      <url>${repo.releases}</url>
+    </repository>
+    <snapshotRepository>
+      <id>tycho-its.local</id>
+      <url>${repo.snapshots}</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+</project>

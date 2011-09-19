@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: HeadlessPlugin Plug-in
+Bundle-SymbolicName: HeadlessPlugin;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin
+Import-Package: org.eclipse.equinox.app;version="1.0.0"
+Eclipse-LazyStart: true

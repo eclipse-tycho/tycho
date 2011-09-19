@@ -1,0 +1,83 @@
+[INFO] Scanning for projects...
+[WARNING] No explicit target runtime environment configuration. Build is platform dependent.
+[INFO] Resolving target platform for project MavenProject: org.sonatype.tycho:org.sonatype.tycho.p2.impl.test:0.11.0-SNAPSHOT @ /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/pom.xml
+[INFO] Adding repository http://download.eclipse.org/releases/helios
+[INFO] Adding repository http://download.eclipse.org/releases/helios
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building org.sonatype.tycho.p2.impl.test 0.11.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.4.1:clean (default-clean) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] Deleting /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target
+[INFO] 
+[INFO] --- maven-osgi-packaging-plugin:0.10.0:build-qualifier (default-build-qualifier) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] 
+[INFO] --- maven-osgi-packaging-plugin:0.10.0:validate-version (default-validate-version) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4.3:resources (default-resources) @ org.sonatype.tycho.p2.impl.test ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/src/main/resources
+[INFO] 
+[INFO] --- maven-osgi-compiler-plugin:0.10.0:compile (default-compile) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] Using compile source roots from build.properties
+[INFO] Compiling 16 source files to /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/classes
+
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4.3:testResources (default-testResources) @ org.sonatype.tycho.p2.impl.test ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/src/test/resources
+[INFO] 
+[INFO] --- maven-osgi-compiler-plugin:0.10.0:testCompile (default-testCompile) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] Using compile source roots from build.properties
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-osgi-packaging-plugin:0.10.0:package-plugin (default-package-plugin) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] Building jar: /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/org.sonatype.tycho.p2.impl.test-0.11.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- tycho-p2-plugin:0.10.0:p2-metadata (default-p2-metadata) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] 
+[INFO] --- maven-osgi-test-plugin:0.10.0:test (default-test) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] Adding repository (cached) http://download.eclipse.org/releases/helios
+[INFO] Expected eclipse log file: /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/work/data/.metadata/.log
+[INFO] Command line:
+	/bin/sh -c cd /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test && /opt/jdk1.6.0_20/jre/bin/java -Dosgi.noShutdown=false -Dosgi.os=linux -Dosgi.ws=gtk -Dosgi.arch=x86_64 -jar /tmp/tycho-p2.localrepo/p2/osgi/bundle/org.eclipse.equinox.launcher/1.1.0.v20100507/org.eclipse.equinox.launcher-1.1.0.v20100507.jar -data /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/work/data -dev file:/workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/dev.properties -install /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/work -configuration /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/work/configuration -application org.sonatype.tycho.surefire.osgibooter.headlesstest -testproperties /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/surefire.properties
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.sonatype.tycho.p2.repo.MetadataSerializableImplTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.14 sec
+Running org.sonatype.tycho.p2.publisher.P2GeneratorImplTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 sec
+Running org.sonatype.tycho.p2.impl.test.P2DependencyGeneratorImplTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.053 sec
+Running org.sonatype.tycho.p2.impl.test.VersionCreateTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 sec
+Running org.sonatype.tycho.p2.impl.test.P2ResolverImplTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.787 sec
+Running org.sonatype.tycho.p2.impl.test.DependencyCollectorTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 sec
+Running org.sonatype.tycho.p2.impl.test.P2MetadataGeneratorImplTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 sec
+
+Results :
+
+Tests run: 23, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] All tests passed!
+[INFO] 
+[INFO] --- maven-install-plugin:2.3.1:install (default-install) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] Installing /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/org.sonatype.tycho.p2.impl.test-0.11.0-SNAPSHOT.jar to /tmp/tycho-p2.localrepo/org/sonatype/tycho/org.sonatype.tycho.p2.impl.test/0.11.0-SNAPSHOT/org.sonatype.tycho.p2.impl.test-0.11.0-SNAPSHOT.jar
+[INFO] Installing /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/pom.xml to /tmp/tycho-p2.localrepo/org/sonatype/tycho/org.sonatype.tycho.p2.impl.test/0.11.0-SNAPSHOT/org.sonatype.tycho.p2.impl.test-0.11.0-SNAPSHOT.pom
+[INFO] Installing /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/p2content.xml to /tmp/tycho-p2.localrepo/org/sonatype/tycho/org.sonatype.tycho.p2.impl.test/0.11.0-SNAPSHOT/org.sonatype.tycho.p2.impl.test-0.11.0-SNAPSHOT-p2metadata.xml
+[INFO] Installing /workspaces/tycho-dev/sonatype-tycho/tycho-p2/org.sonatype.tycho.p2.impl.test/target/p2artifacts.xml to /tmp/tycho-p2.localrepo/org/sonatype/tycho/org.sonatype.tycho.p2.impl.test/0.11.0-SNAPSHOT/org.sonatype.tycho.p2.impl.test-0.11.0-SNAPSHOT-p2artifacts.xml
+[INFO] 
+[INFO] --- tycho-p2-plugin:0.10.0:update-local-index (default-update-local-index) @ org.sonatype.tycho.p2.impl.test ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 19.824s
+[INFO] Finished at: Sun Sep 26 16:57:05 EDT 2010
+[INFO] Final Memory: 96M/362M
+[INFO] ------------------------------------------------------------------------

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<version>1.0.0-SNAPSHOT</version>
+	<groupId>org.eclipse.tycho.tychoits.TYCHO491PublishFeaturesAndCategories</groupId>
+	<artifactId>parent</artifactId>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
+		<forceContextQualifier>20101116-forcedQualifier</forceContextQualifier>
+	</properties>
+
+	<modules>
+		<module>eclipse-repository</module>
+		<module>target-definition</module>
+		<module>example-bundle</module>
+		<module>example-feature</module>
+		<module>example-included-feature</module>
+		<module>example-included-bundle</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<target>
+						<artifact>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>target-definition</artifactId>
+							<version>${project.version}</version>
+							<classifier>helios</classifier>
+						</artifact>
+					</target>
+					<ignoreTychoRepositories>true</ignoreTychoRepositories>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

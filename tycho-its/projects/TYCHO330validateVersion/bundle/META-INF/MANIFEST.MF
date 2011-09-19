@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle Plug-in
+Bundle-SymbolicName: bundle
+Bundle-Version: 1.0.0

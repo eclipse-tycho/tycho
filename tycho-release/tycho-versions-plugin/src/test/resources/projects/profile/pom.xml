@@ -1,0 +1,22 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>profile</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>bundle01</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>inactive</id>
+      <modules>
+        <module>bundle02</module>
+      </modules>
+    </profile>
+  </profiles>
+
+</project>

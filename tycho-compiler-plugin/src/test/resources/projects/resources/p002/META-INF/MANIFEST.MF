@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: P002
+Bundle-SymbolicName: p002
+Bundle-Version: 1.0.0.qualifier

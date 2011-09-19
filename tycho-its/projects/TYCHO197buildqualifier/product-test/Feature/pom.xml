@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>tycho197</artifactId>
+    <groupId>tycho197</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <groupId>tycho197</groupId>
+  <artifactId>Feature</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>eclipse-feature</packaging>
+</project>

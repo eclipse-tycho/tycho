@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="moduleorder.p004"
+      label="p004"
+      version="1.0.0"
+      provider-name="COMPANY">
+
+   <plugin
+         id="moduleorder.p001"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <requires>
+      <import plugin="moduleorder.p002"/>
+   </requires>
+
+</feature>

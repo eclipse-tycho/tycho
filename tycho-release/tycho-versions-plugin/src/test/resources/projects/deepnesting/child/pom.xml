@@ -1,0 +1,17 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>deepnesting</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>child</artifactId>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>grandchild</module>
+  </modules>
+
+</project>

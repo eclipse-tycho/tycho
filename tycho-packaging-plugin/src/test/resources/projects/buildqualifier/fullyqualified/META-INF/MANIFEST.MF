@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: buildqualifier.fullyqualified;singleton:=true
+Bundle-Version: 0.0.1.123456
+Bundle-ClassPath: .
+Bundle-Name: buildqualifier.fullyqualified

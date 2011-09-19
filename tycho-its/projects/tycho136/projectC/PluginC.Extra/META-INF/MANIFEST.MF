@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Extra Plug-in
+Bundle-SymbolicName: PluginC.Extra; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: PluginC.extra.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Eclipse-LazyStart: true

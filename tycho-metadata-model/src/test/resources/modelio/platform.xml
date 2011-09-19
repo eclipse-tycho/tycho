@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config date="1222544973500" transient="false" version="3.0">
+<site enabled="true" list="m2eclipse/org.maven.ide.components.archetype-common/,m2eclipse/org.maven.ide.components.dependency-tree/" policy="USER-INCLUDE" updateable="true" url="file:/S:/projects/">
+</site>
+<site enabled="true" list="plugins/org.eclipse.contribution.xref.ui_1.5.0.200809031144.jar" policy="USER-INCLUDE" updateable="true" url="file:/T:/wtp-3.0/eclipse/dropins/ajdt-1.6/eclipse/">
+<feature id="org.eclipse.ajdt.source" url="features/org.eclipse.ajdt.source_1.6.0.200809031144/" version="1.6.0.200809031144">
+</feature>
+<feature id="org.eclipse.ajdt" plugin-identifier="org.eclipse.aspectj" url="features/org.eclipse.ajdt_1.6.0.200809031144/" version="1.6.0.200809031144">
+</feature>
+</site>
+</config>

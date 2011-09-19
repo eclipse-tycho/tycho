@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-set>
+<!--
+  <components>
+    <component>
+      <role>org.eclipse.tycho.p2.facade.P2Facade</role>
+      <role-hint>default</role-hint>
+      <implementation>org.eclipse.tycho.p2.facade.DefaultP2Facade</implementation>
+      <isolated-realm>false</isolated-realm>
+      <configuration>
+        <runtime-location>/workspaces/nexus-dev/tycho-p2/tycho-p2-runtime/target/product</runtime-location>
+        <data-area>/workspaces/nexus-dev/tycho-p2/tycho-p2-facade/target/p2</data-area>
+      </configuration>
+    </component>
+  </components>
+ -->  
+</component-set>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>projectC</artifactId>
+    <groupId>tycho136.projectC</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <groupId>tycho136.projectC</groupId>
+  <artifactId>PluginC.Extra</artifactId>
+  <version>1.0.0</version>
+  <packaging>eclipse-plugin</packaging>
+
+  <build>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.eclipse.tycho</groupId>
+  			<artifactId>tycho-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>plugin-source</goal>
+                </goals>
+              </execution>
+            </executions>
+  		</plugin>
+  	</plugins>
+  </build>
+
+</project>

@@ -1,0 +1,6 @@
+<site>
+   <category-def name="example.category" label="Example Category"/>
+   <feature url="features/tycho551.feature_1.0.0.qualifier.jar" id="tycho551.feature" version="1.0.0.qualifier">
+      <category name="example.category"/>
+   </feature>
+</site>

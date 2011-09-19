@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<feature
+		url="features/tycho-its-project.pomDependencyConsider.p2Data.reuse.testProject.feature_0.0.0.jar"
+		id="tycho-its-project.pomDependencyConsider.p2Data.reuse.testProject.feature"
+		version="0.0.0" />
+</site>

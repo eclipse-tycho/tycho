@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/tycho465.feature_0.0.0.jar" id="tycho465.feature" version="0.0.0">
+      <category name="category.id"/>
+   </feature>
+   <category-def name="category.id" label="A Category"/>
+</site>

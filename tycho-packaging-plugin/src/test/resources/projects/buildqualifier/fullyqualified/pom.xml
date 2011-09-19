@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>buildqualifier</groupId>
+  <artifactId>fullyqualified</artifactId>
+  <version>0.0.1.123456</version>
+  <packaging>eclipse-plugin</packaging>
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <packaging>eclipse-plugin</packaging>
+          <format>yyyyMMddHHmm</format>
+          <buildPropertiesFile>target/projects/buildqualifier/fullyqualified/build.properties</buildPropertiesFile>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

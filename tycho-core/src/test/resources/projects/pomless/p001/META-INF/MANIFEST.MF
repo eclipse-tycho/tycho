@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: pomless.p001
+Bundle-Version: 0.0.1
+Bundle-ClassPath: .
+Bundle-Name: pomless..p001
+MavenArtifact-GroupId: pomless

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: ds.test;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Service-Component: OSGI-INF/component.xml
+Require-Bundle: org.junit4;bundle-version="4.5.0",
+ system.bundle
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: bundle.Activator

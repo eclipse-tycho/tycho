@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='file:/workspaces/tycho-0.11.x-dev/sonatype-tycho/tycho-p2-resolver/tycho-p2-resolver-impl/org.sonatype.tycho.p2.impl.test/resources/reactor-vs-external/extrepo/ - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1.0.0'>
+  <properties size='2'>
+    <property name='p2.compressed' value='false'/>
+    <property name='p2.timestamp' value='1302664350727'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='1'>
+    <artifact classifier='osgi.bundle' id='org.sonatype.tycho.p2.impl.resolver.test.bundle01' version='2.0.0'>
+      <properties size='4'>
+        <property name='artifact.size' value='453'/>
+        <property name='download.size' value='453'/>
+        <property name='download.md5' value='605db7f8d8c0622a4bae209a996d648b'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>

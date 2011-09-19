@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>remoterepo</groupId>
+  <artifactId>remoterepo.p001</artifactId>
+  <version>1.0.0</version>
+  <packaging>eclipse-plugin</packaging>
+
+  <repositories>
+    <repository>
+      <id>p2repo</id>
+      <layout>p2</layout>
+      <url>file:src/test/resources/p2repo</url>
+    </repository>
+    <repository>
+      <id>updates34</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/eclipse/updates/3.4/</url>
+    </repository>
+  </repositories>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.eclipse</groupId>
+        <artifactId>org.eclipse.osgi.feature.feature.group</artifactId>
+        <version>3.4.0</version>
+        <type>osgi-bundle</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

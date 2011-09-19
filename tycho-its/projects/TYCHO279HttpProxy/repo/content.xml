@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='file:/c:/tmp/test279/repo - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1278495494203'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <units size='1'>
+    <unit id='tycho279.bundle' version='1.0.0.201007071134' singleton='false'>
+      <update id='tycho279.bundle' range='[0.0.0,1.0.0.201007071134)' severity='0'/>
+      <properties size='1'>
+        <property name='org.eclipse.equinox.p2.name' value='tycho279.bundle'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='tycho279.bundle' version='1.0.0.201007071134'/>
+        <provided namespace='osgi.bundle' name='tycho279.bundle' version='1.0.0.201007071134'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='tycho279.bundle' version='1.0.0.201007071134'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.5&#xA;Bundle-SymbolicName: tycho279.bundle&#xA;Bundle-Name: tycho279.bundle&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 1.0.0.201007071134&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>resolutionerror</groupId>
+  <artifactId>feature_missing_feature</artifactId>
+  <version>1.0.0</version>
+  <packaging>eclipse-feature</packaging>
+</project>

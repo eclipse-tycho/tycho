@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Product" id="product" application="plugin.views.SmapleView" useFeatures="true" includeLaunchers="false">
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="Feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.rcp"/>
+   </features>
+
+
+</product>

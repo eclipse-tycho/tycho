@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<extension>
+  <exportedPackages>
+    <exportedPackage>org.eclipse.tycho</exportedPackage>
+    <exportedPackage>org.eclipse.tycho.model</exportedPackage>
+    <exportedPackage>org.osgi.framework</exportedPackage>
+    <exportedPackage>org.eclipse.osgi</exportedPackage>
+  </exportedPackages>
+
+  <exportedArtifacts>
+    <exportedArtifact>tycho-embedder-api</exportedArtifact>
+    <exportedArtifact>tycho-core</exportedArtifact>
+    <exportedArtifact>tycho-metadata-model</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho.p2.resolver.facade</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho.p2.tools.facade</exportedArtifact>
+    <exportedArtifact>tycho-p2-facade</exportedArtifact>
+    <exportedArtifact>tycho-equinox-api</exportedArtifact>
+    <exportedArtifact>tycho-equinox</exportedArtifact>
+    <exportedArtifact>org.eclipse.osgi</exportedArtifact>
+  </exportedArtifacts>
+</extension>

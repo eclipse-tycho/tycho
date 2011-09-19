@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PluginC Plug-in
+Bundle-SymbolicName: PluginC; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: PluginC.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Eclipse-LazyStart: true

@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: P002 Plug-in
+Bundle-SymbolicName: p002
+Bundle-Version: 1.0.0
+Require-Bundle: p001;bundle-version="1.0.0"
+Import-Package: p004,
+ p003

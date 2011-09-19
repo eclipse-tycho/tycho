@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Fragment Fragment2
+Bundle-SymbolicName: fragment2
+Bundle-Version: 1.0.0
+Fragment-Host: host;bundle-version="1.0.0"

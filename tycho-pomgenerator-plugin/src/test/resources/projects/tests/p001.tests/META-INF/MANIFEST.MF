@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: p001.tests
+Bundle-SymbolicName: p001.tests
+Bundle-Version: 1.0.0
+Require-Bundle: p001

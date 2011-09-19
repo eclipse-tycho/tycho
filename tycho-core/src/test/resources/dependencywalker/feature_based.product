@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.4"?>
+
+<product name="My First RCP" id="MyFirstRCP.product1" application="MyFirstRCP.application" version="1.0.0" useFeatures="true">
+
+   <windowImages/>
+
+   <configIni/>
+
+   <launcherArgs/>
+
+   <plugins/>
+
+   <launcher name="launchername"/>
+   
+   <features>
+      <feature id="feature01"/>
+   </features>
+   
+</product>

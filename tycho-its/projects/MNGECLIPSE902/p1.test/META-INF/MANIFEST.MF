@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test Plug-in
+Bundle-SymbolicName: p1.test;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Require-Bundle: org.junit;bundle-version="3.8.0"
+Fragment-Host: p1;bundle-version="0.0.1"

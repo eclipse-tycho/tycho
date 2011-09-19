@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model>
+
+  <id>metadata</id>
+  <name>Metadata</name>
+
+  <defaults>
+    <default>
+      <key>package</key>
+      <value>org.eclipse.tycho.p2.repository.model.metadata</value>
+    </default>
+  </defaults>
+
+  <classes>
+    <class rootElement="true" xml.tagName="repository">
+      <name>Repository</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field>
+          <name>units</name>
+          <version>1.0.0+</version>
+          <association xml.tagName="unit">
+            <type>InstallableUnit</type>
+            <multiplicity>*</multiplicity>
+          </association>
+          <required>true</required>
+        </field>
+      </fields>
+    </class>
+
+    <class>
+      <name>InstallableUnit</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field xml.attribute="true">
+          <name>id</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>false</required>
+        </field>
+        <field xml.attribute="true">
+          <name>version</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>singleton</name>
+          <version>1.0.0+</version>
+          <type>boolean</type>
+          <required>true</required>
+        </field>
+
+        <field xml.tagName="update">
+          <name>updateDescriptor</name>
+          <version>1.0.0+</version>
+          <association>
+            <type>UpdateDescriptor</type>
+          </association>
+          <required>false</required>
+        </field>
+
+        <field>
+          <name>properties</name>
+          <version>1.0.0+</version>
+          <association xml.tagName="property">
+            <type>Property</type>
+            <multiplicity>*</multiplicity>
+          </association>
+          <required>false</required>
+        </field>
+
+        <field xml.tagName="provides">
+          <name>providedCapabilities</name>
+          <version>1.0.0+</version>
+          <association xml.tagName="provided">
+            <type>ProvidedCapability</type>
+            <multiplicity>*</multiplicity>
+          </association>
+          <required>false</required>
+        </field>
+
+        <field xml.tagName="requires">
+          <name>requiredCapabilities</name>
+          <version>1.0.0+</version>
+          <association xml.tagName="required">
+            <type>RequiredCapabilities</type>
+            <multiplicity>*</multiplicity>
+          </association>
+          <required>false</required>
+        </field>
+
+        <field xml.tagName="touchpoint">
+          <name>touchpointType</name>
+          <version>1.0.0+</version>
+          <association>
+            <type>TouchpointType</type>
+          </association>
+          <required>true</required>
+        </field>
+
+        <field xml.tagName="touchpointData">
+          <name>touchpointData</name>
+          <version>1.0.0+</version>
+          <association xml.tagName="instructions">
+            <type>TouchpointData</type>
+            <multiplicity>*</multiplicity>
+          </association>
+          <required>false</required>
+        </field>
+
+      </fields>
+    </class>
+
+    <class>
+      <name>UpdateDescriptor</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field xml.attribute="true">
+          <name>id</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>range</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>severity</name>
+          <version>1.0.0+</version>
+          <type>int</type>
+          <required>true</required>
+        </field>
+      </fields>
+    </class>
+
+
+    <class>
+      <name>Property</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field xml.attribute="true">
+          <name>name</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>value</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+      </fields>
+    </class>
+
+
+    <class>
+      <name>ProvidedCapability</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field xml.attribute="true">
+          <name>namespace</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>name</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>version</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+      </fields>
+    </class>
+
+    <class>
+      <name>RequiredCapabilities</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field xml.attribute="true">
+          <name>namespace</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>name</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>range</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+
+        <field>
+          <name>filter</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>false</required>
+        </field>
+
+      </fields>
+    </class>
+
+    <class>
+      <name>TouchpointType</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field xml.attribute="true">
+          <name>id</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field xml.attribute="true">
+          <name>version</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+      </fields>
+    </class>
+
+    <class>
+      <name>TouchpointData</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field xml.tagName="instruction">
+          <name>instructions</name>
+          <version>1.0.0+</version>
+          <association xml.tagName="instruction" xml.itemsStyle="flat">
+            <type>TouchpointInstruction</type>
+            <multiplicity>*</multiplicity>
+          </association>
+          <required>true</required>
+        </field>
+      </fields>
+    </class>
+
+    <class>
+      <name>TouchpointInstruction</name>
+      <version>1.0.0+</version>
+      <fields>
+        <field xml.attribute="true">
+          <name>key</name>
+          <version>1.0.0+</version>
+          <type>String</type>
+          <required>true</required>
+        </field>
+        <field>
+          <name>body</name>
+          <version>1.0.0+</version>
+          <type>Content</type>
+          <required>true</required>
+        </field>
+      </fields>
+    </class>
+
+  </classes>
+
+</model>

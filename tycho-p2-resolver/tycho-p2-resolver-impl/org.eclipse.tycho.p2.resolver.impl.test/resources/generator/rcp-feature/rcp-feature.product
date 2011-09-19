@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="test" uid="org.eclipse.tycho.p2.impl.test.rcp-feature" version="1.0.0.qualifier" application="test" useFeatures="true" includeLaunchers="true">
+
+   <features>
+      <feature id="included.feature" version="1.0.0"/>
+   </features>
+
+</product>

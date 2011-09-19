@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<artifacts size='2'>
+  <artifact classifier='osgi.bundle' id='bundle' version='1.2.3.201011101425'>
+    <properties size='6'>
+      <property name='artifact.size' value='1841'/>
+      <property name='download.size' value='1841'/>
+      <property name='download.md5' value='bb75406a7eb3b1bc042519e216119740'/>
+      <property name='maven-groupId' value='TYCHO285EclipseSourceBundles'/>
+      <property name='maven-artifactId' value='bundle'/>
+      <property name='maven-version' value='1.2.3-SNAPSHOT'/>
+    </properties>
+  </artifact>
+  <artifact classifier='osgi.bundle' id='bundle.source' version='1.2.3.TAGNAME'>
+    <properties size='7'>
+      <property name='artifact.size' value='418'/>
+      <property name='download.size' value='418'/>
+      <property name='download.md5' value='e83bfa4247b5eb9d3fbed286813d4f56'/>
+      <property name='maven-groupId' value='TYCHO285EclipseSourceBundles'/>
+      <property name='maven-artifactId' value='bundle'/>
+      <property name='maven-version' value='1.2.3-SNAPSHOT'/>
+      <property name='maven-classifier' value='sources'/>
+    </properties>
+  </artifact>
+</artifacts>

@@ -1,0 +1,6 @@
+<site>
+   <category-def name="example.category" label="Example Category"/>
+   <feature url="features/example.feature_1.0.0.qualifier.jar" id="example.feature" version="1.0.0.qualifier">
+      <category name="example.category"/>
+   </feature>
+</site>

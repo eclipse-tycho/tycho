@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle for TYCHO-359 Test
+Bundle-SymbolicName: TYCHO359corruptedArtifactDownloads.bundle
+Bundle-Version: 0.0.1.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: tycho359.test.bundle;bundle-version="1.0.0"

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: BEBE
+Build-Jdk: 1.6.0_07
+MavenArtifact-BaseVersion: 0.0.1-SNAPSHOT
+Bundle-Version: 0.0.1.201002180026
+MavenArtifact-GroupId: org.sonatype.tycho.its
+Bundle-Name: Bundle
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: tycho338.bundle
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+

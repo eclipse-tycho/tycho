@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: bundle.osx
+Bundle-SymbolicName: bundle.osx
+Bundle-Version: 0.0.1.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-PlatformFilter: (& (osgi.os=macosx) (osgi.ws=carbon)
+ (osgi.arch=x86))

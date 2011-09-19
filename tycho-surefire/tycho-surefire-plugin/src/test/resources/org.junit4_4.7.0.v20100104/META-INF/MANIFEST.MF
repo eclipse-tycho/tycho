@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.junit4
+Require-Bundle: org.hamcrest.core;bundle-version="1.1.0";visibility:=r
+ eexport,org.junit;bundle-version="4.7.0";visibility:=reexport
+Bundle-Version: 4.7.0.v20100104
+Bundle-ManifestVersion: 2
+
+Name: META-INF/eclipse.inf
+SHA1-Digest: KyT9FF7C7t86NoBoa2kZT3ZJBfw=
+
+Name: about.html
+SHA1-Digest: Aqv1K290qUpBF+ZO6+OkfxXorew=
+
+Name: plugin.properties
+SHA1-Digest: Wv0zvGNivCvwY7jZIUt/sphnRAk=
+

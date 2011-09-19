@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="tycho420">
+<locations>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.core.jobs" version="3.4.1.R34x_v20081128"/>
+
+<!-- this repository contains the bundle org.eclipse.core.jobs -->
+<repository location="repositories/e342/subset-repositories/core.jobs/"/>
+<!-- ... but this repository is also needed because it contains the transitive dependencies of the selected unit -->
+<repository location="repositories/e342/subset-repositories/equinox/"/>
+
+</location>
+</locations>
+</target>

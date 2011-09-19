@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>TYCHO0453expandReleaseVersion</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>bundle</artifactId>
+  <packaging>eclipse-plugin</packaging>
+  <version>1.0.0.1234567890-bundle</version>
+
+</project>

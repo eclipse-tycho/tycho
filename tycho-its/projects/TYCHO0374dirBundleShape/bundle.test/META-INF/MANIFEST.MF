@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test
+Bundle-SymbolicName: bundle.test;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Activator: bundle.test.Activator
+Bundle-ActivationPolicy: lazy
+Require-Bundle: system.bundle,
+ org.junit4;bundle-version="4.0.0",
+ org.eclipse.core.runtime;bundle-version="3.4.0"

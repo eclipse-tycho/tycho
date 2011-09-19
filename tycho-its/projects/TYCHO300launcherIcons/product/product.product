@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product useFeatures="false" includeLaunchers="true">
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <launcher>
+      <linux icon="/TYCHO300launcherIcons-product/icons/icon_48x48.xpm"/>
+      <macosx icon="/TYCHO300launcherIcons-product/icons/alt_launcher.icns"/>
+      <solaris/>
+      <win useIco="true">
+         <ico path="/TYCHO300launcherIcons-product/icons/icon_48x48.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="org.eclipse.osgi"/>
+   </plugins>
+
+
+</product>

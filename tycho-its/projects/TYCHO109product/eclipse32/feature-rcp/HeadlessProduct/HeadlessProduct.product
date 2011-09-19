@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.1"?>
+
+<product name="Headless Product" id="HeadlessPlugin.HeadlessPlugin" application="HeadlessPlugin.application" useFeatures="true">
+
+
+   <configIni use="default"/>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <windowImages/>
+
+
+   <launcher>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="HeadlessFeature" version="1.0.0"/>
+      <feature id="org.eclipse.sdk" version="3.2.2.r322_v20070104-dCGKm0Ln38lm-8s"/>
+   </features>
+
+</product>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description url="http://m2eclipse.sonatype.org/update/">
+      Maven Integration
+   </description>
+
+   <feature url="features/featureA_1.0.0.jar" id="featureA" version="1.0.0">
+      <category name="Maven Integration"/>
+   </feature>
+   <feature url="features/featureB_2.0.0.jar" id="featureB" version="2.0.0">
+      <category name="Maven Integration"/>
+   </feature>
+
+   <archive path="plugins/pluginA_1.0.0.jar" url="http://www.company.com/updates/plugins/pluginA_1.0.0.jar"/>
+   <archive path="plugins/pluginB_2.0.0.jar" url="http://www.company.com/updates/plugins/pluginB_2.0.0.jar"/>
+
+<!--
+   <archive path="plugins/org.eclipse.draw2d_3.4.0.v20080529.jar" url="http://download.eclipse.org/tools/gef/updates/milestones/plugins/org.eclipse.draw2d_3.4.0.v20080529.jar"/>
+-->
+
+   <category-def name="Maven Integration" label="Maven Integration"/>
+   <category-def name="Maven Optional Components" label="Maven Optional Components"/>
+   <category-def name="Maven Project Configurators" label="Maven Project Configurators"/>
+</site>

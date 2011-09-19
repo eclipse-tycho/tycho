@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="valid platform">
+  <locations>
+    <location includeAllPlatforms="false" includeMode="planner"
+      type="InstallableUnit">
+      <unit id='tycho359.test.bundle' version='1.0.0' />
+      <repository location="projects/TYCHO359corruptedArtifactDownloads/repo/valid" />
+    </location>
+  </locations>
+</target>

@@ -1,0 +1,6 @@
+hManifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: P005 
+Bundle-SymbolicName: p005
+Bundle-Version: 1.0.0
+Bundle-ClassPath: .,lib/not_existing_yet.jar,lib/not_existing_yet_dir/

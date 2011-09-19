@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Client Plug-in
+Bundle-SymbolicName: client
+Bundle-Version: 1.0.0
+Require-Bundle: host

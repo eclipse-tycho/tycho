@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='Repository with bundle org.eclipse.core.jobs only' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1276174398321'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <units size='1'>
+    <unit id='org.eclipse.core.jobs' version='3.4.1.R34x_v20081128'>
+      <update id='org.eclipse.core.jobs' range='[0.0.0,3.4.1.R34x_v20081128)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.providerName' value='Eclipse.org'/>
+        <property name='df_LT.pluginName' value='Eclipse Jobs Mechanism'/>
+        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='6'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.jobs' version='3.4.1.R34x_v20081128'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.core.jobs' version='3.4.1.R34x_v20081128'/>
+        <provided namespace='java.package' name='org.eclipse.core.internal.jobs' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.jobs' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <requires size='6'>
+        <required namespace='osgi.bundle' name='org.eclipse.equinox.common' range='[3.2.0,4.0.0)'/>
+        <required namespace='java.package' name='org.eclipse.osgi.service.debug' range='0.0.0'/>
+        <required namespace='java.package' name='org.eclipse.osgi.util' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='1.3.0'/>
+        <required namespace='java.package' name='org.osgi.service.packageadmin' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.util.tracker' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.core.jobs' version='3.4.1.R34x_v20081128'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,J2SE-1.3&#xA;Bundle-Name: %pluginName&#xA;Bundle-Activator: org.eclipse.core.internal.jobs.JobActivator&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.eclipse.core.jobs; singleton:=true&#xA;Import-Package: org.eclipse.osgi.service.debug,org.eclipse.osgi.util,org.osgi.framework;version=&quot;1.3.0&quot;,org.osgi.service.packageadmin,org.osgi.util.tracker&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 3.4.1.R34x_v20081128&#xA;Bundle-Localization: plugin&#xA;Export-Package: org.eclipse.core.internal.jobs;x-internal:=true,org.eclipse.core.runtime.jobs&#xA;Require-Bundle: org.eclipse.equinox.common;bundle-version=&quot;[3.2.0,4.0.0)&quot;&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>

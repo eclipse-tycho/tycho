@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="platform">
+  <locations>
+    <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+      <unit id='tycho338.bundle' version='0.0.1.201002180026' />
+      <repository id="test" location="[url]" />
+    </location>
+  </locations>
+</target>

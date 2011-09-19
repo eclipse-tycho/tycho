@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.eclipse.tycho.p2.impl.resolver.test.bundle02
+Bundle-SymbolicName: org.eclipse.tycho.p2.impl.resolver.test.bundle02
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.osgi,
+ org.eclipse.tycho.p2.impl.resolver.test.bundle02

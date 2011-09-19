@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-Version: 0.13.0.qualifier
+Bundle-Name: Tycho p2 Tools Maven/OSGi Facade Tests (Incubation)
+Bundle-ManifestVersion: 2
+Bundle-Description: Exposes tools for manipulating p2 data, which are implemented in OSGi bundles, to Maven plug-ins
+Bundle-SymbolicName: org.eclipse.tycho.p2.tools.facade
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.eclipse.tycho.p2.tools,
+ org.eclipse.tycho.p2.tools.director,
+ org.eclipse.tycho.p2.tools.mirroring,
+ org.eclipse.tycho.p2.tools.publisher
+Import-Package: org.eclipse.tycho.p2.repository
+Bundle-Vendor: %providerName

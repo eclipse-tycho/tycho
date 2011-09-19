@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: 1.6.0_07 (Sun Microsystems Inc.)
+Built-By: BEBE
+Build-Jdk: 1.6.0_07
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: tycho353.fwk.ext
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.1
+Bundle-ClassPath: ext.jar
+Fragment-Host: org.eclipse.osgi
+Export-Package: tycho353
+

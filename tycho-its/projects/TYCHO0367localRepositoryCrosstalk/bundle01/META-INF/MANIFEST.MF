@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: TYCHO0367localRepositoryCrosstalk.bundle01
+Bundle-SymbolicName: TYCHO0367localRepositoryCrosstalk.bundle01;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.osgi,
+ org.junit;bundle-version="3.8.2"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Activator: TYCHO0367localRepositoryCrosstalk.bundle01.Activator
+Bundle-ActivationPolicy: lazy

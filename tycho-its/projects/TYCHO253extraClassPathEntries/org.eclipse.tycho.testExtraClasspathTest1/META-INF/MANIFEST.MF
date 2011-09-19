@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: TestExtraClasspathTest1
+Bundle-SymbolicName: org.sonatype.tycho.testExtraClasspathTest1
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.sonatype.tycho.testextraclasspathtest1.Activator
+Require-Bundle: org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

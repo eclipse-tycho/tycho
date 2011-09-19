@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="feature352"
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="org.eclipse.osgi"
+         download-size="0"
+         install-size="0"
+         version="3.5.2.R35x_v20100126"
+         unpack="false"/>
+
+</feature>

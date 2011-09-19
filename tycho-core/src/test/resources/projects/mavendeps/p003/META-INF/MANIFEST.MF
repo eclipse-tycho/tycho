@@ -1,0 +1,7 @@
+hManifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: P003 Plug-in
+Bundle-SymbolicName: p003
+Bundle-Version: 1.0.0
+Bundle-ClassPath: .
+Require-Bundle: p002

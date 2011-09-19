@@ -1,0 +1,1 @@
+plugin@test=a1,|local|%{path to cvs},
