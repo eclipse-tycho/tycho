@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Export-Package: org.eclipse.tycho.core.facade,
  org.eclipse.tycho.core.internal;x-friends:="org.eclipse.tycho.p2.resolver.impl",
+ org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.p2.metadata,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.p2.resolver.facade,

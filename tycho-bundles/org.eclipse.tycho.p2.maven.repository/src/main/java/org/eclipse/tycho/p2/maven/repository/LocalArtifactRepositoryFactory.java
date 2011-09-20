@@ -48,9 +48,10 @@ public class LocalArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
     protected LocalRepositoryP2Indices lookupLocalRepoIndices() {
         final BundleContext context = Activator.getContext();
-        ServiceReference<LocalRepositoryP2Indices> localP2RepoReference = context.getServiceReference(LocalRepositoryP2Indices.class);
-        if (localP2RepoReference != null) {
-            LocalRepositoryP2Indices localRepoIndices = context.getService(localP2RepoReference);
+        ServiceReference<LocalRepositoryP2Indices> localRepoIndicesRef = context
+                .getServiceReference(LocalRepositoryP2Indices.class);
+        if (localRepoIndicesRef != null) {
+            LocalRepositoryP2Indices localRepoIndices = context.getService(localRepoIndicesRef);
             if (localRepoIndices != null) {
                 return localRepoIndices;
             }

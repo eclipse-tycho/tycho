@@ -19,6 +19,8 @@ import org.apache.maven.execution.DefaultMavenExecutionResult;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -48,13 +50,14 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
                 LocalTargetPlatformResolver.ROLE_HINT);
 
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
+        request.setLocalRepository(new StubArtifactRepository(location.getAbsolutePath()));
         MavenExecutionResult result = new DefaultMavenExecutionResult();
         DefaultRepositorySystemSession repositorySession = new DefaultRepositorySystemSession();
         MavenSession session = new MavenSession(getContainer(), repositorySession, request, result);
         session.setProjects(new ArrayList<MavenProject>());
+        lookup(LegacySupport.class).setSession(session);
 
         MavenProject project = new MavenProject();
-
         resolver.setLocation(location);
 
         TargetPlatform platform = resolver

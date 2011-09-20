@@ -13,6 +13,9 @@ package org.eclipse.tycho.p2.maven.repository.tests;
 
 import java.io.File;
 
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
+import org.eclipse.tycho.locking.facade.LockTimeoutException;
 import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
@@ -37,15 +40,42 @@ public abstract class BaseMavenRepositoryTest {
         mavenContext.setLocalRepositoryRoot(baseDir);
         LocalRepositoryP2IndicesImpl tempLocalRepoIndices = new LocalRepositoryP2IndicesImpl();
         tempLocalRepoIndices.setMavenContext(mavenContext);
+        tempLocalRepoIndices.setFileLockService(new NoopFileLockService());
         this.localRepoIndices = tempLocalRepoIndices;
     }
 
     protected TychoRepositoryIndex createArtifactsIndex(File location) {
-        return FileBasedTychoRepositoryIndex.createArtifactsIndex(location);
+        return FileBasedTychoRepositoryIndex.createArtifactsIndex(location, new NoopFileLockService());
     }
 
     protected TychoRepositoryIndex createMetadataIndex(File location) {
-        return FileBasedTychoRepositoryIndex.createMetadataIndex(location);
+        return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService());
     }
 
+    private static class NoopFileLockService implements FileLockService {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.eclipse.tycho.locking.facade.FileLockService#getFileLocker(java.io.File)
+         */
+        public FileLocker getFileLocker(File file) {
+            return new FileLocker() {
+
+                public void release() {
+                }
+
+                public void lock(long timeout) throws LockTimeoutException {
+                }
+
+                public void lock() throws LockTimeoutException {
+                }
+
+                public boolean isLocked() {
+                    return false;
+                }
+            };
+        }
+
+    }
 }

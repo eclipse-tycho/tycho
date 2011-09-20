@@ -43,6 +43,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         logger = new SilentLog();
+        registerNoopFileLockService();
     }
 
     @Override

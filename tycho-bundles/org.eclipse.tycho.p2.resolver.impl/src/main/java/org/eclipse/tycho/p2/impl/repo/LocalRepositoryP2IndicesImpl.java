@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2.impl.repo;
 import java.io.File;
 
 import org.eclipse.tycho.core.facade.MavenContext;
+import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
@@ -23,6 +24,7 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
     private MavenContext mavenContext;
     private TychoRepositoryIndex artifactsIndex;
     private TychoRepositoryIndex metadataIndex;
+    private FileLockService fileLockService;
 
     public LocalRepositoryP2IndicesImpl() {
     }
@@ -32,8 +34,8 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
             return;
         }
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
-        this.artifactsIndex = FileBasedTychoRepositoryIndex.createArtifactsIndex(localRepositoryRoot);
-        this.metadataIndex = FileBasedTychoRepositoryIndex.createMetadataIndex(localRepositoryRoot);
+        this.artifactsIndex = FileBasedTychoRepositoryIndex.createArtifactsIndex(localRepositoryRoot, fileLockService);
+        this.metadataIndex = FileBasedTychoRepositoryIndex.createMetadataIndex(localRepositoryRoot, fileLockService);
         initialized = true;
     }
 
@@ -63,12 +65,17 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
      * @see org.eclipse.tycho.p2.repository.LocalP2Repository#getLocation()
      */
     public File getBasedir() {
-        checkInitialized();
         return mavenContext.getLocalRepositoryRoot();
     }
 
+    // injected by DS runtime
     public void setMavenContext(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
+    }
+
+    // injected by DS runtime
+    public void setFileLockService(FileLockService fileLockService) {
+        this.fileLockService = fileLockService;
     }
 
 }

@@ -33,6 +33,7 @@ import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.After;
 
 public class P2ResolverTestBase {
@@ -104,6 +105,7 @@ public class P2ResolverTestBase {
     protected LocalRepositoryP2Indices createLocalRepoIndices(MavenContext mavenContext) {
         LocalRepositoryP2IndicesImpl localRepoIndices = new LocalRepositoryP2IndicesImpl();
         localRepoIndices.setMavenContext(mavenContext);
+        localRepoIndices.setFileLockService(new NoopFileLockService());
         return localRepoIndices;
     }
 }

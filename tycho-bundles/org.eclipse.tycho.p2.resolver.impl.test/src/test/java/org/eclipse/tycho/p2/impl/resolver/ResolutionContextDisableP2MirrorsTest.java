@@ -12,6 +12,7 @@ import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
+import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,6 +65,7 @@ public class ResolutionContextDisableP2MirrorsTest {
     private LocalRepositoryP2Indices createLocalRepoIndices(MavenContextImpl mavenContext) {
         LocalRepositoryP2IndicesImpl localRepoIndices = new LocalRepositoryP2IndicesImpl();
         localRepoIndices.setMavenContext(mavenContext);
+        localRepoIndices.setFileLockService(new NoopFileLockService());
         return localRepoIndices;
     }
 

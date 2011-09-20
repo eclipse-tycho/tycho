@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -31,13 +33,15 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
     public static final String METADATA_INDEX_RELPATH = ".meta/p2-local-metadata.properties";
 
     private final File indexFile;
+    private FileLocker fileLocker;
 
     private Set<GAV> addedGavs = new HashSet<GAV>();
     private Set<GAV> removedGavs = new HashSet<GAV>();
 
-    private FileBasedTychoRepositoryIndex(File indexFile) {
+    private FileBasedTychoRepositoryIndex(File indexFile, FileLockService fileLockService) {
         super();
         this.indexFile = indexFile;
+        this.fileLocker = fileLockService.getFileLocker(indexFile);
         if (indexFile.isFile()) {
             lock();
             try {
@@ -51,11 +55,11 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
     }
 
     private void lock() {
-        // TODO add file locking
+        fileLocker.lock();
     }
 
     private void unlock() {
-        // TODO add file locking
+        fileLocker.release();
     }
 
     @Override
@@ -106,12 +110,12 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
         removedGavs.clear();
     }
 
-    public static TychoRepositoryIndex createMetadataIndex(File basedir) {
-        return new FileBasedTychoRepositoryIndex(new File(basedir, METADATA_INDEX_RELPATH));
+    public static TychoRepositoryIndex createMetadataIndex(File basedir, FileLockService fileLockService) {
+        return new FileBasedTychoRepositoryIndex(new File(basedir, METADATA_INDEX_RELPATH), fileLockService);
     }
 
-    public static TychoRepositoryIndex createArtifactsIndex(File basedir) {
-        return new FileBasedTychoRepositoryIndex(new File(basedir, ARTIFACTS_INDEX_RELPATH));
+    public static TychoRepositoryIndex createArtifactsIndex(File basedir, FileLockService fileLockService) {
+        return new FileBasedTychoRepositoryIndex(new File(basedir, ARTIFACTS_INDEX_RELPATH), fileLockService);
     }
 
 }

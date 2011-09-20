@@ -25,6 +25,12 @@ import org.junit.Assert;
 
 public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
 
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        registerNoopFileLockService();
+    }
+
     public void testNestedJars() throws Exception {
         File targetPlatform = getBasedir("targetplatforms/nestedJar");
         List<MavenProject> projects = getSortedProjects(getBasedir("projects/mavendeps"), targetPlatform);

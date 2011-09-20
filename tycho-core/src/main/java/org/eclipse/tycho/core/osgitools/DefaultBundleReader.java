@@ -29,6 +29,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
 
 @Component(role = BundleReader.class)
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
@@ -41,6 +43,9 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
 
     @Requirement(hint = "zip")
     private UnArchiver zipUnArchiver;
+
+    @Requirement
+    private FileLockService fileLockService;
 
     public OsgiManifest loadManifest(File bundleLocation) {
         OsgiManifest manifest = manifestCache.get(bundleLocation);
@@ -149,7 +154,14 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                     return result;
                 } else {
                     zipUnArchiver.setSourceFile(bundleLocation);
-                    zipUnArchiver.extract(path, outputDirectory);
+                    outputDirectory.mkdirs();
+                    FileLocker locker = fileLockService.getFileLocker(outputDirectory);
+                    locker.lock();
+                    try {
+                        zipUnArchiver.extract(path, outputDirectory);
+                    } finally {
+                        locker.release();
+                    }
                     extractedFiles.add(resultPath);
                 }
             } catch (ArchiverException e) {
