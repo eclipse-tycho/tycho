@@ -81,7 +81,7 @@ public class EnvironmentUtil {
 
     public static String getTestSettings() {
         String value = getProperty("its-settings");
-        if (value.contains("$"))
+        if (value == null || value.contains("$"))
             return null;
         return value;
     }
