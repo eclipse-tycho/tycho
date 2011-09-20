@@ -28,14 +28,14 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
-import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.junit.Test;
 
-public class LocalMetadataRepositoryTest {
+public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
     private IProgressMonitor monitor = new NullProgressMonitor();
 
     @Test
@@ -48,8 +48,8 @@ public class LocalMetadataRepositoryTest {
     }
 
     protected IMetadataRepository loadRepository(File location) throws ProvisionException {
-        return new LocalMetadataRepository(location.toURI(), FileBasedTychoRepositoryIndex.createRepositoryIndex(
-                location, FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH), new LocalRepositoryReader(location));
+        return new LocalMetadataRepository(location.toURI(), createMetadataIndex(location), new LocalRepositoryReader(
+                location));
     }
 
     protected LocalMetadataRepository createRepository(File location, String groupId, String artifactId, String version)
@@ -58,8 +58,8 @@ public class LocalMetadataRepositoryTest {
         File metadataFile = new File(location, FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
         metadataFile.delete();
         metadataFile.getParentFile().mkdirs();
-
-        return new LocalMetadataRepository(location.toURI(), location.getAbsolutePath());
+        TychoRepositoryIndex metadataIndex = createMetadataIndex(location);
+        return new LocalMetadataRepository(location.toURI(), metadataIndex);
     }
 
     @Test
@@ -117,8 +117,7 @@ public class LocalMetadataRepositoryTest {
         repository = (LocalMetadataRepository) loadRepository(location);
 
         // check: the artifact is in the index
-        TychoRepositoryIndex metaIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(location,
-                FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
+        TychoRepositoryIndex metaIndex = createMetadataIndex(location);
         Assert.assertFalse(metaIndex.getProjectGAVs().isEmpty());
 
         // delete artifact from file system
@@ -126,8 +125,8 @@ public class LocalMetadataRepositoryTest {
 
         // create a new repo and check that the reference was gracefully removed from the index
         repository = (LocalMetadataRepository) loadRepository(location);
-        metaIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(location,
-                FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
+        repository.save();
+        metaIndex = createMetadataIndex(location);
         Assert.assertTrue(metaIndex.getProjectGAVs().isEmpty());
 
     }

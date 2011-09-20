@@ -29,7 +29,7 @@ public interface TychoRepositoryIndex {
      * @param gav
      *            not <code>null</code>
      */
-    void addProject(GAV gav);
+    void addGav(GAV gav);
 
     /**
      * Remove a GAV from the index.
@@ -37,13 +37,13 @@ public interface TychoRepositoryIndex {
      * @param gav
      * @see {@link #save()}
      */
-    void remove(GAV gav);
+    void removeGav(GAV gav);
 
     /**
-     * Changes performed via {@link #addProject(GAV)} , {@link #remove(GAV)} will only be reflected
+     * Changes performed via {@link #addGav(GAV)} , {@link #removeGav(GAV)} will only be reflected
      * in the memory state of the index. In case the index is bound some persistence location (e.g.
-     * a file see {@link FileBasedTychoRepositoryIndex#createRepositoryIndex(java.io.File, String)})
-     * the method will store the current memory content to the persistence storage.
+     * a file see {@link FileBasedTychoRepositoryIndex#createArtifactsIndex(java.io.File)}) the
+     * method will store the current memory content to the persistence storage.
      * 
      * @throws IOException
      */

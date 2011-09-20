@@ -9,7 +9,9 @@ import java.net.URI;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.tycho.p2.impl.MavenContextImpl;
+import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,8 +56,15 @@ public class ResolutionContextDisableP2MirrorsTest {
         mavenContext.setLocalRepositoryRoot(localRepo);
         mavenContext.setLogger(new MavenLoggerStub());
         p2ResolverFactoryImpl.setMavenContext(mavenContext);
+        p2ResolverFactoryImpl.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
         ResolutionContextImpl context = p2ResolverFactoryImpl.createResolutionContext(null, disableP2Mirrors);
         return context;
+    }
+
+    private LocalRepositoryP2Indices createLocalRepoIndices(MavenContextImpl mavenContext) {
+        LocalRepositoryP2IndicesImpl localRepoIndices = new LocalRepositoryP2IndicesImpl();
+        localRepoIndices.setMavenContext(mavenContext);
+        return localRepoIndices;
     }
 
     private String getP2MirrorsUrlFromCachedRepository(URI location) {

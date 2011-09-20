@@ -35,11 +35,8 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRepository {
-//    private static final String REPOSITORY_TYPE = AbstractMavenMetadataRepository.class.getName();
-//
-//    private static final String REPOSITORY_VERSION = "1.0.0";
 
-    protected final TychoRepositoryIndex projectIndex;
+    protected final TychoRepositoryIndex metadataIndex;
 
     protected final RepositoryReader contentLocator;
 
@@ -47,22 +44,21 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
 
     protected Map<GAV, Set<IInstallableUnit>> unitsMap = new LinkedHashMap<GAV, Set<IInstallableUnit>>();
 
-    public AbstractMavenMetadataRepository(URI location, TychoRepositoryIndex projectIndex,
+    public AbstractMavenMetadataRepository(URI location, TychoRepositoryIndex metadataIndex,
             RepositoryReader contentLocator) {
-        this(Activator.getProvisioningAgent(), location, projectIndex, contentLocator);
+        this(Activator.getProvisioningAgent(), location, metadataIndex, contentLocator);
     }
 
-    public AbstractMavenMetadataRepository(IProvisioningAgent agent, URI location, TychoRepositoryIndex projectIndex,
+    public AbstractMavenMetadataRepository(IProvisioningAgent agent, URI location, TychoRepositoryIndex metadataIndex,
             RepositoryReader contentLocator) {
-        // super( location.toString(), REPOSITORY_TYPE, REPOSITORY_VERSION, location, null, null, properties );
         super(agent);
 
         setLocation(location);
 
-        this.projectIndex = projectIndex;
+        this.metadataIndex = metadataIndex;
         this.contentLocator = contentLocator;
 
-        if (projectIndex != null && contentLocator != null) {
+        if (metadataIndex != null && contentLocator != null) {
             load();
         }
     }
@@ -70,14 +66,13 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
     protected void load() {
         MetadataIO io = new MetadataIO();
 
-        for (GAV gav : projectIndex.getProjectGAVs()) {
+        for (GAV gav : metadataIndex.getProjectGAVs()) {
             try {
                 File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
                         RepositoryLayoutHelper.CLASSIFIER_P2_METADATA, RepositoryLayoutHelper.EXTENSION_P2_METADATA);
                 if (!localArtifactFileLocation.exists()) {
-                    // if files have been manually removed from the repository, simply adjust the meta info file (bug 351080)
-                    projectIndex.remove(gav);
-                    projectIndex.save();
+                    // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
+                    metadataIndex.removeGav(gav);
                 } else {
                     InputStream is = contentLocator.getContents(gav, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA,
                             RepositoryLayoutHelper.EXTENSION_P2_METADATA);

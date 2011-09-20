@@ -20,16 +20,18 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.impl.Activator;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 @SuppressWarnings("restriction")
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     private MavenContext mavenContext;
+    private LocalRepositoryP2Indices localRepoIndices;
 
     public ResolutionContextImpl createResolutionContext(String bree, boolean disableP2Mirrors) {
         IProvisioningAgent agent = getProvisioningAgent(mavenContext.getLocalRepositoryRoot(), mavenContext.isOffline());
-        return new ResolutionContextImpl(agent, mavenContext, bree, disableP2Mirrors);
+        return new ResolutionContextImpl(agent, mavenContext, bree, localRepoIndices, disableP2Mirrors);
     }
 
     public P2ResolverImpl createResolver() {
@@ -110,6 +112,10 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     public void setMavenContext(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
+    }
+
+    public void setLocalRepositoryIndices(LocalRepositoryP2Indices localRepoIndices) {
+        this.localRepoIndices = localRepoIndices;
     }
 
 }

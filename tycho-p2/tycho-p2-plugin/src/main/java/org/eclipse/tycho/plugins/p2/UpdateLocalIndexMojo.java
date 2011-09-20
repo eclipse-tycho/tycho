@@ -10,35 +10,44 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
-import java.io.File;
 import java.io.IOException;
 
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
+import org.eclipse.tycho.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
+import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 /**
  * @goal update-local-index
  */
 public class UpdateLocalIndexMojo extends AbstractMojo {
-    /** @parameter expression="${session}" */
-    private MavenSession session;
 
     /** @parameter expression="${project}" */
     private MavenProject project;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        File location = new File(session.getLocalRepository().getBasedir());
+    /** @component */
+    private EquinoxServiceFactory serviceFactory;
 
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        LocalRepositoryP2Indices localRepoIndices = serviceFactory.getService(LocalRepositoryP2Indices.class);
+        GAV gav = new GAV(project.getGroupId(), project.getArtifactId(), project.getArtifact().getVersion());
+        TychoRepositoryIndex artifactsIndex = localRepoIndices.getArtifactsIndex();
+        TychoRepositoryIndex metadataIndex = localRepoIndices.getMetadataIndex();
         try {
-            FileBasedTychoRepositoryIndex.addProject(location, project.getGroupId(), project.getArtifactId(), project
-                    .getArtifact().getVersion());
+            addGavAndSave(gav, artifactsIndex);
+            addGavAndSave(gav, metadataIndex);
         } catch (IOException e) {
             throw new MojoExecutionException("Could not update local repository index", e);
         }
+    }
+
+    private void addGavAndSave(GAV gav, TychoRepositoryIndex index) throws IOException {
+        index.addGav(gav);
+        index.save();
     }
 
 }

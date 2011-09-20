@@ -27,9 +27,11 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
+import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.junit.After;
 
@@ -93,8 +95,15 @@ public class P2ResolverTestBase {
 
     protected P2ResolverFactoryImpl createP2ResolverFactory(boolean offline) throws IOException {
         P2ResolverFactoryImpl p2ResolverFactory = new P2ResolverFactoryImpl();
-        p2ResolverFactory.setMavenContext(createMavenContext(offline, new MavenLoggerStub()));
+        MavenContext mavenContext = createMavenContext(offline, new MavenLoggerStub());
+        p2ResolverFactory.setMavenContext(mavenContext);
+        p2ResolverFactory.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
         return p2ResolverFactory;
     }
 
+    protected LocalRepositoryP2Indices createLocalRepoIndices(MavenContext mavenContext) {
+        LocalRepositoryP2IndicesImpl localRepoIndices = new LocalRepositoryP2IndicesImpl();
+        localRepoIndices.setMavenContext(mavenContext);
+        return localRepoIndices;
+    }
 }

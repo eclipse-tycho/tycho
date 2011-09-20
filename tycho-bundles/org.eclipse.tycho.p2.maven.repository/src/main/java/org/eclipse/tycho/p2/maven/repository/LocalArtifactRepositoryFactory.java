@@ -18,8 +18,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
-import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 public class LocalArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
@@ -36,10 +38,23 @@ public class LocalArtifactRepositoryFactory extends ArtifactRepositoryFactory {
         if ("file".equals(location.getScheme())) {
             final File localRepositoryDirectory = new File(location);
             if (localRepositoryDirectory.isDirectory()
-                    && new File(localRepositoryDirectory, FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH).exists()) {
-                return new LocalArtifactRepository(getAgent(), localRepositoryDirectory);
+                    && new File(localRepositoryDirectory, ".meta/p2-artifacts.properties").exists()) {
+                // see FileBasedTychoRepositoryIndex#ARTIFACTS_INDEX_RELPATH
+                return new LocalArtifactRepository(getAgent(), lookupLocalRepoIndices());
             }
         }
         return null;
+    }
+
+    protected LocalRepositoryP2Indices lookupLocalRepoIndices() {
+        final BundleContext context = Activator.getContext();
+        ServiceReference<LocalRepositoryP2Indices> localP2RepoReference = context.getServiceReference(LocalRepositoryP2Indices.class);
+        if (localP2RepoReference != null) {
+            LocalRepositoryP2Indices localRepoIndices = context.getService(localP2RepoReference);
+            if (localRepoIndices != null) {
+                return localRepoIndices;
+            }
+        }
+        throw new IllegalStateException("service not registered: " + LocalRepositoryP2Indices.class.getName());
     }
 }

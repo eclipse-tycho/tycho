@@ -44,7 +44,7 @@ public class ResolutionContextBundlePublisherTest {
     @Before
     public void initSubject() {
         localRepo = new LocalRepositoryStub();
-        subject = new ResolutionContextBundlePublisher(localRepo.getArtifactProvider(), new MavenLoggerStub(true));
+        subject = new ResolutionContextBundlePublisher(localRepo.getArtifactProvider(), new MavenLoggerStub(true, true));
     }
 
     @Test

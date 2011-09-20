@@ -165,4 +165,5 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
             return null;
         }
     }
+
 }

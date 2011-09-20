@@ -5,4 +5,5 @@
       <provide interface="org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory"/>
    </service>
    <reference bind="setMavenContext" cardinality="1..1" interface="org.eclipse.tycho.core.facade.MavenContext" name="MavenContext" policy="static"/>
+   <reference bind="setLocalRepositoryIndices" cardinality="1..1" interface="org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices" name="LocalRepositoryP2Indices" policy="static"/>
 </scr:component>

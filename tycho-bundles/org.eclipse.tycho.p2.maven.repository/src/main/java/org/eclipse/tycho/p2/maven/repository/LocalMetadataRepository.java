@@ -20,7 +20,6 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -32,8 +31,8 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
     /**
      * Create new repository
      */
-    public LocalMetadataRepository(URI location, String name) {
-        super(location, null, null);
+    public LocalMetadataRepository(URI location, TychoRepositoryIndex metadataIndex) {
+        super(location, metadataIndex, null);
         if (!location.getScheme().equals("file")) {
             throw new IllegalArgumentException("Invalid local repository location: " + location); //$NON-NLS-1$
         }
@@ -76,9 +75,6 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
     public void save() {
         File basedir = new File(getLocation());
 
-        TychoRepositoryIndex index = FileBasedTychoRepositoryIndex.createRepositoryIndex(basedir,
-                FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
-
         MetadataIO io = new MetadataIO();
 
         for (GAV gav : changedGAVs) {
@@ -94,7 +90,7 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
                 try {
                     io.writeXML(gavUnits, file);
 
-                    index.addProject(gav);
+                    metadataIndex.addGav(gav);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -102,7 +98,7 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
         }
 
         try {
-            index.save();
+            metadataIndex.save();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -31,22 +31,13 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
-import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")
-public class LocalArtifactRepositoryTest {
-
-    private final File basedir = new File("target/repository").getAbsoluteFile();
-
-    @Before
-    public void cleanupRepository() {
-        deleteDir(basedir);
-    }
+public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
     private void deleteDir(File dir) {
         File[] files = dir.listFiles();
@@ -64,33 +55,32 @@ public class LocalArtifactRepositoryTest {
     @Test
     public void testOutdatedIndex() {
         //create Repo with single artifact
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
         ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
         repo.addDescriptor(desc);
         repo.save();
 
         // check: the artifact is in the index
-        TychoRepositoryIndex artifactIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(basedir,
-                FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+        TychoRepositoryIndex artifactIndex = createArtifactsIndex(baseDir);
         Assert.assertFalse(artifactIndex.getProjectGAVs().isEmpty());
 
         // delete artifact content from file system
-        deleteDir(new File(basedir, "p2"));
+        deleteDir(new File(baseDir, "p2"));
 
         // create a new repo and check that the reference was gracefully removed from the index
-        repo = new LocalArtifactRepository(basedir);
-        artifactIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(basedir,
-                FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+        repo = new LocalArtifactRepository(localRepoIndices);
+        repo.save();
+        artifactIndex = createArtifactsIndex(baseDir);
         Assert.assertTrue(artifactIndex.getProjectGAVs().isEmpty());
     }
 
     @Test
     public void getP2Location() {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
 
-        Assert.assertEquals(new File(basedir,
+        Assert.assertEquals(new File(baseDir,
                 "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar"), repo
                 .getArtifactFile(desc));
 
@@ -99,7 +89,7 @@ public class LocalArtifactRepositoryTest {
         desc.setProcessingSteps(steps);
         desc.setProperty(IArtifactDescriptor.FORMAT, "packed");
 
-        Assert.assertEquals(new File(basedir,
+        Assert.assertEquals(new File(baseDir,
                 "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0-pack200.jar.pack.gz"),
                 repo.getArtifactFile(desc));
     }
@@ -120,50 +110,50 @@ public class LocalArtifactRepositoryTest {
 
     @Test
     public void getMavenLocation() {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
 
-        Assert.assertEquals(new File(basedir,
+        Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo
                 .getArtifactFile(desc));
     }
 
     @Test
     public void getMavenLocationWithClassifierAndExtension() {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
 
-        Assert.assertEquals(new File(basedir,
+        Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo
                 .getArtifactFile(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, "classifier.value");
-        Assert.assertEquals(new File(basedir,
+        Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.jar"),
                 repo.getArtifactFile(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, "zip");
-        Assert.assertEquals(new File(basedir,
+        Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.zip"),
                 repo.getArtifactFile(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, null);
-        Assert.assertEquals(new File(basedir,
+        Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.zip"), repo
                 .getArtifactFile(desc));
     }
 
     @Test
     public void addP2Artifact() throws Exception {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
 
         writeDummyArtifact(repo, desc);
 
-        Assert.assertTrue(new File(basedir,
+        Assert.assertTrue(new File(baseDir,
                 "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar").exists());
         Assert.assertTrue(repo.contains(desc.getArtifactKey()));
         Assert.assertTrue(repo.contains(desc));
@@ -183,13 +173,13 @@ public class LocalArtifactRepositoryTest {
 
     @Test
     public void addMavenArtifact() throws Exception {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
 
         writeDummyArtifact(repo, desc);
 
-        Assert.assertTrue(new File(basedir,
+        Assert.assertTrue(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar").exists());
         Assert.assertTrue(repo.contains(desc.getArtifactKey()));
         Assert.assertTrue(repo.contains(desc));
@@ -197,7 +187,7 @@ public class LocalArtifactRepositoryTest {
 
     @Test
     public void reload() throws Exception {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
         ArtifactDescriptor mavenArtifact = newBundleArtifactDescriptor(true);
         ArtifactDescriptor p2Artifact = newBundleArtifactDescriptor(false);
 
@@ -206,21 +196,21 @@ public class LocalArtifactRepositoryTest {
 
         repo.save();
 
-        repo = new LocalArtifactRepository(basedir);
+        repo = new LocalArtifactRepository(localRepoIndices);
         Assert.assertTrue(repo.contains(mavenArtifact.getArtifactKey()));
         Assert.assertTrue(repo.contains(p2Artifact.getArtifactKey()));
     }
 
     @Test
     public void testGetArtifactsNoRequests() {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
         IStatus status = repo.getArtifacts(new IArtifactRequest[0], new NullProgressMonitor());
         Assert.assertTrue(status.isOK());
     }
 
     @Test
     public void testGetArtifactsErrorRequest() {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
         IArtifactRequest errorRequest = new IArtifactRequest() {
             public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
             }
@@ -240,7 +230,7 @@ public class LocalArtifactRepositoryTest {
     @Test
     public void testGetArtifactsCreateSubmonitor() {
         NullProgressMonitor monitor = new NullProgressMonitor();
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
         final IProgressMonitor[] requestMonitorReturnValue = new IProgressMonitor[1];
         IArtifactRequest errorRequest = new IArtifactRequest() {
             public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
@@ -263,7 +253,7 @@ public class LocalArtifactRepositoryTest {
 
     @Test
     public void testGetRawArtifactDummy() throws ProvisionException, IOException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
         ArtifactDescriptor p2Artifact = newBundleArtifactDescriptor(false);
         byte[] content = new byte[] { 111, 112 };
         writeDummyArtifact(repo, p2Artifact, content);

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="false">
+   <implementation class="org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl"/>
+   <service>
+      <provide interface="org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices"/>
+   </service>
+   <reference bind="setMavenContext" cardinality="1..1" interface="org.eclipse.tycho.core.facade.MavenContext" name="MavenContext" policy="static"/>
+</scr:component>

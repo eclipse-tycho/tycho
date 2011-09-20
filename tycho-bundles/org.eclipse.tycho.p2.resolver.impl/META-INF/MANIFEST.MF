@@ -41,5 +41,6 @@ Service-Component: OSGI-INF/generator.xml,
  OSGI-INF/metadataserializable.xml,
  OSGI-INF/proxyfacade.xml,
  OSGI-INF/resolver.xml,
- OSGI-INF/mavencontext.xml
+ OSGI-INF/mavencontext.xml,
+ OSGI-INF/localRepoP2Indices.xml
 Bundle-Vendor: %providerName

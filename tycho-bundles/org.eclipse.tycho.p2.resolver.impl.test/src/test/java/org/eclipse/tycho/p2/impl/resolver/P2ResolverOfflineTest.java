@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -83,7 +84,9 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
 
         // now go offline and resolve again
         P2ResolverFactoryImpl p2ResolverFactory = new P2ResolverFactoryImpl();
-        p2ResolverFactory.setMavenContext(createMavenContext(true, new MavenLoggerStub()));
+        MavenContext mavenContext = createMavenContext(true, new MavenLoggerStub());
+        p2ResolverFactory.setMavenContext(mavenContext);
+        p2ResolverFactory.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
         context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 

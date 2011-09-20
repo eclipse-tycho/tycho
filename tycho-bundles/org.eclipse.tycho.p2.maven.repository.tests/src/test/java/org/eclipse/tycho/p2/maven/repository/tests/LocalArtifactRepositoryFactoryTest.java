@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository.tests;
 
-import java.io.File;
 import java.net.URI;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -18,38 +17,24 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepositoryFactory;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LocalArtifactRepositoryFactoryTest {
+public class LocalArtifactRepositoryFactoryTest extends BaseMavenRepositoryTest {
 
     private LocalArtifactRepositoryFactory subject;
 
-    private final File basedir = new File("target/repository/"
-            + LocalArtifactRepositoryFactoryTest.class.getSimpleName()).getAbsoluteFile();
-
-    @Before
-    public void cleanupRepository() {
-        deleteDir(basedir);
-    }
-
-    private void deleteDir(File dir) {
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDir(file);
-
-                }
-                file.delete();
-            }
-        }
-    }
-
     @Before
     public void setUp() {
-        subject = new LocalArtifactRepositoryFactory();
+        subject = new LocalArtifactRepositoryFactory() {
+
+            @Override
+            protected LocalRepositoryP2Indices lookupLocalRepoIndices() {
+                return localRepoIndices;
+            }
+        };
     }
 
     @Test(expected = ProvisionException.class)
@@ -64,9 +49,9 @@ public class LocalArtifactRepositoryFactoryTest {
 
     @Test
     public void testLoad() throws ProvisionException {
-        LocalArtifactRepository repo = new LocalArtifactRepository(basedir);
+        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
         repo.save();
-        IArtifactRepository repo2 = subject.load(basedir.toURI(), 0, new NullProgressMonitor());
+        IArtifactRepository repo2 = subject.load(baseDir.toURI(), 0, new NullProgressMonitor());
         Assert.assertEquals(repo, repo2);
     }
 }

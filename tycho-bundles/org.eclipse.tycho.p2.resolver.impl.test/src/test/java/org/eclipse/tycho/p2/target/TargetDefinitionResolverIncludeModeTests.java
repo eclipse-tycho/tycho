@@ -64,6 +64,9 @@ public class TargetDefinitionResolverIncludeModeTests {
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testUnsatisfiedDependencyWithPlanner() throws Exception {
         TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
+        Map<String, String> emptyMap = new HashMap<String, String>();
+        List<Map<String, String>> environments = Collections.singletonList(emptyMap);
+        subject = new TargetDefinitionResolver(environments, p2Context.getAgent(), new MavenLoggerStub(false, false));
         subject.resolveContent(definition);
     }
 

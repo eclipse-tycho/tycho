@@ -58,19 +58,21 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
     protected Set<IArtifactDescriptor> descriptors = new HashSet<IArtifactDescriptor>();
 
+    protected TychoRepositoryIndex artifactsIndex;
+
     private final RepositoryReader contentLocator;
 
     @Deprecated
-    protected AbstractMavenArtifactRepository(URI uri, TychoRepositoryIndex projectIndex,
+    protected AbstractMavenArtifactRepository(URI uri, TychoRepositoryIndex artifactsIndex,
             RepositoryReader contentLocator) {
-        this(Activator.getProvisioningAgent(), uri, projectIndex, contentLocator);
+        this(Activator.getProvisioningAgent(), uri, artifactsIndex, contentLocator);
     }
 
-    protected AbstractMavenArtifactRepository(IProvisioningAgent agent, URI uri, TychoRepositoryIndex projectIndex,
+    protected AbstractMavenArtifactRepository(IProvisioningAgent agent, URI uri, TychoRepositoryIndex artifactsIndex,
             RepositoryReader contentLocator) {
         this(agent, uri, contentLocator);
-
-        loadMaven(projectIndex);
+        this.artifactsIndex = artifactsIndex;
+        loadMaven();
     }
 
     protected AbstractMavenArtifactRepository(IProvisioningAgent agent, URI uri, RepositoryReader contentLocator) {
@@ -79,17 +81,16 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         this.contentLocator = contentLocator;
     }
 
-    protected void loadMaven(TychoRepositoryIndex projectIndex) {
+    protected void loadMaven() {
         final ArtifactsIO io = new ArtifactsIO();
 
-        for (final GAV gav : projectIndex.getProjectGAVs()) {
+        for (final GAV gav : artifactsIndex.getProjectGAVs()) {
             try {
                 File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
                         RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
                 if (!localArtifactFileLocation.exists()) {
-                    // if files have been manually removed from the repository, simply adjust the meta info file (bug 351080)
-                    projectIndex.remove(gav);
-                    projectIndex.save();
+                    // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
+                    artifactsIndex.removeGav(gav);
                 } else {
                     final InputStream is = contentLocator.getContents(gav,
                             RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,

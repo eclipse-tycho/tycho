@@ -27,13 +27,12 @@ import java.util.Set;
  * generic index read/write methods.
  */
 public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryIndex {
-    protected static final String ENCODING = "UTF8";
 
-    protected static final String EOL = "\n";
-
+    private static final String ENCODING = "UTF8";
+    private static final String EOL = "\n";
     private Set<GAV> gavs;
 
-    DefaultTychoRepositoryIndex() {
+    protected DefaultTychoRepositoryIndex() {
         this(Collections.<GAV> emptySet());
     }
 
@@ -49,20 +48,24 @@ public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryInde
         return Collections.unmodifiableSet(new LinkedHashSet<GAV>(gavs));
     }
 
-    public void addProject(GAV gav) {
+    public void addGav(GAV gav) {
         if (gav == null)
             throw new NullPointerException();
         gavs.add(gav);
     }
 
-    public void remove(GAV gav) {
+    public void removeGav(GAV gav) {
         gavs.remove(gav);
     }
 
-    protected static void write(TychoRepositoryIndex index, OutputStream os) throws IOException {
-        Writer out = new OutputStreamWriter(new BufferedOutputStream(os), ENCODING);
+    protected void setGavs(Set<GAV> content) {
+        this.gavs = content;
+    }
+
+    protected void write(OutputStream outStream) throws IOException {
+        Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), ENCODING);
         try {
-            for (GAV gav : index.getProjectGAVs()) {
+            for (GAV gav : getProjectGAVs()) {
                 out.write(gav.toExternalForm());
                 out.write(EOL);
             }
@@ -72,21 +75,20 @@ public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryInde
         }
     }
 
-    protected static Set<GAV> read(InputStream is) throws IOException {
+    protected Set<GAV> read(InputStream inStream) throws IOException {
         LinkedHashSet<GAV> result = new LinkedHashSet<GAV>();
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(is, ENCODING));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, ENCODING));
         try {
-            String str;
-            while ((str = br.readLine()) != null) {
-                GAV parsedGAV = GAV.parse(str);
-                if (parsedGAV != null)
+            String line;
+            while ((line = reader.readLine()) != null) {
+                GAV parsedGAV = GAV.parse(line);
+                if (parsedGAV != null) {
                     result.add(parsedGAV);
+                }
             }
         } finally {
-            br.close();
+            reader.close();
         }
-
         return result;
     }
 

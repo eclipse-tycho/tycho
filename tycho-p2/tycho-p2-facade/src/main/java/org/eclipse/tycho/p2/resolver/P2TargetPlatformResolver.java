@@ -71,6 +71,7 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
@@ -243,7 +244,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
             List<Artifact> explicitArtifacts = MavenDependencyInjector.filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
             PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
-                    getLogger());
+                    equinox.getService(LocalRepositoryP2Indices.class), getLogger());
             pomDependencyProcessor.addPomDependenciesToResolutionContext(project, explicitArtifacts, resolutionContext);
         }
 

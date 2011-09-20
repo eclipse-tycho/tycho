@@ -14,8 +14,10 @@ Require-Bundle: org.eclipse.tycho.p2.maven.repository,
  org.eclipse.equinox.p2.artifact.repository;bundle-version="1.0.100",
  org.eclipse.equinox.p2.publisher;bundle-version="1.0.0",
  org.eclipse.equinox.p2.repository;bundle-version="1.0.0",
- org.eclipse.equinox.ds;bundle-version="1.2.0"
-Import-Package: org.eclipse.tycho.p2.repository,
+ org.eclipse.equinox.ds;bundle-version="1.2.0",
+ org.eclipse.tycho.p2.resolver.impl;bundle-version="0.14.0"
+Import-Package: org.eclipse.tycho.core.facade,
+ org.eclipse.tycho.p2.repository,
  org.osgi.framework;version="1.5.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.tycho.p2.maven.repository.tests.Activator

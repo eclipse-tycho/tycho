@@ -116,13 +116,11 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
 
             if (artifact.getFile().lastModified() > p2Directory.lastModified()) {
                 logger.debug("Unpacking P2 runtime to " + p2Directory);
-
                 try {
                     FileUtils.deleteDirectory(p2Directory);
                 } catch (IOException e) {
                     logger.warn("Failed to delete P2 runtime " + p2Directory + ": " + e.getMessage());
                 }
-
                 unArchiver.setSourceFile(artifact.getFile());
                 unArchiver.setDestDirectory(p2Directory.getParentFile());
                 try {

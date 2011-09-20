@@ -69,8 +69,8 @@ import org.eclipse.tycho.p2.maven.repository.MavenMirrorRequest;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
-import org.eclipse.tycho.p2.repository.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -102,13 +102,13 @@ public class ResolutionContextImpl implements ResolutionContext {
     private final String executionEnvironment;
 
     /** maven local repository as P2 IArtifactRepository */
-    private final LocalArtifactRepository localRepository;
+    private final LocalArtifactRepository localArtifactRepository;
 
     /** maven local repository as P2 IMetadataRepository */
     private final LocalMetadataRepository localMetadataRepository;
 
     ResolutionContextImpl(IProvisioningAgent agent, MavenContext mavenContext, String executionEnvironment,
-            boolean disableP2Mirrors) {
+            LocalRepositoryP2Indices localRepositoryIndices, boolean disableP2Mirrors) {
         this.agent = agent;
         this.logger = mavenContext.getLogger();
         this.monitor = new LoggingProgressMonitor(logger);
@@ -136,33 +136,28 @@ public class ResolutionContextImpl implements ResolutionContext {
 
         this.executionEnvironment = executionEnvironment;
 
-        this.bundlesPublisher = new ResolutionContextBundlePublisher(mavenContext.getLocalRepositoryRoot(), logger);
+        File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
+        this.bundlesPublisher = new ResolutionContextBundlePublisher(localRepositoryRoot, logger);
 
         // setup p2 views of maven local repository
-        URI uri = mavenContext.getLocalRepositoryRoot().toURI();
+        URI uri = localRepositoryRoot.toURI();
 
         LocalArtifactRepository localRepository = (LocalArtifactRepository) repositoryCache.getArtifactRepository(uri);
         LocalMetadataRepository localMetadataRepository = (LocalMetadataRepository) repositoryCache
                 .getMetadataRepository(uri);
 
         if (localRepository == null || localMetadataRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(mavenContext.getLocalRepositoryRoot());
-            TychoRepositoryIndex artifactsIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(
-                    mavenContext.getLocalRepositoryRoot(), FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
-            TychoRepositoryIndex metadataIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(
-                    mavenContext.getLocalRepositoryRoot(), FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
-
-            localRepository = new LocalArtifactRepository(mavenContext.getLocalRepositoryRoot(), artifactsIndex,
-                    contentLocator);
+            RepositoryReader contentLocator = new LocalRepositoryReader(localRepositoryRoot);
+            TychoRepositoryIndex metadataIndex = localRepositoryIndices.getMetadataIndex();
+            localRepository = new LocalArtifactRepository(localRepositoryIndices, contentLocator);
             localMetadataRepository = new LocalMetadataRepository(uri, metadataIndex, contentLocator);
-
             repositoryCache.putRepository(uri, localMetadataRepository, localRepository);
         }
 
         metadataRepositories.add(localMetadataRepository);
 
         this.localMetadataRepository = localMetadataRepository;
-        this.localRepository = localRepository;
+        this.localArtifactRepository = localRepository;
     }
 
     // ---------------------------------------------------------------------
@@ -525,7 +520,7 @@ public class ResolutionContextImpl implements ResolutionContext {
             if (getMavenArtifact(iu) == null) {
                 Collection<IArtifactKey> artifactKeys = iu.getArtifacts();
                 for (IArtifactKey key : artifactKeys) {
-                    requests.add(new MavenMirrorRequest(key, localRepository, getTransport()));
+                    requests.add(new MavenMirrorRequest(key, localArtifactRepository, getTransport()));
                 }
             }
         }
@@ -548,14 +543,14 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
         requests = filterCompletedRequests(requests);
 
-        localRepository.save();
+        localArtifactRepository.save();
         localMetadataRepository.save();
 
         // check for locally installed artifacts, which are not available from any remote repo
         // TODO do this before downloading? (see enhancement request 342808)
         for (Iterator<MavenMirrorRequest> iter = requests.iterator(); iter.hasNext();) {
             MavenMirrorRequest request = iter.next();
-            if (localRepository.contains(request.getArtifactKey())) {
+            if (localArtifactRepository.contains(request.getArtifactKey())) {
                 iter.remove();
             }
         }
@@ -626,7 +621,7 @@ public class ResolutionContextImpl implements ResolutionContext {
     }
 
     public File getLocalArtifactFile(IArtifactKey key) {
-        return localRepository.getArtifactFile(key);
+        return localArtifactRepository.getArtifactFile(key);
     }
 
     protected Transport getTransport() {
