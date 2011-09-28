@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0">
+   <implementation class="org.eclipse.tycho.p2.tools.verifier.VerifierServiceImpl"/>
+   <service>
+      <provide interface="org.eclipse.tycho.p2.tools.verifier.facade.VerifierService"/>
+   </service>
+</scr:component>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="jarsigning.feature"
+      label="OSGi Jarsigning Example Feature"
+      version="0.0.1.qualifier">
+
+   <plugin
+         id="jarsigning"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+</feature>

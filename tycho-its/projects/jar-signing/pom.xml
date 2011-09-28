@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.eclipse.tycho.its.selfsignedcert</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>plugin</module>
+		<module>feature</module>
+		<module>rcp</module>
+	</modules>
+
+	<properties>
+		<keystore.path>${project.parent.basedir}/keystore</keystore.path>
+		<keystore.type>JKS</keystore.type>
+		<keystore.alias>dummy</keystore.alias>
+		<keystore.dname>CN=example.org,OU=Dummy,O=Dummy,L=Dummy,C=DE</keystore.dname>
+		<keystore.store.password>abcd1234</keystore.store.password>
+		<keystore.key.password>abcd1234</keystore.key.password>
+		<jarsigner.plugin.groupId>org.apache.maven.plugins</jarsigner.plugin.groupId>
+		<jarsigner.plugin.artifactId>maven-jarsigner-plugin</jarsigner.plugin.artifactId>
+		<jarsigner.plugin.version>1.2</jarsigner.plugin.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+				<plugin>
+					<groupId>${jarsigner.plugin.groupId}</groupId>
+					<artifactId>${jarsigner.plugin.artifactId}</artifactId>
+					<version>${jarsigner.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>sign</id>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>verify</id>
+							<goals>
+								<goal>verify</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+							<certs>true</certs>
+							<verbose>true</verbose>
+							<storetype>${keystore.type}</storetype>
+							<keystore>${keystore.path}</keystore>
+							<alias>${keystore.alias}</alias>
+							<storepass>${keystore.store.password}</storepass>
+							<keypass>${keystore.key.password}</keypass>
+					</configuration>
+				</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<repositories>
+		<repository>
+			<id>download.eclipse.org_releases_indigo</id>
+			<url>http://download.eclipse.org/releases/indigo/</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+</project>

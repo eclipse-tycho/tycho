@@ -76,7 +76,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
             // meta data handling for root files
             if ("eclipse-feature".equals(artifact.getPackagingType())) {
-                publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
+                publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH
+                        | IPublisherInfo.A_NO_MD5);
                 FeatureRootfileArtifactRepository artifactsRepository = new FeatureRootfileArtifactRepository(
                         publisherInfo, targetDir);
                 publisherInfo.setArtifactRepository(artifactsRepository);
@@ -85,6 +86,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
                 attachedArtifacts.putAll(artifactsRepository.getPublishedArtifacts());
             } else {
+                publisherInfo.setArtifactOptions(IPublisherInfo.A_NO_MD5);
                 TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
                 publisherInfo.setArtifactRepository(artifactsRepository);
                 super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo);

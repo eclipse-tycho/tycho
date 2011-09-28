@@ -46,7 +46,8 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
             "org.eclipse.tycho.p2.metadata", "org.eclipse.tycho.p2.repository", "org.eclipse.tycho.p2.resolver.facade",
             "org.eclipse.tycho.p2.target.facade", "org.eclipse.tycho.p2.tools",
             "org.eclipse.tycho.p2.tools.director.facade", "org.eclipse.tycho.p2.tools.publisher.facade",
-            "org.eclipse.tycho.p2.tools.mirroring.facade", "org.eclipse.tycho.repository.registry.facade" };
+            "org.eclipse.tycho.p2.tools.mirroring.facade", "org.eclipse.tycho.p2.tools.verifier.facade",
+            "org.eclipse.tycho.repository.registry.facade" };
 
     @Requirement
     private Logger logger;
