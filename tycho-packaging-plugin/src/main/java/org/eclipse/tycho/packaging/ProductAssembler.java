@@ -11,12 +11,12 @@
 package org.eclipse.tycho.packaging;
 
 import java.io.File;
-import java.util.jar.Manifest;
 
 import org.apache.maven.execution.MavenSession;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.model.PluginRef;
 
 public class ProductAssembler extends UpdateSiteAssembler {
@@ -50,8 +50,8 @@ public class ProductAssembler extends UpdateSiteAssembler {
     }
 
     private boolean isSourceBundle(PluginDescription plugin) {
-        Manifest mf = manifestReader.loadManifest(plugin.getLocation());
-        return manifestReader.parseHeader("Eclipse-SourceBundle", mf) != null;
+        OsgiManifest mf = manifestReader.loadManifest(plugin.getLocation());
+        return mf.getValue("Eclipse-SourceBundle") != null;
     }
 
     @Override
@@ -60,9 +60,9 @@ public class ProductAssembler extends UpdateSiteAssembler {
             return true;
         }
 
-        Manifest mf = manifestReader.loadManifest(location);
+        OsgiManifest mf = manifestReader.loadManifest(location);
 
-        return manifestReader.isDirectoryShape(mf);
+        return mf.isDirectoryShape();
     }
 
     protected boolean matchEntivonment(PluginDescription plugin) {

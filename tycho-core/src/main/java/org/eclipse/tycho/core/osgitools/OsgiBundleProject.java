@@ -19,7 +19,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +30,6 @@ import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.framework.internal.core.FilterImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
-import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -129,22 +127,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public ArtifactKey readArtifactKey(File location) {
-        Manifest mf = bundleReader.loadManifest(location);
-
-        ManifestElement[] id = bundleReader.parseHeader(Constants.BUNDLE_SYMBOLICNAME, mf);
-        ManifestElement[] version = bundleReader.parseHeader(Constants.BUNDLE_VERSION, mf);
-
-        if (id == null || version == null) {
-            return null;
-        }
-
-        return new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, id[0].getValue(),
-                version[0].getValue());
+        OsgiManifest mf = bundleReader.loadManifest(location);
+        return DefaultArtifactKey.fromManifest(mf);
     }
 
     public String getManifestValue(String key, MavenProject project) {
-        Manifest mf = bundleReader.loadManifest(project.getBasedir());
-        return mf.getMainAttributes().getValue(key);
+        OsgiManifest mf = bundleReader.loadManifest(project.getBasedir());
+        return mf.getValue(key);
     }
 
     @Override
@@ -374,16 +363,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private String[] parseBundleClasspath(ArtifactDescriptor bundle) {
-        String[] result = new String[] { "." };
-        Manifest mf = bundleReader.loadManifest(bundle.getLocation());
-        ManifestElement[] classpathEntries = bundleReader.parseHeader(Constants.BUNDLE_CLASSPATH, mf);
-        if (classpathEntries != null) {
-            result = new String[classpathEntries.length];
-            for (int i = 0; i < classpathEntries.length; i++) {
-                result[i] = classpathEntries[i].getValue();
-            }
-        }
-        return result;
+        OsgiManifest mf = bundleReader.loadManifest(bundle.getLocation());
+        return mf.getBundleClasspath();
     }
 
     private File getNestedJarOrDir(ArtifactDescriptor bundle, String cp) {

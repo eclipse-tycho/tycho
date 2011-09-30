@@ -18,7 +18,6 @@ import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
-import java.util.jar.Manifest;
 
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -40,7 +39,6 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 
 @Component(role = EquinoxResolver.class)
 public class EquinoxResolver {
@@ -188,26 +186,7 @@ public class EquinoxResolver {
     }
 
     private Dictionary loadManifest(File bundleLocation) {
-        Manifest m = manifestReader.loadManifest(bundleLocation);
-        if (m == null) {
-            return null;
-        }
-
-        Dictionary manifest = manifestReader.toProperties(m);
-
-        // enforce symbolic name
-        if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null) {
-            // TODO maybe derive symbolic name from artifactId/groupId if we
-            // have them?
-            return null;
-        }
-
-        // enforce bundle classpath
-        if (manifest.get(Constants.BUNDLE_CLASSPATH) == null) {
-            manifest.put(Constants.BUNDLE_CLASSPATH, "."); //$NON-NLS-1$
-        }
-
-        return manifest;
+        return manifestReader.loadManifest(bundleLocation).getHeaders();
     }
 
     private Dictionary getSystemBundleManifest(Properties properties) {

@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.Manifest;
 
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
@@ -32,7 +31,6 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TargetPlatform;
@@ -45,8 +43,9 @@ import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
+import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.model.Feature;
-import org.osgi.framework.Constants;
 
 /**
  * Creates target platform based on local eclipse installation.
@@ -207,40 +206,18 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
     }
 
     public ArtifactKey getArtifactKey(MavenSession session, MavenProject project) {
-        Manifest mf = manifestReader.loadManifest(project.getBasedir());
-
-        if (mf == null) {
+        OsgiManifest mf;
+        try {
+            mf = manifestReader.loadManifest(project.getBasedir());
+        } catch (OsgiManifestParserException e) {
             return null;
         }
-
-        ManifestElement[] id = manifestReader.parseHeader(Constants.BUNDLE_SYMBOLICNAME, mf);
-        ManifestElement[] version = manifestReader.parseHeader(Constants.BUNDLE_VERSION, mf);
-
-        if (id == null || version == null) {
-            return null;
-        }
-
-        ArtifactKey key = new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, id[0].getValue(),
-                version[0].getValue());
-        return key;
+        return DefaultArtifactKey.fromManifest(mf);
     }
 
     public ArtifactKey getArtifactKey(MavenSession session, File plugin) {
-        Manifest mf = manifestReader.loadManifest(plugin);
-
-        if (mf == null) {
-            return null;
-        }
-
-        ManifestElement[] id = manifestReader.parseHeader(Constants.BUNDLE_SYMBOLICNAME, mf);
-        ManifestElement[] version = manifestReader.parseHeader(Constants.BUNDLE_VERSION, mf);
-
-        if (id == null || version == null) {
-            return null;
-        }
-
-        ArtifactKey key = new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, id[0].getValue(),
-                version[0].getValue());
+        OsgiManifest mf = manifestReader.loadManifest(plugin);
+        ArtifactKey key = DefaultArtifactKey.fromManifest(mf);
         return key;
     }
 

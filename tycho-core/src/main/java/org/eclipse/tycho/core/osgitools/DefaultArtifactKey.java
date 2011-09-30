@@ -25,6 +25,11 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
         this.version = version;
     }
 
+    public static DefaultArtifactKey fromManifest(OsgiManifest manifest) {
+        return new DefaultArtifactKey(TYPE_ECLIPSE_PLUGIN, manifest.getBundleSymbolicName(),
+                manifest.getBundleVersion());
+    }
+
     @Override
     public int hashCode() {
         int hash = getType().hashCode();

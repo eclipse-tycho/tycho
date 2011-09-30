@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Build;
@@ -47,20 +46,20 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.osgi.framework.adaptor.FilePath;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
-import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
+import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 
 /**
  * @goal generate-poms
@@ -204,19 +203,12 @@ public class GeneratePomsMojo extends AbstractMojo {
 
         for (File dir : candidateDirs) {
             if (isPluginProject(dir)) {
-                Manifest mf = bundleReader.loadManifest(dir);
-                if (mf != null) {
-                    ManifestElement[] id = bundleReader.parseHeader(Constants.BUNDLE_SYMBOLICNAME, mf);
-                    ManifestElement[] version = bundleReader.parseHeader(Constants.BUNDLE_VERSION, mf);
-                    if (id != null && version != null) {
-                        ArtifactKey key = new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN,
-                                id[0].getValue(), version[0].getValue());
-                        platform.addArtifactFile(key, dir, null);
-                    } else {
-                        getLog().debug("Invalid bundle manifest " + dir.getAbsolutePath());
-                    }
-                } else {
-                    getLog().debug("Could not read bundle manifest " + dir.getAbsolutePath());
+                try {
+                    OsgiManifest mf = bundleReader.loadManifest(dir);
+                    ArtifactKey key = DefaultArtifactKey.fromManifest(mf);
+                    platform.addArtifactFile(key, dir, null);
+                } catch (OsgiManifestParserException e) {
+                    getLog().debug("Invalid bundle manifest " + dir.getAbsolutePath());
                 }
             }
         }

@@ -11,37 +11,37 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
-import java.util.Properties;
-import java.util.jar.Manifest;
 
-import org.eclipse.osgi.util.ManifestElement;
-
-// TODO cleanup and rework to consistently use equinox implementation
+/**
+ * Cache for OSGi manifest files and bundle classpath entries.
+ */
 public interface BundleReader {
-    Manifest loadManifest(File bundleLocation);
-
-    Properties toProperties(Manifest mf);
 
     /**
-     * returns null if header is not present in the manifest
+     * Load and cache OSGi manifest from path META-INF/MANIFEST.MF under the given location. If no
+     * META-INF/MANIFEST.MF is found but plugin.xml or fragment.xml is found, an attempt is made to
+     * convert it into an OSGi MANIFEST.
+     * 
+     * @param bundleLocation
+     *            can be either a directory or a jar file
+     * @return the OSGi MANIFEST, never <code>null</code>
+     * @throws OsgiManifestParserException
+     *             if no valid MANIFEST is found in bundleLocation or it cannot be converted from
+     *             plugin.xml/fragment.xml.
+     * @throws InvalidOSGiManifestException
+     *             if valid MANIFEST is found but it does not have valid mandatory OSGi headers
      */
-    ManifestElement[] parseHeader(String header, Manifest mf);
+    public OsgiManifest loadManifest(File bundleLocation) throws OsgiManifestParserException, InvalidOSGiManifestException;
 
     /**
-     * Returns true if Eclipse-BundleShape header is set to dir.
+     * Returns bundle entry with given path or <code>null</code> if no such entry exists. If bundle
+     * is a jar, the entry will be extracted into a cached location.
      * 
-     * http://help.eclipse.org/galileo/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/misc/
-     * bundle_manifest.html
+     * @param bundleLocation
+     *            can be either a directory or a jar file
+     * @param path
+     *            path relative to the bundle root
      * 
-     * http://eclipsesource.com/blogs/2009/01/20/tip-eclipse-bundleshape/
-     * 
-     * TODO this method does not belong here
      */
-    boolean isDirectoryShape(Manifest mf);
-
-    /**
-     * Returns bundle entry with given path or null if no such entry exists. If bundle is a jar, the
-     * entry will be extracted into a cached location.
-     */
-    File getEntry(File bundleLocation, String path);
+    public File getEntry(File bundleLocation, String path);
 }

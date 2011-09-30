@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.jar.Manifest;
 
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.ArchiverException;
@@ -31,16 +30,15 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
-import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.equinox.launching.BundleStartLevel;
 import org.eclipse.tycho.equinox.launching.EquinoxInstallation;
 import org.eclipse.tycho.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.tycho.equinox.launching.EquinoxInstallationFactory;
-import org.osgi.framework.Constants;
 
 @Component(role = EquinoxInstallationFactory.class)
 public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFactory {
@@ -63,9 +61,9 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         for (ArtifactDescriptor artifact : description.getBundles()) {
             ArtifactKey key = artifact.getKey();
             File file = artifact.getLocation();
-            Manifest mf = manifestReader.loadManifest(file);
+            OsgiManifest mf = manifestReader.loadManifest(file);
 
-            boolean directoryShape = bundlesToExplode.contains(key.getId()) || manifestReader.isDirectoryShape(mf);
+            boolean directoryShape = bundlesToExplode.contains(key.getId()) || mf.isDirectoryShape();
 
             if (!file.isDirectory() && directoryShape) {
                 String filename = key.getId() + "_" + key.getVersion();
@@ -163,17 +161,10 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         List<String> bundleNames = new ArrayList<String>();
 
         for (File bundleFile : frameworkExtensions) {
-            Manifest mf = manifestReader.loadManifest(bundleFile);
-            ManifestElement[] id = manifestReader.parseHeader(Constants.BUNDLE_SYMBOLICNAME, mf);
-            ManifestElement[] version = manifestReader.parseHeader(Constants.BUNDLE_VERSION, mf);
+            OsgiManifest mf = manifestReader.loadManifest(bundleFile);
+            bundleNames.add(mf.getBundleSymbolicName());
 
-            if (id == null || version == null) {
-                throw new IOException("Invalid OSGi manifest in bundle " + bundleFile);
-            }
-
-            bundleNames.add(id[0].getValue());
-
-            File bundleDir = new File(location, "plugins/" + id[0].getValue() + "_" + version[0].getValue());
+            File bundleDir = new File(location, "plugins/" + mf.getBundleSymbolicName() + "_" + mf.getBundleVersion());
             if (bundleFile.isFile()) {
                 unpack(bundleFile, bundleDir);
             } else {

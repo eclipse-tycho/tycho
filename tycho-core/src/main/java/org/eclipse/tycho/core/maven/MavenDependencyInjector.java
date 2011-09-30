@@ -22,13 +22,11 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.osgi.framework.Constants;
 
 public final class MavenDependencyInjector {
 
@@ -137,17 +135,8 @@ public final class MavenDependencyInjector {
         return result;
     }
 
-    private List<String> getClasspathElements(File bundleLocation) {
-        ManifestElement[] classpathHeader = bundleReader.parseHeader(Constants.BUNDLE_CLASSPATH,
-                bundleReader.loadManifest(bundleLocation));
-        if (classpathHeader == null || classpathHeader.length == 0) {
-            return DOT_CLASSPATH;
-        }
-        List<String> result = new ArrayList<String>(classpathHeader.length);
-        for (ManifestElement classPathElement : classpathHeader) {
-            result.add(classPathElement.getValue());
-        }
-        return result;
+    private String[] getClasspathElements(File bundleLocation) {
+        return bundleReader.loadManifest(bundleLocation).getBundleClasspath();
     }
 
     private Dependency createSystemScopeDependency(ArtifactKey artifactKey, File location) {

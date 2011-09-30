@@ -15,6 +15,8 @@ import java.io.File;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
+import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
@@ -82,6 +84,71 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         File log4jFileExtractedAgain = bundleReader.getEntry(olderContentBundleJar, "lib/log4j.properties");
         assertEquals(log4jFileExtractedAgain.getCanonicalPath(), extractedLog4jFile.getCanonicalPath());
         assertEquals(firstExtractionTimestamp, log4jFileExtractedAgain.lastModified());
+    }
+
+    public void testLoadManifestFromDir() throws Exception {
+        File dir = new File("src/test/resources/bundlereader/dirshape");
+        OsgiManifest manifest = bundleReader.loadManifest(dir);
+        assertEquals("org.eclipse.tycho.test", manifest.getBundleSymbolicName());
+    }
+
+    public void testLoadManifestFromJar() throws Exception {
+        File jar = new File("src/test/resources/bundlereader/jarshape/test.jar");
+        OsgiManifest manifest = bundleReader.loadManifest(jar);
+        assertEquals("org.eclipse.tycho.test", manifest.getBundleSymbolicName());
+    }
+
+    public void testLoadManifestFromDirPre30() throws Exception {
+        File dir = new File("src/test/resources/targetplatforms/pre-3.0/plugins/testdir_1.0.0");
+        OsgiManifest manifest = bundleReader.loadManifest(dir);
+        assertEquals("testdir", manifest.getBundleSymbolicName());
+    }
+
+    public void testLoadManifestFromJarPre30() throws Exception {
+        File jar = new File("src/test/resources/targetplatforms/pre-3.0/plugins/testjar_1.0.0.jar");
+        OsgiManifest manifest = bundleReader.loadManifest(jar);
+        assertEquals("testjar", manifest.getBundleSymbolicName());
+    }
+
+    public void testLoadManifestFromInvalidDir() throws Exception {
+        // dir has no META-INF/MANIFEST.MF nor plugin.xml/fragment.xml
+        File dir = new File("src/test/resources/bundlereader/invalid");
+        try {
+            bundleReader.loadManifest(dir);
+            fail();
+        } catch (OsgiManifestParserException e) {
+            assertTrue(e.getMessage().contains("Could not find a META-INF/MANIFEST.MF, plugin.xml or a fragment.xml"));
+        }
+    }
+
+    public void testLoadManifestFromCorruptedJar() throws Exception {
+        File jar = new File("src/test/resources/bundlereader/invalid/corrupt.jar");
+        try {
+            bundleReader.loadManifest(jar);
+            fail();
+        } catch (OsgiManifestParserException e) {
+            assertTrue(e.getMessage().contains("error in opening zip file"));
+        }
+    }
+
+    public void testLoadManifestFromNonexistingFile() throws Exception {
+        File jar = new File("NON_EXISTING.jar");
+        try {
+            bundleReader.loadManifest(jar);
+            fail();
+        } catch (OsgiManifestParserException e) {
+            assertTrue(e.getMessage().contains("Manifest file not found"));
+        }
+    }
+
+    public void testLoadManifestFromPlainJar() throws Exception {
+        File plainJar = new File("src/test/resources/bundlereader/jarshape/plain.jar");
+        try {
+            bundleReader.loadManifest(plainJar);
+            fail();
+        } catch (OsgiManifestParserException e) {
+            assertTrue(e.getMessage().contains("Could not find a META-INF/MANIFEST.MF, plugin.xml or a fragment.xml"));
+        }
     }
 
     private File getTestJar() {
