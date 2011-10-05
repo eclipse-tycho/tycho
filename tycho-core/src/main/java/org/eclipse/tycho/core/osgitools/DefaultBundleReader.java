@@ -28,8 +28,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
-
-import copy.org.eclipse.core.runtime.internal.adaptor.PluginConverterImpl;
+import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 
 @Component(role = BundleReader.class)
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
@@ -106,7 +105,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     }
 
     private File convertPluginManifest(File bundleLocation) throws OsgiManifestParserException {
-        PluginConverterImpl converter = new PluginConverterImpl(null, null);
+        PluginConverter converter = new StandalonePluginConverter();
         String name = bundleLocation.getName();
         if (name.endsWith(".jar")) {
             name = name.substring(0, name.length() - 4);

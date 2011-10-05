@@ -31,8 +31,7 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
-
-import copy.org.eclipse.core.runtime.internal.adaptor.PluginConverterImpl;
+import org.eclipse.core.runtime.internal.adaptor.PluginConverterImpl;
 
 /**
  * Finds bundles in Eclipse installation.
@@ -108,7 +107,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
     private void addPlugins(Set<File> result, File[] plugins) {
         if (plugins != null) {
             for (File plugin : plugins) {
-                if (plugin.isDirectory() && isDIrectoryPlugin(plugin)) {
+                if (plugin.isDirectory() && isDirectoryPlugin(plugin)) {
                     result.add(plugin);
                 } else if (plugin.isFile() && plugin.getName().endsWith(".jar")) {
                     result.add(plugin);
@@ -117,7 +116,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
         }
     }
 
-    private boolean isDIrectoryPlugin(File plugin) {
+    private boolean isDirectoryPlugin(File plugin) {
         return new File(plugin, "META-INF/MANIFEST.MF").canRead()
                 || new File(plugin, PluginConverterImpl.PLUGIN_MANIFEST).canRead()
                 || new File(plugin, PluginConverterImpl.FRAGMENT_MANIFEST).canRead();
