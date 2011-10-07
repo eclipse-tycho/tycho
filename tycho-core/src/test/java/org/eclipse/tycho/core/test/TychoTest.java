@@ -12,10 +12,11 @@ package org.eclipse.tycho.core.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
@@ -31,7 +32,6 @@ import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
-import org.eclipse.tycho.testing.CompoundRuntimeException;
 
 public class TychoTest extends AbstractTychoMojoTestCase {
 
@@ -49,10 +49,14 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         super.tearDown();
     }
 
-    public void testModuleOrder() throws Exception {
-        File pom = new File(getBasedir("projects/moduleorder"), "pom.xml");
+    private List<MavenProject> getSortedProjects(File basedir) throws Exception {
+        return getSortedProjects(basedir, null);
+    }
 
-        List<MavenProject> projects = getSortedProjects(pom);
+    public void testModuleOrder() throws Exception {
+        File basedir = getBasedir("projects/moduleorder");
+
+        List<MavenProject> projects = getSortedProjects(basedir);
         assertEquals(5, projects.size());
 
         MavenProject p002 = (MavenProject) projects.get(1);
@@ -66,25 +70,11 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("moduleorder.p004", p004.getArtifactId());
     }
 
-    protected List<MavenProject> getSortedProjects(File pom) throws Exception {
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        return getSortedProjects(request);
-    }
-
-    private List<MavenProject> getSortedProjects(MavenExecutionRequest request) {
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-        MavenExecutionResult result = maven.execute(request);
-        if (result.hasExceptions()) {
-            throw new CompoundRuntimeException(result.getExceptions());
-        }
-        return result.getTopologicallySortedProjects();
-    }
-
     public void testResolutionError() throws Exception {
-        File pom = new File(getBasedir("projects/resolutionerror/p001"), "pom.xml");
+        File basedir = getBasedir("projects/resolutionerror/p001");
 
         try {
-            getSortedProjects(pom);
+            getSortedProjects(basedir);
             fail();
         } catch (Exception e) {
 //	        List<Exception> exceptions = result.getExceptions();
@@ -94,9 +84,9 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     }
 
     public void testFeatureMissingFeature() throws Exception {
-        File pom = new File(getBasedir("projects/resolutionerror/feature_missing_feature"), "pom.xml");
+        File basedir = getBasedir("projects/resolutionerror/feature_missing_feature");
         try {
-            getSortedProjects(pom);
+            getSortedProjects(basedir);
             fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("Could not resolve feature feature.not.found_0.0.0"));
@@ -104,9 +94,9 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     }
 
     public void testFeatureMissingPlugin() throws Exception {
-        File pom = new File(getBasedir("projects/resolutionerror/feature_missing_plugin"), "pom.xml");
+        File basedir = getBasedir("projects/resolutionerror/feature_missing_plugin");
         try {
-            getSortedProjects(pom);
+            getSortedProjects(basedir);
             fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("Could not resolve plugin plugin.not.found_0.0.0"));
@@ -115,14 +105,11 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
     public void testProjectPriority() throws Exception {
         File platform = new File(getBasedir(), "src/test/resources/projects/projectpriority/platform");
-        File pom = new File(getBasedir("projects/projectpriority"), "pom.xml");
+        File basedir = getBasedir("projects/projectpriority");
 
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getUserProperties().put("tycho.targetPlatform", platform.getCanonicalPath());
+        List<MavenProject> projects = getSortedProjects(basedir, platform);
 
-        List<MavenProject> projects = getSortedProjects(request);
-
-        MavenProject p002 = (MavenProject) projects.get(2);
+        MavenProject p002 = projects.get(2);
 
         List<Dependency> dependencies = p002.getModel().getDependencies();
         Dependency dependency = dependencies.get(0);
@@ -130,9 +117,16 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     }
 
     public void testFragment() throws Exception {
-        File pom = new File(getBasedir("projects/fragment"), "pom.xml");
 
-        List<MavenProject> projects = getSortedProjects(pom);
+        File basedir = getBasedir("projects/fragment");
+
+        List<MavenProject> projects = getSortedProjects(basedir);
+
+        List<String> artifactIds = new ArrayList<String>();
+        for (MavenProject project : projects) {
+            artifactIds.add(project.getArtifactId());
+        }
+        assertEquals(Arrays.asList("parent", "host", "dep", "fragment", "fragment2", "client"), artifactIds);
 
         MavenProject host = projects.get(1);
         MavenProject dep = projects.get(2);
@@ -169,13 +163,11 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     }
 
     public void testPre30() throws Exception {
-        File pom = new File(getBasedir("projects/dummy"), "pom.xml");
+        File basedir = getBasedir("projects/dummy");
 
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getUserProperties().put("tycho.targetPlatform",
-                new File("src/test/resources/targetplatforms/pre-3.0").getCanonicalPath());
-
-        MavenProject project = getSortedProjects(request).get(0);
+        MavenExecutionRequest request = newMavenExecutionRequest(new File(basedir, "pom.xml"));
+        File platformLocation = new File("src/test/resources/targetplatforms/pre-3.0");
+        MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
 
         TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
         TargetPlatform platform = projectType.getTargetPlatform(project);
@@ -190,13 +182,10 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     }
 
     public void testMNGECLIPSE942() throws Exception {
-        File pom = new File(getBasedir("projects/dummy"), "pom.xml");
+        File basedir = getBasedir("projects/dummy");
 
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getUserProperties().put("tycho.targetPlatform",
-                new File("src/test/resources/targetplatforms/MNGECLIPSE-942").getCanonicalPath());
-
-        MavenProject project = getSortedProjects(request).get(0);
+        File platformLocation = new File("src/test/resources/targetplatforms/MNGECLIPSE-942");
+        MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
         TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
         TargetPlatform platform = projectType.getTargetPlatform(project);
 
@@ -206,13 +195,9 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
     public void testMissingClasspathEntries() throws Exception {
         File basedir = getBasedir("projects/missingentry");
-        File pom = new File(basedir, "pom.xml");
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getUserProperties().put("tycho.targetPlatform",
-                new File("src/test/resources/targetplatforms/missingentry").getCanonicalPath());
-        request.getProjectBuildingRequest().setProcessPlugins(false);
+        File platformLocation = new File("src/test/resources/targetplatforms/missingentry");
 
-        MavenProject project = getSortedProjects(request).get(0);
+        MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
 
         OsgiBundleProject projectType = (OsgiBundleProject) lookup(TychoProject.class, project.getPackaging());
 
@@ -231,17 +216,14 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     }
 
     public void testBundleExtraClasspath() throws Exception {
-        File pom = new File(getBasedir("projects/extraclasspath"), "pom.xml");
+        File basedir = getBasedir("projects/extraclasspath");
+        File platformLocation = new File("src/test/resources/targetplatforms/basic");
 
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getUserProperties().put("tycho.targetPlatform",
-                new File("src/test/resources/targetplatforms/basic").getCanonicalPath());
-
-        List<MavenProject> projects = getSortedProjects(request);
+        List<MavenProject> projects = getSortedProjects(basedir, platformLocation);
         assertEquals(3, projects.size());
 
-        MavenProject b01 = (MavenProject) projects.get(1);
-        MavenProject b02 = (MavenProject) projects.get(2);
+        MavenProject b01 = projects.get(1);
+        MavenProject b02 = projects.get(2);
 
         OsgiBundleProject projectType = (OsgiBundleProject) lookup(TychoProject.class, b02.getPackaging());
 
@@ -269,11 +251,9 @@ public class TychoTest extends AbstractTychoMojoTestCase {
     }
 
     public void testImplicitTargetEnvironment() throws Exception {
-        File pom = new File(getBasedir("projects/implicitenvironment/simple"), "pom.xml");
+        File basedir = getBasedir("projects/implicitenvironment/simple");
 
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-
-        List<MavenProject> projects = getSortedProjects(request);
+        List<MavenProject> projects = getSortedProjects(basedir);
         assertEquals(1, projects.size());
 
 //        assertEquals("ambiguous", projects.get(0).getArtifactId());

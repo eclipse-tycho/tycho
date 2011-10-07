@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <groupId>fragement</groupId>
-  <artifactId>parent</artifactId>
-  <version>0.0.1</version>
-  <packaging>pom</packaging>
-  
-  <modules>
-    <module>client</module>
-    <module>fragment</module>
-    <module>fragment2</module>
-    <module>host</module>
-    <module>dep</module>
-  </modules>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>fragement</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.0.1</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>client</module>
+		<module>fragment</module>
+		<module>fragment2</module>
+		<module>host</module>
+		<module>dep</module>
+	</modules>
 </project>
