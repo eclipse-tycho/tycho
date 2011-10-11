@@ -53,7 +53,7 @@ public class VerifierServiceImpl implements VerifierService {
                     IInstallableUnit iu = iterator.next();
                     final Collection<IArtifactKey> artifacts = iu.getArtifacts();
                     for (IArtifactKey key : artifacts) {
-                        valid = valid && verifySingleArtifact(key, artifactRepository, logger);
+                        valid &= verifySingleArtifact(key, artifactRepository, logger);
                     }
                 }
                 if (valid) {
@@ -78,7 +78,7 @@ public class VerifierServiceImpl implements VerifierService {
             if (!status.isOK()) {
                 logErrorStatus(status, "", logger);
             }
-            valid = valid && status.isOK();
+            valid &= status.isOK();
         }
         return valid;
     }

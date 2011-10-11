@@ -52,8 +52,16 @@ public class VerifierServiceImplTest {
     public void testFileRepositoryWithWrongMd5Sum() throws Exception {
         final RepositoryReferences repositories = sourceRepos("wrong_checksum");
         assertEquals(false, verify(repositories));
-        assertTrue(firstErrorLine().contains("jarsigning"));
-        assertTrue(remainingErrorText().contains("md5 hash"));
+        // we expect two errors to be reported: the feature "jarsinging.feature" has a wrong md5 hash and
+        // the osgi.bundle "jarsigning" has also a wrong md5 hash.
+        // As each error is reported on two lines, we have 4 lines of error messages:
+        assertEquals(logger.errors.size(), 4);
+        // The first and third line contain the names of the units in error:
+        String unitsInError = logger.errors.get(0) + logger.errors.get(2);
+        assertTrue(unitsInError.contains("jarsigning.feature") && unitsInError.contains("osgi.bundle"));
+        // The second and fourth line contain the type of error: md5 hash
+        assertTrue(logger.errors.get(1).toLowerCase(Locale.ENGLISH).contains("md5 hash"));
+        assertTrue(logger.errors.get(3).toLowerCase(Locale.ENGLISH).contains("md5 hash"));
     }
 
     @Test
