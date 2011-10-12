@@ -28,7 +28,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 @Component(role = EquinoxEmbedder.class)
 public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements EquinoxEmbedder, Disposable {
@@ -121,30 +120,30 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         EclipseStarter.startup(getNonFrameworkArgs(), null);
 
         frameworkContext = EclipseStarter.getSystemBundleContext();
+        activateBundlesInWorkingOrder();
 
-        PackageAdmin packageAdmin = null;
-        ServiceReference packageAdminRef = frameworkContext.getServiceReference(PackageAdmin.class.getName());
-        if (packageAdminRef != null) {
-            packageAdmin = (PackageAdmin) frameworkContext.getService(packageAdminRef);
+        for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
+            listener.afterFrameworkStarted(this);
         }
+    }
 
-        if (packageAdmin == null) {
-            throw new IllegalStateException("Could not obtain PackageAdmin service");
-        }
+    private void activateBundlesInWorkingOrder() {
+        // activate bundles which need to do work in their respective activator; stick to a working order (cf. bug 359787)
+        // TODO this order should come from the EquinoxRuntimeLocator
+        tryActivateBundle("org.eclipse.equinox.ds");
+        tryActivateBundle("org.eclipse.equinox.registry");
+        tryActivateBundle("org.eclipse.core.net");
+    }
 
+    private void tryActivateBundle(String symbolicName) {
         for (Bundle bundle : frameworkContext.getBundles()) {
-            if ((packageAdmin.getBundleType(bundle) & PackageAdmin.BUNDLE_TYPE_FRAGMENT) == 0) {
+            if (symbolicName.equals(bundle.getSymbolicName())) {
                 try {
-                    bundle.start();
+                    bundle.start(Bundle.START_TRANSIENT); // don't have OSGi remember the autostart setting; want to start these bundles manually to control the start order
                 } catch (BundleException e) {
                     getLogger().warn("Could not start bundle " + bundle.getSymbolicName(), e);
                 }
             }
-        }
-
-        frameworkContext.ungetService(packageAdminRef);
-        for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
-            listener.afterFrameworkStarted(this);
         }
     }
 
@@ -167,12 +166,8 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                     if (verIdx > 0) {
                         bundles.append(name.substring(0, verIdx));
                     } else {
-                        // TODO barf
+                        throw new EquinoxEmbedderException("File name doesn't match expected pattern: " + file);
                     }
-                }
-
-                if (file.getName().startsWith("org.eclipse.equinox.ds_")) {
-                    bundles.append("@1:start");
                 }
             }
         }
@@ -195,7 +190,6 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         nonFrameworkArgs.add("-eclipse.keyring");
         nonFrameworkArgs.add(secureStorage.getAbsolutePath());
         // TODO nonFrameworkArgs.add("-eclipse.password");
-        // nonFrameworkArgs.add("");
         if (getLogger().isDebugEnabled()) {
             nonFrameworkArgs.add("-debug");
             nonFrameworkArgs.add("-consoleLog");
