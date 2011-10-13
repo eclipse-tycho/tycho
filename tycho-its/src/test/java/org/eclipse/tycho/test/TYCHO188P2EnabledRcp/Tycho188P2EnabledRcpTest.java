@@ -53,21 +53,6 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
     @BeforeClass
     public static void buildProduct() throws Exception {
         verifier = new Tycho188P2EnabledRcpTest().getVerifier("/TYCHO188P2EnabledRcp", false);
-        verifier.setAutoclean(false);
-        verifier.executeGoal("clean");
-        verifier.verifyErrorFreeLog();
-
-        // First run compile to fill output repository
-        // The test will verify that old content from former builds is not accumulated (product IU).
-        verifier.executeGoal("package");
-        verifier.verifyErrorFreeLog();
-        validatePublishedProducts(verifier, getContentXml(verifier));
-
-        // change product version and run next build. Only one product IU must be contained in resulting repository.
-        File newMainProductFile = new File(verifier.getBasedir(), MODULE + "/main.product_version2");
-        File oldMainProductFile = new File(verifier.getBasedir(), MODULE + "/main.product");
-        assertTrue(oldMainProductFile.delete());
-        assertTrue(newMainProductFile.renameTo(oldMainProductFile));
 
         verifier.getCliOptions().add("-Pbuild-products");
         verifier.executeGoal("install");
@@ -95,14 +80,6 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
         int environmentsPerProduct = TEST_ENVIRONMENTS.size();
         int repositoryArtifacts = 1;
         assertTotalZipArtifacts(verifier, materializedProducts * environmentsPerProduct + repositoryArtifacts);
-    }
-
-    @Test
-    public void testNoDuplicates() throws Exception {
-        for (Product product : TEST_PRODUCTS) {
-            assertEquals(product.unitId + " IU published more than once", 1,
-                    Util.countIUWithProperty(getContentXml(verifier), product.unitId));
-        }
     }
 
     private static void validatePublishedProducts(Verifier verifier, Document contentXml) throws IOException,

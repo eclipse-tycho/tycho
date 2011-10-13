@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Main Product" uid="main.product.id" id="product.branding" application="product.bundle.application" version="0.0.1" useFeatures="true" includeLaunchers="true">
+<product name="Main Product" uid="main.product.id" id="product.branding" application="product.bundle.application" version="0.0.1.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>

@@ -63,18 +63,27 @@ public class P2RepositoryTool {
         return matchingFeatures[0];
     }
 
+    /**
+     * Returns the unique IUs with the given ID.
+     * 
+     * @return the IU with the given ID. Never <code>null</code>.
+     * @throws AssertionError
+     *             unless there is exactly one IU with the given <tt>unitId</tt>.
+     */
     public IU getUniqueIU(String unitId) throws Exception {
         loadMetadata();
 
         NodeList nodes = getChildrenOf(contentXml, "/repository/units/unit[@id='" + unitId + "']");
 
         if (nodes.getLength() == 0)
-            return null;
+            Assert.fail("Could not find IU with id '" + unitId + "'");
         else if (nodes.getLength() == 1)
             return new IU(nodes.item(0));
         else
             Assert.fail("Found more than one IU with id '" + unitId + "'");
-        return null;
+
+        // this point is never reached
+        throw new RuntimeException();
     }
 
     private void loadMetadata() throws Exception {
@@ -86,11 +95,19 @@ public class P2RepositoryTool {
         contentXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile);
     }
 
-    NodeList getChildrenOf(Object startingPoint, String expression) throws XPathExpressionException {
+    private XPath getXPathTool() {
         if (xPathTool == null) {
             xPathTool = XPathFactory.newInstance().newXPath();
         }
-        return (NodeList) xPathTool.evaluate(expression, startingPoint, XPathConstants.NODESET);
+        return xPathTool;
+    }
+
+    NodeList getChildrenOf(Object startingPoint, String expression) throws XPathExpressionException {
+        return (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
+    }
+
+    Attr getAttribute(Node node, String expression) throws XPathExpressionException {
+        return (Attr) getXPathTool().evaluate(expression, node, XPathConstants.NODE);
     }
 
     public class IU {
@@ -99,6 +116,11 @@ public class P2RepositoryTool {
 
         IU(Node unitElement) {
             this.unitElement = unitElement;
+        }
+
+        public String getVersion() throws Exception {
+            Attr version = getAttribute(unitElement, "@version");
+            return version.getValue();
         }
 
         public List<String> getRequiredIds() throws Exception {
