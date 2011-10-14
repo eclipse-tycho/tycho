@@ -23,7 +23,7 @@
 	<artifactId>org.eclipse.tycho.surefire.junit</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho Surefire OSGi JUnit Runner (Incubation)</name>
+	<name>Tycho Surefire OSGi JUnit3 Runner (Incubation)</name>
 
 	<build>
 		<plugins>
@@ -44,7 +44,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.apache.maven.surefire</groupId>
-									<artifactId>surefire-junit</artifactId>
+									<artifactId>surefire-junit3</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
 							</artifactItems>

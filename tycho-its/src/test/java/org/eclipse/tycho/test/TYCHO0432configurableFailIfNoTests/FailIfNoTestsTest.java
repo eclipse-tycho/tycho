@@ -35,7 +35,7 @@ public class FailIfNoTestsTest extends AbstractTychoIntegrationTest {
         } catch (VerificationException e) {
             // expected
         }
-        verifier.verifyTextInLog("There are test failures");
+        verifier.verifyTextInLog("No tests found");
     }
 
 }

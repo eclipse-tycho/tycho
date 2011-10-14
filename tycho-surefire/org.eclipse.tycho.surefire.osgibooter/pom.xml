@@ -25,51 +25,6 @@
 
 	<name>Tycho Surefire OSGi Booter Eclipse Application (Incubation)</name>
 
-	<profiles>
-		<profile>
-			<id>update-dependencies</id>
-
-			<dependencies>
-				<dependency>
-					<groupId>org.apache.maven.surefire</groupId>
-					<artifactId>surefire-booter</artifactId>
-					<version>2.4.3</version>
-				</dependency>
-			</dependencies>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>tycho-packaging-plugin</artifactId>
-						<version>${project.version}</version>
-						<executions>
-							<execution>
-								<phase>process-classes</phase>
-								<goals>
-									<goal>generate-bundle</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<packageSources>false</packageSources>
-							<exportPackages>
-							</exportPackages>
-							<manifestAttributes>
-								<Bundle-SymbolicName>org.eclipse.tycho.surefire.osgibooter;singleton:=true</Bundle-SymbolicName>
-								<Bundle-RequiredExecutionEnvironment>J2SE-1.5,JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
-								<Require-Bundle>org.eclipse.equinox.app,org.eclipse.osgi,org.junit,org.eclipse.ui.workbench;resolution:=optional,org.eclipse.core.runtime;resolution:=optional</Require-Bundle>
-								<Eclipse-AutoStart>true</Eclipse-AutoStart>
-								<Bundle-Activator>org.eclipse.tycho.surefire.osgibooter.Activator</Bundle-Activator>
-							</manifestAttributes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-
-		</profile>
-	</profiles>
-
 	<build>
 		<plugins>
 			<plugin>

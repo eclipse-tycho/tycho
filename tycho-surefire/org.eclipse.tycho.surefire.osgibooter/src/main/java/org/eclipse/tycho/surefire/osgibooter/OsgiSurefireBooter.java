@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    SAP AG        - port to surefire 2.10
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
 
@@ -22,7 +23,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.maven.surefire.Surefire;
+import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
+import org.apache.maven.surefire.booter.ProviderConfiguration;
+import org.apache.maven.surefire.booter.StartupConfiguration;
+import org.apache.maven.surefire.booter.StartupReportConfiguration;
+import org.apache.maven.surefire.booter.SurefireStarter;
+import org.apache.maven.surefire.report.ReporterConfiguration;
+import org.apache.maven.surefire.suite.RunResult;
+import org.apache.maven.surefire.testset.DirectoryScannerParameters;
+import org.apache.maven.surefire.testset.TestRequest;
+import org.apache.maven.surefire.util.RunOrder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -33,43 +43,45 @@ import org.osgi.framework.BundleException;
 public class OsgiSurefireBooter {
 
     public static int run(String[] args) throws Exception {
+        Properties testProps = loadProperties(getTestProperties(args));
+        boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
+        String plugin = testProps.getProperty("testpluginname");
+        File testClassesDir = new File(testProps.getProperty("testclassesdirectory"));
+        File reportsDir = new File(testProps.getProperty("reportsdirectory"));
+        String provider = testProps.getProperty("testprovider");
+        List<String> includes = getIncludesExcludes(testProps.getProperty("includes"));
+        List<String> excludes = getIncludesExcludes(testProps.getProperty("excludes"));
 
-        Properties p = loadProperties(getTestProperties(args));
-
-        String plugin = p.getProperty("testpluginname");
-        File testDir = new File(p.getProperty("testclassesdirectory"));
-        File reportsDir = new File(p.getProperty("reportsdirectory"));
-
-        String runner = p.getProperty("testrunner");
-
-        ArrayList<String> includes = getIncludesExcludes(p.getProperty("includes"));
-        ArrayList<String> excludes = getIncludesExcludes(p.getProperty("excludes"));
-
+        String forkMode = "never";
+        boolean inForkedVM = true;
+        boolean trimStacktrace = true;
+        boolean useSystemClassloader = false;
+        boolean useManifestOnlyJar = false;
+        boolean useFile = true;
+        boolean printSummary = true;
+        boolean redirectTestOutputToFile = true;
+        boolean disableXmlReport = false;
         ClassLoader testClassLoader = getBundleClassLoader(plugin);
-        ClassLoader surefireClassLoader = Surefire.class.getClassLoader();
+        ClassLoader surefireClassLoader = SurefireStarter.class.getClassLoader();
 
-        Surefire surefire = new Surefire();
+        TychoClasspathConfiguration classPathConfig = new TychoClasspathConfiguration(testClassLoader,
+                surefireClassLoader);
+        StartupConfiguration startupConfiguration = new StartupConfiguration(provider, classPathConfig,
+                new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), forkMode, inForkedVM);
+        DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir, includes,
+                excludes, failIfNoTests, RunOrder.FILESYSTEM);
+        ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStacktrace);
+        TestRequest testRequest = new TestRequest(null, testClassesDir, null);
+        ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams, failIfNoTests,
+                reporterConfig, null, testRequest, new Properties(), null);
+        StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
+                StartupReportConfiguration.PLAIN_REPORT_FORMAT, redirectTestOutputToFile, disableXmlReport, reportsDir,
+                trimStacktrace);
+        SurefireStarter surefireStarter = new SurefireStarter(startupConfiguration, providerConfiguration,
+                startupReportConfig);
 
-        List reports = new ArrayList();
-        reports.add(new Object[] { "org.apache.maven.surefire.report.BriefConsoleReporter", new Object[] { Boolean.TRUE /* trimStackTrace */
-        } });
-        reports.add(new Object[] { "org.apache.maven.surefire.report.FileReporter",
-                new Object[] { reportsDir, Boolean.TRUE /* trimStackTrace */
-                } });
-        reports.add(new Object[] { "org.apache.maven.surefire.report.XMLReporter",
-                new Object[] { reportsDir, Boolean.TRUE /* trimStackTrace */
-                } });
-
-        List tests = new ArrayList();
-        tests.add(new Object[] { runner, new Object[] { testDir, includes, excludes } });
-
-        Boolean failIfNoTests;
-        if ("false".equalsIgnoreCase(p.getProperty("failifnotests"))) {
-            failIfNoTests = Boolean.FALSE;
-        } else {
-            failIfNoTests = Boolean.TRUE;
-        }
-        return surefire.run(reports, tests, surefireClassLoader, testClassLoader, failIfNoTests);
+        RunResult result = surefireStarter.runSuitesInProcess();
+        return result.getForkedProcessCode();
     }
 
     private static File getTestProperties(String[] args) throws CoreException {
@@ -95,7 +107,7 @@ public class OsgiSurefireBooter {
                         null));
     }
 
-    private static ArrayList<String> getIncludesExcludes(String string) {
+    private static List<String> getIncludesExcludes(String string) {
         ArrayList<String> list = new ArrayList<String>();
         if (string != null) {
             list.addAll(Arrays.asList(string.split(",")));

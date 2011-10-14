@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *******************************************************************************/
+ *    SAP AG        - port to surefire 2.10
+ ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
 import java.io.BufferedOutputStream;
@@ -38,6 +39,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.surefire.suite.RunResult;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
@@ -356,21 +358,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         }
 
         EquinoxInstallation testRuntime = createEclipseInstallation(false, DefaultReactorProject.adapt(session));
-
-        String testBundle = null;
-        boolean succeeded = runTest(testRuntime, testBundle);
-
-        if (succeeded) {
-            getLog().info("All tests passed!");
-        } else {
-            String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
-                    + " for the individual test results.";
-            if (testFailureIgnore) {
-                getLog().error(errorMessage);
-            } else {
-                throw new MojoFailureException(errorMessage);
-            }
-        }
+        runTest(testRuntime);
     }
 
     private EquinoxInstallation createEclipseInstallation(boolean includeReactorProjects,
@@ -490,7 +478,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         p.put("testpluginname", symbolicName);
         p.put("testclassesdirectory", testClassesDirectory.getAbsolutePath());
         p.put("reportsdirectory", reportsDirectory.getAbsolutePath());
-        p.put("testrunner", getTestRunner(testFramework));
+        p.put("testprovider", getTestProvider(testFramework));
 
         if (test != null) {
             String test = this.test;
@@ -508,9 +496,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
                         : "**/Abstract*Test.class,**/Abstract*TestCase.class,**/*$*");
             }
         }
-
         p.put("failifnotests", String.valueOf(failIfNoTests));
-
         try {
             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(surefireProperties));
             try {
@@ -523,11 +509,11 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         }
     }
 
-    private String getTestRunner(String testFramework) {
+    private String getTestProvider(String testFramework) {
         if (TestFramework.TEST_JUNIT.equals(testFramework)) {
-            return "org.eclipse.tycho.surefire.junit.JUnitDirectoryTestSuite";
+            return "org.apache.maven.surefire.junit.JUnit3Provider";
         } else if (TestFramework.TEST_JUNIT4.equals(testFramework)) {
-            return "org.apache.maven.surefire.junit4.JUnit4DirectoryTestSuite";
+            return "org.apache.maven.surefire.junit4.JUnit4Provider";
         }
         throw new IllegalArgumentException(); // can't happen
     }
@@ -543,24 +529,39 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         return sb.toString();
     }
 
-    private boolean runTest(EquinoxInstallation testRuntime, String testBundle) throws MojoExecutionException {
+    private void runTest(EquinoxInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
         int result;
-
         try {
             File workspace = new File(work, "data").getAbsoluteFile();
-
             FileUtils.deleteDirectory(workspace);
-
             LaunchConfiguration cli = createCommandLine(testRuntime, workspace);
-
             getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
-
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);
         }
+        switch (result) {
+        case 0:
+            getLog().info("All tests passed!");
+            break;
+        case RunResult.NO_TESTS:
+            String message = "No tests found.";
+            if (failIfNoTests) {
+                throw new MojoFailureException(message);
+            } else {
+                getLog().warn(message);
+            }
+            break;
+        default:
+            String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
+                    + " for the individual test results.";
+            if (testFailureIgnore) {
+                getLog().error(errorMessage);
+            } else {
+                throw new MojoFailureException(errorMessage);
+            }
 
-        return result == 0;
+        }
     }
 
     private Toolchain getToolchain() {
