@@ -14,15 +14,35 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<inceptionYear>2008</inceptionYear>
+	<url>http://www.eclipse.org/tycho/</url>
+	<ciManagement>
+	  <system>hudson</system>
+	  <url>https://hudson.eclipse.org/hudson</url>
+	</ciManagement>
+	<licenses>
+	  <license>
+	    <name>Eclipse Public License</name>
+	    <url>http://www.eclipse.org/legal/epl-v10.html</url>
+	    <distribution>repo</distribution>
+	  </license>
+	</licenses>
+	<organization>
+	  <name>Eclipse Foundation</name>
+	  <url>http://www.eclipse.org/</url>
+	</organization>
+	<issueManagement>
+	  <system>Bugzilla</system>
+	  <url>https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho</url>
+	</issueManagement>
+	<scm>
+	  <connection>scm:git:http://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.git</connection>
+	  <developerConnection>scm:git:ssh://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.git</developerConnection>
+	  <url>http://git.eclipse.org/c/tycho/org.eclipse.tycho.git</url>
+	</scm>
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
-
-	<parent>
-		<groupId>org.sonatype.forge</groupId>
-		<artifactId>forge-parent</artifactId>
-		<version>8</version>
-	</parent>
 
 	<groupId>org.eclipse.tycho</groupId>
 	<artifactId>tycho</artifactId>
@@ -283,6 +303,11 @@
 					</configuration>
 				</plugin>
 				<plugin>
+				    <groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-clean-plugin</artifactId>
+				    <version>2.4.1</version>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.1</version>
@@ -290,6 +315,11 @@
 						<source>1.5</source>
 						<target>1.5</target>
 					</configuration>
+				</plugin>
+				<plugin>
+				    <groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-jar-plugin</artifactId>
+				    <version>2.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -335,25 +365,6 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-	<scm>
-		<connection>scm:git:git://github.com/sonatype/sonatype-tycho.git</connection>
-		<developerConnection>scm:git:git@github.com:sonatype/sonatype-tycho.git</developerConnection>
-	</scm>
-
-<!-- 	<repositories> -->
-<!-- 		<repository> -->
-<!-- 			<id>sonatype-release</id> -->
-<!-- 			<url>http://repository.sonatype.org/content/groups/sonatype-public-grid</url> -->
-<!-- 			<snapshots> -->
-<!-- 				<enabled>true</enabled> -->
-<!-- 			</snapshots> -->
-<!-- 			<releases> -->
-<!-- 				<enabled>true</enabled> -->
-<!-- 			</releases> -->
-<!-- 		</repository> -->
-<!-- 	</repositories> -->
-
 	<modules>
 		<module>tycho-bundles</module>
 
