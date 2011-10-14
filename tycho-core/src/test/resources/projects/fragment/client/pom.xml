@@ -11,5 +11,25 @@
 
 	<artifactId>client</artifactId>
 	<packaging>eclipse-plugin</packaging>
+  
+  	<!-- relevant part from eclipse-plugin packaging type -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>mock-for-packaging-type</id>
+						<goals>
+							<goal>order-as-plugin</goal>
+						</goals>
+						<phase>install</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

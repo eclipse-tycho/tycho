@@ -34,12 +34,12 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.utils.MavenSessionUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.testing.AbstractLegacyTychoMojoTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.Constants;
 
-public class DependencyComputerTest extends AbstractTychoMojoTestCase {
+public class DependencyComputerTest extends AbstractLegacyTychoMojoTestBase {
     private DependencyComputer dependencyComputer;
 
     @Override

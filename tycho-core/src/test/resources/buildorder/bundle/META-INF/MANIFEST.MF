@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle.symbolic.name
+Bundle-Version: 0.5.3
+Bundle-ClassPath: .
+Bundle-Name: Some bundle
+Export-Package: package.export.01,
+ package.export.02
+Import-Package: package.import.01,
+ package.import.02,
+ package.import.03
+Require-Bundle: bundle.require.01,
+ bundle.require.02

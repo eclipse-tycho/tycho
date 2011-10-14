@@ -10,6 +10,27 @@
 	</parent>
 
 	<artifactId>moduleorder.p001</artifactId>
-	<packaging>eclipse-plugin</packaging>
+
+	<!-- Packaging types are not expanded in the test; the following goal would be inherited 
+		from eclipse-plugin. The execution is moved to "install" so that the test doesn't try 
+		to execute it -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>mock-for-packaging-type</id>
+						<goals>
+							<goal>order-as-plugin</goal>
+						</goals>
+						<phase>install</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

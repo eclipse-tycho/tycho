@@ -11,12 +11,14 @@
 package org.eclipse.tycho.buildversion;
 
 import java.io.File;
+import java.util.Collections;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.resolver.LegacyLifecycleSupport;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class ValidateIdTest extends AbstractTychoMojoTestCase {
@@ -72,6 +74,8 @@ public class ValidateIdTest extends AbstractTychoMojoTestCase {
         request.getProjectBuildingRequest().setProcessPlugins(false);
         MavenExecutionResult result = maven.execute(request);
         MavenProject project = result.getProject();
+        LegacyLifecycleSupport legacyLifecycle = lookup(LegacyLifecycleSupport.class);
+        legacyLifecycle.setupProjects(newMavenSession(project, Collections.singletonList(project)));
         ValidateIdMojo mojo = (ValidateIdMojo) lookupMojo("validate-id", project.getFile());
         setVariableValueToObject(mojo, "project", project);
         setVariableValueToObject(mojo, "packaging", project.getPackaging());

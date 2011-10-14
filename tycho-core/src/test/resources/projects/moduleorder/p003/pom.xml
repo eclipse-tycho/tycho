@@ -10,6 +10,25 @@
 	</parent>
 
 	<artifactId>moduleorder.p003</artifactId>
-	<packaging>eclipse-update-site</packaging>
+
+	<!-- relevant part from eclipse-repository packaging type -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>mock-for-packaging-type</id>
+						<goals>
+							<goal>order-as-repository</goal>
+						</goals>
+						<phase>install</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

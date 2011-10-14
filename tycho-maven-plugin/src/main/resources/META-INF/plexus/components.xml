@@ -13,6 +13,8 @@
             <id>default</id>
             <phases>
               <validate>
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:order-as-plugin,
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:after-projects-read-legacy,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-id,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-version
@@ -75,6 +77,8 @@
             <id>default</id>
             <phases>
               <validate>
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:order-as-plugin,
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:after-projects-read-legacy,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-id,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-version
@@ -140,6 +144,8 @@
             <id>default</id>
             <phases>
               <validate>
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:order-as-feature,
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:after-projects-read-legacy,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier-aggregator,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-id,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-version
@@ -192,6 +198,8 @@
             <id>default</id>
             <phases>
               <validate>
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:order-as-update-site,
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:after-projects-read-legacy,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier
               </validate>
               <package>
@@ -239,6 +247,8 @@
             <id>default</id>
             <phases>
               <validate>
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:order-as-product,
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:after-projects-read-legacy,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier
               </validate>
               <package>
@@ -284,6 +294,9 @@
             <id>default</id>
             <phases>
               <validate>
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:order-as-repository,
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:order-as-product,
+                org.eclipse.tycho:tycho-maven-plugin:${project.version}:after-projects-read-legacy,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier
               </validate>
               <initialize>

@@ -19,9 +19,10 @@ import org.apache.maven.it.util.IOUtil;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.packaging.PackageFeatureMojo;
-import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.testing.AbstractLegacyTychoMojoTestBase;
 
-public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
+public class PackageFeatureMojoTest extends AbstractLegacyTychoMojoTestBase {
+
     public void testFeatureXmlGeneration() throws Exception {
         File basedir = getBasedir("projects/featureXmlGeneration");
         File platform = new File("src/test/resources/eclipse");

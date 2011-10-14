@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: standalone.bundle
+Bundle-Version: 0.5.3
+Bundle-ClassPath: .
+Bundle-Name: Bundle without dependencies and exports

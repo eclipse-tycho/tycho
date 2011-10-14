@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="moduleorder.p005" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <plugins>
+         <plugin id="moduleorder.p002"/>
+   </plugins>
+
+   <features>
+   </features>
+
+</product>

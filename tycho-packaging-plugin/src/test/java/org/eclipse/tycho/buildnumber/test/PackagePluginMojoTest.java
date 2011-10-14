@@ -23,9 +23,9 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.packaging.PackagePluginMojo;
-import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.testing.AbstractLegacyTychoMojoTestBase;
 
-public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
+public class PackagePluginMojoTest extends AbstractLegacyTychoMojoTestBase {
 
     public void testBinIncludesNoDot() throws Exception {
         File basedir = getBasedir("projects/binIncludesNoDot");

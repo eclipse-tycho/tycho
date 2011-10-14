@@ -23,6 +23,22 @@
 					<executionEnvironmentDefault>OSGi/Minimum-1.2</executionEnvironmentDefault>
 				</configuration>
 			</plugin>
+
+			<!-- relevant part from eclipse-plugin packaging type -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>mock-for-packaging-type</id>
+						<goals>
+							<goal>order-as-plugin</goal>
+						</goals>
+						<phase>install</phase>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

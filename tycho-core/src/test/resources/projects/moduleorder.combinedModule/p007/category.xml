@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+
+   <feature url="features/moduleorder.p006_1.0.0.jar" id="moduleorder.p006" version="1.0.0"/>
+
+</site>

@@ -29,9 +29,10 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
-import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.eclipse.tycho.resolver.LegacyLifecycleSupport;
+import org.eclipse.tycho.testing.AbstractLegacyTychoMojoTestBase;
 
-public class BuildQualifierTest extends AbstractTychoMojoTestCase {
+public class BuildQualifierTest extends AbstractLegacyTychoMojoTestBase {
 
     public void testForceContextQualifier() throws Exception {
         /*
@@ -264,6 +265,9 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     }
 
     private BuildQualifierMojo getMojo(MavenProject project, MavenSession session) throws Exception {
+        LegacyLifecycleSupport legacyLifecycle = lookup(LegacyLifecycleSupport.class);
+        legacyLifecycle.setupProjects(session);
+
         BuildQualifierMojo mojo = (BuildQualifierMojo) lookupMojo("build-qualifier", project.getFile());
         setVariableValueToObject(mojo, "project", project);
 

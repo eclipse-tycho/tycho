@@ -36,11 +36,10 @@ import org.codehaus.plexus.component.repository.exception.ComponentLifecycleExce
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.buildorder.BuildOrderParticipant;
+import org.eclipse.tycho.buildorder.internal.BuildOrderManager;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.resolver.TychoDependencyResolver;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
@@ -55,7 +54,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private BundleReader bundleReader;
 
     @Requirement
-    private TychoDependencyResolver resolver;
+    private List<BuildOrderParticipant> buildOrderParticipants;
 
     @Requirement
     private PlexusContainer plexus;
@@ -73,14 +72,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         registerExecutionListener(session);
         configureComponents(session);
 
-        for (MavenProject project : projects) {
-            resolver.setupProject(session, project, DefaultReactorProject.adapt(project));
-        }
-
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-        for (MavenProject project : projects) {
-            resolver.resolveProject(session, project, reactorProjects);
-        }
+        BuildOrderManager buildOrderManager = new BuildOrderManager(buildOrderParticipants, session);
+        buildOrderManager.orderProjects();
     }
 
     private void validate(List<MavenProject> projects) throws MavenExecutionException {
