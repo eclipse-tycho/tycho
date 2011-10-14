@@ -46,14 +46,9 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testExportPackage() throws Exception {
         File basedir = getBasedir("projects/exportpackage");
-        File pom = new File(basedir, "pom.xml");
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-        MavenExecutionResult result = maven.execute(request);
-
         EquinoxResolver resolver = lookup(EquinoxResolver.class);
 
-        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(result.getTopologicallySortedProjects());
+        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
 
         MavenProject project = basedirMap.get(new File(basedir, "bundle"));
         TargetPlatform platform = (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);

@@ -14,12 +14,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
@@ -102,15 +100,9 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
     }
 
     private PackagePluginMojo execMaven(File basedir) throws Exception {
-        File pom = new File(basedir, "pom.xml");
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-        MavenExecutionResult result = maven.execute(request);
-        MavenProject project = result.getProject();
-        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
-        projects.add(project);
-        MavenSession session = new MavenSession(getContainer(), request, result, projects);
-        PackagePluginMojo mojo = getMojo(project, session);
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        PackagePluginMojo mojo = getMojo(project, newMavenSession(project, projects));
         return mojo;
     }
 
