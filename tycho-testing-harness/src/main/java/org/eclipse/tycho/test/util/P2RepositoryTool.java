@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -23,6 +24,7 @@ public class P2RepositoryTool {
     private final File metadataFile;
     private Document contentXml;
     private XPath xPathTool;
+    private Pattern strictVersionRangePattern;
 
     private P2RepositoryTool(File metadataFile) {
         this.repoLocation = metadataFile.getParentFile();
@@ -61,6 +63,19 @@ public class P2RepositoryTool {
             }
         });
         return matchingFeatures[0];
+    }
+
+    public List<String> getAllUnitIds() throws Exception {
+        loadMetadata();
+        List<String> result = new ArrayList<String>();
+
+        NodeList idAttributes = getChildrenOf(contentXml, "/repository/units/unit/@id");
+        for (int ix = 0; ix < idAttributes.getLength(); ++ix) {
+            Attr attribute = (Attr) idAttributes.item(ix);
+            result.add(attribute.getValue());
+        }
+
+        return result;
     }
 
     /**
@@ -110,6 +125,13 @@ public class P2RepositoryTool {
         return (Attr) getXPathTool().evaluate(expression, node, XPathConstants.NODE);
     }
 
+    boolean isStrictRange(String range) {
+        if (strictVersionRangePattern == null) {
+            strictVersionRangePattern = Pattern.compile("\\[([^,]*),\\1\\]");
+        }
+        return strictVersionRangePattern.matcher(range).matches();
+    }
+
     public class IU {
 
         private final Node unitElement;
@@ -130,6 +152,25 @@ public class P2RepositoryTool {
             for (int ix = 0; ix < requiredIds.getLength(); ++ix) {
                 Attr attribute = (Attr) requiredIds.item(ix);
                 result.add(attribute.getValue());
+            }
+
+            return result;
+        }
+
+        /**
+         * Returns the IDs of IUs required with strict version range.
+         */
+        public List<String> getInclusionIds() throws Exception {
+            List<String> result = new ArrayList<String>();
+
+            NodeList requires = getChildrenOf(unitElement, "requires/required");
+            for (int ix = 0; ix < requires.getLength(); ++ix) {
+                Node require = requires.item(ix);
+                Attr range = getAttribute(require, "@range");
+
+                if (range != null && isStrictRange(range.getValue())) {
+                    result.add(getAttribute(require, "@name").getValue());
+                }
             }
 
             return result;

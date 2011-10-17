@@ -15,21 +15,26 @@ import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
+import org.hamcrest.Matcher;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.matchers.JUnitMatchers;
 
+@Ignore("bug 359090")
 public class BuildProductWithIgnoredContent extends AbstractTychoIntegrationTest {
 
     private static final String BUNDLE_IN_PRODUCT_FILE = "org.example.toBeIgnored";
     private static final String FEATURE_IN_PRODUCT_FILE = "org.eclipse.equinox.executable.feature.group";
 
     @Test
-    public void testBundlesInProductAreIgnoredWhenUseFeaturesIsTrue() throws Exception {
+    public void testBuildOfProductWithBundlesDespiteUseFeaturesTrue() throws Exception {
         /*
          * Project with a product file which lists a feature, although the useFeatures attribute is
          * false. The current (Indigo) product editor produces such a file when changing the mode in
@@ -40,10 +45,20 @@ public class BuildProductWithIgnoredContent extends AbstractTychoIntegrationTest
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
 
+        // check product IU
         P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
         IU product = p2Repository.getUniqueIU("product.uid");
-
         assertThat(product.getRequiredIds(), not(hasItem(BUNDLE_IN_PRODUCT_FILE)));
         assertThat(product.getRequiredIds(), hasItem(FEATURE_IN_PRODUCT_FILE));
+
+        // verify that IUs included in product exist
+        List<String> inclusionIds = product.getInclusionIds();
+        assertThat(inclusionIds.size(), not(0));
+        assertThat(p2Repository.getAllUnitIds(), hasItems(inclusionIds));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Matcher<Iterable<T>> hasItems(List<T> list) {
+        return JUnitMatchers.hasItems((T[]) list.toArray());
     }
 }
