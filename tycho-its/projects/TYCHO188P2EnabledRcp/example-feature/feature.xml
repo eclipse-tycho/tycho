@@ -16,6 +16,11 @@
       [Enter License Description here.]
    </license>
 
+   <!-- this should not lead to an NPE in the dependency-only publisher (TYCHO-556) -->
+   <url>
+      <discovery label="New discovery site" url="http://newsite"/>
+   </url>
+
    <plugin
          id="example.bundle"
          download-size="0"

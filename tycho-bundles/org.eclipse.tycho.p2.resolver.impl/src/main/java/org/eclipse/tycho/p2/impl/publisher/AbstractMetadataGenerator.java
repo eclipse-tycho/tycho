@@ -48,10 +48,6 @@ public abstract class AbstractMetadataGenerator {
 
     protected void generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
             Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts, PublisherInfo publisherInfo) {
-        // TODO remove this when fix for Eclipse bug #332444 is integrated
-        if (publisherInfo.getMetadataRepository() == null) {
-            publisherInfo.setMetadataRepository(new DummyMetadataRepository());
-        }
         for (IPublisherAdvice advice : getPublisherAdvice(artifact)) {
             publisherInfo.addAdvice(advice);
         }
