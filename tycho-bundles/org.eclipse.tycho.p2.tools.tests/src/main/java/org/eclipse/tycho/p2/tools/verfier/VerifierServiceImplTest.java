@@ -20,12 +20,13 @@ import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.verifier.VerifierServiceImpl;
-import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,11 +37,20 @@ public class VerifierServiceImplTest {
     private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
             .singletonList(new TargetEnvironment("a", "b", "c"));
 
-    private MemoryLog logger = new MemoryLog();
-    private VerifierService subject = new VerifierServiceImpl();
+    private MemoryLog logger;
+    private VerifierServiceImpl subject;
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @Before
+    public void setup() {
+        subject = new VerifierServiceImpl();
+        MavenContextImpl mavenContext = new MavenContextImpl();
+        logger = new MemoryLog();
+        mavenContext.setLogger(logger);
+        subject.setMavenContext(mavenContext);
+    }
 
     @Test
     public void testValidFileRepository() throws Exception {
@@ -86,7 +96,7 @@ public class VerifierServiceImplTest {
         BuildContext context = new BuildContext(null, DEFAULT_ENVIRONMENTS, tempFolder.getRoot());
 
         return subject.verify(repositories.getMetadataRepositories().get(0), repositories.getArtifactRepositories()
-                .get(0), context, logger);
+                .get(0), context);
     }
 
     static class MemoryLog implements MavenLogger {

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.resolver;
 
+import static org.eclipse.tycho.p2.impl.resolver.P2ResolverTest.getLocalRepositoryLocation;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,9 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.core.facade.MavenContext;
+import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.junit.After;
@@ -75,6 +81,20 @@ public class P2ResolverTestBase {
                 packagingType);
         artifact.setDependencyMetadata(dependencyGenerator.generateMetadata(artifact, getEnvironments()));
         context.addReactorArtifact(artifact);
+    }
+
+    protected MavenContext createMavenContext(boolean offline, MavenLogger logger) throws IOException {
+        MavenContextImpl mavenContext = new MavenContextImpl();
+        mavenContext.setOffline(offline);
+        mavenContext.setLocalRepositoryRoot(getLocalRepositoryLocation());
+        mavenContext.setLogger(logger);
+        return mavenContext;
+    }
+
+    protected P2ResolverFactoryImpl createP2ResolverFactory(boolean offline) throws IOException {
+        P2ResolverFactoryImpl p2ResolverFactory = new P2ResolverFactoryImpl();
+        p2ResolverFactory.setMavenContext(createMavenContext(offline, new MavenLoggerStub()));
+        return p2ResolverFactory;
     }
 
 }

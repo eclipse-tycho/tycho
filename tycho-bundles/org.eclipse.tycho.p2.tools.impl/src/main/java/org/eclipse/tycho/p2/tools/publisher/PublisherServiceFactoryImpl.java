@@ -13,7 +13,7 @@ package org.eclipse.tycho.p2.tools.publisher;
 import java.io.File;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -23,8 +23,10 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
+    private MavenContext mavenContext;
+
     public PublisherService createPublisher(File targetRepository, RepositoryReferences contextRepos,
-            BuildContext context, MavenLogger logger) throws FacadeException {
+            BuildContext context) throws FacadeException {
         /*
          * Create an own instance of the provisioning agent to prevent cross talk with other things
          * that happen in the Tycho OSGi runtime. We can assume to own the directory into which the
@@ -33,6 +35,11 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
 
         return new PublisherServiceImpl(context, new PublisherInfoTemplate(targetRepository, contextRepos, context,
-                agent), logger);
+                agent), mavenContext.getLogger());
     }
+
+    public void setMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
+    }
+
 }

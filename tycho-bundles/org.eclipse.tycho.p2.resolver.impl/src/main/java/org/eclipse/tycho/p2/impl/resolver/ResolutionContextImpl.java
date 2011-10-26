@@ -61,6 +61,7 @@ import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
@@ -101,10 +102,9 @@ public class ResolutionContextImpl implements ResolutionContext {
     /** maven local repository as P2 IMetadataRepository */
     private final LocalMetadataRepository localMetadataRepository;
 
-    ResolutionContextImpl(IProvisioningAgent agent, File localMavenRepositoryRoot, boolean offline,
-            boolean disableP2Mirrors, MavenLogger logger) {
+    ResolutionContextImpl(IProvisioningAgent agent, MavenContext mavenContext, boolean disableP2Mirrors) {
         this.agent = agent;
-        this.logger = logger;
+        this.logger = mavenContext.getLogger();
         this.monitor = new LoggingProgressMonitor(logger);
 
         this.metadataRepositoryManager = (IMetadataRepositoryManager) agent
@@ -124,27 +124,28 @@ public class ResolutionContextImpl implements ResolutionContext {
             throw new IllegalStateException("No Tycho p2 reposiutory cache found");
         }
 
-        this.offline = offline;
+        this.offline = mavenContext.isOffline();
 
         this.disableP2Mirrors = disableP2Mirrors;
 
-        this.bundlesPublisher = new ResolutionContextBundlePublisher(localMavenRepositoryRoot, logger);
+        this.bundlesPublisher = new ResolutionContextBundlePublisher(mavenContext.getLocalRepositoryRoot(), logger);
 
         // setup p2 views of maven local repository
-        URI uri = localMavenRepositoryRoot.toURI();
+        URI uri = mavenContext.getLocalRepositoryRoot().toURI();
 
         LocalArtifactRepository localRepository = (LocalArtifactRepository) repositoryCache.getArtifactRepository(uri);
         LocalMetadataRepository localMetadataRepository = (LocalMetadataRepository) repositoryCache
                 .getMetadataRepository(uri);
 
         if (localRepository == null || localMetadataRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(localMavenRepositoryRoot);
+            RepositoryReader contentLocator = new LocalRepositoryReader(mavenContext.getLocalRepositoryRoot());
             TychoRepositoryIndex artifactsIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(
-                    localMavenRepositoryRoot, FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
+                    mavenContext.getLocalRepositoryRoot(), FileBasedTychoRepositoryIndex.ARTIFACTS_INDEX_RELPATH);
             TychoRepositoryIndex metadataIndex = FileBasedTychoRepositoryIndex.createRepositoryIndex(
-                    localMavenRepositoryRoot, FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
+                    mavenContext.getLocalRepositoryRoot(), FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
 
-            localRepository = new LocalArtifactRepository(localMavenRepositoryRoot, artifactsIndex, contentLocator);
+            localRepository = new LocalArtifactRepository(mavenContext.getLocalRepositoryRoot(), artifactsIndex,
+                    contentLocator);
             localMetadataRepository = new LocalMetadataRepository(uri, metadataIndex, contentLocator);
 
             repositoryCache.putRepository(uri, localMetadataRepository, localRepository);

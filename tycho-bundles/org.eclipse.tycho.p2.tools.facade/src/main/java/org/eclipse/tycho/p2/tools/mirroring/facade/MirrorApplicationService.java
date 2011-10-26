@@ -13,7 +13,6 @@ package org.eclipse.tycho.p2.tools.mirroring.facade;
 import java.io.File;
 import java.util.Collection;
 
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -42,14 +41,12 @@ public interface MirrorApplicationService {
      *            environment specific installable units
      * @param includeAllDependencies
      *            Whether to include all transitive dependencies
-     * @param logger
-     *            The maven logger
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, boolean includeAllDependencies,
-            MavenLogger logger) throws FacadeException;
+            Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, boolean includeAllDependencies)
+            throws FacadeException;
 
     /**
      * Copies installable units from the source repositories to the destination repository. The
@@ -69,12 +66,10 @@ public interface MirrorApplicationService {
      * @param tempDirectory
      *            A directory for storing temporary results. Typically the build target folder of a
      *            module.
-     * @param logger
-     *            The maven logger
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
     void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, File tempDirectory, MavenLogger logger)
+            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, File tempDirectory)
             throws FacadeException;
 }

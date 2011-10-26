@@ -18,10 +18,8 @@ import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -29,9 +27,6 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
-
-    /** @component */
-    private Logger logger;
 
     /** @component */
     private RepositoryReferenceTool repositoryReferenceTool;
@@ -67,7 +62,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
             File publisherRepoLocation = new File(getBuildDirectory(),
                     RepositoryReferenceTool.PUBLISHER_REPOSITORY_PATH);
             return publisherServiceFactory.createPublisher(publisherRepoLocation, contextRepositories,
-                    getBuildContext(), new MavenLoggerAdapter(logger, false));
+                    getBuildContext());
         } catch (FacadeException e) {
             throw new MojoExecutionException("Exception while initializing the publisher service", e);
         }

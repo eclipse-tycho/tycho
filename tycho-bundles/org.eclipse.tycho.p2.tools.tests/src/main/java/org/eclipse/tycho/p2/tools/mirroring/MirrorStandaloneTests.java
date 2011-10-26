@@ -10,6 +10,7 @@ import java.io.FileFilter;
 import java.util.Collections;
 
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -24,7 +25,6 @@ public class MirrorStandaloneTests {
     private static final String DEFAULT_NAME = "dummy";
 
     private DestinationRepositoryDescriptor destinationRepo;
-    private MavenLogger logger;
 
     private MirrorApplicationServiceImpl subject;
 
@@ -33,16 +33,18 @@ public class MirrorStandaloneTests {
 
     @Before
     public void initTestContext() {
-        logger = new MirrorApplicationServiceTest.MemoryLog();
+        MavenLogger logger = new MirrorApplicationServiceTest.MemoryLog();
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
-
         subject = new MirrorApplicationServiceImpl();
+        MavenContextImpl mavenContext = new MavenContextImpl();
+        mavenContext.setLogger(logger);
+        subject.setMavenContext(mavenContext);
     }
 
     @Test
     public void testMirrorAllUnits() throws Exception {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo, null, new MirrorOptions(),
-                tempFolder.getRoot(), logger);
+                tempFolder.getRoot());
         assertEquals(3, new File(destinationRepo.getLocation(), "plugins").listFiles().length);
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
         assertTrue(repoFile(destinationRepo,
@@ -55,7 +57,7 @@ public class MirrorStandaloneTests {
     public void testMirrorSpecificUnitLatestVersion() throws Exception {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
                 Collections.singletonList(new IUDescription("org.eclipse.core.runtime", null)), new MirrorOptions(),
-                tempFolder.getRoot(), logger);
+                tempFolder.getRoot());
         assertEquals(1, new File(destinationRepo.getLocation(), "plugins").listFiles().length);
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
     }
@@ -64,7 +66,7 @@ public class MirrorStandaloneTests {
     public void testMirrorSpecificUnitSpecificVersion() throws Exception {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
                 Collections.singletonList(new IUDescription("org.eclipse.core.runtime", "3.4.0.v20080512")),
-                new MirrorOptions(), tempFolder.getRoot(), logger);
+                new MirrorOptions(), tempFolder.getRoot());
         assertEquals(1, new File(destinationRepo.getLocation(), "plugins").listFiles().length);
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
     }
@@ -74,7 +76,7 @@ public class MirrorStandaloneTests {
         MirrorOptions mirrorOptions = new MirrorOptions();
         mirrorOptions.setLatestVersionOnly(true);
         subject.mirrorStandalone(sourceRepos("e342", "e352"), destinationRepo, null, mirrorOptions,
-                tempFolder.getRoot(), logger);
+                tempFolder.getRoot());
         File[] runtimeBundles = new File(destinationRepo.getLocation(), "plugins").listFiles(new FileFilter() {
 
             public boolean accept(File file) {
@@ -88,7 +90,7 @@ public class MirrorStandaloneTests {
     public void testMirrorNotExisting() throws Exception {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
                 Collections.singletonList(new IUDescription("org.eclipse.core.runtime", "10.0.0")),
-                new MirrorOptions(), tempFolder.getRoot(), logger);
+                new MirrorOptions(), tempFolder.getRoot());
     }
 
     private RepositoryReferences e342PlusFragmentsRepo() {

@@ -18,22 +18,22 @@ import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 @SuppressWarnings("restriction")
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
-    public ResolutionContextImpl createResolutionContext(File localMavenRepositoryRoot, boolean offline,
-            boolean disableP2Mirrors, MavenLogger logger) {
-        IProvisioningAgent agent = getProvisioningAgent(localMavenRepositoryRoot, offline);
+    private MavenContext mavenContext;
 
-        return new ResolutionContextImpl(agent, localMavenRepositoryRoot, offline, disableP2Mirrors, logger);
+    public ResolutionContextImpl createResolutionContext(boolean disableP2Mirrors) {
+        IProvisioningAgent agent = getProvisioningAgent(mavenContext.getLocalRepositoryRoot(), mavenContext.isOffline());
+        return new ResolutionContextImpl(agent, mavenContext, disableP2Mirrors);
     }
 
-    public P2ResolverImpl createResolver(MavenLogger logger) {
-        return new P2ResolverImpl(logger);
+    public P2ResolverImpl createResolver() {
+        return new P2ResolverImpl(mavenContext.getLogger());
     }
 
     // --------------
@@ -106,6 +106,10 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
             }
         }
         return agent;
+    }
+
+    public void setMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
     }
 
 }

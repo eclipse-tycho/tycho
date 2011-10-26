@@ -18,7 +18,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
 
@@ -39,8 +38,7 @@ public class VerifyIntegrityRepositoryMojo extends AbstractRepositoryMojo implem
         VerifierService verifier = p2.getService(VerifierService.class);
         URI repositoryUri = new File(getBuildDirectory(), "repository").toURI();
         try {
-            if (!verifier
-                    .verify(repositoryUri, repositoryUri, getBuildContext(), new MavenLoggerAdapter(logger, false))) {
+            if (!verifier.verify(repositoryUri, repositoryUri, getBuildContext())) {
                 throw new MojoFailureException("The repository is invalid.");
             }
         } catch (FacadeException e) {

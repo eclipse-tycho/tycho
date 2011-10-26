@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -47,9 +48,10 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static final String MIRROR_FAILURE_MESSAGE = "Mirroring failed";
 
+    private MavenContext mavenContext;
+
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, File tempDirectory, MavenLogger logger)
-            throws FacadeException {
+            Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, File tempDirectory) throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
@@ -57,7 +59,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             try {
                 // we want to see mirror progress as this is a possibly long-running operation
                 mirrorApp.setVerbose(true);
-                mirrorApp.setLog(new LogListener(logger));
+                mirrorApp.setLog(new LogListener(mavenContext.getLogger()));
                 mirrorApp.setSourceIUs(querySourceIus(seedIUs, mirrorApp.getCompositeMetadataRepository(), sources));
                 IStatus returnStatus = mirrorApp.run(null);
                 checkStatus(returnStatus);
@@ -112,8 +114,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?> seedUnits, BuildContext context, boolean includeAllDependencies, MavenLogger logger)
-            throws FacadeException {
+            Collection<?> seedUnits, BuildContext context, boolean includeAllDependencies) throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
@@ -131,7 +132,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                 mirrorApp.setSlicingOptions(options);
 
                 try {
-                    LogListener logListener = new LogListener(logger);
+                    LogListener logListener = new LogListener(mavenContext.getLogger());
                     mirrorApp.setLog(logListener);
 
                     IStatus returnStatus = mirrorApp.run(null);
@@ -216,6 +217,10 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(status),
                     StatusTool.findException(status));
         }
+    }
+
+    public void setMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
     }
 
     static class LogListener implements IArtifactMirrorLog {

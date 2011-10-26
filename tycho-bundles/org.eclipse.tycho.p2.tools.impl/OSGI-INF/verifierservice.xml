@@ -4,4 +4,5 @@
    <service>
       <provide interface="org.eclipse.tycho.p2.tools.verifier.facade.VerifierService"/>
    </service>
+   <reference bind="setMavenContext" cardinality="1..1" interface="org.eclipse.tycho.core.facade.MavenContext" name="MavenContext" policy="static"/>
 </scr:component>

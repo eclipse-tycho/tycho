@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0">
+   <implementation class="org.eclipse.tycho.p2.impl.MavenContextImpl"/>
+   <service>
+      <provide interface="org.eclipse.tycho.core.facade.MavenContext"/>
+   </service>
+</scr:component>

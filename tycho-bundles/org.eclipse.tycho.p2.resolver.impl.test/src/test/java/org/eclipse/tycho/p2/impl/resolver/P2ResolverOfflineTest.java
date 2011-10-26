@@ -22,7 +22,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -42,10 +41,9 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
 
     @Before
     public void initResolver() throws Exception {
-        MavenLogger logger = new MavenLoggerStub();
-        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), false,
-                DISABLE_MIRRORS, logger);
-        impl = new P2ResolverImpl(logger);
+        P2ResolverFactoryImpl p2ResolverFactoryImpl = createP2ResolverFactory(false);
+        context = p2ResolverFactoryImpl.createResolutionContext(DISABLE_MIRRORS);
+        impl = new P2ResolverImpl(new MavenLoggerStub());
     }
 
     @Before
@@ -84,8 +82,9 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
         resolveFromHttp(context, impl, servedUrl);
 
         // now go offline and resolve again
-        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), true,
-                DISABLE_MIRRORS, new MavenLoggerStub());
+        P2ResolverFactoryImpl p2ResolverFactory = new P2ResolverFactoryImpl();
+        p2ResolverFactory.setMavenContext(createMavenContext(true, new MavenLoggerStub()));
+        context = p2ResolverFactory.createResolutionContext(DISABLE_MIRRORS);
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 
         Assert.assertEquals(1, results.size());
@@ -99,8 +98,9 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
     public void offlineNoLocalCache() throws Exception {
         delete(getLocalRepositoryLocation());
 
-        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), true,
-                DISABLE_MIRRORS, new MavenLoggerStub());
+        boolean offline = true;
+        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(offline);
+        context = p2ResolverFactory.createResolutionContext(DISABLE_MIRRORS);
 
         try {
             resolveFromHttp(context, impl, servedUrl);

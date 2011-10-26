@@ -46,8 +46,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Before
     public void initDefaultResolver() throws Exception {
         MavenLogger logger = new MavenLoggerStub();
-        context = new P2ResolverFactoryImpl().createResolutionContext(getLocalRepositoryLocation(), false, false,
-                logger);
+        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
+        context = p2ResolverFactory.createResolutionContext(false);
         impl = new P2ResolverImpl(logger);
         impl.setEnvironments(getEnvironments());
     }

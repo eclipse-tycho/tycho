@@ -55,11 +55,9 @@ import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
@@ -68,7 +66,6 @@ import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -146,17 +143,13 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     public TargetPlatform resolvePlatform(final MavenSession session, final MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
 
-        MavenLogger loggerForOsgiImpl = new MavenLoggerAdapter(getLogger(), DebugUtils.isDebugEnabled(session, project));
-
-        File localRepositoryRoot = new File(session.getLocalRepository().getBasedir());
-
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
 
-        ResolutionContext resolutionContext = resolverFactory.createResolutionContext(localRepositoryRoot,
-                session.isOffline(), configuration.isDisableP2Mirrors(), loggerForOsgiImpl);
+        ResolutionContext resolutionContext = resolverFactory.createResolutionContext(configuration
+                .isDisableP2Mirrors());
 
-        P2Resolver osgiResolverImpl = resolverFactory.createResolver(loggerForOsgiImpl);
+        P2Resolver osgiResolverImpl = resolverFactory.createResolver();
 
         try {
             return doResolvePlatform(session, project, reactorProjects, dependencies, resolutionContext,

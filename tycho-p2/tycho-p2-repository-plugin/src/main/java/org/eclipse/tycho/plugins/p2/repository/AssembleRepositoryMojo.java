@@ -19,7 +19,6 @@ import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -87,7 +86,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements Lo
             DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                     destination, repositoryName, compress, !createArtifactRepository, true);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, rootIUs, getBuildContext(),
-                    includeAllDependencies, new MavenLoggerAdapter(logger, false));
+                    includeAllDependencies);
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
         }

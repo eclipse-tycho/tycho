@@ -8,6 +8,7 @@ import java.net.URI;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
+import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Before;
@@ -48,8 +49,12 @@ public class ResolutionContextDisableP2MirrorsTest {
 
     private ResolutionContextImpl createResolutionContext(boolean disableP2Mirrors) {
         P2ResolverFactoryImpl p2ResolverFactoryImpl = new P2ResolverFactoryImpl();
-        ResolutionContextImpl context = p2ResolverFactoryImpl.createResolutionContext(localRepo, false,
-                disableP2Mirrors, new MavenLoggerStub());
+        MavenContextImpl mavenContext = new MavenContextImpl();
+        mavenContext.setOffline(false);
+        mavenContext.setLocalRepositoryRoot(localRepo);
+        mavenContext.setLogger(new MavenLoggerStub());
+        p2ResolverFactoryImpl.setMavenContext(mavenContext);
+        ResolutionContextImpl context = p2ResolverFactoryImpl.createResolutionContext(disableP2Mirrors);
         return context;
     }
 

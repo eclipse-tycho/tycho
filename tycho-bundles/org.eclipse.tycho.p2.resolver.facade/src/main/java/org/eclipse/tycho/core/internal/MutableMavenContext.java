@@ -6,18 +6,24 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.verifier.facade;
+package org.eclipse.tycho.core.internal;
 
-import java.net.URI;
+import java.io.File;
 
-import org.eclipse.tycho.p2.tools.BuildContext;
-import org.eclipse.tycho.p2.tools.FacadeException;
+import org.eclipse.tycho.core.facade.MavenContext;
+import org.eclipse.tycho.core.facade.MavenLogger;
 
-public interface VerifierService {
+/**
+ * Not intended to be used by clients.
+ */
+public interface MutableMavenContext extends MavenContext {
 
-    public abstract boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildContext context)
-            throws FacadeException;
+    public void setLocalRepositoryRoot(File root);
+
+    public void setOffline(boolean offline);
+
+    public void setLogger(MavenLogger logger);
 
 }
