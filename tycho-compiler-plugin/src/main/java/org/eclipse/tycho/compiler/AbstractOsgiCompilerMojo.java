@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,6 +38,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.toolchain.MisconfiguredToolchainException;
+import org.apache.maven.toolchain.ToolchainManagerPrivate;
+import org.apache.maven.toolchain.ToolchainPrivate;
+import org.apache.maven.toolchain.java.DefaultJavaToolChain;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
 import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
 import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
@@ -66,9 +71,11 @@ import copied.org.apache.maven.plugin.CompilationFailureException;
 public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo implements JavaCompilerConfiguration,
         Adaptable {
 
-    public static final String RULE_SEPARATOR = File.pathSeparator;
+    private static enum JDKUsage {
+        SYSTEM, BREE;
+    }
 
-//  public static final String RULE_INCLUDE_ALL = "**/*";
+    public static final String RULE_SEPARATOR = File.pathSeparator;
 
     /**
      * Exclude all but keep looking for other another match
@@ -116,6 +123,35 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     /** @component */
     private RepositorySystem repositorySystem;
+
+    /**
+     * Which JDK to use for compilation. Default value is SYSTEM which means the currently running
+     * JDK. If BREE is specified, MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code>
+     * is used to define the JDK to compile against. In this case, you need to provide a <a
+     * href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>
+     * configuration file. The value of BREE will be matched against the id of the toolchain
+     * elements in toolchains.xml. Example:
+     * 
+     * <pre>
+     * &lt;toolchains&gt;
+     *   &lt;toolchain&gt;
+     *      &lt;type&gt;jdk&lt;/type&gt;
+     *      &lt;provides&gt;
+     *          &lt;id&gt;J2SE-1.5&lt;/id&gt;
+     *      &lt;/provides&gt;
+     *      &lt;configuration&gt;
+     *         &lt;jdkHome&gt;/path/to/jdk/1.5&lt;/jdkHome&gt;
+     *      &lt;/configuration&gt;
+     *   &lt;/toolchain&gt;
+     * &lt;/toolchains&gt;
+     * </pre>
+     * 
+     * @parameter default-value="SYSTEM"
+     */
+    private JDKUsage useJDK;
+
+    /** @component */
+    private ToolchainManagerPrivate toolChainManager;
 
     /**
      * A list of inclusion filters for the compiler.
@@ -341,9 +377,42 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             }
         }
         configureSourceAndTargetLevel(compilerConfiguration);
-        // TODO how to set target JRE? 
-        // https://issues.sonatype.org/browse/TYCHO-9
+        configureJavaHome(compilerConfiguration);
         return compilerConfiguration;
+    }
+
+    private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {
+        if (useJDK != JDKUsage.BREE) {
+            return;
+        }
+        ExecutionEnvironment environment = getMinimalCompilerTargetEnvironment();
+        if (environment == null) {
+            getLog().warn(
+                    "useJDK = BREE configured, but bundle has no " + MANIFEST_HEADER_BUNDLE_REQ_EXEC_ENV
+                            + " header. Compiling with current JDK.");
+        } else {
+            String javaHome = findMatchingJavaToolChain(environment).getJavaHome();
+            compilerConfiguration.addCompilerCustomArgument("use.java.home", javaHome);
+        }
+    }
+
+    private DefaultJavaToolChain findMatchingJavaToolChain(final ExecutionEnvironment environment)
+            throws MojoExecutionException {
+        try {
+            final Map requirements = Collections.singletonMap("id", environment.getProfileName());
+            for (ToolchainPrivate javaToolChain : toolChainManager.getToolchainsForType("jdk", session)) {
+                if (javaToolChain.matchesRequirements(requirements)) {
+                    if (javaToolChain instanceof DefaultJavaToolChain) {
+                        return ((DefaultJavaToolChain) javaToolChain);
+                    }
+                }
+            }
+            throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
+                    + environment.getProfileName()
+                    + "' found. See http://maven.apache.org/guides/mini/guide-using-toolchains.html");
+        } catch (MisconfiguredToolchainException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
     }
 
     private void configureSourceAndTargetLevel(CompilerConfiguration compilerConfiguration)
@@ -376,6 +445,26 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     .getCompilerTargetLevel());
         }
         return Collections.min(targetLevels);
+    }
+
+    private ExecutionEnvironment getMinimalCompilerTargetEnvironment() throws MojoExecutionException {
+        List<ExecutionEnvironment> environments = new ArrayList<ExecutionEnvironment>();
+        for (String env : getExecutionEnvironments()) {
+            try {
+                environments.add(ExecutionEnvironmentUtils.getExecutionEnvironment(env));
+            } catch (UnknownEnvironmentException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+        }
+        if (environments.isEmpty()) {
+            return null;
+        }
+        return Collections.min(environments, new Comparator<ExecutionEnvironment>() {
+
+            public int compare(ExecutionEnvironment env1, ExecutionEnvironment env2) {
+                return env1.getCompilerTargetLevel().compareTo(env2.getCompilerTargetLevel());
+            }
+        });
     }
 
     private String getMinimalSourceVersion(String[] executionEnvironments) throws UnknownEnvironmentException {

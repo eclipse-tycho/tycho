@@ -37,7 +37,6 @@ import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -69,6 +68,8 @@ public class JDTCompiler extends AbstractCompiler {
     private Map dirEncodings = null;
 
     private List accessRules = null;
+
+    private String javaHome = null;
 
     public JDTCompiler() {
         super(CompilerOutputStyle.ONE_OUTPUT_FILE_PER_INPUT_FILE, ".java", ".class", null);
@@ -221,6 +222,11 @@ public class JDTCompiler extends AbstractCompiler {
                 continue;
             }
 
+            if ("use.java.home".equals(key)) {
+                this.javaHome = (String) entry.getValue();
+                continue;
+            }
+
             args.add(key);
 
             String value = (String) entry.getValue();
@@ -311,8 +317,11 @@ public class JDTCompiler extends AbstractCompiler {
         StringWriter out = new StringWriter();
         StringWriter err = new StringWriter();
 
-        Main compiler = new Main(new PrintWriter(out), new PrintWriter(err), false);
+        CompilerMain compiler = new CompilerMain(new PrintWriter(out), new PrintWriter(err), false, getLogger());
         compiler.options.put(CompilerOptions.OPTION_ReportForbiddenReference, CompilerOptions.ERROR);
+        if (javaHome != null) {
+            compiler.setJavaHome(new File(javaHome));
+        }
         compiler.compile(args);
 
         try {
