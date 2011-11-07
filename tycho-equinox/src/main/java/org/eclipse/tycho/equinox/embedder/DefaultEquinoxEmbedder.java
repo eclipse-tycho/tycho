@@ -183,7 +183,8 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
             secureStorage = File.createTempFile("tycho", "secure_storage");
             secureStorage.deleteOnExit();
         } catch (IOException e) {
-            throw new EquinoxEmbedderException("Could not create Tycho secure store file", e);
+            throw new EquinoxEmbedderException("Could not create Tycho secure store file in temp dir "
+                    + System.getProperty("java.io.tmpdir"), e);
         }
 
         List<String> nonFrameworkArgs = new ArrayList<String>();
