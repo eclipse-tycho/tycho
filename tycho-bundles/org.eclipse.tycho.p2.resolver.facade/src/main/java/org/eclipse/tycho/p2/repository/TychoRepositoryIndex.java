@@ -27,6 +27,7 @@ public interface TychoRepositoryIndex {
      * 
      * @see {@link #save()}
      * @param gav
+     *            not <code>null</code>
      */
     void addProject(GAV gav);
 

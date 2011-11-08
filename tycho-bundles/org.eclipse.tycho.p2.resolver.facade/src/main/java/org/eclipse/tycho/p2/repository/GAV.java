@@ -70,6 +70,7 @@ public class GAV {
         return sb.toString();
     }
 
+    // TODO do not return null here
     public static GAV parse(String str) {
         if (str == null || str.trim().length() <= 0) {
             return null;

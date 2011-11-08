@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -40,7 +40,7 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
 
     public static TychoRepositoryIndex createRepositoryIndex(File basedir, String relpath) {
         File inputFile = new File(basedir, relpath);
-        Set<GAV> content = new LinkedHashSet<GAV>();
+        Set<GAV> content = Collections.emptySet();
         if (inputFile.exists()) {
             try {
                 content = DefaultTychoRepositoryIndex.read(new FileInputStream(inputFile));

@@ -37,8 +37,12 @@ public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryInde
         this(Collections.<GAV> emptySet());
     }
 
-    public DefaultTychoRepositoryIndex(Set<GAV> intitialContent) {
-        gavs = new LinkedHashSet<GAV>(intitialContent);
+    /**
+     * @param initialContent
+     *            must not contain <code>null</code>
+     */
+    public DefaultTychoRepositoryIndex(Set<GAV> initialContent) {
+        gavs = new LinkedHashSet<GAV>(initialContent);
     }
 
     public Set<GAV> getProjectGAVs() {
@@ -46,6 +50,8 @@ public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryInde
     }
 
     public void addProject(GAV gav) {
+        if (gav == null)
+            throw new NullPointerException();
         gavs.add(gav);
     }
 
@@ -73,7 +79,9 @@ public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryInde
         try {
             String str;
             while ((str = br.readLine()) != null) {
-                result.add(GAV.parse(str));
+                GAV parsedGAV = GAV.parse(str);
+                if (parsedGAV != null)
+                    result.add(parsedGAV);
             }
         } finally {
             br.close();
