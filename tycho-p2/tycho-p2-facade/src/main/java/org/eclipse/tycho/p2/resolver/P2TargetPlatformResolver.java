@@ -188,6 +188,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
         }
 
+        for (Dependency dependency : configuration.getExtraRequirements()) {
+            resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
+        }
+
         if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
             Set<String> projectIds = new HashSet<String>();
             for (ReactorProject p : reactorProjects) {

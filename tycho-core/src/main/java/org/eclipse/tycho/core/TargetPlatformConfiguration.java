@@ -14,6 +14,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.maven.model.Dependency;
+
 public class TargetPlatformConfiguration {
 
     public static final String POM_DEPENDENCIES_CONSIDER = "consider";
@@ -21,6 +23,8 @@ public class TargetPlatformConfiguration {
     private String resolver;
 
     private List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+
+    private List<Dependency> extraRequirements = new ArrayList<Dependency>();
 
     private boolean implicitTargetEnvironment = true;
 
@@ -92,5 +96,13 @@ public class TargetPlatformConfiguration {
 
     public boolean isDisableP2Mirrors() {
         return disableP2Mirrors;
+    }
+
+    public void addExtraRequirement(Dependency requirement) {
+        extraRequirements.add(requirement);
+    }
+
+    public List<Dependency> getExtraRequirements() {
+        return extraRequirements;
     }
 }
