@@ -35,6 +35,9 @@ public final class DirectorMojo extends AbstractProductMojo {
     /** @parameter default-value="DefaultProfile" */
     private String profile;
 
+    /* @parameter */
+    private List<ProfileName> profileNames;
+
     /** @parameter default-value="true" */
     private boolean installFeatures;
 
@@ -59,13 +62,25 @@ public final class DirectorMojo extends AbstractProductMojo {
                     destination = new File(destination, rootFolder);
                 }
 
+                String profileName = profile;
+                if (profileNames != null) {
+                    for (ProfileName profileWithEnvironment : profileNames) {
+                        // first match always wins
+                        if (env.match(profileWithEnvironment.getOs(), profileWithEnvironment.getWs(),
+                                profileWithEnvironment.getArch())) {
+                            profileName = profileWithEnvironment.getName();
+                            break;
+                        }
+                    }
+                }
+
                 String metadataRepositoryURLs = toCommaSeparatedList(sources.getMetadataRepositories());
                 String artifactRepositoryURLs = toCommaSeparatedList(sources.getArtifactRepositories());
                 String[] args = new String[] { "-metadatarepository", metadataRepositoryURLs, //
                         "-artifactrepository", artifactRepositoryURLs, //
                         "-installIU", product.getId(), //
                         "-destination", destination.getAbsolutePath(), //
-                        "-profile", profile, //
+                        "-profile", profileName, //
                         "-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures), //
                         "-roaming", //
                         "-p2.os", env.getOs(), "-p2.ws", env.getWs(), "-p2.arch", env.getArch() };
