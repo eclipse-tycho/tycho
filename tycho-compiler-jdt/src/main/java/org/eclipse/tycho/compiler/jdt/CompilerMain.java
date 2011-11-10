@@ -97,7 +97,7 @@ class CompilerMain extends Main {
         } else {
             bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
             File directoryToCheck;
-            if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
+            if (isMacOS()) {//$NON-NLS-1$//$NON-NLS-2$
                 directoryToCheck = new File(javaHome, "../Classes");
             } else {
                 directoryToCheck = new File(javaHome, "lib");
@@ -109,6 +109,10 @@ class CompilerMain extends Main {
         }
         mavenLogger.debug("Using boot classpath: " + bootclasspaths);
         return bootclasspaths;
+    }
+
+    protected boolean isMacOS() {
+        return System.getProperty("os.name").startsWith("Mac");
     }
 
     private void scanForArchives(ArrayList classPathList, File dir) {

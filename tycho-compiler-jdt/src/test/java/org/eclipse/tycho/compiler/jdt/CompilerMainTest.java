@@ -14,65 +14,90 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
-import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.junit.Before;
 import org.junit.Test;
 
 public class CompilerMainTest {
 
-    private CompilerMain compiler;
+    private static class TestCompilerMain extends CompilerMain {
+
+        private boolean isMacOS = false;
+
+        public TestCompilerMain(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished,
+                org.codehaus.plexus.logging.Logger logger) {
+            super(outWriter, errWriter, systemExitWhenFinished, logger);
+        }
+
+        public void setMacOS(boolean isMacOS) {
+            this.isMacOS = isMacOS;
+        }
+
+        @Override
+        protected boolean isMacOS() {
+            return isMacOS;
+        }
+
+    }
+
+    private TestCompilerMain compiler;
 
     @Before
     public void setup() {
-        compiler = new CompilerMain(null, null, false, new ConsoleLogger(Logger.LEVEL_WARN, "test"));
+        compiler = new TestCompilerMain(null, null, false, new ConsoleLogger(Logger.LEVEL_WARN, "test"));
         compiler.setJavaHome(new File(getClass().getResource("/test-jdk/").getFile()));
     }
 
     @Test
     public void testHandleEndorseddirs() {
         ArrayList endorsedDirClasspaths = compiler.handleEndorseddirs(null);
-        assertSingleClasspathEntry(endorsedDirClasspaths, "/lib/endorsed/endorsed");
+        checkClassPath(endorsedDirClasspaths, "/lib/endorsed/endorsed");
     }
 
     @Test
     public void testHandleExtdirs() {
         ArrayList extDirs = compiler.handleExtdirs(null);
-        assertSingleClasspathEntry(extDirs, "/lib/ext/ext");
+        checkClassPath(extDirs, "/lib/ext/ext");
     }
 
     @Test
-    public void testHandleBootclasspath() {
+    public void testHandleBootClasspathNonMacOS() {
         ArrayList bootClasspath = compiler.handleBootclasspath(null, null);
-        assertEquals(2, bootClasspath.size());
-        Set<String> actual = new HashSet<String>();
-        boolean foundRtJar = false;
-        boolean foundAnotherJar = false;
-        for (Object cpo : bootClasspath) {
-            assertTrue(cpo instanceof ClasspathJar);
-            String path = new String(((ClasspathJar) cpo).normalizedPath());
-            if (path.endsWith("/lib/rt")) {
-                foundRtJar = true;
-            } else if (path.endsWith("/lib/another")) {
-                foundAnotherJar = true;
-            }
-        }
-        assertTrue("lib/rt.jar not found in bootClassPath", foundRtJar);
-        assertTrue("lib/another.jar not found in bootClassPath", foundAnotherJar);
+        checkClassPath(bootClasspath, "/lib/rt", "/lib/another");
     }
 
-    private void assertSingleClasspathEntry(ArrayList classpath, String expectedPath) {
-        assertEquals(1, classpath.size());
-        ClasspathLocation classPathEntry = (ClasspathLocation) classpath.get(0);
-        assertTrue(classPathEntry instanceof ClasspathJar);
-        String path = new String(((ClasspathJar) classPathEntry).normalizedPath());
-        assertTrue(expectedPath + " not found in classpath", path.endsWith(expectedPath));
+    @Test
+    public void testHandleBootClasspathMacOS() {
+        compiler.setMacOS(true);
+        ArrayList bootClasspath = compiler.handleBootclasspath(null, null);
+        checkClassPath(bootClasspath, "/Classes/classes");
+    }
+
+    private void checkClassPath(ArrayList classpath, String... expectedRelativePaths) {
+        assertEquals(expectedRelativePaths.length, classpath.size());
+        Set<String> actualPaths = new HashSet<String>();
+        for (Object cpo : classpath) {
+            assertTrue(cpo instanceof ClasspathJar);
+            String path = new String(((ClasspathJar) cpo).normalizedPath());
+            actualPaths.add(path);
+        }
+        for (String expectedPath : expectedRelativePaths) {
+            for (Iterator<String> iterator = actualPaths.iterator(); iterator.hasNext();) {
+                String actualPath = iterator.next();
+                if (actualPath.endsWith(expectedPath)) {
+                    iterator.remove();
+                }
+            }
+        }
+        assertEquals(0, actualPaths.size());
     }
 
 }
