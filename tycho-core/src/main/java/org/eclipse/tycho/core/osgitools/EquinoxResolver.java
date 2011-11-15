@@ -208,6 +208,11 @@ public class EquinoxResolver {
 
     public void assertResolved(State state, BundleDescription desc) throws BundleException {
         if (!desc.isResolved()) {
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Equinox resolver state:\n" + toDebugString(state));
+            }
+
             StringBuffer msg = new StringBuffer();
             msg.append("Bundle ").append(desc.getSymbolicName()).append(" cannot be resolved\n");
             msg.append("Resolution errors:\n");
