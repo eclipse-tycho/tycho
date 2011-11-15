@@ -215,7 +215,8 @@ public class ResolutionContextImpl implements ResolutionContext {
             if (logger.isDebugEnabled()) {
                 logger.debug("P2Resolver: artifact "
                         + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()).toString()
-                        + " resolves installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
+                        + " at location " + artifact.getLocation() + " resolves installable unit "
+                        + new VersionedId(unit.getId(), unit.getVersion()));
             }
         }
     }
@@ -445,17 +446,17 @@ public class ResolutionContextImpl implements ResolutionContext {
     public void warnAboutLocalIus(Collection<IInstallableUnit> usedIus) {
         final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
         if (logger.isDebugEnabled()) {
-            logger.debug("The following units are part of the target platform because they have been installed to the local repository:");
+            logger.debug("The following locally built units are considered during target platform resolution:");
             for (IInstallableUnit unit : localIUs) {
                 logger.debug("  " + unit.getId() + "/" + unit.getVersion());
             }
         }
         localIUs.retainAll(usedIus);
         if (!localIUs.isEmpty()) {
-            logger.warn("The following locally built units have been used to resolve project dependencies:");
-        }
-        for (IInstallableUnit localIu : localIUs) {
-            logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
+            logger.warn("Project build target platform includes the following locally built units:");
+            for (IInstallableUnit localIu : localIUs) {
+                logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
+            }
         }
     }
 

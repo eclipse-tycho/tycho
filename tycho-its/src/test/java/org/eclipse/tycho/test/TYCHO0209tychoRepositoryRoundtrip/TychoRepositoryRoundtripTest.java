@@ -33,7 +33,7 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
         v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
         v02.executeGoal("install");
         v02.verifyErrorFreeLog();
-        v02.verifyTextInLog("[WARNING] The following locally built units have been used to resolve project dependencies:");
+        v02.verifyTextInLog("[WARNING] Project build target platform includes the following locally built units:");
         v02.verifyTextInLog("[WARNING]   org.codehaus.tycho.tychoits.tycho0209.build01.bundle01/0.0.1.");
         File site = new File(v02.getBasedir(), "build02.site01/target/site");
         Assert.assertEquals(2, new File(site, "features").listFiles().length);
