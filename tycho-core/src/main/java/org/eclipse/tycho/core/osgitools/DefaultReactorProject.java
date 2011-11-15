@@ -193,4 +193,9 @@ public class DefaultReactorProject implements ReactorProject {
 
         return project.equals(other.project);
     }
+
+    @Override
+    public String toString() {
+        return project.toString();
+    }
 }
