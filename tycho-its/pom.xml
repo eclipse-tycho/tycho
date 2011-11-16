@@ -90,8 +90,6 @@
 					<excludes>
 						<!-- TODO tycho-186 is breaking 136 -->
 						<exclude>**/Tycho136*</exclude>
-						<!-- TODO see bug 343857 -->
-						<exclude>**/Tycho122GeneratePomFileTest*</exclude>
 					</excludes>
 					<systemPropertyVariables>
 						<it.cliOptions>${it.cliOptions}</it.cliOptions>
