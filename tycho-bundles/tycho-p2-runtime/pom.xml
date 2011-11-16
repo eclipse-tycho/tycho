@@ -28,8 +28,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>maven-osgi-packaging-plugin</artifactId>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
 				<version>${tychoBootstrapVersion}</version>
 				<configuration>
 					<separateEnvironments>false</separateEnvironments>

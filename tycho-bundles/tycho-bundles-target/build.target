@@ -3,9 +3,9 @@
 
 <target name="Partial target platform for Tycho - explicit versions for Equinox and p2 dependencies">
 <locations>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.7.0.v20110506-0800-7uF9NFyVFWmE7gTCEZ4DfL5A"/>
-<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.7.0.v20110725-1630-9N7uH_mGMMn4xUu198nEJww39OF6"/>
+<location includeAllPlatforms="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.sdk.ide" version="3.8.0.I20110803-1800"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.5.0.v20110711-1243-7P7NFUFFLWUl76nL8AO7_Bo"/>
 <repository location="http://download.eclipse.org/eclipse/updates/3.8milestones/S-3.8M1-201108031800/"/>
 </location>
 </locations>

@@ -114,7 +114,7 @@
 		<jdtVersion>3.8.0.v_C03</jdtVersion>
 
 		<!-- version of tycho used by this build -->
-		<tychoBootstrapVersion>0.11.1</tychoBootstrapVersion>
+		<tychoBootstrapVersion>0.13.0</tychoBootstrapVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -264,14 +264,14 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tychoBootstrapVersion}</version>
 				<extensions>true</extensions>
 			</plugin>
 
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tychoBootstrapVersion}</version>
 				<configuration>
