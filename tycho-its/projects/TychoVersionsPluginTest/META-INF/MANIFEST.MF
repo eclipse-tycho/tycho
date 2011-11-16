@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test Bundle
+Bundle-SymbolicName: test.artifact
+Bundle-Version: 1.0.0

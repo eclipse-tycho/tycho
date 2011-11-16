@@ -9,14 +9,14 @@
   </exportedPackages>
 
   <exportedArtifacts>
-    <exportedArtifact>tycho-embedder-api</exportedArtifact>
-    <exportedArtifact>tycho-core</exportedArtifact>
-    <exportedArtifact>tycho-metadata-model</exportedArtifact>
-    <exportedArtifact>org.eclipse.tycho.p2.resolver.facade</exportedArtifact>
-    <exportedArtifact>org.eclipse.tycho.p2.tools.facade</exportedArtifact>
-    <exportedArtifact>tycho-p2-facade</exportedArtifact>
-    <exportedArtifact>tycho-equinox-api</exportedArtifact>
-    <exportedArtifact>tycho-equinox</exportedArtifact>
-    <exportedArtifact>org.eclipse.osgi</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-embedder-api</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-core</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-metadata-model</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.p2.resolver.facade</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.p2.tools.facade</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-p2-facade</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-equinox-api</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:tycho-equinox</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:org.eclipse.osgi</exportedArtifact>
   </exportedArtifacts>
 </extension>
