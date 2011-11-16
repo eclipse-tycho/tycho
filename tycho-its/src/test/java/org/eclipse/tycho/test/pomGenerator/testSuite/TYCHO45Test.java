@@ -8,9 +8,10 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test;
+package org.eclipse.tycho.test.pomGenerator.testSuite;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
 public class TYCHO45Test extends AbstractTychoIntegrationTest {
@@ -19,7 +20,7 @@ public class TYCHO45Test extends AbstractTychoIntegrationTest {
     public void test() throws Exception {
         String tychoVersion = getTychoVersion();
 
-        Verifier verifier = getVerifier("TYCHO45");
+        Verifier verifier = getVerifier("pomGenerator.testSuite");
 
         // generate poms
         verifier.getSystemProperties().setProperty("groupId", "tycho45");
