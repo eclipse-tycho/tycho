@@ -45,7 +45,7 @@ public class MirrorStandaloneTests {
     public void testMirrorAllUnits() throws Exception {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo, null, new MirrorOptions(),
                 tempFolder.getRoot());
-        assertEquals(3, new File(destinationRepo.getLocation(), "plugins").listFiles().length);
+        assertEquals(3, getMirroredBundleFiles().length);
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
         assertTrue(repoFile(destinationRepo,
                 "plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.0.101.R34x_v20080731.jar").exists());
@@ -55,11 +55,19 @@ public class MirrorStandaloneTests {
 
     @Test
     public void testMirrorSpecificUnitLatestVersion() throws Exception {
+        mirrorCoreRuntimeBundle();
+        assertEquals(1, getMirroredBundleFiles().length);
+        assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
+    }
+
+    private File[] getMirroredBundleFiles() {
+        return new File(destinationRepo.getLocation(), "plugins").listFiles();
+    }
+
+    private void mirrorCoreRuntimeBundle() throws FacadeException {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
                 Collections.singletonList(new IUDescription("org.eclipse.core.runtime", null)), new MirrorOptions(),
                 tempFolder.getRoot());
-        assertEquals(1, new File(destinationRepo.getLocation(), "plugins").listFiles().length);
-        assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
     }
 
     @Test
@@ -67,7 +75,7 @@ public class MirrorStandaloneTests {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
                 Collections.singletonList(new IUDescription("org.eclipse.core.runtime", "3.4.0.v20080512")),
                 new MirrorOptions(), tempFolder.getRoot());
-        assertEquals(1, new File(destinationRepo.getLocation(), "plugins").listFiles().length);
+        assertEquals(1, getMirroredBundleFiles().length);
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
     }
 
@@ -91,6 +99,15 @@ public class MirrorStandaloneTests {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
                 Collections.singletonList(new IUDescription("org.eclipse.core.runtime", "10.0.0")),
                 new MirrorOptions(), tempFolder.getRoot());
+    }
+
+    @Test
+    public void testMirrorAppendAlreadyExisting() throws Exception {
+        mirrorCoreRuntimeBundle();
+        assertEquals(1, getMirroredBundleFiles().length);
+        // mirroring the same content again must not fail
+        mirrorCoreRuntimeBundle();
+        assertEquals(1, getMirroredBundleFiles().length);
     }
 
     private RepositoryReferences e342PlusFragmentsRepo() {
