@@ -69,6 +69,8 @@ public class JDTCompiler extends AbstractCompiler {
 
     private String javaHome = null;
 
+    private String bootclasspathAccessRules = null;
+
     public JDTCompiler() {
         super(CompilerOutputStyle.ONE_OUTPUT_FILE_PER_INPUT_FILE, ".java", ".class", null);
     }
@@ -230,6 +232,11 @@ public class JDTCompiler extends AbstractCompiler {
                 continue;
             }
 
+            if ("org.osgi.framework.system.packages".equals(key)) {
+                this.bootclasspathAccessRules = entry.getValue();
+                continue;
+            }
+
             args.add(key);
 
             String value = (String) entry.getValue();
@@ -326,6 +333,7 @@ public class JDTCompiler extends AbstractCompiler {
         if (javaHome != null) {
             compiler.setJavaHome(new File(javaHome));
         }
+        compiler.setBootclasspathAccessRules(bootclasspathAccessRules);
         compiler.compile(args);
 
         try {

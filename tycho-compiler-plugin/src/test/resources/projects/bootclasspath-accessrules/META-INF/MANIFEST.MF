@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Java14
+Bundle-SymbolicName: bootclasspath-accessrules
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Bundle-ClassPath: a.jar,
+ b.jar

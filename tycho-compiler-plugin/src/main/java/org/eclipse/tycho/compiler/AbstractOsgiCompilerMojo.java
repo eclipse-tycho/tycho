@@ -56,6 +56,7 @@ import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.UnknownEnvironmentException;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
+import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -378,7 +379,25 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         }
         configureSourceAndTargetLevel(compilerConfiguration);
         configureJavaHome(compilerConfiguration);
+        configureBootclasspathAccessRules(compilerConfiguration);
         return compilerConfiguration;
+    }
+
+    private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration)
+            throws MojoExecutionException {
+        ExecutionEnvironment environment = getMinimalCompilerTargetEnvironment();
+        if (environment != null) {
+            List<AccessRule> accessRules = new ArrayList<ClasspathEntry.AccessRule>();
+
+            accessRules.add(new DefaultAccessRule("java/**", false));
+
+            for (String pkg : environment.getSystemPackages()) {
+                accessRules.add(new DefaultAccessRule(pkg.replace('.', '/') + "/*", false));
+            }
+
+            compilerConfiguration
+                    .addCompilerCustomArgument("org.osgi.framework.system.packages", toString(accessRules));
+        }
     }
 
     private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {

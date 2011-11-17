@@ -24,6 +24,7 @@ public class ExecutionEnvironment {
     private String profileName;
     private String compilerSourceLevel;
     private String compilerTargetLevel;
+    private String[] systemPackages;
 
     /**
      * Do no instantiate. Use factory method instead
@@ -34,6 +35,7 @@ public class ExecutionEnvironment {
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
+        this.systemPackages = profileProperties.getProperty("org.osgi.framework.system.packages").split(",");
     }
 
     public String getProfileName() {
@@ -55,6 +57,10 @@ public class ExecutionEnvironment {
     public String toString() {
         return "OSGi profile '" + getProfileName() + "' { source level: " + compilerSourceLevel + ", target level: "
                 + compilerTargetLevel + "}";
+    }
+
+    public String[] getSystemPackages() {
+        return systemPackages;
     }
 
 }

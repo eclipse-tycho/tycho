@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * a JDK other than the current one. If {@link #setJavaHome(File)} is not invoked, this class
  * behaves just the same as its superclass.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class CompilerMain extends Main {
 
     private static final FilenameFilter POTENTIAL_ZIP_FILTER = new FilenameFilter() {
@@ -34,6 +35,7 @@ class CompilerMain extends Main {
 
     private File javaHome;
     private org.codehaus.plexus.logging.Logger mavenLogger;
+    private String bootclasspathAccessRules;
 
     public CompilerMain(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished,
             org.codehaus.plexus.logging.Logger logger) {
@@ -44,6 +46,10 @@ class CompilerMain extends Main {
     public void setJavaHome(File javaHome) {
         this.javaHome = javaHome;
         mavenLogger.debug("Using javaHome: " + javaHome);
+    }
+
+    public void setBootclasspathAccessRules(String accessRules) {
+        bootclasspathAccessRules = accessRules;
     }
 
     @Override
@@ -83,11 +89,9 @@ class CompilerMain extends Main {
 
     @Override
     protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customEncoding) {
-        if (javaHome == null) {
-            return super.handleBootclasspath(bootclasspaths, customEncoding);
-        }
         final int bootclasspathsSize;
         if ((bootclasspaths != null) && ((bootclasspathsSize = bootclasspaths.size()) != 0)) {
+            // TODO I don't think this branch will ever get executed
             String[] paths = new String[bootclasspathsSize];
             bootclasspaths.toArray(paths);
             bootclasspaths.clear();
@@ -96,17 +100,42 @@ class CompilerMain extends Main {
             }
         } else {
             bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-            File directoryToCheck;
-            if (isMacOS()) {//$NON-NLS-1$//$NON-NLS-2$
-                directoryToCheck = new File(javaHome, "../Classes");
+            if (javaHome != null) {
+                File directoryToCheck;
+                if (isMacOS()) {//$NON-NLS-1$//$NON-NLS-2$
+                    directoryToCheck = new File(javaHome, "../Classes");
+                } else {
+                    directoryToCheck = new File(javaHome, "lib");
+                }
+                scanForArchives(bootclasspaths, directoryToCheck);
+                if (bootclasspaths.isEmpty()) {
+                    mavenLogger.warn("No classpath entries for boot classpath found scanning java home " + javaHome);
+                }
             } else {
-                directoryToCheck = new File(javaHome, "lib");
+                try {
+                    Util.collectRunningVMBootclasspath(bootclasspaths);
+                } catch (IllegalStateException e) {
+                    this.logger.logWrongJDK();
+                    this.proceed = false;
+                    return null;
+                }
             }
-            scanForArchives(bootclasspaths, directoryToCheck);
+            if (bootclasspathAccessRules != null) {
+                String[] paths = new String[bootclasspaths.size()];
+
+                for (int i = 0; i < bootclasspaths.size(); i++) {
+                    paths[i] = ((FileSystem.Classpath) bootclasspaths.get(i)).getPath() + bootclasspathAccessRules;
+                }
+
+                bootclasspaths.clear();
+
+                for (int i = 0; i < paths.length; i++) {
+                    processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, paths[i], customEncoding, false, true);
+                }
+            }
+            // TODO do we need to processPathEntries here?
         }
-        if (bootclasspaths.isEmpty()) {
-            mavenLogger.warn("No classpath entries for boot classpath found scanning java home " + javaHome);
-        }
+
         mavenLogger.debug("Using boot classpath: " + bootclasspaths);
         return bootclasspaths;
     }

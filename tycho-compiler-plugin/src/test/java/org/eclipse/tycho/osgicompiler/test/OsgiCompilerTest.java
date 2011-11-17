@@ -286,4 +286,12 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<SourcepathEntry> sourcepath = getMojo(projects, project).getSourcepath();
         assertEquals(2, sourcepath.size());
     }
+
+    public void test_bootclasspathAccessRules() throws Exception {
+        File basedir = getBasedir("projects/bootclasspath-accessrules");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+    }
 }
