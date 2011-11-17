@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -302,25 +303,33 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     if (path != null && path.length() <= 0) {
                         path = null;
                     }
-                } else {
-                    // Log and
-                    continue;
-                }
-                ArtifactDescriptor matchingBundle = platform.getArtifact(
-                        org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, bundleId, null);
-                if (matchingBundle != null) {
-                    List<File> locations;
-                    if (matchingBundle.getMavenProject() != null) {
-                        locations = getOtherProjectClasspath(matchingBundle, matchingBundle.getMavenProject(), path);
-                    } else if (path != null) {
-                        locations = getBundleEntry(matchingBundle, path);
+
+                    ArtifactDescriptor matchingBundle = platform.getArtifact(
+                            org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, bundleId, null);
+                    if (matchingBundle != null) {
+                        List<File> locations;
+                        if (matchingBundle.getMavenProject() != null) {
+                            locations = getOtherProjectClasspath(matchingBundle, matchingBundle.getMavenProject(), path);
+                        } else if (path != null) {
+                            locations = getBundleEntry(matchingBundle, path);
+                        } else {
+                            locations = getBundleClasspath(matchingBundle);
+                        }
+                        classpath.add(new DefaultClasspathEntry(matchingBundle.getMavenProject(), matchingBundle
+                                .getKey(), locations, null));
                     } else {
-                        locations = getBundleClasspath(matchingBundle);
+                        getLogger().warn("Missing extra classpath entry " + entry.trim());
                     }
-                    classpath.add(new DefaultClasspathEntry(matchingBundle.getMavenProject(), matchingBundle.getKey(),
-                            locations, null));
                 } else {
-                    getLogger().warn("Missing extra classpath entry " + entry.trim());
+                    entry = entry.trim();
+                    File file = new File(project.getBasedir(), entry).getAbsoluteFile();
+                    if (file.exists()) {
+                        List<File> locations = Collections.singletonList(file);
+                        ArtifactKey projectKey = getArtifactKey(project);
+                        classpath.add(new DefaultClasspathEntry(project, projectKey, locations, null));
+                    } else {
+                        getLogger().warn("Missing extra classpath entry " + entry);
+                    }
                 }
             }
         }

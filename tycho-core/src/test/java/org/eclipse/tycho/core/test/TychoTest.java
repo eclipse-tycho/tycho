@@ -229,7 +229,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
         List<ClasspathEntry> classpath = projectType.getClasspath(b02);
 
-        assertEquals(4, classpath.size());
+        assertEquals(5, classpath.size());
         // this bundle
         assertEquals(1, classpath.get(0).getLocations().size());
         assertEquals(canonicalFile("target/projects/extraclasspath/b02/target/classes"), classpath.get(0)
@@ -248,6 +248,11 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals(
                 canonicalFile("src/test/resources/targetplatforms/basic/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar"),
                 classpath.get(3).getLocations().get(0).getCanonicalFile());
+        // reference to project local folder
+        assertEquals(1, classpath.get(4).getLocations().size());
+        assertEquals(new File(basedir, "b02/classes").getCanonicalFile(), classpath.get(4).getLocations().get(0)
+                .getCanonicalFile());
+
     }
 
     public void testImplicitTargetEnvironment() throws Exception {
