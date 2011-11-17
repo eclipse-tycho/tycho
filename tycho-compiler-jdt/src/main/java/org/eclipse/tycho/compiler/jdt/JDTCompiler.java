@@ -20,7 +20,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -45,7 +44,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * See http://help.eclipse.org/ganymede/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
  */
 
-@SuppressWarnings("unchecked")
 @Component(role = org.codehaus.plexus.compiler.Compiler.class, hint = "jdt")
 public class JDTCompiler extends AbstractCompiler {
 
@@ -61,13 +59,13 @@ public class JDTCompiler extends AbstractCompiler {
 
     String logFileName;
 
-    Map customDefaultOptions;
+//    Map customDefaultOptions;
 
-    private Map fileEncodings = null;
+    private Map<String, String> fileEncodings = null;
 
-    private Map dirEncodings = null;
+    private Map<String, String> dirEncodings = null;
 
-    private List accessRules = null;
+    private List<String> accessRules = null;
 
     private String javaHome = null;
 
@@ -79,7 +77,7 @@ public class JDTCompiler extends AbstractCompiler {
     // Compiler Implementation
     // ----------------------------------------------------------------------
 
-    public List compile(CompilerConfiguration config) throws CompilerException {
+    public List<CompilerError> compile(CompilerConfiguration config) throws CompilerException {
         File destinationDir = new File(config.getOutputLocation());
 
         if (!destinationDir.exists()) {
@@ -89,18 +87,20 @@ public class JDTCompiler extends AbstractCompiler {
         String[] sourceFiles = getSourceFiles(config);
 
         if (sourceFiles.length == 0) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         getLogger().info(
                 "Compiling " + sourceFiles.length + " " + "source file" + (sourceFiles.length == 1 ? "" : "s") + " to "
                         + destinationDir.getAbsolutePath());
 
-        checkCompilerArgs(config.getCustomCompilerArguments());
+        @SuppressWarnings("unchecked")
+        Map<String, String> customCompilerArguments = config.getCustomCompilerArguments();
+        checkCompilerArgs(customCompilerArguments);
 
         String[] args = buildCompilerArguments(config, sourceFiles);
 
-        List messages;
+        List<CompilerError> messages;
 
         if (config.isFork()) {
             String executable = config.getExecutable();
@@ -122,7 +122,7 @@ public class JDTCompiler extends AbstractCompiler {
     }
 
     public String[] buildCompilerArguments(CompilerConfiguration config, String[] sourceFiles) {
-        List args = new ArrayList();
+        List<String> args = new ArrayList<String>();
 
         // ----------------------------------------------------------------------
         // Set output
@@ -138,7 +138,8 @@ public class JDTCompiler extends AbstractCompiler {
         // Set the class and source paths
         // ----------------------------------------------------------------------
 
-        List classpathEntries = config.getClasspathEntries();
+        @SuppressWarnings("unchecked")
+        List<String> classpathEntries = config.getClasspathEntries();
         if (classpathEntries != null && !classpathEntries.isEmpty()) {
             args.add("-classpath");
 
@@ -147,7 +148,8 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(cp);
         }
 
-        List sourceLocations = config.getSourceLocations();
+        @SuppressWarnings("unchecked")
+        List<String> sourceLocations = config.getSourceLocations();
         if (sourceLocations != null && !sourceLocations.isEmpty() && (sourceFiles.length == 0)) {
             args.add("-sourcepath");
 
@@ -213,8 +215,9 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(config.getSourceEncoding());
         }
 
-        for (Iterator it = config.getCustomCompilerArguments().entrySet().iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry) it.next();
+        @SuppressWarnings("unchecked")
+        Map<String, String> customCompilerArguments = config.getCustomCompilerArguments();
+        for (Map.Entry<String, String> entry : customCompilerArguments.entrySet()) {
 
             String key = (String) entry.getKey();
 
@@ -261,7 +264,8 @@ public class JDTCompiler extends AbstractCompiler {
      * @return List of CompilerError objects with the errors encountered.
      * @throws CompilerException
      */
-    List compileOutOfProcess(File workingDirectory, String executable, String[] args) throws CompilerException {
+    List<CompilerError> compileOutOfProcess(File workingDirectory, String executable, String[] args)
+            throws CompilerException {
         if (true /* fork is not supported */) {
             throw new UnsupportedOperationException("compileoutOfProcess not supported");
         }
@@ -280,7 +284,7 @@ public class JDTCompiler extends AbstractCompiler {
 
         int returnCode;
 
-        List messages;
+        List<CompilerError> messages;
 
         try {
             returnCode = CommandLineUtils.executeCommandLine(cli, out, err);
@@ -310,9 +314,9 @@ public class JDTCompiler extends AbstractCompiler {
      * @return List of CompilerError objects with the errors encountered.
      * @throws CompilerException
      */
-    List compileInProcess(String[] args) throws CompilerException {
+    List<CompilerError> compileInProcess(String[] args) throws CompilerException {
 
-        List messages;
+        List<CompilerError> messages;
 
         StringWriter out = new StringWriter();
         StringWriter err = new StringWriter();
@@ -342,8 +346,8 @@ public class JDTCompiler extends AbstractCompiler {
      * @return List of CompilerError objects
      * @throws IOException
      */
-    protected static List parseModernStream(BufferedReader input) throws IOException {
-        List errors = new ArrayList();
+    protected static List<CompilerError> parseModernStream(BufferedReader input) throws IOException {
+        List<CompilerError> errors = new ArrayList<CompilerError>();
 
         Pattern linePattern = Pattern.compile("(\\d*). (ERROR|WARNING) in (.*)");
         Pattern lineNrPattern = Pattern.compile(" \\(at line (\\d*)\\)");
@@ -410,7 +414,7 @@ public class JDTCompiler extends AbstractCompiler {
      * @param classpath
      *            the given classpath entry
      */
-    private String createClasspathArgument(List classpath) {
+    private String createClasspathArgument(List<String> classpath) {
         final String[] pathElements = (String[]) classpath.toArray(new String[classpath.size()]);
 
         // empty path return empty string
@@ -489,9 +493,8 @@ public class JDTCompiler extends AbstractCompiler {
      * @param args
      *            compiler arguments to process
      */
-    private void checkCompilerArgs(Map args) {
-        for (Iterator iterator = args.keySet().iterator(); iterator.hasNext();) {
-            String arg = (String) iterator.next();
+    private void checkCompilerArgs(Map<String, String> args) {
+        for (String arg : args.keySet()) {
             if (arg.charAt(0) == '@') {
                 try {
                     char[] content = Util.getFileCharContent(new File(arg.substring(1)), null);
@@ -520,13 +523,13 @@ public class JDTCompiler extends AbstractCompiler {
                                 String enc = String.valueOf(content, encodeStart, end - encodeStart + 1);
                                 if (isFile) {
                                     if (fileEncodings == null)
-                                        fileEncodings = new HashMap();
+                                        fileEncodings = new HashMap<String, String>();
                                     // use File to translate the string into a
                                     // path with the correct File.seperator
                                     fileEncodings.put(str, enc);
                                 } else {
                                     if (dirEncodings == null)
-                                        dirEncodings = new HashMap();
+                                        dirEncodings = new HashMap<String, String>();
                                     dirEncodings.put(str, enc);
                                 }
                             }
@@ -540,7 +543,7 @@ public class JDTCompiler extends AbstractCompiler {
                                 String path = String.valueOf(content, start, accessStart - start);
                                 String access = String.valueOf(content, accessStart, end - accessStart + 1);
                                 if (accessRules == null)
-                                    accessRules = new ArrayList();
+                                    accessRules = new ArrayList<String>();
                                 accessRules.add(path);
                                 accessRules.add(access);
                             }
