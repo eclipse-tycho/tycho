@@ -50,5 +50,4 @@ public interface ResolutionContext {
      * Releases all resources used by the resolver instance
      */
     public void stop();
-
 }

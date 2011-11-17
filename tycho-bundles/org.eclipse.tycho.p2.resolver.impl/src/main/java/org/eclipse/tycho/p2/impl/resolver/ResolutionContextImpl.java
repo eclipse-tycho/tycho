@@ -96,13 +96,19 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     private final boolean disableP2Mirrors;
 
+    /**
+     * Target execution environment profile name or null to use system default profile name.
+     */
+    private final String executionEnvironment;
+
     /** maven local repository as P2 IArtifactRepository */
     private final LocalArtifactRepository localRepository;
 
     /** maven local repository as P2 IMetadataRepository */
     private final LocalMetadataRepository localMetadataRepository;
 
-    ResolutionContextImpl(IProvisioningAgent agent, MavenContext mavenContext, boolean disableP2Mirrors) {
+    ResolutionContextImpl(IProvisioningAgent agent, MavenContext mavenContext, String executionEnvironment,
+            boolean disableP2Mirrors) {
         this.agent = agent;
         this.logger = mavenContext.getLogger();
         this.monitor = new LoggingProgressMonitor(logger);
@@ -127,6 +133,8 @@ public class ResolutionContextImpl implements ResolutionContext {
         this.offline = mavenContext.isOffline();
 
         this.disableP2Mirrors = disableP2Mirrors;
+
+        this.executionEnvironment = executionEnvironment;
 
         this.bundlesPublisher = new ResolutionContextBundlePublisher(mavenContext.getLocalRepositoryRoot(), logger);
 
@@ -407,13 +415,13 @@ public class ResolutionContextImpl implements ResolutionContext {
     // -------------------------------------------------------------------------
 
     public IQueryable<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
-        Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        Collection<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetPlatformContent contentPart : content) {
-            result.addAll(contentPart.getUnits());
+            filterJREUIs(result, contentPart.getUnits());
         }
 
-        result.addAll(mavenInstallableUnits.keySet());
+        filterJREUIs(result, mavenInstallableUnits.keySet());
 
         SubMonitor sub = SubMonitor.convert(monitor, metadataRepositories.size() * 200);
         for (IMetadataRepository repository : metadataRepositories) {
@@ -423,6 +431,10 @@ public class ResolutionContextImpl implements ResolutionContext {
 
                 if (isPartialIU(iu)) {
                     logger.debug("PARTIAL IU: " + iu);
+                    continue;
+                }
+
+                if (isJREUI(iu)) {
                     continue;
                 }
 
@@ -437,10 +449,28 @@ public class ResolutionContextImpl implements ResolutionContext {
                 }
             }
         }
-        result.addAll(createJREIUs());
+        result.addAll(getJREIUs());
         sub.done();
         // this is a real shame
         return new QueryableArray(result.toArray(new IInstallableUnit[result.size()]));
+    }
+
+    /**
+     * p2 repositories are polluted with useless a.jre/config.a.jre IUs. These IUs do not represent
+     * current/desired JRE and can expose resolver to packages that are not actually available.
+     */
+    private void filterJREUIs(Collection<IInstallableUnit> result, Collection<? extends IInstallableUnit> units) {
+        for (IInstallableUnit iu : units) {
+            if (isJREUI(iu)) {
+                continue;
+            }
+            result.add(iu);
+        }
+    }
+
+    private boolean isJREUI(IInstallableUnit iu) {
+        // See JREAction
+        return iu.getId().startsWith("a.jre") || iu.getId().startsWith("config.a.jre");
     }
 
     public void warnAboutLocalIus(Collection<IInstallableUnit> usedIus) {
@@ -469,14 +499,12 @@ public class ResolutionContextImpl implements ResolutionContext {
     }
 
     /**
-     * these dummy IUs are needed to satisfy Import-Package requirements to packages provided by the
-     * JDK.
+     * Return IUs that represent packages provided by target JRE
      */
-    private Collection<IInstallableUnit> createJREIUs() {
+    public Collection<IInstallableUnit> getJREIUs() {
         PublisherResult results = new PublisherResult();
-        // TODO use the appropriate profile name
-        new JREAction((String) null).perform(new PublisherInfo(), results, new NullProgressMonitor());
-        return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet();
+        new JREAction(executionEnvironment).perform(new PublisherInfo(), results, new NullProgressMonitor());
+        return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet();
     }
 
     // -------------------------------------------------------------------------------
@@ -514,7 +542,8 @@ public class ResolutionContextImpl implements ResolutionContext {
 
         IStatus result = allArtifactRepositories.getArtifacts(requests.toArray(ARTIFACT_REQUEST_ARRAY), monitor);
         if (!result.isOK()) {
-            throw new RuntimeException(StatusTool.collectProblems(result), result.getException()); // TODO find root exception - the MultiStatus probably doesn't have one
+            // TODO find root exception - the MultiStatus probably doesn't have one
+            throw new RuntimeException(StatusTool.collectProblems(result), result.getException());
         }
         requests = filterCompletedRequests(requests);
 

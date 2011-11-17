@@ -79,8 +79,9 @@ public class P2ResolverImpl implements P2Resolver {
 
     public P2ResolutionResult resolveMetadata(ResolutionContext context, Map<String, String> properties) {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(properties, logger);
-        strategy.setAvailableInstallableUnits(((ResolutionContextImpl) context)
-                .gatherAvailableInstallableUnits(monitor));
+        ResolutionContextImpl contextImpl = (ResolutionContextImpl) context;
+        strategy.setJREUIs(contextImpl.getJREIUs());
+        strategy.setAvailableInstallableUnits(contextImpl.gatherAvailableInstallableUnits(monitor));
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
         strategy.setAdditionalRequirements(additionalRequirements);
 
@@ -95,6 +96,7 @@ public class P2ResolverImpl implements P2Resolver {
         context.assertNoDuplicateReactorUIs();
 
         strategy.setAvailableInstallableUnits(context.gatherAvailableInstallableUnits(monitor));
+        strategy.setJREUIs(context.getJREIUs());
         LinkedHashSet<IInstallableUnit> projectIUs = context.getReactorProjectIUs(projectLocation);
         strategy.setRootInstallableUnits(projectIUs);
         strategy.setAdditionalRequirements(additionalRequirements);

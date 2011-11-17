@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.framework.internal.core.FilterImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -43,10 +45,13 @@ import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.UnknownEnvironmentException;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
+import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
@@ -415,6 +420,51 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         if (str != null && !"".equals(str.trim())) {
             return str;
         }
+        return null;
+    }
+
+    public ExecutionEnvironment getExecutionEnvironment(MavenProject project) {
+        ExecutionEnvironment explicitEE = super.getExecutionEnvironment(project);
+
+        if (explicitEE != null) {
+            // explicitly configured environment wins
+            return explicitEE;
+        }
+
+        try {
+            // PDE compatibility (I really feel generous today)
+            String ee = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties().getProperty(
+                    "jre.compilation.profile");
+            if (ee != null) {
+                return ExecutionEnvironmentUtils.getExecutionEnvironment(ee);
+            }
+
+            String requiredExecEnvs = getManifestValue(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT, project);
+            if (requiredExecEnvs == null) {
+                return null;
+            }
+
+            List<ExecutionEnvironment> environments = new ArrayList<ExecutionEnvironment>();
+            ManifestElement[] elements = ManifestElement.parseHeader(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT,
+                    requiredExecEnvs);
+            for (ManifestElement element : elements) {
+                environments.add(ExecutionEnvironmentUtils.getExecutionEnvironment(element.getValue()));
+            }
+            if (environments.isEmpty()) {
+                return null;
+            }
+            return Collections.min(environments, new Comparator<ExecutionEnvironment>() {
+                public int compare(ExecutionEnvironment env1, ExecutionEnvironment env2) {
+                    // TODO compare using org.osgi.framework.executionenvironment profile property
+                    return env1.getCompilerTargetLevel().compareTo(env2.getCompilerTargetLevel());
+                }
+            });
+        } catch (BundleException e) {
+            // TODO log or throw exception
+        } catch (UnknownEnvironmentException e) {
+            // TODO log or throw exception
+        }
+
         return null;
     }
 }

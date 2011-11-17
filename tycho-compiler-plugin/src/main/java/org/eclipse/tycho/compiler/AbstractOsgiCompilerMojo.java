@@ -20,14 +20,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -65,6 +63,7 @@ import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.MavenArtifactRef;
 import org.eclipse.tycho.runtime.Adaptable;
+import org.osgi.framework.Constants;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
 import copied.org.apache.maven.plugin.CompilationFailureException;
@@ -84,8 +83,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     public static final String RULE_EXCLUDE_ALL = "?**/*";
 
     private static final Set<String> MATCH_ALL = Collections.singleton("**/*");
-    private static final String MANIFEST_HEADER_BUNDLE_REQ_EXEC_ENV = "Bundle-RequiredExecutionEnvironment";
-    private static final Pattern COMMA_SEP_INCLUDING_WHITESPACE = Pattern.compile("\\s*,\\s*");
+//    private static final String MANIFEST_HEADER_BUNDLE_REQ_EXEC_ENV = "Bundle-RequiredExecutionEnvironment";
+//    private static final Pattern COMMA_SEP_INCLUDING_WHITESPACE = Pattern.compile("\\s*,\\s*");
 
     /**
      * @parameter expression="${project}"
@@ -385,14 +384,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration)
             throws MojoExecutionException {
-        ExecutionEnvironment environment = getMinimalCompilerTargetEnvironment();
+        ExecutionEnvironment environment = getTargetExecutionEnvironment();
         if (environment != null) {
             List<AccessRule> accessRules = new ArrayList<ClasspathEntry.AccessRule>();
 
             accessRules.add(new DefaultAccessRule("java/**", false));
 
             for (String pkg : environment.getSystemPackages()) {
-                accessRules.add(new DefaultAccessRule(pkg.replace('.', '/') + "/*", false));
+                accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
             }
 
             compilerConfiguration
@@ -404,10 +403,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (useJDK != JDKUsage.BREE) {
             return;
         }
-        ExecutionEnvironment environment = getMinimalCompilerTargetEnvironment();
+        ExecutionEnvironment environment = getTargetExecutionEnvironment();
         if (environment == null) {
             getLog().warn(
-                    "useJDK = BREE configured, but bundle has no " + MANIFEST_HEADER_BUNDLE_REQ_EXEC_ENV
+                    "useJDK = BREE configured, but bundle has no " + Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT
                             + " header. Compiling with current JDK.");
         } else {
             String javaHome = findMatchingJavaToolChain(environment).getJavaHome();
@@ -436,20 +435,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private void configureSourceAndTargetLevel(CompilerConfiguration compilerConfiguration)
             throws MojoExecutionException {
-        String[] executionEnvironments = getExecutionEnvironments();
-        if (executionEnvironments.length == 0) {
-            return;
-        }
-        compilerConfiguration.setSourceVersion(getSourceLevel(executionEnvironments));
-        compilerConfiguration.setTargetVersion(getTargetLevel(executionEnvironments));
-    }
-
-    private String[] getExecutionEnvironments() throws MojoExecutionException {
-        String requiredExecEnvs = getBundleProject().getManifestValue(MANIFEST_HEADER_BUNDLE_REQ_EXEC_ENV, project);
-        if (requiredExecEnvs == null) {
-            return new String[0];
-        }
-        return COMMA_SEP_INCLUDING_WHITESPACE.split(requiredExecEnvs.trim());
+        ExecutionEnvironment ee = getTargetExecutionEnvironment();
+        compilerConfiguration.setSourceVersion(getSourceLevel(ee));
+        compilerConfiguration.setTargetVersion(getTargetLevel(ee));
     }
 
     private String getMinimalTargetVersion(String[] executionEnvironments) throws UnknownEnvironmentException {
@@ -466,24 +454,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return Collections.min(targetLevels);
     }
 
-    private ExecutionEnvironment getMinimalCompilerTargetEnvironment() throws MojoExecutionException {
-        List<ExecutionEnvironment> environments = new ArrayList<ExecutionEnvironment>();
-        for (String env : getExecutionEnvironments()) {
-            try {
-                environments.add(ExecutionEnvironmentUtils.getExecutionEnvironment(env));
-            } catch (UnknownEnvironmentException e) {
-                throw new MojoExecutionException(e.getMessage(), e);
-            }
-        }
-        if (environments.isEmpty()) {
-            return null;
-        }
-        return Collections.min(environments, new Comparator<ExecutionEnvironment>() {
-
-            public int compare(ExecutionEnvironment env1, ExecutionEnvironment env2) {
-                return env1.getCompilerTargetLevel().compareTo(env2.getCompilerTargetLevel());
-            }
-        });
+    private ExecutionEnvironment getTargetExecutionEnvironment() throws MojoExecutionException {
+        return getBundleProject().getExecutionEnvironment(project);
     }
 
     private String getMinimalSourceVersion(String[] executionEnvironments) throws UnknownEnvironmentException {
@@ -541,44 +513,35 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     public String getExecutionEnvironment() throws MojoExecutionException {
-        String[] environments = getExecutionEnvironments();
-        return environments != null && environments.length > 0 ? environments[0] : null;
+        return getTargetExecutionEnvironment().getProfileName();
     }
 
     public String getSourceLevel() throws MojoExecutionException {
-        return getSourceLevel(getExecutionEnvironments());
+        return getSourceLevel(getTargetExecutionEnvironment());
     }
 
-    private String getSourceLevel(String[] executionEnvironments) {
+    private String getSourceLevel(ExecutionEnvironment env) {
         if (source != null) {
             // explicit pom configuration wins
             return source;
         }
-        if (executionEnvironments != null && executionEnvironments.length > 0) {
-            try {
-                return getMinimalSourceVersion(executionEnvironments);
-            } catch (UnknownEnvironmentException e) {
-                // fall through
-            }
+        if (env != null) {
+            return env.getCompilerSourceLevel();
         }
         return DEFAULT_SOURCE_VERSION;
     }
 
     public String getTargetLevel() throws MojoExecutionException {
-        return getTargetLevel(getExecutionEnvironments());
+        return getTargetLevel(getTargetExecutionEnvironment());
     }
 
-    public String getTargetLevel(String[] executionEnvironments) {
+    public String getTargetLevel(ExecutionEnvironment env) {
         if (target != null) {
             // explicit pom configuration wins
             return target;
         }
-        if (executionEnvironments != null && executionEnvironments.length > 0) {
-            try {
-                return getMinimalTargetVersion(executionEnvironments);
-            } catch (UnknownEnvironmentException e) {
-                // fall through
-            }
+        if (env != null) {
+            return env.getCompilerTargetLevel();
         }
         return DEFAULT_TARGET_VERSION;
     }

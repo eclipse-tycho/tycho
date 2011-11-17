@@ -38,6 +38,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.BundleException;
 
 @Component(role = EquinoxResolver.class)
@@ -101,8 +102,7 @@ public class EquinoxResolver {
     }
 
     protected Properties getPlatformProperties(MavenProject project) {
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         TargetEnvironment environment = configuration.getEnvironments().get(0);
 
         Properties properties = new Properties();

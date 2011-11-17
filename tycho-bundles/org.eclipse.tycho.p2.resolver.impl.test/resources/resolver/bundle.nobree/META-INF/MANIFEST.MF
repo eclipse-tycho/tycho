@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle.nobree
+Bundle-Version: 1.0.0
+Import-Package: org.w3c.dom

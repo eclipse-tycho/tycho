@@ -13,6 +13,7 @@ package org.eclipse.tycho.core;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 
 /**
  * tycho-specific behaviour associated with MavenProject instances. stateless.
@@ -49,4 +50,9 @@ public interface TychoProject {
      * Eclipse-PlatformFilter OSGi bundle manifest attribute.
      */
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project);
+
+    /**
+     * Project target execution environment used during the build or null.
+     */
+    public ExecutionEnvironment getExecutionEnvironment(MavenProject project);
 }

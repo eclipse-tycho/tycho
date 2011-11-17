@@ -54,7 +54,7 @@ public class ResolutionContextDisableP2MirrorsTest {
         mavenContext.setLocalRepositoryRoot(localRepo);
         mavenContext.setLogger(new MavenLoggerStub());
         p2ResolverFactoryImpl.setMavenContext(mavenContext);
-        ResolutionContextImpl context = p2ResolverFactoryImpl.createResolutionContext(disableP2Mirrors);
+        ResolutionContextImpl context = p2ResolverFactoryImpl.createResolutionContext(null, disableP2Mirrors);
         return context;
     }
 

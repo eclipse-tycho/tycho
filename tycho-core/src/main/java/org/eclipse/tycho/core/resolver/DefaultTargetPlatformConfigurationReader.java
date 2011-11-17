@@ -29,6 +29,8 @@ import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.UnknownEnvironmentException;
+import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
@@ -69,6 +71,8 @@ public class DefaultTargetPlatformConfigurationReader {
                 setAllowConflictingDependencies(result, configuration);
 
                 setDisableP2Mirrors(result, configuration);
+
+                setExecutionEnvironment(result, configuration);
             }
         }
 
@@ -106,6 +110,23 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return result;
+    }
+
+    private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom eeDom = configuration.getChild("executionEnvironment");
+        if (eeDom == null) {
+            return;
+        }
+        String ee = eeDom.getValue().trim();
+        if (!"".equals(ee)) {
+            try {
+                ExecutionEnvironmentUtils.getExecutionEnvironment(ee);
+            } catch (UnknownEnvironmentException e) {
+                throw new RuntimeException("Invalid execution environment profile name " + ee);
+            }
+
+            result.setExecutionEnvironment(ee);
+        }
     }
 
     private void addExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom configuration) {

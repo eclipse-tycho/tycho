@@ -22,6 +22,8 @@ import org.eclipse.equinox.p2.query.IQueryable;
 public abstract class ResolutionStrategy {
     protected IQueryable<IInstallableUnit> availableIUs;
 
+    protected Collection<IInstallableUnit> jreIUs;
+
     protected Set<IInstallableUnit> rootIUs;
 
     protected List<IRequirement> additionalRequirements;
@@ -36,6 +38,10 @@ public abstract class ResolutionStrategy {
 
     public void setAdditionalRequirements(List<IRequirement> additionalRequirements) {
         this.additionalRequirements = additionalRequirements;
+    }
+
+    public void setJREUIs(Collection<IInstallableUnit> jreIUs) {
+        this.jreIUs = jreIUs;
     }
 
     public abstract Collection<IInstallableUnit> resolve(IProgressMonitor monitor);

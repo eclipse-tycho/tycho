@@ -55,6 +55,10 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.StatusTool;
 
+/**
+ * TODO respect target execution environment profile. Current implementation assumes current JRE and
+ * will select wrong installable units for restricted target profiles like OSGi/Minimum-1.0
+ */
 public class TargetDefinitionResolver {
     private static final IInstallableUnit[] EMPTY_IU_ARRAY = new IInstallableUnit[0];
 

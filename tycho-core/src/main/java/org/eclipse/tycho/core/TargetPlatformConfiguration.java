@@ -36,6 +36,8 @@ public class TargetPlatformConfiguration {
 
     private boolean disableP2Mirrors;
 
+    private String executionEnvironment;
+
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -104,5 +106,13 @@ public class TargetPlatformConfiguration {
 
     public List<Dependency> getExtraRequirements() {
         return extraRequirements;
+    }
+
+    public String getExecutionEnvironment() {
+        return executionEnvironment;
+    }
+
+    public void setExecutionEnvironment(String executionEnvironment) {
+        this.executionEnvironment = executionEnvironment;
     }
 }

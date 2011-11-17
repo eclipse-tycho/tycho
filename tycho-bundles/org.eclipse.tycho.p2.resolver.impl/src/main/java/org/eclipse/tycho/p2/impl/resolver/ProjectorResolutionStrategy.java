@@ -67,6 +67,10 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
 
         Set<IInstallableUnit> extraIUs = createAdditionalRequirementsIU();
 
+        // force JRE UIs to be part of resolved state
+        Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>(this.rootIUs);
+        rootIUs.addAll(jreIUs);
+
         Set<IInstallableUnit> rootWithExtraIUs = new LinkedHashSet<IInstallableUnit>();
         rootWithExtraIUs.addAll(rootIUs);
         rootWithExtraIUs.addAll(extraIUs);
@@ -91,7 +95,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
 
         Projector projector = new Projector(slice, newSelectionContext, new HashSet<IInstallableUnit>(), false);
         projector.encode(createMetaIU(rootIUs), extraIUs.toArray(IU_ARRAY) /* alreadyExistingRoots */,
-                new QueryableArray(IU_ARRAY) /* installed IUs */, rootIUs /* newRoots */, monitor);
+                new QueryableArray(IU_ARRAY) /* installedIUs */, rootIUs /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
             Set<Explanation> explanation = projector.getExplanation(monitor);
@@ -106,6 +110,9 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
             throw new RuntimeException(StatusTool.collectProblems(s), s.getException());
         }
         Collection<IInstallableUnit> newState = projector.extractSolution();
+
+        // remove JRE IUs from resolved state
+        newState.removeAll(jreIUs);
 
         fixSWT(newState, newSelectionContext, monitor);
 
@@ -197,5 +204,4 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
 
         return result;
     }
-
 }

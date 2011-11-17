@@ -45,9 +45,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Before
     public void initDefaultResolver() throws Exception {
+        org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
         MavenLogger logger = new MavenLoggerStub();
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        context = p2ResolverFactory.createResolutionContext(false);
+        context = p2ResolverFactory.createResolutionContext(null, false);
         impl = new P2ResolverImpl(logger);
         impl.setEnvironments(getEnvironments());
     }
@@ -257,5 +258,66 @@ public class P2ResolverTest extends P2ResolverTestBase {
         for (Entry entry : result.getArtifacts()) {
             Assert.assertEquals("1.0.0.qualifier", entry.getVersion());
         }
+    }
+
+    @Test
+    public void resolutionRestrictedEE() throws Exception {
+        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
+        context = p2ResolverFactory.createResolutionContext("CDC-1.0/Foundation-1.0", false);
+
+        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+
+        File bundle = resourceFile("resolver/bundle.bree");
+        String artifactId = "bundle.bree";
+        addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
+
+        List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertEquals(2, result.getArtifacts().size());
+
+        Assert.assertEquals(1, result.getNonReactorUnits().size());
+        assertContainsUnit("javax.xml", result.getNonReactorUnits());
+    }
+
+    @Test
+    public void resolutionEE() throws Exception {
+        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
+        context = p2ResolverFactory.createResolutionContext("J2SE-1.5", false);
+
+        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+
+        File bundle = resourceFile("resolver/bundle.bree");
+        String artifactId = "bundle.bree";
+        addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
+
+        List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertEquals(1, result.getArtifacts().size());
+
+        Assert.assertEquals(0, result.getNonReactorUnits().size());
+    }
+
+    @Test
+    public void resolutionNoEE() throws Exception {
+        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+
+        File bundle = resourceFile("resolver/bundle.nobree");
+        String artifactId = "bundle.nobree";
+        addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
+
+        List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertEquals(1, result.getArtifacts().size());
+
+        Assert.assertEquals(0, result.getNonReactorUnits().size());
     }
 }

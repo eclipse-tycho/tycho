@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: 364095_dependencyResolverBREE.ee-from-jre
+Bundle-Version: 1.0.0
+Import-Package: org.w3c.dom

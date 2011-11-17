@@ -20,8 +20,11 @@ import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.UnknownEnvironmentException;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
+import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
@@ -81,6 +84,20 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     }
 
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project) {
+        return null;
+    }
+
+    public ExecutionEnvironment getExecutionEnvironment(MavenProject project) {
+        String ee = TychoProjectUtils.getTargetPlatformConfiguration(project).getExecutionEnvironment();
+
+        if (ee != null) {
+            try {
+                return ExecutionEnvironmentUtils.getExecutionEnvironment(ee);
+            } catch (UnknownEnvironmentException e) {
+                // can't happen, ee is validated during configuration parsing
+            }
+        }
+
         return null;
     }
 }

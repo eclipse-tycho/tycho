@@ -42,7 +42,7 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
     @Before
     public void initResolver() throws Exception {
         P2ResolverFactoryImpl p2ResolverFactoryImpl = createP2ResolverFactory(false);
-        context = p2ResolverFactoryImpl.createResolutionContext(DISABLE_MIRRORS);
+        context = p2ResolverFactoryImpl.createResolutionContext(null, DISABLE_MIRRORS);
         impl = new P2ResolverImpl(new MavenLoggerStub());
     }
 
@@ -84,7 +84,7 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
         // now go offline and resolve again
         P2ResolverFactoryImpl p2ResolverFactory = new P2ResolverFactoryImpl();
         p2ResolverFactory.setMavenContext(createMavenContext(true, new MavenLoggerStub()));
-        context = p2ResolverFactory.createResolutionContext(DISABLE_MIRRORS);
+        context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 
         Assert.assertEquals(1, results.size());
@@ -100,7 +100,7 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
 
         boolean offline = true;
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(offline);
-        context = p2ResolverFactory.createResolutionContext(DISABLE_MIRRORS);
+        context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
 
         try {
             resolveFromHttp(context, impl, servedUrl);

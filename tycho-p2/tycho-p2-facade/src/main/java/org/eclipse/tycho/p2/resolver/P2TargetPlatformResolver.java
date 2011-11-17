@@ -55,6 +55,7 @@ import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -63,8 +64,10 @@ import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformRes
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -98,6 +101,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
+
+    @Requirement(role = TychoProject.class)
+    private Map<String, TychoProject> projectTypes;
 
     private P2ResolverFactory resolverFactory;
 
@@ -143,11 +149,12 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     public TargetPlatform resolvePlatform(final MavenSession session, final MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
 
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
-        ResolutionContext resolutionContext = resolverFactory.createResolutionContext(configuration
-                .isDisableP2Mirrors());
+        ExecutionEnvironment ee = projectTypes.get(project.getPackaging()).getExecutionEnvironment(project);
+
+        ResolutionContext resolutionContext = resolverFactory.createResolutionContext(//
+                ee != null ? ee.getProfileName() : null, configuration.isDisableP2Mirrors());
 
         P2Resolver osgiResolverImpl = resolverFactory.createResolver();
 

@@ -27,9 +27,9 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     private MavenContext mavenContext;
 
-    public ResolutionContextImpl createResolutionContext(boolean disableP2Mirrors) {
+    public ResolutionContextImpl createResolutionContext(String bree, boolean disableP2Mirrors) {
         IProvisioningAgent agent = getProvisioningAgent(mavenContext.getLocalRepositoryRoot(), mavenContext.isOffline());
-        return new ResolutionContextImpl(agent, mavenContext, disableP2Mirrors);
+        return new ResolutionContextImpl(agent, mavenContext, bree, disableP2Mirrors);
     }
 
     public P2ResolverImpl createResolver() {

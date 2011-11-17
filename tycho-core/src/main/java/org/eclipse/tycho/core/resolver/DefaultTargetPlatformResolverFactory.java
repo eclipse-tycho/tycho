@@ -24,6 +24,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 @Component(role = DefaultTargetPlatformResolverFactory.class)
 public class DefaultTargetPlatformResolverFactory {
@@ -37,8 +38,7 @@ public class DefaultTargetPlatformResolverFactory {
 
     public TargetPlatformResolver lookupPlatformResolver(MavenProject project) {
         Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
         String property = properties.getProperty("tycho.targetPlatform");
         TargetPlatformResolver resolver;
