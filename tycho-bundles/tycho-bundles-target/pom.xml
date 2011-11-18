@@ -32,7 +32,7 @@
 								<artifact>
 									<file>build.target</file>
 									<type>target</type>
-									<classifier>build</classifier>
+									<classifier>tycho</classifier>
 								</artifact>
 							</artifacts>
 						</configuration>
