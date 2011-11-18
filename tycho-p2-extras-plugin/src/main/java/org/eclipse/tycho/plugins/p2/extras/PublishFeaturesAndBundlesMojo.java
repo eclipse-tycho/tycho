@@ -121,8 +121,8 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
 
             launcher.setWorkingDirectory(project.getBasedir());
             launcher.setApplicationName(CONTENT_PUBLISHER_APP_NAME);
-            launcher.addArguments("-artifactRepository", artifactRepositoryDir.toURI().toString(), //
-                    "-metadataRepository", metadataRepositoryDir.toURI().toString());
+            launcher.addArguments("-artifactRepository", artifactRepositoryDir.toURL().toString(), //
+                    "-metadataRepository", metadataRepositoryDir.toURL().toString());
             launcher.addArguments(getPublishArtifactFlag());
             launcher.addArguments(getAppendFlag());
             launcher.addArguments(getCompressFlag());

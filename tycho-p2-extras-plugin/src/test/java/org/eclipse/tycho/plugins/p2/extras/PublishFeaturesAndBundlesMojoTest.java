@@ -47,7 +47,7 @@ public class PublishFeaturesAndBundlesMojoTest extends AbstractTychoMojoTestCase
         File sourceRepositoryDir = new File(project.getFile().getParent(), "target/sourceRepository").getAbsoluteFile();
         generateContentToBePublished(sourceRepositoryDir);
 
-        File publishedContentDir = new File(project.getFile().getParent(), "target/repository").getAbsoluteFile();
+        File publishedContentDir = new File(project.getFile().getParent(), "target/repository with spaces").getAbsoluteFile();
 
         // call publisher mojo
         Mojo publishMojo = lookupMojo("publish-features-and-bundles", project.getFile());
