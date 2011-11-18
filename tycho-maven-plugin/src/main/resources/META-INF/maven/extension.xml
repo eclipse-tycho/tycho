@@ -9,6 +9,7 @@
   </exportedPackages>
 
   <exportedArtifacts>
+    <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.embedder.facade</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-embedder-api</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-core</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-metadata-model</exportedArtifact>
