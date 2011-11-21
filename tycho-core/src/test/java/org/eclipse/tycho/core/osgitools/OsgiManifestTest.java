@@ -7,6 +7,8 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
+import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.junit.Test;
 
 public class OsgiManifestTest {
@@ -86,6 +88,26 @@ public class OsgiManifestTest {
     public void testManifestAttributesAreNonCaseSensitive() throws OsgiManifestParserException, URISyntaxException {
         OsgiManifest manifest = parseManifest("valid.mf");
         assertEquals("0.1.0.qualifier", manifest.getHeaders().get("bUNDLE-vERSION"));
+    }
+
+    @Test
+    public void testMultipleBREEs() throws Exception {
+        OsgiManifest manifest = parseManifest("bree.mf");
+        ExecutionEnvironment[] expected = { ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5"),
+                ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7") };
+        assertArrayEquals(expected, manifest.getExecutionEnvironments());
+    }
+
+    @Test
+    public void testNoBREE() throws Exception {
+        OsgiManifest manifest = parseManifest("noBree.mf");
+        ExecutionEnvironment[] expected = new ExecutionEnvironment[0];
+        assertArrayEquals(expected, manifest.getExecutionEnvironments());
+    }
+
+    @Test(expected = OsgiManifestParserException.class)
+    public void testInvalidBREE() throws Exception {
+        parseManifest("invalidBree.mf");
     }
 
     private OsgiManifest parseManifest(String manifestName) throws URISyntaxException {

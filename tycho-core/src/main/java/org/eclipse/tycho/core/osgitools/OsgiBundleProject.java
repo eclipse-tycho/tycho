@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +33,6 @@ import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.framework.internal.core.FilterImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
-import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -138,8 +138,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public String getManifestValue(String key, MavenProject project) {
-        OsgiManifest mf = bundleReader.loadManifest(project.getBasedir());
-        return mf.getValue(key);
+        return getManifest(project).getValue(key);
+    }
+
+    private OsgiManifest getManifest(MavenProject project) {
+        return bundleReader.loadManifest(project.getBasedir());
     }
 
     @Override
@@ -431,40 +434,30 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             return explicitEE;
         }
 
-        try {
-            // PDE compatibility (I really feel generous today)
-            String ee = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties().getProperty(
-                    "jre.compilation.profile");
-            if (ee != null) {
-                return ExecutionEnvironmentUtils.getExecutionEnvironment(ee);
+        // PDE compatibility (I really feel generous today)
+        String ee = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties().getProperty(
+                "jre.compilation.profile");
+        if (ee != null) {
+            try {
+                return ExecutionEnvironmentUtils.getExecutionEnvironment(ee.trim());
+            } catch (UnknownEnvironmentException e) {
+                throw new RuntimeException("Unknown execution environment specified in build.properties of project "
+                        + project, e);
             }
-
-            String requiredExecEnvs = getManifestValue(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT, project);
-            if (requiredExecEnvs == null) {
-                return null;
-            }
-
-            List<ExecutionEnvironment> environments = new ArrayList<ExecutionEnvironment>();
-            ManifestElement[] elements = ManifestElement.parseHeader(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT,
-                    requiredExecEnvs);
-            for (ManifestElement element : elements) {
-                environments.add(ExecutionEnvironmentUtils.getExecutionEnvironment(element.getValue()));
-            }
-            if (environments.isEmpty()) {
-                return null;
-            }
-            return Collections.min(environments, new Comparator<ExecutionEnvironment>() {
-                public int compare(ExecutionEnvironment env1, ExecutionEnvironment env2) {
-                    // TODO compare using org.osgi.framework.executionenvironment profile property
-                    return env1.getCompilerTargetLevel().compareTo(env2.getCompilerTargetLevel());
-                }
-            });
-        } catch (BundleException e) {
-            // TODO log or throw exception
-        } catch (UnknownEnvironmentException e) {
-            // TODO log or throw exception
         }
 
-        return null;
+        ExecutionEnvironment[] requiredExecEnvs = getManifest(project).getExecutionEnvironments();
+        if (requiredExecEnvs.length == 0) {
+            return null;
+        }
+
+        return Collections.min(new ArrayList<ExecutionEnvironment>(Arrays.asList(requiredExecEnvs)),
+                new Comparator<ExecutionEnvironment>() {
+                    public int compare(ExecutionEnvironment env1, ExecutionEnvironment env2) {
+                        // TODO compare using org.osgi.framework.executionenvironment profile property
+                        return env1.getCompilerTargetLevel().compareTo(env2.getCompilerTargetLevel());
+                    }
+                });
+
     }
 }

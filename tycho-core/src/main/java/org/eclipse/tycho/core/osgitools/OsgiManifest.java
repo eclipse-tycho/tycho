@@ -8,7 +8,11 @@ import java.io.InputStream;
 
 import org.eclipse.osgi.framework.util.Headers;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.core.UnknownEnvironmentException;
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
+import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 /**
@@ -18,6 +22,8 @@ import org.osgi.framework.Version;
  */
 public class OsgiManifest {
 
+    private static final ExecutionEnvironment[] EMPTY_EXEC_ENV = new ExecutionEnvironment[0];
+
     private String location;
     private Headers<String, String> headers;
 
@@ -25,6 +31,7 @@ public class OsgiManifest {
     private String bundleSymbolicName;
     private String bundleVersion;
     private String[] bundleClassPath;
+    private ExecutionEnvironment[] executionEnvironments;
     private boolean isDirectoryShape;
 
     private OsgiManifest(InputStream stream, String location) throws OsgiManifestParserException {
@@ -38,8 +45,25 @@ public class OsgiManifest {
         this.bundleVersion = parseBundleVersion();
         this.bundleClassPath = parseBundleClasspath();
         this.isDirectoryShape = parseDirectoryShape();
+        this.executionEnvironments = parseExecutionEnvironments();
         // TODO if we want more strict and OSGi-specific validation here, we could use
         // StateObjectFactory#createBundleDescription(State state, Dictionary<String, String> manifest, String location, long id) 
+    }
+
+    private ExecutionEnvironment[] parseExecutionEnvironments() {
+        ManifestElement[] brees = getManifestElements(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
+        if (brees == null || brees.length == 0) {
+            return EMPTY_EXEC_ENV;
+        }
+        ExecutionEnvironment[] envs = new ExecutionEnvironment[brees.length];
+        try {
+            for (int i = 0; i < brees.length; i++) {
+                envs[i] = ExecutionEnvironmentUtils.getExecutionEnvironment(brees[i].getValue());
+            }
+        } catch (UnknownEnvironmentException e) {
+            throw new OsgiManifestParserException(location, e);
+        }
+        return envs;
     }
 
     private String parseBundleVersion() {
@@ -94,6 +118,10 @@ public class OsgiManifest {
 
     public String[] getBundleClasspath() {
         return bundleClassPath;
+    }
+
+    public ExecutionEnvironment[] getExecutionEnvironments() {
+        return executionEnvironments;
     }
 
     /**
