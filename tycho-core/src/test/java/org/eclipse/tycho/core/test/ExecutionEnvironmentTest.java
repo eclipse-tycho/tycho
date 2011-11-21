@@ -10,15 +10,25 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.tycho.core.UnknownEnvironmentException;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ExecutionEnvironmentTest extends TestCase {
+public class ExecutionEnvironmentTest {
 
     private ExecutionEnvironment javaSE6Enviroment;
+    private ExecutionEnvironment javaSE7Enviroment;
     private ExecutionEnvironment j2SE5Enviroment;
     private ExecutionEnvironment j2SE14Environment;
     private ExecutionEnvironment j2SE13Environment;
@@ -30,9 +40,10 @@ public class ExecutionEnvironmentTest extends TestCase {
     private ExecutionEnvironment osgiMin11Environment;
     private ExecutionEnvironment osgiMin12Environment;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         javaSE6Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6");
+        javaSE7Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7");
         j2SE5Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5");
         j2SE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4");
         j2SE13Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.3");
@@ -45,6 +56,7 @@ public class ExecutionEnvironmentTest extends TestCase {
         osgiMin12Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("OSGi/Minimum-1.2");
     }
 
+    @Test
     public void testNotNull() {
         assertNotNull(javaSE6Enviroment);
         assertNotNull(j2SE5Enviroment);
@@ -59,6 +71,7 @@ public class ExecutionEnvironmentTest extends TestCase {
         assertNotNull(osgiMin12Environment);
     }
 
+    @Test
     public void testGetProfileName() {
         assertEquals("JavaSE-1.6", javaSE6Enviroment.getProfileName());
         assertEquals("J2SE-1.5", j2SE5Enviroment.getProfileName());
@@ -73,6 +86,7 @@ public class ExecutionEnvironmentTest extends TestCase {
         assertEquals("OSGi/Minimum-1.2", osgiMin12Environment.getProfileName());
     }
 
+    @Test
     public void testCompilerSourceLevel() {
         assertEquals("1.3", osgiMin10Environment.getCompilerSourceLevel());
         assertEquals("1.3", osgiMin11Environment.getCompilerSourceLevel());
@@ -87,6 +101,7 @@ public class ExecutionEnvironmentTest extends TestCase {
         assertEquals("1.6", javaSE6Enviroment.getCompilerSourceLevel());
     }
 
+    @Test
     public void testCompilerTargetLevel() {
         assertEquals("1.1", osgiMin10Environment.getCompilerTargetLevel());
         assertEquals("1.2", osgiMin11Environment.getCompilerTargetLevel());
@@ -101,6 +116,7 @@ public class ExecutionEnvironmentTest extends TestCase {
         assertEquals("1.6", javaSE6Enviroment.getCompilerTargetLevel());
     }
 
+    @Test
     public void testUnknownEnv() {
         try {
             ExecutionEnvironmentUtils.getExecutionEnvironment("foo");
@@ -110,4 +126,15 @@ public class ExecutionEnvironmentTest extends TestCase {
         }
     }
 
+    @Test
+    public void testCompare() throws Exception {
+        List<ExecutionEnvironment> expectedList = new ArrayList<ExecutionEnvironment>(Arrays.asList(
+                osgiMin10Environment, osgiMin11Environment, osgiMin12Environment, cdc10Environment, cdc11Environment,
+                jre11Environment, j2SE12Environment, j2SE13Environment, j2SE14Environment, j2SE5Enviroment,
+                javaSE6Enviroment, javaSE7Enviroment));
+        List<ExecutionEnvironment> actualList = new ArrayList<ExecutionEnvironment>(expectedList);
+        Collections.shuffle(actualList);
+        Collections.sort(actualList);
+        assertEquals(expectedList, actualList);
+    }
 }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -450,14 +449,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         if (requiredExecEnvs.length == 0) {
             return null;
         }
-
-        return Collections.min(new ArrayList<ExecutionEnvironment>(Arrays.asList(requiredExecEnvs)),
-                new Comparator<ExecutionEnvironment>() {
-                    public int compare(ExecutionEnvironment env1, ExecutionEnvironment env2) {
-                        // TODO compare using org.osgi.framework.executionenvironment profile property
-                        return env1.getCompilerTargetLevel().compareTo(env2.getCompilerTargetLevel());
-                    }
-                });
-
+        return Collections.min(new ArrayList<ExecutionEnvironment>(Arrays.asList(requiredExecEnvs)));
     }
 }

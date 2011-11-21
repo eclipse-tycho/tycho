@@ -52,7 +52,6 @@ import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.UnknownEnvironmentException;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -60,7 +59,6 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
-import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.MavenArtifactRef;
 import org.eclipse.tycho.runtime.Adaptable;
 import org.osgi.framework.Constants;
@@ -83,8 +81,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     public static final String RULE_EXCLUDE_ALL = "?**/*";
 
     private static final Set<String> MATCH_ALL = Collections.singleton("**/*");
-//    private static final String MANIFEST_HEADER_BUNDLE_REQ_EXEC_ENV = "Bundle-RequiredExecutionEnvironment";
-//    private static final Pattern COMMA_SEP_INCLUDING_WHITESPACE = Pattern.compile("\\s*,\\s*");
 
     /**
      * @parameter expression="${project}"
@@ -440,36 +436,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         compilerConfiguration.setTargetVersion(getTargetLevel(ee));
     }
 
-    private String getMinimalTargetVersion(String[] executionEnvironments) throws UnknownEnvironmentException {
-        if (executionEnvironments.length == 1) {
-            ExecutionEnvironment executionEnvironment = ExecutionEnvironmentUtils
-                    .getExecutionEnvironment(executionEnvironments[0]);
-            return executionEnvironment.getCompilerTargetLevel();
-        }
-        List<String> targetLevels = new ArrayList<String>(executionEnvironments.length);
-        for (String executionEnvironment : executionEnvironments) {
-            targetLevels.add(ExecutionEnvironmentUtils.getExecutionEnvironment(executionEnvironment)
-                    .getCompilerTargetLevel());
-        }
-        return Collections.min(targetLevels);
-    }
-
     private ExecutionEnvironment getTargetExecutionEnvironment() throws MojoExecutionException {
         return getBundleProject().getExecutionEnvironment(project);
-    }
-
-    private String getMinimalSourceVersion(String[] executionEnvironments) throws UnknownEnvironmentException {
-        if (executionEnvironments.length == 1) {
-            ExecutionEnvironment executionEnvironment = ExecutionEnvironmentUtils
-                    .getExecutionEnvironment(executionEnvironments[0]);
-            return executionEnvironment.getCompilerSourceLevel();
-        }
-        List<String> sourceLevels = new ArrayList<String>(executionEnvironments.length);
-        for (String executionEnvironment : executionEnvironments) {
-            sourceLevels.add(ExecutionEnvironmentUtils.getExecutionEnvironment(executionEnvironment)
-                    .getCompilerSourceLevel());
-        }
-        return Collections.min(sourceLevels);
     }
 
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
