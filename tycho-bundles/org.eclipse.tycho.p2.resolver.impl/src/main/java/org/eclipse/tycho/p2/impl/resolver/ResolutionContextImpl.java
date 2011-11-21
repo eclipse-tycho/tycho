@@ -462,6 +462,7 @@ public class ResolutionContextImpl implements ResolutionContext {
     private void filterJREUIs(Collection<IInstallableUnit> result, Collection<? extends IInstallableUnit> units) {
         for (IInstallableUnit iu : units) {
             if (isJREUI(iu)) {
+                logger.debug("Ignored a.jre installable unit " + iu.toString());
                 continue;
             }
             result.add(iu);
