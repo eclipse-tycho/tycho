@@ -54,7 +54,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     private void createResolver() {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
         p2 = factory.createResolver();
-        resolutionContext = factory.createResolutionContext(false);
+        resolutionContext = factory.createResolutionContext(null, false);
     }
 
     protected List<Map<String, String>> getEnvironments() {
