@@ -31,7 +31,7 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
     private Archiver inflater;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File destFile = new File(getBuildDirectory(), getProject().getArtifactId() + ".zip");
+        File destFile = getBuildDirectory().getChild(getProject().getArtifactId() + ".zip");
 
         try {
             inflater.addDirectory(getAssemblyRepositoryLocation());

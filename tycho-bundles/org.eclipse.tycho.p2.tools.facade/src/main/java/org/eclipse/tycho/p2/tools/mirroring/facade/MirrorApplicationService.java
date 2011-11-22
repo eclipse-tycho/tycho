@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring.facade;
 
-import java.io.File;
 import java.util.Collection;
 
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -70,6 +70,6 @@ public interface MirrorApplicationService {
      *             if a checked exception occurs while mirroring
      */
     void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, File tempDirectory)
+            Collection<IUDescription> seedUnits, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
             throws FacadeException;
 }

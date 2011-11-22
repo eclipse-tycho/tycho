@@ -21,6 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.model.Category;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
@@ -55,10 +56,11 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
      * @param category
      *            a category, with "qualifier" literals already replaced by the build qualifier.
      */
-    private File prepareBuildCategory(Category category, File buildFolder) throws MojoExecutionException {
+    private File prepareBuildCategory(Category category, BuildOutputDirectory buildFolder)
+            throws MojoExecutionException {
         try {
-            File ret = new File(buildFolder, "category.xml");
-            buildFolder.mkdirs();
+            File ret = buildFolder.getChild("category.xml");
+            buildFolder.getLocation().mkdirs();
             Category.write(category, ret);
             copySiteI18nFiles(buildFolder);
             return ret;
@@ -67,7 +69,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
         }
     }
 
-    private void copySiteI18nFiles(File targetFolder) throws IOException {
+    private void copySiteI18nFiles(BuildOutputDirectory buildFolder) throws IOException {
         File[] i18nFiles = getProject().getBasedir().listFiles(new FileFilter() {
 
             public boolean accept(File file) {
@@ -79,7 +81,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
             return;
         }
         for (File i18nFile : i18nFiles) {
-            FileUtils.copyFile(i18nFile, new File(targetFolder, i18nFile.getName()));
+            FileUtils.copyFile(i18nFile, buildFolder.getChild(i18nFile.getName()));
         }
     }
 

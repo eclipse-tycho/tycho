@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
@@ -69,8 +70,8 @@ public class MirrorApplicationServiceTest {
         logger = new MemoryLog();
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
-        File p2AgentPersistenceLocation = tempFolder.getRoot();
-        context = new BuildContext(DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS, p2AgentPersistenceLocation);
+        context = new BuildContext(DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS, new BuildOutputDirectory(
+                tempFolder.getRoot()));
 
         subject = new MirrorApplicationServiceImpl();
         MavenContextImpl mavenContext = new MavenContextImpl();

@@ -59,7 +59,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
                     getSession(), 0);
 
             PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
-            File publisherRepoLocation = new File(getBuildDirectory(),
+            File publisherRepoLocation = getBuildDirectory().getChild(
                     RepositoryReferenceTool.PUBLISHER_REPOSITORY_PATH);
             return publisherServiceFactory.createPublisher(publisherRepoLocation, contextRepositories,
                     getBuildContext());

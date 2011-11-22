@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +32,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -51,7 +51,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     private MavenContext mavenContext;
 
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, File tempDirectory) throws FacadeException {
+            Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
+            throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);

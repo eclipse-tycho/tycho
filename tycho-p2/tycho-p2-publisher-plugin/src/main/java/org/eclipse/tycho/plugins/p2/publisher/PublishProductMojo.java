@@ -31,6 +31,7 @@ import org.eclipse.tycho.model.Launcher;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration.ConfigIni;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
@@ -80,7 +81,8 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * "p2.inf" so that the publisher application finds it.
      * </p>
      */
-    static Product prepareBuildProduct(Product product, File targetDir, String qualifier) throws MojoExecutionException {
+    static Product prepareBuildProduct(Product product, BuildOutputDirectory targetDir, String qualifier)
+            throws MojoExecutionException {
         try {
             ProductConfiguration productConfiguration = ProductConfiguration.read(product.productFile);
 
@@ -92,7 +94,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                         + " does not contain the mandatory attribute 'uid'");
             }
 
-            File buildProductDir = new File(targetDir, "products/" + productId);
+            File buildProductDir = targetDir.getChild("products/" + productId);
             buildProductDir.mkdirs();
             final Product buildProduct = new Product(new File(buildProductDir, product.getProductFile().getName()),
                     new File(buildProductDir, "p2.inf"));

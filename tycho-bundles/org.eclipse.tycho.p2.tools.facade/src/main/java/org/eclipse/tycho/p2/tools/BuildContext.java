@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools;
 
-import java.io.File;
 import java.util.List;
 
 public class BuildContext {
@@ -18,7 +17,7 @@ public class BuildContext {
 
     private final List<TargetEnvironment> environments;
 
-    private final File targetDirectory;
+    private final BuildOutputDirectory targetDirectory;
 
     /**
      * Creates a new <code>BuildContext</code> instance.
@@ -28,11 +27,11 @@ public class BuildContext {
      * @param environments
      *            The list of environments targeted by the build; must contain at least one entry
      * @param targetDirectory
-     *            The build target directory of the current project
+     *            The build output directory of the current project
      * @throws IllegalArgumentException
      *             if no target environment has been specified
      */
-    public BuildContext(String qualifier, List<TargetEnvironment> environments, File targetDirectory)
+    public BuildContext(String qualifier, List<TargetEnvironment> environments, BuildOutputDirectory targetDirectory)
             throws IllegalArgumentException {
         if (environments.size() == 0) {
             throw new IllegalArgumentException("List of target environments must not be empty");
@@ -62,9 +61,9 @@ public class BuildContext {
     }
 
     /**
-     * @return the build target directory of the current project
+     * @return the build output directory of the current project
      */
-    public File getTargetDirectory() {
+    public BuildOutputDirectory getTargetDirectory() {
         return targetDirectory;
     }
 }

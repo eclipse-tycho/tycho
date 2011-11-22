@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,7 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
 
 // TODO share between Maven plug-ins?
@@ -53,8 +53,8 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
         return qualifier;
     }
 
-    protected File getBuildDirectory() {
-        return new File(getProject().getBuild().getDirectory());
+    protected BuildOutputDirectory getBuildDirectory() {
+        return new BuildOutputDirectory(getProject().getBuild().getDirectory());
     }
 
     protected EclipseRepositoryProject getEclipseRepositoryProject() {

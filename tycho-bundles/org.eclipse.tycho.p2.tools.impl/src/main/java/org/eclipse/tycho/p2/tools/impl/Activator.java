@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.impl;
 
-import java.io.File;
-
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -30,11 +29,12 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext context) throws Exception {
     }
 
-    public static IProvisioningAgent createProvisioningAgent(final File targetDirectory) throws FacadeException {
-        ServiceReference serviceReference = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+    public static IProvisioningAgent createProvisioningAgent(final BuildOutputDirectory targetDirectory)
+            throws FacadeException {
+        ServiceReference<?> serviceReference = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
         IProvisioningAgentProvider agentFactory = (IProvisioningAgentProvider) context.getService(serviceReference);
         try {
-            return agentFactory.createAgent(new File(targetDirectory, "p2agent").toURI());
+            return agentFactory.createAgent(targetDirectory.getChild("p2agent").toURI());
         } catch (ProvisionException e) {
             throw new FacadeException(e);
         } finally {

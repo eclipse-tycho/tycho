@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.plugins.p2.publisher.PublishProductMojo.Product;
 import org.eclipse.tycho.testing.TestUtil;
 import org.junit.After;
@@ -82,13 +83,13 @@ public class PublishProductMojoUnitTest {
         File basedir = TestUtil.getBasedir("unitTestResources");
         File productFile = new File(basedir, "test.product");
         Product product = new Product(productFile);
-        File buildBasedir = new File(tempDir, "buildBasedir");
+        BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
         Product buildProduct = PublishProductMojo.prepareBuildProduct(product, buildBasedir, "buildQualifier");
 
-        Assert.assertEquals(new File(buildBasedir, "products/testproduct/p2.inf"), buildProduct.getP2infFile());
-        Assert.assertTrue(new File(buildBasedir, "products/testproduct/p2.inf").exists());
+        Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
+        Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
 
-        File buildProductRootDir = new File(buildBasedir, "products/testproduct");
+        File buildProductRootDir = buildBasedir.getChild("products/testproduct");
         assertFileExists("icons/linux.xpm", buildProductRootDir);
         assertFileExists("icons/mac.ico", buildProductRootDir);
         assertFileExists("icons/solaris.ico", buildProductRootDir);
@@ -110,11 +111,11 @@ public class PublishProductMojoUnitTest {
         File basedir = TestUtil.getBasedir("unitTestResources");
         File productFile = new File(basedir, "test.product");
         Product product = new Product(productFile);
-        File buildBasedir = new File(tempDir, "buildBasedir");
+        BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
         Product buildProduct = PublishProductMojo.prepareBuildProduct(product, buildBasedir, "");
 
-        Assert.assertEquals(new File(buildBasedir, "products/testproduct/p2.inf"), buildProduct.getP2infFile());
-        Assert.assertTrue(new File(buildBasedir, "products/testproduct/p2.inf").exists());
+        Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
+        Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
 
         ProductConfiguration productConfiguration = ProductConfiguration.read(buildProduct.getProductFile());
         Assert.assertEquals("0.1.0", productConfiguration.getVersion());

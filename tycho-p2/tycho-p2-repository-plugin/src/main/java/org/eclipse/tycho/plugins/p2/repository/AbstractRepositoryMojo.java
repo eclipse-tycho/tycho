@@ -19,6 +19,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
 
 public abstract class AbstractRepositoryMojo extends AbstractMojo {
@@ -43,8 +44,8 @@ public abstract class AbstractRepositoryMojo extends AbstractMojo {
         return session;
     }
 
-    protected File getBuildDirectory() {
-        return new File(getProject().getBuild().getDirectory());
+    protected BuildOutputDirectory getBuildDirectory() {
+        return new BuildOutputDirectory(getProject().getBuild().getDirectory());
     }
 
     protected BuildContext getBuildContext() {
@@ -52,7 +53,7 @@ public abstract class AbstractRepositoryMojo extends AbstractMojo {
     }
 
     protected File getAssemblyRepositoryLocation() {
-        return new File(getBuildDirectory(), "repository");
+        return getBuildDirectory().getChild("repository");
     }
 
     /**
