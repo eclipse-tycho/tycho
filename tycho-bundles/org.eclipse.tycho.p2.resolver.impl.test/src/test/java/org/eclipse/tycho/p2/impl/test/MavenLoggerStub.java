@@ -19,19 +19,25 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 public class MavenLoggerStub implements MavenLogger {
 
     private final boolean failOnWarning;
+    private final boolean failOnError;
+    private final List<String> errors = new ArrayList<String>();
     private final List<String> warnings = new ArrayList<String>();
     private final List<String> debugs = new ArrayList<String>();
 
     public MavenLoggerStub() {
-        this(false);
+        this(false, true);
     }
 
-    public MavenLoggerStub(boolean failOnWarning) {
+    public MavenLoggerStub(boolean failOnWarning, boolean failOnError) {
         this.failOnWarning = failOnWarning;
+        this.failOnError = failOnError;
     }
 
     public void error(String message) {
-        throw new RuntimeException("Error logged: " + message);
+        if (failOnError) {
+            throw new RuntimeException("Error logged: " + message);
+        }
+        errors.add(message);
     }
 
     public void warn(String message) {
@@ -42,6 +48,10 @@ public class MavenLoggerStub implements MavenLogger {
         if (failOnWarning)
             throw new RuntimeException("Unexpected warning logged: " + message, cause);
         warnings.add(message);
+    }
+
+    public List<String> getErrors() {
+        return errors;
     }
 
     public List<String> getWarnings() {
