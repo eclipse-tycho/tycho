@@ -23,6 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -162,7 +163,7 @@ public class MirrorMojo extends AbstractMojo {
         getLog().info("Mirroring to " + destination + "...");
         try {
             mirrorService.mirrorStandalone(sourceDescriptor, destinationDescriptor, createIUDescriptions(),
-                    createMirrorOptions(), new File(project.getBuild().getDirectory()));
+                    createMirrorOptions(), getBuildOutputDirectory());
         } catch (final FacadeException e) {
             throw new MojoExecutionException("Error during mirroring", e);
         }
@@ -189,5 +190,9 @@ public class MirrorMojo extends AbstractMojo {
             result.add(iu.toIUDescription());
         }
         return result;
+    }
+
+    private BuildOutputDirectory getBuildOutputDirectory() {
+        return new BuildOutputDirectory(project.getBuild().getDirectory());
     }
 }
