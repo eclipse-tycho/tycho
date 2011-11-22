@@ -12,12 +12,12 @@ package org.eclipse.tycho.p2.tools.verifier.facade;
 
 import java.net.URI;
 
-import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 
 public interface VerifierService {
 
-    public abstract boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildContext context)
-            throws FacadeException;
+    public abstract boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri,
+            BuildOutputDirectory tempDirectory) throws FacadeException;
 
 }

@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.impl.Activator;
 import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
@@ -40,12 +40,12 @@ public class VerifierServiceImpl implements VerifierService {
     private final NullProgressMonitor monitor = new NullProgressMonitor();
     private MavenContext mavenContext;
 
-    public boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildContext context)
+    public boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildOutputDirectory tempDirectory)
             throws FacadeException {
         MavenLogger logger = mavenContext.getLogger();
         logger.debug("Verifying metadata from " + metadataRepositoryUri + " with artifcats from "
                 + artifactRepositoryUri);
-        IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
+        IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
             try {
                 final IMetadataRepository metadata = loadMetadataRepository(metadataRepositoryUri, agent);

@@ -38,7 +38,7 @@ public class VerifyIntegrityRepositoryMojo extends AbstractRepositoryMojo implem
         VerifierService verifier = p2.getService(VerifierService.class);
         URI repositoryUri = getBuildDirectory().getChild("repository").toURI();
         try {
-            if (!verifier.verify(repositoryUri, repositoryUri, getBuildContext())) {
+            if (!verifier.verify(repositoryUri, repositoryUri, getBuildDirectory())) {
                 throw new MojoFailureException("The repository is invalid.");
             }
         } catch (FacadeException e) {
