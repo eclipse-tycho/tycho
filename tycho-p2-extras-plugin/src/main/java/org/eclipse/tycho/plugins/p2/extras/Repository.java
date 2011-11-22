@@ -46,20 +46,27 @@ public final class Repository {
 
     private URI url;
 
-    private Layout layout;
+    private Layout layout = Layout.BOTH;
 
     public Repository() {
     }
 
     Repository(URI location) {
         this.url = location;
-        this.layout = Layout.BOTH;
     }
 
+    /**
+     * @return never <code>null</code>
+     */
     public URI getLocation() {
+        if (url == null)
+            throw new IllegalStateException("Attribute 'url' is required for source repositories");
         return url;
     }
 
+    /**
+     * @return never <code>null</code>
+     */
     public Layout getLayout() {
         return layout;
     }
@@ -71,7 +78,7 @@ public final class Repository {
                 return;
             }
         }
-        throw new IllegalArgumentException("Unrecognized value for attribute layout: \"" + value
+        throw new IllegalArgumentException("Unrecognized value for attribute 'layout': \"" + value
                 + "\". Valid values are: " + listValues(Layout.values()));
     }
 
