@@ -80,12 +80,20 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     }
 
     protected List<MavenProject> getSortedProjects(File basedir, File platform) throws Exception {
+        return getSortedProjects(basedir, null, platform);
+    }
+
+    protected List<MavenProject> getSortedProjects(File basedir, Properties userProperties, File platform)
+            throws Exception {
         File pom = new File(basedir, "pom.xml");
         MavenExecutionRequest request = newMavenExecutionRequest(pom);
         request.getProjectBuildingRequest().setProcessPlugins(false);
         request.setLocalRepository(getLocalRepository());
         if (platform != null) {
             request.getUserProperties().put("tycho.targetPlatform", platform.getCanonicalPath());
+        }
+        if (userProperties != null) {
+            request.getUserProperties().putAll(userProperties);
         }
         MavenExecutionResult result = maven.execute(request);
         if (result.hasExceptions()) {

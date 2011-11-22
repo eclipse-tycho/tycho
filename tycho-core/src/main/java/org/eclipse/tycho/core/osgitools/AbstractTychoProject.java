@@ -88,11 +88,15 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     }
 
     public ExecutionEnvironment getExecutionEnvironment(MavenProject project) {
-        String ee = TychoProjectUtils.getTargetPlatformConfiguration(project).getExecutionEnvironment();
+        String profile = TychoProjectUtils.getTargetPlatformConfiguration(project).getExecutionEnvironment();
 
-        if (ee != null) {
+        if (profile != null) {
+            if (profile.startsWith("?")) {
+                profile = profile.substring(1);
+            }
+
             try {
-                return ExecutionEnvironmentUtils.getExecutionEnvironment(ee);
+                return ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
             } catch (UnknownEnvironmentException e) {
                 // can't happen, ee is validated during configuration parsing
             }

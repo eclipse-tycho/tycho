@@ -120,7 +120,8 @@ public class DefaultTargetPlatformConfigurationReader {
         String ee = eeDom.getValue().trim();
         if (!"".equals(ee)) {
             try {
-                ExecutionEnvironmentUtils.getExecutionEnvironment(ee);
+                String profile = ee.startsWith("?") ? ee.substring(1) : ee;
+                ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
             } catch (UnknownEnvironmentException e) {
                 throw new RuntimeException("Invalid execution environment profile name " + ee);
             }

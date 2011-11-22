@@ -52,6 +52,7 @@ import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
@@ -227,6 +228,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public List<ClasspathEntry> getClasspath(MavenProject project) {
+        @SuppressWarnings("unchecked")
         List<ClasspathEntry> classpath = (List<ClasspathEntry>) project
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH);
         if (classpath == null) {
@@ -426,29 +428,47 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public ExecutionEnvironment getExecutionEnvironment(MavenProject project) {
-        ExecutionEnvironment explicitEE = super.getExecutionEnvironment(project);
+        String profile = TychoProjectUtils.getTargetPlatformConfiguration(project).getExecutionEnvironment();
 
-        if (explicitEE != null) {
-            // explicitly configured environment wins
-            return explicitEE;
-        }
-
-        // PDE compatibility (I really feel generous today)
-        String ee = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties().getProperty(
-                "jre.compilation.profile");
-        if (ee != null) {
-            try {
-                return ExecutionEnvironmentUtils.getExecutionEnvironment(ee.trim());
-            } catch (UnknownEnvironmentException e) {
-                throw new RuntimeException("Unknown execution environment specified in build.properties of project "
-                        + project, e);
+        if (profile != null && !profile.startsWith("?")) {
+            // hard profile name in pom.xml
+            return getExecutionEnvironment(project, profile);
+        } else {
+            // PDE compatibility (I really feel generous today)
+            String pdeProfile = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
+                    .getProperty("jre.compilation.profile");
+            if (pdeProfile != null) {
+                return getExecutionEnvironment(project, pdeProfile.trim());
             }
         }
 
-        ExecutionEnvironment[] requiredExecEnvs = getManifest(project).getExecutionEnvironments();
-        if (requiredExecEnvs.length == 0) {
-            return null;
+        ExecutionEnvironment buildMinimalEE = null;
+
+        if (profile != null) {
+            buildMinimalEE = getExecutionEnvironment(project, profile.substring(1));
         }
-        return Collections.min(new ArrayList<ExecutionEnvironment>(Arrays.asList(requiredExecEnvs)));
+
+        List<ExecutionEnvironment> envs = new ArrayList<ExecutionEnvironment>(Arrays.asList(getManifest(project)
+                .getExecutionEnvironments()));
+        if (envs.isEmpty()) {
+            return buildMinimalEE;
+        }
+
+        ExecutionEnvironment manifestMinimalEE = Collections.min(envs);
+
+        if (buildMinimalEE == null) {
+            return manifestMinimalEE;
+        }
+
+        return manifestMinimalEE.compareTo(buildMinimalEE) < 0 ? buildMinimalEE : manifestMinimalEE;
+    }
+
+    protected ExecutionEnvironment getExecutionEnvironment(MavenProject project, String profile) {
+        try {
+            return ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
+        } catch (UnknownEnvironmentException e) {
+            throw new RuntimeException("Unknown execution environment specified in build.properties of project "
+                    + project, e);
+        }
     }
 }

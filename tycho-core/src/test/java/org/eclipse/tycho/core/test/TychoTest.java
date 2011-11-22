@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
@@ -31,6 +32,7 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class TychoTest extends AbstractTychoMojoTestCase {
@@ -292,5 +294,26 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("foo", env.getOs());
         assertEquals("bar", env.getWs());
         assertEquals("munchy", env.getArch());
+    }
+
+    public void testBundleRuntimeExecutionEnvironment() throws Exception {
+        File basedir = getBasedir("projects/bree");
+
+        Properties properties = new Properties();
+        properties.put("tycho-version", TychoVersion.getTychoVersion());
+
+        List<MavenProject> projects = getSortedProjects(basedir, properties, null);
+        assertEquals(4, projects.size());
+
+        TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+
+        assertEquals("executionenvironment.pom-hard", projects.get(1).getArtifactId());
+        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(1)).getProfileName());
+
+        assertEquals("executionenvironment.pom-soft-buildproperties", projects.get(2).getArtifactId());
+        assertEquals("OSGi/Minimum-1.1", bundleProject.getExecutionEnvironment(projects.get(2)).getProfileName());
+
+        assertEquals("executionenvironment.pom-soft-manifest", projects.get(3).getArtifactId());
+        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(3)).getProfileName());
     }
 }
