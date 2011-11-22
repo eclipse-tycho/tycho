@@ -185,6 +185,10 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 locations = getBundleClasspath(otherArtifact);
             }
 
+            if (locations.isEmpty() && !entry.rules.isEmpty()) {
+                getLogger().warn("Empty classpath of required bundle " + otherArtifact);
+            }
+
             classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
         }
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
