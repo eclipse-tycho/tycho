@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
+import java.util.List;
+
+import org.eclipse.tycho.core.TargetEnvironment;
+
 public class ProfileName {
     /** default-value="DefaultProfile" */
     private String name;
@@ -30,9 +34,9 @@ public class ProfileName {
         return ws;
     }
 
-    private String arch;
     private String os;
     private String ws;
+    private String arch;
 
     public ProfileName() {
     }
@@ -41,11 +45,23 @@ public class ProfileName {
         this(name, null, null, null);
     }
 
-    public ProfileName(String name, String arch, String os, String ws) {
+    public ProfileName(String name, String os, String ws, String arch) {
         this.name = name;
-        this.arch = arch;
-        this.os = os;
         this.ws = ws;
+        this.os = os;
+        this.arch = arch;
     }
 
+    public static String getNameForEnvironment(TargetEnvironment env, List<ProfileName> nameMap, String defaultName) {
+        if (nameMap != null) {
+            for (ProfileName profileWithEnvironment : nameMap) {
+                // first match always wins
+                if (env.match(profileWithEnvironment.getOs(), profileWithEnvironment.getWs(),
+                        profileWithEnvironment.getArch())) {
+                    return profileWithEnvironment.getName();
+                }
+            }
+        }
+        return defaultName;
+    }
 }
