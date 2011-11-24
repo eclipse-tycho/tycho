@@ -22,11 +22,17 @@
 	<artifactId>tycho-equinox-launching</artifactId>
 
 	<name>Tycho Equinox Launching (Incubation)</name>
+	<description>Support for launching an Equinox runtime as new process.</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-equinox-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
