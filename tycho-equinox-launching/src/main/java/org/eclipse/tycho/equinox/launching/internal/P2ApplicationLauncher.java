@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.internal;
+package org.eclipse.tycho.equinox.launching.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,6 @@ import org.eclipse.tycho.equinox.launching.EquinoxInstallation;
 import org.eclipse.tycho.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.tycho.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.tycho.equinox.launching.EquinoxLauncher;
-import org.eclipse.tycho.equinox.launching.internal.EquinoxLaunchConfiguration;
 
 /**
  * Convenience wrapper around {@link Commandline} to run Eclipse applications from tycho-p2-runtime

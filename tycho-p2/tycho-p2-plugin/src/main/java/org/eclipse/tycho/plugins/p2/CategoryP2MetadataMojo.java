@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import org.eclipse.tycho.p2.facade.internal.P2ApplicationLauncher;
+import org.eclipse.tycho.equinox.launching.internal.P2ApplicationLauncher;
 
 /**
  * Adds category IUs to existing metadata repository.

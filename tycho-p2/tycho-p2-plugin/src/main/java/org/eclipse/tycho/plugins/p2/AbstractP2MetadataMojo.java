@@ -18,7 +18,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.p2.facade.internal.P2ApplicationLauncher;
+import org.eclipse.tycho.equinox.launching.internal.P2ApplicationLauncher;
 
 public abstract class AbstractP2MetadataMojo extends AbstractMojo {
     /**
