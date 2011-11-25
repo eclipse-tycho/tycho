@@ -1,10 +1,10 @@
 package org.eclipse.tycho.test.toolchains;
 
+import java.io.File;
+
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
-
-import java.io.File;
 
 public class JavaToolchainInSurefireTest extends AbstractTychoIntegrationTest {
     @Test
