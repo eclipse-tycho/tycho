@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryParser;
@@ -33,12 +31,10 @@ import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
@@ -119,31 +115,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         String packaging = artifact.getPackagingType();
         File location = artifact.getLocation();
         if (P2Resolver.TYPE_ECLIPSE_PLUGIN.equals(packaging) || P2Resolver.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
-            actions.add(new BundlesAction(new File[] { location }) {
-                @Override
-                protected BundleDescription[] getBundleDescriptions(File[] bundleLocations, IProgressMonitor monitor) {
-                    /*
-                     * For reasons that I don't quite understand, p2 publisher BundlesAction
-                     * generates two IUs for org.eclipse.update.configurator bundle, the extra IU
-                     * matching org.eclipse.equinox.simpleconfigurator bundle. The extra IU results
-                     * in wrong target platform resolution for projects that depend on
-                     * org.eclipse.equinox.simpleconfigurator bundle or packages provided by it.
-                     * 
-                     * The solution is to suppress special handling of
-                     * org.eclipse.update.configurator bundle when generating p2 metadata of reactor
-                     * projects and from what I can tell, this is consistent with PDE behaviour (see
-                     * org.eclipse.pde.internal.build.publisher.GatherBundleAction ).
-                     */
-
-                    BundleDescription[] result = new BundleDescription[bundleLocations.length];
-                    for (int i = 0; i < bundleLocations.length; i++) {
-                        if (monitor.isCanceled())
-                            throw new OperationCanceledException();
-                        result[i] = createBundleDescription(bundleLocations[i]);
-                    }
-                    return result;
-                }
-            });
+            actions.add(new TychoBundleAction(location));
         } else if (P2Resolver.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Feature feature = new FeatureParser().parse(location);
             feature.setLocation(location.getAbsolutePath());
@@ -202,7 +174,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 }
             }
         } else if (location.isFile() && location.getName().endsWith(".jar")) {
-            actions.add(new BundlesAction(new File[] { location }));
+            actions.add(new TychoBundleAction(location));
         } else {
             throw new IllegalArgumentException("Unknown type of packaging " + packaging);
         }

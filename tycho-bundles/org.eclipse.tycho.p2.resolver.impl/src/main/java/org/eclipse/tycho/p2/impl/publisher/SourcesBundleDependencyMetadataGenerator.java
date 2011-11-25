@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
@@ -70,7 +69,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
             BundleDescription bundleDescription = factory.createBundleDescription(factory.createState(false), manifest,
                     artifact.getLocation().getAbsolutePath(), createId(sourceBundleSymbolicName, version));
             bundleDescription.setUserObject(manifest);
-            actions.add(new BundlesAction(new BundleDescription[] { bundleDescription }));
+            actions.add(new TychoBundleAction(bundleDescription));
         } catch (BundleException e) {
             throw new RuntimeException(e);
         }
