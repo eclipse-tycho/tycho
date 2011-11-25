@@ -34,7 +34,8 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
 
     @Override
     public void afterFrameworkStarted(EquinoxEmbedder framework) {
-        MutableMavenContext mavenContext = (MutableMavenContext) framework.getService(MavenContext.class);
+        MutableMavenContext mavenContext = (MutableMavenContext) framework.getServiceFactory().getService(
+                MavenContext.class);
         MavenSession session = context.getSession();
         mavenContext.setLocalRepositoryRoot(new File(session.getLocalRepository().getBasedir()));
         mavenContext.setOffline(session.isOffline());

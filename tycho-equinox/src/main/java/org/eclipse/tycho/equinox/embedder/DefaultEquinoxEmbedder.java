@@ -23,14 +23,16 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.tycho.equinox.EquinoxRuntimeLocator;
+import org.eclipse.tycho.equinox.EquinoxServiceFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-@Component(role = EquinoxEmbedder.class)
-public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements EquinoxEmbedder, Disposable {
+@Component(role = EquinoxServiceFactory.class)
+public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements EquinoxServiceFactory, EquinoxEmbedder,
+        Disposable {
     @Requirement(role = EquinoxLifecycleListener.class)
     private Map<String, EquinoxLifecycleListener> lifecycleListeners;
 
@@ -231,5 +233,9 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
 
     public void dispose() {
         secureStorage.delete();
+    }
+
+    public EquinoxServiceFactory getServiceFactory() {
+        return this;
     }
 }

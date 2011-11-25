@@ -43,7 +43,7 @@ public class P2ProxyConfigurator extends EquinoxLifecycleListener {
         }
 
         ProxyServiceFacade proxyService;
-        proxyService = framework.getService(ProxyServiceFacade.class);
+        proxyService = framework.getServiceFactory().getService(ProxyServiceFacade.class);
         // make sure there is no old state from previous aborted builds
         logger.debug("clear OSGi proxy settings");
         proxyService.clearPersistentProxySettings();
