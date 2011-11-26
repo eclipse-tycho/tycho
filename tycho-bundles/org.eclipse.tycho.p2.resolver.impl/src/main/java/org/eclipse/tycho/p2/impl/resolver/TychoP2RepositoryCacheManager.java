@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.core.facade.MavenLogger;
 
 /**
  * @author igor
@@ -30,8 +31,11 @@ public class TychoP2RepositoryCacheManager extends CacheManager {
 
     private File localRepositoryLocation;
 
-    public TychoP2RepositoryCacheManager(Transport transport) {
+    private final MavenLogger logger;
+
+    public TychoP2RepositoryCacheManager(Transport transport, MavenLogger logger) {
         super(null, transport);
+        this.logger = logger;
     }
 
     @Override
@@ -46,8 +50,30 @@ public class TychoP2RepositoryCacheManager extends CacheManager {
             throw new ProvisionException("Repository system is offline and no local cache available for "
                     + repositoryLocation.toString());
         } else {
-            return super.createCache(repositoryLocation, prefix, monitor);
+            try {
+                return super.createCache(repositoryLocation, prefix, monitor);
+            } catch (IOException e) {
+                return handleCreateCacheException(cacheFile, repositoryLocation, e);
+            } catch (ProvisionException e) {
+                return handleCreateCacheException(cacheFile, repositoryLocation, e);
+            }
         }
+    }
+
+    private <T extends Exception> File handleCreateCacheException(File cacheFile, URI repositoryLocation, T e) throws T {
+        if (cacheFile != null) {
+            String message = "Failed to access p2 repository " + repositoryLocation.toASCIIString()
+                    + ", use local cache.";
+            if (logger.isDebugEnabled()) {
+                logger.warn(message, e);
+            } else {
+                message += " " + e.getMessage();
+                logger.warn(message);
+            }
+            // original exception has been already logged
+            return cacheFile;
+        }
+        throw e;
     }
 
     @Override

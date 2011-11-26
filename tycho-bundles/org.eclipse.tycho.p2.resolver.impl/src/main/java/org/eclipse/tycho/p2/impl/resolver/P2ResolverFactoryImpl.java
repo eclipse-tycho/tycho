@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenContext;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
@@ -30,7 +31,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private LocalRepositoryP2Indices localRepoIndices;
 
     public ResolutionContextImpl createResolutionContext(String bree, boolean disableP2Mirrors) {
-        IProvisioningAgent agent = getProvisioningAgent(mavenContext.getLocalRepositoryRoot(), mavenContext.isOffline());
+        IProvisioningAgent agent = getProvisioningAgent(mavenContext.getLocalRepositoryRoot(),
+                mavenContext.isOffline(), mavenContext.getLogger());
         return new ResolutionContextImpl(agent, mavenContext, bree, localRepoIndices, disableP2Mirrors);
     }
 
@@ -79,7 +81,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         }
     }
 
-    public static synchronized IProvisioningAgent getProvisioningAgent(File localMavenRepositoryRoot, boolean offline) {
+    public static synchronized IProvisioningAgent getProvisioningAgent(File localMavenRepositoryRoot, boolean offline,
+            MavenLogger logger) {
         AgentKey agentKey = new AgentKey(localMavenRepositoryRoot, offline);
         IProvisioningAgent agent = agents.get(agentKey);
         if (agent == null) {
@@ -93,7 +96,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
                     transport = (Transport) agent.getService(Transport.SERVICE_NAME);
                 }
                 // setup p2 cache manager
-                TychoP2RepositoryCacheManager cacheMgr = new TychoP2RepositoryCacheManager(transport);
+                TychoP2RepositoryCacheManager cacheMgr = new TychoP2RepositoryCacheManager(transport, logger);
                 cacheMgr.setOffline(offline);
                 cacheMgr.setLocalRepositoryLocation(localMavenRepositoryRoot);
                 agent.registerService(CacheManager.SERVICE_NAME, cacheMgr);
@@ -118,4 +121,10 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         this.localRepoIndices = localRepoIndices;
     }
 
+    /**
+     * This method is meant for use by tests to purge any cache state between test invocations
+     */
+    public static void purgeAgents() {
+        agents.clear();
+    }
 }

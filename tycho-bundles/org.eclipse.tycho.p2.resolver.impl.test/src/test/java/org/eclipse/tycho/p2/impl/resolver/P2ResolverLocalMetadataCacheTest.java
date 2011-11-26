@@ -34,7 +34,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class P2ResolverOfflineTest extends P2ResolverTestBase {
+public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
     private static final boolean DISABLE_MIRRORS = false;
 
     private HttpServer server;
@@ -42,6 +42,7 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
 
     @Before
     public void initResolver() throws Exception {
+        P2ResolverFactoryImpl.purgeAgents();
         P2ResolverFactoryImpl p2ResolverFactoryImpl = createP2ResolverFactory(false);
         context = p2ResolverFactoryImpl.createResolutionContext(null, DISABLE_MIRRORS);
         impl = new P2ResolverImpl(new MavenLoggerStub());
@@ -112,6 +113,47 @@ public class P2ResolverOfflineTest extends P2ResolverTestBase {
             assertThat(e.getCause(), is(ProvisionException.class));
             assertThat(e.getMessage(), containsString("offline"));
         }
+    }
+
+    @Test
+    public void fall_back_to_cache_after_ioexception_when_online() throws Exception {
+        // prime local repository
+        resolveFromHttp(context, impl, servedUrl);
+
+        // make remote server inaccessible
+        server.stop();
+
+        P2ResolverFactoryImpl.purgeAgents();
+
+        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
+        context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
+
+        List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertEquals(2, result.getArtifacts().size());
+        Assert.assertEquals(1, result.getNonReactorUnits().size());
+
+    }
+
+    @Test
+    public void fail_fast_after_ioexception_when_no_local_cache() throws Exception {
+        server.stop();
+
+        delete(getLocalRepositoryLocation());
+
+        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
+        context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
+
+        try {
+            resolveFromHttp(context, impl, servedUrl);
+            Assert.fail();
+        } catch (Exception e) {
+            // expected
+        }
+
     }
 
     static void delete(File dir) {

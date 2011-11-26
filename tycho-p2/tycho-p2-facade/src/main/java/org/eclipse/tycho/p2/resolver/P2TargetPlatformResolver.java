@@ -270,13 +270,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                         getLogger().debug(
                                 "Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
                     } catch (Exception e) {
-                        String msg = "Failed to access p2 repository " + repository.getId() + " ("
-                                + repository.getUrl() + "), will try to use local cache. Reason: " + e.getMessage();
-                        if (getLogger().isDebugEnabled()) {
-                            getLogger().warn(msg, e);
-                        } else {
-                            getLogger().warn(msg);
-                        }
+                        throw new RuntimeException(e);
                     }
                 }
             } catch (MalformedURLException e) {
