@@ -21,7 +21,7 @@ public class NoDotJarTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("MNGECLIPSE1031/bundle.test");
+        Verifier verifier = getVerifier("noDotJar/bundle.test");
 
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();

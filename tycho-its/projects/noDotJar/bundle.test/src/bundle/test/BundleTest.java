@@ -8,22 +8,14 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.tycho98;
+package bundle.test;
 
-import java.util.Arrays;
-
-import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
-public class MNGECLIPSE999DIrectTestPluginInvocationTest extends AbstractTychoIntegrationTest {
+public class BundleTest {
 
-    @Test
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("MNGECLIPSE999");
-
-        verifier.executeGoals(Arrays.asList(new String[] { "package", "org.eclipse.tycho:tycho-surefire-plugin:test" }));
-        verifier.verifyErrorFreeLog();
-    }
-
+	@Test
+	public void atest() {
+		
+	}
 }
