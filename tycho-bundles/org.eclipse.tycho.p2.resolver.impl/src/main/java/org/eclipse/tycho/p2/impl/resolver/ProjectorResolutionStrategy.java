@@ -172,7 +172,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
     private IInstallableUnit createMetaIU(Set<IInstallableUnit> rootIUs) {
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         String time = Long.toString(System.currentTimeMillis());
-        iud.setId(time);
+        iud.setId("tycho-" + time);
         iud.setVersion(Version.createOSGi(0, 0, 0, time));
 
         ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
@@ -195,7 +195,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
         if (!additionalRequirements.isEmpty()) {
             InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
             String time = Long.toString(System.currentTimeMillis());
-            iud.setId("extra-" + time);
+            iud.setId("tycho-extra-" + time);
             iud.setVersion(Version.createOSGi(0, 0, 0, time));
             iud.setRequirements(additionalRequirements.toArray(new IRequiredCapability[additionalRequirements.size()]));
 
