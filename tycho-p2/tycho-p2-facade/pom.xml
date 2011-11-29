@@ -57,12 +57,12 @@
 
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.facade</artifactId>
+			<artifactId>org.eclipse.tycho.p2.resolver.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.tools.facade</artifactId>
+			<artifactId>org.eclipse.tycho.p2.tools.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -78,7 +78,6 @@
 			<plugin>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-component-metadata</artifactId>
-				<version>${plexusVersion}</version>
 				<executions>
 					<execution>
 						<goals>

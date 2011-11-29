@@ -182,7 +182,6 @@
 		<dependency>
 			<groupId>bcel</groupId>
 			<artifactId>bcel</artifactId>
-			<version>5.1</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -285,7 +284,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.facade</artifactId>
+			<artifactId>org.eclipse.tycho.p2.resolver.shared</artifactId>
 			<version>${tycho-build-version}</version>
 		</dependency>
 		<dependency>

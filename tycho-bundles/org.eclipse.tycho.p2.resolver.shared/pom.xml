@@ -20,9 +20,10 @@
 		<version>0.14.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>org.eclipse.tycho.p2.resolver.facade</artifactId>
+	<artifactId>org.eclipse.tycho.p2.resolver.shared</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho p2 Resolver Maven/OSGi Facade (Incubation)</name>
+	<name>Tycho p2 Resolver Maven/OSGi Shared Classes (Incubation)</name>
+	<description>Classes shared between the tycho-p2-facade module and Tycho's OSGi bundles.</description>
 
 </project>

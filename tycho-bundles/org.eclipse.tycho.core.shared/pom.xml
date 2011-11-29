@@ -24,6 +24,6 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<name>Tycho Core Maven/OSGi Shared Classes (Incubation)</name>
-	<description>Tycho core classes shared between the Maven and OSGi class loaders.</description>
+	<description>Classes shared between the tycho-core module and Tycho's OSGi bundles.</description>
 
 </project>

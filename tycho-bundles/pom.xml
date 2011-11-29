@@ -29,10 +29,10 @@
 		<module>tycho-bundles-target</module>
 
 		<!-- classes shared between Maven and OSGi class loaders -->
-		<module>org.eclipse.tycho.embedder.facade</module>
+		<module>org.eclipse.tycho.embedder.shared</module>
 		<module>org.eclipse.tycho.core.shared</module>
-		<module>org.eclipse.tycho.p2.resolver.facade</module>
-		<module>org.eclipse.tycho.p2.tools.facade</module>
+		<module>org.eclipse.tycho.p2.resolver.shared</module>
+		<module>org.eclipse.tycho.p2.tools.shared</module>
 
 		<!-- implementations -->
 		<module>org.eclipse.tycho.p2.resolver.impl</module>
