@@ -54,6 +54,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.core.shared</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.tycho.p2.resolver.facade</artifactId>
 			<version>${project.version}</version>
 		</dependency>

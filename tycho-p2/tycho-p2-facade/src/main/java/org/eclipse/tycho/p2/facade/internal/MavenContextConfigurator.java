@@ -18,7 +18,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.facade.MavenContext;
-import org.eclipse.tycho.core.internal.MutableMavenContext;
+import org.eclipse.tycho.core.facade.internal.MutableMavenContext;
 import org.eclipse.tycho.equinox.embedder.EquinoxEmbedder;
 import org.eclipse.tycho.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;

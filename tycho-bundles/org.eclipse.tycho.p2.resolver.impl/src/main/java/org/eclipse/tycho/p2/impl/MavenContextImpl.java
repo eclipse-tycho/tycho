@@ -13,7 +13,7 @@ package org.eclipse.tycho.p2.impl;
 import java.io.File;
 
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.core.internal.MutableMavenContext;
+import org.eclipse.tycho.core.facade.internal.MutableMavenContext;
 
 public class MavenContextImpl implements MutableMavenContext {
 
