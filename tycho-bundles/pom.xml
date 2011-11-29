@@ -44,8 +44,8 @@
 		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
 		<module>org.eclipse.tycho.p2.tools.tests</module>
 
-		<!-- OSGi runtime for Tycho -->
-		<module>tycho-p2-runtime</module>
+		<!-- non-Tycho bundles in the Tycho's OSGi runtime -->
+		<module>tycho-bundles-external</module>
 	</modules>
 
 	<build>
@@ -61,10 +61,9 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tychoBootstrapVersion}</version>
 				<configuration>
-					<resolver>p2</resolver>
 					<target>
 						<artifact>
-							<groupId>${project.groupId}</groupId>
+							<groupId>org.eclipse.tycho</groupId>
 							<artifactId>tycho-bundles-target</artifactId>
 							<version>${project.version}</version>
 							<classifier>tycho</classifier>

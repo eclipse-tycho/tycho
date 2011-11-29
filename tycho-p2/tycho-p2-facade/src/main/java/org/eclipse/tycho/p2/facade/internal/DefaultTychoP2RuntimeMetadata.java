@@ -26,7 +26,7 @@ public class DefaultTychoP2RuntimeMetadata implements TychoP2RuntimeMetadata {
 
         String p2Version = TychoVersion.getTychoVersion();
 
-        ARTIFACTS.add(newDependency("org.eclipse.tycho", "tycho-p2-runtime", p2Version, "zip"));
+        ARTIFACTS.add(newDependency("org.eclipse.tycho", "tycho-bundles-external", p2Version, "zip"));
         ARTIFACTS.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.resolver.impl", p2Version, "jar"));
         ARTIFACTS.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.maven.repository", p2Version, "jar"));
         ARTIFACTS.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.tools.impl", p2Version, "jar"));
