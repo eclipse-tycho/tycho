@@ -8,14 +8,14 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallation;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallationDescription;
 import org.osgi.framework.Version;
 
 public class DefaultEquinoxInstallation implements EquinoxInstallation {

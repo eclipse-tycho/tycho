@@ -8,8 +8,12 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.embedder;
+package org.eclipse.sisu.equinox.launching;
 
-public abstract class EquinoxLifecycleListener {
-    public abstract void afterFrameworkStarted(EquinoxEmbedder framework);
+public class EquinoxLaunchingException extends RuntimeException {
+    private static final long serialVersionUID = -2582656444738672521L;
+
+    public EquinoxLaunchingException(Exception cause) {
+        super(cause);
+    }
 }

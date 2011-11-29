@@ -8,20 +8,10 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
-import java.util.List;
 
-public interface EquinoxRuntimeLocator {
-    // TODO do we need more specific exception type here?
-    public List<File> getRuntimeLocations() throws Exception;
-
-    /**
-     * Packages exported by embedding application. This allows embedded runtime import API classes
-     * from embedding application with Import-Package.
-     * 
-     * @return Packages exported by embedding application; never <code>null</code>
-     */
-    public List<String> getSystemPackagesExtra();
+public interface EquinoxInstallationFactory {
+    public EquinoxInstallation createInstallation(EquinoxInstallationDescription description, File location);
 }

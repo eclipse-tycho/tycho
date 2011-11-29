@@ -8,11 +8,14 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching;
+package org.eclipse.sisu.equinox.launching;
 
-import org.eclipse.tycho.launching.LaunchConfiguration;
+import java.io.File;
 
-public interface EquinoxLauncher {
-    public int execute(LaunchConfiguration configuration, int forkedProcessTimeoutInSeconds)
-            throws EquinoxLaunchingException;
+public interface EquinoxInstallation {
+    public File getLauncherJar();
+
+    public File getLocation();
+
+    public EquinoxInstallationDescription getInstallationDescription();
 }

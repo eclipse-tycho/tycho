@@ -12,9 +12,9 @@ package org.eclipse.tycho.surefire;
 
 import junit.framework.TestCase;
 
-import org.eclipse.tycho.equinox.launching.DefaultEquinoxInstallationDescription;
-import org.eclipse.tycho.equinox.launching.internal.DefaultEquinoxInstallation;
-import org.eclipse.tycho.equinox.launching.internal.EquinoxLaunchConfiguration;
+import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
+import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 
 public class TestMojoTest extends TestCase {
 

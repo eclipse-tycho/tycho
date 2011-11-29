@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.equinox.EquinoxRuntimeLocator;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 
 @Component(role = EquinoxRuntimeLocator.class, hint = "stub")
 public class StubEquinoxRuntimeLocator implements EquinoxRuntimeLocator {

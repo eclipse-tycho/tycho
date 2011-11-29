@@ -35,7 +35,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.tycho.equinox.EquinoxRuntimeLocator;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 
 @Component(role = EquinoxRuntimeLocator.class)
 public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {

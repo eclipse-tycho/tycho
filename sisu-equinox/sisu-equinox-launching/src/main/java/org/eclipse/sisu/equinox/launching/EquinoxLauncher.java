@@ -8,12 +8,11 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.embedder;
+package org.eclipse.sisu.equinox.launching;
 
-import org.eclipse.tycho.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.launching.LaunchConfiguration;
 
-public interface EquinoxEmbedder {
-
-    EquinoxServiceFactory getServiceFactory();
-
+public interface EquinoxLauncher {
+    public int execute(LaunchConfiguration configuration, int forkedProcessTimeoutInSeconds)
+            throws EquinoxLaunchingException;
 }

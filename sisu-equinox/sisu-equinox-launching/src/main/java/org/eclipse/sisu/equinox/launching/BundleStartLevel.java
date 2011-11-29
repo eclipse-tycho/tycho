@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching;
+package org.eclipse.sisu.equinox.launching;
 
 public class BundleStartLevel {
     /**

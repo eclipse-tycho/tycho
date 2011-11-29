@@ -3,9 +3,9 @@
 <extension>
   <exportedPackages>
     <exportedPackage>org.eclipse.tycho</exportedPackage>
-    <exportedPackage>org.eclipse.tycho.model</exportedPackage>
     <exportedPackage>org.osgi.framework</exportedPackage>
     <exportedPackage>org.eclipse.osgi</exportedPackage>
+    <exportedPackage>org.eclipse.sisu.equinox</exportedPackage>
   </exportedPackages>
 
   <exportedArtifacts>

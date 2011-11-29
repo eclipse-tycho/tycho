@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.plexus.util.cli.Commandline.Argument;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 
 public class EquinoxLaunchConfiguration implements LaunchConfiguration {

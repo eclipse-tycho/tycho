@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +21,8 @@ import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.StreamConsumer;
-import org.eclipse.tycho.equinox.launching.EquinoxLauncher;
-import org.eclipse.tycho.equinox.launching.EquinoxLaunchingException;
+import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.equinox.launching.EquinoxLaunchingException;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 
 @Component(role = EquinoxLauncher.class)

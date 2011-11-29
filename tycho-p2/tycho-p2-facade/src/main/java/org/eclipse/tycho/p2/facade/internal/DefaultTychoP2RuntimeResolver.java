@@ -18,7 +18,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.tycho.equinox.EquinoxRuntimeLocator;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 import org.eclipse.tycho.p2runtime.TychoP2RuntimeResolver;
 
 @Component(role = TychoP2RuntimeResolver.class)

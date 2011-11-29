@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching;
+package org.eclipse.sisu.equinox.launching;
 
 import java.io.File;
 import java.util.ArrayList;

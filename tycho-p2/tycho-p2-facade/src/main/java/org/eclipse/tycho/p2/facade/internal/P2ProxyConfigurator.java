@@ -19,8 +19,8 @@ import org.apache.maven.settings.Proxy;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.equinox.embedder.EquinoxEmbedder;
-import org.eclipse.tycho.equinox.embedder.EquinoxLifecycleListener;
+import org.eclipse.sisu.equinox.embedder.EquinoxEmbedder;
+import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.p2.metadata.ProxyServiceFacade;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "P2ProxyConfigurator")

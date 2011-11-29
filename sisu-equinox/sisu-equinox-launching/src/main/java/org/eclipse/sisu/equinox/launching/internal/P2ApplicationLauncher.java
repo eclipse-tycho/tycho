@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,15 +20,15 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.Commandline;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
+import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
+import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
-import org.eclipse.tycho.equinox.EquinoxRuntimeLocator;
-import org.eclipse.tycho.equinox.launching.DefaultEquinoxInstallationDescription;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallation;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallationFactory;
-import org.eclipse.tycho.equinox.launching.EquinoxLauncher;
 
 /**
  * Convenience wrapper around {@link Commandline} to run Eclipse applications from tycho-p2-runtime

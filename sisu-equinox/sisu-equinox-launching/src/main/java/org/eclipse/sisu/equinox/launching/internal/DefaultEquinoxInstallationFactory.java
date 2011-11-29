@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching.internal;
+package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,15 +30,15 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
+import org.eclipse.sisu.equinox.launching.BundleStartLevel;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.equinox.launching.BundleStartLevel;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallation;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallationFactory;
 
 @Component(role = EquinoxInstallationFactory.class)
 public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFactory {

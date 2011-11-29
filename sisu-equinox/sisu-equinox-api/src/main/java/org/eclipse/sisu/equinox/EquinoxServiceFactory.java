@@ -8,14 +8,13 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox.launching;
+package org.eclipse.sisu.equinox;
 
-import java.io.File;
+/**
+ * "Client" interface to access OSGi services registered with Equinox framework.
+ */
+public interface EquinoxServiceFactory {
+    public <T> T getService(Class<T> clazz);
 
-public interface EquinoxInstallation {
-    public File getLauncherJar();
-
-    public File getLocation();
-
-    public EquinoxInstallationDescription getInstallationDescription();
+    public <T> T getService(Class<T> clazz, String filter);
 }

@@ -17,10 +17,10 @@ import org.apache.maven.plugin.LegacySupport;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.sisu.equinox.embedder.EquinoxEmbedder;
+import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.internal.MutableMavenContext;
-import org.eclipse.tycho.equinox.embedder.EquinoxEmbedder;
-import org.eclipse.tycho.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "MavenContextConfigurator")

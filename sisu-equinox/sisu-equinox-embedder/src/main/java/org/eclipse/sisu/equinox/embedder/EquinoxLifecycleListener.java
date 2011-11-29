@@ -8,13 +8,8 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.equinox;
+package org.eclipse.sisu.equinox.embedder;
 
-/**
- * "Client" interface to access OSGi services registered with Equinox framework.
- */
-public interface EquinoxServiceFactory {
-    public <T> T getService(Class<T> clazz);
-
-    public <T> T getService(Class<T> clazz, String filter);
+public abstract class EquinoxLifecycleListener {
+    public abstract void afterFrameworkStarted(EquinoxEmbedder framework);
 }
