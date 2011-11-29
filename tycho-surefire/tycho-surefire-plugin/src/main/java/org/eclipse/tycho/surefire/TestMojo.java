@@ -121,11 +121,22 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
 
     /**
      * @parameter expression="${maven.test.skipExec}" default-value="false"
+     * @deprecated Use skipTests instead.
      */
     private boolean skipExec;
 
     /**
+     * @parameter expression="${skipTests}" default-value="false"
+     * 
+     *            Set this to "true" to skip running tests, but still compile them. Its use is NOT
+     *            RECOMMENDED, but quite convenient on occasion.
+     */
+    private boolean skipTests;
+
+    /**
      * @parameter expression="${maven.test.skip}" default-value="false"
+     * 
+     *            Same as {@link #skipTests}
      */
     private boolean skip;
 
@@ -330,7 +341,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
     private ToolchainManager toolchainManager;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (skip || skipExec) {
+        if (skip || skipExec || skipTests) {
             getLog().info("Skipping tests");
             return;
         }
