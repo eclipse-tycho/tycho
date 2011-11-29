@@ -16,46 +16,40 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho</artifactId>
+		<artifactId>sisu-equinox</artifactId>
 		<version>0.14.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>tycho-equinox</artifactId>
+	<artifactId>sisu-equinox-api</artifactId>
 
-	<name>Tycho Equinox Embedder (Incubation)</name>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-component-annotations</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sonatype.sisu</groupId>
-			<artifactId>sisu-inject-plexus</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-equinox-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-	</dependencies>
+	<name>Sisu Equinox Services API (Incubation)</name>
+	<description>API for accessing OSGi services from Plexus</description>
 
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-component-metadata</artifactId>
-				<version>${plexusVersion}</version>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>${project.basedir}/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
 						<goals>
-							<goal>generate-metadata</goal>
+							<goal>manifest</goal>
 						</goals>
+						<configuration>
+							<manifestLocation>META-INF</manifestLocation>
+							<instructions>
+								<Export-Package>*</Export-Package>
+							</instructions>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

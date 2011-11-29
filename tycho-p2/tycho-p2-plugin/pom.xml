@@ -37,12 +37,7 @@
 
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-equinox</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-equinox-launching</artifactId>
+			<artifactId>sisu-equinox-launching</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

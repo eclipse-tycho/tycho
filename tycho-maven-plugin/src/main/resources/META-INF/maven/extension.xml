@@ -17,8 +17,8 @@
     <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.p2.resolver.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.tycho.p2.tools.shared</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:tycho-p2-facade</exportedArtifact>
-    <exportedArtifact>org.eclipse.tycho:tycho-equinox-api</exportedArtifact>
-    <exportedArtifact>org.eclipse.tycho:tycho-equinox</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:sisu-equinox-api</exportedArtifact>
+    <exportedArtifact>org.eclipse.tycho:sisu-equinox-embedder</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.osgi</exportedArtifact>
   </exportedArtifacts>
 </extension>

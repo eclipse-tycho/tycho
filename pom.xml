@@ -366,13 +366,12 @@
 	<modules>
 		<module>tycho-bundles</module>
 
-		<module>tycho-equinox-api</module>
-		<module>tycho-equinox</module>
+		<module>sisu-equinox</module>
+
 		<module>tycho-metadata-model</module>
 		<module>tycho-embedder-api</module>
 		<module>tycho-core</module>
 		<module>tycho-testing-harness</module>
-		<module>tycho-equinox-launching</module>
 
 		<module>tycho-compiler-jdt</module>
 		<module>tycho-compiler-plugin</module>

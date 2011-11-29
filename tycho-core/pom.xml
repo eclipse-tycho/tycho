@@ -127,7 +127,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-equinox</artifactId>
+			<artifactId>sisu-equinox-embedder</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

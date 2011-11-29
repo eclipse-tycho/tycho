@@ -16,23 +16,32 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho</artifactId>
+		<artifactId>sisu-equinox</artifactId>
 		<version>0.14.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>tycho-equinox-launching</artifactId>
+	<artifactId>sisu-equinox-embedder</artifactId>
 
-	<name>Tycho Equinox Launching (Incubation)</name>
-	<description>Support for launching an Equinox runtime as new process.</description>
+	<name>Sisu Equinox Embedder (Incubation)</name>
+	<description>Support for embedding an Equinox runtime in Plexus</description>
 
 	<dependencies>
 		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-component-annotations</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sonatype.sisu</groupId>
+			<artifactId>sisu-inject-plexus</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-core</artifactId>
-			<version>${project.version}</version>
+			<artifactId>org.eclipse.osgi</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-equinox-api</artifactId>
+			<artifactId>sisu-equinox-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
@@ -48,33 +57,6 @@
 						<goals>
 							<goal>generate-metadata</goal>
 						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestFile>${project.basedir}/META-INF/MANIFEST.MF</manifestFile>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-						<configuration>
-							<manifestLocation>META-INF</manifestLocation>
-							<instructions>
-								<Export-Package>*</Export-Package>
-							</instructions>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
