@@ -64,14 +64,14 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-p2-runtime</artifactId>
+			<artifactId>tycho-bundles-external</artifactId>
 			<version>${tycho-version}</version>
 			<type>zip</type>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-equinox-launching</artifactId>
+			<artifactId>sisu-equinox-launching</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
