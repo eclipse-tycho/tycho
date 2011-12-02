@@ -108,42 +108,42 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
                 d.getType());
 
         if ("zip".equals(d.getType())) {
-            File p2Directory = new File(session.getLocalRepository().getBasedir(), session.getLocalRepository().pathOf(
-                    artifact));
-            p2Directory = new File(p2Directory.getParentFile(), "eclipse");
+            File artifactFile = new File(session.getLocalRepository().getBasedir(), session.getLocalRepository()
+                    .pathOf(artifact));
+            File eclipseDir = new File(artifactFile.getParentFile(), "eclipse");
 
-            FileLocker locker = fileLockService.getFileLocker(p2Directory);
+            FileLocker locker = fileLockService.getFileLocker(artifactFile);
             locker.lock();
             try {
-                if (p2Directory.exists() && !artifact.isSnapshot()) {
-                    return p2Directory;
+                if (eclipseDir.exists() && !artifact.isSnapshot()) {
+                    return eclipseDir;
                 }
 
                 logger.debug("Resolving P2 runtime");
 
                 resolveArtifact(session, artifact);
 
-                if (artifact.getFile().lastModified() > p2Directory.lastModified()) {
-                    logger.debug("Unpacking P2 runtime to " + p2Directory);
+                if (artifact.getFile().lastModified() > eclipseDir.lastModified()) {
+                    logger.debug("Unpacking P2 runtime to " + eclipseDir);
                     try {
-                        FileUtils.deleteDirectory(p2Directory);
+                        FileUtils.deleteDirectory(eclipseDir);
                     } catch (IOException e) {
-                        logger.warn("Failed to delete P2 runtime " + p2Directory + ": " + e.getMessage());
+                        logger.warn("Failed to delete P2 runtime " + eclipseDir + ": " + e.getMessage());
                     }
                     unArchiver.setSourceFile(artifact.getFile());
-                    unArchiver.setDestDirectory(p2Directory.getParentFile());
+                    unArchiver.setDestDirectory(eclipseDir.getParentFile());
                     try {
                         unArchiver.extract();
                     } catch (ArchiverException e) {
                         throw new MavenExecutionException("Failed to unpack P2 runtime: " + e.getMessage(), e);
                     }
 
-                    p2Directory.setLastModified(artifact.getFile().lastModified());
+                    eclipseDir.setLastModified(artifact.getFile().lastModified());
                 }
             } finally {
                 locker.release();
             }
-            return p2Directory;
+            return eclipseDir;
         } else {
             return resolveArtifact(session, artifact);
         }
