@@ -9,7 +9,7 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.p2.impl.locking;
+package org.eclipse.tycho.core.locking;
 
 import java.io.BufferedReader;
 import java.io.File;

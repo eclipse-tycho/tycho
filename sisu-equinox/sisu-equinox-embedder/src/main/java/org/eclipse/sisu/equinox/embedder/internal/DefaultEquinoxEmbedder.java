@@ -13,7 +13,9 @@ package org.eclipse.sisu.equinox.embedder.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -138,7 +140,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         if (!(tempDir.delete() && tempDir.mkdirs())) {
             throw new IOException("Could not create temp dir " + tempDir);
         }
-        FileUtils.copyDirectory(configDir, tempDir);
+        FileUtils.copyFileToDirectory(new File(configDir, "config.ini"), tempDir);
         this.tempConfigDir = tempDir;
         return tempDir.getAbsolutePath();
     }
@@ -219,11 +221,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
     }
 
     public <T> T getService(Class<T> clazz, String filter) {
-        try {
-            start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        checkStarted();
 
         // TODO technically, we're leaking service references here
         ServiceReference[] serviceReferences;
@@ -243,6 +241,23 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         }
 
         return clazz.cast(frameworkContext.getService(serviceReferences[0]));
+    }
+
+    private void checkStarted() {
+        try {
+            start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> void registerService(Class<T> clazz, T service) {
+        registerService(clazz, service, new Hashtable<String, Object>(1));
+    }
+
+    public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties) {
+        checkStarted();
+        frameworkContext.registerService(clazz, service, properties);
     }
 
     public void dispose() {

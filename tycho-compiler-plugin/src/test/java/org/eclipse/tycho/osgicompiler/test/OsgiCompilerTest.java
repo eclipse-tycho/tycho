@@ -38,7 +38,6 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         super.setUp();
         storage = new File(getBasedir(), "target/storage");
         FileUtils.deleteDirectory(storage);
-        registerNoopFileLockService();
     }
 
     private AbstractOsgiCompilerMojo getMojo(List<MavenProject> projects, MavenProject project) throws Exception {

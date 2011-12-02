@@ -9,29 +9,27 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.core.p2;
-
-import java.io.File;
+package org.eclipse.tycho.p2.facade.internal;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.sisu.equinox.embedder.EquinoxEmbedder;
+import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.locking.facade.FileLocker;
 
-@Component(role = FileLockService.class)
-public class DefaultFileLockService implements FileLockService {
+@Component(role = EquinoxLifecycleListener.class, hint = "FileLockServiceConfigurator")
+public class FileLockServiceConfigurator extends EquinoxLifecycleListener {
 
     @Requirement
-    EquinoxServiceFactory serviceFactory;
+    private FileLockService fileLockService;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.tycho.p2.repository.FileLockService#getFileLocker(java.io.File)
+    /**
+     * Registers the {@link FileLockService} plexus component as an OSGi service so it can be used
+     * from OSGi too.
      */
-    public FileLocker getFileLocker(File file) {
-        return serviceFactory.getService(FileLockService.class).getFileLocker(file);
+    @Override
+    public void afterFrameworkStarted(EquinoxEmbedder framework) {
+        framework.getServiceFactory().registerService(FileLockService.class, fileLockService);
     }
 
 }

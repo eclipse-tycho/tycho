@@ -9,7 +9,7 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.p2.impl.locking;
+package org.eclipse.tycho.core.locking;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,7 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-import org.eclipse.core.runtime.internal.adaptor.BasicLocation;
+import org.eclipse.tycho.core.locking.FileLockServiceImpl;
+import org.eclipse.tycho.core.locking.FileLockerImpl;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.locking.facade.LockTimeoutException;
@@ -39,7 +40,6 @@ public class FileLockServiceTest {
     @Before
     public void setup() {
         subject = new FileLockServiceImpl();
-        ((FileLockServiceImpl) subject).setLocation(new BasicLocation(null, null, false, null));
     }
 
     @Test

@@ -26,10 +26,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
-import org.codehaus.plexus.component.repository.ComponentDescriptor;
-import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
 public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
@@ -124,15 +120,6 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         }
 
         throw new IllegalArgumentException("No project with artifactId " + artifactId);
-    }
-
-    protected void registerNoopFileLockService() throws CycleDetectedInComponentGraphException {
-        // need to register no-op fileLock service because DefaultFileLockService needs
-        // a running embedded equinox
-        ComponentDescriptor fileLockComponentDescriptor = getContainer().getComponentDescriptor(
-                FileLockService.class.getName(), "default");
-        fileLockComponentDescriptor.setImplementationClass(NoopFileLockService.class);
-        getContainer().addComponentDescriptor(fileLockComponentDescriptor);
     }
 
     protected static File getBasedir(String name) throws IOException {

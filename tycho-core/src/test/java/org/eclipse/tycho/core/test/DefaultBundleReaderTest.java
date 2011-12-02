@@ -30,7 +30,6 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         cacheDir = File.createTempFile("cache", "");
         cacheDir.delete();
         cacheDir.mkdirs();
-        registerNoopFileLockService();
         bundleReader = (DefaultBundleReader) lookup(BundleReader.class);
         bundleReader.setLocationRepository(cacheDir);
     }

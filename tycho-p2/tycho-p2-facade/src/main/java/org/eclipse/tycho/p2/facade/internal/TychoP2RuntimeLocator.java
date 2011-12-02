@@ -36,6 +36,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
 
 @Component(role = EquinoxRuntimeLocator.class)
 public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
@@ -64,6 +66,9 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
 
     @Requirement(hint = "zip")
     private UnArchiver unArchiver;
+
+    @Requirement
+    private FileLockService fileLockService;
 
     @Requirement
     private Map<String, TychoP2RuntimeMetadata> runtimeMetadata;
@@ -107,32 +112,37 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
                     artifact));
             p2Directory = new File(p2Directory.getParentFile(), "eclipse");
 
-            if (p2Directory.exists() && !artifact.isSnapshot()) {
-                return p2Directory;
-            }
-
-            logger.debug("Resolving P2 runtime");
-
-            resolveArtifact(session, artifact);
-
-            if (artifact.getFile().lastModified() > p2Directory.lastModified()) {
-                logger.debug("Unpacking P2 runtime to " + p2Directory);
-                try {
-                    FileUtils.deleteDirectory(p2Directory);
-                } catch (IOException e) {
-                    logger.warn("Failed to delete P2 runtime " + p2Directory + ": " + e.getMessage());
-                }
-                unArchiver.setSourceFile(artifact.getFile());
-                unArchiver.setDestDirectory(p2Directory.getParentFile());
-                try {
-                    unArchiver.extract();
-                } catch (ArchiverException e) {
-                    throw new MavenExecutionException("Failed to unpack P2 runtime: " + e.getMessage(), e);
+            FileLocker locker = fileLockService.getFileLocker(p2Directory);
+            locker.lock();
+            try {
+                if (p2Directory.exists() && !artifact.isSnapshot()) {
+                    return p2Directory;
                 }
 
-                p2Directory.setLastModified(artifact.getFile().lastModified());
-            }
+                logger.debug("Resolving P2 runtime");
 
+                resolveArtifact(session, artifact);
+
+                if (artifact.getFile().lastModified() > p2Directory.lastModified()) {
+                    logger.debug("Unpacking P2 runtime to " + p2Directory);
+                    try {
+                        FileUtils.deleteDirectory(p2Directory);
+                    } catch (IOException e) {
+                        logger.warn("Failed to delete P2 runtime " + p2Directory + ": " + e.getMessage());
+                    }
+                    unArchiver.setSourceFile(artifact.getFile());
+                    unArchiver.setDestDirectory(p2Directory.getParentFile());
+                    try {
+                        unArchiver.extract();
+                    } catch (ArchiverException e) {
+                        throw new MavenExecutionException("Failed to unpack P2 runtime: " + e.getMessage(), e);
+                    }
+
+                    p2Directory.setLastModified(artifact.getFile().lastModified());
+                }
+            } finally {
+                locker.release();
+            }
             return p2Directory;
         } else {
             return resolveArtifact(session, artifact);
