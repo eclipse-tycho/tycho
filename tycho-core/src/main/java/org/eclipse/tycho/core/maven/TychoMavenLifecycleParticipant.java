@@ -15,10 +15,17 @@ import java.util.List;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
+import org.apache.maven.execution.AbstractExecutionListener;
+import org.apache.maven.execution.ExecutionEvent;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.repository.exception.ComponentLifecycleException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
@@ -33,11 +40,15 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     private TychoDependencyResolver resolver;
 
+    @Requirement
+    private PlexusContainer plexus;
+
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
         if (disableLifecycleParticipation(session)) {
             return;
         }
+        registerExecutionListener(session);
         configureComponents(session);
 
         List<MavenProject> projects = session.getProjects();
@@ -49,6 +60,30 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         for (MavenProject project : projects) {
             resolver.resolveProject(session, project, reactorProjects);
         }
+    }
+
+    private void registerExecutionListener(MavenSession session) {
+        MavenExecutionRequest request = session.getRequest();
+        ChainedExecutionListener listener = new ChainedExecutionListener(request.getExecutionListener());
+        listener.addListener(new AbstractExecutionListener() {
+
+            @Override
+            public void sessionEnded(ExecutionEvent event) {
+                try {
+                    // workaround for http://jira.codehaus.org/browse/MNG-5206
+                    EquinoxServiceFactory equinoxServiceFactory = plexus.lookup(EquinoxServiceFactory.class);
+                    if (equinoxServiceFactory != null) {
+                        plexus.release(equinoxServiceFactory);
+                    }
+                } catch (ComponentLifecycleException e) {
+                    // we tried
+                } catch (ComponentLookupException e) {
+                    // we tried
+                }
+            }
+
+        });
+        request.setExecutionListener(listener);
     }
 
     private boolean disableLifecycleParticipation(MavenSession session) {

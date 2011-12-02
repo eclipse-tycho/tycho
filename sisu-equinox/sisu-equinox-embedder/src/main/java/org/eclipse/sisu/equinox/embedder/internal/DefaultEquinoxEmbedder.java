@@ -21,6 +21,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
+import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EquinoxEmbedder;
@@ -43,7 +44,8 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
 
     private BundleContext frameworkContext;
 
-    private File secureStorage;
+    private File tempSecureStorage;
+    private File tempConfigDir;
 
     public synchronized void start() throws Exception {
         if (frameworkContext != null) {
@@ -79,7 +81,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         Map<String, String> properties = new HashMap<String, String>();
         properties.put("osgi.install.area", frameworkLocation);
         properties.put("osgi.syspath", frameworkLocation + "/plugins");
-        properties.put("osgi.configuration.area", frameworkLocation + "/configuration");
+        properties.put("osgi.configuration.area", copyToTempFolder(new File(frameworkDir, "configuration")));
 
         StringBuilder bundles = new StringBuilder();
         addBundlesDir(bundles, new File(frameworkDir, "plugins").listFiles(), false);
@@ -129,6 +131,16 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         for (EquinoxLifecycleListener listener : lifecycleListeners.values()) {
             listener.afterFrameworkStarted(this);
         }
+    }
+
+    private String copyToTempFolder(File configDir) throws IOException {
+        File tempDir = File.createTempFile("config", "equinox");
+        if (!(tempDir.delete() && tempDir.mkdirs())) {
+            throw new IOException("Could not create temp dir " + tempDir);
+        }
+        FileUtils.copyDirectory(configDir, tempDir);
+        this.tempConfigDir = tempDir;
+        return tempDir.getAbsolutePath();
     }
 
     private void activateBundlesInWorkingOrder() {
@@ -184,8 +196,8 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
 
     private String[] getNonFrameworkArgs() {
         try {
-            secureStorage = File.createTempFile("tycho", "secure_storage");
-            secureStorage.deleteOnExit();
+            tempSecureStorage = File.createTempFile("tycho", "secure_storage");
+            tempSecureStorage.deleteOnExit();
         } catch (IOException e) {
             throw new EquinoxEmbedderException("Could not create Tycho secure store file in temp dir "
                     + System.getProperty("java.io.tmpdir"), e);
@@ -193,7 +205,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
 
         List<String> nonFrameworkArgs = new ArrayList<String>();
         nonFrameworkArgs.add("-eclipse.keyring");
-        nonFrameworkArgs.add(secureStorage.getAbsolutePath());
+        nonFrameworkArgs.add(tempSecureStorage.getAbsolutePath());
         // TODO nonFrameworkArgs.add("-eclipse.password");
         if (getLogger().isDebugEnabled()) {
             nonFrameworkArgs.add("-debug");
@@ -234,7 +246,19 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
     }
 
     public void dispose() {
-        secureStorage.delete();
+        if (frameworkContext != null) {
+            try {
+                EclipseStarter.shutdown();
+            } catch (Exception e) {
+                getLogger().error("Exception while shutting down equinox", e);
+            }
+            tempSecureStorage.delete();
+            try {
+                FileUtils.deleteDirectory(tempConfigDir);
+            } catch (IOException e) {
+                getLogger().error("Exception while deleting " + tempConfigDir, e);
+            }
+        }
     }
 
     public EquinoxServiceFactory getServiceFactory() {
