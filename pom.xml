@@ -96,11 +96,12 @@
 
             1. Unzip desired version of Eclipse SDK to /tmp, you should see equinox and jdt bundles under /tmp/eclipse/plugins folder.
 
-            2. Update equinox and jdt versions in 4 (FOUR!!!) places
-            2a. EQUINOX_VERSION and JDT_VERSION shell copy&paste source below
-            2b. <equinoxVersion/> and <jdtVersion/> pom properties below
+            2. Update equinox and jdt/apt versions in 4 (FOUR!!!) places
+            2a. EQUINOX_VERSION, JDT_VERSION, JDT_APT_VERSION shell copy&paste source below
+            2b. <equinoxVersion/>, <jdtVersion/>, <jdtAptVersion/> pom properties below
             2c. src/dependencies/org.eclipse.osgi.pom (equinox version only)
             2d. src/dependencies/org.eclipse.jdt.core.pom (jdt version only)
+            2e. src/dependencies/org.eclipse.jdt.compiler.apt.pom (jdt.compiler.apt version only)
 
             3. Execute the following shell copy&paste snippets to install and/or deploy Tycho Eclipse dependencies
                These snippets MUST be executed from src/dependencies directory
@@ -112,6 +113,7 @@
 # Version corresponds to the Eclipse 3.8M4
 EQUINOX_VERSION=3.8.0.v20120123-1419
 JDT_VERSION=3.8.1.v20120125-1544
+JDT_APT_VERSION=1.0.500.v20111201-1324
 
 # Location of unpacked Eclipse SDK
 PLUGINS=/tmp/eclipse/plugins
@@ -131,10 +133,16 @@ $CMD -DpomFile=org.eclipse.osgi.pom \
 $CMD -DpomFile=org.eclipse.jdt.core.pom \
   -Dfile=$PLUGINS/org.eclipse.jdt.core_$JDT_VERSION.jar \
   -Dsources=$PLUGINS/org.eclipse.jdt.core.source_$JDT_VERSION.jar
+
+#  jdt.apt
+$CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
+  -Dfile=$PLUGINS/org.eclipse.jdt.compiler.apt_$JDT_APT_VERSION.jar \
+  -Dsources=$PLUGINS/org.eclipse.jdt.compiler.apt.source_$JDT_APT_VERSION.jar
 		 -->
 
 		<equinoxVersion>3.8.0.v20120123-1419</equinoxVersion>
 		<jdtVersion>3.8.1.v20120125-1544</jdtVersion>
+		<jdtAptVersion>1.0.500.v20111201-1324</jdtAptVersion>
 
 		<!-- version of tycho used by this build -->
 		<tychoBootstrapVersion>0.13.0</tychoBootstrapVersion>
@@ -195,12 +203,12 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-compiler-api</artifactId>
-				<version>1.6</version>
+				<version>1.8.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-compiler-manager</artifactId>
-				<version>1.6</version>
+				<version>1.8.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.tycho</groupId>
@@ -212,6 +220,11 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 				<artifactId>org.eclipse.jdt.core</artifactId>
 				<version>${jdtVersion}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
+				<version>${jdtAptVersion}</version>
+			</dependency>			                        
 			<dependency>
 				<groupId>org.apache.maven.surefire</groupId>
 				<artifactId>surefire-booter</artifactId>
