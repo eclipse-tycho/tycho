@@ -2,7 +2,7 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.tycho.p2.ProxyServiceFacade">
    <implementation class="org.eclipse.tycho.p2.impl.proxy.ProxyServiceFacadeImpl"/>
    <service>
-      <provide interface="org.eclipse.tycho.p2.metadata.ProxyServiceFacade"/>
+      <provide interface="org.eclipse.tycho.core.facade.ProxyServiceFacade"/>
    </service>
    <reference interface="org.eclipse.core.net.proxy.IProxyService" 
       bind="setProxyServer" 

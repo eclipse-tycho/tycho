@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.metadata;
+package org.eclipse.tycho.core.facade;
 
 /**
  * A facade for the org.eclipse.core.net.proxy.IProxyService which hides original eclipse classes

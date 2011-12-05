@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.internal;
+package org.eclipse.tycho.osgi.runtime;
 
 import java.io.File;
 import java.io.IOException;

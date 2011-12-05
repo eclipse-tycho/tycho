@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.facade.internal;
+package org.eclipse.tycho.osgi.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EquinoxEmbedder;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.tycho.p2.metadata.ProxyServiceFacade;
+import org.eclipse.tycho.core.facade.ProxyServiceFacade;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "P2ProxyConfigurator")
 public class P2ProxyConfigurator extends EquinoxLifecycleListener {
@@ -42,8 +42,7 @@ public class P2ProxyConfigurator extends EquinoxLifecycleListener {
             }
         }
 
-        ProxyServiceFacade proxyService;
-        proxyService = framework.getServiceFactory().getService(ProxyServiceFacade.class);
+        ProxyServiceFacade proxyService = framework.getServiceFactory().getService(ProxyServiceFacade.class);
         // make sure there is no old state from previous aborted builds
         logger.debug("clear OSGi proxy settings");
         proxyService.clearPersistentProxySettings();
