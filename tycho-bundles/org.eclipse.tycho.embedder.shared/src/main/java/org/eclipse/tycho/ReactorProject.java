@@ -14,8 +14,6 @@ import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.maven.project.MavenProject;
-
 public interface ReactorProject {
     /**
      * Conventional key used to store ReactorProject in MavenProject.context
@@ -107,5 +105,5 @@ public interface ReactorProject {
      */
     public String getId();
 
-    public boolean sameProject(MavenProject otherProject);
+    public boolean sameProject(/* MavenProject */Object otherProject);
 }
