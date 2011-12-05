@@ -11,6 +11,7 @@
 package org.eclipse.tycho.plugins.p2.director;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.eclipse.tycho.model.ProductConfiguration;
 
 /**
  * Effective product configuration for this Maven plug-in. This is the configuration provided by the
@@ -31,15 +33,16 @@ import org.apache.maven.plugin.MojoFailureException;
 class ProductConfig {
     private List<Product> products;
 
-    public ProductConfig(List<Product> userConfig, File baseDir) throws MojoFailureException {
+    public ProductConfig(List<Product> userConfig, File buildBaseDir, File projectBaseDir) throws MojoFailureException {
         if (userConfig != null) {
             products = userConfig;
             for (Product product : products) {
                 if (product.getId() == null) {
                     throw new MojoFailureException("Attribute 'id' is required in POM product configuration");
-                } else if (!new File(baseDir, product.getId()).isDirectory()) {
+                } else if (!new File(buildBaseDir, product.getId()).isDirectory()) {
                     throw new MojoFailureException("Product id '" + product.getId() + "' not found");
                 }
+                setProductVersion(product, projectBaseDir);
             }
         } else {
             /*
@@ -49,17 +52,34 @@ class ProductConfig {
              * is currently a limitation of this Maven plug-in - it can only be added to an
              * eclipse-repository module (which calls the tycho-p2-publisher-plugin).
              */
-            if (baseDir.exists()) {
-                File[] productIDs = baseDir.listFiles();
+            if (buildBaseDir.exists()) {
+                File[] productIDs = buildBaseDir.listFiles();
                 products = new ArrayList<Product>(productIDs.length);
                 for (File file : productIDs) {
-                    products.add(new Product(file.getName()));
+                    Product product = new Product(file.getName());
+                    setProductVersion(product, projectBaseDir);
+                    products.add(product);
                 }
             } else {
                 // the product publisher did not create the basedir. So there was no project definition file. Nothing to do.
                 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=356716
                 products = Collections.emptyList();
             }
+        }
+    }
+
+    private void setProductVersion(Product product, File projectBaseDir) {
+        File file = new File(projectBaseDir, product.getId() + ".product");
+        try {
+            ProductConfiguration productConfiguration = ProductConfiguration.read(file);
+            String version = productConfiguration.getVersion();
+            if (version.endsWith(".qualifier")) {
+                version = version.substring(0, version.length() - 10);
+            }
+            product.setVersion(version);
+        } catch (IOException e) {
+            System.err.println("product not found " + projectBaseDir + File.separator + file.getName());
+            // ignore
         }
     }
 

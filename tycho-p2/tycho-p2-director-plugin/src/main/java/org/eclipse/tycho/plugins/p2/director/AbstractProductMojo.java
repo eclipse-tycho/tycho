@@ -77,7 +77,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
     }
 
     ProductConfig getProductConfig() throws MojoFailureException {
-        return new ProductConfig(products, getProductsBuildDirectory());
+        return new ProductConfig(products, getProductsBuildDirectory(), getProject().getBasedir());
     }
 
     static String getOsWsArch(TargetEnvironment env, char separator) {

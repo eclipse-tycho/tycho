@@ -34,16 +34,31 @@ public final class Product {
      */
     private String rootFolder;
 
+    /**
+     * Whether to include the version number in the product build. May be omitted, which results in
+     * no version number included.
+     */
+    private boolean includeVersion;
+
+    /**
+     * The name of the output zip file. If omitted, the id will be used instead.
+     */
+    private String zipFileName;
+
+    private String version;
+
     public Product() {
     }
 
     Product(String id) {
         this.id = id;
+        this.includeVersion = false;
     }
 
     Product(String id, String attachId) {
         this.id = id;
         this.attachId = attachId;
+        this.includeVersion = false;
     }
 
     public String getId() {
@@ -58,6 +73,14 @@ public final class Product {
         return rootFolder;
     }
 
+    public boolean isIncludeVersion() {
+        return includeVersion;
+    }
+
+    public String getZipFileName() {
+        return zipFileName;
+    }
+
     @Override
     public String toString() {
         return "Product [id=" + id + ", attachId=" + attachId + "]";
@@ -69,6 +92,9 @@ public final class Product {
         int result = 1;
         result = prime * result + ((attachId == null) ? 0 : attachId.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((zipFileName == null) ? 0 : zipFileName.hashCode());
+        result = prime * result + ((version == null) ? 0 : version.hashCode());
+        result = prime * result + (Boolean.valueOf(includeVersion).hashCode());
         return result;
     }
 
@@ -78,7 +104,9 @@ public final class Product {
             return true;
         if (obj instanceof Product) {
             Product other = (Product) obj;
-            return equals(this.id, other.id) && equals(this.attachId, other.attachId);
+            return equals(this.id, other.id) && equals(this.attachId, other.attachId)
+                    && equals(this.zipFileName, other.zipFileName) && equals(this.version, other.version)
+                    && (this.includeVersion == other.includeVersion);
         }
         return false;
     }
@@ -90,5 +118,13 @@ public final class Product {
             return false;
         else
             return left.equals(right);
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

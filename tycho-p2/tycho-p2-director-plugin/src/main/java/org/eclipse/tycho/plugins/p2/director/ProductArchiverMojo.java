@@ -44,7 +44,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         }
         for (Product product : config.getProducts()) {
             for (TargetEnvironment env : getEnvironments()) {
-                File productArchive = new File(getProductsBuildDirectory(), product.getId() + "-"
+                File productArchive = new File(getProductsBuildDirectory(), getZipFileName(product) + "-"
                         + getOsWsArch(env, '.') + ".zip");
 
                 try {
@@ -60,6 +60,23 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 final String artifactClassifier = getArtifactClassifier(product, env);
                 helper.attachArtifact(getProject(), productArchive, artifactClassifier);
             }
+        }
+    }
+
+    static String getZipFileName(Product product) {
+        // overwrite output zip file name
+        String name;
+        if (product.getZipFileName() != null) {
+            name = product.getZipFileName();
+        } else {
+            name = product.getId();
+        }
+
+        // include version number
+        if (!product.isIncludeVersion()) {
+            return name;
+        } else {
+            return name + "-" + product.getVersion();
         }
     }
 
