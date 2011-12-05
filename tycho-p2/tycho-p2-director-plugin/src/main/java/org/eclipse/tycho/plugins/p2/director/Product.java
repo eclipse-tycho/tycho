@@ -127,4 +127,9 @@ public final class Product {
     public void setVersion(String version) {
         this.version = version;
     }
+
+    public void setZipFileName(String aZipFileName) {
+        this.zipFileName = aZipFileName;
+    }
+
 }
