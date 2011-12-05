@@ -8,6 +8,7 @@
  * Contributors:
  *    IBM Corporation - initial API and implementation
  *    Sonatype Inc. - plexus.compiler implementation
+ *    Thomas Demande (BSB group) - added support for annotation processors (bug 360427)
  *******************************************************************************/
 package org.eclipse.tycho.compiler.jdt;
 
@@ -135,6 +136,22 @@ public class JDTCompiler extends AbstractCompiler {
 
         File destinationDir = new File(config.getOutputLocation());
 
+        if (!StringUtils.isEmpty(config.getProc())) {
+            args.add("-proc:" + config.getProc());
+        }
+
+        String[] annotationProcessors = config.getAnnotationProcessors();
+        if (annotationProcessors != null && annotationProcessors.length > 0) {
+            args.add("-processor");
+            args.add(StringUtils.join(annotationProcessors, ","));
+        }
+
+        if (config.getGeneratedSourcesDirectory() != null) {
+            config.getGeneratedSourcesDirectory().mkdirs();
+
+            args.add("-s");
+            args.add(config.getGeneratedSourcesDirectory().getAbsolutePath());
+        }
         args.add("-d");
 
         args.add(destinationDir.getAbsolutePath());

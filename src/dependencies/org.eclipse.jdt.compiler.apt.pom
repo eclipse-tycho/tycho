@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2011 SAP AG and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - http://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    SAP AG - initial API and implementation
+ -->
+
+<!-- 
+This pom.xml is needed to satisfy Maven Central repository deployment requirements. 
+ -->
+
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.eclipse.tycho</groupId>
+  <artifactId>org.eclipse.jdt.compiler.apt</artifactId>
+  <version>1.0.500.v20111201-1324</version>
+
+  <name>Tycho org.eclipse.jdt.compiler.apt dependency (Incubation)</name>
+  <description>This is org.eclipse.jdt.compiler.apt jar used by Tycho</description>
+  <url>http://www.eclipse.org/tycho/</url>
+
+  <licenses>
+    <license>
+      <name>Eclipse Public License</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>http://git.eclipse.org/c/tycho/org.eclipse.tycho.git</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>tycho-dev@eclipse.org</id>
+      <name>Tycho Development Team</name>
+    </developer>
+  </developers>
+</project>
