@@ -13,6 +13,7 @@ package org.eclipse.tycho.core;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 
 /**
@@ -32,15 +33,15 @@ public interface TychoProject {
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment);
 
     /**
-     * Returns project build target platform. For projects targeting multiple runtime environments,
-     * returned target platforms includes artifacts for all supported runtime environments.
+     * Returns resolved project dependencies. For projects targeting multiple runtime environments,
+     * returned collection includes artifacts for all supported runtime environments.
      */
-    public TargetPlatform getTargetPlatform(MavenProject project);
+    public DependencyArtifacts getDependencyArtifacts(MavenProject project);
 
     /**
-     * Returns project build target platform resolved for specified runtime environment.
+     * Returns resolved project dependencies resolved for specified runtime environment.
      */
-    public TargetPlatform getTargetPlatform(MavenProject project, TargetEnvironment environment);
+    public DependencyArtifacts getDependencyArtifacts(MavenProject project, TargetEnvironment environment);
 
     // implementation must not depend on target platform
     public ArtifactKey getArtifactKey(ReactorProject project);

@@ -35,13 +35,13 @@ import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.UnknownEnvironmentException;
@@ -78,14 +78,14 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project) {
-        final TargetPlatform platform = getTargetPlatform(project);
+        final DependencyArtifacts artifacts = getDependencyArtifacts(project);
 
         final List<ClasspathEntry> cp = getClasspath(project);
 
         return new ArtifactDependencyWalker() {
             public void walk(ArtifactDependencyVisitor visitor) {
                 for (ClasspathEntry entry : cp) {
-                    ArtifactDescriptor artifact = platform.getArtifact(entry.getArtifactKey());
+                    ArtifactDescriptor artifact = artifacts.getArtifact(entry.getArtifactKey());
 
                     ArtifactKey key = artifact.getKey();
                     File location = artifact.getLocation();
@@ -147,9 +147,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public void resolveClassPath(MavenSession session, MavenProject project) {
-        TargetPlatform platform = getTargetPlatform(project);
+        DependencyArtifacts artifacts = getDependencyArtifacts(project);
 
-        State state = getResolverState(project, platform);
+        State state = getResolverState(project, artifacts);
 
         if (getLogger().isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             getLogger().debug(resolver.toDebugString(state));
@@ -165,18 +165,18 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ClasspathEntry> classpath = new ArrayList<ClasspathEntry>();
 
         // project itself
-        ArtifactDescriptor artifact = platform.getArtifact(project.getBasedir());
+        ArtifactDescriptor artifact = artifacts.getArtifact(project.getBasedir());
         ReactorProject projectProxy = DefaultReactorProject.adapt(project);
         List<File> projectClasspath = getThisProjectClasspath(artifact, projectProxy);
         classpath.add(new DefaultClasspathEntry(projectProxy, artifact.getKey(), projectClasspath, null));
 
         // build.properties/jars.extra.classpath
-        addExtraClasspathEntries(classpath, projectProxy, platform);
+        addExtraClasspathEntries(classpath, projectProxy, artifacts);
 
         // dependencies
         for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
             File location = new File(entry.desc.getLocation());
-            ArtifactDescriptor otherArtifact = platform.getArtifact(location);
+            ArtifactDescriptor otherArtifact = artifacts.getArtifact(location);
             ReactorProject otherProject = otherArtifact.getMavenProject();
             List<File> locations;
             if (otherProject != null) {
@@ -205,13 +205,13 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public State getResolverState(MavenProject project) {
-        TargetPlatform platform = getTargetPlatform(project);
-        return getResolverState(project, platform);
+        DependencyArtifacts artifacts = getDependencyArtifacts(project);
+        return getResolverState(project, artifacts);
     }
 
-    protected State getResolverState(MavenProject project, TargetPlatform platform) {
+    protected State getResolverState(MavenProject project, DependencyArtifacts artifacts) {
         try {
-            return resolver.newResolvedState(project, platform);
+            return resolver.newResolvedState(project, artifacts);
         } catch (BundleException e) {
             throw new RuntimeException(e);
         }
@@ -299,7 +299,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private void addExtraClasspathEntries(List<ClasspathEntry> classpath, ReactorProject project,
-            TargetPlatform platform) {
+            DependencyArtifacts artifacts) {
         EclipsePluginProject pdeProject = getEclipsePluginProject(project);
         Collection<BuildOutputJar> outputJars = pdeProject.getOutputJarMap().values();
         for (BuildOutputJar buildOutputJar : outputJars) {
@@ -317,7 +317,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         path = null;
                     }
 
-                    ArtifactDescriptor matchingBundle = platform.getArtifact(
+                    ArtifactDescriptor matchingBundle = artifacts.getArtifact(
                             org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, bundleId, null);
                     if (matchingBundle != null) {
                         List<File> locations;

@@ -13,11 +13,12 @@ package org.eclipse.tycho.core.osgitools.targetplatform;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 
+// TODO 364134 revise this class
 public class MultiEnvironmentTargetPlatform extends DefaultTargetPlatform {
-    public Map<TargetEnvironment, TargetPlatform> platforms = new LinkedHashMap<TargetEnvironment, TargetPlatform>();
+    public Map<TargetEnvironment, DependencyArtifacts> platforms = new LinkedHashMap<TargetEnvironment, DependencyArtifacts>();
 
     public void addPlatform(TargetEnvironment environment, DefaultTargetPlatform platform) {
         platforms.put(environment, platform);
@@ -27,13 +28,13 @@ public class MultiEnvironmentTargetPlatform extends DefaultTargetPlatform {
         nonReactorUnits.addAll(platform.nonReactorUnits);
     }
 
-    public TargetPlatform getPlatform(TargetEnvironment environment) {
+    public DependencyArtifacts getPlatform(TargetEnvironment environment) {
         return platforms.get(environment);
     }
 
     @Override
     public void toDebugString(StringBuilder sb, String linePrefix) {
-        for (Map.Entry<TargetEnvironment, TargetPlatform> entry : platforms.entrySet()) {
+        for (Map.Entry<TargetEnvironment, DependencyArtifacts> entry : platforms.entrySet()) {
             sb.append(linePrefix);
             sb.append("Target environment: ").append(entry.getKey().toString()).append("\n");
             entry.getValue().toDebugString(sb, linePrefix);

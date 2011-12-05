@@ -532,7 +532,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             MojoFailureException {
         getLog().debug("Creating launcher");
 
-        ArtifactDescriptor artifact = getTargetPlatform().getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
+        ArtifactDescriptor artifact = getDependencyArtifacts().getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
                 "org.eclipse.equinox.executable", null);
 
         if (artifact == null) {

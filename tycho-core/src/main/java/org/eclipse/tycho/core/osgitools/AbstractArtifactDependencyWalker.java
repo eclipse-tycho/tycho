@@ -23,11 +23,11 @@ import java.util.Stack;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
@@ -38,16 +38,16 @@ import org.eclipse.tycho.model.UpdateSite;
 public abstract class AbstractArtifactDependencyWalker implements ArtifactDependencyWalker {
     public static final String EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher";
 
-    private final TargetPlatform platform;
+    private final DependencyArtifacts artifacts;
 
     private final TargetEnvironment[] environments;
 
-    public AbstractArtifactDependencyWalker(TargetPlatform platform) {
-        this(platform, null);
+    public AbstractArtifactDependencyWalker(DependencyArtifacts artifacts) {
+        this(artifacts, null);
     }
 
-    public AbstractArtifactDependencyWalker(TargetPlatform platform, TargetEnvironment[] environments) {
-        this.platform = platform;
+    public AbstractArtifactDependencyWalker(DependencyArtifacts artifacts, TargetEnvironment[] environments) {
+        this.artifacts = artifacts;
         this.environments = environments;
     }
 
@@ -65,7 +65,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
     protected void traverseFeature(File location, Feature feature, FeatureRef featureRef,
             ArtifactDependencyVisitor visitor, WalkbackPath visited) {
-        ArtifactDescriptor artifact = platform.getArtifact(location);
+        ArtifactDescriptor artifact = artifacts.getArtifact(location);
 
         if (artifact == null) {
             // ah?
@@ -154,7 +154,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
     }
 
     protected void traverseFeature(FeatureRef ref, ArtifactDependencyVisitor visitor, WalkbackPath visited) {
-        ArtifactDescriptor artifact = platform.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_FEATURE,
+        ArtifactDescriptor artifact = artifacts.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_FEATURE,
                 ref.getId(), ref.getVersion());
 
         if (artifact != null) {
@@ -181,7 +181,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             return;
         }
 
-        ArtifactDescriptor artifact = platform.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN,
+        ArtifactDescriptor artifact = artifacts.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN,
                 ref.getId(), ref.getVersion());
 
         if (artifact != null) {

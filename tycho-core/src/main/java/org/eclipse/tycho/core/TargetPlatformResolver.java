@@ -17,6 +17,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 
 /**
@@ -26,9 +27,9 @@ import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 public interface TargetPlatformResolver {
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject);
 
-    public TargetPlatform resolvePlatform(MavenSession session, MavenProject project,
+    public DependencyArtifacts resolvePlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies);
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
-            TargetPlatform targetPlatform, Logger logger);
+            DependencyArtifacts resolvedDependencies, Logger logger);
 }

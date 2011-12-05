@@ -24,7 +24,7 @@ import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.core.TargetPlatform;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
@@ -33,7 +33,7 @@ import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
 public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
     public void testBundleIdParsing() throws Exception {
-        TargetPlatform platform = getTargetPlatform(new File("src/test/resources/targetplatforms/basic"));
+        DependencyArtifacts platform = getTargetPlatform(new File("src/test/resources/targetplatforms/basic"));
 
         ArtifactDescriptor artifact = platform.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN,
                 "bundle01", null);
@@ -45,7 +45,7 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
         assertEquals("bundle01_0.0.1", file.getName());
     }
 
-    protected TargetPlatform getTargetPlatform(File location) throws Exception, IOException {
+    protected DependencyArtifacts getTargetPlatform(File location) throws Exception, IOException {
         LocalTargetPlatformResolver resolver = (LocalTargetPlatformResolver) lookup(TargetPlatformResolver.class,
                 LocalTargetPlatformResolver.ROLE_HINT);
 
@@ -60,14 +60,14 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
         MavenProject project = new MavenProject();
         resolver.setLocation(location);
 
-        TargetPlatform platform = resolver
+        DependencyArtifacts platform = resolver
                 .resolvePlatform(session, project, DefaultReactorProject.adapt(session), null);
         return platform;
     }
 
     public void testPlatformRelativePath() throws Exception {
         File platformPath = new File("src/test/resources/targetplatforms/basic");
-        TargetPlatform platform = getTargetPlatform(platformPath);
+        DependencyArtifacts platform = getTargetPlatform(platformPath);
 
         // canonical path to a bundle
         File bundlePath = new File(platformPath, "plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar")
@@ -80,7 +80,7 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
 
     public void testBundleRelativePath() throws Exception {
         File platformPath = new File("src/test/resources/targetplatforms/basic").getCanonicalFile();
-        TargetPlatform platform = getTargetPlatform(platformPath);
+        DependencyArtifacts platform = getTargetPlatform(platformPath);
 
         File bundlePath = new File(
                 "src/test/resources/targetplatforms/basic/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar");

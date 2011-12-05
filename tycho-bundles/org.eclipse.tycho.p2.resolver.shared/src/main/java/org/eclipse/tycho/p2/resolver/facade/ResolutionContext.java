@@ -29,7 +29,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
  * 
  * @see P2Resolver
  * @see P2ResolutionResult
- * @see org.eclipse.tycho.core.TargetPlatform
+ * @see org.eclipse.tycho.artifacts.DependencyArtifacts
  */
 public interface ResolutionContext {
     public void addReactorArtifact(IReactorArtifactFacade project);

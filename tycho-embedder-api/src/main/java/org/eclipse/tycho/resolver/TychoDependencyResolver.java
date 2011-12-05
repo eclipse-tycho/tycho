@@ -16,6 +16,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 
+// TODO 364134 split target platform computation and dependency resolution 
 public interface TychoDependencyResolver {
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject);
 

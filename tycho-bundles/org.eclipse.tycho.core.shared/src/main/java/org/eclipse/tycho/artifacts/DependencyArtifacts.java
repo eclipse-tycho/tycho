@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core;
+package org.eclipse.tycho.artifacts;
 
 import java.io.File;
 import java.util.List;
@@ -18,7 +18,10 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 
-public interface TargetPlatform {
+/**
+ * The result from resolving a project's dependencies against the target platform.
+ */
+public interface DependencyArtifacts {
     /**
      * Conventional qualifier used to denote "ANY QUALIFIER" in feature.xml and .product files. See
      * TYCHO-383.
@@ -59,8 +62,9 @@ public interface TargetPlatform {
     public ArtifactDescriptor getArtifact(ArtifactKey key);
 
     /**
-     * Set of IInstallableUnits in the target platform that come from outside the local reactor, or
-     * <code>null</code> if the the target platform was not resolved from a p2 repository.<br/>
+     * Set of IInstallableUnits in the resolved project dependencies that come from outside the
+     * local reactor, or <code>null</code> if the the project dependencies were not resolved from a
+     * p2 target platform.<br/>
      * 
      * @return Set&lt;IInstallableUnit&gt; or null
      */

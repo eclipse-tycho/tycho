@@ -13,4 +13,5 @@ Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.shared
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  JavaSE-1.6
 Bundle-Vendor: %providerName
-Import-Package: org.eclipse.tycho.core.facade
+Import-Package: org.eclipse.tycho,
+ org.eclipse.tycho.core.facade

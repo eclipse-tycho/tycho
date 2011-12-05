@@ -28,12 +28,13 @@ import java.util.WeakHashMap;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TargetPlatform;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.osgi.framework.Version;
 
-public class DefaultTargetPlatform implements TargetPlatform {
+// TODO 364134 rename this class
+public class DefaultTargetPlatform implements DependencyArtifacts {
     private static final Version VERSION_0_0_0 = new Version("0.0.0");
 
     private static final WeakHashMap<ArtifactKey, ArtifactKey> KEY_CACHE = new WeakHashMap<ArtifactKey, ArtifactKey>();

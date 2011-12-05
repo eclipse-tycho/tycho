@@ -15,8 +15,8 @@ import java.util.List;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
@@ -29,12 +29,12 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
 
-    public TargetPlatform getTargetPlatform(MavenProject project) {
-        return TychoProjectUtils.getTargetPlatform(project);
+    public DependencyArtifacts getDependencyArtifacts(MavenProject project) {
+        return TychoProjectUtils.getDependencyArtifacts(project);
     }
 
-    public TargetPlatform getTargetPlatform(MavenProject project, TargetEnvironment environment) {
-        TargetPlatform platform = getTargetPlatform(project);
+    public DependencyArtifacts getDependencyArtifacts(MavenProject project, TargetEnvironment environment) {
+        DependencyArtifacts platform = getDependencyArtifacts(project);
 
         if (environment != null && platform instanceof MultiEnvironmentTargetPlatform) {
             platform = ((MultiEnvironmentTargetPlatform) platform).getPlatform(environment);
@@ -48,8 +48,9 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         return platform;
     }
 
-    public void setTargetPlatform(MavenSession session, MavenProject project, TargetPlatform targetPlatform) {
-        project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM, targetPlatform);
+    public void setDependencyArtifacts(MavenSession session, MavenProject project,
+            DependencyArtifacts dependencyArtifacts) {
+        project.setContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS, dependencyArtifacts);
     }
 
     public void setupProject(MavenSession session, MavenProject project) {

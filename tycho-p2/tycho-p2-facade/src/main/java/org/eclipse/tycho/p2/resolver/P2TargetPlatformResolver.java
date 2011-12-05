@@ -51,8 +51,8 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
@@ -147,7 +147,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return false;
     }
 
-    public TargetPlatform resolvePlatform(final MavenSession session, final MavenProject project,
+    // TODO 364134 split target platform computation and dependency resolution 
+    public DependencyArtifacts resolvePlatform(final MavenSession session, final MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
 
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
@@ -167,7 +168,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
     }
 
-    protected TargetPlatform doResolvePlatform(final MavenSession session, final MavenProject project,
+    protected DependencyArtifacts doResolvePlatform(final MavenSession session, final MavenProject project,
             List<ReactorProject> reactorProjects, List<Dependency> dependencies, ResolutionContext resolutionContext,
             P2Resolver resolver, TargetPlatformConfiguration configuration) {
 
@@ -442,7 +443,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
-            TargetPlatform targetPlatform, Logger logger) {
-        MavenDependencyInjector.injectMavenDependencies(project, targetPlatform, bundleReader, logger);
+            DependencyArtifacts dependencyArtifacts, Logger logger) {
+        MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, bundleReader, logger);
     }
 }

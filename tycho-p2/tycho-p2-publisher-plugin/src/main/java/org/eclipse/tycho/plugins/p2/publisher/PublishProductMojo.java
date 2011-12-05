@@ -23,8 +23,8 @@ import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Launcher;
@@ -225,8 +225,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      */
     // TODO implement at eclipse: have product publisher take the executables from the context repositories 
     private File getEquinoxExecutableFeature() throws MojoExecutionException, MojoFailureException {
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(getProject());
-        ArtifactDescriptor artifact = targetPlatform.getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
+        // TODO 364134 take the executable feature from the target platform instead
+        DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getProject());
+        ArtifactDescriptor artifact = dependencyArtifacts.getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
                 "org.eclipse.equinox.executable", null);
 
         if (artifact == null) {

@@ -25,7 +25,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TargetPlatform;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 
 public final class MavenDependencyInjector {
@@ -34,18 +34,18 @@ public final class MavenDependencyInjector {
     private static final String P2_GROUPID_PREFIX = "p2.";
 
     /**
-     * Injects the dependencies of a project (as determined by the p2 target platform resolver) back
-     * into the Maven model.
+     * Injects the dependencies of a project (as determined by the p2 dependency resolver) back into
+     * the Maven model.
      * 
      * @param project
      *            A project
-     * @param target
-     *            The p2-resolved target platform of the project.
+     * @param dependencies
+     *            The p2-resolved dependencies of the project.
      */
-    public static void injectMavenDependencies(MavenProject project, TargetPlatform target, BundleReader bundleReader,
-            Logger logger) {
+    public static void injectMavenDependencies(MavenProject project, DependencyArtifacts dependencies,
+            BundleReader bundleReader, Logger logger) {
         MavenDependencyInjector generator = new MavenDependencyInjector(project, bundleReader, logger);
-        for (ArtifactDescriptor artifact : target.getArtifacts()) {
+        for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
             generator.addDependency(artifact);
         }
     }

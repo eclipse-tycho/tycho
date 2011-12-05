@@ -11,7 +11,7 @@
 package org.eclipse.tycho.core.utils;
 
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.core.TargetPlatform;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 
@@ -19,20 +19,21 @@ public class TychoProjectUtils {
     private static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
 
     /**
-     * Returns the {@link TargetPlatform} instance associated with the given project.
+     * Returns the {@link DependencyArtifacts} instance associated with the given project.
      * 
      * @param project
      *            a Tycho project
-     * @return the target platform for the given project; never <code>null</code>
+     * @return the resolved dependencies of the given project; never <code>null</code>
      * @throws IllegalStateException
-     *             if the given project does not have an associated target platform
+     *             if the given project does not have the resolved project dependencies stored
      */
-    public static TargetPlatform getTargetPlatform(MavenProject project) throws IllegalStateException {
-        TargetPlatform targetPlatform = (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);
-        if (targetPlatform == null) {
+    public static DependencyArtifacts getDependencyArtifacts(MavenProject project) throws IllegalStateException {
+        DependencyArtifacts resolvedDependencies = (DependencyArtifacts) project
+                .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
+        if (resolvedDependencies == null) {
             throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
         }
-        return targetPlatform;
+        return resolvedDependencies;
     }
 
     /**

@@ -29,7 +29,7 @@ public class EclipseFeatureProject extends AbstractArtifactBasedProject {
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final File location = project.getBasedir();
         final Feature feature = Feature.loadFeature(location);
-        return new AbstractArtifactDependencyWalker(getTargetPlatform(project, environment), getEnvironments(project,
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(project,
                 environment)) {
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseFeature(location, feature, visitor);
