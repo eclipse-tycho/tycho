@@ -17,8 +17,7 @@ import java.util.Map;
 public class ProjectMetadata {
     private final File basedir;
 
-    @SuppressWarnings("rawtypes")
-    private Map metadata = new LinkedHashMap();
+    private Map<Object, Object> metadata = new LinkedHashMap<Object, Object>();
 
     public ProjectMetadata(File basedir) {
         this.basedir = basedir;
@@ -28,7 +27,6 @@ public class ProjectMetadata {
         return type.cast(metadata.get(type));
     }
 
-    @SuppressWarnings({ "unchecked" })
     public <T> void putMetadata(T metadata) {
         this.metadata.put(metadata.getClass(), metadata);
     }
