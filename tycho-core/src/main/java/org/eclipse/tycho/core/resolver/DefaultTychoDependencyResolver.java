@@ -22,6 +22,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
@@ -81,8 +82,14 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
-        logger.info("Resolving target platform for project " + project);
-        DependencyArtifacts dependencyArtifacts = resolver.resolvePlatform(session, project, reactorProjects, null);
+        // TODO attach target platform to project for use in mojos (e.g. to fix bug 359902)
+        // TODO 364134 cache target platform (e.g. by checking if there is already an attached target platform)
+        logger.info("Computing target platform for project " + project);
+        TargetPlatform targetPlatform = resolver.computeTargetPlatform(session, project, reactorProjects);
+
+        logger.info("Resolving dependencies of project " + project);
+        DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
+                reactorProjects, null);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder();

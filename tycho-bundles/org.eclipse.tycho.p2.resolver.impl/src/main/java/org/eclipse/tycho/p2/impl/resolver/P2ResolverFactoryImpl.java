@@ -23,6 +23,7 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 
 @SuppressWarnings("restriction")
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
@@ -30,10 +31,10 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private MavenContext mavenContext;
     private LocalRepositoryP2Indices localRepoIndices;
 
-    public ResolutionContextImpl createResolutionContext(String bree, boolean disableP2Mirrors) {
+    public TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree, boolean disableP2Mirrors) {
         IProvisioningAgent agent = getProvisioningAgent(mavenContext.getLocalRepositoryRoot(),
                 mavenContext.isOffline(), mavenContext.getLogger());
-        return new ResolutionContextImpl(agent, mavenContext, bree, localRepoIndices, disableP2Mirrors);
+        return new TargetPlatformBuilderImpl(agent, mavenContext, bree, localRepoIndices, disableP2Mirrors);
     }
 
     public P2ResolverImpl createResolver() {

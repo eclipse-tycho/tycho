@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.target;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -42,18 +42,18 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 @SuppressWarnings("restriction")
-public class ResolutionContextBundlePublisher {
+public class TargetPlatformBundlePublisher {
 
     private final MavenLogger logger;
     private final PublishedBundlesArtifactRepository publishedArtifacts;
 
-    public ResolutionContextBundlePublisher(File localMavenRepositoryRoot, MavenLogger logger) {
+    public TargetPlatformBundlePublisher(File localMavenRepositoryRoot, MavenLogger logger) {
         this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepositoryRoot);
         this.logger = logger;
     }
 
     // for testing
-    ResolutionContextBundlePublisher(RepositoryReader localMavenRepoProvider, MavenLogger logger) {
+    TargetPlatformBundlePublisher(RepositoryReader localMavenRepoProvider, MavenLogger logger) {
         this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepoProvider);
         this.logger = logger;
     }

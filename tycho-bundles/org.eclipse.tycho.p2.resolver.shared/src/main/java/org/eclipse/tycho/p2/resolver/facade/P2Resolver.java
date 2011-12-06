@@ -14,6 +14,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.tycho.artifacts.TargetPlatform;
+
 public interface P2Resolver {
     /** @see org.eclipse.tycho.ArtifactKey */
     public static final String TYPE_ECLIPSE_PLUGIN = "eclipse-plugin";
@@ -44,9 +46,9 @@ public interface P2Resolver {
 
     public void addDependency(String type, String id, String versionRange);
 
-    public List<P2ResolutionResult> resolveProject(ResolutionContext context, File location);
+    public List<P2ResolutionResult> resolveProject(TargetPlatform context, File location);
 
-    public P2ResolutionResult collectProjectDependencies(ResolutionContext context, File projectLocation);
+    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation);
 
-    public P2ResolutionResult resolveMetadata(ResolutionContext context, Map<String, String> properties);
+    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties);
 }

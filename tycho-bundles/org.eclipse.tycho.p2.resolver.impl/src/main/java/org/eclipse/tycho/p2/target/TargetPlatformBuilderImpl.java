@@ -7,9 +7,9 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - moved resolution context and download of artifacts out of p2 resolver
+ *    SAP AG - split target platform computation and dependency resolution
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.target;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
@@ -39,10 +38,8 @@ import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepo
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
@@ -54,18 +51,21 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
+import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
+import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
+import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCache;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
-import org.eclipse.tycho.p2.maven.repository.MavenMirrorRequest;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
@@ -74,17 +74,15 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
-import org.eclipse.tycho.p2.target.TargetDefinitionResolver;
-import org.eclipse.tycho.p2.target.TargetPlatformContent;
+import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
-import org.eclipse.tycho.p2.util.StatusTool;
+import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
+import org.eclipse.tycho.repository.registry.impl.ArtifactRepositoryBlackboard;
 
-// This class has been split off from P2Resolver; TODO divide even further
 @SuppressWarnings("restriction")
-public class ResolutionContextImpl implements ResolutionContext {
+public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private final MavenLogger logger;
 
@@ -107,7 +105,7 @@ public class ResolutionContextImpl implements ResolutionContext {
     /** maven local repository as P2 IMetadataRepository */
     private final LocalMetadataRepository localMetadataRepository;
 
-    ResolutionContextImpl(IProvisioningAgent agent, MavenContext mavenContext, String executionEnvironment,
+    public TargetPlatformBuilderImpl(IProvisioningAgent agent, MavenContext mavenContext, String executionEnvironment,
             LocalRepositoryP2Indices localRepositoryIndices, boolean disableP2Mirrors) {
         this.agent = agent;
         this.logger = mavenContext.getLogger();
@@ -134,10 +132,11 @@ public class ResolutionContextImpl implements ResolutionContext {
 
         this.disableP2Mirrors = disableP2Mirrors;
 
+        // TODO 364134 make this a setter - this property is side-effect free (i.e. it has no effect before gatherAvailableUnits)
         this.executionEnvironment = executionEnvironment;
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
-        this.bundlesPublisher = new ResolutionContextBundlePublisher(localRepositoryRoot, logger);
+        this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, logger);
 
         // setup p2 views of maven local repository
         URI uri = localRepositoryRoot.toURI();
@@ -212,7 +211,7 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
     }
 
-    void addMavenArtifact(ClassifiedLocation key, IArtifactFacade artifact, Set<IInstallableUnit> units) {
+    public void addMavenArtifact(ClassifiedLocation key, IArtifactFacade artifact, Set<IInstallableUnit> units) {
         for (IInstallableUnit unit : units) {
             mavenInstallableUnits.put(unit, artifact);
             if (logger.isDebugEnabled()) {
@@ -226,7 +225,7 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     // ----------------------------------------------------------
 
-    private final ResolutionContextBundlePublisher bundlesPublisher;
+    private final TargetPlatformBundlePublisher bundlesPublisher;
 
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact) {
         IInstallableUnit bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
@@ -238,9 +237,9 @@ public class ResolutionContextImpl implements ResolutionContext {
      * Returns an {@link IArtifactRepository} instance containing those artifacts in the resolution
      * context which are not in the normal p2 view of the local Maven repository.
      * 
-     * @see ResolutionContextImpl#downloadArtifacts(Collection)
+     * @see TargetPlatformBuilderImpl#downloadArtifacts(Collection)
      */
-    public IArtifactRepository getSupplementaryArtifactRepository() {
+    private IArtifactRepository getSupplementaryArtifactRepository() {
         return bundlesPublisher.getArtifactRepoOfPublishedBundles();
     }
 
@@ -404,12 +403,41 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
     }
 
-    public void stop() {
+    // -------------------------------------------------------------------------
+
+    private File projectLocation;
+
+    // TODO 364134 get rid of this method
+    public void setProjectLocation(File projectLocation) {
+        this.projectLocation = projectLocation;
+    }
+
+    public TargetPlatform buildTargetPlatform() {
+        // TODO 364134 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
+        IArtifactRepository resolutionContextArtifactRepo = getSupplementaryArtifactRepository();
+        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey.forResolutionContextArtifacts(projectLocation);
+        ArtifactRepositoryBlackboard.putRepository(blackboardKey, resolutionContextArtifactRepo);
+        logger.debug("Registered artifact repository " + blackboardKey);
+
+        assertNoDuplicateReactorUIs();
+        IQueryable<IInstallableUnit> allTargetPlatformIUs = gatherAvailableInstallableUnits(monitor);
+
+        List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
+        for (IArtifactRepository artifactRepository : artifactRepositories) {
+            allRemoteArtifactRepositories.add(artifactRepository.getLocation());
+        }
+        for (TargetPlatformContent contentPart : content) {
+            allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
+        }
+
+        return new TargetPlatformImpl(allTargetPlatformIUs, mavenInstallableUnits, reactorProjectIUs,
+                localMetadataRepository, executionEnvironment, allRemoteArtifactRepositories, localArtifactRepository,
+                agent, logger);
     }
 
     // -------------------------------------------------------------------------
 
-    public IQueryable<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
+    private IQueryable<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
         Collection<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetPlatformContent contentPart : content) {
@@ -469,23 +497,6 @@ public class ResolutionContextImpl implements ResolutionContext {
         return iu.getId().startsWith("a.jre") || iu.getId().startsWith("config.a.jre");
     }
 
-    public void warnAboutLocalIus(Collection<IInstallableUnit> usedIus) {
-        final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
-        if (logger.isDebugEnabled()) {
-            logger.debug("The following locally built units are considered during target platform resolution:");
-            for (IInstallableUnit unit : localIUs) {
-                logger.debug("  " + unit.getId() + "/" + unit.getVersion());
-            }
-        }
-        localIUs.retainAll(usedIus);
-        if (!localIUs.isEmpty()) {
-            logger.warn("Project build target platform includes the following locally built units:");
-            for (IInstallableUnit localIu : localIUs) {
-                logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
-            }
-        }
-    }
-
     private static boolean isPartialIU(IInstallableUnit iu) {
         return Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue();
     }
@@ -497,7 +508,7 @@ public class ResolutionContextImpl implements ResolutionContext {
     /**
      * Return IUs that represent packages provided by target JRE
      */
-    public Collection<IInstallableUnit> getJREIUs() {
+    private Collection<IInstallableUnit> getJREIUs() {
         PublisherResult results = new PublisherResult();
         new JREAction(executionEnvironment).perform(new PublisherInfo(), results, new NullProgressMonitor());
         return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet();
@@ -505,79 +516,15 @@ public class ResolutionContextImpl implements ResolutionContext {
 
     // -------------------------------------------------------------------------------
 
-    private static final IArtifactRequest[] ARTIFACT_REQUEST_ARRAY = new IArtifactRequest[0];
-
     private final IMetadataRepositoryManager metadataRepositoryManager;
 
     private final IArtifactRepositoryManager artifactRepositoryManager;
 
     private final P2RepositoryCache repositoryCache;
 
-    public void downloadArtifacts(Collection<IInstallableUnit> newState) {
-        List<MavenMirrorRequest> requests = new ArrayList<MavenMirrorRequest>();
-        for (IInstallableUnit iu : newState) {
-            // maven IUs either come from reactor or local maven repository, no need to download them from p2 repos
-            if (getMavenArtifact(iu) == null) {
-                Collection<IArtifactKey> artifactKeys = iu.getArtifacts();
-                for (IArtifactKey key : artifactKeys) {
-                    requests.add(new MavenMirrorRequest(key, localArtifactRepository, getTransport()));
-                }
-            }
-        }
-
-        CompositeArtifactRepository allArtifactRepositories = CompositeArtifactRepository.createMemoryComposite(agent);
-        for (IArtifactRepository artifactRepository : artifactRepositories) {
-            allArtifactRepositories.addChild(artifactRepository.getLocation());
-        }
-        for (TargetPlatformContent contentPart : content) {
-            Collection<URI> repos = contentPart.getArtifactRepositoryLocations();
-            for (URI repo : repos) {
-                allArtifactRepositories.addChild(repo);
-            }
-        }
-
-        IStatus result = allArtifactRepositories.getArtifacts(requests.toArray(ARTIFACT_REQUEST_ARRAY), monitor);
-        if (!result.isOK()) {
-            // TODO find root exception - the MultiStatus probably doesn't have one
-            throw new RuntimeException(StatusTool.collectProblems(result), result.getException());
-        }
-        requests = filterCompletedRequests(requests);
-
-        localArtifactRepository.save();
-        localMetadataRepository.save();
-
-        // check for locally installed artifacts, which are not available from any remote repo
-        // TODO do this before downloading? (see enhancement request 342808)
-        for (Iterator<MavenMirrorRequest> iter = requests.iterator(); iter.hasNext();) {
-            MavenMirrorRequest request = iter.next();
-            if (localArtifactRepository.contains(request.getArtifactKey())) {
-                iter.remove();
-            }
-        }
-
-        if (!requests.isEmpty()) {
-            StringBuilder msg = new StringBuilder("Could not download artifacts from any repository\n");
-            for (MavenMirrorRequest request : requests) {
-                msg.append("   ").append(request.getArtifactKey().toExternalForm()).append('\n');
-            }
-
-            throw new RuntimeException(msg.toString());
-        }
-    }
-
-    private List<MavenMirrorRequest> filterCompletedRequests(List<MavenMirrorRequest> requests) {
-        ArrayList<MavenMirrorRequest> filteredRequests = new ArrayList<MavenMirrorRequest>();
-        for (MavenMirrorRequest request : requests) {
-            if (request.getResult() == null || !request.getResult().isOK()) {
-                filteredRequests.add(request);
-            }
-        }
-        return filteredRequests;
-    }
-
     // -------------------------------------------------------------------------------
 
-    public void assertNoDuplicateReactorUIs() throws DuplicateReactorIUsException {
+    private void assertNoDuplicateReactorUIs() throws DuplicateReactorIUsException {
         Map<IInstallableUnit, Set<File>> reactorUIs = new HashMap<IInstallableUnit, Set<File>>();
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<IInstallableUnit, Set<File>>();
 
@@ -600,31 +547,4 @@ public class ResolutionContextImpl implements ResolutionContext {
         }
     }
 
-    public LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectRoot) {
-        LinkedHashSet<IInstallableUnit> ius = new LinkedHashSet<IInstallableUnit>();
-        boolean projectExists = false;
-
-        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : reactorProjectIUs.entrySet()) {
-            if (projectRoot.equals(entry.getKey().getLocation())) {
-                ius.addAll(entry.getValue());
-                projectExists = true;
-            }
-        }
-
-        if (!projectExists)
-            throw new IllegalArgumentException("Not a reactor project: " + projectRoot);
-        return ius;
-    }
-
-    public IArtifactFacade getMavenArtifact(IInstallableUnit iu) {
-        return mavenInstallableUnits.get(iu);
-    }
-
-    public File getLocalArtifactFile(IArtifactKey key) {
-        return localArtifactRepository.getArtifactFile(key);
-    }
-
-    protected Transport getTransport() {
-        return (Transport) agent.getService(Transport.SERVICE_NAME);
-    }
 }

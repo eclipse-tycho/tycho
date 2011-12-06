@@ -60,8 +60,8 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
         MavenProject project = new MavenProject();
         resolver.setLocation(location);
 
-        DependencyArtifacts platform = resolver
-                .resolvePlatform(session, project, DefaultReactorProject.adapt(session), null);
+        DependencyArtifacts platform = resolver.resolveDependencies(session, project, null,
+                DefaultReactorProject.adapt(session), null);
         return platform;
     }
 

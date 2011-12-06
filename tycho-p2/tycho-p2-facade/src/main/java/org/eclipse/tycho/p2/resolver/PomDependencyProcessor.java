@@ -24,7 +24,7 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
+import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
 
 public class PomDependencyProcessor {
 
@@ -42,7 +42,7 @@ public class PomDependencyProcessor {
     }
 
     void addPomDependenciesToResolutionContext(MavenProject project, Collection<Artifact> transitivePomDependencies,
-            ResolutionContext resolutionContext) {
+            TargetPlatformBuilder resolutionContext) {
         final TychoRepositoryIndex p2ArtifactsInLocalRepo = localRepoIndices.getArtifactsIndex();
 
         for (Artifact artifact : transitivePomDependencies) {

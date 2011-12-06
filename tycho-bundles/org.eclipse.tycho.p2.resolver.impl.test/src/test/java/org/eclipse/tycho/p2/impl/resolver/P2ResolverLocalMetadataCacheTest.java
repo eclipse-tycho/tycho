@@ -26,7 +26,7 @@ import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
+import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.After;
@@ -44,7 +44,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
     public void initResolver() throws Exception {
         P2ResolverFactoryImpl.purgeAgents();
         P2ResolverFactoryImpl p2ResolverFactoryImpl = createP2ResolverFactory(false);
-        context = p2ResolverFactoryImpl.createResolutionContext(null, DISABLE_MIRRORS);
+        context = p2ResolverFactoryImpl.createTargetPlatformBuilder(null, DISABLE_MIRRORS);
         impl = new P2ResolverImpl(new MavenLoggerStub());
     }
 
@@ -63,7 +63,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
         }
     }
 
-    private List<P2ResolutionResult> resolveFromHttp(ResolutionContext context, P2Resolver impl, String url)
+    private List<P2ResolutionResult> resolveFromHttp(TargetPlatformBuilder context, P2Resolver impl, String url)
             throws IOException, URISyntaxException {
         context.addP2Repository(new URI(url));
 
@@ -73,7 +73,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
         File bundle = ResourceUtil.resourceFile("resolver/bundle01");
         addReactorProject(bundle, P2Resolver.TYPE_ECLIPSE_PLUGIN, id);
 
-        List<P2ResolutionResult> results = impl.resolveProject(context, bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
         return results;
     }
 
@@ -88,7 +88,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
         MavenContext mavenContext = createMavenContext(true, new MavenLoggerStub());
         p2ResolverFactory.setMavenContext(mavenContext);
         p2ResolverFactory.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
-        context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
+        context = p2ResolverFactory.createTargetPlatformBuilder(null, DISABLE_MIRRORS);
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 
         Assert.assertEquals(1, results.size());
@@ -104,7 +104,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
 
         boolean offline = true;
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(offline);
-        context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
+        context = p2ResolverFactory.createTargetPlatformBuilder(null, DISABLE_MIRRORS);
 
         try {
             resolveFromHttp(context, impl, servedUrl);
@@ -126,7 +126,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
         P2ResolverFactoryImpl.purgeAgents();
 
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
+        context = p2ResolverFactory.createTargetPlatformBuilder(null, DISABLE_MIRRORS);
 
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 
@@ -145,7 +145,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
         delete(getLocalRepositoryLocation());
 
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        context = p2ResolverFactory.createResolutionContext(null, DISABLE_MIRRORS);
+        context = p2ResolverFactory.createTargetPlatformBuilder(null, DISABLE_MIRRORS);
 
         try {
             resolveFromHttp(context, impl, servedUrl);

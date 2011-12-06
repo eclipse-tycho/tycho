@@ -34,8 +34,8 @@ import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 import org.eclipse.tycho.test.util.NoopFileLockService;
-import org.junit.After;
 
 public class P2ResolverTestBase {
 
@@ -47,12 +47,7 @@ public class P2ResolverTestBase {
     private final DependencyMetadataGenerator dependencyGenerator = new DefaultDependencyMetadataGenerator();
 
     P2Resolver impl;
-    ResolutionContextImpl context;
-
-    @After
-    public void stopResolver() {
-        context.stop();
-    }
+    TargetPlatformBuilderImpl context;
 
     static List<Map<String, String>> getEnvironments() {
         ArrayList<Map<String, String>> environments = new ArrayList<Map<String, String>>();

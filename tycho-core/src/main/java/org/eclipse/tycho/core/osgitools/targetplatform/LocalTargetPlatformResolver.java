@@ -34,6 +34,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
@@ -97,8 +98,14 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
         platform.addSite(parentDir);
     }
 
-    public DependencyArtifacts resolvePlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
+    public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
+            List<ReactorProject> reactorProjects) {
+        // everything is done in resolveDependencies
+        return null;
+    }
+
+    public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
+            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
         DefaultTargetPlatform platform = new DefaultTargetPlatform();
 
         for (File site : layout.getSites()) {

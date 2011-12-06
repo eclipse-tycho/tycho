@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.target;
 
 import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.containsEntry;
 import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.entry;
@@ -28,23 +28,24 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.target.TargetPlatformBundlePublisher;
 import org.eclipse.tycho.repository.test.util.LocalRepositoryStub;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ResolutionContextBundlePublisherTest {
+public class TargetPlatformBundlePublisherTest {
 
     private static final String GROUP_ID = "org.eclipse.tycho.test.dummy";
     private static final String ARTIFACT_ID = "dummy-artifact";
     private static final String VERSION = "0.8.15-SNAPSHOT";
 
-    private ResolutionContextBundlePublisher subject;
+    private TargetPlatformBundlePublisher subject;
     private LocalRepositoryStub localRepo;
 
     @Before
     public void initSubject() {
         localRepo = new LocalRepositoryStub();
-        subject = new ResolutionContextBundlePublisher(localRepo.getArtifactProvider(), new MavenLoggerStub(true, true));
+        subject = new TargetPlatformBundlePublisher(localRepo.getArtifactProvider(), new MavenLoggerStub(true, true));
     }
 
     @Test

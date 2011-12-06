@@ -7,31 +7,28 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - moved resolution context out of p2 resolver
+ *    SAP AG - split target platform computation and dependency resolution
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
+import java.io.File;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
-/**
- * The resolution context is the content against which the dependencies of a project can be
- * resolved. For each project, a resolution context is created according to the target platform
- * configuration. Then the p2 resolver narrows it down to create the actual "target platform". The
- * target platform is hence a subset of the resolution context.
- * 
- * @see P2Resolver
- * @see P2ResolutionResult
- * @see org.eclipse.tycho.artifacts.DependencyArtifacts
- */
-public interface ResolutionContext {
+public interface TargetPlatformBuilder {
+    /**
+     * Sets the root folder of the project the target platform applies to.
+     */
+    public void setProjectLocation(File projectLocation);
+
     public void addReactorArtifact(IReactorArtifactFacade project);
 
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact);
@@ -46,8 +43,6 @@ public interface ResolutionContext {
 
     public void setCredentials(URI location, String username, String password);
 
-    /**
-     * Releases all resources used by the resolver instance
-     */
-    public void stop();
+    public TargetPlatform buildTargetPlatform();
+
 }

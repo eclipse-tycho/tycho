@@ -25,16 +25,15 @@ import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
-import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
-import org.eclipse.tycho.repository.registry.impl.ArtifactRepositoryBlackboard;
+import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
 
 @SuppressWarnings("restriction")
 public class P2ResolverImpl implements P2Resolver {
@@ -52,16 +51,15 @@ public class P2ResolverImpl implements P2Resolver {
 
     private final List<IRequirement> additionalRequirements = new ArrayList<IRequirement>();
 
-    // TODO provide needed methods through adapter interface? (to avoid cast to implementation)
-    private ResolutionContextImpl context;
+    private P2TargetPlatform context;
 
     public P2ResolverImpl(MavenLogger logger) {
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
     }
 
-    public List<P2ResolutionResult> resolveProject(ResolutionContext context, File projectLocation) {
-        this.context = (ResolutionContextImpl) context;
+    public List<P2ResolutionResult> resolveProject(TargetPlatform context, File projectLocation) {
+        this.context = (P2TargetPlatform) context;
 
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
 
@@ -72,16 +70,16 @@ public class P2ResolverImpl implements P2Resolver {
         return results;
     }
 
-    public P2ResolutionResult collectProjectDependencies(ResolutionContext context, File projectLocation) {
-        this.context = (ResolutionContextImpl) context;
+    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation) {
+        this.context = (P2TargetPlatform) context;
         return resolveProject(projectLocation, new DependencyCollector(logger));
     }
 
-    public P2ResolutionResult resolveMetadata(ResolutionContext context, Map<String, String> properties) {
+    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties) {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(properties, logger);
-        ResolutionContextImpl contextImpl = (ResolutionContextImpl) context;
+        P2TargetPlatform contextImpl = (P2TargetPlatform) context;
         strategy.setJREUIs(contextImpl.getJREIUs());
-        strategy.setAvailableInstallableUnits(contextImpl.gatherAvailableInstallableUnits(monitor));
+        strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
         strategy.setAdditionalRequirements(additionalRequirements);
 
@@ -93,24 +91,14 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     protected P2ResolutionResult resolveProject(File projectLocation, ResolutionStrategy strategy) {
-        context.assertNoDuplicateReactorUIs();
-
-        strategy.setAvailableInstallableUnits(context.gatherAvailableInstallableUnits(monitor));
+        strategy.setAvailableInstallableUnits(context.getInstallableUnits());
         strategy.setJREUIs(context.getJREIUs());
         LinkedHashSet<IInstallableUnit> projectIUs = context.getReactorProjectIUs(projectLocation);
         strategy.setRootInstallableUnits(projectIUs);
         strategy.setAdditionalRequirements(additionalRequirements);
 
         Collection<IInstallableUnit> newState = strategy.resolve(monitor);
-        context.warnAboutLocalIus(newState);
-
-        context.downloadArtifacts(newState);
-
-        // TODO check if needed by all callers
-        IArtifactRepository resolutionContextArtifactRepo = context.getSupplementaryArtifactRepository();
-        RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey.forResolutionContextArtifacts(projectLocation);
-        ArtifactRepositoryBlackboard.putRepository(blackboardKey, resolutionContextArtifactRepo);
-        logger.debug("Registered artifact repository " + blackboardKey);
+        context.reportUsedIUs(newState);
 
         return toResolutionResult(newState);
     }

@@ -1,4 +1,4 @@
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.target;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -10,6 +10,8 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
+import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCache;
+import org.eclipse.tycho.p2.impl.resolver.P2ResolverFactoryImpl;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.test.util.NoopFileLockService;
@@ -17,7 +19,7 @@ import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ResolutionContextDisableP2MirrorsTest {
+public class TargetPlatformDisableP2MirrorsTest {
 
     private P2RepositoryCache repositoryCache;
     private File localRepo;
@@ -32,7 +34,7 @@ public class ResolutionContextDisableP2MirrorsTest {
 
     @Test
     public void testDisableP2Mirrors() throws Exception {
-        ResolutionContextImpl context = createResolutionContext(true);
+        TargetPlatformBuilderImpl context = createResolutionContext(true);
 
         URI location = ResourceUtil.resourceFile("p2-mirrors-disable/disablemirrors").toURI();
         context.addP2Repository(location);
@@ -41,7 +43,7 @@ public class ResolutionContextDisableP2MirrorsTest {
 
     @Test
     public void testWithoutDisableP2Mirrors() throws Exception {
-        ResolutionContextImpl context = createResolutionContext(false);
+        TargetPlatformBuilderImpl context = createResolutionContext(false);
 
         // need a different URI here, to force reloading
         // TODO why is the cache active in this test -> test through the right interface?
@@ -50,7 +52,7 @@ public class ResolutionContextDisableP2MirrorsTest {
         assertNotNull(getP2MirrorsUrlFromCachedRepository(location));
     }
 
-    private ResolutionContextImpl createResolutionContext(boolean disableP2Mirrors) {
+    private TargetPlatformBuilderImpl createResolutionContext(boolean disableP2Mirrors) {
         P2ResolverFactoryImpl p2ResolverFactoryImpl = new P2ResolverFactoryImpl();
         MavenContextImpl mavenContext = new MavenContextImpl();
         mavenContext.setOffline(false);
@@ -58,7 +60,7 @@ public class ResolutionContextDisableP2MirrorsTest {
         mavenContext.setLogger(new MavenLoggerStub());
         p2ResolverFactoryImpl.setMavenContext(mavenContext);
         p2ResolverFactoryImpl.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
-        ResolutionContextImpl context = p2ResolverFactoryImpl.createResolutionContext(null, disableP2Mirrors);
+        TargetPlatformBuilderImpl context = p2ResolverFactoryImpl.createTargetPlatformBuilder(null, disableP2Mirrors);
         return context;
     }
 

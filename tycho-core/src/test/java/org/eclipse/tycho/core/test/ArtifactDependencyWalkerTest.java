@@ -107,8 +107,8 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
 
         resolver.setLocation(new File("src/test/resources/targetplatforms/basic"));
 
-        DependencyArtifacts platform = resolver
-                .resolvePlatform(session, project, DefaultReactorProject.adapt(session), null);
+        DependencyArtifacts platform = resolver.resolveDependencies(session, project, null,
+                DefaultReactorProject.adapt(session), null);
         return platform;
     }
 }
