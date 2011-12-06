@@ -13,7 +13,7 @@ package org.eclipse.tycho.osgi.configuration;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.sisu.equinox.embedder.EquinoxEmbedder;
+import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.locking.facade.FileLockService;
 
@@ -28,8 +28,8 @@ public class FileLockServiceConfigurator extends EquinoxLifecycleListener {
      * from OSGi too.
      */
     @Override
-    public void afterFrameworkStarted(EquinoxEmbedder framework) {
-        framework.getServiceFactory().registerService(FileLockService.class, fileLockService);
+    public void afterFrameworkStarted(EmbeddedEquinox framework) {
+        framework.registerService(FileLockService.class, fileLockService);
     }
 
 }

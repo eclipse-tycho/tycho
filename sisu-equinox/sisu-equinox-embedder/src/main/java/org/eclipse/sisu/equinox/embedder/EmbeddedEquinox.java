@@ -10,10 +10,20 @@
  *******************************************************************************/
 package org.eclipse.sisu.equinox.embedder;
 
+import java.util.Dictionary;
+
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 
-public interface EquinoxEmbedder {
+/**
+ * Interface to configure an embedded Equinox runtime. Implement an {@link EquinoxLifecycleListener}
+ * component to be notified about instances of this type.
+ */
+public interface EmbeddedEquinox {
 
     EquinoxServiceFactory getServiceFactory();
+
+    public <T> void registerService(Class<T> clazz, T service);
+
+    public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties);
 
 }

@@ -19,7 +19,7 @@ import org.apache.maven.settings.Proxy;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.embedder.EquinoxEmbedder;
+import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.facade.ProxyServiceFacade;
 
@@ -32,7 +32,7 @@ public class P2ProxyConfigurator extends EquinoxLifecycleListener {
     private LegacySupport context;
 
     @Override
-    public void afterFrameworkStarted(EquinoxEmbedder framework) {
+    public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
 
         final List<Proxy> activeProxies = new ArrayList<Proxy>();
