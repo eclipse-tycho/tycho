@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.MavenExecutionException;
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -38,13 +39,16 @@ import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Plugin;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.repository.ComponentDependency;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -58,6 +62,8 @@ import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
+import org.eclipse.tycho.core.maven.utils.PluginRealmHelper;
+import org.eclipse.tycho.core.maven.utils.PluginRealmHelper.PluginFilter;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
@@ -106,16 +112,21 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Requirement
+    private PlexusContainer plexus;
+
+    @Requirement
+    private PluginRealmHelper pluginRealmHelper;
+
     private P2ResolverFactory resolverFactory;
 
     private DependencyMetadataGenerator generator;
 
-    private DependencyMetadataGenerator sourcesGenerator;
-
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
 
-    public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject) {
+    public void setupProjects(final MavenSession session, final MavenProject project,
+            final ReactorProject reactorProject) {
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<Map<String, String>> environments = getEnvironments(configuration);
@@ -123,24 +134,35 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 .generateMetadata(new ReactorArtifactFacade(reactorProject, null), environments);
         reactorProject.setDependencyMetadata(null, metadata);
 
-        // TODO this should be moved to osgi-sources-plugin somehow
-        if (isBundleProject(project) && hasSourceBundle(project)) {
-            ReactorArtifactFacade sourcesArtifact = new ReactorArtifactFacade(reactorProject, "sources");
-            Set<Object> sourcesMetadata = sourcesGenerator.generateMetadata(sourcesArtifact, environments);
-            reactorProject.setDependencyMetadata(sourcesArtifact.getClassidier(), sourcesMetadata);
+        // let external providers contribute additional metadata
+        try {
+            pluginRealmHelper.execute(session, project, new Runnable() {
+                public void run() {
+                    try {
+                        for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
+                            provider.setupProject(session, project, reactorProject);
+                        }
+                    } catch (ComponentLookupException e) {
+                        // have not found anything
+                    }
+                }
+            }, new PluginFilter() {
+                public boolean accept(PluginDescriptor descriptor) {
+                    return isTychoP2Plugin(descriptor);
+                }
+            });
+        } catch (MavenExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private static boolean isBundleProject(MavenProject project) {
-        String type = project.getPackaging();
-        return ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type) || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(type);
-    }
-
-    private static boolean hasSourceBundle(MavenProject project) {
-        // TODO this is a fragile way of checking whether we generate a source bundle
-        // should we rather use MavenSession to get the actual configured mojo instance?
-        for (Plugin plugin : project.getBuildPlugins()) {
-            if ("org.eclipse.tycho:tycho-source-plugin".equals(plugin.getKey())) {
+    protected boolean isTychoP2Plugin(PluginDescriptor pluginDescriptor) {
+        if (pluginDescriptor.getArtifactMap().containsKey("org.eclipse.tycho:tycho-p2-facade")) {
+            return true;
+        }
+        for (ComponentDependency dependency : pluginDescriptor.getDependencies()) {
+            if ("org.eclipse.tycho".equals(dependency.getGroupId())
+                    && "tycho-p2-facade".equals(dependency.getArtifactId())) {
                 return true;
             }
         }
@@ -439,7 +461,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     public void initialize() throws InitializationException {
         this.resolverFactory = equinox.getService(P2ResolverFactory.class);
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
-        this.sourcesGenerator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=source-bundle)");
     }
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
