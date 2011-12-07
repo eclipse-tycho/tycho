@@ -20,6 +20,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 
 /**
  * This goal invokes the feature and bundle publisher on a folder.

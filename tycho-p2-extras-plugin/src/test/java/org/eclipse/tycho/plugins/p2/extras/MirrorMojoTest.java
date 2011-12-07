@@ -53,10 +53,10 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        // this is needed because the test uses a new PlexusContainer instance
-        // for each test method and thus the DefaultEquinoxEmbedder plexus component 
-        // is no longer a singleton
+        // this is needed because the DefaultEquinoxEmbedder plexus component 
+        // is not disposed
         EclipseStarter.shutdown();
+        System.clearProperty("org.osgi.framework.vendor");
     }
 
     public void testMirrorFromOldStyleUpdatesite() throws Exception {
