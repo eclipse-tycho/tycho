@@ -1,0 +1,90 @@
+<!--
+- Copyright (c) 2010, 2011 SAP AG and others.
+- All rights reserved. This program and the accompanying materials
+- are made available under the terms of the Eclipse Public License v1.0
+- which accompanies this distribution, and is available at
+- http://www.eclipse.org/legal/epl-v10.html
+-
+- Contributors:
+-    SAP AG - initial API and implementation
+-->
+
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-extras-tests</groupId>
+	<artifactId>publishedRepository</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<build>
+		<plugins>
+			<!-- Configuration for the PublishFeaturesAndBundlesMojoTest -->
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>publish-features-and-bundles</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+						<compress>false</compress>
+						<!-- additional arguments example
+							<additionalArgs>-configs win32.win32.x86</additionalArgs>
+						-->
+				</configuration>
+			</plugin>
+
+			<!-- Additional two build plug-ins that allow to also build this project from 
+				 the command line -->
+			<!-- Copying an artifact to location ${project.basedir}/target/source/plugins 
+			     is only one way how to create content to be published. Any other source of 
+			     bundles and/or features can be used to be published as long as it end up 
+			     in ${project.basedir}/target/source/plugins and or ~/features
+			     The publisher will 
+			     use every content that is located in this directory -->
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-bundles-for-publishing</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.cxf</groupId>
+									<artifactId>cxf-bundle</artifactId>
+									<version>2.3.1</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.basedir}/target/source/plugins</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>archive-repository</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

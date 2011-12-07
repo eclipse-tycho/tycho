@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+- Copyright (c) 2010, 2011 SAP AG and others.
+- All rights reserved. This program and the accompanying materials
+- are made available under the terms of the Eclipse Public License v1.0
+- which accompanies this distribution, and is available at
+- http://www.eclipse.org/legal/epl-v10.html
+-
+- Contributors:
+-    SAP AG - initial API and implementation
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.eclipse.tycho.extras</groupId>
+	<artifactId>tycho-extras</artifactId>
+	<version>0.14.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>Tycho Extras (Incubation)</name>
+	<description>Additional tools for Tycho</description>
+
+	<prerequisites>
+		<maven>3.0</maven>
+    </prerequisites>
+    
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven-version>3.0</maven-version>
+		<tycho-version>0.14.0-SNAPSHOT</tycho-version>
+	</properties>
+
+	<modules>
+		<module>tycho-version-bump-plugin</module>
+		<module>tycho-p2-extras-plugin</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-core</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-facade</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-testing-harness</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.4.1</version>
+			    </plugin>
+				<!-- m2eclipse lifecycle mapping -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.sonatype.plugins</groupId>
+										<artifactId>maven-properties-plugin</artifactId>
+										<versionRange>[0.0.2,)</versionRange>
+										<goals>
+											<goal>filter-file</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>

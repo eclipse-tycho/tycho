@@ -1,0 +1,7 @@
+# override global rule
+!/.settings/
+
+# only include specified files
+/.settings/*
+!/.settings/org.eclipse.jdt.core.prefs
+!/.settings/org.eclipse.jdt.ui.prefs

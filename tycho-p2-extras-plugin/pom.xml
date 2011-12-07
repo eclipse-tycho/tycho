@@ -1,0 +1,115 @@
+<!--
+- Copyright (c) 2010, 2011 SAP AG and others.
+- All rights reserved. This program and the accompanying materials
+- are made available under the terms of the Eclipse Public License v1.0
+- which accompanies this distribution, and is available at
+- http://www.eclipse.org/legal/epl-v10.html
+-
+- Contributors:
+-    SAP AG - initial API and implementation
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.tycho.extras</groupId>
+		<artifactId>tycho-extras</artifactId>
+		<version>0.14.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>tycho-p2-extras-plugin</artifactId>
+	<packaging>maven-plugin</packaging>
+
+	<name>Tycho p2 Extras Plugin (Incubation)</name>
+
+	<properties>
+		<tycho-build-version>${project.version}</tycho-build-version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-p2-facade</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-testing-harness</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- These dependencies are only listed here to make sure that all required 
+			Tycho artifacts are in the local Maven repository when the Mojo tests are 
+			executed. The Mojo tests trigger a full Maven build, but that build does 
+			not have access to a repository that contains Tycho (see bug 348394). -->
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
+			<version>${tycho-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
+			<version>${tycho-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
+			<version>${tycho-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-p2-runtime</artifactId>
+			<version>${tycho-version}</version>
+			<type>zip</type>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>maven-properties-plugin</artifactId>
+				<version>0.0.2</version>
+				<executions>
+					<execution>
+						<phase>process-test-resources</phase>
+						<goals>
+							<goal>filter-file</goal>
+						</goals>
+						<configuration>
+							<in>src/test/resources/baseTest.properties</in>
+							<outDir>target/test-classes/</outDir>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- During the unit tests, the test project is copied to the target folder 
+				and the publish mojo is executed on the project. The test project may also 
+				be built directly from the command line. This configuration makes sure that 
+				the target folder from a direct invocation is removed. Otherwise it may interfere 
+				with the target folder created during the unit tests. -->
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>src/test/resources/</directory>
+							<includes>
+								<include>**/testProject/target/</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
