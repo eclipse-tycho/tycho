@@ -18,6 +18,7 @@ import org.apache.maven.execution.AbstractExecutionListener;
 import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.execution.ExecutionListener;
 
+// TODO remove class when fix for MNG-5206 is released (maven 3.0.5) 
 public class ChainedExecutionListener extends AbstractExecutionListener {
 
     private List<ExecutionListener> listeners = new ArrayList<ExecutionListener>();
@@ -33,7 +34,7 @@ public class ChainedExecutionListener extends AbstractExecutionListener {
     }
 
     // delegate methods 
-    
+
     @Override
     public void projectDiscoveryStarted(ExecutionEvent event) {
         for (ExecutionListener listener : listeners) {
@@ -65,7 +66,7 @@ public class ChainedExecutionListener extends AbstractExecutionListener {
     @Override
     public void projectStarted(ExecutionEvent event) {
         for (ExecutionListener listener : listeners) {
-            
+
         }
     }
 
@@ -152,7 +153,5 @@ public class ChainedExecutionListener extends AbstractExecutionListener {
             listener.forkedProjectFailed(event);
         }
     }
-    
-    
 
 }

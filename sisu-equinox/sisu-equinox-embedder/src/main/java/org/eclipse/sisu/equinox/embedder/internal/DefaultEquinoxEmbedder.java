@@ -273,6 +273,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
             } catch (IOException e) {
                 getLogger().error("Exception while deleting " + tempConfigDir, e);
             }
+            frameworkContext = null;
         }
     }
 
