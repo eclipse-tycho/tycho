@@ -105,11 +105,8 @@ public class P2MetadataMojo extends AbstractMojo {
 
             artifacts.add(projectDefaultArtifact);
 
-            for (Artifact artifact : project.getArtifactMap().values()) {
-                artifacts.add(new ArtifactFacade(artifact));
-            }
             for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
-                if ("sources".equals(attachedArtifact.getClassifier())) {
+                if (attachedArtifact.getFile() != null && attachedArtifact.getFile().getName().endsWith(".jar")) {
                     artifacts.add(new ArtifactFacade(attachedArtifact));
                 }
             }
