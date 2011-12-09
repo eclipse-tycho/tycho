@@ -37,6 +37,26 @@
 		<module>tycho-p2-extras-plugin</module>
 	</modules>
 
+	<repositories>
+		<repository>
+			<id>tycho-snapshots</id>
+			<url>https://repository.sonatype.org/content/repositories/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>tycho-snapshots</id>
+			<url>https://repository.sonatype.org/content/repositories/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
