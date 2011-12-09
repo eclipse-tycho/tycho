@@ -38,19 +38,19 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
     public Set<Object/* IInstallableUnit */> generateMetadata(IArtifactFacade artifact,
-            List<Map<String, String>> environments) {
+            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
         LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
         LinkedHashSet<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<IArtifactDescriptor>();
 
         PublisherInfo publisherInfo = new PublisherInfo();
-        super.generateMetadata(artifact, environments, units, artifactDescriptors, publisherInfo);
+        super.generateMetadata(artifact, environments, units, artifactDescriptors, publisherInfo, optionalAction);
 
         return new LinkedHashSet<Object>(units);
     }
 
     @Override
     protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<Map<String, String>> environments) {
+            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
         ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 
         String id = artifact.getArtifactId();

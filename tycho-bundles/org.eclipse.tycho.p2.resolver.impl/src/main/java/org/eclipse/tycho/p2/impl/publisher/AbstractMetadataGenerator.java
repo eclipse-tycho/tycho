@@ -39,6 +39,7 @@ import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
+import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.StatusTool;
 
@@ -47,17 +48,18 @@ public abstract class AbstractMetadataGenerator {
     private IProgressMonitor monitor = new NullProgressMonitor();
 
     protected void generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
-            Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts, PublisherInfo publisherInfo) {
+            Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts, PublisherInfo publisherInfo,
+            OptionalResolutionAction optionalAction) {
         for (IPublisherAdvice advice : getPublisherAdvice(artifact)) {
             publisherInfo.addAdvice(advice);
         }
-        List<IPublisherAction> actions = getPublisherActions(artifact, environments);
+        List<IPublisherAction> actions = getPublisherActions(artifact, environments, optionalAction);
 
         publish(units, artifacts, publisherInfo, actions);
     }
 
     protected abstract List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<Map<String, String>> environments);
+            List<Map<String, String>> environments, OptionalResolutionAction optionalAction);
 
     protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact);
 

@@ -77,6 +77,7 @@ import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -130,8 +131,15 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<Map<String, String>> environments = getEnvironments(configuration);
-        Set<Object> metadata = generator
-                .generateMetadata(new ReactorArtifactFacade(reactorProject, null), environments);
+
+        OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
+
+        if (TargetPlatformConfiguration.OPTIONAL_RESOLUTION_IGNORE.equals(configuration.getOptionalResolutionAction())) {
+            optionalAction = OptionalResolutionAction.IGNORE;
+        }
+
+        Set<Object> metadata = generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null),
+                environments, optionalAction);
         reactorProject.setDependencyMetadata(null, metadata);
 
         // let external providers contribute additional metadata

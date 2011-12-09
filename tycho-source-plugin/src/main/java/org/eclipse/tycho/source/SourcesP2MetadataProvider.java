@@ -24,6 +24,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 
 @Component(role = P2MetadataProvider.class, hint = "SourcesP2MetadataProvider")
@@ -37,7 +38,8 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
         if (isBundleProject(project) && hasSourceBundle(project)) {
             ReactorArtifactFacade sourcesArtifact = new ReactorArtifactFacade(reactorProject, "sources");
-            Set<Object> sourcesMetadata = sourcesGenerator.generateMetadata(sourcesArtifact, null);
+            Set<Object> sourcesMetadata = sourcesGenerator.generateMetadata(sourcesArtifact, null,
+                    OptionalResolutionAction.REQUIRE);
             reactorProject.setDependencyMetadata(sourcesArtifact.getClassidier(), sourcesMetadata);
         }
     }

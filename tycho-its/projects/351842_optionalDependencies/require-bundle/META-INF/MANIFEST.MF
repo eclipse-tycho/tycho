@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: 351842_optionalDependencies.require-bundle
+Bundle-SymbolicName: 351842_optionalDependencies.require-bundle;singleton:=true
+Bundle-Version: 1.0.0
+Require-Bundle: org.eclipse.osgi;resolution:=optional
+Bundle-ActivationPolicy: lazy

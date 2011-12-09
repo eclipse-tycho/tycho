@@ -14,6 +14,7 @@ import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasGAV;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -25,14 +26,21 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.junit.Test;
 
+@SuppressWarnings("restriction")
 public class P2GeneratorImplTest {
 
     @Test
@@ -40,7 +48,7 @@ public class P2GeneratorImplTest {
         DependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
         File location = new File("resources/generator/bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
-        Set<Object> units = p2GeneratorImpl.generateMetadata(artifactMock, getEnvironments());
+        Set<Object> units = p2GeneratorImpl.generateMetadata(artifactMock, getEnvironments(), null);
         assertEquals(1, units.size());
         IInstallableUnit sourceBundleUnit = getUnit("foo.source", units);
         assertNotNull(sourceBundleUnit);
@@ -77,4 +85,96 @@ public class P2GeneratorImplTest {
         return environments;
     }
 
+    @Test
+    public void testOptionalImportPackage_REQUIRE() throws Exception {
+        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        File location = new File("resources/generator/optional-import-package").getCanonicalFile();
+        ArtifactMock artifactMock = new ArtifactMock(location, "optional-import-package", "optional-import-package",
+                "0.0.1", "eclipse-plugin");
+        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(),
+                OptionalResolutionAction.REQUIRE);
+        assertEquals(1, units.size());
+        IInstallableUnit iu = getUnit("optional-import-package", units);
+        assertNotNull(iu);
+        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        assertEquals(1, requirements.size());
+        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        assertTrue(requirement.isGreedy());
+        assertEquals(1, requirement.getMin());
+        assertEquals(1, requirement.getMax());
+        assertEquals(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, requirement.getNamespace());
+        assertEquals("org.osgi.framework", requirement.getName());
+    }
+
+    @Test
+    public void testOptionalImportPackage_IGNORE() throws Exception {
+        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        File location = new File("resources/generator/optional-import-package").getCanonicalFile();
+        ArtifactMock artifactMock = new ArtifactMock(location, "optional-import-package", "optional-import-package",
+                "0.0.1", "eclipse-plugin");
+        Set<Object> units = generator
+                .generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.IGNORE);
+        assertEquals(1, units.size());
+        IInstallableUnit iu = getUnit("optional-import-package", units);
+        assertNotNull(iu);
+        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        assertEquals(0, requirements.size());
+    }
+
+    @Test
+    public void testOptionalRequireBundle_REQUIRE() throws Exception {
+        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        File location = new File("resources/generator/optional-require-bundle").getCanonicalFile();
+        ArtifactMock artifactMock = new ArtifactMock(location, "optional-require-bundle", "optional-require-bundle",
+                "0.0.1", "eclipse-plugin");
+        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(),
+                OptionalResolutionAction.REQUIRE);
+        assertEquals(1, units.size());
+        IInstallableUnit iu = getUnit("optional-require-bundle", units);
+        assertNotNull(iu);
+        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        assertEquals(1, requirements.size());
+        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        assertTrue(requirement.isGreedy());
+        assertEquals(1, requirement.getMin());
+        assertEquals(1, requirement.getMax());
+        assertEquals(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, requirement.getNamespace());
+        assertEquals("org.eclipse.osgi", requirement.getName());
+    }
+
+    @Test
+    public void testOptionalRequireBundle_IGNORE() throws Exception {
+        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        File location = new File("resources/generator/optional-require-bundle").getCanonicalFile();
+        ArtifactMock artifactMock = new ArtifactMock(location, "optional-require-bundle", "optional-require-bundle",
+                "0.0.1", "eclipse-plugin");
+        Set<Object> units = generator
+                .generateMetadata(artifactMock, getEnvironments(), OptionalResolutionAction.IGNORE);
+        assertEquals(1, units.size());
+        IInstallableUnit iu = getUnit("optional-require-bundle", units);
+        assertNotNull(iu);
+        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        assertEquals(0, requirements.size());
+    }
+
+    @Test
+    public void testOptionalRequireBundleP2inf_REQUIRE() throws Exception {
+        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        File location = new File("resources/generator/optional-reqiure-bundle-p2inf").getCanonicalFile();
+        ArtifactMock artifactMock = new ArtifactMock(location, "optional-reqiure-bundle-p2inf",
+                "optional-reqiure-bundle-p2inf", "0.0.1", "eclipse-plugin");
+        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(),
+                OptionalResolutionAction.REQUIRE);
+        assertEquals(1, units.size());
+        IInstallableUnit iu = getUnit("optional-reqiure-bundle-p2inf", units);
+        assertNotNull(iu);
+        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        assertEquals(1, requirements.size());
+        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        assertTrue(requirement.isGreedy());
+        assertEquals(1, requirement.getMin());
+        assertEquals(1, requirement.getMax());
+        assertEquals(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, requirement.getNamespace());
+        assertEquals("org.eclipse.osgi", requirement.getName());
+    }
 }

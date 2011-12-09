@@ -31,6 +31,7 @@ import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.test.util.NoopFileLockService;
@@ -82,7 +83,8 @@ public class P2ResolverTestBase {
     void addReactorProject(File projectRoot, String packagingType, String artifactId) {
         ArtifactMock artifact = new ArtifactMock(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
                 packagingType);
-        artifact.setDependencyMetadata(dependencyGenerator.generateMetadata(artifact, getEnvironments()));
+        artifact.setDependencyMetadata(dependencyGenerator.generateMetadata(artifact, getEnvironments(),
+                OptionalResolutionAction.REQUIRE));
         context.addReactorArtifact(artifact);
     }
 

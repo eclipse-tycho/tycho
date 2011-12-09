@@ -152,7 +152,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId);
 
         ArtifactMock sb = new ArtifactMock(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN, "sources");
-        sb.setDependencyMetadata(new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb, getEnvironments()));
+        sb.setDependencyMetadata(new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb, getEnvironments(),
+                null));
         context.addReactorArtifact(sb);
 
         List<P2ResolutionResult> results = impl.resolveProject(context, feature);

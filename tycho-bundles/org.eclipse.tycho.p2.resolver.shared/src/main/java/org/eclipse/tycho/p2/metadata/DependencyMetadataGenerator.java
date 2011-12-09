@@ -15,9 +15,22 @@ import java.util.Map;
 import java.util.Set;
 
 public interface DependencyMetadataGenerator {
+
+    public static enum OptionalResolutionAction {
+        /**
+         * Treat optional dependencies as required.
+         **/
+        REQUIRE,
+
+        /**
+         * Ignore optional dependencies.
+         */
+        IGNORE,
+    }
+
     /**
      * Generates dependency-only artifact metadata
      */
     public Set<Object/* IInstallableUnit */> generateMetadata(IArtifactFacade artifact,
-            List<Map<String, String>> environments);
+            List<Map<String, String>> environments, OptionalResolutionAction optionalAction);
 }
