@@ -70,28 +70,36 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <artifactId>maven-invoker-plugin</artifactId>
-        <version>1.5</version>
-        <configuration>
-          <debug>true</debug>
-          <projectsDirectory>src/it</projectsDirectory>
-          <cloneProjectsTo>target/it</cloneProjectsTo>
-          <localRepositoryPath>target/local-repo</localRepositoryPath>
-          <postBuildHookScript>verify.bsh</postBuildHookScript>
-        </configuration>
-        <executions>
-          <execution>
-            <id>integration-test</id>
-            <goals>
-              <goal>install</goal>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>its</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>1.5</version>
+            <configuration>
+              <debug>true</debug>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>target/it</cloneProjectsTo>
+              <localRepositoryPath>target/local-repo</localRepositoryPath>
+              <postBuildHookScript>verify.bsh</postBuildHookScript>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
