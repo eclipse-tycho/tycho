@@ -118,4 +118,21 @@
 		</pluginManagement>
 	</build>
 
+    <!--need this to make site:stage happy -->
+    <distributionManagement>
+        <site>
+            <id>tycho-extras.site</id>
+            <name>Tycho Extras Site</name>
+            <url>staging</url>
+        </site>
+        <repository>
+            <id>${forgeReleaseId}</id>
+            <url>${forgeReleaseUrl}</url>
+        </repository>
+        <snapshotRepository>
+            <id>${forgeSnapshotId}</id>
+            <url>${forgeSnapshotUrl}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
