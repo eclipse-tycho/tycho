@@ -114,7 +114,7 @@
 		<jdtVersion>3.8.0.v_C03</jdtVersion>
 
 		<!-- version of tycho used by this build -->
-		<tychoBootstrapVersion>0.13.0</tychoBootstrapVersion>
+		<tychoBootstrapVersion>0.13.1-SNAPSHOT</tychoBootstrapVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -469,4 +469,10 @@
         </snapshotRepository>
   	</distributionManagement>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>tycho-0.13.1-SNAPSHOT</id>
+            <url> https://oss.sonatype.org/content/groups/public</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

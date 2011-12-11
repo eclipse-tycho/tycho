@@ -3,14 +3,14 @@
 
 <target name="Target platform for Tycho's bundles" sequenceNumber="0">
 <locations>
+
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="3.8.0.I20110803-1800"/>
-<unit id="org.eclipse.equinox.executable.feature.group" version="3.5.0.v20110711-1243-7P7NFUFFLWUl76nL8AO7_Bo"/>
-<repository location="http://download.eclipse.org/eclipse/updates/3.8milestones/S-3.8M1-201108031800/"/>
+<unit id="org.eclipse.sdk.ide" version="4.2.0.I20111209-2100"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.2milestones/S-4.2M4-201112092100/"/>
 </location>
 
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.equinox.p2.sdk.feature.group"/>
+<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20111209-1218"/>
 <repository location="http://download.eclipse.org/tycho/p2_364221_364222_364475"/>
 </location>
 
