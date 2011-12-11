@@ -62,15 +62,17 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
             }
         }
 
-        // TODO only include when includeLaunchers=true (includeLaunchers is not exposed by IProductDescriptor)
-        addRequiredCapability(required, "org.eclipse.equinox.executable.feature.group", null, null);
-
         // these are implicitly required, see
         // See also org.eclipse.tycho.osgitools.AbstractArtifactDependencyWalker.traverseProduct
         addRequiredCapability(required, "org.eclipse.equinox.launcher", null, null);
-        if (environments != null) {
-            for (Map<String, String> env : environments) {
-                addNativeRequirements(required, env.get(OSGI_OS), env.get(OSGI_WS), env.get(OSGI_ARCH));
+
+        if (product.includeLaunchers()) {
+            addRequiredCapability(required, "org.eclipse.equinox.executable.feature.group", null, null);
+
+            if (environments != null) {
+                for (Map<String, String> env : environments) {
+                    addNativeRequirements(required, env.get(OSGI_OS), env.get(OSGI_WS), env.get(OSGI_ARCH));
+                }
             }
         }
         return required;

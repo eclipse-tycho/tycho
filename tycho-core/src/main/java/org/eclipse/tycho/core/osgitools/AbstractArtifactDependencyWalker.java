@@ -123,7 +123,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             traversePlugin(ref, visitor, visited);
         }
 
-        if (environments != null) {
+        if (environments != null && product.includeLaunchers()) {
             for (TargetEnvironment environment : environments) {
                 String os = environment.getOs();
                 String ws = environment.getWs();

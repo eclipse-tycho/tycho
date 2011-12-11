@@ -123,10 +123,11 @@ public class P2DependencyGeneratorImplTest {
         assertEquals(3, requirement.size());
         assertEquals("included.bundle", ((IRequiredCapability) requirement.get(0)).getName());
 
+        assertEquals("org.eclipse.equinox.launcher", ((IRequiredCapability) requirement.get(1)).getName());
+
         // implicit dependencies because includeLaunchers="true"
         assertEquals("org.eclipse.equinox.executable.feature.group",
-                ((IRequiredCapability) requirement.get(1)).getName());
-        assertEquals("org.eclipse.equinox.launcher", ((IRequiredCapability) requirement.get(2)).getName());
+                ((IRequiredCapability) requirement.get(2)).getName());
 
         assertEquals(0, artifacts.size());
     }
@@ -142,6 +143,25 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
         assertEquals(3, unit.getRequirements().size());
+
+        assertEquals(0, artifacts.size());
+    }
+
+    @Test
+    public void rcpNoLaunchers() throws Exception {
+        generateDependencies("rcp-no-launchers", P2Resolver.TYPE_ECLIPSE_APPLICATION);
+
+        assertEquals(1, units.size());
+        IInstallableUnit unit = units.iterator().next();
+
+        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-no-launchers", unit.getId());
+        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
+
+        List<IRequirement> requirement = new ArrayList<IRequirement>(unit.getRequirements());
+
+        assertEquals(1, requirement.size());
+
+        assertEquals("org.eclipse.equinox.launcher", ((IRequiredCapability) requirement.get(0)).getName());
 
         assertEquals(0, artifacts.size());
     }
