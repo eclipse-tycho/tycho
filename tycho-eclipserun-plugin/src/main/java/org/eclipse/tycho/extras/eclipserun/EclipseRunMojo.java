@@ -37,93 +37,95 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+
 /**
  * @goal eclipse-run
  */
 public class EclipseRunMojo extends AbstractMojo {
-  
+
     /**
      * @parameter default-value="${project.build.directory}/work"
      */
     private File work;
-    
+
     /**
      * @parameter expression="${project}"
      */
     private MavenProject project;
-    
+
     /**
      * Additional target platform dependencies.
      * 
      * @parameter
      */
     private Dependency[] dependencies;
-    
+
     /**
      * @parameter expression="${session}"
      * @readonly
      * @required
      */
     private MavenSession session;
-	
+
     /**
      * Arbitrary JVM options to set on the command line.
      * 
      * @parameter
      */
     private String argLine;
-    
+
     /**
      * Arbitrary applications arguments to set on the command line.
      * 
      * @parameter
      */
     private String appArgLine;
-    
+
     /**
-     * Kill the forked process after a certain number of seconds. If set to 0, wait forever for
-     * the process, never timing out.
+     * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the
+     * process, never timing out.
      * 
      * @parameter expression="${surefire.timeout}"
      */
     private int forkedProcessTimeoutInSeconds;
-    
+
     /**
      * Additional environments to set for the forked JVM.
      * 
      * @parameter
      */
     private Map<String, String> environmentVariables;
-      
+
     /** @component */
     private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
-    
+
     /** @component */
     private EquinoxInstallationFactory installationFactory;
-    
+
     /** @component */
     private EquinoxLauncher launcher;
-    
+
     /** @component */
     private ToolchainManager toolchainManager;
-    
+
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         EquinoxInstallation installation = createEclipseInstallation(false, DefaultReactorProject.adapt(session));
         runEclipse(installation);
     }
-    
+
     private Dependency newBundleDependency(String bundleId) {
         Dependency ideapp = new Dependency();
         ideapp.setArtifactId(bundleId);
         ideapp.setType(ArtifactKey.TYPE_ECLIPSE_PLUGIN);
         return ideapp;
     }
-    
+
     private List<Dependency> getBasicDependencies() {
         ArrayList<Dependency> result = new ArrayList<Dependency>();
 
@@ -133,7 +135,7 @@ public class EclipseRunMojo extends AbstractMojo {
 
         return result;
     }
-    
+
     private EquinoxInstallation createEclipseInstallation(boolean includeReactorProjects,
             List<ReactorProject> reactorProjects) throws MojoExecutionException {
         TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
@@ -142,9 +144,11 @@ public class EclipseRunMojo extends AbstractMojo {
         if (this.dependencies != null) {
             dependencies.addAll(Arrays.asList(this.dependencies));
         }
-        
-        DependencyArtifacts runtimeArtifacts = platformResolver.resolvePlatform(session, project, reactorProjects,
-                dependencies);
+
+        TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
+
+        DependencyArtifacts runtimeArtifacts = platformResolver.resolveDependencies(session, project, targetPlatform,
+                reactorProjects, dependencies);
 
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
 
@@ -154,7 +158,7 @@ public class EclipseRunMojo extends AbstractMojo {
 
         return installationFactory.createInstallation(installationDesc, work);
     }
-    
+
     private void runEclipse(EquinoxInstallation runtime) throws MojoExecutionException, MojoFailureException {
         try {
             File workspace = new File(work, "data").getAbsoluteFile();
@@ -166,7 +170,7 @@ public class EclipseRunMojo extends AbstractMojo {
             throw new MojoExecutionException("Error while executing platform", e);
         }
     }
-    
+
     LaunchConfiguration createCommandLine(EquinoxInstallation runtime) throws MalformedURLException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(runtime);
 
@@ -182,20 +186,19 @@ public class EclipseRunMojo extends AbstractMojo {
         if (argLine != null) {
             cli.addVMArguments(false, argLine);
         }
-        
-        addProgramArgs(true, cli,
-                "-install", runtime.getLocation().getAbsolutePath(),
-                "-configuration", new File(work, "configuration").getAbsolutePath());
-        
+
+        addProgramArgs(true, cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration", new File(work,
+                "configuration").getAbsolutePath());
+
         addProgramArgs(false, cli, appArgLine);
-        
+
         if (environmentVariables != null) {
             cli.addEnvironmentVariables(environmentVariables);
         }
 
         return cli;
     }
-    
+
     private void addProgramArgs(boolean escape, EquinoxLaunchConfiguration cli, String... arguments) {
         if (arguments != null) {
             for (String argument : arguments) {
@@ -205,7 +208,7 @@ public class EclipseRunMojo extends AbstractMojo {
             }
         }
     }
-    
+
     private Toolchain getToolchain() {
         Toolchain tc = null;
         if (toolchainManager != null) {

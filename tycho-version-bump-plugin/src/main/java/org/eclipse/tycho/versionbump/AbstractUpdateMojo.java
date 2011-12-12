@@ -27,7 +27,7 @@ import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
+import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
 
 public abstract class AbstractUpdateMojo extends AbstractMojo {
 
@@ -36,7 +36,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
 
     protected P2Resolver p2;
 
-    protected ResolutionContext resolutionContext;
+    protected TargetPlatformBuilder resolutionContext;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
@@ -54,7 +54,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     private void createResolver() {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
         p2 = factory.createResolver();
-        resolutionContext = factory.createResolutionContext(null, false);
+        resolutionContext = factory.createTargetPlatformBuilder(null, false);
     }
 
     protected List<Map<String, String>> getEnvironments() {
