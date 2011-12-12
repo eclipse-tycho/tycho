@@ -42,7 +42,7 @@
 	<repositories>
 		<repository>
 			<id>tycho-snapshots</id>
-			<url>https://repository.sonatype.org/content/repositories/snapshots/</url>
+			<url>https://oss.sonatype.org/content/groups/public</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -52,7 +52,7 @@
 	<pluginRepositories>
 		<pluginRepository>
 			<id>tycho-snapshots</id>
-			<url>https://repository.sonatype.org/content/repositories/snapshots/</url>
+			<url>https://oss.sonatype.org/content/groups/public</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
