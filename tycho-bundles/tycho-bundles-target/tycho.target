@@ -9,6 +9,12 @@
 <repository location="http://download.eclipse.org/eclipse/updates/4.2milestones/S-4.2M4-201112092100/"/>
 </location>
 
+<!-- TODO remove this location once bug 355433 is fixed -->
+<location includeAllPlatforms="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
+<repository location="http://download.eclipse.org/releases/indigo/"/>
+</location>
+
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
 <unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20111209-1218"/>
 <repository location="http://download.eclipse.org/tycho/p2_364221_364222_364475"/>
