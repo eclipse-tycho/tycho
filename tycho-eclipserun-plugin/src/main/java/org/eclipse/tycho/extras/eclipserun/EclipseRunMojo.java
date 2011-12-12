@@ -27,6 +27,12 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
+import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
+import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -34,12 +40,6 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
-import org.eclipse.tycho.equinox.launching.DefaultEquinoxInstallationDescription;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallation;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallationDescription;
-import org.eclipse.tycho.equinox.launching.EquinoxInstallationFactory;
-import org.eclipse.tycho.equinox.launching.EquinoxLauncher;
-import org.eclipse.tycho.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 /**
  * @goal eclipse-run
