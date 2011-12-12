@@ -57,6 +57,9 @@ public class JDTCompiler extends AbstractCompiler {
 
     private static final char[] ADAPTER_ACCESS = "ACCESS#".toCharArray(); //$NON-NLS-1$
 
+    static final Pattern LINE_PATTERN = Pattern
+            .compile("(?:(\\d*)\\. )?(ERROR|WARNING) in (.*?)( \\(at line (\\d+)\\))?\\s*");
+
     String logFileName;
 
 //    Map customDefaultOptions;
@@ -338,7 +341,6 @@ public class JDTCompiler extends AbstractCompiler {
 
         try {
             String output = err.toString();
-            System.out.println(output);
             messages = parseModernStream(new BufferedReader(new StringReader(output)));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -356,58 +358,38 @@ public class JDTCompiler extends AbstractCompiler {
      */
     protected static List<CompilerError> parseModernStream(BufferedReader input) throws IOException {
         List<CompilerError> errors = new ArrayList<CompilerError>();
-
-        Pattern linePattern = Pattern.compile("(\\d*). (ERROR|WARNING) in (.*)");
-        Pattern lineNrPattern = Pattern.compile(" \\(at line (\\d*)\\)");
-        Pattern pointerPattern = Pattern.compile("(\\s*)(\\^*)");
-        String line;
-
-        StringBuilder buffer;
-
-        int lineNr = -1;
-        String file = null;
         String type = null;
-        int startCol = 0, endCol = 0;
-
-        while (true) {
-            buffer = new StringBuilder(EOL);
-
-            boolean processing = false;
-
-            do {
-                line = input.readLine();
-
-                if (line == null) {
-                    return errors;
+        String file = null;
+        int lineNr = -1;
+        StringBuilder messageBuffer = new StringBuilder();
+        for (String line = input.readLine(); line != null; line = input.readLine()) {
+            Matcher matcher = LINE_PATTERN.matcher(line);
+            if (matcher.matches()) {
+                addErrorIfFound(errors, type, file, lineNr, messageBuffer.toString());
+                /* String errorNr = */matcher.group(1);
+                type = matcher.group(2);
+                file = matcher.group(3);
+                String lineNumberString = matcher.group(5);
+                if (lineNumberString != null) {
+                    lineNr = Integer.parseInt(lineNumberString);
+                } else {
+                    lineNr = -1;
                 }
-
-                if (!processing) {
-                    Matcher matcher = linePattern.matcher(line);
-                    if (processing = matcher.matches()) {
-                        /* String errorNr = */matcher.group(1);
-                        type = matcher.group(2);
-                        file = matcher.group(3);
-                    }
-                } else if (!line.equals(SEPARATOR)) {
-                    Matcher m;
-                    if ((m = lineNrPattern.matcher(line)).matches()) {
-                        lineNr = Integer.parseInt(m.group(1));
-                    } else {
-                        if ((m = pointerPattern.matcher(line)).matches()) {
-                            startCol = m.group(1).length();
-                            endCol = startCol + m.group(2).length();
-                        }
-                        buffer.append(line).append(EOL);
-                    }
+                messageBuffer = new StringBuilder();
+            } else {
+                // context line
+                if (!SEPARATOR.equals(line) && line.trim().length() > 0) {
+                    messageBuffer.append(EOL).append(line);
                 }
-
-            } while (!line.endsWith(SEPARATOR));
-
-            if (processing) {
-                CompilerError error = new CompilerError(file, "ERROR".equals(type), lineNr, lineNr, startCol, endCol,
-                        buffer.toString());
-                errors.add(error);
             }
+        }
+        addErrorIfFound(errors, type, file, lineNr, messageBuffer.toString());
+        return errors;
+    }
+
+    private static void addErrorIfFound(List<CompilerError> errors, String type, String file, int line, String message) {
+        if (type != null) {
+            errors.add(new CompilerError(file, "ERROR".equals(type), line, 0, line, 0, message));
         }
     }
 

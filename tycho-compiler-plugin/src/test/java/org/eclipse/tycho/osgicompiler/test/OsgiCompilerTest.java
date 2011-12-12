@@ -301,4 +301,27 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
     }
+
+    public void testWarningAndErrorMessages() throws Exception {
+        File basedir = getBasedir("projects/compilermessages");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        try {
+            mojo.execute();
+            fail("compilation failure expected");
+        } catch (CompilationFailureException e) {
+            String message = e.getLongMessage();
+            assertTrue(message.contains("3 problems (1 error, 2 warnings)"));
+            // warning
+            assertTrue(message.contains("Test.java:[19"));
+            assertTrue(message.contains("URLEncoder.encode(\"\")"));
+            // warning
+            assertTrue(message.contains("Test.java:[21"));
+            assertTrue(message.contains("new ArrayList();"));
+            // error
+            assertTrue(message.contains("Test.java:[23"));
+            assertTrue(message.contains("System.foo();"));
+        }
+    }
 }
