@@ -8,14 +8,12 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl;
+package org.eclipse.tycho.core.facade;
 
 import java.io.File;
 
-import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.core.facade.internal.MutableMavenContext;
 
-public class MavenContextImpl implements MutableMavenContext {
+public class MavenContextImpl implements MavenContext {
 
     private File localRepositoryRoot;
     private MavenLogger mavenLogger;

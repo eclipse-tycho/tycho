@@ -20,7 +20,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.facade.MavenContext;
-import org.eclipse.tycho.core.facade.internal.MutableMavenContext;
+import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "MavenContextConfigurator")
@@ -34,12 +34,12 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
 
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
-        MutableMavenContext mavenContext = (MutableMavenContext) framework.getServiceFactory().getService(
-                MavenContext.class);
         MavenSession session = context.getSession();
+        MavenContextImpl mavenContext = new MavenContextImpl();
         mavenContext.setLocalRepositoryRoot(new File(session.getLocalRepository().getBasedir()));
         mavenContext.setOffline(session.isOffline());
         boolean extendedDebug = session.getUserProperties().getProperty("tycho.debug.resolver") != null;
         mavenContext.setLogger(new MavenLoggerAdapter(logger, extendedDebug));
+        framework.registerService(MavenContext.class, mavenContext);
     }
 }

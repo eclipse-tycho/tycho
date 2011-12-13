@@ -8,7 +8,7 @@ import java.net.URI;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
-import org.eclipse.tycho.p2.impl.MavenContextImpl;
+import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCache;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverFactoryImpl;

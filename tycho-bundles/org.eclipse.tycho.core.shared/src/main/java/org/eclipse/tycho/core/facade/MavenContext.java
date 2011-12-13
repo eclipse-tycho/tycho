@@ -13,8 +13,8 @@ package org.eclipse.tycho.core.facade;
 import java.io.File;
 
 /**
- * Makes maven information which is constant for the whole maven session available as a declarative
- * service to the embedded OSGi runtime.
+ * Makes maven information which is constant for the whole maven session available as a service to
+ * the embedded OSGi runtime.
  */
 public interface MavenContext {
 
