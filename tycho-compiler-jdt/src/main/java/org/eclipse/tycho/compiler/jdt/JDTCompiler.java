@@ -341,6 +341,7 @@ public class JDTCompiler extends AbstractCompiler {
 
         try {
             String output = err.toString();
+            getLogger().debug("Original compiler output: " + output);
             messages = parseModernStream(new BufferedReader(new StringReader(output)));
         } catch (IOException e) {
             throw new RuntimeException(e);
