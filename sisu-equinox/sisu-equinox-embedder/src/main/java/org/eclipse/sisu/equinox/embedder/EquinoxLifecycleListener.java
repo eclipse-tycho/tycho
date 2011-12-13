@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.sisu.equinox.embedder;
 
+/**
+ * Listener interface for events of {@link EmbeddedEquinox} instances.
+ */
 public abstract class EquinoxLifecycleListener {
-    public abstract void afterFrameworkStarted(EquinoxEmbedder framework);
+
+    public abstract void afterFrameworkStarted(EmbeddedEquinox framework);
+
 }

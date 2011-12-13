@@ -459,6 +459,14 @@
 			<name>Tycho Site</name>
 			<url>staging</url>
 		</site>
-	</distributionManagement>
+        <repository>
+            <id>${forgeReleaseId}</id>
+            <url>${forgeReleaseUrl}</url>
+        </repository>
+        <snapshotRepository>
+            <id>${forgeSnapshotId}</id>
+            <url>${forgeSnapshotUrl}</url>
+        </snapshotRepository>
+  	</distributionManagement>
 
 </project>

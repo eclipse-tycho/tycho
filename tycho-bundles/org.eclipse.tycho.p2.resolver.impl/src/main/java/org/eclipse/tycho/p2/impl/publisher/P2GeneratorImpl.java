@@ -41,6 +41,7 @@ import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
+import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -81,14 +82,14 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                         publisherInfo, targetDir);
                 publisherInfo.setArtifactRepository(artifactsRepository);
 
-                super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo);
+                super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo, null);
 
                 attachedArtifacts.putAll(artifactsRepository.getPublishedArtifacts());
             } else {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_NO_MD5);
                 TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
                 publisherInfo.setArtifactRepository(artifactsRepository);
-                super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo);
+                super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo, null);
             }
         }
 
@@ -104,18 +105,27 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
         publisherInfo.setArtifactRepository(new TransientArtifactRepository());
 
-        super.generateMetadata(artifact, environments, units, artifacts, publisherInfo);
+        super.generateMetadata(artifact, environments, units, artifacts, publisherInfo, null);
     }
 
     @Override
     protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<Map<String, String>> environments) {
+            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
+
+        if (!dependenciesOnly && optionalAction != null) {
+            throw new IllegalArgumentException();
+        }
+
         List<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 
         String packaging = artifact.getPackagingType();
         File location = artifact.getLocation();
         if (P2Resolver.TYPE_ECLIPSE_PLUGIN.equals(packaging) || P2Resolver.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
-            actions.add(new TychoBundleAction(location));
+            if (dependenciesOnly && optionalAction != null) {
+                actions.add(new BundleDependenciesAction(location, optionalAction));
+            } else {
+                actions.add(new TychoBundleAction(location));
+            }
         } else if (P2Resolver.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Feature feature = new FeatureParser().parse(location);
             feature.setLocation(location.getAbsolutePath());

@@ -17,15 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.security.Constraint;
-import org.mortbay.jetty.security.ConstraintMapping;
-import org.mortbay.jetty.security.HashUserRealm;
-import org.mortbay.jetty.security.Password;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Password;
 
 public class HttpServer {
     private static final int BIND_ATTEMPTS = 20;
@@ -34,13 +35,13 @@ public class HttpServer {
 
     private final Server server;
 
-    private final Context context;
+    private final ServletContextHandler context;
 
     private final int port;
 
     private final Map<String, FileServerServlet> servers = new HashMap<String, FileServerServlet>();
 
-    private HttpServer(int port, Server server, Context context) {
+    private HttpServer(int port, Server server, ServletContextHandler context) {
         this.port = port;
         this.server = server;
         this.context = context;
@@ -70,14 +71,14 @@ public class HttpServer {
         Connector connector = new SocketConnector();
         connector.setPort(port);
         server.addConnector(connector);
-        server.start();
 
-        Context context;
+        ServletContextHandler context;
         if (username != null) {
-            context = new Context(server, "/", Context.SESSIONS | Context.SECURITY);
+            context = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS
+                    | ServletContextHandler.SECURITY);
 
-            HashUserRealm userRealm = new HashUserRealm("default");
-            userRealm.put(username, new Password(password));
+            HashLoginService userRealm = new HashLoginService("default");
+            userRealm.putUser(username, new Password(password), new String[0]);
 
             Constraint constraint = new Constraint(Constraint.__BASIC_AUTH, Constraint.ANY_ROLE);
             constraint.setAuthenticate(true);
@@ -86,13 +87,14 @@ public class HttpServer {
             constraintMapping.setPathSpec("/*");
             constraintMapping.setConstraint(constraint);
 
-            context.getSecurityHandler().setUserRealm(userRealm);
-            context.getSecurityHandler().setAuthMethod(Constraint.__BASIC_AUTH);
-            context.getSecurityHandler().setConstraintMappings(new ConstraintMapping[] { constraintMapping });
+            ConstraintSecurityHandler securityHandler = (ConstraintSecurityHandler) context.getSecurityHandler();
+            securityHandler.setLoginService(userRealm);
+            securityHandler.setAuthMethod(Constraint.__BASIC_AUTH);
+            securityHandler.setConstraintMappings(new ConstraintMapping[] { constraintMapping });
         } else {
-            context = new Context(server, "/", 0);
+            context = new ServletContextHandler(server, "/", 0);
         }
-        context.start();
+        server.start();
 
         return new HttpServer(port, server, context);
     }

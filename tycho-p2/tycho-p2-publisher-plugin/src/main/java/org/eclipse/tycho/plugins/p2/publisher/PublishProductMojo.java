@@ -23,8 +23,8 @@ import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Launcher;
@@ -57,16 +57,22 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     protected Collection<?> publishContent(PublisherService publisherService) throws MojoExecutionException,
             MojoFailureException {
         List<Object> productIUs = new ArrayList<Object>();
-        for (Product product : getProducts()) {
+        for (File producFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
-                final Product buildProduct = prepareBuildProduct(product, getBuildDirectory(), getQualifier());
+                ProductConfiguration productConfiguration = ProductConfiguration.read(producFile);
+
+                final Product buildProduct = prepareBuildProduct(producFile, productConfiguration, getBuildDirectory(),
+                        getQualifier());
 
                 Collection<?> ius = publisherService.publishProduct(buildProduct.productFile,
-                        getEquinoxExecutableFeature(), flavor);
+                        productConfiguration.includeLaunchers() ? getEquinoxExecutableFeature() : null, flavor);
                 productIUs.addAll(ius);
             } catch (FacadeException e) {
-                throw new MojoExecutionException("Exception while publishing product "
-                        + product.getProductFile().getAbsolutePath(), e);
+                throw new MojoExecutionException("Exception while publishing product " + producFile.getAbsolutePath(),
+                        e);
+            } catch (IOException e) {
+                throw new MojoExecutionException(
+                        "I/O exception while writing product definition or copying launcher icons", e);
             }
         }
         return productIUs;
@@ -81,31 +87,24 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * "p2.inf" so that the publisher application finds it.
      * </p>
      */
-    static Product prepareBuildProduct(Product product, BuildOutputDirectory targetDir, String qualifier)
-            throws MojoExecutionException {
-        try {
-            ProductConfiguration productConfiguration = ProductConfiguration.read(product.productFile);
+    static Product prepareBuildProduct(File productFile, ProductConfiguration productConfiguration,
+            BuildOutputDirectory targetDir, String qualifier) throws MojoExecutionException, IOException {
+        qualifyVersions(productConfiguration, qualifier);
 
-            qualifyVersions(productConfiguration, qualifier);
-
-            final String productId = productConfiguration.getId();
-            if (productId == null) {
-                throw new MojoExecutionException("The product file " + product.productFile.getName()
-                        + " does not contain the mandatory attribute 'uid'");
-            }
-
-            File buildProductDir = targetDir.getChild("products/" + productId);
-            buildProductDir.mkdirs();
-            final Product buildProduct = new Product(new File(buildProductDir, product.getProductFile().getName()),
-                    new File(buildProductDir, "p2.inf"));
-            ProductConfiguration.write(productConfiguration, buildProduct.productFile);
-            copyP2Inf(product.p2infFile, buildProduct.p2infFile);
-            copyReferencedFiles(productConfiguration, product.productFile.getParentFile(), buildProductDir);
-            return buildProduct;
-        } catch (IOException e) {
-            throw new MojoExecutionException(
-                    "I/O exception while writing product definition or copying launcher icons", e);
+        final String productId = productConfiguration.getId();
+        if (productId == null) {
+            throw new MojoExecutionException("The product file " + productFile.getName()
+                    + " does not contain the mandatory attribute 'uid'");
         }
+
+        File buildProductDir = targetDir.getChild("products/" + productId);
+        buildProductDir.mkdirs();
+        final Product buildProduct = new Product(new File(buildProductDir, productFile.getName()), new File(
+                buildProductDir, "p2.inf"));
+        ProductConfiguration.write(productConfiguration, buildProduct.productFile);
+        copyP2Inf(getSourceP2InfFile(productFile), buildProduct.p2infFile);
+        copyReferencedFiles(productConfiguration, productFile.getParentFile(), buildProductDir);
+        return buildProduct;
     }
 
     private static void copyReferencedFiles(ProductConfiguration productConfiguration, File sourceDir, File targetDir)
@@ -171,16 +170,15 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         public File getP2infFile() {
             return p2infFile;
         }
+    }
 
-        /**
-         * We expect an p2 advice file called "xx.p2.inf" next to a product file "xx.product".
-         */
-        static File getSourceP2InfFile(File productFile) {
-            final int indexOfExtension = productFile.getName().indexOf(".product");
-            final String p2infFilename = productFile.getName().substring(0, indexOfExtension) + ".p2.inf";
-            return new File(productFile.getParentFile(), p2infFilename);
-        }
-
+    /**
+     * We expect an p2 advice file called "xx.p2.inf" next to a product file "xx.product".
+     */
+    static File getSourceP2InfFile(File productFile) {
+        final int indexOfExtension = productFile.getName().indexOf(".product");
+        final String p2infFilename = productFile.getName().substring(0, indexOfExtension) + ".p2.inf";
+        return new File(productFile.getParentFile(), p2infFilename);
     }
 
     static void qualifyVersions(ProductConfiguration productConfiguration, String buildQualifier) {
@@ -225,8 +223,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      */
     // TODO implement at eclipse: have product publisher take the executables from the context repositories 
     private File getEquinoxExecutableFeature() throws MojoExecutionException, MojoFailureException {
-        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(getProject());
-        ArtifactDescriptor artifact = targetPlatform.getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
+        // TODO 364134 take the executable feature from the target platform instead
+        DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getProject());
+        ArtifactDescriptor artifact = dependencyArtifacts.getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
                 "org.eclipse.equinox.executable", null);
 
         if (artifact == null) {
@@ -254,13 +253,4 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             }
         }
     }
-
-    private List<Product> getProducts() {
-        List<Product> result = new ArrayList<Product>();
-        for (File productFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
-            result.add(new Product(productFile));
-        }
-        return result;
-    }
-
 }

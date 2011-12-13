@@ -62,6 +62,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         }
     }
 
+    // workaround for http://jira.codehaus.org/browse/MNG-5206
+    // TODO remove method when fix for MNG-5206 is released (maven 3.0.5) 
     private void registerExecutionListener(MavenSession session) {
         MavenExecutionRequest request = session.getRequest();
         ChainedExecutionListener listener = new ChainedExecutionListener(request.getExecutionListener());
@@ -70,7 +72,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             @Override
             public void sessionEnded(ExecutionEvent event) {
                 try {
-                    // workaround for http://jira.codehaus.org/browse/MNG-5206
                     EquinoxServiceFactory equinoxServiceFactory = plexus.lookup(EquinoxServiceFactory.class);
                     if (equinoxServiceFactory != null) {
                         plexus.release(equinoxServiceFactory);

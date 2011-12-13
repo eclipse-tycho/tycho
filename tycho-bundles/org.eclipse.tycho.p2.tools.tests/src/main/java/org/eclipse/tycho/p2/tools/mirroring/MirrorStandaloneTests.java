@@ -9,8 +9,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Collections;
 
+import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;

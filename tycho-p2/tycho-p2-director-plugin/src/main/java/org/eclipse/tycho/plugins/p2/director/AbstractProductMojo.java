@@ -17,11 +17,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 abstract class AbstractProductMojo extends AbstractMojo {
@@ -60,20 +57,6 @@ abstract class AbstractProductMojo extends AbstractMojo {
     List<TargetEnvironment> getEnvironments() {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         return configuration.getEnvironments();
-    }
-
-    TargetPlatform getTargetPlatform() {
-        return getTychoProjectFacet(project.getPackaging()).getTargetPlatform(project);
-    }
-
-    private TychoProject getTychoProjectFacet(String packaging) {
-        TychoProject facet;
-        try {
-            facet = (TychoProject) session.lookup(TychoProject.class.getName(), packaging);
-        } catch (ComponentLookupException e) {
-            throw new IllegalStateException("Could not lookup required component", e);
-        }
-        return facet;
     }
 
     ProductConfig getProductConfig() throws MojoFailureException {

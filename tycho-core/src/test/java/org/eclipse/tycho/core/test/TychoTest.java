@@ -24,9 +24,9 @@ import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
@@ -172,7 +172,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
 
         TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
-        TargetPlatform platform = projectType.getTargetPlatform(project);
+        DependencyArtifacts platform = projectType.getDependencyArtifacts(project);
 
         assertNotNull(platform.getArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, "testjar", "1.0.0"));
         assertNotNull(platform.getArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, "testdir", "1.0.0"));
@@ -189,7 +189,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         File platformLocation = new File("src/test/resources/targetplatforms/MNGECLIPSE-942");
         MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
         TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
-        TargetPlatform platform = projectType.getTargetPlatform(project);
+        DependencyArtifacts platform = projectType.getDependencyArtifacts(project);
 
         assertEquals(2, platform.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN).size());
         assertNotNull(platform.getArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, "org.junit4.nl_ru", null));

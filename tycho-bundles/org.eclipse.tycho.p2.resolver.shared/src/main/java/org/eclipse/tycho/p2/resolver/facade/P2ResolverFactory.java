@@ -12,7 +12,7 @@ package org.eclipse.tycho.p2.resolver.facade;
 
 public interface P2ResolverFactory {
 
-    public ResolutionContext createResolutionContext(String bree, boolean disableP2Mirrors);
+    public TargetPlatformBuilder createTargetPlatformBuilder(String bree, boolean disableP2Mirrors);
 
     public P2Resolver createResolver();
 }

@@ -57,13 +57,6 @@
 			<artifactId>org.eclipse.tycho.core.shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- TODO this dependency is probably not be needed; the classes from p2.resolver.shared 
-		     used by this module should probably be in core.shared -->
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.shared</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 	</dependencies>
 
 	<build>

@@ -23,11 +23,11 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.AbstractArtifactDependencyWalker;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -67,7 +67,7 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
 
     protected void walkProduct(String productFile, final ArrayList<PluginDescription> plugins,
             final ArrayList<FeatureDescription> features) throws Exception, IOException, XmlPullParserException {
-        TargetPlatform platform = getTargetPlatform();
+        DependencyArtifacts platform = getTargetPlatform();
 
         final ProductConfiguration product = ProductConfiguration.read(new File(productFile));
 
@@ -91,7 +91,7 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
         });
     }
 
-    protected TargetPlatform getTargetPlatform() throws Exception {
+    protected DependencyArtifacts getTargetPlatform() throws Exception {
         LocalTargetPlatformResolver resolver = (LocalTargetPlatformResolver) lookup(TargetPlatformResolver.class,
                 LocalTargetPlatformResolver.ROLE_HINT);
 
@@ -107,8 +107,8 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
 
         resolver.setLocation(new File("src/test/resources/targetplatforms/basic"));
 
-        TargetPlatform platform = resolver
-                .resolvePlatform(session, project, DefaultReactorProject.adapt(session), null);
+        DependencyArtifacts platform = resolver.resolveDependencies(session, project, null,
+                DefaultReactorProject.adapt(session), null);
         return platform;
     }
 }

@@ -48,7 +48,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final List<ProductConfiguration> products = loadProducts(project);
         final List<Category> categories = loadCategories(project);
-        return new AbstractArtifactDependencyWalker(getTargetPlatform(project, environment), getEnvironments(project,
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(project,
                 environment)) {
             public void walk(ArtifactDependencyVisitor visitor) {
                 WalkbackPath visited = new WalkbackPath();

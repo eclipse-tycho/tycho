@@ -13,8 +13,6 @@ package org.eclipse.tycho.test.util;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.tycho.p2.repository.GAV;
-
 public class LocalMavenRepositoryTool {
 
     private File localRepo;
@@ -30,9 +28,9 @@ public class LocalMavenRepositoryTool {
         }
     }
 
-    public File getArtifactFile(GAV gav, String classifier, String extension) {
-        return getArtifactFile(gav.getGroupId(), gav.getArtifactId(), gav.getVersion(), classifier, extension);
-    }
+//    public File getArtifactFile(GAV gav, String classifier, String extension) {
+//        return getArtifactFile(gav.getGroupId(), gav.getArtifactId(), gav.getVersion(), classifier, extension);
+//    }
 
     public File getArtifactFile(String groupId, String artifactId, String version, String classifier, String extension) {
         String groupPath = groupId.replace('.', '/');

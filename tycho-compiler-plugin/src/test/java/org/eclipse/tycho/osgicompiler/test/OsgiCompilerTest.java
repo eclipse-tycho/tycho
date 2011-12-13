@@ -253,6 +253,15 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         project = projects.get(4);
         mojo = getMojo(projects, project);
         assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
+        // project with both explicit compiler configuration in build.properties and Bundle-RequiredExecutionEnvironment. 
+        // build.properties should win. 
+        project = projects.get(5);
+        mojo = getMojo(projects, project);
+        assertEquals("jsr14", mojo.getTargetLevel());
+        assertEquals("1.5", mojo.getSourceLevel());
+        assertEquals("J2SE-1.5", mojo.getExecutionEnvironment());
+        mojo.execute();
+        assertBytecodeMajorLevel(TARGET_1_4, new File(project.getBasedir(), "target/classes/Generic.class"));
     }
 
     private void assertBytecodeMajorLevel(int majorLevel, File classFile) throws ClassFormatException, IOException {
@@ -300,5 +309,28 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
+    }
+
+    public void testWarningAndErrorMessages() throws Exception {
+        File basedir = getBasedir("projects/compilermessages");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        try {
+            mojo.execute();
+            fail("compilation failure expected");
+        } catch (CompilationFailureException e) {
+            String message = e.getLongMessage();
+            assertTrue(message.contains("3 problems (1 error, 2 warnings)"));
+            // warning
+            assertTrue(message.contains("Test.java:[19"));
+            assertTrue(message.contains("URLEncoder.encode(\"\")"));
+            // warning
+            assertTrue(message.contains("Test.java:[21"));
+            assertTrue(message.contains("new ArrayList();"));
+            // error
+            assertTrue(message.contains("Test.java:[23"));
+            assertTrue(message.contains("System.foo();"));
+        }
     }
 }

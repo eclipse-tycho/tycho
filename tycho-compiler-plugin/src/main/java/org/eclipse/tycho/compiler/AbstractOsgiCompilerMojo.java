@@ -488,11 +488,17 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return getSourceLevel(getTargetExecutionEnvironment());
     }
 
-    private String getSourceLevel(ExecutionEnvironment env) {
+    private String getSourceLevel(ExecutionEnvironment env) throws MojoExecutionException {
+        // first, explicit pom configuration 
         if (source != null) {
-            // explicit pom configuration wins
             return source;
         }
+        // then, build.properties
+        String javacSource = getEclipsePluginProject().getBuildProperties().getProperty("javacSource");
+        if (javacSource != null) {
+            return javacSource.trim();
+        }
+        // then, BREE
         if (env != null) {
             return env.getCompilerSourceLevel();
         }
@@ -503,11 +509,17 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return getTargetLevel(getTargetExecutionEnvironment());
     }
 
-    public String getTargetLevel(ExecutionEnvironment env) {
+    public String getTargetLevel(ExecutionEnvironment env) throws MojoExecutionException {
+        // first, explicit pom configuration
         if (target != null) {
-            // explicit pom configuration wins
             return target;
         }
+        // then, build.properties
+        String javacTarget = getEclipsePluginProject().getBuildProperties().getProperty("javacTarget");
+        if (javacTarget != null) {
+            return javacTarget.trim();
+        }
+        // then, BREE
         if (env != null) {
             return env.getCompilerTargetLevel();
         }

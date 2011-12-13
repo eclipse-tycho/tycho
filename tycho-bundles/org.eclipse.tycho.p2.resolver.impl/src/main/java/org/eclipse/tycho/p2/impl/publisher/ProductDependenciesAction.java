@@ -10,16 +10,21 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
+import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.osgi.service.environment.Constants;
 
@@ -62,15 +67,17 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
             }
         }
 
-        // TODO only include when includeLaunchers=true (includeLaunchers is not exposed by IProductDescriptor)
-        addRequiredCapability(required, "org.eclipse.equinox.executable.feature.group", null, null);
-
         // these are implicitly required, see
         // See also org.eclipse.tycho.osgitools.AbstractArtifactDependencyWalker.traverseProduct
         addRequiredCapability(required, "org.eclipse.equinox.launcher", null, null);
-        if (environments != null) {
-            for (Map<String, String> env : environments) {
-                addNativeRequirements(required, env.get(OSGI_OS), env.get(OSGI_WS), env.get(OSGI_ARCH));
+
+        if (product.includeLaunchers()) {
+            addRequiredCapability(required, "org.eclipse.equinox.executable.feature.group", null, null);
+
+            if (environments != null) {
+                for (Map<String, String> env : environments) {
+                    addNativeRequirements(required, env.get(OSGI_OS), env.get(OSGI_WS), env.get(OSGI_ARCH));
+                }
             }
         }
         return required;
@@ -98,4 +105,22 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
         addRequiredCapability(required, "org.eclipse.equinox.launcher." + ws + "." + os + "." + arch, null, filter);
     }
 
+    @Override
+    protected void addPublisherAdvice(IPublisherInfo publisherInfo) {
+        // see org.eclipse.equinox.p2.publisher.eclipse.ProductAction.createAdviceFileAdvice()
+
+        File productFileLocation = product.getLocation();
+        if (productFileLocation == null) {
+            return;
+        }
+
+        String id = product.getId();
+        Version parseVersion = Version.parseVersion(product.getVersion());
+        IPath basePath = new Path(productFileLocation.getParent());
+
+        AdviceFileAdvice advice = new AdviceFileAdvice(id, parseVersion, basePath, new Path("p2.inf"));
+        if (advice.containsAdvice()) {
+            publisherInfo.addAdvice(advice);
+        }
+    }
 }

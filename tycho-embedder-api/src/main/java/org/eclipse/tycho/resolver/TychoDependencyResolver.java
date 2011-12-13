@@ -17,6 +17,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 
 public interface TychoDependencyResolver {
+    // TODO project and reactorProject represent the same thing!? -> should be one paramenter
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject);
 
     public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects);

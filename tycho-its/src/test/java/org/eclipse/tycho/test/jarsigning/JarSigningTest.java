@@ -23,6 +23,5 @@ public class JarSigningTest extends AbstractTychoIntegrationTest {
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         verifier.verifyTextInLog("verified successfully");
-        // TODO activate director in pom.xml
     }
 }

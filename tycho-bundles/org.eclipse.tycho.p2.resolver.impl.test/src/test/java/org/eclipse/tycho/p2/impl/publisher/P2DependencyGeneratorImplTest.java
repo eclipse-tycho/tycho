@@ -35,14 +35,14 @@ public class P2DependencyGeneratorImplTest {
     private static final String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
     private static final String DEFAULT_GROUP_ID = "org.eclipse.tycho.p2.impl.test";
     private P2GeneratorImpl subject;
-    private LinkedHashSet<IInstallableUnit> units;
+    private List<IInstallableUnit> units;
     private LinkedHashSet<IArtifactDescriptor> artifacts;
 
     @Before
     public void resetTestSubjectAndResultFields() {
         subject = new P2GeneratorImpl(true);
 
-        units = new LinkedHashSet<IInstallableUnit>();
+        units = new ArrayList<IInstallableUnit>();
         artifacts = new LinkedHashSet<IArtifactDescriptor>();
     }
 
@@ -53,7 +53,11 @@ public class P2DependencyGeneratorImplTest {
 
         ArrayList<Map<String, String>> emptyEnvironments = new ArrayList<Map<String, String>>();
 
+        LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
+
         subject.generateMetadata(reactorProject, emptyEnvironments, units, artifacts);
+
+        this.units = new ArrayList<IInstallableUnit>(units);
     }
 
     @Test
@@ -61,7 +65,7 @@ public class P2DependencyGeneratorImplTest {
         generateDependencies("bundle", P2Resolver.TYPE_ECLIPSE_PLUGIN);
 
         assertEquals(1, units.size());
-        IInstallableUnit unit = units.iterator().next();
+        IInstallableUnit unit = units.get(0);
 
         assertEquals("org.eclipse.tycho.p2.impl.test.bundle", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
@@ -69,6 +73,25 @@ public class P2DependencyGeneratorImplTest {
 
         // not really necessary, but we get this because we reuse standard p2 implementation
         assertEquals(1, artifacts.size());
+    }
+
+    @Test
+    public void bundle_with_p2_inf() throws Exception {
+        generateDependencies("bundle-p2-inf", P2Resolver.TYPE_ECLIPSE_PLUGIN);
+
+        assertEquals(2, units.size());
+
+        IInstallableUnit unit = units.get(0);
+        assertEquals("org.eclipse.tycho.p2.impl.test.bundle-p2-inf", unit.getId());
+        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
+
+        List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
+        assertEquals(1, requirements.size());
+        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        assertEquals(IInstallableUnit.NAMESPACE_IU_ID, requirement.getNamespace());
+        assertEquals("required.p2.inf", requirement.getName());
+
+        assertEquals("iu.p2.inf", units.get(1).getId());
     }
 
     @Test
@@ -92,6 +115,30 @@ public class P2DependencyGeneratorImplTest {
         assertEquals(Version.parseVersion("2.0.0"), matches.getParameters()[3]);
 
         assertEquals(0, artifacts.size());
+    }
+
+    @Test
+    public void feature_with_p2_inf() throws Exception {
+        generateDependencies("feature-p2-inf", P2Resolver.TYPE_ECLIPSE_FEATURE);
+
+        List<IInstallableUnit> units = new ArrayList<IInstallableUnit>(this.units);
+
+        // no feature.jar IU because dependencyOnly=true
+        assertEquals(2, units.size());
+
+        IInstallableUnit unit = units.get(0);
+        assertEquals("org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group", unit.getId());
+        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
+
+        List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
+        assertEquals(1, requirements.size());
+        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        assertEquals(IInstallableUnit.NAMESPACE_IU_ID, requirement.getNamespace());
+        assertEquals("required.p2.inf", requirement.getName());
+
+        assertEquals(0, artifacts.size());
+
+        assertEquals("iu.p2.inf", units.get(1).getId());
     }
 
     @Test
@@ -123,12 +170,34 @@ public class P2DependencyGeneratorImplTest {
         assertEquals(3, requirement.size());
         assertEquals("included.bundle", ((IRequiredCapability) requirement.get(0)).getName());
 
+        assertEquals("org.eclipse.equinox.launcher", ((IRequiredCapability) requirement.get(1)).getName());
+
         // implicit dependencies because includeLaunchers="true"
         assertEquals("org.eclipse.equinox.executable.feature.group",
-                ((IRequiredCapability) requirement.get(1)).getName());
-        assertEquals("org.eclipse.equinox.launcher", ((IRequiredCapability) requirement.get(2)).getName());
+                ((IRequiredCapability) requirement.get(2)).getName());
 
         assertEquals(0, artifacts.size());
+    }
+
+    @Test
+    public void rcp_with_p2_inf() throws Exception {
+        generateDependencies("rcp-p2-inf", P2Resolver.TYPE_ECLIPSE_APPLICATION);
+
+        assertEquals(2, units.size());
+        IInstallableUnit unit = units.get(0);
+
+        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-p2-inf", unit.getId());
+        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
+
+        List<IRequirement> requirement = new ArrayList<IRequirement>(unit.getRequirements());
+
+        assertEquals(2, requirement.size());
+        assertEquals("org.eclipse.equinox.launcher", ((IRequiredCapability) requirement.get(0)).getName());
+        assertEquals("required.p2.inf", ((IRequiredCapability) requirement.get(1)).getName());
+
+        assertEquals(0, artifacts.size());
+
+        assertEquals("iu.p2.inf", units.get(1).getId());
     }
 
     @Test
@@ -142,6 +211,25 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
         assertEquals(3, unit.getRequirements().size());
+
+        assertEquals(0, artifacts.size());
+    }
+
+    @Test
+    public void rcpNoLaunchers() throws Exception {
+        generateDependencies("rcp-no-launchers", P2Resolver.TYPE_ECLIPSE_APPLICATION);
+
+        assertEquals(1, units.size());
+        IInstallableUnit unit = units.iterator().next();
+
+        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-no-launchers", unit.getId());
+        assertEquals("1.0.0.qualifier", unit.getVersion().toString());
+
+        List<IRequirement> requirement = new ArrayList<IRequirement>(unit.getRequirements());
+
+        assertEquals(1, requirement.size());
+
+        assertEquals("org.eclipse.equinox.launcher", ((IRequiredCapability) requirement.get(0)).getName());
 
         assertEquals(0, artifacts.size());
     }

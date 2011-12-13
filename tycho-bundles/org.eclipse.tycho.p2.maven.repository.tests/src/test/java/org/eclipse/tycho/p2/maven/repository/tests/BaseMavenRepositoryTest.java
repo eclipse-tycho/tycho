@@ -13,10 +13,10 @@ package org.eclipse.tycho.p2.maven.repository.tests;
 
 import java.io.File;
 
+import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.locking.facade.LockTimeoutException;
-import org.eclipse.tycho.p2.impl.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;

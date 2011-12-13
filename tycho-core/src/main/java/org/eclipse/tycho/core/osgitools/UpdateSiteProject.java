@@ -29,7 +29,7 @@ public class UpdateSiteProject extends AbstractArtifactBasedProject {
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final UpdateSite site = loadSite(project);
-        return new AbstractArtifactDependencyWalker(getTargetPlatform(project, environment), getEnvironments(project,
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(project,
                 environment)) {
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseUpdateSite(site, visitor);

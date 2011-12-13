@@ -19,7 +19,7 @@ import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
-import org.eclipse.tycho.core.TargetPlatform;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
@@ -51,7 +51,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
 
         MavenProject project = basedirMap.get(new File(basedir, "bundle"));
-        TargetPlatform platform = (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);
+        DependencyArtifacts platform = (DependencyArtifacts) project.getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
 
         State state = resolver.newResolvedState(project, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getCanonicalPath());

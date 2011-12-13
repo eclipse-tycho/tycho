@@ -28,8 +28,8 @@ import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.AbstractScanner;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
@@ -111,8 +111,8 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
         return facet;
     }
 
-    protected TargetPlatform getTargetPlatform() {
-        return getTychoProjectFacet().getTargetPlatform(project);
+    protected DependencyArtifacts getDependencyArtifacts() {
+        return getTychoProjectFacet().getDependencyArtifacts(project);
     }
 
     protected void expandVersion() {

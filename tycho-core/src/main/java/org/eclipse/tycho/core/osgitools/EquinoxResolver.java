@@ -32,8 +32,8 @@ import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.osgi.service.resolver.VersionConstraint;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
@@ -53,10 +53,10 @@ public class EquinoxResolver {
     @Requirement
     private Logger logger;
 
-    public State newResolvedState(MavenProject project, TargetPlatform platform) throws BundleException {
+    public State newResolvedState(MavenProject project, DependencyArtifacts artifacts) throws BundleException {
         Properties properties = getPlatformProperties(project);
 
-        State state = newState(platform, properties);
+        State state = newState(artifacts, properties);
 
         resolveState(state);
 
@@ -67,10 +67,10 @@ public class EquinoxResolver {
         return state;
     }
 
-    public State newResolvedState(File basedir, TargetPlatform platform) throws BundleException {
+    public State newResolvedState(File basedir, DependencyArtifacts artifacts) throws BundleException {
         Properties properties = getPlatformProperties(new Properties(), null);
 
-        State state = newState(platform, properties);
+        State state = newState(artifacts, properties);
 
         resolveState(state);
 
@@ -127,7 +127,7 @@ public class EquinoxResolver {
         return properties;
     }
 
-    protected State newState(TargetPlatform platform, Properties properties) throws BundleException {
+    protected State newState(DependencyArtifacts artifacts, Properties properties) throws BundleException {
         State state = factory.createState(true);
 
         state.setPlatformProperties(properties);
@@ -140,7 +140,7 @@ public class EquinoxResolver {
         // make sure reactor projects override anything from target platform
         // that has the same bundle symbolic name
         ArrayList<ArtifactDescriptor> projects = new ArrayList<ArtifactDescriptor>();
-        for (ArtifactDescriptor artifact : platform.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
+        for (ArtifactDescriptor artifact : artifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
             if (artifact.getMavenProject() != null) {
                 projects.add(artifact);
             } else {

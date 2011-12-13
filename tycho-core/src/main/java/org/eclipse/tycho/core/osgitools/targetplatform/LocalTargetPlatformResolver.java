@@ -33,7 +33,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TargetPlatform;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
@@ -50,6 +51,7 @@ import org.eclipse.tycho.model.Feature;
 /**
  * Creates target platform based on local eclipse installation.
  */
+//TODO 364134 revise the role of this class
 @Component(role = TargetPlatformResolver.class, hint = LocalTargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
 public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver implements TargetPlatformResolver {
 
@@ -96,8 +98,14 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
         platform.addSite(parentDir);
     }
 
-    public TargetPlatform resolvePlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
+    public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
+            List<ReactorProject> reactorProjects) {
+        // everything is done in resolveDependencies
+        return null;
+    }
+
+    public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
+            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
         DefaultTargetPlatform platform = new DefaultTargetPlatform();
 
         for (File site : layout.getSites()) {
@@ -231,7 +239,7 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
     }
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
-            TargetPlatform targetPlatform, Logger logger) {
+            DependencyArtifacts targetPlatform, Logger logger) {
         // walk depencencies for consistency
         projectType.checkForMissingDependencies(project);
 

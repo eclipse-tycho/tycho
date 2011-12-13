@@ -14,6 +14,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -22,6 +24,8 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -139,6 +143,18 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
             includedIUs.append(id);
         }
         iud.setProperty(INCLUDED_IUS, includedIUs.toString());
+    }
+
+    @Override
+    protected void addPublisherAdvice(IPublisherInfo publisherInfo) {
+        // see org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction.createAdviceFileAdvice(Feature, IPublisherInfo)
+        IPath location = new Path(feature.getLocation());
+        Version version = Version.parseVersion(feature.getVersion());
+        String groupId = getId();
+        AdviceFileAdvice advice = new AdviceFileAdvice(groupId, version, location, new Path("p2.inf"));
+        if (advice.containsAdvice()) {
+            publisherInfo.addAdvice(advice);
+        }
     }
 
     public static Set<String> getIncludedUIs(IInstallableUnit iu) {

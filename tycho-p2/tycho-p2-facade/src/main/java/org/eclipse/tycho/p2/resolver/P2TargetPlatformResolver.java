@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.MavenExecutionException;
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -38,26 +39,32 @@ import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Plugin;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.repository.ComponentDependency;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetEnvironment;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
+import org.eclipse.tycho.core.maven.utils.PluginRealmHelper;
+import org.eclipse.tycho.core.maven.utils.PluginRealmHelper.PluginFilter;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
@@ -71,17 +78,19 @@ import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.resolver.facade.ResolutionContext;
+import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
+// TODO 364134 rename this class
 @Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
 public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver implements TargetPlatformResolver,
         Initializable {
@@ -106,80 +115,104 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Requirement
+    private PlexusContainer plexus;
+
+    @Requirement
+    private PluginRealmHelper pluginRealmHelper;
+
     private P2ResolverFactory resolverFactory;
 
     private DependencyMetadataGenerator generator;
 
-    private DependencyMetadataGenerator sourcesGenerator;
-
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
 
-    public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject) {
+    public void setupProjects(final MavenSession session, final MavenProject project,
+            final ReactorProject reactorProject) {
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<Map<String, String>> environments = getEnvironments(configuration);
-        Set<Object> metadata = generator
-                .generateMetadata(new ReactorArtifactFacade(reactorProject, null), environments);
+
+        OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
+
+        if (TargetPlatformConfiguration.OPTIONAL_RESOLUTION_IGNORE.equals(configuration.getOptionalResolutionAction())) {
+            optionalAction = OptionalResolutionAction.IGNORE;
+        }
+
+        Set<Object> metadata = generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null),
+                environments, optionalAction);
         reactorProject.setDependencyMetadata(null, metadata);
 
-        // TODO this should be moved to osgi-sources-plugin somehow
-        if (isBundleProject(project) && hasSourceBundle(project)) {
-            ReactorArtifactFacade sourcesArtifact = new ReactorArtifactFacade(reactorProject, "sources");
-            Set<Object> sourcesMetadata = sourcesGenerator.generateMetadata(sourcesArtifact, environments);
-            reactorProject.setDependencyMetadata(sourcesArtifact.getClassidier(), sourcesMetadata);
+        // let external providers contribute additional metadata
+        try {
+            pluginRealmHelper.execute(session, project, new Runnable() {
+                public void run() {
+                    try {
+                        for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
+                            provider.setupProject(session, project, reactorProject);
+                        }
+                    } catch (ComponentLookupException e) {
+                        // have not found anything
+                    }
+                }
+            }, new PluginFilter() {
+                public boolean accept(PluginDescriptor descriptor) {
+                    return isTychoP2Plugin(descriptor);
+                }
+            });
+        } catch (MavenExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private static boolean isBundleProject(MavenProject project) {
-        String type = project.getPackaging();
-        return ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type) || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(type);
-    }
-
-    private static boolean hasSourceBundle(MavenProject project) {
-        // TODO this is a fragile way of checking whether we generate a source bundle
-        // should we rather use MavenSession to get the actual configured mojo instance?
-        for (Plugin plugin : project.getBuildPlugins()) {
-            if ("org.eclipse.tycho:tycho-source-plugin".equals(plugin.getKey())) {
+    protected boolean isTychoP2Plugin(PluginDescriptor pluginDescriptor) {
+        if (pluginDescriptor.getArtifactMap().containsKey("org.eclipse.tycho:tycho-p2-facade")) {
+            return true;
+        }
+        for (ComponentDependency dependency : pluginDescriptor.getDependencies()) {
+            if ("org.eclipse.tycho".equals(dependency.getGroupId())
+                    && "tycho-p2-facade".equals(dependency.getArtifactId())) {
                 return true;
             }
         }
         return false;
     }
 
-    public TargetPlatform resolvePlatform(final MavenSession session, final MavenProject project,
-            List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
-
+    public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
+            List<ReactorProject> reactorProjects) {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
         ExecutionEnvironment ee = projectTypes.get(project.getPackaging()).getExecutionEnvironment(project);
 
-        ResolutionContext resolutionContext = resolverFactory.createResolutionContext(//
+        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(//
                 ee != null ? ee.getProfileName() : null, configuration.isDisableP2Mirrors());
+        tpBuilder.setProjectLocation(project.getBasedir());
 
-        P2Resolver osgiResolverImpl = resolverFactory.createResolver();
+        addReactorProjectsToTargetPlatform(reactorProjects, tpBuilder);
 
-        try {
-            return doResolvePlatform(session, project, reactorProjects, dependencies, resolutionContext,
-                    osgiResolverImpl, configuration);
-        } finally {
-            resolutionContext.stop();
+        if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
+            addPomDependenciesToTargetPlatform(project, tpBuilder, reactorProjects, session);
         }
+
+        for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
+            addEntireP2RepositoryToTargetPlatform(repository, tpBuilder, session);
+        }
+
+        if (configuration.getTarget() != null) {
+            addTargetFileContentToTargetPlatform(configuration, tpBuilder, session);
+        }
+
+        return tpBuilder.buildTargetPlatform();
     }
 
-    protected TargetPlatform doResolvePlatform(final MavenSession session, final MavenProject project,
-            List<ReactorProject> reactorProjects, List<Dependency> dependencies, ResolutionContext resolutionContext,
-            P2Resolver resolver, TargetPlatformConfiguration configuration) {
-
-        Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
-
-        resolver.setEnvironments(getEnvironments(configuration));
-
+    private void addReactorProjectsToTargetPlatform(List<ReactorProject> reactorProjects,
+            TargetPlatformBuilder resolutionContext) {
         for (ReactorProject otherProject : reactorProjects) {
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("P2resolver.addMavenProject " + otherProject.getId());
             }
-            projects.put(otherProject.getBasedir(), otherProject);
+            // TODO does this add the main artifact dependency metadata twice?
             resolutionContext.addReactorArtifact(new ReactorArtifactFacade(otherProject, null));
 
             Map<String, Set<Object>> dependencyMetadata = otherProject.getDependencyMetadata();
@@ -188,6 +221,169 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                     resolutionContext.addReactorArtifact(new ReactorArtifactFacade(otherProject, classifier));
                 }
             }
+        }
+    }
+
+    private void addPomDependenciesToTargetPlatform(MavenProject project, TargetPlatformBuilder resolutionContext,
+            List<ReactorProject> reactorProjects, MavenSession session) {
+        Set<String> projectIds = new HashSet<String>();
+        for (ReactorProject p : reactorProjects) {
+            String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
+            projectIds.add(key);
+        }
+
+        ArrayList<String> scopes = new ArrayList<String>();
+        scopes.add(Artifact.SCOPE_COMPILE);
+        Collection<Artifact> artifacts;
+        try {
+            artifacts = projectDependenciesResolver.resolve(project, scopes, session);
+        } catch (MultipleArtifactsNotFoundException e) {
+            Collection<Artifact> missing = new HashSet<Artifact>(e.getMissingArtifacts());
+
+            for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
+                Artifact a = it.next();
+                String key = ArtifactUtils.key(a.getGroupId(), a.getArtifactId(), a.getBaseVersion());
+                if (projectIds.contains(key)) {
+                    it.remove();
+                }
+            }
+
+            if (!missing.isEmpty()) {
+                throw new RuntimeException("Could not resolve project dependencies", e);
+            }
+
+            artifacts = e.getResolvedArtifacts();
+            artifacts.removeAll(e.getMissingArtifacts());
+        } catch (AbstractArtifactResolutionException e) {
+            throw new RuntimeException("Could not resolve project dependencies", e);
+        }
+        List<Artifact> externalArtifacts = new ArrayList<Artifact>(artifacts.size());
+        for (Artifact artifact : artifacts) {
+            String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
+            if (projectIds.contains(key)) {
+                // resolved to an older snapshot from the repo, we only want the current project in the reactor
+                continue;
+            }
+            externalArtifacts.add(artifact);
+        }
+        List<Artifact> explicitArtifacts = MavenDependencyInjector.filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
+        PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
+                equinox.getService(LocalRepositoryP2Indices.class), getLogger());
+        pomDependencyProcessor.addPomDependenciesToResolutionContext(project, explicitArtifacts, resolutionContext);
+    }
+
+    private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
+            TargetPlatformBuilder resolutionContext, MavenSession session) {
+        try {
+            URI uri = new URL(repository.getUrl()).toURI();
+
+            if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
+                if (session.isOffline()) {
+                    getLogger().debug(
+                            "Offline mode, using local cache only for repository " + repository.getId() + " ("
+                                    + repository.getUrl() + ")");
+                }
+
+                try {
+                    Authentication auth = repository.getAuthentication();
+                    if (auth != null) {
+                        resolutionContext.setCredentials(uri, auth.getUsername(), auth.getPassword());
+                    }
+
+                    resolutionContext.addP2Repository(uri);
+
+                    getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } catch (MalformedURLException e) {
+            getLogger().warn("Could not parse repository URL", e);
+        } catch (URISyntaxException e) {
+            getLogger().warn("Could not parse repository URL", e);
+        }
+    }
+
+    private void addTargetFileContentToTargetPlatform(TargetPlatformConfiguration configuration,
+            TargetPlatformBuilder resolutionContext, MavenSession session) {
+        final TargetDefinitionFile target;
+        try {
+            target = TargetDefinitionFile.read(configuration.getTarget());
+        } catch (TargetDefinitionSyntaxException e) {
+            throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
+                    + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Set<URI> uris = new HashSet<URI>();
+
+        for (Location location : target.getLocations()) {
+            if (!(location instanceof InstallableUnitLocation)) {
+                continue;
+            }
+            for (TargetDefinition.Repository repository : ((InstallableUnitLocation) location).getRepositories()) {
+
+                try {
+                    URI uri = getMirror(repository, session.getRequest().getMirrors());
+                    if (uris.add(uri)) {
+                        if (!session.isOffline()) {
+                            String id = repository.getId();
+                            if (id != null) {
+                                Server server = session.getSettings().getServer(id);
+
+                                if (server != null) {
+                                    // TODO don't do this via magic side-effects, but when loading repositories
+                                    resolutionContext.setCredentials(uri, server.getUsername(), server.getPassword());
+                                } else {
+                                    getLogger().info(
+                                            "Unknown server id=" + id + " for repository location="
+                                                    + repository.getLocation());
+                                }
+                            }
+
+                            // TODO mirrors are no longer considered -> lookup mirrors when loading p2 repositories
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            try {
+                resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
+            } catch (TargetDefinitionSyntaxException e) {
+                throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
+                        + e.getMessage(), e);
+            } catch (TargetDefinitionResolutionException e) {
+                throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget(), e);
+            }
+        }
+    }
+
+    public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
+            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
+
+        // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
+        // --> split this information logically, e.g. through two distinct interfaces
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+
+        P2Resolver osgiResolverImpl = resolverFactory.createResolver();
+
+        return doResolvePlatform(session, project, reactorProjects, dependencies, resolutionContext, osgiResolverImpl,
+                configuration);
+    }
+
+    protected DependencyArtifacts doResolvePlatform(final MavenSession session, final MavenProject project,
+            List<ReactorProject> reactorProjects, List<Dependency> dependencies, TargetPlatform resolutionContext,
+            P2Resolver resolver, TargetPlatformConfiguration configuration) {
+
+        Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
+
+        resolver.setEnvironments(getEnvironments(configuration));
+
+        for (ReactorProject otherProject : reactorProjects) {
+            projects.put(otherProject.getBasedir(), otherProject);
         }
 
         if (dependencies != null) {
@@ -198,143 +394,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         for (Dependency dependency : configuration.getExtraRequirements()) {
             resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
-        }
-
-        if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
-            Set<String> projectIds = new HashSet<String>();
-            for (ReactorProject p : reactorProjects) {
-                String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
-                projectIds.add(key);
-            }
-
-            ArrayList<String> scopes = new ArrayList<String>();
-            scopes.add(Artifact.SCOPE_COMPILE);
-            Collection<Artifact> artifacts;
-            try {
-                artifacts = projectDependenciesResolver.resolve(project, scopes, session);
-            } catch (MultipleArtifactsNotFoundException e) {
-                Collection<Artifact> missing = new HashSet<Artifact>(e.getMissingArtifacts());
-
-                for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
-                    Artifact a = it.next();
-                    String key = ArtifactUtils.key(a.getGroupId(), a.getArtifactId(), a.getBaseVersion());
-                    if (projectIds.contains(key)) {
-                        it.remove();
-                    }
-                }
-
-                if (!missing.isEmpty()) {
-                    throw new RuntimeException("Could not resolve project dependencies", e);
-                }
-
-                artifacts = e.getResolvedArtifacts();
-                artifacts.removeAll(e.getMissingArtifacts());
-            } catch (AbstractArtifactResolutionException e) {
-                throw new RuntimeException("Could not resolve project dependencies", e);
-            }
-            List<Artifact> externalArtifacts = new ArrayList<Artifact>(artifacts.size());
-            for (Artifact artifact : artifacts) {
-                String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(),
-                        artifact.getBaseVersion());
-                if (projectIds.contains(key)) {
-                    // resolved to an older snapshot from the repo, we only want the current project in the reactor
-                    continue;
-                }
-                externalArtifacts.add(artifact);
-            }
-            List<Artifact> explicitArtifacts = MavenDependencyInjector.filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
-            PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
-                    equinox.getService(LocalRepositoryP2Indices.class), getLogger());
-            pomDependencyProcessor.addPomDependenciesToResolutionContext(project, explicitArtifacts, resolutionContext);
-        }
-
-        for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
-            try {
-                URI uri = new URL(repository.getUrl()).toURI();
-
-                if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
-                    if (session.isOffline()) {
-                        getLogger().debug(
-                                "Offline mode, using local cache only for repository " + repository.getId() + " ("
-                                        + repository.getUrl() + ")");
-                    }
-
-                    try {
-                        Authentication auth = repository.getAuthentication();
-                        if (auth != null) {
-                            resolutionContext.setCredentials(uri, auth.getUsername(), auth.getPassword());
-                        }
-
-                        resolutionContext.addP2Repository(uri);
-
-                        getLogger().debug(
-                                "Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            } catch (MalformedURLException e) {
-                getLogger().warn("Could not parse repository URL", e);
-            } catch (URISyntaxException e) {
-                getLogger().warn("Could not parse repository URL", e);
-            }
-        }
-
-        if (configuration.getTarget() != null) {
-            final TargetDefinitionFile target;
-            try {
-                target = TargetDefinitionFile.read(configuration.getTarget());
-            } catch (TargetDefinitionSyntaxException e) {
-                throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
-                        + e.getMessage(), e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            Set<URI> uris = new HashSet<URI>();
-
-            for (Location location : target.getLocations()) {
-                if (!(location instanceof InstallableUnitLocation)) {
-                    continue;
-                }
-                for (TargetDefinition.Repository repository : ((InstallableUnitLocation) location).getRepositories()) {
-
-                    try {
-                        URI uri = getMirror(repository, session.getRequest().getMirrors());
-                        if (uris.add(uri)) {
-                            if (!session.isOffline()) {
-                                String id = repository.getId();
-                                if (id != null) {
-                                    Server server = session.getSettings().getServer(id);
-
-                                    if (server != null) {
-                                        // TODO don't do this via magic side-effects, but when loading repositories
-                                        resolutionContext.setCredentials(uri, server.getUsername(),
-                                                server.getPassword());
-                                    } else {
-                                        getLogger().info(
-                                                "Unknown server id=" + id + " for repository location="
-                                                        + repository.getLocation());
-                                    }
-                                }
-
-                                // TODO mirrors are no longer considered -> lookup mirrors when loading p2 repositories
-                            }
-                        }
-                    } catch (URISyntaxException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                try {
-                    resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
-                } catch (TargetDefinitionSyntaxException e) {
-                    throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget()
-                            + ": " + e.getMessage(), e);
-                } catch (TargetDefinitionResolutionException e) {
-                    throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget(), e);
-                }
-            }
         }
 
         if (!isAllowConflictingDependencies(project, configuration)) {
@@ -438,11 +497,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     public void initialize() throws InitializationException {
         this.resolverFactory = equinox.getService(P2ResolverFactory.class);
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
-        this.sourcesGenerator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=source-bundle)");
     }
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
-            TargetPlatform targetPlatform, Logger logger) {
-        MavenDependencyInjector.injectMavenDependencies(project, targetPlatform, bundleReader, logger);
+            DependencyArtifacts dependencyArtifacts, Logger logger) {
+        MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, bundleReader, logger);
     }
 }

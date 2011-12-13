@@ -53,8 +53,9 @@ import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
-import org.eclipse.tycho.core.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
@@ -384,10 +385,13 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
 
         dependencies.addAll(getTestDependencies());
 
-        TargetPlatform testTargetPlatform = platformResolver.resolvePlatform(session, project, reactorProjects,
-                dependencies);
+        // TODO 364134 re-use target platform from dependency resolution
+        TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
 
-        if (testTargetPlatform == null) {
+        DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project,
+                targetPlatform, reactorProjects, dependencies);
+
+        if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");
         }
 
@@ -410,7 +414,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         }
         getLog().debug("Using test framework " + testFramework);
 
-        for (ArtifactDescriptor artifact : testTargetPlatform.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
+        for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
             // note that this project is added as directory structure rooted at project basedir.
             // project classes and test-classes are added via dev.properties file (see #createDevProperties())
             // all other projects are added as bundle jars.

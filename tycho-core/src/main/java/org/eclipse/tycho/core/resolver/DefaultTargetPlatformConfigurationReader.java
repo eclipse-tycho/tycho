@@ -62,6 +62,8 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 addExtraRequirements(result, configuration);
 
+                setOptionalResolutionAction(result, configuration);
+
                 setTargetPlatformResolver(result, configuration);
 
                 setTarget(result, session, project, configuration);
@@ -109,9 +111,33 @@ public class DefaultTargetPlatformConfigurationReader {
             result.setImplicitTargetEnvironment(false);
         }
 
+        if (result.getTarget() != null && result.getOptionalResolutionAction() != null) {
+            throw new RuntimeException(
+                    "<optationDependencies> and <target> target platform configuration parameters cannot be used simultaneusly "
+                            + project.toString());
+        }
+
         return result;
     }
 
+    private void setOptionalResolutionAction(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom optionalDependenciesDom = configuration.getChild("optionalDependencies");
+        if (optionalDependenciesDom == null) {
+            return;
+        }
+
+        String optionalDependencies = optionalDependenciesDom.getValue();
+
+        if (!TargetPlatformConfiguration.OPTIONAL_RESOLUTION_REQUIRE.equals(optionalDependencies)
+                && !TargetPlatformConfiguration.OPTIONAL_RESOLUTION_IGNORE.equals(optionalDependencies)) {
+            throw new RuntimeException(
+                    "Illegal value of <optationDependencies> target platform configuration parameter "
+                            + optionalDependencies);
+        }
+
+        result.setOptionalResolutionAction(optionalDependencies);
+    }
+    
     private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom eeDom = configuration.getChild("executionEnvironment");
         if (eeDom == null) {
@@ -155,7 +181,6 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         result.setDisableP2Mirrors(Boolean.parseBoolean(disableP2mirrorsDom.getValue()));
-
     }
 
     private void setAllowConflictingDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {

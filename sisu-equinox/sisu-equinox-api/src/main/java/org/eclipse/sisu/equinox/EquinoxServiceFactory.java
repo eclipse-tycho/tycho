@@ -10,19 +10,14 @@
  *******************************************************************************/
 package org.eclipse.sisu.equinox;
 
-import java.util.Dictionary;
 
 /**
- * "Client" interface to access and register OSGi services in the Equinox framework.
+ * Interface to access OSGi services in an Equinox runtime.
  */
 public interface EquinoxServiceFactory {
 
     public <T> T getService(Class<T> clazz);
 
     public <T> T getService(Class<T> clazz, String filter);
-
-    public <T> void registerService(Class<T> clazz, T service);
-
-    public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties);
 
 }

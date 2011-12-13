@@ -21,7 +21,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.Request;
+import org.eclipse.jetty.server.Request;
 
 public abstract class AbstractMonitorServlet extends GenericServlet {
 

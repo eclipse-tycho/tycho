@@ -138,7 +138,7 @@ public class RepositoryReferenceTool {
             FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"));
             try {
                 MetadataSerializable serializer = osgiServices.getService(MetadataSerializable.class);
-                Set<?> targetPlatformInstallableUnits = TychoProjectUtils.getTargetPlatform(module)
+                Set<?> targetPlatformInstallableUnits = TychoProjectUtils.getDependencyArtifacts(module)
                         .getNonReactorUnits();
                 serializer.serialize(stream, targetPlatformInstallableUnits);
             } finally {

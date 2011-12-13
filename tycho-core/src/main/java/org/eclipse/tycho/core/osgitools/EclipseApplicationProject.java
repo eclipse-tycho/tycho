@@ -28,7 +28,7 @@ public class EclipseApplicationProject extends AbstractArtifactBasedProject {
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final ProductConfiguration product = loadProduct(DefaultReactorProject.adapt(project));
-        return new AbstractArtifactDependencyWalker(getTargetPlatform(project, environment), getEnvironments(project,
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(project,
                 environment)) {
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseProduct(product, visitor);

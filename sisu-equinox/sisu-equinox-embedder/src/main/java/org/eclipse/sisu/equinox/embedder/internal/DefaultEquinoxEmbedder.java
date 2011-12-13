@@ -26,7 +26,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.core.runtime.adaptor.EclipseStarter;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.sisu.equinox.embedder.EquinoxEmbedder;
+import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 import org.osgi.framework.Bundle;
@@ -36,7 +36,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 @Component(role = EquinoxServiceFactory.class)
-public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements EquinoxServiceFactory, EquinoxEmbedder,
+public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements EquinoxServiceFactory, EmbeddedEquinox,
         Disposable {
     @Requirement(role = EquinoxLifecycleListener.class)
     private Map<String, EquinoxLifecycleListener> lifecycleListeners;
@@ -256,7 +256,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
     }
 
     public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties) {
-        checkStarted();
+        // don't need to call checkStarted here because EmbeddedEquinox instances are already started
         frameworkContext.registerService(clazz, service, properties);
     }
 
@@ -273,6 +273,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
             } catch (IOException e) {
                 getLogger().error("Exception while deleting " + tempConfigDir, e);
             }
+            frameworkContext = null;
         }
     }
 

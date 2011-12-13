@@ -82,9 +82,10 @@ public class PublishProductMojoUnitTest {
     public void testPrepareBuildProduct() throws Exception {
         File basedir = TestUtil.getBasedir("unitTestResources");
         File productFile = new File(basedir, "test.product");
-        Product product = new Product(productFile);
+        ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
         BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
-        Product buildProduct = PublishProductMojo.prepareBuildProduct(product, buildBasedir, "buildQualifier");
+        Product buildProduct = PublishProductMojo.prepareBuildProduct(productFile, productConfiguration, buildBasedir,
+                "buildQualifier");
 
         Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
         Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
@@ -98,8 +99,8 @@ public class PublishProductMojoUnitTest {
         assertFileExists("configs/config_macosx.ini", buildProductRootDir);
         assertFileExists("configs/config_win32.ini", buildProductRootDir);
         assertFileExists("configs/config_solaris.ini", buildProductRootDir);
-        ProductConfiguration productConfiguration = ProductConfiguration.read(buildProduct.getProductFile());
-        Assert.assertEquals("0.1.0.buildQualifier", productConfiguration.getVersion());
+        ProductConfiguration buildProductConfiguration = ProductConfiguration.read(buildProduct.getProductFile());
+        Assert.assertEquals("0.1.0.buildQualifier", buildProductConfiguration.getVersion());
     }
 
     private void assertFileExists(String relativePath, File dir) {
@@ -110,15 +111,16 @@ public class PublishProductMojoUnitTest {
     public void testPrepareBuildProductEmptyQualifier() throws Exception {
         File basedir = TestUtil.getBasedir("unitTestResources");
         File productFile = new File(basedir, "test.product");
-        Product product = new Product(productFile);
+        ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
         BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
-        Product buildProduct = PublishProductMojo.prepareBuildProduct(product, buildBasedir, "");
+        Product buildProduct = PublishProductMojo.prepareBuildProduct(productFile, productConfiguration, buildBasedir,
+                "");
 
         Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
         Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
 
-        ProductConfiguration productConfiguration = ProductConfiguration.read(buildProduct.getProductFile());
-        Assert.assertEquals("0.1.0", productConfiguration.getVersion());
+        ProductConfiguration buildProductConfiguration = ProductConfiguration.read(buildProduct.getProductFile());
+        Assert.assertEquals("0.1.0", buildProductConfiguration.getVersion());
     }
 
     @Test
@@ -127,13 +129,13 @@ public class PublishProductMojoUnitTest {
         productFile.createNewFile();
 
         File p2InfTarget = new File(targetDirectory, "p2.inf");
-        PublishProductMojo.copyP2Inf(Product.getSourceP2InfFile(productFile), p2InfTarget);
+        PublishProductMojo.copyP2Inf(PublishProductMojo.getSourceP2InfFile(productFile), p2InfTarget);
         Assert.assertFalse(p2InfTarget.exists());
     }
 
     @Test
     public void testGetSourceP2InfFile() throws IOException {
-        String p2InfFile = Product.getSourceP2InfFile(new File("./test/test.product")).getCanonicalPath();
+        String p2InfFile = PublishProductMojo.getSourceP2InfFile(new File("./test/test.product")).getCanonicalPath();
         Assert.assertEquals(new File("./test/test.p2.inf").getCanonicalPath(), p2InfFile);
     }
 

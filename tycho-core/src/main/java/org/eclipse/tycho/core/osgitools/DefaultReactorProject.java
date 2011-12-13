@@ -56,7 +56,7 @@ public class DefaultReactorProject implements ReactorProject {
         return result;
     }
 
-    public boolean sameProject(MavenProject otherProject) {
+    public boolean sameProject(Object otherProject) {
         return project.equals(otherProject);
     }
 
