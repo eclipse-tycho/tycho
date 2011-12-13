@@ -6,5 +6,5 @@
    </service>
    <reference interface="org.eclipse.core.net.proxy.IProxyService" 
       bind="setProxyServer" 
-      unbind="unsetProxyService"/>
+      unbind="unsetProxyServer"/>
 </scr:component>
