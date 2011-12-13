@@ -23,12 +23,10 @@ import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.hamcrest.Matcher;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.matchers.JUnitMatchers;
 
-@Ignore("bug 359090")
-public class BuildProductWithIgnoredContent extends AbstractTychoIntegrationTest {
+public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegrationTest {
 
     private static final String BUNDLE_IN_PRODUCT_FILE = "org.example.toBeIgnored";
     private static final String FEATURE_IN_PRODUCT_FILE = "org.eclipse.equinox.executable.feature.group";
