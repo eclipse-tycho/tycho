@@ -39,7 +39,8 @@
 				</executions>
 			</plugin>
 
-			<!-- commented out until director fix (340345) is available in tycho 
+			<!-- this would find p2 bug 340345, which prevented the installation of self-signed 
+			     bundles with the p2 director --> 
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-director-plugin</artifactId>
@@ -59,7 +60,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			-->
 		</plugins>
 	</build>
 </project>
