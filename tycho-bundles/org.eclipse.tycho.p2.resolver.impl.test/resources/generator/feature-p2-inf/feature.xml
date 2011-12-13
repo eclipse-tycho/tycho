@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.tycho.p2.impl.test.feature-p2-inf"
+      label="org.eclipse.tycho.p2.impl.test.feature-p2-inf"
+      version="1.0.0.qualifier">
+
+</feature>

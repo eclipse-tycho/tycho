@@ -87,10 +87,25 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
         iud.addRequirements(getRequiredCapabilities());
 
         addProperties(iud);
+        addPublisherAdvice(publisherInfo);
 
-        results.addIU(MetadataFactory.createInstallableUnit(iud), PublisherResult.ROOT);
+        processCapabilityAdvice(iud, publisherInfo);
+
+        IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
+        results.addIU(iu, PublisherResult.ROOT);
+
+        InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(iu, publisherInfo);
+        if (others != null) {
+            for (InstallableUnitDescription other : others) {
+                results.addIU(MetadataFactory.createInstallableUnit(other), PublisherResult.ROOT);
+            }
+        }
 
         return Status.OK_STATUS;
+    }
+
+    protected void addPublisherAdvice(IPublisherInfo publisherInfo) {
+        // do nothing by default
     }
 
     protected void addProperties(InstallableUnitDescription iud) {
