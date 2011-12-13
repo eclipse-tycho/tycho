@@ -76,6 +76,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
         rootWithExtraIUs.addAll(extraIUs);
 
         if (logger.isExtendedDebugEnabled()) {
+            logger.debug("Selection context: " + properties.toString());
             logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false, monitor));
             logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
             logger.debug("Extra IUs:\n" + ResolverDebugUtils.toDebugString(extraIUs, true));
