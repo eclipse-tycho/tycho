@@ -12,15 +12,14 @@ package org.eclipse.tycho.p2.impl.test;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -36,10 +35,11 @@ public class P2MetadataGeneratorImplTest {
         String artifactId = "bundle";
         String version = "1.0.0-SNAPSHOT";
         List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
-        Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-        Set<IArtifactDescriptor> artifacts = new LinkedHashSet<IArtifactDescriptor>();
-        impl.generateMetadata(new ArtifactMock(location, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_PLUGIN),
-                environments, units, artifacts);
+        DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(location, groupId, artifactId, version,
+                P2Resolver.TYPE_ECLIPSE_PLUGIN), environments);
+
+        List<IInstallableUnit> units = new ArrayList<IInstallableUnit>(metadata.getInstallableUnits());
+        List<IArtifactDescriptor> artifacts = new ArrayList<IArtifactDescriptor>(metadata.getArtifactDescriptors());
 
         Assert.assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();

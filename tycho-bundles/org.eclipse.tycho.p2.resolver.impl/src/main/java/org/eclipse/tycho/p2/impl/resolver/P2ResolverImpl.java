@@ -25,6 +25,9 @@ import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.CompoundQueryable;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
@@ -90,17 +93,27 @@ public class P2ResolverImpl implements P2Resolver {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     protected P2ResolutionResult resolveProject(File projectLocation, ResolutionStrategy strategy) {
-        strategy.setAvailableInstallableUnits(context.getInstallableUnits());
-        strategy.setJREUIs(context.getJREIUs());
-        LinkedHashSet<IInstallableUnit> projectIUs = context.getReactorProjectIUs(projectLocation);
-        strategy.setRootInstallableUnits(projectIUs);
+        strategy.setRootInstallableUnits(context.getReactorProjectIUs(projectLocation, true));
         strategy.setAdditionalRequirements(additionalRequirements);
+        IQueryable<IInstallableUnit> availableUnits = context.getInstallableUnits();
+        LinkedHashSet<IInstallableUnit> projectSecondaryIUs = context.getReactorProjectIUs(projectLocation, false);
+        if (!projectSecondaryIUs.isEmpty()) {
+            availableUnits = new CompoundQueryable<IInstallableUnit>(toArray(availableUnits,
+                    new CollectionResult<IInstallableUnit>(projectSecondaryIUs)));
+        }
+        strategy.setAvailableInstallableUnits(availableUnits);
+        strategy.setJREUIs(context.getJREIUs());
 
         Collection<IInstallableUnit> newState = strategy.resolve(monitor);
         context.reportUsedIUs(newState);
 
         return toResolutionResult(newState);
+    }
+
+    private static <T> T[] toArray(T... t) {
+        return t;
     }
 
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState) {
@@ -166,10 +179,10 @@ public class P2ResolverImpl implements P2Resolver {
         String mavenClassidier = mavenArtifact.getClassidier();
 
         if (TYPE_ECLIPSE_FEATURE.equals(type)) {
-            id = getFeatureId(iu);
-            if (id == null) {
-                throw new IllegalStateException("Feature id is null for maven artifact at "
-                        + mavenArtifact.getLocation() + " with classifier " + mavenArtifact.getClassidier());
+            String featureId = getFeatureId(iu);
+            if (featureId != null) {
+                // feature can have additional IUs injected via p2.inf
+                id = featureId;
             }
         } else if ("jar".equals(type)) {
             // this must be an OSGi bundle coming from a maven repository

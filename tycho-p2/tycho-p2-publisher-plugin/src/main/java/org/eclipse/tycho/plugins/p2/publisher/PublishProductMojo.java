@@ -176,6 +176,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * We expect an p2 advice file called "xx.p2.inf" next to a product file "xx.product".
      */
     static File getSourceP2InfFile(File productFile) {
+        // This must match org.eclipse.tycho.p2.impl.publisher.ProductDependenciesAction.addPublisherAdvice(IPublisherInfo)
         final int indexOfExtension = productFile.getName().indexOf(".product");
         final String p2infFilename = productFile.getName().substring(0, indexOfExtension) + ".p2.inf";
         return new File(productFile.getParentFile(), p2infFilename);

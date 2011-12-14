@@ -41,6 +41,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     private final IQueryable<IInstallableUnit> allIUs;
     private final Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs;
     private final Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs;
+    private final Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs;
     private final LocalMetadataRepository localMetadataRepository;
 
     private final String executionEnvironment;
@@ -53,12 +54,14 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     public TargetPlatformImpl(IQueryable<IInstallableUnit> allIUs,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs,
+            Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs,
             LocalMetadataRepository localMetadataRepository, String executionEnvironment,
             List<URI> allRemoteArtifactRepositories, LocalArtifactRepository localMavenRepository,
             IProvisioningAgent agent, MavenLogger logger) {
         this.allIUs = allIUs;
         this.mavenArtifactIUs = mavenArtifactIUs;
         this.reactorProjectIUs = reactorProjectIUs;
+        this.reactorProjectSecondaryIUs = reactorProjectSecondaryIUs;
         this.localMetadataRepository = localMetadataRepository;
         this.executionEnvironment = executionEnvironment;
         this.remoteArtifactRepositories = allRemoteArtifactRepositories;
@@ -79,11 +82,13 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet();
     }
 
-    public LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectRoot) {
+    public LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectRoot, boolean primary) {
         LinkedHashSet<IInstallableUnit> ius = new LinkedHashSet<IInstallableUnit>();
         boolean projectExists = false;
 
-        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : reactorProjectIUs.entrySet()) {
+        Map<ClassifiedLocation, Set<IInstallableUnit>> projectIUs = primary ? reactorProjectIUs
+                : reactorProjectSecondaryIUs;
+        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : projectIUs.entrySet()) {
             if (projectRoot.equals(entry.getKey().getLocation())) {
                 ius.addAll(entry.getValue());
                 projectExists = true;

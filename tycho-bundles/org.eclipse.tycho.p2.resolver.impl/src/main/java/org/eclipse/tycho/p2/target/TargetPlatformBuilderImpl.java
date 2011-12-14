@@ -163,15 +163,23 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
 
+    private Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
+
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
 
     private Set<String> reactorInstallableUnitIds = new HashSet<String>();
 
     public void addReactorArtifact(IReactorArtifactFacade artifact) {
-        Set<IInstallableUnit> units = toSet(artifact.getDependencyMetadata(), IInstallableUnit.class);
+        addReactorProjectIUs(artifact, reactorProjectIUs, true);
+        addReactorProjectIUs(artifact, reactorProjectSecondaryIUs, false);
+    }
+
+    private void addReactorProjectIUs(IReactorArtifactFacade artifact,
+            Map<ClassifiedLocation, Set<IInstallableUnit>> projectIUs, boolean primary) {
+        Set<IInstallableUnit> units = toSet(artifact.getDependencyMetadata(primary), IInstallableUnit.class);
 
         ClassifiedLocation key = new ClassifiedLocation(artifact);
-        reactorProjectIUs.put(key, units);
+        projectIUs.put(key, units);
         addMavenArtifact(key, artifact, units);
 
         for (IInstallableUnit unit : units) {
@@ -431,8 +439,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         }
 
         return new TargetPlatformImpl(allTargetPlatformIUs, mavenInstallableUnits, reactorProjectIUs,
-                localMetadataRepository, executionEnvironment, allRemoteArtifactRepositories, localArtifactRepository,
-                agent, logger);
+                reactorProjectSecondaryIUs, localMetadataRepository, executionEnvironment,
+                allRemoteArtifactRepositories, localArtifactRepository, agent, logger);
     }
 
     // -------------------------------------------------------------------------

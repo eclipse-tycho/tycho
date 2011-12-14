@@ -15,7 +15,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -36,14 +35,11 @@ public class P2DependencyGeneratorImplTest {
     private static final String DEFAULT_GROUP_ID = "org.eclipse.tycho.p2.impl.test";
     private P2GeneratorImpl subject;
     private List<IInstallableUnit> units;
-    private LinkedHashSet<IArtifactDescriptor> artifacts;
+    private List<IArtifactDescriptor> artifacts;
 
     @Before
     public void resetTestSubjectAndResultFields() {
         subject = new P2GeneratorImpl(true);
-
-        units = new ArrayList<IInstallableUnit>();
-        artifacts = new LinkedHashSet<IArtifactDescriptor>();
     }
 
     private void generateDependencies(String testProjectId, String packagingType) throws IOException {
@@ -53,11 +49,10 @@ public class P2DependencyGeneratorImplTest {
 
         ArrayList<Map<String, String>> emptyEnvironments = new ArrayList<Map<String, String>>();
 
-        LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
+        DependencyMetadata metadata = subject.generateMetadata(reactorProject, emptyEnvironments);
 
-        subject.generateMetadata(reactorProject, emptyEnvironments, units, artifacts);
-
-        this.units = new ArrayList<IInstallableUnit>(units);
+        this.units = new ArrayList<IInstallableUnit>(metadata.getInstallableUnits());
+        this.artifacts = new ArrayList<IArtifactDescriptor>(metadata.getArtifactDescriptors());
     }
 
     @Test

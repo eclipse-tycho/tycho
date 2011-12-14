@@ -46,6 +46,11 @@ public interface P2Resolver {
 
     public void addDependency(String type, String id, String versionRange);
 
+    /**
+     * Returns list ordered of resolution result, one per requested TargetEnvironment.
+     * 
+     * @TODO this should return Map<TargetEnvironment,P2ResolutionResult>
+     */
     public List<P2ResolutionResult> resolveProject(TargetPlatform context, File location);
 
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation);

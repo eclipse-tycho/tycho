@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
@@ -74,6 +73,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         for (IArtifactFacade artifact : artifacts) {
             PublisherInfo publisherInfo = new PublisherInfo();
 
+            DependencyMetadata metadata;
+
             // meta data handling for root files
             if ("eclipse-feature".equals(artifact.getPackagingType())) {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH
@@ -82,15 +83,18 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                         publisherInfo, targetDir);
                 publisherInfo.setArtifactRepository(artifactsRepository);
 
-                super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo, null);
+                metadata = super.generateMetadata(artifact, null, publisherInfo, null);
 
                 attachedArtifacts.putAll(artifactsRepository.getPublishedArtifacts());
             } else {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_NO_MD5);
                 TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
                 publisherInfo.setArtifactRepository(artifactsRepository);
-                super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo, null);
+                metadata = super.generateMetadata(artifact, null, publisherInfo, null);
             }
+
+            units.addAll(metadata.getInstallableUnits());
+            artifactDescriptors.addAll(metadata.getArtifactDescriptors());
         }
 
         new MetadataIO().writeXML(units, attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_METADATA)
@@ -99,13 +103,12 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS).getLocation());
     }
 
-    public void generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
-            Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts) {
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments) {
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
         publisherInfo.setArtifactRepository(new TransientArtifactRepository());
 
-        super.generateMetadata(artifact, environments, units, artifacts, publisherInfo, null);
+        return super.generateMetadata(artifact, environments, publisherInfo, null);
     }
 
     @Override

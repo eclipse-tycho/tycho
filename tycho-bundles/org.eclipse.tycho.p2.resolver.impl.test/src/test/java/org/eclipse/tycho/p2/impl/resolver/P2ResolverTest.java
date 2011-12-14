@@ -24,10 +24,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
@@ -152,8 +154,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId);
 
         ArtifactMock sb = new ArtifactMock(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN, "sources");
-        sb.setDependencyMetadata(new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb, getEnvironments(),
-                null));
+        DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb,
+                getEnvironments(), null);
+        sb.setDependencyMetadata(metadata);
         context.addReactorArtifact(sb);
 
         List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), feature);
@@ -320,5 +323,65 @@ public class P2ResolverTest extends P2ResolverTestBase {
         Assert.assertEquals(1, result.getArtifacts().size());
 
         Assert.assertEquals(0, result.getNonReactorUnits().size());
+    }
+
+    @Test
+    public void featureMultienvP2Inf() throws Exception {
+        List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
+        environments.add(newEnvironment("linux", "gtk", "x86_64"));
+        environments.add(newEnvironment("macosx", "cocoa", "x86_64"));
+        impl.setEnvironments(environments);
+
+        File bundle = resourceFile("resolver/feature.multienv.p2-inf");
+        String artifactId = "feature.multienv.p2-inf";
+        addReactorProject(bundle, TYPE_ECLIPSE_FEATURE, artifactId);
+
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
+
+        Assert.assertEquals(2, results.size());
+
+        P2ResolutionResult linux = results.get(0);
+        List<Entry> linuxEntries = new ArrayList<Entry>(linux.getArtifacts());
+        Assert.assertEquals(1, linuxEntries.size());
+        Assert.assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
+        Assert.assertEquals(0, linux.getNonReactorUnits().size());
+
+        P2ResolutionResult macosx = results.get(1);
+        List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
+        Assert.assertEquals(2, macosxEntries.size());
+        Assert.assertEquals(1, macosxEntries.get(0).getInstallableUnits().size());
+        Assert.assertEquals(1, macosxEntries.get(1).getInstallableUnits().size());
+        Assert.assertEquals(0, macosx.getNonReactorUnits().size());
+    }
+
+    @Test
+    public void productMultienvP2Inf() throws Exception {
+        context.addP2Repository(resourceFile("repositories/launchers").toURI());
+
+        List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
+        environments.add(newEnvironment("linux", "gtk", "x86_64"));
+        environments.add(newEnvironment("macosx", "cocoa", "x86_64"));
+        impl.setEnvironments(environments);
+
+        File bundle = resourceFile("resolver/product.multienv.p2-inf");
+        String artifactId = "product.multienv.p2-inf";
+        addReactorProject(bundle, TYPE_ECLIPSE_REPOSITORY, artifactId);
+
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
+
+        Assert.assertEquals(2, results.size());
+
+        P2ResolutionResult linux = results.get(0);
+        List<Entry> linuxEntries = new ArrayList<Entry>(linux.getArtifacts());
+        Assert.assertEquals(1, linuxEntries.size());
+        Assert.assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
+        Assert.assertEquals(1, linux.getNonReactorUnits().size()); // equinox launcher
+
+        P2ResolutionResult macosx = results.get(1);
+        List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
+        Assert.assertEquals(2, macosxEntries.size());
+        Assert.assertEquals(1, macosxEntries.get(0).getInstallableUnits().size());
+        Assert.assertEquals(1, macosxEntries.get(1).getInstallableUnits().size());
+        Assert.assertEquals(1, macosx.getNonReactorUnits().size());
     }
 }

@@ -13,6 +13,8 @@ package org.eclipse.tycho.core.osgitools;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,25 +122,57 @@ public class DefaultReactorProject implements ReactorProject {
         project.setContextValue(key, value);
     }
 
-    public void setDependencyMetadata(String classifier, Set<Object> installableUnits) {
-        Map<String, Set<Object>> metadata = getDependencyMetadata();
+    public void setDependencyMetadata(String classifier, boolean primary, Set<Object> installableUnits) {
+        Map<String, Set<Object>> metadata = getDependencyMetadata(primary);
 
         if (metadata == null) {
             metadata = new HashMap<String, Set<Object>>();
-            project.setContextValue(CTX_DEPENDENCY_METADATA, metadata);
+            project.setContextValue(getDependencyMetadataKey(primary), metadata);
         }
 
         metadata.put(classifier, installableUnits);
     }
 
     public Map<String, Set<Object>> getDependencyMetadata() {
-        @SuppressWarnings("unchecked")
-        Map<String, Set<Object>> metadata = (Map<String, Set<Object>>) project.getContextValue(CTX_DEPENDENCY_METADATA);
+        Map<String, Set<Object>> result = getDependencyMetadata(true);
+        Map<String, Set<Object>> secondary = getDependencyMetadata(false);
+
+        if (result == null) {
+            return secondary;
+        }
+
+        if (secondary != null) {
+            result = new LinkedHashMap<String, Set<Object>>(result);
+
+            for (Map.Entry<String, Set<Object>> entry : secondary.entrySet()) {
+                String classifier = entry.getKey();
+                Set<Object> units = result.get(classifier);
+                if (units != null) {
+                    units = new LinkedHashSet<Object>(units);
+                    units.addAll(entry.getValue());
+                } else {
+                    units = entry.getValue();
+                }
+                result.put(classifier, units);
+            }
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Set<Object>> getDependencyMetadata(boolean primary) {
+        Map<String, Set<Object>> metadata = (Map<String, Set<Object>>) project
+                .getContextValue(getDependencyMetadataKey(primary));
         return metadata;
     }
 
-    public Set<Object> getDependencyMetadata(String classifier) {
-        Map<String, Set<Object>> metadata = getDependencyMetadata();
+    private static String getDependencyMetadataKey(boolean primary) {
+        return primary ? CTX_DEPENDENCY_METADATA : CTX_SECONDARY_DEPENDENCY_METADATA;
+    }
+
+    public Set<Object> getDependencyMetadata(String classifier, boolean primary) {
+        Map<String, Set<Object>> metadata = getDependencyMetadata(primary);
 
         if (metadata == null) {
             return null;

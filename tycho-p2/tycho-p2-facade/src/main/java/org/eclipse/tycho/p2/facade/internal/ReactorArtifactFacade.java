@@ -50,8 +50,8 @@ public class ReactorArtifactFacade implements IReactorArtifactFacade {
         return wrappedProject.getPackaging();
     }
 
-    public Set<Object/* IInstallableUnit */> getDependencyMetadata() {
-        return wrappedProject.getDependencyMetadata(classifier);
+    public Set<Object/* IInstallableUnit */> getDependencyMetadata(boolean primary) {
+        return wrappedProject.getDependencyMetadata(classifier, primary);
     }
 
     public String getClassidier() {

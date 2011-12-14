@@ -42,7 +42,7 @@ public interface P2TargetPlatform extends TargetPlatform {
     File getLocalArtifactFile(IArtifactKey key);
 
     // TODO 364134 revise the relationship of target platform and dependency only IUs
-    LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectLocation);
+    LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectLocation, boolean primary);
 
     IArtifactFacade getMavenArtifact(IInstallableUnit iu);
 

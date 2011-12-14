@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
-import java.util.Set;
-
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
@@ -24,6 +22,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 
@@ -38,9 +37,9 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
         if (isBundleProject(project) && hasSourceBundle(project)) {
             ReactorArtifactFacade sourcesArtifact = new ReactorArtifactFacade(reactorProject, "sources");
-            Set<Object> sourcesMetadata = sourcesGenerator.generateMetadata(sourcesArtifact, null,
+            IDependencyMetadata metadata = sourcesGenerator.generateMetadata(sourcesArtifact, null,
                     OptionalResolutionAction.REQUIRE);
-            reactorProject.setDependencyMetadata(sourcesArtifact.getClassidier(), sourcesMetadata);
+            reactorProject.setDependencyMetadata(sourcesArtifact.getClassidier(), false, metadata.getMetadata());
         }
     }
 

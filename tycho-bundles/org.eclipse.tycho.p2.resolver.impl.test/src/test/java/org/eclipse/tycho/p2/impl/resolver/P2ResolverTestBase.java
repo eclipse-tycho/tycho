@@ -17,21 +17,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
+import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
+import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
@@ -52,34 +52,38 @@ public class P2ResolverTestBase {
     static List<Map<String, String>> getEnvironments() {
         ArrayList<Map<String, String>> environments = new ArrayList<Map<String, String>>();
 
+        environments.add(newEnvironment("linux", "gtk", "x86_64"));
+
+        return environments;
+    }
+
+    static Map<String, String> newEnvironment(String os, String ws, String arch) {
         Map<String, String> properties = new LinkedHashMap<String, String>();
-        properties.put("osgi.os", "linux");
-        properties.put("osgi.ws", "gtk");
-        properties.put("osgi.arch", "x86_64");
+        properties.put("osgi.os", os);
+        properties.put("osgi.ws", ws);
+        properties.put("osgi.arch", arch);
 
         // TODO does not belong here
         properties.put("org.eclipse.update.install.features", "true");
 
-        environments.add(properties);
-
-        return environments;
+        return properties;
     }
 
     void addContextProject(File projectRoot, String packaging) throws IOException {
         ArtifactMock artifact = new ArtifactMock(projectRoot.getCanonicalFile(), DEFAULT_GROUP_ID,
                 projectRoot.getName(), DEFAULT_VERSION, packaging);
 
-        LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-        fullGenerator.generateMetadata(artifact, getEnvironments(), units, null);
+        DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments());
 
-        context.addMavenArtifact(new ClassifiedLocation(artifact), artifact, units);
+        context.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
     }
 
     void addReactorProject(File projectRoot, String packagingType, String artifactId) {
         ArtifactMock artifact = new ArtifactMock(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
                 packagingType);
-        artifact.setDependencyMetadata(dependencyGenerator.generateMetadata(artifact, getEnvironments(),
-                OptionalResolutionAction.REQUIRE));
+        IDependencyMetadata metadata = dependencyGenerator.generateMetadata(artifact, getEnvironments(),
+                OptionalResolutionAction.REQUIRE);
+        artifact.setDependencyMetadata(metadata);
         context.addReactorArtifact(artifact);
     }
 

@@ -13,16 +13,12 @@ package org.eclipse.tycho.p2.impl.publisher;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -37,15 +33,9 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
 
     private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
-    public Set<Object/* IInstallableUnit */> generateMetadata(IArtifactFacade artifact,
-            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
-        LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-        LinkedHashSet<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<IArtifactDescriptor>();
-
-        PublisherInfo publisherInfo = new PublisherInfo();
-        super.generateMetadata(artifact, environments, units, artifactDescriptors, publisherInfo, optionalAction);
-
-        return new LinkedHashSet<Object>(units);
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
+            OptionalResolutionAction optionalAction) {
+        return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction);
     }
 
     @Override

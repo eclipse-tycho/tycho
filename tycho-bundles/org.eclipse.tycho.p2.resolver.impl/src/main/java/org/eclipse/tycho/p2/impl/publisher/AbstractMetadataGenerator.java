@@ -36,7 +36,6 @@ import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
@@ -47,15 +46,14 @@ import org.eclipse.tycho.p2.util.StatusTool;
 public abstract class AbstractMetadataGenerator {
     private IProgressMonitor monitor = new NullProgressMonitor();
 
-    protected void generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
-            Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts, PublisherInfo publisherInfo,
-            OptionalResolutionAction optionalAction) {
+    protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
+            PublisherInfo publisherInfo, OptionalResolutionAction optionalAction) {
         for (IPublisherAdvice advice : getPublisherAdvice(artifact)) {
             publisherInfo.addAdvice(advice);
         }
         List<IPublisherAction> actions = getPublisherActions(artifact, environments, optionalAction);
 
-        publish(units, artifacts, publisherInfo, actions);
+        return publish(publisherInfo, actions);
     }
 
     protected abstract List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
@@ -122,8 +120,7 @@ public abstract class AbstractMetadataGenerator {
                     VersionRange.emptyRange, null, false, false));
     }
 
-    private void publish(Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts, PublisherInfo publisherInfo,
-            List<IPublisherAction> actions) {
+    private DependencyMetadata publish(PublisherInfo publisherInfo, List<IPublisherAction> actions) {
         PublisherResult result = new PublisherResult();
 
         Publisher publisher = new Publisher(publisherInfo, result);
@@ -134,16 +131,17 @@ public abstract class AbstractMetadataGenerator {
             throw new RuntimeException(StatusTool.collectProblems(status), status.getException());
         }
 
-        if (units != null) {
-            units.addAll(result.getIUs(null, null));
+        DependencyMetadata metadata = new DependencyMetadata();
+
+        metadata.setMetadata(true, result.getIUs(null, PublisherResult.ROOT));
+        metadata.setMetadata(false, result.getIUs(null, PublisherResult.NON_ROOT));
+
+        IArtifactRepository artifactRepository = publisherInfo.getArtifactRepository();
+        if (artifactRepository instanceof TransientArtifactRepository) {
+            metadata.setArtifacts(((TransientArtifactRepository) artifactRepository).getArtifactDescriptors());
         }
 
-        if (artifacts != null) {
-            IArtifactRepository artifactRepository = publisherInfo.getArtifactRepository();
-            if (artifactRepository instanceof TransientArtifactRepository) {
-                artifacts.addAll(((TransientArtifactRepository) artifactRepository).getArtifactDescriptors());
-            }
-        }
+        return metadata;
     }
 
 }
