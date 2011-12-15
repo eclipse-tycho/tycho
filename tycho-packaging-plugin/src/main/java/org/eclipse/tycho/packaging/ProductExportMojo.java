@@ -56,6 +56,8 @@ import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.BundleConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration;
 
@@ -130,6 +132,11 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
      * @component
      */
     private Logger logger;
+
+    /**
+     * @component
+     */
+    private FileLockService fileLockService;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!productConfigurationFile.exists()) {
@@ -696,27 +703,33 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private void unzipDirectory(File source, String sourceRelPath, File target, String excludes) throws IOException {
-        ZipFile zip = new ZipFile(source);
+        FileLocker locker = fileLockService.getFileLocker(source);
+        locker.lock();
         try {
-            Enumeration<? extends ZipEntry> entries = zip.entries();
+            ZipFile zip = new ZipFile(source);
+            try {
+                Enumeration<? extends ZipEntry> entries = zip.entries();
 
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
 
-                if (entry.isDirectory()) {
-                    continue;
+                    if (entry.isDirectory()) {
+                        continue;
+                    }
+
+                    String name = entry.getName();
+
+                    if (name.startsWith(sourceRelPath) && !SelectorUtils.matchPath(excludes, name)) {
+                        File targetFile = new File(target, name.substring(sourceRelPath.length()));
+                        targetFile.getParentFile().mkdirs();
+                        FileUtils.copyStreamToFile(new RawInputStreamFacade(zip.getInputStream(entry)), targetFile);
+                    }
                 }
-
-                String name = entry.getName();
-
-                if (name.startsWith(sourceRelPath) && !SelectorUtils.matchPath(excludes, name)) {
-                    File targetFile = new File(target, name.substring(sourceRelPath.length()));
-                    targetFile.getParentFile().mkdirs();
-                    FileUtils.copyStreamToFile(new RawInputStreamFacade(zip.getInputStream(entry)), targetFile);
-                }
+            } finally {
+                zip.close();
             }
         } finally {
-            zip.close();
+            locker.release();
         }
     }
 

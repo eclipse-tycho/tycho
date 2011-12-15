@@ -26,6 +26,8 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Launcher;
 import org.eclipse.tycho.model.PluginRef;
@@ -52,6 +54,11 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * @component role="org.codehaus.plexus.archiver.UnArchiver" role-hint="zip"
      */
     private UnArchiver deflater;
+
+    /**
+     * @component
+     */
+    private FileLockService fileLockService;
 
     @Override
     protected Collection<?> publishContent(PublisherService publisherService) throws MojoExecutionException,
@@ -243,12 +250,18 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 return unzipped.getAbsoluteFile();
             }
             try {
-                // unzip now then:
-                unzipped.mkdirs();
-                deflater.setSourceFile(equinoxExecFeature);
-                deflater.setDestDirectory(unzipped);
-                deflater.extract();
-                return unzipped.getAbsoluteFile();
+                FileLocker locker = fileLockService.getFileLocker(equinoxExecFeature);
+                locker.lock();
+                try {
+                    // unzip now then:
+                    unzipped.mkdirs();
+                    deflater.setSourceFile(equinoxExecFeature);
+                    deflater.setDestDirectory(unzipped);
+                    deflater.extract();
+                    return unzipped.getAbsoluteFile();
+                } finally {
+                    locker.release();
+                }
             } catch (ArchiverException e) {
                 throw new MojoFailureException("Unable to unzip the eqiuinox executable feature", e);
             }
