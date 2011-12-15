@@ -11,7 +11,6 @@
 package org.eclipse.tycho.extras.custombundle;
 
 import java.io.File;
-import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -27,6 +26,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
@@ -59,8 +59,8 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
                 String classifier = getClassifier(execution);
                 if (location != null && classifier != null) {
                     IArtifactFacade artifact = new AttachedArtifact(project, location, classifier);
-                    Set<Object> metadata = generator.generateMetadata(artifact, null, optionalAction);
-                    reactorProject.setDependencyMetadata(classifier, metadata);
+                    IDependencyMetadata metadata = generator.generateMetadata(artifact, null, optionalAction);
+                    reactorProject.setDependencyMetadata(classifier, false, metadata.getMetadata());
                 }
             }
         }
