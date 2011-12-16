@@ -31,6 +31,8 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.packaging.pack200.Pack200Archiver;
 
@@ -185,8 +187,10 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
 
     private void unpackJar(File location, File outputJar) {
         ZipUnArchiver unzip;
+        FileLockService fileLockService;
         try {
             unzip = (ZipUnArchiver) session.lookup(ZipUnArchiver.ROLE, "zip");
+            fileLockService = (FileLockService) session.lookup(FileLockService.class.getName());
         } catch (ComponentLookupException e) {
             throw new RuntimeException("Could not lookup required component", e);
         }
@@ -199,11 +203,14 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
 
         unzip.setSourceFile(location);
         unzip.setDestDirectory(outputJar);
-
+        FileLocker locker = fileLockService.getFileLocker(location);
+        locker.lock();
         try {
             unzip.extract();
         } catch (ArchiverException e) {
             throw new RuntimeException("Could not unpack jar", e);
+        } finally {
+            locker.release();
         }
     }
 

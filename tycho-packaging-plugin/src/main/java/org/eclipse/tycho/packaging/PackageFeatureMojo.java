@@ -30,6 +30,8 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
@@ -81,6 +83,11 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
      * @parameter expression="${project.build.directory}/site"
      */
     private File target;
+
+    /**
+     * @component
+     */
+    private FileLockService fileLockService;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         expandVersion();
@@ -217,22 +224,28 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     protected long getInstallSize(File location) {
         long installSize = 0;
+        FileLocker locker = fileLockService.getFileLocker(location);
+        locker.lock();
         try {
-            JarFile jar = new JarFile(location);
             try {
-                Enumeration<JarEntry> entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = (JarEntry) entries.nextElement();
-                    long entrySize = entry.getSize();
-                    if (entrySize > 0) {
-                        installSize += entrySize;
+                JarFile jar = new JarFile(location);
+                try {
+                    Enumeration<JarEntry> entries = jar.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry entry = (JarEntry) entries.nextElement();
+                        long entrySize = entry.getSize();
+                        if (entrySize > 0) {
+                            installSize += entrySize;
+                        }
                     }
+                } finally {
+                    jar.close();
                 }
-            } finally {
-                jar.close();
+            } catch (IOException e) {
+                throw new RuntimeException("Could not determine installation size", e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Could not determine installation size", e);
+        } finally {
+            locker.release();
         }
         return installSize;
     }
