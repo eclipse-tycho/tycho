@@ -35,7 +35,7 @@ public final class DirectorMojo extends AbstractProductMojo {
     /** @parameter default-value="DefaultProfile" */
     private String profile;
 
-    /* @parameter */
+    /** @parameter */
     private List<ProfileName> profileNames;
 
     /** @parameter default-value="true" */
