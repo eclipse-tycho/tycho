@@ -24,6 +24,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
@@ -40,6 +41,9 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
     @Requirement
     private DefaultTargetPlatformConfigurationReader configurationReader;
+
+    @Requirement
+    private CompilerOptionsManager compilerOptionsManager;
 
     @Requirement
     private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
@@ -87,9 +91,11 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
         logger.info("Computing target platform for project " + project);
         TargetPlatform targetPlatform = resolver.computeTargetPlatform(session, project, reactorProjects);
 
+        DependencyResolverConfiguration resolverConfiguration = compilerOptionsManager.getCompilerOptions(project);
+
         logger.info("Resolving dependencies of project " + project);
         DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
-                reactorProjects, null);
+                reactorProjects, resolverConfiguration);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder();

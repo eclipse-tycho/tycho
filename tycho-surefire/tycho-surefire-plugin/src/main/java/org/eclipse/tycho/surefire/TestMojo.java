@@ -56,6 +56,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.SimpleDependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
@@ -389,7 +390,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
 
         DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project,
-                targetPlatform, reactorProjects, dependencies);
+                targetPlatform, reactorProjects, new SimpleDependencyResolverConfiguration(dependencies));
 
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");

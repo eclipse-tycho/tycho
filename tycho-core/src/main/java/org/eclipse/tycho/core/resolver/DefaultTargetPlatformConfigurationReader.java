@@ -17,7 +17,6 @@ import java.util.Properties;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -63,8 +62,6 @@ public class DefaultTargetPlatformConfigurationReader {
                 }
 
                 addTargetEnvironments(result, project, configuration);
-
-                addExtraRequirements(result, configuration);
 
                 setOptionalResolutionAction(result, configuration);
 
@@ -160,24 +157,6 @@ public class DefaultTargetPlatformConfigurationReader {
 
             result.setExecutionEnvironment(ee);
         }
-    }
-
-    private void addExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom requirementsDom = configuration.getChild("extraRequirements");
-        if (requirementsDom == null) {
-            return;
-        }
-        for (Xpp3Dom requirementDom : requirementsDom.getChildren("requirement")) {
-            result.addExtraRequirement(newRequirement(requirementDom));
-        }
-    }
-
-    private Dependency newRequirement(Xpp3Dom requirementDom) {
-        Dependency d = new Dependency();
-        d.setType(requirementDom.getChild("type").getValue());
-        d.setArtifactId(requirementDom.getChild("id").getValue());
-        d.setVersion(requirementDom.getChild("versionRange").getValue());
-        return d;
     }
 
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {

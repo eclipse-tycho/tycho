@@ -14,17 +14,18 @@ import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
-public class ExtraTargetPlatformRequirementsTest extends AbstractTychoIntegrationTest {
+public class ExtraCompilerRequirementsTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void test() throws Exception {
+        // TODO this is an artificial test case - find a test closer to a real use case
+        // TODO avoid remote repositories
         Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements", false);
-        verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
-        verifier.getCliOptions().add("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
-        verifier.executeGoals(Arrays.asList("clean", "install"));
+//        verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
+//        verifier.getCliOptions().add("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
     }
 }

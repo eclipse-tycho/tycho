@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: 363331_extraTargetPlatformRequirements
 Bundle-SymbolicName: 363331_extraTargetPlatformRequirements;singleton:=true
 Bundle-Version: 1.0.0
-Require-Bundle: org.eclipse.osgi,
- org.junit
+Require-Bundle: org.eclipse.osgi
 Bundle-Activator: test.Activator
 Bundle-ActivationPolicy: lazy

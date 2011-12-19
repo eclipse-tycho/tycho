@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-test-project</groupId>
+	<artifactId>org.eclipse.tycho.test.compilerOptions</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<extraRequirements>
+						<!-- like jars.extra.classpath, but with version ranges  -->
+						<requirement>
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.osgi</id>
+							<versionRange>[3.4,3.5)</versionRange>
+						</requirement>
+					</extraRequirements>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

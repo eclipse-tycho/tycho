@@ -57,6 +57,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
@@ -366,7 +367,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
-            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
+            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
+            DependencyResolverConfiguration resolverConfiguration) {
 
         // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
         // --> split this information logically, e.g. through two distinct interfaces
@@ -374,13 +376,13 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         P2Resolver osgiResolverImpl = resolverFactory.createResolver();
 
-        return doResolvePlatform(session, project, reactorProjects, dependencies, resolutionContext, osgiResolverImpl,
-                configuration);
+        return doResolvePlatform(session, project, reactorProjects, resolverConfiguration, resolutionContext,
+                osgiResolverImpl, configuration);
     }
 
     protected DependencyArtifacts doResolvePlatform(final MavenSession session, final MavenProject project,
-            List<ReactorProject> reactorProjects, List<Dependency> dependencies, TargetPlatform resolutionContext,
-            P2Resolver resolver, TargetPlatformConfiguration configuration) {
+            List<ReactorProject> reactorProjects, DependencyResolverConfiguration resolverConfiguration,
+            TargetPlatform resolutionContext, P2Resolver resolver, TargetPlatformConfiguration configuration) {
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
@@ -390,14 +392,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             projects.put(otherProject.getBasedir(), otherProject);
         }
 
-        if (dependencies != null) {
-            for (Dependency dependency : dependencies) {
+        if (resolverConfiguration != null) {
+            for (Dependency dependency : resolverConfiguration.getExtraRequirements()) {
                 resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
             }
-        }
-
-        for (Dependency dependency : configuration.getExtraRequirements()) {
-            resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
         }
 
         if (!isAllowConflictingDependencies(project, configuration)) {

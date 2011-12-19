@@ -13,7 +13,6 @@ package org.eclipse.tycho.core;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
@@ -33,7 +32,8 @@ public interface TargetPlatformResolver {
             List<ReactorProject> reactorProjects);
 
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
-            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects, List<Dependency> dependencies);
+            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
+            DependencyResolverConfiguration resolverConfiguration);
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts resolvedDependencies, Logger logger);
