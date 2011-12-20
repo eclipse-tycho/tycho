@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.junit.Test;
 public class P2DependencyGeneratorImplTest {
     private static final String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
     private static final String DEFAULT_GROUP_ID = "org.eclipse.tycho.p2.impl.test";
+    private static final String DEFAULT_CLASSIFIER = "classifier";
     private P2GeneratorImpl subject;
     private List<IInstallableUnit> units;
     private List<IArtifactDescriptor> artifacts;
@@ -45,7 +47,7 @@ public class P2DependencyGeneratorImplTest {
     private void generateDependencies(String testProjectId, String packagingType) throws IOException {
         File reactorProjectRoot = new File("resources/generator/" + testProjectId).getCanonicalFile();
         ArtifactMock reactorProject = new ArtifactMock(reactorProjectRoot, DEFAULT_GROUP_ID, testProjectId,
-                DEFAULT_VERSION, packagingType);
+                DEFAULT_VERSION, packagingType, DEFAULT_CLASSIFIER);
 
         ArrayList<Map<String, String>> emptyEnvironments = new ArrayList<Map<String, String>>();
 
@@ -65,6 +67,7 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("org.eclipse.tycho.p2.impl.test.bundle", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
         assertEquals(2, unit.getRequirements().size());
+        assertEquals(DEFAULT_CLASSIFIER, unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER));
 
         // not really necessary, but we get this because we reuse standard p2 implementation
         assertEquals(1, artifacts.size());
@@ -99,6 +102,8 @@ public class P2DependencyGeneratorImplTest {
 
         assertEquals("org.eclipse.tycho.p2.impl.test.feature.feature.group", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
+        assertEquals(DEFAULT_CLASSIFIER, unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER));
+
         List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
         assertEquals(6, requirements.size());
 

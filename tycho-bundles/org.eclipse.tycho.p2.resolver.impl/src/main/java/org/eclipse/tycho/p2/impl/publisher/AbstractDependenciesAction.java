@@ -90,6 +90,7 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
         addPublisherAdvice(publisherInfo);
 
         processCapabilityAdvice(iud, publisherInfo);
+        processInstallableUnitPropertiesAdvice(iud, publisherInfo);
 
         IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
         results.addIU(iu, PublisherResult.ROOT);
