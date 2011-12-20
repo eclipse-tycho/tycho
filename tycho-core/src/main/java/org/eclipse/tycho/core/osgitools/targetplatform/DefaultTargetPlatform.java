@@ -43,7 +43,7 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
 
     protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<ArtifactKey, ArtifactDescriptor>();
 
-    protected final Map<File, ArtifactDescriptor> locations = new LinkedHashMap<File, ArtifactDescriptor>();
+    protected final Map<File, Map<String, ArtifactDescriptor>> locations = new LinkedHashMap<File, Map<String, ArtifactDescriptor>>();
 
     /**
      * Set of installable unit in the target platform of the module that do not come from the local
@@ -83,7 +83,8 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
         artifact = normalizeArtifact(artifact);
 
         ArtifactDescriptor cachedArtifact = ARTIFACT_CACHE.get(key);
-        if (cachedArtifact != null && eq(cachedArtifact.getLocation(), artifact.getLocation())
+        File location = artifact.getLocation();
+        if (cachedArtifact != null && eq(cachedArtifact.getLocation(), location)
                 && eq(cachedArtifact.getMavenProject(), artifact.getMavenProject())) {
             artifact = cachedArtifact;
         } else {
@@ -91,7 +92,27 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
         }
 
         artifacts.put(key, artifact);
-        locations.put(artifact.getLocation(), artifact);
+
+        Map<String, ArtifactDescriptor> classified = locations.get(location);
+        if (classified == null) {
+            classified = new LinkedHashMap<String, ArtifactDescriptor>();
+            locations.put(location, classified);
+        }
+
+        // TODO sanity check, no duplicate artifact classifiers at the same location
+        //if (classified.containsKey(artifact.getClassifier())) {
+        //    throw new IllegalStateException("Duplicate artifact classifier at location " + location);
+        //}
+
+        // sanity check, all artifacts at the same location have the same reactor project
+        for (ArtifactDescriptor other : classified.values()) {
+            if (!eq(artifact.getMavenProject(), other.getMavenProject())) {
+                throw new IllegalStateException("Inconsistent reactor project at location " + location + ". "
+                        + artifact.getMavenProject() + " is not the same as " + other.getMavenProject());
+            }
+        }
+
+        classified.put(artifact.getClassifier(), artifact);
     }
 
     private ArtifactDescriptor normalizeArtifact(ArtifactDescriptor artifact) {
@@ -198,11 +219,15 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
     }
 
     public ReactorProject getMavenProject(File location) {
-        ArtifactDescriptor artifact = getArtifact(location);
-        return artifact != null ? artifact.getMavenProject() : null;
+        Map<String, ArtifactDescriptor> classified = getArtifact(location);
+        if (classified != null) {
+            // #addArtifact enforces all artifacts at the same location have the same reactor project 
+            return classified.values().iterator().next().getMavenProject();
+        }
+        return null;
     }
 
-    public ArtifactDescriptor getArtifact(File location) {
+    public Map<String, ArtifactDescriptor> getArtifact(File location) {
         try {
             location = location.getCanonicalFile();
             return locations.get(location);

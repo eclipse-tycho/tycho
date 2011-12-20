@@ -86,9 +86,9 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
         strategy.setAdditionalRequirements(additionalRequirements);
 
-        P2ResolutionResult result = new P2ResolutionResult();
+        MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
         for (IInstallableUnit iu : strategy.resolve(monitor)) {
-            result.addArtifact(TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), null, null, iu);
+            result.addArtifact(TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
         }
         return result;
     }
@@ -117,7 +117,7 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState) {
-        P2ResolutionResult result = new P2ResolutionResult();
+        DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
         for (IInstallableUnit iu : newState) {
             IArtifactFacade mavenArtifact = context.getMavenArtifact(iu);
             if (mavenArtifact != null) {
@@ -134,7 +134,7 @@ public class P2ResolverImpl implements P2Resolver {
         return result;
     }
 
-    private void collectNonReactorIUs(P2ResolutionResult result, Collection<IInstallableUnit> newState) {
+    private void collectNonReactorIUs(DefaultP2ResolutionResult result, Collection<IInstallableUnit> newState) {
         for (IInstallableUnit iu : newState) {
             if (!isReactorArtifact(iu)) {
                 result.addNonReactorUnit(iu);
@@ -146,7 +146,7 @@ public class P2ResolverImpl implements P2Resolver {
         return context.getMavenArtifact(iu) instanceof IReactorArtifactFacade;
     }
 
-    private void addArtifactFile(P2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key) {
+    private void addArtifactFile(DefaultP2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key) {
         File file = context.getLocalArtifactFile(key);
         if (file == null) {
             return;
@@ -171,7 +171,7 @@ public class P2ResolverImpl implements P2Resolver {
         // throw new IllegalArgumentException();
     }
 
-    private void addMavenArtifact(P2ResolutionResult platform, IArtifactFacade mavenArtifact, IInstallableUnit iu) {
+    private void addMavenArtifact(DefaultP2ResolutionResult platform, IArtifactFacade mavenArtifact, IInstallableUnit iu) {
         String type = mavenArtifact.getPackagingType();
         String id = iu.getId();
         String version = iu.getVersion().toString();

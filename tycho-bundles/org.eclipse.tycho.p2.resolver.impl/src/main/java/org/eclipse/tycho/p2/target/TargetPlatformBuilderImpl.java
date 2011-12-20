@@ -72,6 +72,7 @@ import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
@@ -221,12 +222,15 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     public void addMavenArtifact(ClassifiedLocation key, IArtifactFacade artifact, Set<IInstallableUnit> units) {
         for (IInstallableUnit unit : units) {
-            mavenInstallableUnits.put(unit, artifact);
-            if (logger.isDebugEnabled()) {
-                logger.debug("P2Resolver: artifact "
-                        + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()).toString()
-                        + " at location " + artifact.getLocation() + " resolves installable unit "
-                        + new VersionedId(unit.getId(), unit.getVersion()));
+            String classifier = unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+            if (classifier == null ? key.getClassifier() == null : classifier.equals(key.getClassifier())) {
+                mavenInstallableUnits.put(unit, artifact);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("P2Resolver: artifact "
+                            + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion())
+                                    .toString() + " at location " + artifact.getLocation()
+                            + " resolves installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
+                }
             }
         }
     }

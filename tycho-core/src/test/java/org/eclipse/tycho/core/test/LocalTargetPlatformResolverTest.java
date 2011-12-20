@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.test;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.DefaultMavenExecutionResult;
@@ -73,7 +74,7 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
         File bundlePath = new File(platformPath, "plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar")
                 .getCanonicalFile();
 
-        ArtifactDescriptor artifact = platform.getArtifact(bundlePath);
+        Map<String, ArtifactDescriptor> artifact = platform.getArtifact(bundlePath);
 
         assertNotNull(artifact);
     }
@@ -85,7 +86,7 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
         File bundlePath = new File(
                 "src/test/resources/targetplatforms/basic/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar");
 
-        ArtifactDescriptor artifact = platform.getArtifact(bundlePath);
+        Map<String, ArtifactDescriptor> artifact = platform.getArtifact(bundlePath);
 
         assertNotNull(artifact);
     }

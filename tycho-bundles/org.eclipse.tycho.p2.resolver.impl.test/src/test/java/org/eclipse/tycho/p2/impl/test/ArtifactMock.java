@@ -28,7 +28,7 @@ public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
 
     private String packagingType;
 
-    private final String classifier;
+    private String classifier;
 
     private Set<Object> dependencyMetadata;
 
@@ -70,6 +70,10 @@ public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
 
     public String getClassidier() {
         return classifier;
+    }
+
+    public void setClassifier(String classifier) {
+        this.classifier = classifier;
     }
 
     public Set<Object> getDependencyMetadata(boolean primary) {

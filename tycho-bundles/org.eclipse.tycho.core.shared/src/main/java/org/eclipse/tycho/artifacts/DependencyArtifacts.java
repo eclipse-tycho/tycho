@@ -12,6 +12,7 @@ package org.eclipse.tycho.artifacts;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -57,7 +58,12 @@ public interface DependencyArtifacts {
 
     public ReactorProject getMavenProject(File location);
 
-    public ArtifactDescriptor getArtifact(File location);
+    /**
+     * Returns map of artifact descriptors at the given location. The map is keyed by maven artifact
+     * classifiers. For dependency artifacts and the main reactor project artifact, the classifier
+     * is <code>null</code>.
+     */
+    public Map<String, ArtifactDescriptor> getArtifact(File location);
 
     public ArtifactDescriptor getArtifact(ArtifactKey key);
 

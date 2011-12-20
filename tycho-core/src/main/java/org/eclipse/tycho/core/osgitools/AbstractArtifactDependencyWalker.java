@@ -65,11 +65,12 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
     protected void traverseFeature(File location, Feature feature, FeatureRef featureRef,
             ArtifactDependencyVisitor visitor, WalkbackPath visited) {
-        ArtifactDescriptor artifact = artifacts.getArtifact(location);
+        ArtifactDescriptor artifact = getArtifact(location, feature.getId());
 
         if (artifact == null) {
             // ah?
-            throw new IllegalStateException("Feature " + location + " is not part of the project build target platform");
+            throw new IllegalStateException("Feature " + location + " with id " + feature.getId()
+                    + " is not part of the project build target platform");
         }
 
         ArtifactKey key = artifact.getKey();
@@ -89,6 +90,18 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
                 traverseFeature(ref, visitor, visited);
             }
         }
+    }
+
+    protected ArtifactDescriptor getArtifact(File location, String id) {
+        Map<String, ArtifactDescriptor> artifacts = this.artifacts.getArtifact(location);
+        if (artifacts != null) {
+            for (ArtifactDescriptor artifact : artifacts.values()) {
+                if (id.equals(artifact.getKey().getId())) {
+                    return artifact;
+                }
+            }
+        }
+        return null;
     }
 
     public void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor) {

@@ -348,9 +348,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         P2ResolutionResult macosx = results.get(1);
         List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
-        Assert.assertEquals(2, macosxEntries.size());
-        Assert.assertEquals(1, macosxEntries.get(0).getInstallableUnits().size());
-        Assert.assertEquals(1, macosxEntries.get(1).getInstallableUnits().size());
+        Assert.assertEquals(1, macosxEntries.size());
+        Assert.assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
         Assert.assertEquals(0, macosx.getNonReactorUnits().size());
     }
 
@@ -379,9 +378,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         P2ResolutionResult macosx = results.get(1);
         List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
-        Assert.assertEquals(2, macosxEntries.size());
-        Assert.assertEquals(1, macosxEntries.get(0).getInstallableUnits().size());
-        Assert.assertEquals(1, macosxEntries.get(1).getInstallableUnits().size());
+        Assert.assertEquals(1, macosxEntries.size());
+        Assert.assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
         Assert.assertEquals(1, macosx.getNonReactorUnits().size());
     }
 }

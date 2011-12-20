@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<units size='2'>
+
+  <!-- 
+    This p2 metadata file contains two IUs with different maven classifiers.
+   -->
+
+  <unit id='test.ui' version='0.0.1' singleton='false'>
+    <update id='test.ui' range='[0.0.0,0.0.1)' severity='0'/>
+    <properties size='4'>
+      <property name='org.eclipse.equinox.p2.name' value='test.ui'/>
+      <property name='maven-groupId' value='test.groupId'/>
+      <property name='maven-artifactId' value='test.ui'/>
+      <property name='maven-version' value='0.0.1'/>
+    </properties>
+    <provides size='4'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='test.ui' version='0.0.1'/>
+      <provided namespace='osgi.bundle' name='test.ui' version='0.0.1'/>
+      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+    </provides>
+    <artifacts size='1'>
+      <artifact classifier='osgi.bundle' id='test.ui' version='0.0.1'/>
+    </artifacts>
+    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    <touchpointData size='1'>
+      <instructions size='1'>
+        <instruction key='manifest'>
+          Bundle-SymbolicName: test.ui&#xA;Bundle-Version: 0.0.1&#xA;
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+  <unit id='test.ui.source' version='0.0.1' singleton='false'>
+    <update id='test.ui.source' range='[0.0.0,0.0.1)' severity='0'/>
+    <properties size='4'>
+      <property name='maven-groupId' value='test.groupId'/>
+      <property name='maven-artifactId' value='test.ui'/>
+      <property name='maven-version' value='0.0.1'/>
+      <property name='maven-classifier' value='sources'/>
+    </properties>
+    <provides size='3'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='test.ui.source' version='0.0.1'/>
+      <provided namespace='osgi.bundle' name='test.ui.source' version='0.0.1'/>
+      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='source' version='1.0.0'/>
+    </provides>
+    <artifacts size='1'>
+      <artifact classifier='osgi.bundle' id='test.ui.source' version='0.0.1'/>
+    </artifacts>
+    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    <touchpointData size='1'>
+      <instructions size='1'>
+        <instruction key='manifest'>
+          Bundle-SymbolicName: test.ui.source&#xA;Bundle-Version: 0.0.1&#xA;
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+</units>

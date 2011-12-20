@@ -165,7 +165,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ClasspathEntry> classpath = new ArrayList<ClasspathEntry>();
 
         // project itself
-        ArtifactDescriptor artifact = artifacts.getArtifact(project.getBasedir());
+        ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(), bundleDescription.getSymbolicName());
         ReactorProject projectProxy = DefaultReactorProject.adapt(project);
         List<File> projectClasspath = getThisProjectClasspath(artifact, projectProxy);
         classpath.add(new DefaultClasspathEntry(projectProxy, artifact.getKey(), projectClasspath, null));
@@ -176,7 +176,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         // dependencies
         for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
             File location = new File(entry.desc.getLocation());
-            ArtifactDescriptor otherArtifact = artifacts.getArtifact(location);
+            ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.desc.getSymbolicName());
             ReactorProject otherProject = otherArtifact.getMavenProject();
             List<File> locations;
             if (otherProject != null) {
@@ -193,6 +193,18 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
         addPDESourceRoots(project);
+    }
+
+    protected ArtifactDescriptor getArtifact(DependencyArtifacts artifacts, File location, String id) {
+        Map<String, ArtifactDescriptor> classified = artifacts.getArtifact(location);
+        if (classified != null) {
+            for (ArtifactDescriptor artifact : classified.values()) {
+                if (id.equals(artifact.getKey().getId())) {
+                    return artifact;
+                }
+            }
+        }
+        return null;
     }
 
     private void addPDESourceRoots(MavenProject project) {
