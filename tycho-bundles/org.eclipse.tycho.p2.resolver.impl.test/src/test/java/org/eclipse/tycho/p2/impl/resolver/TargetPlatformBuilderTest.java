@@ -1,11 +1,11 @@
 package org.eclipse.tycho.p2.impl.resolver;
 
 import java.io.File;
+import java.util.Collection;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -26,14 +26,14 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
                 "groupId", "artifactId", "1", P2Resolver.TYPE_ECLIPSE_PLUGIN, "p2metadata");
 
         P2TargetPlatform platform;
-        IInstallableUnit[] units;
+        Collection<IInstallableUnit> units;
 
         // classifier does not match available metadata
         context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
-        units = platform.getInstallableUnits().query(QueryUtil.ALL_UNITS, monitor).toArray(IInstallableUnit.class);
-        Assert.assertEquals(2, units.length);
+        units = platform.getInstallableUnits();
+        Assert.assertEquals(2, units.size());
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
 
@@ -42,8 +42,8 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
-        units = platform.getInstallableUnits().query(QueryUtil.ALL_UNITS, monitor).toArray(IInstallableUnit.class);
-        Assert.assertEquals(3, units.length);
+        units = platform.getInstallableUnits();
+        Assert.assertEquals(3, units.size());
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
         assertContainsIU(units, "test.ui.source");
@@ -53,14 +53,14 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
-        units = platform.getInstallableUnits().query(QueryUtil.ALL_UNITS, monitor).toArray(IInstallableUnit.class);
-        Assert.assertEquals(3, units.length);
+        units = platform.getInstallableUnits();
+        Assert.assertEquals(3, units.size());
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
         assertContainsIU(units, "test.ui");
     }
 
-    private void assertContainsIU(IInstallableUnit[] units, String id) {
+    private void assertContainsIU(Collection<IInstallableUnit> units, String id) {
         for (IInstallableUnit unit : units) {
             if (id.equals(unit.getId())) {
                 return;

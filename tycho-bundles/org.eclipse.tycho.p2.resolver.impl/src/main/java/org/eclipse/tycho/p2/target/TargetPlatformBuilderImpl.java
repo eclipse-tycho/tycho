@@ -37,7 +37,6 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -46,7 +45,6 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -432,7 +430,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         logger.debug("Registered artifact repository " + blackboardKey);
 
         assertNoDuplicateReactorUIs();
-        IQueryable<IInstallableUnit> allTargetPlatformIUs = gatherAvailableInstallableUnits(monitor);
+        Collection<IInstallableUnit> allTargetPlatformIUs = gatherAvailableInstallableUnits(monitor);
 
         List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
         for (IArtifactRepository artifactRepository : artifactRepositories) {
@@ -449,7 +447,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     // -------------------------------------------------------------------------
 
-    private IQueryable<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
+    private Collection<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
         Collection<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetPlatformContent contentPart : content) {
@@ -487,7 +485,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         result.addAll(getJREIUs());
         sub.done();
         // this is a real shame
-        return new QueryableArray(result.toArray(new IInstallableUnit[result.size()]));
+        return result;
     }
 
     /**

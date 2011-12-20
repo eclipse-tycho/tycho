@@ -15,6 +15,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -38,7 +38,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 public class TargetPlatformImpl implements P2TargetPlatform {
 
-    private final IQueryable<IInstallableUnit> allIUs;
+    private final Collection<IInstallableUnit> allIUs;
     private final Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs;
     private final Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs;
     private final Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs;
@@ -51,14 +51,14 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     private final IProvisioningAgent agent;
     private final MavenLogger logger;
 
-    public TargetPlatformImpl(IQueryable<IInstallableUnit> allIUs,
+    public TargetPlatformImpl(Collection<IInstallableUnit> allTargetPlatformIUs,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs,
             Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs,
             LocalMetadataRepository localMetadataRepository, String executionEnvironment,
             List<URI> allRemoteArtifactRepositories, LocalArtifactRepository localMavenRepository,
             IProvisioningAgent agent, MavenLogger logger) {
-        this.allIUs = allIUs;
+        this.allIUs = allTargetPlatformIUs;
         this.mavenArtifactIUs = mavenArtifactIUs;
         this.reactorProjectIUs = reactorProjectIUs;
         this.reactorProjectSecondaryIUs = reactorProjectSecondaryIUs;
@@ -71,8 +71,8 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         this.logger = logger;
     }
 
-    public IQueryable<IInstallableUnit> getInstallableUnits() {
-        return allIUs;
+    public Collection<IInstallableUnit> getInstallableUnits() {
+        return Collections.unmodifiableCollection(allIUs);
     }
 
     @SuppressWarnings("restriction")

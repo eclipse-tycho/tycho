@@ -16,7 +16,6 @@ import java.util.LinkedHashSet;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
@@ -26,7 +25,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
  */
 public interface P2TargetPlatform extends TargetPlatform {
 
-    IQueryable<IInstallableUnit> getInstallableUnits();
+    Collection<IInstallableUnit> getInstallableUnits();
 
     /**
      * Return IUs that represent packages provided by target JRE

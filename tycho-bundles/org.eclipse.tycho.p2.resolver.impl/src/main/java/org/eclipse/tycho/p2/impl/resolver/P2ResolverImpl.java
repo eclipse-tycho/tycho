@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -82,7 +83,8 @@ public class P2ResolverImpl implements P2Resolver {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(properties, logger);
         P2TargetPlatform contextImpl = (P2TargetPlatform) context;
         strategy.setJREUIs(contextImpl.getJREIUs());
-        strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
+        strategy.setAvailableInstallableUnits(new QueryableArray(contextImpl.getInstallableUnits().toArray(
+                new IInstallableUnit[0])));
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
         strategy.setAdditionalRequirements(additionalRequirements);
 
@@ -97,7 +99,8 @@ public class P2ResolverImpl implements P2Resolver {
     protected P2ResolutionResult resolveProject(File projectLocation, ResolutionStrategy strategy) {
         strategy.setRootInstallableUnits(context.getReactorProjectIUs(projectLocation, true));
         strategy.setAdditionalRequirements(additionalRequirements);
-        IQueryable<IInstallableUnit> availableUnits = context.getInstallableUnits();
+        IQueryable<IInstallableUnit> availableUnits = new QueryableArray(context.getInstallableUnits().toArray(
+                new IInstallableUnit[0]));
         LinkedHashSet<IInstallableUnit> projectSecondaryIUs = context.getReactorProjectIUs(projectLocation, false);
         if (!projectSecondaryIUs.isEmpty()) {
             availableUnits = new CompoundQueryable<IInstallableUnit>(toArray(availableUnits,
