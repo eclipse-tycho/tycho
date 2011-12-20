@@ -13,11 +13,8 @@ package org.eclipse.tycho.packaging;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
@@ -25,16 +22,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.ArtifactDependencyVisitor;
-import org.eclipse.tycho.core.FeatureDescription;
-import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.Feature;
-import org.eclipse.tycho.model.FeatureRef;
-import org.eclipse.tycho.model.PluginRef;
 
 /**
  * @phase package
@@ -43,8 +32,6 @@ import org.eclipse.tycho.model.PluginRef;
  * @requiresDependencyResolution runtime
  */
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
-
-    private static final int KBYTE = 1024;
 
     /**
      * The maven archiver to use.
@@ -87,7 +74,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     /**
      * @component
      */
-    private FileLockService fileLockService;
+    private FeatureXmlTransformer featureXmlTransformer;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         expandVersion();
@@ -148,105 +135,15 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     }
 
     private Feature getUpdatedFeatureXml() throws MojoExecutionException, IOException {
-        final Feature feature = Feature.loadFeature(basedir);
-
-        getDependencyWalker().traverseFeature(basedir, feature, new ArtifactDependencyVisitor() {
-            public void visitPlugin(PluginDescription plugin) {
-                PluginRef pluginRef = plugin.getPluginRef();
-
-                if (pluginRef == null) {
-                    // can't really happen
-                    return;
-                }
-
-                File location = plugin.getLocation();
-
-                ReactorProject bundleProject = plugin.getMavenProject();
-                if (bundleProject != null) {
-                    location = bundleProject.getArtifact();
-
-                    if (location == null || location.isDirectory()) {
-                        throw new IllegalStateException("At least ``package'' phase execution is required");
-                    }
-
-                    pluginRef.setVersion(bundleProject.getExpandedVersion());
-                } else {
-                    // use version from target platform
-                    pluginRef.setVersion(plugin.getKey().getVersion());
-                }
-
-                long downloadSize = 0;
-                long installSize = 0;
-                if (location.isFile()) {
-                    installSize = getInstallSize(location);
-                    downloadSize = location.length();
-                } else {
-                    getLog().info(
-                            "Download/install size is not calculated for directory based bundle " + pluginRef.getId());
-                }
-
-                pluginRef.setDownloadSide(downloadSize / KBYTE);
-                pluginRef.setInstallSize(installSize / KBYTE);
-            }
-
-            public boolean visitFeature(FeatureDescription feature) {
-                FeatureRef featureRef = feature.getFeatureRef();
-                if (featureRef == null) {
-                    // this feature
-                    ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-                    feature.getFeature().setVersion(reactorProject.getExpandedVersion());
-                    return true; // keep visiting
-                } else {
-                    // included feature
-                    ReactorProject otherProject = feature.getMavenProject();
-                    if (otherProject != null) {
-                        featureRef.setVersion(otherProject.getExpandedVersion());
-                    } else {
-                        featureRef.setVersion(feature.getKey().getVersion());
-                    }
-                }
-
-                return false; // do not traverse included features
-            }
-        });
-
-        return feature;
+        return featureXmlTransformer.transform(DefaultReactorProject.adapt(project), Feature.loadFeature(basedir),
+                getDependencyWalker());
     }
 
     private JarArchiver getJarArchiver() throws MojoExecutionException {
         try {
-            JarArchiver jarArchiver = (JarArchiver) plexus.lookup(JarArchiver.ROLE, "jar");
-            return jarArchiver;
+            return (JarArchiver) plexus.lookup(JarArchiver.ROLE, "jar");
         } catch (ComponentLookupException e) {
             throw new MojoExecutionException("Unable to get JarArchiver", e);
         }
-    }
-
-    protected long getInstallSize(File location) {
-        long installSize = 0;
-        FileLocker locker = fileLockService.getFileLocker(location);
-        locker.lock();
-        try {
-            try {
-                JarFile jar = new JarFile(location);
-                try {
-                    Enumeration<JarEntry> entries = jar.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry entry = (JarEntry) entries.nextElement();
-                        long entrySize = entry.getSize();
-                        if (entrySize > 0) {
-                            installSize += entrySize;
-                        }
-                    }
-                } finally {
-                    jar.close();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Could not determine installation size", e);
-            }
-        } finally {
-            locker.release();
-        }
-        return installSize;
     }
 }
