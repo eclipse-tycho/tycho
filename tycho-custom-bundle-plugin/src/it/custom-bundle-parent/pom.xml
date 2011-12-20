@@ -15,7 +15,7 @@
     <pluginRepository>
       <!-- temporary workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=360628 -->
       <id>tycho-snapshots</id>
-      <url>https://repository.sonatype.org/content/repositories/snapshots/</url>
+      <url>https://oss.sonatype.org/content/groups/public/</url>
       <releases>
         <enabled>false</enabled>
       </releases>
