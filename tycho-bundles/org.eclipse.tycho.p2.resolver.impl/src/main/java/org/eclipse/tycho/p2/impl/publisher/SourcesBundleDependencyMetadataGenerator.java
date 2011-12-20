@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
@@ -59,7 +60,12 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
             BundleDescription bundleDescription = factory.createBundleDescription(factory.createState(false), manifest,
                     artifact.getLocation().getAbsolutePath(), createId(sourceBundleSymbolicName, version));
             bundleDescription.setUserObject(manifest);
-            actions.add(new TychoBundleAction(bundleDescription));
+            actions.add(new TychoBundleAction(bundleDescription) {
+                @Override
+                protected void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo publisherInfo) {
+                    // 367255 p2.inf is not applicable to sources bundles
+                }
+            });
         } catch (BundleException e) {
             throw new RuntimeException(e);
         }

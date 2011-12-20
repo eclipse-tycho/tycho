@@ -62,6 +62,21 @@ public class P2GeneratorImplTest {
         //assertEquals("foo;version=0.0.1;roots:=\".\"", attributes.getValue("Eclipse-SourceBundle"));
     }
 
+    @Test
+    public void generateSourceBundleMetadataForProjectWithP2Inf() throws Exception {
+        // p2.inf must not leak into sources bundle
+
+        DependencyMetadataGenerator p2GeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
+        File location = new File("resources/generator/bundle-p2-inf").getCanonicalFile();
+        ArtifactMock artifactMock = new ArtifactMock(location, "org.acme", "foo", "0.0.1", "eclipse-plugin");
+        Set<Object> units = p2GeneratorImpl.generateMetadata(artifactMock, getEnvironments(), null).getMetadata();
+
+        assertEquals(1, units.size());
+
+        IInstallableUnit unit = getUnit("foo.source", units);
+        assertEquals(0, unit.getRequirements().size());
+    }
+
     private IInstallableUnit getUnit(String id, Set<Object> units) {
         for (Object obj : units) {
             IInstallableUnit unit = (IInstallableUnit) obj;
