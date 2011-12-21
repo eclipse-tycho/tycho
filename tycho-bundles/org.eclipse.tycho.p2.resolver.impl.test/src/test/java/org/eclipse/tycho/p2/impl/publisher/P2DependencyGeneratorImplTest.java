@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,6 +43,7 @@ public class P2DependencyGeneratorImplTest {
     @Before
     public void resetTestSubjectAndResultFields() {
         subject = new P2GeneratorImpl(true);
+        subject.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
     }
 
     private void generateDependencies(String testProjectId, String packagingType) throws IOException {

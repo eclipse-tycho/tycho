@@ -23,13 +23,14 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
 import org.junit.Test;
 
 public class P2MetadataGeneratorImplTest {
     @Test
     public void gav() throws Exception {
         P2GeneratorImpl impl = new P2GeneratorImpl(false);
-
+        impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
         File location = new File("resources/generator/bundle").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";

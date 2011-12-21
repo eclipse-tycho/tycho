@@ -41,6 +41,7 @@
 		<module>org.eclipse.tycho.noopsecurity</module>
 
 		<!-- unit tests -->
+		<module>org.eclipse.tycho.core.shared.tests</module>
 		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
 		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
 		<module>org.eclipse.tycho.p2.tools.tests</module>

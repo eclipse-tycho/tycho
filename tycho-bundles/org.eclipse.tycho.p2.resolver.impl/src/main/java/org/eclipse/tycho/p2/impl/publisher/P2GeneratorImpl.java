@@ -62,6 +62,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         this.dependenciesOnly = dependenciesOnly;
     }
 
+    // no-args constructor required by DS
     public P2GeneratorImpl() {
         this(false);
     }
@@ -232,7 +233,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 artifact.getClassidier()));
         advice.add(getExtraEntriesAdvice(artifact));
 
-        IFeatureRootAdvice featureRootAdvice = FeatureRootAdvice.createRootFileAdvice(artifact);
+        IFeatureRootAdvice featureRootAdvice = FeatureRootAdvice.createRootFileAdvice(artifact,
+                getBuildPropertiesParser());
         if (featureRootAdvice != null) {
             advice.add(featureRootAdvice);
         }

@@ -11,10 +11,9 @@
 package org.eclipse.tycho.packaging;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
@@ -22,6 +21,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
 
@@ -76,21 +77,13 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
      */
     private FeatureXmlTransformer featureXmlTransformer;
 
+    /**
+     * @component
+     */
+    private BuildPropertiesParser buildPropertiesParser;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         expandVersion();
-
-        Properties props = new Properties();
-        try {
-            FileInputStream is = new FileInputStream(new File(basedir, "build.properties"));
-            try {
-                props.load(is);
-            } finally {
-                is.close();
-            }
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error reading build properties", e);
-        }
-
         outputDirectory.mkdirs();
 
         Feature feature;
@@ -104,8 +97,8 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
         File outputJar = new File(outputDirectory, finalName + ".jar");
         outputJar.getParentFile().mkdirs();
-        List<String> binIncludes = toFilePattern(props.getProperty("bin.includes"));
-        List<String> binExcludes = toFilePattern(props.getProperty("bin.excludes"));
+        BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+        List<String> binExcludes = new ArrayList<String>(buildProperties.getBinExcludes());
         binExcludes.add(Feature.FEATURE_XML); // we'll include updated feature.xml
 
         MavenArchiver archiver = new MavenArchiver();
@@ -115,7 +108,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         jarArchiver.setDestFile(outputJar);
 
         try {
-            archiver.getArchiver().addFileSet(getFileSet(basedir, binIncludes, binExcludes));
+            archiver.getArchiver().addFileSet(getFileSet(basedir, buildProperties.getBinIncludes(), binExcludes));
             archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
             archiver.createArchive(project, archive);
         } catch (Exception e) {

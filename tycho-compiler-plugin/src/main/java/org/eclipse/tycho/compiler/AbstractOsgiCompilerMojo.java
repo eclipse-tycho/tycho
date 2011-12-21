@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -366,8 +365,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             throws MojoExecutionException {
         CompilerConfiguration compilerConfiguration = super.getCompilerConfiguration(compileSourceRoots);
         if (usePdeSourceRoots) {
-            Properties props = getEclipsePluginProject().getBuildProperties();
-            String encoding = props.getProperty("javacDefaultEncoding." + outputJar.getName());
+            String encoding = getEclipsePluginProject().getBuildProperties().getJarToJavacDefaultEncodingMap()
+                    .get(outputJar.getName());
             if (encoding != null) {
                 compilerConfiguration.setSourceEncoding(encoding);
             }
@@ -494,9 +493,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             return source;
         }
         // then, build.properties
-        String javacSource = getEclipsePluginProject().getBuildProperties().getProperty("javacSource");
+        String javacSource = getEclipsePluginProject().getBuildProperties().getJavacSource();
         if (javacSource != null) {
-            return javacSource.trim();
+            return javacSource;
         }
         // then, BREE
         if (env != null) {
@@ -515,9 +514,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             return target;
         }
         // then, build.properties
-        String javacTarget = getEclipsePluginProject().getBuildProperties().getProperty("javacTarget");
+        String javacTarget = getEclipsePluginProject().getBuildProperties().getJavacTarget();
         if (javacTarget != null) {
-            return javacTarget.trim();
+            return javacTarget;
         }
         // then, BREE
         if (env != null) {

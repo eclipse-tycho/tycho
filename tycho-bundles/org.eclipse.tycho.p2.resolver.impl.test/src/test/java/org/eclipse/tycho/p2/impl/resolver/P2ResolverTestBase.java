@@ -30,12 +30,13 @@ import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.NoopFileLockService;
+import org.junit.Before;
 
 public class P2ResolverTestBase {
 
@@ -43,11 +44,20 @@ public class P2ResolverTestBase {
 
     private static final String DEFAULT_GROUP_ID = "test.groupId";
 
-    private final P2GeneratorImpl fullGenerator = new P2GeneratorImpl(true);
-    private final DependencyMetadataGenerator dependencyGenerator = new DefaultDependencyMetadataGenerator();
+    private P2GeneratorImpl fullGenerator;
+    private DefaultDependencyMetadataGenerator dependencyGenerator;
 
     P2Resolver impl;
     TargetPlatformBuilderImpl context;
+
+    @Before
+    public void prepare() {
+        fullGenerator = new P2GeneratorImpl(true);
+        BuildPropertiesParserForTesting buildPropertiesReader = new BuildPropertiesParserForTesting();
+        fullGenerator.setBuildPropertiesParser(buildPropertiesReader);
+        dependencyGenerator = new DefaultDependencyMetadataGenerator();
+        dependencyGenerator.setBuildPropertiesParser(buildPropertiesReader);
+    }
 
     static List<Map<String, String>> getEnvironments() {
         ArrayList<Map<String, String>> environments = new ArrayList<Map<String, String>>();

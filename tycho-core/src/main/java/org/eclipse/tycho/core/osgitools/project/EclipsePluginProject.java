@@ -12,19 +12,15 @@ package org.eclipse.tycho.core.osgitools.project;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.facade.BuildProperties;
 
 public interface EclipsePluginProject {
 
     public ReactorProject getMavenProject();
 
-    /**
-     * http://help.eclipse.org/ganymede/index.jsp?topic=/org.eclipse.pde.doc.user/reference/
-     * pde_feature_generating_build.htm
-     */
-    public Properties getBuildProperties();
+    public BuildProperties getBuildProperties();
 
     public List<BuildOutputJar> getOutputJars();
 

@@ -38,6 +38,7 @@ import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")
@@ -102,7 +103,7 @@ public class P2GeneratorImplTest {
 
     @Test
     public void testOptionalImportPackage_REQUIRE() throws Exception {
-        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        DefaultDependencyMetadataGenerator generator = createDependencyMetadataGenerator();
         File location = new File("resources/generator/optional-import-package").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-import-package", "optional-import-package",
                 "0.0.1", "eclipse-plugin");
@@ -121,9 +122,15 @@ public class P2GeneratorImplTest {
         assertEquals("org.osgi.framework", requirement.getName());
     }
 
+    private DefaultDependencyMetadataGenerator createDependencyMetadataGenerator() {
+        DefaultDependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        generator.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
+        return generator;
+    }
+
     @Test
     public void testOptionalImportPackage_IGNORE() throws Exception {
-        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        DependencyMetadataGenerator generator = createDependencyMetadataGenerator();
         File location = new File("resources/generator/optional-import-package").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-import-package", "optional-import-package",
                 "0.0.1", "eclipse-plugin");
@@ -138,7 +145,7 @@ public class P2GeneratorImplTest {
 
     @Test
     public void testOptionalRequireBundle_REQUIRE() throws Exception {
-        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        DependencyMetadataGenerator generator = createDependencyMetadataGenerator();
         File location = new File("resources/generator/optional-require-bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-require-bundle", "optional-require-bundle",
                 "0.0.1", "eclipse-plugin");
@@ -159,7 +166,7 @@ public class P2GeneratorImplTest {
 
     @Test
     public void testOptionalRequireBundle_IGNORE() throws Exception {
-        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        DependencyMetadataGenerator generator = createDependencyMetadataGenerator();
         File location = new File("resources/generator/optional-require-bundle").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-require-bundle", "optional-require-bundle",
                 "0.0.1", "eclipse-plugin");
@@ -174,7 +181,7 @@ public class P2GeneratorImplTest {
 
     @Test
     public void testOptionalRequireBundleP2inf_REQUIRE() throws Exception {
-        DependencyMetadataGenerator generator = new DefaultDependencyMetadataGenerator();
+        DependencyMetadataGenerator generator = createDependencyMetadataGenerator();
         File location = new File("resources/generator/optional-reqiure-bundle-p2inf").getCanonicalFile();
         ArtifactMock artifactMock = new ArtifactMock(location, "optional-reqiure-bundle-p2inf",
                 "optional-reqiure-bundle-p2inf", "0.0.1", "eclipse-plugin");

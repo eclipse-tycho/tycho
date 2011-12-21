@@ -14,7 +14,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
@@ -23,7 +22,8 @@ import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.p2.impl.publisher.Utils;
+import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 /**
@@ -42,7 +42,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
 
     private Map<ConfigSpec, RootFilesProperties> propertiesPerConfig;
 
-    public FeatureRootAdvice(Properties buildProperties, File baseDir, String artifactId) {
+    public FeatureRootAdvice(BuildProperties buildProperties, File baseDir, String artifactId) {
         RootPropertiesParser parser = new RootPropertiesParser(baseDir, buildProperties);
         parser.parse();
         this.artifactId = artifactId;
@@ -54,13 +54,12 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
      * @return IFeatureRootAdvice if root file configuration in build properties exists otherwise
      *         return null
      */
-    public static IFeatureRootAdvice createRootFileAdvice(IArtifactFacade featureArtifact) {
+    public static IFeatureRootAdvice createRootFileAdvice(IArtifactFacade featureArtifact,
+            BuildPropertiesParser buildPropertiesParser) {
         File projectDir = getProjectBaseDir(featureArtifact);
 
         if (projectDir != null) {
-            Properties buildProperties = Utils.loadBuildProperties(projectDir);
-
-            FeatureRootAdvice result = new FeatureRootAdvice(buildProperties, projectDir,
+            FeatureRootAdvice result = new FeatureRootAdvice(buildPropertiesParser.parse(projectDir), projectDir,
                     featureArtifact.getArtifactId());
             if (result.hasRootFiles()) {
                 return result;

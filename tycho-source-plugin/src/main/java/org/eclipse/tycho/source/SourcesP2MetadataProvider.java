@@ -18,6 +18,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -30,10 +31,13 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
     @Requirement
     private EquinoxServiceFactory equinox;
 
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
+
     private DependencyMetadataGenerator sourcesGenerator;
 
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
-        if (OsgiSourceMojo.isRelevantProjectImpl(project)) {
+        if (OsgiSourceMojo.isRelevantProjectImpl(project, buildPropertiesParser)) {
             ReactorArtifactFacade sourcesArtifact = new ReactorArtifactFacade(reactorProject, "sources");
             IDependencyMetadata metadata = sourcesGenerator.generateMetadata(sourcesArtifact, null,
                     OptionalResolutionAction.REQUIRE);
