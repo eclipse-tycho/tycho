@@ -37,6 +37,7 @@
 		<module>tycho-p2-extras-plugin</module>
         <module>tycho-custom-bundle-plugin</module>
         <module>tycho-eclipserun-plugin</module>
+        <module>tycho-source-feature-plugin</module>
 	</modules>
 
 	<repositories>
