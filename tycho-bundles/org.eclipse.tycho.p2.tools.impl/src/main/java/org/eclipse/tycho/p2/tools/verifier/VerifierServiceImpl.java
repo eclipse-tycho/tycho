@@ -21,6 +21,8 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -50,15 +52,10 @@ public class VerifierServiceImpl implements VerifierService {
             try {
                 final IMetadataRepository metadata = loadMetadataRepository(metadataRepositoryUri, agent);
                 final IArtifactRepository artifactRepository = loadArtifactRepository(artifactRepositoryUri, agent);
-                final IQueryResult<IInstallableUnit> collector = metadata.query(QueryUtil.ALL_UNITS, monitor);
+
                 boolean valid = true;
-                for (Iterator<IInstallableUnit> iterator = collector.iterator(); iterator.hasNext();) {
-                    IInstallableUnit iu = iterator.next();
-                    final Collection<IArtifactKey> artifacts = iu.getArtifacts();
-                    for (IArtifactKey key : artifacts) {
-                        valid &= verifySingleArtifact(key, artifactRepository, logger);
-                    }
-                }
+                valid &= verifyReferencedArtifactsExist(metadata, artifactRepository, logger);
+                valid &= verifyAllArtifactContent(artifactRepository, logger);
                 if (valid) {
                     logger.info("The integrity of the metadata repository '" + metadataRepositoryUri
                             + "' and artifact repository '" + artifactRepositoryUri
@@ -73,22 +70,52 @@ public class VerifierServiceImpl implements VerifierService {
         }
     }
 
-    private boolean verifySingleArtifact(IArtifactKey key, IArtifactRepository repository, MavenLogger logger) {
+    private boolean verifyReferencedArtifactsExist(final IMetadataRepository metadata,
+            final IArtifactRepository artifactRepository, MavenLogger logger) {
+        final IQueryResult<IInstallableUnit> collector = metadata.query(QueryUtil.ALL_UNITS, monitor);
+        boolean valid = true;
+        for (Iterator<IInstallableUnit> iterator = collector.iterator(); iterator.hasNext();) {
+            IInstallableUnit iu = iterator.next();
+            final Collection<IArtifactKey> artifacts = iu.getArtifacts();
+            for (IArtifactKey key : artifacts) {
+                valid &= verifyArtifactExists(key, artifactRepository, logger);
+            }
+        }
+        return valid;
+    }
+
+    private boolean verifyArtifactExists(IArtifactKey key, IArtifactRepository repository, MavenLogger logger) {
         final IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
         if (descriptors.length == 0) {
             logger.error("Missing artifact: " + key);
             return false;
         }
+        return true;
+    }
 
+    private boolean verifyAllArtifactContent(IArtifactRepository repository, MavenLogger logger) {
         boolean valid = true;
-        for (IArtifactDescriptor descriptor : descriptors) {
-            final IStatus status = repository.getArtifact(descriptor, new ByteArrayOutputStream(), monitor);
-            if (!status.isOK()) {
-                logErrorStatus(status, "", logger);
+
+        IQueryResult<IArtifactKey> allKeys = repository.query(new ExpressionMatchQuery<IArtifactKey>(
+                IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION), null);
+        for (Iterator<IArtifactKey> keyIt = allKeys.iterator(); keyIt.hasNext();) {
+            IArtifactKey key = keyIt.next();
+
+            IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
+            for (IArtifactDescriptor descriptor : descriptors) {
+                valid &= verifyArtifactContent(repository, logger, descriptor);
             }
-            valid &= status.isOK();
         }
         return valid;
+    }
+
+    private boolean verifyArtifactContent(IArtifactRepository repository, MavenLogger logger,
+            IArtifactDescriptor descriptor) {
+        final IStatus status = repository.getArtifact(descriptor, new ByteArrayOutputStream(), monitor);
+        if (!status.isOK()) {
+            logErrorStatus(status, "", logger);
+        }
+        return status.isOK();
     }
 
     private void logErrorStatus(IStatus status, String indent, MavenLogger logger) {
