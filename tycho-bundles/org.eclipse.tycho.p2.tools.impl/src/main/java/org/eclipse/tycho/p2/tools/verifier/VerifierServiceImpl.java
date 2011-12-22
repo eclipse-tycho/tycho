@@ -45,8 +45,8 @@ public class VerifierServiceImpl implements VerifierService {
     public boolean verify(URI metadataRepositoryUri, URI artifactRepositoryUri, BuildOutputDirectory tempDirectory)
             throws FacadeException {
         MavenLogger logger = mavenContext.getLogger();
-        logger.debug("Verifying metadata from " + metadataRepositoryUri + " with artifcats from "
-                + artifactRepositoryUri);
+        logger.debug("Checking metadata from '" + metadataRepositoryUri + "' and artifacts from '"
+                + artifactRepositoryUri + "'");
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
             try {
