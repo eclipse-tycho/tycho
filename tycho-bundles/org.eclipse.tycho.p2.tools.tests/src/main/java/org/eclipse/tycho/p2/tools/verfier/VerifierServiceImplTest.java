@@ -15,7 +15,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,7 +23,6 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.verifier.VerifierServiceImpl;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,9 +31,6 @@ import org.junit.rules.TemporaryFolder;
 
 @SuppressWarnings("boxing")
 public class VerifierServiceImplTest {
-
-    private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
-            .singletonList(new TargetEnvironment("a", "b", "c"));
 
     private MemoryLog logger;
     private VerifierServiceImpl subject;
@@ -60,7 +55,7 @@ public class VerifierServiceImplTest {
 
     @Test
     public void testFileRepositoryWithWrongMd5Sum() throws Exception {
-        final RepositoryReferences repositories = sourceRepos("wrong_checksum");
+        final RepositoryReferences repositories = sourceRepos("invalid/wrong_checksum");
         assertEquals(false, verify(repositories));
         // we expect two errors to be reported: the feature "jarsinging.feature" has a wrong md5 hash and
         // the osgi.bundle "jarsigning" has also a wrong md5 hash.
@@ -76,12 +71,21 @@ public class VerifierServiceImplTest {
 
     @Test
     public void testFileRepositoryWithTamperedArtifact() throws Exception {
-        final RepositoryReferences repositories = sourceRepos("tampered_file");
+        final RepositoryReferences repositories = sourceRepos("invalid/tampered_file");
         assertEquals(false, verify(repositories));
         assertTrue(firstErrorLine().contains("osgi.bundle"));
         assertTrue(firstErrorLine().contains("jarsigning"));
         assertTrue(remainingErrorText().contains("dummy.class"));
         assertTrue(remainingErrorText().contains("has been tampered"));
+    }
+
+    @Test
+    public void testMissingArtifactsReferencedInMetadata() throws Exception {
+        final RepositoryReferences repositories = sourceRepos("invalid/missing_artifacts");
+        assertEquals(false, verify(repositories));
+        assertTrue(firstErrorLine().contains("osgi.bundle"));
+        assertTrue(firstErrorLine().contains("tycho551.bundle1"));
+        assertTrue(firstErrorLine().contains("missing"));
     }
 
     private String remainingErrorText() {

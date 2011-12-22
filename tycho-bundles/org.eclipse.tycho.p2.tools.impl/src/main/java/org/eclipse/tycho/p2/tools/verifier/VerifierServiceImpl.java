@@ -74,8 +74,13 @@ public class VerifierServiceImpl implements VerifierService {
     }
 
     private boolean verifySingleArtifact(IArtifactKey key, IArtifactRepository repository, MavenLogger logger) {
-        boolean valid = true;
         final IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
+        if (descriptors.length == 0) {
+            logger.error("Missing artifact: " + key);
+            return false;
+        }
+
+        boolean valid = true;
         for (IArtifactDescriptor descriptor : descriptors) {
             final IStatus status = repository.getArtifact(descriptor, new ByteArrayOutputStream(), monitor);
             if (!status.isOK()) {
