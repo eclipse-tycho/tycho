@@ -12,8 +12,6 @@ package org.eclipse.tycho.versions;
 
 import java.io.IOException;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.tycho.versions.engine.PomVersionUpdater;
@@ -28,21 +26,13 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
  * @requiresProject true
  * @requiresDirectInvocation true
  */
-public class UpdatePomMojo extends AbstractMojo {
-
-    /**
-     * @parameter expression="${session}"
-     */
-    private MavenSession session;
-
-    /**
-     * @component
-     */
-    private PomVersionUpdater pomUpdater;
+public class UpdatePomMojo extends AbstractVersionsMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        PomVersionUpdater pomUpdater = newPomUpdater();
+        ProjectMetadataReader metadataReader = newProjectMetadataReader();
+
         try {
-            ProjectMetadataReader metadataReader = new ProjectMetadataReader();
             metadataReader.addBasedir(session.getCurrentProject().getBasedir());
 
             pomUpdater.setProjects(metadataReader.getProjects());
@@ -52,4 +42,7 @@ public class UpdatePomMojo extends AbstractMojo {
         }
     }
 
+    private PomVersionUpdater newPomUpdater() throws MojoFailureException {
+        return lookup(PomVersionUpdater.class);
+    }
 }

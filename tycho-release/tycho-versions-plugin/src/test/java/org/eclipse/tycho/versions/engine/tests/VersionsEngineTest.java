@@ -247,8 +247,8 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
 
     private VersionsEngine newEngine(File basedir) throws Exception {
         VersionsEngine engine = lookup(VersionsEngine.class);
+        ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);
 
-        ProjectMetadataReader reader = new ProjectMetadataReader();
         reader.addBasedir(basedir);
 
         engine.setProjects(reader.getProjects());

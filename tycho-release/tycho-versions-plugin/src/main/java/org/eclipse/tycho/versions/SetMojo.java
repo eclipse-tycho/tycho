@@ -13,8 +13,6 @@ package org.eclipse.tycho.versions;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
@@ -28,7 +26,7 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
  * @requiresProject true
  * @requiresDirectInvocation true
  */
-public class SetMojo extends AbstractMojo {
+public class SetMojo extends AbstractVersionsMojo {
     /**
      * The new version number to set.
      * 
@@ -47,16 +45,6 @@ public class SetMojo extends AbstractMojo {
      */
     private String artifacts;
 
-    /**
-     * @parameter expression="${session}"
-     */
-    protected MavenSession session;
-
-    /**
-     * @component
-     */
-    private VersionsEngine engine;
-
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (newVersion == null || newVersion.length() == 0) {
             throw new MojoExecutionException("Missing required parameter newVersion");
@@ -66,8 +54,11 @@ public class SetMojo extends AbstractMojo {
         } catch (RuntimeException e) {
             throw new MojoExecutionException("Invalid version: " + newVersion, e);
         }
+
+        VersionsEngine engine = newEngine();
+        ProjectMetadataReader metadataReader = newProjectMetadataReader();
+
         try {
-            ProjectMetadataReader metadataReader = new ProjectMetadataReader();
             metadataReader.addBasedir(session.getCurrentProject().getBasedir());
 
             engine.setProjects(metadataReader.getProjects());
@@ -85,4 +76,7 @@ public class SetMojo extends AbstractMojo {
         }
     }
 
+    private VersionsEngine newEngine() throws MojoFailureException {
+        return lookup(VersionsEngine.class);
+    }
 }

@@ -33,6 +33,9 @@ import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
 public class MutablePomFile {
+
+    public static final String POM_XML = "pom.xml";
+
     private static XMLParser parser = new XMLParser();
 
     private Document document;

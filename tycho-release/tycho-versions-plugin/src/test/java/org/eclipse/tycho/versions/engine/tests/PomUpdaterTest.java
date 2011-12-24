@@ -18,10 +18,16 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 
 public class PomUpdaterTest extends AbstractVersionChangeTest {
 
+    private ProjectMetadataReader reader;
+
+    @Override
+    protected void setUp() throws Exception {
+        reader = lookup(ProjectMetadataReader.class);
+    }
+
     public void test() throws Exception {
         File basedir = TestUtil.getBasedir("projects/updatepom");
 
-        ProjectMetadataReader reader = new ProjectMetadataReader();
         reader.addBasedir(basedir);
 
         PomVersionUpdater updater = lookup(PomVersionUpdater.class);
