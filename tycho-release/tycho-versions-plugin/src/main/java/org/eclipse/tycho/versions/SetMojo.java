@@ -17,6 +17,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
+import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 
 /**
@@ -60,12 +62,15 @@ public class SetMojo extends AbstractMojo {
             throw new MojoExecutionException("Missing required parameter newVersion");
         }
         try {
-            VersionsEngine.assertIsOsgiVersion(VersionsEngine.toCanonicalVersion(newVersion));
+            Versions.assertIsOsgiVersion(Versions.toCanonicalVersion(newVersion));
         } catch (RuntimeException e) {
             throw new MojoExecutionException("Invalid version: " + newVersion, e);
         }
         try {
-            engine.addBasedir(session.getCurrentProject().getBasedir());
+            ProjectMetadataReader metadataReader = new ProjectMetadataReader();
+            metadataReader.addBasedir(session.getCurrentProject().getBasedir());
+
+            engine.setProjects(metadataReader.getProjects());
 
             // initial changes
             StringTokenizer st = new StringTokenizer(artifacts, ",");

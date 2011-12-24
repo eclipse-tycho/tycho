@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
+import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
@@ -18,7 +20,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
-import org.eclipse.tycho.versions.engine.VersionsEngine;
+import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.DependencyManagement;
 import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
@@ -42,14 +44,14 @@ public class PomManipulator extends AbstractMetadataManipulator {
 
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
-        GAV parent = pom.getParent();
 
-        String version = VersionsEngine.toMavenVersion(change.getVersion());
-        String newVersion = VersionsEngine.toMavenVersion(change.getNewVersion());
+        String version = Versions.toMavenVersion(change.getVersion());
+        String newVersion = Versions.toMavenVersion(change.getNewVersion());
         if (isGavEquals(pom, change)) {
             logger.info("  pom.xml//project/version: " + version + " => " + newVersion);
             pom.setVersion(newVersion);
         } else {
+            GAV parent = pom.getParent();
             if (parent != null && isGavEquals(parent, change)) {
                 logger.info("  pom.xml//project/parent/version: " + version + " => " + newVersion);
                 parent.setVersion(newVersion);
@@ -86,16 +88,16 @@ public class PomManipulator extends AbstractMetadataManipulator {
         // TODO update other references
     }
 
-    private boolean isGavEquals(MutablePomFile pom, VersionChange change) {
+    private static boolean isGavEquals(MutablePomFile pom, VersionChange change) {
+        // TODO replace with isGavEquals(pom.getEffectiveGav(), change)
         return change.getGroupId().equals(pom.getEffectiveGroupId())
                 && change.getArtifactId().equals(pom.getArtifactId())
-                && isVersionEquals(change.getVersion(), pom.getVersion());
+                && isVersionEquals(change.getVersion(), pom.getEffectiveVersion());
     }
 
-    private boolean isGavEquals(GAV dependency, VersionChange change) {
-        return change.getGroupId().equals(dependency.getGroupId())
-                && change.getArtifactId().equals(dependency.getArtifactId())
-                && isVersionEquals(change.getVersion(), dependency.getVersion());
+    public static boolean isGavEquals(GAV gav, VersionChange change) {
+        return change.getGroupId().equals(gav.getGroupId()) && change.getArtifactId().equals(gav.getArtifactId())
+                && isVersionEquals(change.getVersion(), gav.getVersion());
     }
 
     public void writeMetadata(ProjectMetadata project) throws IOException {
@@ -103,10 +105,6 @@ public class PomManipulator extends AbstractMetadataManipulator {
         if (pom != null) {
             MutablePomFile.write(pom, new File(project.getBasedir(), "pom.xml"));
         }
-    }
-
-    private boolean isVersionEquals(String a, String b) {
-        return VersionsEngine.toCanonicalVersion(a).equals(VersionsEngine.toCanonicalVersion(b));
     }
 
 }
