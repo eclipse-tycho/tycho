@@ -25,6 +25,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
@@ -43,6 +44,9 @@ public class DefaultTargetPlatformConfigurationReader {
 
     @Requirement
     private Map<String, TychoProject> projectTypes;
+
+    @Requirement
+    private TargetPlatformFilterConfigurationReader filterReader;
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project) {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
@@ -75,6 +79,8 @@ public class DefaultTargetPlatformConfigurationReader {
                 setDisableP2Mirrors(result, configuration);
 
                 setExecutionEnvironment(result, configuration);
+
+                readFilters(result, configuration);
             }
         }
 
@@ -137,7 +143,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
         result.setOptionalResolutionAction(optionalDependencies);
     }
-    
+
     private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom eeDom = configuration.getChild("executionEnvironment");
         if (eeDom == null) {
@@ -309,6 +315,13 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return new TargetEnvironment(osDom.getValue(), wsDom.getValue(), archDom.getValue(), null /* nl */);
+    }
+
+    private void readFilters(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom filtersElement = configuration.getChild("filters");
+        if (filtersElement != null) {
+            result.setFilters(filterReader.parseFilterConfiguration(filtersElement));
+        }
     }
 
 }

@@ -36,7 +36,7 @@ import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TargetDefinitionResolverWithFiltersTest {
+public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     private static final IVersionedId LAUNCHER_FEATURE = new VersionedId(
             "org.eclipse.equinox.executable.feature.group", "3.3.101.R34x_v20081125-7H-ELfE8hXnkE15Wh9Tnyu");
     private static final IVersionedId LAUNCHER_FEATURE_JAR = new VersionedId(

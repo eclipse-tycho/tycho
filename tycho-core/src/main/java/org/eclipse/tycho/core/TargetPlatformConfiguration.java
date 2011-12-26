@@ -12,9 +12,11 @@ package org.eclipse.tycho.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.model.Dependency;
+import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 
 public class TargetPlatformConfiguration {
 
@@ -43,6 +45,8 @@ public class TargetPlatformConfiguration {
     private String optionalAction;
 
     private String executionEnvironment;
+
+    private List<TargetPlatformFilter> filters;
 
     /**
      * Returns the list of configured target environments, or the running environment if no
@@ -129,4 +133,16 @@ public class TargetPlatformConfiguration {
     public void setExecutionEnvironment(String executionEnvironment) {
         this.executionEnvironment = executionEnvironment;
     }
+
+    public void setFilters(List<TargetPlatformFilter> filters) {
+        this.filters = filters;
+    }
+
+    public List<TargetPlatformFilter> getFilters() {
+        if (filters == null)
+            return Collections.emptyList();
+        else
+            return filters;
+    }
+
 }

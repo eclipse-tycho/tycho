@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-test-project</groupId>
+	<artifactId>target-filter-config</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<filters>
+						<filter>
+							<!-- example: work around Equinox bug 348045 -->
+							<type>osgi-bundle</type> <!-- alias for eclipse-plugin -->
+							<id>org.eclipse.equinox.servletbridge.extensionbundle</id>
+							<removeAll />
+						</filter>
+						<filter>
+							<!-- example: prevent use of versions with bug 321386 to avoid TYCHO-382; this may fail the build if this removes the only version of this bundle -->
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.equinox.app</id>
+							<versionRange>[3.6.0,3.6.1)</versionRange>
+							<removeAll />
+						</filter>
+						<filter>
+							<!-- example: remove one version of the a.jre.javase magic IU. Note: this may collide with the actions taken for Tycho bug 364095 -->
+							<type>p2-installable-unit</type>
+							<id>a.jre.javase</id>
+							<version>1.7.0</version>
+							<removeAll />
+						</filter>
+					</filters>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

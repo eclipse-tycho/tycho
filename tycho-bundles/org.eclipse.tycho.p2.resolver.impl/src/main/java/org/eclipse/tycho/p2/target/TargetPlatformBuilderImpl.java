@@ -56,6 +56,7 @@ import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
@@ -77,6 +78,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 import org.eclipse.tycho.repository.registry.impl.ArtifactRepositoryBlackboard;
 
@@ -430,7 +432,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         logger.debug("Registered artifact repository " + blackboardKey);
 
         assertNoDuplicateReactorUIs();
-        Collection<IInstallableUnit> allTargetPlatformIUs = gatherAvailableInstallableUnits(monitor);
+        LinkedHashSet<IInstallableUnit> targetPlatformIUs = gatherAvailableInstallableUnits(monitor);
+        applyConfiguredFilters(targetPlatformIUs);
 
         List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
         for (IArtifactRepository artifactRepository : artifactRepositories) {
@@ -440,15 +443,15 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
 
-        return new TargetPlatformImpl(allTargetPlatformIUs, mavenInstallableUnits, reactorProjectIUs,
+        return new TargetPlatformImpl(targetPlatformIUs, mavenInstallableUnits, reactorProjectIUs,
                 reactorProjectSecondaryIUs, localMetadataRepository, executionEnvironment,
                 allRemoteArtifactRepositories, localArtifactRepository, agent, logger);
     }
 
     // -------------------------------------------------------------------------
 
-    private Collection<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
-        Collection<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+    private LinkedHashSet<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetPlatformContent contentPart : content) {
             filterJREUIs(result, contentPart.getUnits());
@@ -522,6 +525,18 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         PublisherResult results = new PublisherResult();
         new JREAction(executionEnvironment).perform(new PublisherInfo(), results, new NullProgressMonitor());
         return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet();
+    }
+
+    // -------------------------------------------------------------------------
+
+    private List<TargetPlatformFilter> iuFilters = new ArrayList<TargetPlatformFilter>();
+
+    public void addFilters(List<TargetPlatformFilter> filters) {
+        this.iuFilters.addAll(filters);
+    }
+
+    private void applyConfiguredFilters(LinkedHashSet<IInstallableUnit> units) {
+        new TargetPlatformFilterEvaluator(iuFilters).filterUnits(units);
     }
 
     // -------------------------------------------------------------------------------

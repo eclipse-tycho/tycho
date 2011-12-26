@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 
@@ -37,6 +38,8 @@ public interface TargetPlatformBuilder {
     // TODO document
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException;
+
+    public void addFilters(List<TargetPlatformFilter> filters);
 
     public void setCredentials(URI location, String username, String password);
 

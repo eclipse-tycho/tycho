@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-its-project.target.restriction.filter</groupId>
+	<artifactId>trf.testbundle</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>eclipse-test-plugin</packaging>
+
+	<properties>
+		<!-- overridden from test class -->
+		<e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+		<e352-repo>http://download.eclipse.org/releases/galileo</e352-repo>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>e342</id>
+			<layout>p2</layout>
+			<url>${e342-repo}</url>
+		</repository>
+		<repository>
+			<id>e352</id>
+			<layout>p2</layout>
+			<url>${e352-repo}</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<filters>
+						<filter>
+							<!-- for testing purposes with surrounding whitespace -->
+							<type> p2-installable-unit </type>
+							<id> org.eclipse.osgi </id>
+							<restrictTo>
+								<version>
+									3.4.3.R34x_v20081215-1030
+								</version>
+							</restrictTo>
+						</filter>
+						
+						<!-- TODO
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.osgi</id>
+							<restrictTo>
+								<versionRange>[3.4,3.5)</versionRange>
+							</restrictTo>
+						</filter>
+						 -->
+						
+						<!-- other examples -->
+						<!-- 
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.osgi</id>
+							<restrictTo>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.osgi</id>
+								<versionRange>[3.4,3.5)</versionRange>
+							</restrictTo>
+						</filter>
+
+						<filter>
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.osgi</id>
+							<versionRange>[3.4,3.5)</versionRange>
+							<restrictTo>
+								<version>3.4.2</version>
+							</restrictTo>
+						</filter>
+
+						<filter>
+							<type>java-package</type>
+							<id>org.osgi.framework</id>
+							<restrictTo>
+								<type>osgi-bundle</type>
+								<id>org.eclipse.osgi</id>
+								<versionRange>[3.5,)</versionRange>
+							</restrictTo>
+						</filter>
+
+						<filter>
+							<type>p2-installable-unit</type>
+							<id>org.osgi.framework</id>
+							<removeAll />
+						</filter>
+						-->
+					</filters>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

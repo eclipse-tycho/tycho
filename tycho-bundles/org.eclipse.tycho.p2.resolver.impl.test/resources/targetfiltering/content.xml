@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='trt.targetRepo' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <units size='5'>
+    <unit id='trf.bundle.multiversion' version='1.0.0' singleton='false'>
+      <update id='trf.bundle.multiversion' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Bundle with multiple versions'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.test'/>
+        <property name='maven-artifactId' value='trf.bundle.multiversion'/>
+        <property name='maven-version' value='1.0.0'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trf.bundle.multiversion' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='trf.bundle.multiversion' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='trf.bundle.multiversion' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: trf.bundle.multiversion&#xA;Bundle-Version: 1.0.0&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='trf.bundle.multiversion' version='2.0.0' singleton='false'>
+      <update id='trf.bundle.multiversion' range='[0.0.0,2.0.0)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Bundle with multiple versions'/>
+        <property name='maven-groupId' value='org.eclipse.tycho.test'/>
+        <property name='maven-artifactId' value='trf.bundle.multiversion'/>
+        <property name='maven-version' value='2.0.0'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='trf.bundle.multiversion' version='2.0.0'/>
+        <provided namespace='osgi.bundle' name='trf.bundle.multiversion' version='2.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='trf.bundle.multiversion' version='2.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: trf.bundle.multiversion&#xA;Bundle-Version: 2.0.0&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='main.product.id' version='0.0.1.201112271438'>
+      <update id='main.product.id' range='0.0.0' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='Main Product'/>
+        <property name='lineUp' value='true'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='main.product.id' version='0.0.1.201112271438'/>
+      </provides>
+      <requires size='9'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='toolingmain.product.id.configuration' range='[0.0.1.201112271438,0.0.1.201112271438]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='toolingmain.product.id.application' range='[0.0.1.201112271438,0.0.1.201112271438]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='tooling.source.default' range='[1.0.0,1.0.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='a.jre.javase' range='[1.6.0,1.6.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='tooling.osgi.bundle.default' range='[1.0.0,1.0.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='tooling.org.eclipse.update.feature.default' range='[1.0.0,1.0.0]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.rcp.feature.group' range='[3.6.0.v20100519-9OArFKvFtsd7WLUKh-DcYTS,3.6.0.v20100519-9OArFKvFtsd7WLUKh-DcYTS]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='example.feature.feature.group' range='[1.0.0.201112271438,1.0.0.201112271438]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='config.a.jre.javase' range='[1.6.0,1.6.0]'/>
+      </requires>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    </unit>
+    <unit id='javax.persistence' version='2.0.3.v201010191057' singleton='false'>
+      <update id='javax.persistence' range='[0.0.0,2.0.3.v201010191057)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Java Persistence API 2.0'/>
+        <property name='org.eclipse.equinox.p2.provider' value='Eclipse.org - EclipseLink Project'/>
+      </properties>
+      <provides size='8'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='javax.persistence' version='2.0.3.v201010191057'/>
+        <provided namespace='osgi.bundle' name='javax.persistence' version='2.0.3.v201010191057'/>
+        <provided namespace='java.package' name='javax.persistence.spi' version='2.0.3'/>
+        <provided namespace='java.package' name='javax.persistence' version='2.0.3'/>
+        <provided namespace='java.package' name='javax.persistence.criteria' version='2.0.3'/>
+        <provided namespace='java.package' name='javax.persistence.metamodel' version='2.0.3'/>
+        <provided namespace='java.package' name='org.osgi.service.jpa' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='3'>
+        <required namespace='java.package' name='javax.sql' range='0.0.0' optional='true'/>
+        <required namespace='java.package' name='org.osgi.framework' range='0.0.0' optional='true'/>
+        <required namespace='java.package' name='org.osgi.service.jpa' range='1.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='javax.persistence' version='2.0.3.v201010191057'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: javax.persistence&#xA;Bundle-Version: 2.0.3.v201010191057&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='com.springsource.javax.persistence' version='1.0.0' singleton='false'>
+      <update id='com.springsource.javax.persistence' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Java Persistence API'/>
+        <property name='org.eclipse.equinox.p2.provider' value='SpringSource'/>
+      </properties>
+      <provides size='5'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.springsource.javax.persistence' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='com.springsource.javax.persistence' version='1.0.0'/>
+        <provided namespace='java.package' name='javax.persistence' version='1.0.0'/>
+        <provided namespace='java.package' name='javax.persistence.spi' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='java.package' name='javax.sql' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='com.springsource.javax.persistence' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Name: Java Persistence API&#xA;Import-Package: javax.sql&#xA;Bundle-Classpath: .&#xA;Implementation-Version: 1.0&#xA;Export-Package: javax.persistence;version=&quot;1.0.0&quot;,javax.persistence.spi;version=&quot;1.0.0&quot;;uses:=&quot;javax.persistence,javax.sql&quot;&#xA;Created-By: 1.5.0_06-b05 (Sun Microsystems Inc.)&#xA;Ant-Version: Apache Ant 1.6.5&#xA;Specification-Title: Java Platform, Persistence  Specification&#xA;Bundle-Vendor: SpringSource&#xA;Bundle-ManifestVersion: 2&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 1.0.0&#xA;Implementation-Vendor: Sun Microsystems, Inc., Oracle Corp.&#xA;Implementation-Title: Sun Java System Application Server&#xA;Specification-Version: 1.0&#xA;Implementation-Vendor-Id: javax.persistence&#xA;Bundle-SymbolicName: com.springsource.javax.persistence&#xA;Specification-Vendor: Sun Microsystems, Inc., Oracle Corp.&#xA;Extension-Name: javax.persistence
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>

@@ -205,6 +205,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             addTargetFileContentToTargetPlatform(configuration, tpBuilder, session);
         }
 
+        tpBuilder.addFilters(configuration.getFilters());
+
         return tpBuilder.buildTargetPlatform();
     }
 
