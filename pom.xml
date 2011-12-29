@@ -74,44 +74,50 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- 
-			Version corresponds to the Eclipse 4.2M1
+            This is total pain in the neck, but I can't find a better/easier way to satisfy Maven Central guards, 
+            so updating Tycho Eclipse dependencies is quite cumbersome.
 
-			EQUINOX_VERSION=3.8.0.v20110726-1606
+            1. Unzip desired version of Eclipse SDK to /tmp, you should see equinox and jdt bundles under /tmp/eclipse/plugins folder.
 
-/opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar -Dsources=org.eclipse.osgi.source_$EQUINOX_VERSION.jar \
-	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar
+            2. Update equinox and jdt versions in 4 (FOUR!!!) places
+            2a. EQUINOX_VERSION and JDT_VERSION shell copy&paste source below
+            2b. <equinoxVersion/> and <jdtVersion/> pom properties below
+            2c. src/dependencies/org.eclipse.osgi.pom (equinox version only)
+            2d. src/dependencies/org.eclipse.jdt.core.pom (jdt version only)
 
-/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi_$EQUINOX_VERSION.jar \
-	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
-	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+            3. Execute the following shell copy&paste snippets to install and/or deploy Tycho Eclipse dependencies
+               These snippets MUST be executed from src/dependencies directory
+            3a. To deploy to oss.sonatype.org you need to setup gpg keys as explained in 
+                https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven
 
-/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.osgi.source_$EQUINOX_VERSION.jar -Dclassifier=sources \
-	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.osgi -Dversion=$EQUINOX_VERSION -Dpackaging=jar \
-	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
+            4. Close and release staged artifacts into repository 'Releases'
 
-			Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
+# Version corresponds to the Eclipse 3.8M4
+EQUINOX_VERSION=3.8.0.v20111111-1618
+JDT_VERSION=3.8.1.v20111205-1355
+
+# Location of unpacked Eclipse SDK
+PLUGINS=/tmp/eclipse/plugins
+
+# install command
+CMD="/opt/maven/bin/mvn install:install-file -Dpackaging=jar"
+
+# deploy command
+CMD="mvn gpg:sign-and-deploy-file -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=forge-releases"
+
+# equinox
+$CMD -DpomFile=org.eclipse.osgi.pom \
+  -Dfile=$PLUGINS/org.eclipse.osgi_$EQUINOX_VERSION.jar \
+  -Dsources=$PLUGINS/org.eclipse.osgi.source_$EQUINOX_VERSION.jar
+
+#  jdt
+$CMD -DpomFile=org.eclipse.jdt.core.pom \
+  -Dfile=$PLUGINS/org.eclipse.jdt.core_$JDT_VERSION.jar \
+  -Dsources=$PLUGINS/org.eclipse.jdt.core.source_$JDT_VERSION.jar
 		 -->
-		<equinoxVersion>3.8.0.v20110726-1606</equinoxVersion>
 
-		<!-- 
-			Version corresponds to the Eclipse 4.2M1
-			
-			JDT_VERSION=3.8.0.v_C03
-			
-/opt/maven/bin/mvn install:install-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar -Dsources=org.eclipse.jdt.core.source_$JDT_VERSION.jar \
-	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar
-
-/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core_$JDT_VERSION.jar \
-	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
-	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
-
-/opt/maven/bin/mvn deploy:deploy-file -Dfile=org.eclipse.jdt.core.source_$JDT_VERSION.jar -Dclassifier=sources \
-	-DgroupId=org.eclipse.tycho -DartifactId=org.eclipse.jdt.core -Dversion=$JDT_VERSION -Dpackaging=jar \
-	-DgeneratePom=true -DrepositoryId=forge-releases -Durl=http://repository.sonatype.org/service/local/staging/deploy/maven2/
-
-			Promote the staging repo to http://repository.sonatype.org/content/repositories/releases/
-		 -->
-		<jdtVersion>3.8.0.v_C03</jdtVersion>
+		<equinoxVersion>3.8.0.v20111111-1618</equinoxVersion>
+		<jdtVersion>3.8.1.v20111205-1355</jdtVersion>
 
 		<!-- version of tycho used by this build -->
 		<tychoBootstrapVersion>0.13.0</tychoBootstrapVersion>
