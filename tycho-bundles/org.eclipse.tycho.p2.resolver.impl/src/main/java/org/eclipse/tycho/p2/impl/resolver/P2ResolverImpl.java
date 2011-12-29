@@ -37,7 +37,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 @SuppressWarnings("restriction")
 public class P2ResolverImpl implements P2Resolver {

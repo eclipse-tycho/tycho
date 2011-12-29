@@ -9,7 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - split target platform computation and dependency resolution
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver.facade;
+package org.eclipse.tycho.p2.target.facade;
 
 import java.io.File;
 import java.net.URI;
@@ -19,9 +19,6 @@ import java.util.Map;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
 public interface TargetPlatformBuilder {
     /**

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 public interface P2Resolver {
     /** @see org.eclipse.tycho.ArtifactKey */
