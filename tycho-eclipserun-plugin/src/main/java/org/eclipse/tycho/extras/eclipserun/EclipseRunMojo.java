@@ -38,6 +38,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.SimpleDependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
@@ -148,7 +149,7 @@ public class EclipseRunMojo extends AbstractMojo {
         TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
 
         DependencyArtifacts runtimeArtifacts = platformResolver.resolveDependencies(session, project, targetPlatform,
-                reactorProjects, dependencies);
+                reactorProjects, new SimpleDependencyResolverConfiguration(dependencies));
 
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
 
