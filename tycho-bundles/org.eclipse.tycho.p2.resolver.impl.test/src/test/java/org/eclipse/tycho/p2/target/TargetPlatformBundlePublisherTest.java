@@ -28,7 +28,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.target.TargetPlatformBundlePublisher;
 import org.eclipse.tycho.repository.test.util.LocalRepositoryStub;
 import org.junit.Before;
 import org.junit.Test;

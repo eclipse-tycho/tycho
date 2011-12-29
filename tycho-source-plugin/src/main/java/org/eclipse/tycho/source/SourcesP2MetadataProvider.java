@@ -22,8 +22,8 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
+import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 
 @Component(role = P2MetadataProvider.class, hint = "SourcesP2MetadataProvider")

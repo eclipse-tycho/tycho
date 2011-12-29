@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-import org.eclipse.tycho.core.locking.FileLockServiceImpl;
-import org.eclipse.tycho.core.locking.FileLockerImpl;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.locking.facade.LockTimeoutException;
