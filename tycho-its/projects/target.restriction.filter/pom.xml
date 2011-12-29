@@ -41,63 +41,17 @@
 				<configuration>
 					<filters>
 						<filter>
-							<!-- for testing purposes with surrounding whitespace -->
-							<type> p2-installable-unit </type>
-							<id> org.eclipse.osgi </id>
+							<!-- make sure that a 3.4.x version of bundle org.eclipse.osgi is used -->
+							<type> eclipse-plugin </type>
+							<id> org.eclipse.osgi </id>  <!-- extra whitespace is not needed; it is just here to make the test harder -->
 							<restrictTo>
-								<version>
-									3.4.3.R34x_v20081215-1030
-								</version>
+								<versionRange>
+									[3.4,3.5)
+								</versionRange>
 							</restrictTo>
 						</filter>
 						
-						<!-- TODO
-						<filter>
-							<type>eclipse-plugin</type>
-							<id>org.eclipse.osgi</id>
-							<restrictTo>
-								<versionRange>[3.4,3.5)</versionRange>
-							</restrictTo>
-						</filter>
-						 -->
-						
-						<!-- other examples -->
-						<!-- 
-						<filter>
-							<type>eclipse-plugin</type>
-							<id>org.eclipse.osgi</id>
-							<restrictTo>
-								<type>eclipse-plugin</type>
-								<id>org.eclipse.osgi</id>
-								<versionRange>[3.4,3.5)</versionRange>
-							</restrictTo>
-						</filter>
-
-						<filter>
-							<type>eclipse-plugin</type>
-							<id>org.eclipse.osgi</id>
-							<versionRange>[3.4,3.5)</versionRange>
-							<restrictTo>
-								<version>3.4.2</version>
-							</restrictTo>
-						</filter>
-
-						<filter>
-							<type>java-package</type>
-							<id>org.osgi.framework</id>
-							<restrictTo>
-								<type>osgi-bundle</type>
-								<id>org.eclipse.osgi</id>
-								<versionRange>[3.5,)</versionRange>
-							</restrictTo>
-						</filter>
-
-						<filter>
-							<type>p2-installable-unit</type>
-							<id>org.osgi.framework</id>
-							<removeAll />
-						</filter>
-						-->
+						<!-- for more syntax examples, see /tycho-core/src/test/resources/targetfilter -->
 					</filters>
 				</configuration>
 			</plugin>
