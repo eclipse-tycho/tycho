@@ -26,12 +26,15 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.AbstractScanner;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
@@ -47,6 +50,8 @@ import org.osgi.framework.Version;
  * @phase prepare-package
  */
 public class OsgiSourceMojo extends AbstractSourceJarMojo {
+
+    private static final String GOAL = "plugin-source";
 
     private static final String MANIFEST_HEADER_BUNDLE_MANIFEST_VERSION = "Bundle-ManifestVersion";
     private static final String MANIFEST_HEADER_BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
@@ -112,12 +117,17 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     /** {@inheritDoc} */
     protected List<String> getSources(MavenProject p) throws MojoExecutionException {
+        return getSources(project, usePdeSourceRoots, requireSourceRoots);
+    }
+
+    protected static List<String> getSources(MavenProject p, boolean usePdeSourceRoots, boolean requireSourceRoots)
+            throws MojoExecutionException {
         if (usePdeSourceRoots) {
-            Properties props = getBuildProperties();
+            Properties props = getBuildProperties(p);
             List<String> sources = new ArrayList<String>();
             for (Entry<Object, Object> entry : props.entrySet()) {
                 if (((String) entry.getKey()).startsWith("source.")) {
-                    sources.addAll(getSourceDirs((String) entry.getValue()));
+                    sources.addAll(getSourceDirs(p, (String) entry.getValue()));
                 }
             }
             if (requireSourceRoots && sources.isEmpty()) {
@@ -129,7 +139,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         }
     }
 
-    private List<String> getSourceDirs(String sourceRaw) {
+    private static List<String> getSourceDirs(MavenProject project, String sourceRaw) {
         List<String> sources = new ArrayList<String>();
         for (String source : sourceRaw.split(",")) {
             sources.add(new File(project.getBasedir(), source.trim()).getAbsolutePath());
@@ -143,7 +153,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             return Collections.emptyList();
         }
         if (usePdeSourceRoots) {
-            Properties props = getBuildProperties();
+            Properties props = getBuildProperties(project);
             String srcIncludes = props.getProperty("src.includes");
             if (srcIncludes == null) {
                 return Collections.emptyList();
@@ -197,7 +207,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     }
 
     // TODO check how to fix this code duplicated
-    private Properties getBuildProperties() throws MojoExecutionException {
+    private static Properties getBuildProperties(MavenProject project) throws MojoExecutionException {
         File file = new File(project.getBasedir(), "build.properties");
         if (!file.canRead()) {
             throw new MojoExecutionException("Unable to read build.properties file");
@@ -259,18 +269,59 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     @Override
     protected boolean isRelevantProject(MavenProject project) {
+        return isRelevantProjectImpl(project);
+    }
+
+    protected static boolean isRelevantProjectImpl(MavenProject project) {
         String packaging = project.getPackaging();
         boolean relevant = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging)
                 || org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
         if (!relevant) {
             return false;
         }
-        try {
-            return requireSourceRoots || !getSources(project).isEmpty();
-        } catch (MojoExecutionException e) {
-            // can't happen
+
+        // this assumes that sources generation has to be explicitly enabled in pom.xml
+        Plugin plugin = project.getPlugin("org.eclipse.tycho:tycho-source-plugin");
+
+        if (plugin == null) {
+            return false;
         }
-        return true;
+
+        for (PluginExecution execution : plugin.getExecutions()) {
+            if (execution.getGoals().contains(GOAL)) {
+                boolean requireSourceRoots = Boolean.parseBoolean(getParameterValue(execution, "requireSourceRoots",
+                        "false"));
+                if (requireSourceRoots) {
+                    return true;
+                }
+                boolean usePdeSourceRoots = Boolean.parseBoolean(getParameterValue(execution, "usePdeSourceRoots",
+                        "true"));
+                try {
+                    if (!getSources(project, usePdeSourceRoots, requireSourceRoots).isEmpty()) {
+                        return true;
+                    }
+                } catch (MojoExecutionException e) {
+                    // can't happen because requireSourceRoots==false 
+                }
+            }
+        }
+
+        return false;
     }
 
+    private static String getParameterValue(PluginExecution execution, String name, String defaultValue) {
+        String value = getElementValue((Xpp3Dom) execution.getConfiguration(), name);
+        return value != null ? value : defaultValue;
+    }
+
+    private static String getElementValue(Xpp3Dom config, String name) {
+        if (config == null) {
+            return null;
+        }
+        Xpp3Dom child = config.getChild(name);
+        if (child == null) {
+            return null;
+        }
+        return child.getValue();
+    }
 }

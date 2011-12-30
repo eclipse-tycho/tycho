@@ -20,5 +20,6 @@ import org.eclipse.tycho.ReactorProject;
  * contributed metadata will be used to establish project dependencies and reactor build order.
  */
 public interface P2MetadataProvider {
+    // TODO consider allowing MavenExecutionException
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject);
 }

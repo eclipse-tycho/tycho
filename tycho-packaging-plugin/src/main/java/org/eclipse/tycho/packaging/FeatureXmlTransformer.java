@@ -57,12 +57,14 @@ public class FeatureXmlTransformer {
 
                 ReactorProject bundleProject = plugin.getMavenProject();
                 if (bundleProject != null) {
-                    location = bundleProject.getArtifact();
-
-                    if (location == null || location.isDirectory()) {
+                    location = bundleProject.getArtifact(plugin.getClassifier());
+                    if (location == null) {
+                        throw new IllegalStateException(bundleProject.getId()
+                                + " does not provide an artifact with classifier '" + plugin.getClassifier() + "'");
+                    }
+                    if (location.isDirectory()) {
                         throw new IllegalStateException("At least ``package'' phase execution is required");
                     }
-
                     pluginRef.setVersion(bundleProject.getExpandedVersion());
                 } else {
                     // use version from target platform

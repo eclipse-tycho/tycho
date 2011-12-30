@@ -85,7 +85,12 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
         if (featureProject != null) {
             version = featureProject.getExpandedVersion();
 
-            location = featureProject.getArtifact();
+            location = featureProject.getArtifact(feature.getClassifier());
+
+            if (location == null) {
+                throw new IllegalStateException(featureProject.getId()
+                        + " does not provide an artifact with classifier '" + feature.getClassifier() + "'");
+            }
 
             if (location.isDirectory()) {
                 throw new IllegalStateException("Should at least run ``package'' phase");

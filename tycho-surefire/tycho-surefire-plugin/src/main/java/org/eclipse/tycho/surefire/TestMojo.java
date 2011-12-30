@@ -425,7 +425,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
                     testRuntime.addBundle(artifact.getKey(), project.getBasedir());
                     continue;
                 }
-                File file = otherProject.getArtifact();
+                File file = otherProject.getArtifact(artifact.getClassifier());
                 if (file != null) {
                     testRuntime.addBundle(artifact.getKey(), file);
                     continue;
