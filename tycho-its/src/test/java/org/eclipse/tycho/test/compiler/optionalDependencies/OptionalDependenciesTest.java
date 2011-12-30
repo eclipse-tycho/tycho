@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug351842_optionalDependencies;
+package org.eclipse.tycho.test.compiler.optionalDependencies;
 
 import java.util.Arrays;
 
@@ -21,16 +21,16 @@ public class OptionalDependenciesTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void requireBundle() throws Exception {
-        Verifier verifier = getVerifier("/351842_optionalDependencies/require-bundle", false);
+        Verifier verifier = getVerifier("/compiler.optionalDependencies/require-bundle", false);
         verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoals(Arrays.asList("clean", "install"));
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
     }
 
     @Test
     public void requireBundleIgnore() throws Exception {
-        Verifier verifier = getVerifier("/351842_optionalDependencies/require-bundle-ignore", false);
-        verifier.executeGoals(Arrays.asList("clean", "install"));
+        Verifier verifier = getVerifier("/compiler.optionalDependencies/require-bundle-ignore", false);
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
     }
 }

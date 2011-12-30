@@ -2,23 +2,14 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>tycho-its-project</groupId>
-  <artifactId>351842_optionalDependencies.require-bundle</artifactId>
+  <groupId>tycho-its-project.compiler.optionalDependencies</groupId>
+  <artifactId>cod.require-bundle-ignore</artifactId>
   <version>1.0.0</version>
   <packaging>eclipse-plugin</packaging>
 
   <properties>
     <tycho-version>0.14.0</tycho-version>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>e342</id>
-      <layout>p2</layout>
-      <url>${e342-repo}</url>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>
@@ -27,6 +18,14 @@
         <artifactId>tycho-maven-plugin</artifactId>
         <version>${tycho-version}</version>
         <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <optionalDependencies>ignore</optionalDependencies>
+        </configuration>
       </plugin>
     </plugins>
   </build>
