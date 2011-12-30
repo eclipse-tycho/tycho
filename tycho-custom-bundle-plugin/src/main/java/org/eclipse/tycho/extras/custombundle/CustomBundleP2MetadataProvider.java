@@ -23,10 +23,9 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.resolver.CompilerOptions;
+import org.eclipse.tycho.core.resolver.CompilerOptionsManager;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
@@ -40,16 +39,13 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
     @Requirement
     private EquinoxServiceFactory equinox;
 
+    @Requirement
+    private CompilerOptionsManager compilerOptionsManager;
+
     private DependencyMetadataGenerator generator;
 
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-        OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
-
-        if (TargetPlatformConfiguration.OPTIONAL_RESOLUTION_IGNORE.equals(configuration.getOptionalResolutionAction())) {
-            optionalAction = OptionalResolutionAction.IGNORE;
-        }
+        CompilerOptions compilerOptions = compilerOptionsManager.getCompilerOptions(project);
 
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-custom-bundle-plugin");
         if (plugin != null) {
@@ -59,7 +55,8 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
                 String classifier = getClassifier(execution);
                 if (location != null && classifier != null) {
                     IArtifactFacade artifact = new AttachedArtifact(project, location, classifier);
-                    IDependencyMetadata metadata = generator.generateMetadata(artifact, null, optionalAction);
+                    IDependencyMetadata metadata = generator.generateMetadata(artifact, null,
+                            compilerOptions.getOptionalResolutionAction());
                     reactorProject.setDependencyMetadata(classifier, false, metadata.getMetadata());
                 }
             }

@@ -24,11 +24,10 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.resolver.CompilerOptions;
+import org.eclipse.tycho.core.resolver.CompilerOptionsManager;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
@@ -37,6 +36,9 @@ import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Initializable {
     @Requirement
     private Logger log;
+
+    @Requirement
+    private CompilerOptionsManager compilerOptionsManager;
 
     @Requirement
     private EquinoxServiceFactory equinox;
@@ -50,13 +52,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
             return;
         }
 
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-        OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
-
-        if (TargetPlatformConfiguration.OPTIONAL_RESOLUTION_IGNORE.equals(configuration.getOptionalResolutionAction())) {
-            optionalAction = OptionalResolutionAction.IGNORE;
-        }
+        CompilerOptions compilerOptions = compilerOptionsManager.getCompilerOptions(project);
 
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-source-feature-plugin");
         if (plugin != null) {
@@ -70,7 +66,8 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
                 Feature.write(sourceFeature, new File(sourceFeatureBasedir, Feature.FEATURE_XML));
 
                 IArtifactFacade artifact = new AttachedArtifact(project, sourceFeatureBasedir, classifier);
-                IDependencyMetadata metadata = generator.generateMetadata(artifact, null, optionalAction);
+                IDependencyMetadata metadata = generator.generateMetadata(artifact, null,
+                        compilerOptions.getOptionalResolutionAction());
                 reactorProject.setDependencyMetadata(classifier, true, metadata.getMetadata());
             } catch (IOException e) {
                 log.error("Could not create sources feature.xml", e);
