@@ -21,10 +21,6 @@ public class TargetPlatformConfiguration {
 
     public static final String POM_DEPENDENCIES_CONSIDER = "consider";
 
-    public static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
-
-    public static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
-
     private String resolver;
 
     private List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
@@ -38,8 +34,6 @@ public class TargetPlatformConfiguration {
     private Boolean allowConflictingDependencies;
 
     private boolean disableP2Mirrors;
-
-    private String optionalAction;
 
     private String executionEnvironment;
 
@@ -105,14 +99,6 @@ public class TargetPlatformConfiguration {
 
     public boolean isDisableP2Mirrors() {
         return disableP2Mirrors;
-    }
-
-    public void setOptionalResolutionAction(String optionalAction) {
-        this.optionalAction = optionalAction;
-    }
-
-    public String getOptionalResolutionAction() {
-        return optionalAction;
     }
 
     public String getExecutionEnvironment() {

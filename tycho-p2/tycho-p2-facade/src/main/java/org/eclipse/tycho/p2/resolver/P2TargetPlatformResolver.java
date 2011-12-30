@@ -73,13 +73,14 @@ import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformRes
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.core.resolver.CompilerOptions;
+import org.eclipse.tycho.core.resolver.CompilerOptionsManager;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -114,6 +115,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
 
+    @Requirement
+    private CompilerOptionsManager compilerOptionsManager;
+
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
@@ -136,14 +140,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<Map<String, String>> environments = getEnvironments(configuration);
 
-        OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
-
-        if (TargetPlatformConfiguration.OPTIONAL_RESOLUTION_IGNORE.equals(configuration.getOptionalResolutionAction())) {
-            optionalAction = OptionalResolutionAction.IGNORE;
-        }
+        CompilerOptions compilerOptions = compilerOptionsManager.getCompilerOptions(project);
 
         IDependencyMetadata metadata = generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null),
-                environments, optionalAction);
+                environments, compilerOptions.getOptionalResolutionAction());
         reactorProject.setDependencyMetadata(null, true, metadata.getMetadata(true));
         reactorProject.setDependencyMetadata(null, false, metadata.getMetadata(false));
 

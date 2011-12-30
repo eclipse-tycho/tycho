@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - move extraRequirements parameter to the compiler plugin (bug 363331)
+ *    SAP AG - move optionalDependencies parameter to the compiler plugin (bug 351842)
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
@@ -19,24 +20,52 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 
 @Component(role = CompilerOptionsManager.class)
 public class CompilerOptionsManager {
+
+    private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
+    private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
 
     public CompilerOptions getCompilerOptions(MavenProject project) {
 
         Plugin plugin = project.getPlugin("org.eclipse.tycho:tycho-compiler-plugin");
 
+        OptionalResolutionAction optionalAction = null;
         List<Dependency> extraRequirements = null;
         if (plugin != null) {
             // TODO check version?
             Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
             if (configuration != null) {
+                optionalAction = getOptionalResolutionAction(configuration);
                 extraRequirements = getExtraRequirements(configuration);
             }
         }
 
-        return new CompilerOptions(extraRequirements);
+        if (optionalAction == null) {
+            optionalAction = OptionalResolutionAction.REQUIRE;
+        }
+        return new CompilerOptions(optionalAction, extraRequirements);
+        // TODO cache this value by attaching it to the project?
+    }
+
+    private OptionalResolutionAction getOptionalResolutionAction(Xpp3Dom configuration) {
+        Xpp3Dom optionalDependenciesDom = configuration.getChild("optionalDependencies");
+        if (optionalDependenciesDom == null) {
+            return null;
+        }
+
+        String optionalDependencies = optionalDependenciesDom.getValue();
+
+        if (OPTIONAL_RESOLUTION_REQUIRE.equals(optionalDependencies)) {
+            return OptionalResolutionAction.REQUIRE;
+        } else if (OPTIONAL_RESOLUTION_IGNORE.equals(optionalDependencies)) {
+            return OptionalResolutionAction.IGNORE;
+        } else {
+            throw new RuntimeException("Illegal value of <optionalDependencies> compiler parameter: "
+                    + optionalDependencies);
+        }
     }
 
     private List<Dependency> getExtraRequirements(Xpp3Dom configuration) {

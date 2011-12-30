@@ -15,15 +15,31 @@ import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 
 public class CompilerOptions implements DependencyResolverConfiguration {
 
+    private OptionalResolutionAction optionalAction;
     private final List<Dependency> extraRequirements;
 
-    public CompilerOptions(List<Dependency> extraRequirements) {
+    public CompilerOptions(OptionalResolutionAction optionalAction, List<Dependency> extraRequirements) {
+        if (optionalAction == null)
+            throw new NullPointerException();
+
+        this.optionalAction = optionalAction;
         this.extraRequirements = extraRequirements;
     }
 
+    /**
+     * @return never <code>null</code>
+     */
+    public OptionalResolutionAction getOptionalResolutionAction() {
+        return optionalAction;
+    }
+
+    /**
+     * @return never <code>null</code>
+     */
     public List<Dependency> getExtraRequirements() {
         if (extraRequirements == null)
             return Collections.emptyList();

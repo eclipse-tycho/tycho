@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,18 +8,16 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.metadata;
+package org.eclipse.tycho.core.resolver.shared;
 
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
-
-public interface DependencyMetadataGenerator {
+public enum OptionalResolutionAction {
+    /**
+     * Treat optional dependencies as required.
+     **/
+    REQUIRE,
 
     /**
-     * Generates dependency-only artifact metadata
+     * Ignore optional dependencies.
      */
-    public IDependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
-            OptionalResolutionAction optionalAction);
+    IGNORE,
 }
