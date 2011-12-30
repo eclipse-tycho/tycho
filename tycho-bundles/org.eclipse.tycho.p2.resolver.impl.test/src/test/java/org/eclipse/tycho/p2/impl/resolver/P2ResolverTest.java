@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.resolver;
 
-import static org.eclipse.tycho.p2.resolver.facade.P2Resolver.TYPE_ECLIPSE_FEATURE;
-import static org.eclipse.tycho.p2.resolver.facade.P2Resolver.TYPE_ECLIPSE_PLUGIN;
-import static org.eclipse.tycho.p2.resolver.facade.P2Resolver.TYPE_ECLIPSE_REPOSITORY;
-import static org.eclipse.tycho.p2.resolver.facade.P2Resolver.TYPE_ECLIPSE_UPDATE_SITE;
+import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_FEATURE;
+import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN;
+import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_REPOSITORY;
+import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE;
 import static org.eclipse.tycho.test.util.ResourceUtil.resourceFile;
 import static org.junit.Assert.fail;
 

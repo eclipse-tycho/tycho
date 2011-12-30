@@ -14,30 +14,15 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 public interface P2Resolver {
-    /** @see org.eclipse.tycho.ArtifactKey */
-    public static final String TYPE_ECLIPSE_PLUGIN = "eclipse-plugin";
-
-    /** @see org.eclipse.tycho.ArtifactKey */
-    public static final String TYPE_ECLIPSE_FEATURE = "eclipse-feature";
-
-    /** @see org.eclipse.tycho.ArtifactKey */
-    public static final String TYPE_ECLIPSE_TEST_PLUGIN = "eclipse-test-plugin";
-
-    /** @see org.eclipse.tycho.ArtifactKey */
-    public static final String TYPE_ECLIPSE_APPLICATION = "eclipse-application";
-
-    /** @see org.eclipse.tycho.ArtifactKey */
-    public static final String TYPE_ECLIPSE_UPDATE_SITE = "eclipse-update-site";
-
-    /** @see org.eclipse.tycho.ArtifactKey */
-    public static final String TYPE_ECLIPSE_REPOSITORY = "eclipse-repository";
-
     /**
      * Pseudo artifact type used to denote P2 installable unit dependencies
+     * 
+     * @see ArtifactKey
      */
     public static final String TYPE_INSTALLABLE_UNIT = "p2-installable-unit";
 

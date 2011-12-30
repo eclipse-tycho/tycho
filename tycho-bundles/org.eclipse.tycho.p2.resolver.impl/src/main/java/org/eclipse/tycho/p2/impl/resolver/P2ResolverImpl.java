@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -162,11 +163,11 @@ public class P2ResolverImpl implements P2Resolver {
         String mavenClassidier = reactorArtifact != null ? reactorArtifact.getClassidier() : null;
 
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            platform.addArtifact(P2Resolver.TYPE_ECLIPSE_PLUGIN, id, version, file, mavenClassidier, iu);
+            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, file, mavenClassidier, iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                platform.addArtifact(P2Resolver.TYPE_ECLIPSE_FEATURE, featureId, version, file, mavenClassidier, iu);
+                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, file, mavenClassidier, iu);
             }
         }
 
@@ -181,7 +182,7 @@ public class P2ResolverImpl implements P2Resolver {
         File location = mavenArtifact.getLocation();
         String mavenClassidier = mavenArtifact.getClassidier();
 
-        if (TYPE_ECLIPSE_FEATURE.equals(type)) {
+        if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
                 // feature can have additional IUs injected via p2.inf
@@ -190,7 +191,7 @@ public class P2ResolverImpl implements P2Resolver {
         } else if ("jar".equals(type)) {
             // this must be an OSGi bundle coming from a maven repository
             // TODO check if iu actually provides CAPABILITY_NS_OSGI_BUNDLE capability
-            type = TYPE_ECLIPSE_PLUGIN;
+            type = ArtifactKey.TYPE_ECLIPSE_PLUGIN;
         }
 
         platform.addArtifact(type, id, version, location, mavenClassidier, iu);
@@ -213,10 +214,10 @@ public class P2ResolverImpl implements P2Resolver {
         if (P2Resolver.TYPE_INSTALLABLE_UNIT.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id,
                     new VersionRange(versionRange), null, false, true));
-        } else if (P2Resolver.TYPE_ECLIPSE_PLUGIN.equals(type)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, id,
                     new VersionRange(versionRange), null, false, true));
-        } else if (P2Resolver.TYPE_ECLIPSE_FEATURE.equals(type)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id
                     + ".feature.group", new VersionRange(versionRange), null, false, true));
             // TODO make ".feature.group" a constant in FeaturesAction

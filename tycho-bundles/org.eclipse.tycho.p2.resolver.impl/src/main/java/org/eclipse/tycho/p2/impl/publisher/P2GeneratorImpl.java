@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
@@ -44,13 +45,13 @@ import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
 @SuppressWarnings("restriction")
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
-    private static final String[] SUPPORTED_TYPES = { P2Resolver.TYPE_ECLIPSE_PLUGIN,
-            P2Resolver.TYPE_ECLIPSE_TEST_PLUGIN, P2Resolver.TYPE_ECLIPSE_FEATURE, P2Resolver.TYPE_ECLIPSE_UPDATE_SITE,
-            P2Resolver.TYPE_ECLIPSE_APPLICATION, P2Resolver.TYPE_ECLIPSE_REPOSITORY };
+    private static final String[] SUPPORTED_TYPES = { ArtifactKey.TYPE_ECLIPSE_PLUGIN,
+            ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN, ArtifactKey.TYPE_ECLIPSE_FEATURE,
+            ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE, ArtifactKey.TYPE_ECLIPSE_APPLICATION,
+            ArtifactKey.TYPE_ECLIPSE_REPOSITORY };
 
     /**
      * Whether we need full p2 metadata (false) or just required capabilities.
@@ -123,13 +124,13 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
         String packaging = artifact.getPackagingType();
         File location = artifact.getLocation();
-        if (P2Resolver.TYPE_ECLIPSE_PLUGIN.equals(packaging) || P2Resolver.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
+        if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging) || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
             if (dependenciesOnly && optionalAction != null) {
                 actions.add(new BundleDependenciesAction(location, optionalAction));
             } else {
                 actions.add(new TychoBundleAction(location));
             }
-        } else if (P2Resolver.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Feature feature = new FeatureParser().parse(location);
             feature.setLocation(location.getAbsolutePath());
             if (dependenciesOnly) {
@@ -137,7 +138,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             } else {
                 actions.add(new FeaturesAction(new Feature[] { feature }));
             }
-        } else if (P2Resolver.TYPE_ECLIPSE_APPLICATION.equals(packaging)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_APPLICATION.equals(packaging)) {
             String product = new File(location, artifact.getArtifactId() + ".product").getAbsolutePath();
             try {
                 IProductDescriptor productDescriptor = new ProductFile2(product);
@@ -149,13 +150,13 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        } else if (P2Resolver.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)) {
             if (dependenciesOnly) {
                 actions.add(new SiteDependenciesAction(location, artifact.getArtifactId(), artifact.getVersion()));
             } else {
                 actions.add(new SiteXMLAction(location.toURI(), null));
             }
-        } else if (P2Resolver.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
             for (File productFile : getProductFiles(location)) {
                 String product = productFile.getAbsolutePath();
                 IProductDescriptor productDescriptor;

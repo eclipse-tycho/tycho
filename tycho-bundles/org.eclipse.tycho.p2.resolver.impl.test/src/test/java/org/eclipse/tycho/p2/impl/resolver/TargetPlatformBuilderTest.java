@@ -16,9 +16,9 @@ import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,10 +30,10 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
         ArtifactMock artifact = new ArtifactMock(new File(
                 "resources/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"), "groupId", "artifactId", "1",
-                P2Resolver.TYPE_ECLIPSE_PLUGIN, "classifier");
+                ArtifactKey.TYPE_ECLIPSE_PLUGIN, "classifier");
 
         ArtifactMock metadata = new ArtifactMock(new File("resources/pom-dependencies/existing-p2-metadata.xml"),
-                "groupId", "artifactId", "1", P2Resolver.TYPE_ECLIPSE_PLUGIN, "p2metadata");
+                "groupId", "artifactId", "1", ArtifactKey.TYPE_ECLIPSE_PLUGIN, "p2metadata");
 
         P2TargetPlatform platform;
         Collection<IInstallableUnit> units;
