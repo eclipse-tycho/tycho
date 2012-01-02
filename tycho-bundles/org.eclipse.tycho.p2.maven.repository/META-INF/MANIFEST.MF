@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.0",
 Export-Package: org.eclipse.tycho.p2.maven.repository,
  org.eclipse.tycho.p2.maven.repository.xmlio;x-friends:="org.eclipse.tycho.p2.maven.repository.tests",
  org.eclipse.tycho.p2.util,
- org.eclipse.tycho.repository.registry.impl
+ org.eclipse.tycho.repository.registry
 Import-Package: org.eclipse.osgi.util,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.repository.registry.facade,
