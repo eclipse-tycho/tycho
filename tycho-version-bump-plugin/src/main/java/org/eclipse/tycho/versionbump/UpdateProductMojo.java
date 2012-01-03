@@ -21,11 +21,11 @@ import java.util.Map;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
 /**
  * Quick&dirty way to update .product file to use latest versions of IUs available from specified
@@ -63,7 +63,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
         ProductConfiguration product = ProductConfiguration.read(productFile);
 
         for (PluginRef plugin : product.getPlugins()) {
-            p2.addDependency(P2Resolver.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
+            p2.addDependency(ArtifactKey.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
         }
 
         P2ResolutionResult result = p2.resolveMetadata(resolutionContext, getEnvironments().get(0));
