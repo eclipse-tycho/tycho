@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ package org.eclipse.tycho.p2.tools.impl;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
+import org.eclipse.tycho.core.facade.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

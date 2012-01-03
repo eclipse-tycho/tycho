@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.tycho.core.facade.BuildOutputDirectory;
 import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.plugins.p2.publisher.PublishProductMojo.Product;
 import org.eclipse.tycho.testing.TestUtil;
 import org.junit.After;

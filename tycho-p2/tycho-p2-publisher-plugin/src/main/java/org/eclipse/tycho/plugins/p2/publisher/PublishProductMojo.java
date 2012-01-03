@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
+import org.eclipse.tycho.core.facade.BuildOutputDirectory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
@@ -33,7 +34,6 @@ import org.eclipse.tycho.model.Launcher;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration.ConfigIni;
-import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
