@@ -138,6 +138,10 @@ public class ModuleMetadataRepository extends AbstractMetadataRepository2 {
 
     // TODO support references? they could come from feature.xmls...
 
+    File getPersistenceFile() {
+        return storage;
+    }
+
     static boolean canAttemptRead(File repositoryDir) {
         File requiredP2MetadataFile = getStorageFile(repositoryDir);
         return requiredP2MetadataFile.isFile();

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -69,6 +70,10 @@ class ModuleArtifactMap extends AbstractRepositoryReader {
             throw new IllegalStateException("Classifier " + classifier + " is missing in " + mapFile.getAbsolutePath());
         }
         return artifactFile;
+    }
+
+    public Map<String, File> getLocalArtifactLocations() {
+        return new HashMap<String, File>(artifacts);
     }
 
     public boolean contains(String classifier) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,14 +21,11 @@ public interface PublisherService {
      * 
      * @param categoryDefinition
      *            A category.xml file as defined by the Eclipse PDE
-     * @throws IllegalStateException
-     *             if this service instance has already been stopped
      * @throws FacadeException
      *             if a checked exception occurs during publishing
      * @return the root IUs in the publisher result
      */
-    Collection</* IInstallableUnit */?> publishCategories(File categoryDefinition) throws FacadeException,
-            IllegalStateException;
+    Collection</* IInstallableUnit */?> publishCategories(File categoryDefinition) throws FacadeException;
 
     /**
      * Publishes the given product definition.
@@ -39,17 +36,10 @@ public interface PublisherService {
      *            A folder that contains the native Eclipse launcher binaries
      * @param flavor
      *            The installation flavor the product shall be published for
-     * @throws IllegalStateException
-     *             if this service instance has already been stopped
      * @throws FacadeException
      *             if a checked exception occurs during publishing
      * @return the root IUs in the publisher result
      */
     Collection</* IInstallableUnit */?> publishProduct(File productDefinition, File launcherBinaries, String flavor)
-            throws FacadeException, IllegalStateException;
-
-    /**
-     * Stops this PublisherService instance. This releases internally used resources.
-     */
-    void stop();
+            throws FacadeException;
 }

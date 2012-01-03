@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activateManager" deactivate="deactivateManager">
+   <implementation class="org.eclipse.tycho.repository.module.ReactorRepositoryManagerImpl"/>
+   <service>
+      <provide interface="org.eclipse.tycho.repository.registry.ReactorRepositoryManager"/>
+      <provide interface="org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade"/>
+   </service>
+   <reference bind="bindProvisioningAgentFactory" cardinality="1..1" interface="org.eclipse.equinox.p2.core.IProvisioningAgentProvider" name="IProvisioningAgentProvider" policy="static"/>
+</scr:component>

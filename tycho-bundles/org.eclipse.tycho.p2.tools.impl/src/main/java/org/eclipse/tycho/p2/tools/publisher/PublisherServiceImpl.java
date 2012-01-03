@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
@@ -27,17 +28,22 @@ import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.util.StatusTool;
+import org.eclipse.tycho.repository.publishing.PublishingRepository;
+import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
 
 @SuppressWarnings("restriction")
 class PublisherServiceImpl implements PublisherService {
 
     private final BuildContext context;
     private final PublisherInfoTemplate configuration;
+    private final ReactorRepositoryManager reactorRepoManager;
     private final MavenLogger logger;
 
-    public PublisherServiceImpl(BuildContext context, PublisherInfoTemplate publisherConfiguration, MavenLogger logger) {
+    public PublisherServiceImpl(BuildContext context, PublisherInfoTemplate publisherConfiguration,
+            ReactorRepositoryManager reactorRepositoryManager, MavenLogger logger) {
         this.context = context;
         this.configuration = publisherConfiguration;
+        this.reactorRepoManager = reactorRepositoryManager;
         this.logger = logger;
     }
 
@@ -53,11 +59,13 @@ class PublisherServiceImpl implements PublisherService {
          */
         CategoryXMLAction categoryXMLAction = new CategoryXMLAction(categoryDefinition.toURI(), context.getQualifier());
 
+        PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepository(context.getTargetDirectory());
+
         /*
          * TODO Fix in Eclipse: category publisher should produce root IUs; workaround: the category
          * publisher produces no "inner" IUs, so just return all IUs
          */
-        Collection<IInstallableUnit> allIUs = executePublisher(categoryXMLAction);
+        Collection<IInstallableUnit> allIUs = executePublisher(categoryXMLAction, publishingRepo);
         return allIUs;
     }
 
@@ -71,18 +79,19 @@ class PublisherServiceImpl implements PublisherService {
             throw new IllegalArgumentException("Unable to load product file " + productDefinition.getAbsolutePath(), e); //$NON-NLS-1$
         }
 
-        // TODO Fix in Eclipse: the product action should only return the product IU as root IU
+        PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepositoryForWriting(
+                context.getTargetDirectory(), new ProductBinariesWriteSession(productDescriptor.getId()));
         Collection<IInstallableUnit> allIUs = executePublisher(new ProductAction(null, productDescriptor, flavor,
-                launcherBinaries));
+                launcherBinaries), publishingRepo);
 
-        // workaround: we know the ID of the product IU
         return selectUnit(allIUs, productDescriptor.getId());
     }
 
-    private Collection<IInstallableUnit> executePublisher(IPublisherAction action) throws FacadeException {
+    private Collection<IInstallableUnit> executePublisher(IPublisherAction action, PublishingRepository publishingRepo)
+            throws FacadeException {
         ResultSpyAction resultSpy = new ResultSpyAction();
         IPublisherAction[] actions = new IPublisherAction[] { action, resultSpy };
-        Publisher publisher = new Publisher(configuration.newPublisherInfo());
+        Publisher publisher = new Publisher(configuration.newPublisherInfo(publishingRepo));
 
         IStatus result = publisher.publish(actions, null);
         handlePublisherStatus(result);
@@ -106,10 +115,6 @@ class PublisherServiceImpl implements PublisherService {
                 return Collections.singleton(unit);
             }
         }
-        throw new IllegalStateException("ProductAction did not produce product IU");
-    }
-
-    public void stop() {
-        configuration.stopAgent();
+        throw new AssertionFailedException("Publisher did not produce expected IU");
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,36 +10,39 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
-import java.io.File;
-
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.impl.Activator;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
+import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
 
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
     private MavenContext mavenContext;
+    private ReactorRepositoryManager reactorRepoManager;
 
-    public PublisherService createPublisher(File targetRepository, RepositoryReferences contextRepos,
-            BuildContext context) throws FacadeException {
-        /*
-         * Create an own instance of the provisioning agent to prevent cross talk with other things
-         * that happen in the Tycho OSGi runtime. We can assume to own the directory into which the
-         * agent writes its cache.
-         */
-        IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
+    public PublisherService createPublisher(RepositoryReferences contextRepos, BuildContext context)
+            throws FacadeException {
+        checkCollaborators();
 
-        return new PublisherServiceImpl(context, new PublisherInfoTemplate(targetRepository, contextRepos, context,
-                agent), mavenContext.getLogger());
+        return new PublisherServiceImpl(context, new PublisherInfoTemplate(contextRepos, context, reactorRepoManager),
+                reactorRepoManager, mavenContext.getLogger());
     }
 
     public void setMavenContext(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
+    }
+
+    public void setReactorRepositoryManager(ReactorRepositoryManager reactorRepoManager) {
+        this.reactorRepoManager = reactorRepoManager;
+    }
+
+    private void checkCollaborators() {
+        if (mavenContext == null || reactorRepoManager == null) {
+            throw new IllegalStateException(); // shoudn't happen; see OSGI-INF/publisherfactory.xml
+        }
     }
 
 }

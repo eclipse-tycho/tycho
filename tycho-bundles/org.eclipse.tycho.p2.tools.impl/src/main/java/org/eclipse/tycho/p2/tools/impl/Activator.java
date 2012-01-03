@@ -41,4 +41,8 @@ public class Activator implements BundleActivator {
             context.ungetService(serviceReference);
         }
     }
+
+    public static BundleContext getContext() {
+        return context;
+    }
 }

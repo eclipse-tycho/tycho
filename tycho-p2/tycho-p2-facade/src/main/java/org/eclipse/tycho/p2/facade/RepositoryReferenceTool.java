@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,8 +50,6 @@ public class RepositoryReferenceTool {
      */
     public static int REPOSITORIES_INCLUDE_CURRENT_MODULE = 1;
 
-    public static String PUBLISHER_REPOSITORY_PATH = "publisherRepository";
-
     @Requirement
     private EquinoxServiceFactory osgiServices;
 
@@ -88,7 +86,7 @@ public class RepositoryReferenceTool {
         RepositoryReferences repositories = new RepositoryReferences();
 
         if ((flags & REPOSITORIES_INCLUDE_CURRENT_MODULE) != 0) {
-            File publisherResults = new File(module.getBuild().getDirectory(), PUBLISHER_REPOSITORY_PATH);
+            File publisherResults = new File(module.getBuild().getDirectory());
             repositories.addMetadataRepository(publisherResults);
             repositories.addArtifactRepository(publisherResults);
         }

@@ -35,6 +35,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.p2.maven.repository.tests.Activator;
 import org.eclipse.tycho.repository.module.ModuleArtifactRepository;
+import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,7 +64,7 @@ public class ModuleArtifactRepositoryTest {
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();
 
-    private IArtifactRepository subject;
+    private ModuleArtifactRepository subject;
 
     @BeforeClass
     public static void initExistingRepository() throws Exception {
@@ -90,7 +91,7 @@ public class ModuleArtifactRepositoryTest {
         IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent
                 .getService(IArtifactRepositoryManager.SERVICE_NAME);
 
-        subject = repoManager.loadRepository(existingModuleDir.toURI(), null);
+        subject = (ModuleArtifactRepository) repoManager.loadRepository(existingModuleDir.toURI(), null);
 
         assertThat(subject.getArtifactDescriptors(SOURCE_ARTIFACT_KEY).length, is(1));
     }
@@ -106,7 +107,7 @@ public class ModuleArtifactRepositoryTest {
     public void testWriteToRepository() throws Exception {
         subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
 
-        OutputStream outputStream = subject.getOutputStream(subject.createArtifactDescriptor(BINARY_ARTIFACT_KEY));
+        OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
 
         assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, subject), is(BINARY_ARTIFACT_SIZE));
@@ -126,11 +127,15 @@ public class ModuleArtifactRepositoryTest {
         File repoDir = tempManager.newFolder("targetDir");
         subject = ModuleArtifactRepository.createInstance(null, repoDir);
 
-        OutputStream outputStream = subject.getOutputStream(subject.createArtifactDescriptor(BINARY_ARTIFACT_KEY));
+        OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
 
         IArtifactRepository result = reloadRepository(repoDir);
         assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, result), is(BINARY_ARTIFACT_SIZE));
+    }
+
+    private IArtifactDescriptor newDescriptor(ArtifactKey artifactKey) {
+        return subject.createArtifactDescriptor(artifactKey, new WriteSessionStub());
     }
 
     private static Set<IArtifactKey> allKeysIn(IArtifactRepository subject) {
@@ -157,7 +162,7 @@ public class ModuleArtifactRepositoryTest {
         return repoManager.loadRepository(location.toURI(), null);
     }
 
-    private static void writeAndClose(OutputStream out, int size) throws IOException {
+    static void writeAndClose(OutputStream out, int size) throws IOException {
         byte[] content = new byte[size];
         Arrays.fill(content, (byte) 'b');
         out.write(content);
@@ -178,5 +183,12 @@ public class ModuleArtifactRepositoryTest {
             fos.close();
         }
         file.deleteOnExit();
+    }
+
+    static class WriteSessionStub implements WriteSessionContext {
+
+        public String getClassifierForNewKey(IArtifactKey key) {
+            return key.getId();
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,12 +35,8 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
 
     public final void execute() throws MojoExecutionException, MojoFailureException {
         PublisherService publisherService = createPublisherService();
-        try {
-            Collection<?> units = publishContent(publisherService);
-            postPublishedIUs(units);
-        } finally {
-            publisherService.stop();
-        }
+        Collection<?> units = publishContent(publisherService);
+        postPublishedIUs(units);
     }
 
     /**
@@ -59,10 +54,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
                     getSession(), 0);
 
             PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
-            File publisherRepoLocation = getBuildDirectory().getChild(
-                    RepositoryReferenceTool.PUBLISHER_REPOSITORY_PATH);
-            return publisherServiceFactory.createPublisher(publisherRepoLocation, contextRepositories,
-                    getBuildContext());
+            return publisherServiceFactory.createPublisher(contextRepositories, getBuildContext());
         } catch (FacadeException e) {
             throw new MojoExecutionException("Exception while initializing the publisher service", e);
         }

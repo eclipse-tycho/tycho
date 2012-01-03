@@ -33,6 +33,7 @@ import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 
 /**
  * A p2 artifact repository implementation for the build output directory. Instances are persisted
@@ -105,32 +106,45 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
 
     // END construction
 
+    public ModuleArtifactMap getArtifactsMap() {
+        return artifactsMap;
+    }
+
     @Override
     public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
-        ArtifactDescriptor result = new ArtifactDescriptor(key);
-        result.setRepository(this);
+        // we need to know the classifier for new artifacts
+        throw new UnsupportedOperationException();
+    }
+
+    public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, WriteSessionContext writeSession) {
+        if (writeSession == null) {
+            throw new IllegalStateException("Unexpected artifact write operation");
+        }
+
+        ArtifactDescriptor result = new ModuleArtifactDescriptor(key);
 
         // TODO 348586 use GAV from module
         result.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, "");
         result.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, "");
         result.setProperty(RepositoryLayoutHelper.PROP_VERSION, "0.0.1");
 
-        // TODO 348586 extract this to an associated object
-        // guess classifier from the key
-        if ("binary".equals(key.getClassifier())) { // TODO replace with org.eclipse.equinox.spi.p2.publisher.PublisherHelper.BINARY_ARTIFACT_CLASSIFIER
-            // TODO strip product/feature id from this
-            String mavenClassifier = key.getId();
-            result.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, mavenClassifier);
-        } else {
-            throw new IllegalArgumentException("Unexpected artifact: " + key);
-        }
+        result.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, writeSession.getClassifierForNewKey(key));
 
         return result;
     }
 
     @Override
+    public boolean isModifiable() {
+        return true;
+    }
+
+    @Override
     public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
-        // TODO check that this is a descriptor created by us, e.g. through sub-classing ArtifactDescriptor
+        if (descriptor == null) {
+            throw new NullPointerException();
+        } else if (!(descriptor instanceof ModuleArtifactDescriptor)) {
+            throw new IllegalArgumentException("Descriptor must have been created by this repository");
+        }
 
         String classifier = descriptor.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
 
@@ -198,4 +212,11 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
         return requiredP2ArtifactsFile.isFile() && requiredLocalArtifactsFile.isFile();
     }
 
+    private class ModuleArtifactDescriptor extends ArtifactDescriptor {
+
+        public ModuleArtifactDescriptor(IArtifactKey key) {
+            super(key);
+            setRepository(ModuleArtifactRepository.this);
+        }
+    }
 }

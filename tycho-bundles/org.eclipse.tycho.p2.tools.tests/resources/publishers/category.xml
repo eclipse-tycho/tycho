@@ -1,0 +1,6 @@
+<site>
+   <category-def name="example.category" label="Example Category"/>
+   <feature url="features/org.eclipse.example.original_feature_0.0.0.jar" id="org.eclipse.example.original_feature" version="0.0.0">
+      <category name="example.category"/>
+   </feature>
+</site>
