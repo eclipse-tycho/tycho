@@ -20,11 +20,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -47,6 +52,11 @@ public class ModuleArtifactRepositoryTest {
 
     private static final int SOURCE_ARTIFACT_SIZE = 418;
 
+    private static final ArtifactKey BINARY_ARTIFACT_KEY = new ArtifactKey("binary", "product.native.launcher",
+            Version.parseVersion("0.1.2"));
+
+    private static final int BINARY_ARTIFACT_SIZE = 4;
+
     private static File existingModuleDir;
 
     @Rule
@@ -66,7 +76,7 @@ public class ModuleArtifactRepositoryTest {
 
     @Test
     public void testLoadRepository() throws Exception {
-        subject = new ModuleArtifactRepository(null, existingModuleDir);
+        subject = ModuleArtifactRepository.restoreInstance(null, existingModuleDir);
 
         assertThat(artifactSizeOf(BUNDLE_ARTIFACT_KEY, subject), is(BUNDLE_ARTIFACT_SIZE));
         assertThat(artifactSizeOf(SOURCE_ARTIFACT_KEY, subject), is(SOURCE_ARTIFACT_SIZE));
@@ -84,6 +94,50 @@ public class ModuleArtifactRepositoryTest {
         assertThat(subject.getArtifactDescriptors(SOURCE_ARTIFACT_KEY).length, is(1));
     }
 
+    @Test
+    public void testCreateRepository() throws Exception {
+        subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+
+        assertThat(allKeysIn(subject).isEmpty(), is(true));
+    }
+
+    @Test
+    public void testWriteToRepository() throws Exception {
+        subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+
+        OutputStream outputStream = subject.getOutputStream(subject.createArtifactDescriptor(BINARY_ARTIFACT_KEY));
+        writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
+
+        assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, subject), is(BINARY_ARTIFACT_SIZE));
+    }
+
+    @Test
+    public void testPersistEmptyRepository() throws Exception {
+        File repoDir = tempManager.newFolder("targetDir");
+        subject = ModuleArtifactRepository.createInstance(null, repoDir);
+
+        IArtifactRepository result = reloadRepository(repoDir);
+        assertThat(allKeysIn(result).size(), is(0));
+    }
+
+    @Test
+    public void testPersistRepository() throws Exception {
+        File repoDir = tempManager.newFolder("targetDir");
+        subject = ModuleArtifactRepository.createInstance(null, repoDir);
+
+        OutputStream outputStream = subject.getOutputStream(subject.createArtifactDescriptor(BINARY_ARTIFACT_KEY));
+        writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
+
+        IArtifactRepository result = reloadRepository(repoDir);
+        assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, result), is(BINARY_ARTIFACT_SIZE));
+    }
+
+    private static Set<IArtifactKey> allKeysIn(IArtifactRepository subject) {
+        IQueryResult<IArtifactKey> queryResult = subject.query(new ExpressionMatchQuery<IArtifactKey>(
+                IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION), null);
+        return queryResult.toUnmodifiableSet();
+    }
+
     private static int artifactSizeOf(IArtifactKey artifactKey, IArtifactRepository subject) {
         IArtifactDescriptor[] artifactDescriptors = subject.getArtifactDescriptors(artifactKey);
         assertEquals(1, artifactDescriptors.length);
@@ -91,6 +145,23 @@ public class ModuleArtifactRepositoryTest {
         ByteArrayOutputStream artifactContent = new ByteArrayOutputStream();
         subject.getArtifact(artifactDescriptors[0], artifactContent, null);
         return artifactContent.size();
+    }
+
+    private IArtifactRepository reloadRepository(File location) throws Exception {
+        // load through factory, to ensure that end-to-end process works
+        IProvisioningAgent agent = Activator.createProvisioningAgent(tempManager.newFolder("agent").toURI());
+        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent
+                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+
+        return repoManager.loadRepository(location.toURI(), null);
+    }
+
+    private static void writeAndClose(OutputStream out, int size) throws IOException {
+        byte[] content = new byte[size];
+        Arrays.fill(content, (byte) 'b');
+        out.write(content);
+        out.flush();
+        out.close();
     }
 
     private static void generateBinaryTestFile(File file, int size) throws IOException {

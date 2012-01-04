@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,5 +54,11 @@ public class RepositoryFactoryTools {
         // none of the codes defined in ProvisionException really fit
         int errorCode = 0;
         return new Status(IStatus.ERROR, Activator.ID, errorCode, message, null);
+    }
+
+    public static ProvisionException invalidCreationLocation(String repositoryType, URI location) {
+        String message = "Cannot create repositories of type " + repositoryType + " at location " + location;
+        int errorCode = ProvisionException.REPOSITORY_INVALID_LOCATION;
+        return new ProvisionException(new Status(IStatus.ERROR, Activator.ID, errorCode, message, null));
     }
 }

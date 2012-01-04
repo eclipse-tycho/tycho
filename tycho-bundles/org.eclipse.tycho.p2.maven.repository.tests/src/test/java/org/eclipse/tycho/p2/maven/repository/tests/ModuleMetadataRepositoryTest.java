@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository.tests;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
@@ -21,6 +22,8 @@ import java.util.List;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -69,6 +72,46 @@ public class ModuleMetadataRepositoryTest {
         assertThat(unitsIn(subject), hasItem(SOURCE_UNIT));
     }
 
+    @Test
+    public void testCreateRepository() throws Exception {
+        File targetFolder = tempFolder.newFolder("target");
+
+        subject = new ModuleMetadataRepository(null, targetFolder);
+
+        assertThat(unitsIn(subject).size(), is(0));
+    }
+
+    @Test
+    public void testUpdateRepository() throws Exception {
+        File targetFolder = tempFolder.newFolder("target");
+
+        subject = new ModuleMetadataRepository(null, targetFolder);
+        subject.addInstallableUnits(createIUs(BUNDLE_UNIT));
+
+        assertThat(unitsIn(subject), hasItem(BUNDLE_UNIT));
+    }
+
+    @Test
+    public void testPersistEmptyRepository() throws Exception {
+        File targetFolder = tempFolder.newFolder("target");
+
+        subject = new ModuleMetadataRepository(null, targetFolder);
+
+        IMetadataRepository result = reloadRepository(targetFolder);
+        assertThat(unitsIn(result).size(), is(0));
+    }
+
+    @Test
+    public void testPersistModifiedRepository() throws Exception {
+        File targetFolder = tempFolder.newFolder("target");
+
+        subject = new ModuleMetadataRepository(null, targetFolder);
+        subject.addInstallableUnits(createIUs(SOURCE_UNIT));
+
+        IMetadataRepository result = reloadRepository(targetFolder);
+        assertThat(unitsIn(result), hasItem(SOURCE_UNIT));
+    }
+
     private static List<IVersionedId> unitsIn(IMetadataRepository repo) {
         IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.ALL_UNITS, null);
         List<IVersionedId> unitIds = new ArrayList<IVersionedId>();
@@ -78,5 +121,25 @@ public class ModuleMetadataRepositoryTest {
             unitIds.add(unitId);
         }
         return unitIds;
+    }
+
+    private static List<IInstallableUnit> createIUs(IVersionedId... unitIds) {
+        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+        for (IVersionedId unitId : unitIds) {
+            InstallableUnitDescription iuDescr = new InstallableUnitDescription();
+            iuDescr.setId(unitId.getId());
+            iuDescr.setVersion(unitId.getVersion());
+            result.add(MetadataFactory.createInstallableUnit(iuDescr));
+        }
+        return result;
+    }
+
+    private IMetadataRepository reloadRepository(File location) throws Exception {
+        // load through factory, to ensure that end-to-end process works
+        IProvisioningAgent agent = Activator.createProvisioningAgent(tempFolder.newFolder("agent").toURI());
+        IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent
+                .getService(IMetadataRepositoryManager.SERVICE_NAME);
+
+        return repoManager.loadRepository(location.toURI(), null);
     }
 }

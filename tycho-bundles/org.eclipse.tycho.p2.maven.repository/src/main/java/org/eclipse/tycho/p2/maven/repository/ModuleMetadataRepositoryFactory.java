@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,12 +21,16 @@ import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
 
 public class ModuleMetadataRepositoryFactory extends MetadataRepositoryFactory {
-    private static final String REPOSITORY_TYPE = ModuleMetadataRepository.class.getSimpleName();
 
     @Override
     public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException {
-        throw RepositoryFactoryTools.unsupportedCreation(REPOSITORY_TYPE);
+        File repositoryDir = RepositoryFactoryTools.asFile(location);
+        if (repositoryDir == null) {
+            throw RepositoryFactoryTools.invalidCreationLocation(ModuleMetadataRepository.REPOSITORY_TYPE, location);
+        }
+        return new ModuleMetadataRepository(getAgent(), repositoryDir);
+        // ignore name and properties because repository type cannot persist it
     }
 
     @Override
@@ -40,7 +44,6 @@ public class ModuleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 
     private IMetadataRepository load(File repositoryDir, int flags) throws ProvisionException {
         if (ModuleMetadataRepository.canAttemptRead(repositoryDir)) {
-            RepositoryFactoryTools.verifyModifiableNotRequested(flags, REPOSITORY_TYPE);
             return new ModuleMetadataRepository(getAgent(), repositoryDir);
         }
         return null;

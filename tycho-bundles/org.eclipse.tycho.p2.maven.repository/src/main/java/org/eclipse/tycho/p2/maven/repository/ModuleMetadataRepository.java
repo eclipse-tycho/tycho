@@ -11,49 +11,137 @@
 package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.p2.repository.AbstractRepositoryReader;
-import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 /**
- * Exposes a module's build target directory as p2 metadata repository. The data source is the
- * metadata file produced by the p2-metadata goal.
+ * A p2 metadata repository implementation which is persisted in a <tt>p2content.xml</tt>. The
+ * <tt>p2content.xml</tt> is the file that is deployed to Maven repositories alongside with the
+ * built Tycho artifact.
  * 
  * @see RepositoryLayoutHelper#FILE_NAME_P2_METADATA
  */
-public class ModuleMetadataRepository extends AbstractMavenMetadataRepository {
+public class ModuleMetadataRepository extends AbstractMetadataRepository2 {
 
-    public ModuleMetadataRepository(IProvisioningAgent agent, File location) {
-        super(agent, location.toURI(), createDummyIndex(), new ModuleMetadataReader(location));
+    /**
+     * Type string for this repository type. This value needs to be passed to
+     * {@link IMetadataRepositoryManager#createRepository(URI, String, String, Map)} in order to
+     * create a repository of type {@link ModuleMetadataRepository}.
+     */
+    // must match the extension point id of ModuleMetadataRepositoryFactory; should be the qualified class name
+    public static final String REPOSITORY_TYPE = "org.eclipse.tycho.p2.maven.repository.ModuleMetadataRepository";
+
+    private File storage;
+
+    private Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
+
+    public ModuleMetadataRepository(IProvisioningAgent agent, File location) throws ProvisionException {
+        super(agent, generateName(location), REPOSITORY_TYPE, location);
+        setLocation(location.toURI());
+
+        this.storage = getStorageFile(location);
+        if (storage.isFile()) {
+            load();
+        } else {
+            storeOrThrowProvisioningException();
+        }
     }
 
-    private static TychoRepositoryIndex createDummyIndex() {
-        return new MemoryTychoRepositoryIndex(new GAV("g", "a", "v"));
+    private static String generateName(File location) {
+        // the name is not persisted, so all instances get a generated name; the name parameter in MetadataRepositoryFactory.create is ignored
+        return "module-metadata-repository@" + location;
     }
 
-    private static class ModuleMetadataReader extends AbstractRepositoryReader {
-        private final File repositoryDir;
+    private void load() throws ProvisionException {
+        try {
+            MetadataIO io = new MetadataIO();
+            FileInputStream is = new FileInputStream(storage);
+            units.addAll(io.readXML(is));
 
-        public ModuleMetadataReader(File location) {
-            this.repositoryDir = location;
+        } catch (IOException e) {
+            String message = "I/O error while reading repository from " + storage;
+            int code = ProvisionException.REPOSITORY_FAILED_READ;
+            Status status = new Status(IStatus.ERROR, Activator.ID, code, message, e);
+            throw new ProvisionException(status);
         }
 
-        public File getLocalArtifactLocation(GAV gav, String classifier, String extension) {
-            if (RepositoryLayoutHelper.CLASSIFIER_P2_METADATA.equals(classifier)) {
-                return new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA);
-            } else {
-                // AbstractMavenMetadataRepository doesn't call this method for anything other than the p2metadata artifact
-                throw new IllegalArgumentException();
-            }
-        }
+    }
 
-    }// end nested class
+    private void storeOrThrowProvisioningException() throws ProvisionException {
+        try {
+            storeWithoutExceptionHandling();
+        } catch (IOException e) {
+            String message = "I/O error while writing repository to " + storage;
+            int code = ProvisionException.REPOSITORY_FAILED_WRITE;
+            Status status = new Status(IStatus.ERROR, Activator.ID, code, message, e);
+            throw new ProvisionException(status);
+        }
+    }
+
+    private void storeOrThrowRuntimeException() {
+        try {
+            storeWithoutExceptionHandling();
+        } catch (IOException e) {
+            String message = "I/O error while writing repository to " + storage;
+            throw new RuntimeException(message);
+        }
+    }
+
+    private void storeWithoutExceptionHandling() throws IOException {
+        MetadataIO io = new MetadataIO();
+        io.writeXML(units, storage);
+    }
+
+    public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+        return query.perform(units.iterator());
+    }
+
+    @Override
+    public boolean isModifiable() {
+        return true;
+    }
+
+    public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
+        units.addAll(installableUnits);
+        storeOrThrowRuntimeException();
+    }
+
+    public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
+        boolean result = units.removeAll(installableUnits);
+        storeOrThrowRuntimeException();
+        return result;
+    }
+
+    public void removeAll() {
+        units.clear();
+        storeOrThrowRuntimeException();
+    }
+
+    // TODO support references? they could come from feature.xmls...
 
     static boolean canAttemptRead(File repositoryDir) {
-        File requiredP2MetadataFile = new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA);
+        File requiredP2MetadataFile = getStorageFile(repositoryDir);
         return requiredP2MetadataFile.isFile();
+    }
+
+    private static File getStorageFile(File repositoryDir) {
+        return new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA);
     }
 }
