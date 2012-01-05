@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,12 +28,12 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
+import org.eclipse.tycho.p2.tools.test.util.MemoryLog;
 import org.eclipse.tycho.p2.tools.test.util.ResourceUtil;
 import org.junit.Before;
 import org.junit.Rule;
@@ -67,7 +67,7 @@ public class MirrorApplicationServiceTest {
 
     @Before
     public void initTestContext() {
-        logger = new MemoryLog();
+        logger = new MemoryLog(true);
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
         context = new BuildContext(DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS, new BuildOutputDirectory(
@@ -155,33 +155,4 @@ public class MirrorApplicationServiceTest {
         return new File(repo.getLocation(), path);
     }
 
-    static class MemoryLog implements MavenLogger {
-        List<String> warnings = new ArrayList<String>();
-
-        public void error(String message) {
-            throw new RuntimeException(message);
-        }
-
-        public void warn(String message) {
-            warnings.add(message);
-        }
-
-        public void warn(String message, Throwable cause) {
-            warnings.add(message);
-        }
-
-        public void info(String message) {
-        }
-
-        public void debug(String message) {
-        }
-
-        public boolean isDebugEnabled() {
-            return false;
-        }
-
-        public boolean isExtendedDebugEnabled() {
-            return false;
-        }
-    }
 }
