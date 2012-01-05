@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.p2.repository.AbstractRepositoryReader;
@@ -42,7 +41,7 @@ public class ModuleMetadataRepository extends AbstractMavenMetadataRepository {
             this.repositoryDir = location;
         }
 
-        public File getLocalArtifactLocation(GAV gav, String classifier, String extension) throws IOException {
+        public File getLocalArtifactLocation(GAV gav, String classifier, String extension) {
             if (RepositoryLayoutHelper.CLASSIFIER_P2_METADATA.equals(classifier)) {
                 return new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA);
             } else {

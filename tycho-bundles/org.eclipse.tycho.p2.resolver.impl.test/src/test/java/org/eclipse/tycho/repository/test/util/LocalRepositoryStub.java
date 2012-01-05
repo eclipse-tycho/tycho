@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.tycho.repository.test.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class LocalRepositoryStub {
 
     private class ArtifactProviderStub extends AbstractRepositoryReader {
 
-        public File getLocalArtifactLocation(GAV gav, String classifier, String extension) throws IOException {
+        public File getLocalArtifactLocation(GAV gav, String classifier, String extension) {
             MavenCoordinates coordinates = new MavenCoordinates(gav, classifier, extension);
             File artifact = artifacts.get(coordinates);
             if (artifact == null)
