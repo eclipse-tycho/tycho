@@ -23,7 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
+import org.eclipse.tycho.core.facade.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
