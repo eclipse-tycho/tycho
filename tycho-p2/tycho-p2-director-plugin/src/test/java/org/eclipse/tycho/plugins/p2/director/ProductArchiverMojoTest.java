@@ -33,20 +33,4 @@ public class ProductArchiverMojoTest {
                 ProductArchiverMojo.DEFAULT_ARHCIVE_FORMAT);
         assertEquals("attachId-os.ws.arch", classifier);
     }
-
-    @Test
-    public void testGetArtifactClassifierWithNonDefaultFormat() {
-        TargetEnvironment env = new TargetEnvironment("os", "ws", "arch", null);
-        Product product = new Product("product.id");
-        String classifier = ProductArchiverMojo.getArtifactClassifier(product, env, "tar.gz");
-        assertEquals("os.ws.arch.tar.gz", classifier);
-    }
-
-    @Test
-    public void testGetArtifactClassifierWithAttachIdAndNonDefaultFormat() {
-        TargetEnvironment env = new TargetEnvironment("os", "ws", "arch", null);
-        Product product = new Product("product.id", "attachId");
-        String classifier = ProductArchiverMojo.getArtifactClassifier(product, env, "tar.gz");
-        assertEquals("attachId-os.ws.arch.tar.gz", classifier);
-    }
 }

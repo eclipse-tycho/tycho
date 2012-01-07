@@ -141,7 +141,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 }
 
                 final String artifactClassifier = getArtifactClassifier(product, env, format);
-                helper.attachArtifact(getProject(), productArchive, artifactClassifier);
+                helper.attachArtifact(getProject(), format, artifactClassifier, productArchive);
             }
         }
     }
@@ -149,12 +149,11 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     static String getArtifactClassifier(Product product, TargetEnvironment environment, String format) {
         // classifier (and hence artifact file name) ends with os.ws.arch (similar to Eclipse
         // download packages)
-        final String suffix = DEFAULT_ARHCIVE_FORMAT.equals(format) ? "" : "." + format;
         final String artifactClassifier;
         if (product.getAttachId() == null) {
-            artifactClassifier = getOsWsArch(environment, '.') + suffix;
+            artifactClassifier = getOsWsArch(environment, '.');
         } else {
-            artifactClassifier = product.getAttachId() + "-" + getOsWsArch(environment, '.') + suffix;
+            artifactClassifier = product.getAttachId() + "-" + getOsWsArch(environment, '.');
         }
         return artifactClassifier;
     }
