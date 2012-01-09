@@ -59,7 +59,23 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-	
+
+    <dependencies>
+        <dependency>
+            <!--
+              tycho-testing-harness depends on maven-plugin-testing-harness, which as of version 2.0-alpha-1
+              depends on maven 3.0-alpha-1, which is incompatible with tycho.
+
+              The proper solution is to update maven-plugin-testing-harness to depend on maven 3.0, but in the
+              mean time we need to force maven 3.0 here.
+             -->
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
+            <version>${maven-version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
