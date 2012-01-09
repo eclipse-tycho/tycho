@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.maven.repository;
+package org.eclipse.tycho.repository.module;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +28,8 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.p2.maven.repository.AbstractMetadataRepository2;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
@@ -46,7 +48,7 @@ public class ModuleMetadataRepository extends AbstractMetadataRepository2 {
      * create a repository of type {@link ModuleMetadataRepository}.
      */
     // must match the extension point id of ModuleMetadataRepositoryFactory; should be the qualified class name
-    public static final String REPOSITORY_TYPE = "org.eclipse.tycho.p2.maven.repository.ModuleMetadataRepository";
+    public static final String REPOSITORY_TYPE = "org.eclipse.tycho.repository.module.ModuleMetadataRepository";
 
     private File storage;
 

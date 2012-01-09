@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.maven.repository;
+package org.eclipse.tycho.repository.module;
 
 import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_ATTACHED;
 import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_MAIN;
@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.repository.AbstractRepositoryReader;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -36,28 +37,25 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
  * 
  * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
  */
-// TODO 348586 rename? this now also writes
-class ModuleArtifactReader extends AbstractRepositoryReader {
+class ModuleArtifactMap extends AbstractRepositoryReader {
 
     private File mapFile;
     private final Map<String, File> artifacts = new LinkedHashMap<String, File>();
 
     private File automaticArtifactFolder;
 
-    // BEGIN construction
-
-    public static ModuleArtifactReader restoreInstance(File location) throws ProvisionException {
-        ModuleArtifactReader instance = new ModuleArtifactReader(location);
+    public static ModuleArtifactMap restoreInstance(File location) throws ProvisionException {
+        ModuleArtifactMap instance = new ModuleArtifactMap(location);
 
         instance.load();
         return instance;
     }
 
-    public static ModuleArtifactReader createInstance(File repositoryRoot) throws ProvisionException {
-        return new ModuleArtifactReader(repositoryRoot);
+    public static ModuleArtifactMap createInstance(File repositoryRoot) throws ProvisionException {
+        return new ModuleArtifactMap(repositoryRoot);
     }
 
-    private ModuleArtifactReader(File repositoryRoot) {
+    private ModuleArtifactMap(File repositoryRoot) {
         // TODO constant FILE_NAME_LOCAL_ARTIFACTS should only be needed here 
         this.mapFile = new File(repositoryRoot, RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS);
         this.automaticArtifactFolder = new File(repositoryRoot, "extraArtifacts");

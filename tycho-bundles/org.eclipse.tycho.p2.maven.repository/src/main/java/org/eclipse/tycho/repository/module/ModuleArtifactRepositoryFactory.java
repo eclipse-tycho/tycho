@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.maven.repository;
+package org.eclipse.tycho.repository.module;
 
 import java.io.File;
 import java.net.URI;
@@ -16,25 +16,25 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
 
-public class ModuleMetadataRepositoryFactory extends MetadataRepositoryFactory {
+public class ModuleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 
     @Override
-    public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties)
+    public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException {
         File repositoryDir = RepositoryFactoryTools.asFile(location);
         if (repositoryDir == null) {
-            throw RepositoryFactoryTools.invalidCreationLocation(ModuleMetadataRepository.REPOSITORY_TYPE, location);
+            throw RepositoryFactoryTools.invalidCreationLocation(ModuleArtifactRepository.REPOSITORY_TYPE, location);
         }
-        return new ModuleMetadataRepository(getAgent(), repositoryDir);
+        return ModuleArtifactRepository.createInstance(getAgent(), repositoryDir);
         // ignore name and properties because repository type cannot persist it
     }
 
     @Override
-    public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+    public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
         File repositoryDir = RepositoryFactoryTools.asFile(location);
         if (repositoryDir != null) {
             return load(repositoryDir, flags);
@@ -42,9 +42,9 @@ public class ModuleMetadataRepositoryFactory extends MetadataRepositoryFactory {
         return null;
     }
 
-    private IMetadataRepository load(File repositoryDir, int flags) throws ProvisionException {
-        if (ModuleMetadataRepository.canAttemptRead(repositoryDir)) {
-            return new ModuleMetadataRepository(getAgent(), repositoryDir);
+    private IArtifactRepository load(File repositoryDir, int flags) throws ProvisionException {
+        if (ModuleArtifactRepository.canAttemptRead(repositoryDir)) {
+            return ModuleArtifactRepository.restoreInstance(getAgent(), repositoryDir);
         }
         return null;
     }

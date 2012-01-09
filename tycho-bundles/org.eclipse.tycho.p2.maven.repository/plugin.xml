@@ -21,17 +21,17 @@
             suffix=".meta/p2-artifacts.properties" />
    </extension>
    <extension
-         id="org.eclipse.tycho.p2.maven.repository.ModuleArtifactRepository"
+         id="org.eclipse.tycho.repository.module.ModuleArtifactRepository"
          point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
       <factory
-            class="org.eclipse.tycho.p2.maven.repository.ModuleArtifactRepositoryFactory">
+            class="org.eclipse.tycho.repository.module.ModuleArtifactRepositoryFactory">
       </factory>
       <filter
             suffix="p2artifacts.xml">
       </filter>
    </extension>
    <extension
-         id="org.eclipse.tycho.repository.registry.impl.ArtifactRepositoryBlackboard"
+         id="org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard"
          point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
       <factory
             class="org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard">
@@ -40,10 +40,10 @@
             suffix="@memory"/>
    </extension>
    <extension
-         id="org.eclipse.tycho.p2.maven.repository.ModuleMetadataRepository"
+         id="org.eclipse.tycho.repository.module.ModuleMetadataRepository"
          point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
       <factory
-            class="org.eclipse.tycho.p2.maven.repository.ModuleMetadataRepositoryFactory">
+            class="org.eclipse.tycho.repository.module.ModuleMetadataRepositoryFactory">
       </factory>
       <filter
             suffix="p2content.xml">

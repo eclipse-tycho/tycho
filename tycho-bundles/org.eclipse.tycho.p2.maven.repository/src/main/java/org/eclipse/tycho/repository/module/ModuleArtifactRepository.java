@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.maven.repository;
+package org.eclipse.tycho.repository.module;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +28,8 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.p2.maven.repository.AbstractMavenArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -56,20 +58,20 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
      * create a repository of type {@link ModuleArtifactRepository}.
      */
     // must match the extension point id of ModuleArtifactRepositoryFactory; should be the qualified class name
-    public static final String REPOSITORY_TYPE = "org.eclipse.tycho.p2.maven.repository.ModuleArtifactRepository";
+    public static final String REPOSITORY_TYPE = "org.eclipse.tycho.repository.module.ModuleArtifactRepository";
 
     private static final GAV DUMMY_GAV = null;
 
     private final File p2DataFile;
 
-    private final ModuleArtifactReader artifactsMap;
+    private final ModuleArtifactMap artifactsMap;
 
     // BEGIN construction
 
     public static ModuleArtifactRepository restoreInstance(IProvisioningAgent agent, File repositoryDir)
             throws ProvisionException {
         ModuleArtifactRepository restoredInstance = new ModuleArtifactRepository(agent, repositoryDir.toURI(),
-                ModuleArtifactReader.restoreInstance(repositoryDir));
+                ModuleArtifactMap.restoreInstance(repositoryDir));
 
         restoredInstance.load();
         return restoredInstance;
@@ -85,8 +87,8 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
         return newInstance;
     }
 
-    private static ModuleArtifactReader createArtifactLocationMap(File repositoryDir) throws ProvisionException {
-        ModuleArtifactReader artifactLocationMap = ModuleArtifactReader.createInstance(repositoryDir);
+    private static ModuleArtifactMap createArtifactLocationMap(File repositoryDir) throws ProvisionException {
+        ModuleArtifactMap artifactLocationMap = ModuleArtifactMap.createInstance(repositoryDir);
 
         // add p2artifacts.xml in standard location
         artifactLocationMap.add(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, new File(repositoryDir,
@@ -94,7 +96,7 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
         return artifactLocationMap;
     }
 
-    private ModuleArtifactRepository(IProvisioningAgent agent, URI uri, ModuleArtifactReader artifactsMap) {
+    private ModuleArtifactRepository(IProvisioningAgent agent, URI uri, ModuleArtifactMap artifactsMap) {
         super(agent, uri, artifactsMap);
         this.artifactsMap = artifactsMap;
         this.p2DataFile = contentLocator.getLocalArtifactLocation(DUMMY_GAV,
