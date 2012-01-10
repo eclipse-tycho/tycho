@@ -16,9 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -30,6 +28,7 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
+import org.eclipse.tycho.core.facade.LRUCache;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
@@ -37,7 +36,7 @@ import org.eclipse.tycho.locking.facade.FileLocker;
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
 
     public static final String CACHE_PATH = ".cache/tycho";
-    private static final Map<File, OsgiManifest> manifestCache = new HashMap<File, OsgiManifest>();
+    private final LRUCache<String, OsgiManifest> manifestCache = new LRUCache<String, OsgiManifest>(50);
 
     private File cacheDir;
     private Set<String> extractedFiles = new HashSet<String>();
@@ -46,10 +45,16 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     private FileLockService fileLockService;
 
     public OsgiManifest loadManifest(File bundleLocation) {
-        OsgiManifest manifest = manifestCache.get(bundleLocation);
+        String locationPath;
+        try {
+            locationPath = bundleLocation.getCanonicalPath();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        OsgiManifest manifest = manifestCache.get(locationPath);
         if (manifest == null) {
             manifest = doLoadManifest(bundleLocation);
-            manifestCache.put(bundleLocation, manifest);
+            manifestCache.put(locationPath, manifest);
         }
         return manifest;
     }
