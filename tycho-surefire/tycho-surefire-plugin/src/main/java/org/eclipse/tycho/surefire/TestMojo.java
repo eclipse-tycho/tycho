@@ -174,6 +174,14 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
     private boolean showEclipseLog;
 
     /**
+     * Set this to "true" to redirect the unit test standard output to a file (found in
+     * reportsDirectory/testName-output.txt).
+     * 
+     * @parameter expression="${maven.test.redirectTestOutputToFile}" default-value="false"
+     */
+    private boolean redirectTestOutputToFile;
+
+    /**
      * Base directory where all reports are written to.
      * 
      * @parameter expression="${project.build.directory}/surefire-reports"
@@ -499,6 +507,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         p.put("testclassesdirectory", testClassesDirectory.getAbsolutePath());
         p.put("reportsdirectory", reportsDirectory.getAbsolutePath());
         p.put("testprovider", getTestProvider(testFramework));
+        p.put("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
 
         if (test != null) {
             String test = this.test;

@@ -45,6 +45,8 @@ public class OsgiSurefireBooter {
     public static int run(String[] args) throws Exception {
         Properties testProps = loadProperties(getTestProperties(args));
         boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
+        boolean redirectTestOutputToFile = Boolean.parseBoolean(testProps.getProperty("redirectTestOutputToFile",
+                "false"));
         String plugin = testProps.getProperty("testpluginname");
         File testClassesDir = new File(testProps.getProperty("testclassesdirectory"));
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
@@ -59,7 +61,6 @@ public class OsgiSurefireBooter {
         boolean useManifestOnlyJar = false;
         boolean useFile = true;
         boolean printSummary = true;
-        boolean redirectTestOutputToFile = true;
         boolean disableXmlReport = false;
         ClassLoader testClassLoader = getBundleClassLoader(plugin);
         ClassLoader surefireClassLoader = SurefireStarter.class.getClassLoader();
