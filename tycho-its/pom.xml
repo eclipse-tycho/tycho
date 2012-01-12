@@ -84,13 +84,19 @@
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<testExcludes>
+						<!-- TODO tycho-186 is breaking 136 -->
+						<exclude>**/Tycho136*.java</exclude>
+					</testExcludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<failIfNoTests>true</failIfNoTests>
-					<excludes>
-						<!-- TODO tycho-186 is breaking 136 -->
-						<exclude>**/Tycho136*</exclude>
-					</excludes>
 					<systemPropertyVariables>
 						<it.cliOptions>${it.cliOptions}</it.cliOptions>
 					</systemPropertyVariables>
@@ -392,20 +398,20 @@
 				<target.eclipse-version>3.5.2</target.eclipse-version>
 			</properties>
 		</profile>
-			<profile>
+		<profile>
 		         <!-- EXPERIMENTAL: run ITs in parallel -->
-				<id>parallel</id>
-				<build>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-surefire-plugin</artifactId>
-							<configuration>
-								<parallel>classes</parallel>
-							</configuration>
-						</plugin>
-					</plugins>
-				</build>
-			</profile>
-			</profiles>
+			<id>parallel</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<parallel>classes</parallel>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
