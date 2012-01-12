@@ -88,24 +88,25 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         // TODO attach target platform to project for use in mojos (e.g. to fix bug 359902)
         // TODO 364134 cache target platform (e.g. by checking if there is already an attached target platform)
-        logger.info("Computing target platform for project " + project);
+        logger.info("Computing target platform for " + project);
         TargetPlatform targetPlatform = resolver.computeTargetPlatform(session, project, reactorProjects);
 
         DependencyResolverConfiguration resolverConfiguration = compilerOptionsManager.getCompilerOptions(project);
 
-        logger.info("Resolving dependencies of project " + project);
+        logger.info("Resolving dependencies of " + project);
         DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
                 reactorProjects, resolverConfiguration);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder();
-            sb.append("Resolved target platform for project ").append(project).append("\n");
+            sb.append("Resolved target platform for ").append(project).append("\n");
             dependencyArtifacts.toDebugString(sb, "  ");
             logger.debug(sb.toString());
         }
 
         dr.setDependencyArtifacts(session, project, dependencyArtifacts);
 
+        logger.info("Resolving class path of " + project);
         dr.resolveClassPath(session, project);
 
         resolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, logger);

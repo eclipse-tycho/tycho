@@ -34,9 +34,11 @@ public interface P2TargetPlatform extends TargetPlatform {
 
     /**
      * Notify the target platform implementation about which IUs are actually used. This for example
-     * allows debug output and the preparation of caches.
+     * allows debug output.
      */
     void reportUsedIUs(Collection<IInstallableUnit> usedUnits);
+
+    void downloadArtifacts(Collection<IInstallableUnit> usedUnits);
 
     File getLocalArtifactFile(IArtifactKey key);
 

@@ -110,29 +110,21 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
     public void reportUsedIUs(Collection<IInstallableUnit> usedUnits) {
         warnAboutLocalIus(usedUnits);
-        downloadArtifacts(usedUnits);
     }
 
     public void warnAboutLocalIus(Collection<IInstallableUnit> units) {
         final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
-        if (logger.isDebugEnabled()) {
-            // TODO 364134 fix this text: these units are _in_ the target platform
-            logger.debug("The following locally built units are considered during target platform resolution:");
-            for (IInstallableUnit unit : localIUs) {
-                logger.debug("  " + unit.getId() + "/" + unit.getVersion());
-            }
-        }
         localIUs.retainAll(units);
         if (!localIUs.isEmpty()) {
-            // TODO 364134 fix this text: these units are actually used 
-            logger.warn("Project build target platform includes the following locally built units:");
+            logger.warn("The following locally built units have been used to resolve project dependencies:");
             for (IInstallableUnit localIu : localIUs) {
                 logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
             }
         }
     }
 
-    private void downloadArtifacts(Collection<IInstallableUnit> usedUnits) {
+    // TODO this method should not be necessary; instead download should happen on access
+    public void downloadArtifacts(Collection<IInstallableUnit> usedUnits) {
         P2ArtifactDownloadTool downloadTool = new P2ArtifactDownloadTool(agent, logger);
 
         List<IArtifactKey> remoteArtifacts = new ArrayList<IArtifactKey>();

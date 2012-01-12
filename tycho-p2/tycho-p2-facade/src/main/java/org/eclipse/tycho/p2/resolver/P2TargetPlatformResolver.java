@@ -356,6 +356,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
 
             try {
+                getLogger().debug("Resolving target definition file \"" + configuration.getTarget() + "\"");
                 resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
             } catch (TargetDefinitionSyntaxException e) {
                 throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "

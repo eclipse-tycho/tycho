@@ -356,7 +356,13 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
         TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, agent, logger);
-        content.add(resolver.resolveContent(definition));
+        TargetPlatformContent targetFileContent = resolver.resolveContent(definition);
+        content.add(targetFileContent);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Added " + targetFileContent.getUnits().size()
+                    + " units, the content of the target definition file, to the target platform");
+        }
     }
 
     // --------------------------------------------------------------------------------
@@ -487,7 +493,28 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         }
         result.addAll(getJREIUs());
         sub.done();
-        // this is a real shame
+
+        if (logger.isDebugEnabled()) {
+            IQueryResult<IInstallableUnit> locallyInstalledIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS,
+                    null);
+            logger.debug("Added " + countElements(locallyInstalledIUs.iterator())
+                    + " locally built units to the target platform");
+
+            // TODO it is questionable if the following is useful at all; instead, the full metadata should be written to a file for target platform debugging 
+//            logger.debug("The following locally built units are added to the target platform:");
+//            for (IInstallableUnit unit : locallyInstalledIUs.toSet()) {
+//                logger.debug("  " + unit.getId() + "/" + unit.getVersion());
+//            }
+        }
+
+        return result;
+    }
+
+    private int countElements(Iterator<?> iterator) {
+        int result = 0;
+        for (; iterator.hasNext(); iterator.next()) {
+            ++result;
+        }
         return result;
     }
 

@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
@@ -58,19 +59,25 @@ public class P2ResolverImpl implements P2Resolver {
 
     private P2TargetPlatform context;
 
+    private Set<IInstallableUnit> usedTargetPlatformUnits;
+
     public P2ResolverImpl(MavenLogger logger) {
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
     }
 
-    public List<P2ResolutionResult> resolveProject(TargetPlatform context, File projectLocation) {
-        this.context = (P2TargetPlatform) context;
+    public List<P2ResolutionResult> resolveProject(TargetPlatform targetPlatform, File projectLocation) {
+        this.context = (P2TargetPlatform) targetPlatform;
 
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
+        usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
 
         for (Map<String, String> properties : environments) {
             results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(properties, logger)));
         }
+
+        context.reportUsedIUs(usedTargetPlatformUnits);
+        usedTargetPlatformUnits = null;
 
         return results;
     }
@@ -111,8 +118,12 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setJREUIs(context.getJREIUs());
 
         Collection<IInstallableUnit> newState = strategy.resolve(monitor);
-        context.reportUsedIUs(newState);
 
+        if (usedTargetPlatformUnits != null) {
+            usedTargetPlatformUnits.addAll(newState);
+        }
+
+        context.downloadArtifacts(newState);
         return toResolutionResult(newState);
     }
 
