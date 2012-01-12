@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>tycho-its-project.363331_extraTargetPlatformRequirements.implicit-fragment-import-package</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <description>
+  'fragment' contributes additional exported package to 'bundle'. 'bundle.tests' requires bundle 'bundle'
+  and expects the package contributed by 'fragment' to be available during compilation and when running the
+  tests.
+  </description>
+
+  <properties>
+    <tycho-version>0.14.0-SNAPSHOT</tycho-version>
+    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+  </properties>
+
+  <modules>
+    <module>bundle</module>
+    <module>fragment</module>
+    <module>bundle.tests</module>
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>e342</id>
+      <layout>p2</layout>
+      <url>${e342-repo}</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

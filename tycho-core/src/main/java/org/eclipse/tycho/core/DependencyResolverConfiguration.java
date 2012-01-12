@@ -13,9 +13,12 @@ package org.eclipse.tycho.core;
 import java.util.List;
 
 import org.apache.maven.model.Dependency;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 
 public interface DependencyResolverConfiguration {
 
     List<Dependency> getExtraRequirements();
+
+    OptionalResolutionAction getOptionalResolutionAction();
 
 }

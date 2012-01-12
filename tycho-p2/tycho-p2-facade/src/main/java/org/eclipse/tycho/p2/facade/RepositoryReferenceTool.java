@@ -29,9 +29,9 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.resolver.CompilerOptionsManager;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.metadata.MetadataSerializable;
@@ -57,9 +57,6 @@ public class RepositoryReferenceTool {
 
     @Requirement
     private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
-
-    @Requirement
-    private CompilerOptionsManager compilerOptionsManager;
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list
@@ -122,8 +119,10 @@ public class RepositoryReferenceTool {
 
                 TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
-                DependencyResolverConfiguration resolverConfiguration = compilerOptionsManager
-                        .getCompilerOptions(project);
+                TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+
+                DependencyResolverConfiguration resolverConfiguration = configuration
+                        .getDependencyResolverConfiguration();
 
                 DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
                         targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration);

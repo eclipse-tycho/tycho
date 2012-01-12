@@ -74,8 +74,6 @@ import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformRes
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
-import org.eclipse.tycho.core.resolver.CompilerOptions;
-import org.eclipse.tycho.core.resolver.CompilerOptionsManager;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
@@ -116,9 +114,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
 
-    @Requirement
-    private CompilerOptionsManager compilerOptionsManager;
-
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
@@ -141,10 +136,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<Map<String, String>> environments = getEnvironments(configuration);
 
-        CompilerOptions compilerOptions = compilerOptionsManager.getCompilerOptions(project);
+        DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
         IDependencyMetadata metadata = generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null),
-                environments, compilerOptions.getOptionalResolutionAction());
+                environments, resolverConfiguration.getOptionalResolutionAction());
         reactorProject.setDependencyMetadata(null, true, metadata.getMetadata(true));
         reactorProject.setDependencyMetadata(null, false, metadata.getMetadata(false));
 

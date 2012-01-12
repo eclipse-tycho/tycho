@@ -14,17 +14,51 @@ import java.util.Arrays;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class ExtraCompilerRequirementsTest extends AbstractTychoIntegrationTest {
 
     @Test
-    public void test() throws Exception {
+    public void testArtificial() throws Exception {
         // TODO this is an artificial test case - find a test closer to a real use case
         // TODO avoid remote repositories
-        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements", false);
-//        verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
-//        verifier.getCliOptions().add("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
+        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/artificial", false);
+        verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
+        verifier.getCliOptions().add("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
+    public void testDynamicImportPackage() throws Exception {
+        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/dynamicimport-package", false);
+        verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
+    public void testFragmentSplitPackage() throws Exception {
+        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/fragment-split-package", false);
+        verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
+    public void testFragmentImportPackage() throws Exception {
+        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/implicit-fragment-import-package",
+                false);
+        verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
+    public void testImportPackageDirectives() throws Exception {
+        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/import-package-directives", false);
+        verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
     }

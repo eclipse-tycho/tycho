@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle.tests
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.junit
+Import-Package: split;a=split,
+ unsplit

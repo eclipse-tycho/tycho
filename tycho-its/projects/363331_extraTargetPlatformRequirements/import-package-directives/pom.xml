@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>tycho-its-project.363331_extraTargetPlatformRequirements.import-package-directives</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <description>
+  Abstract
+  'bundle.tests' imports two packages, one from 'bundleA' and one from 'bundleB'. One of the packages
+  is split between 'bundleA' and 'bundleB' and this test asserts that Tycho is able to correctly resolve
+  'bundle.tests' dependencies during compilation and when running the tests. 
+
+  Explanation
+  P2 supports only a subset of Import-Package directives supported by OSGi. Some
+  examples of Import-Package directives not supported by P2 and relevant sections of
+  OSGi Core Specification 4.1.
+  - bundle-symbolic-name and bundle-version directives, Section 3.5.4 "Import-Package Header".
+  - attribute matching, Section 3.6.5 "Attribute Matching" and Section 3.6.6 "Mandatory Attributes".
+  - include directive, Section 6.1.12.49
+
+  This project demonstrates dependency resolution for split packages configured with attribute
+  matching, but the same applies to other Import-Package directives not supported by P2. 
+  </description>
+
+  <properties>
+    <tycho-version>0.14.0-SNAPSHOT</tycho-version>
+    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+  </properties>
+
+  <modules>
+    <module>bundleA</module>
+    <module>bundleB</module>
+    <module>bundle.tests</module>
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>e342</id>
+      <layout>p2</layout>
+      <url>${e342-repo}</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

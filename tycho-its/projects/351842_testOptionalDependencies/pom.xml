@@ -36,14 +36,16 @@
       </plugin>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-compiler-plugin</artifactId>
+        <artifactId>target-platform-configuration</artifactId>
         <version>${tycho.version}</version>
         <configuration>
-          <!--
-            this bundle has mutually exclusive optional dependencies 
-            on two versions of org.eclipse.equinox.frameworkadmin
-          -->
-          <optionalDependencies>ignore</optionalDependencies>
+          <dependency-resolution>
+            <!--
+              this bundle has mutually exclusive optional dependencies 
+              on two versions of org.eclipse.equinox.frameworkadmin
+            -->
+            <optionalDependencies>ignore</optionalDependencies>
+          </dependency-resolution>
         </configuration>
       </plugin>
     </plugins>
