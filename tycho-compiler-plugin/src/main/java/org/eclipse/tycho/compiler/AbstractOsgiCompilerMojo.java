@@ -186,7 +186,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (usePdeSourceRoots) {
             getLog().info("Using compile source roots from build.properties");
         }
-
         for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
             this.outputJar = jar;
             this.outputJar.getOutputDirectory().mkdirs();
@@ -217,6 +216,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
             Set<String> excludes = new HashSet<String>();
             excludes.addAll(excludeResources);
+            excludes.addAll(getEclipsePluginProject().getBuildProperties().getBinExcludes());
             excludes.add("**/*.java");
             StaleSourceScanner scanner = new StaleSourceScanner(0L, MATCH_ALL, excludes);
             CopyMapping copyMapping = new CopyMapping();

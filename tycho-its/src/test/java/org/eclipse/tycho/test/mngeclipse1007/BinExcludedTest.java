@@ -32,6 +32,7 @@ public class BinExcludedTest extends AbstractTychoIntegrationTest {
         try {
             Assert.assertNotNull(zip.getEntry("files/included.txt"));
             Assert.assertNull(zip.getEntry("files/excluded.txt"));
+            Assert.assertNull(zip.getEntry("Makefile"));
         } finally {
             zip.close();
         }
