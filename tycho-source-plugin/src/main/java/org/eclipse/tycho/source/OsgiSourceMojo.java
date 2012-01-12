@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import static org.eclipse.tycho.packaging.IncludeValidationHelper.checkSourceIncludesExist;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,6 +147,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             if (srcIncludesList.isEmpty()) {
                 return Collections.emptyList();
             }
+            checkSourceIncludesExist(p, buildProperties);
             Resource resource = new Resource();
             resource.setDirectory(project.getBasedir().getAbsolutePath());
             resource.setExcludes(buildProperties.getSourceExcludes());

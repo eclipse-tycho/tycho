@@ -60,6 +60,11 @@
 			<artifactId>tycho-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-packaging-plugin</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
     <build>
