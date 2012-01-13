@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,26 +34,28 @@ import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 @SuppressWarnings("restriction")
 public abstract class AbstractMetadataGenerator {
-    private IProgressMonitor monitor = new NullProgressMonitor();
 
-    protected void generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
-            Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts, PublisherInfo publisherInfo,
-            OptionalResolutionAction optionalAction) {
+    private IProgressMonitor monitor = new NullProgressMonitor();
+    private BuildPropertiesParser buildPropertiesParser;
+
+    protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
+            PublisherInfo publisherInfo, OptionalResolutionAction optionalAction) {
         for (IPublisherAdvice advice : getPublisherAdvice(artifact)) {
             publisherInfo.addAdvice(advice);
         }
         List<IPublisherAction> actions = getPublisherActions(artifact, environments, optionalAction);
 
-        publish(units, artifacts, publisherInfo, actions);
+        return publish(publisherInfo, actions);
     }
 
     protected abstract List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
@@ -85,32 +85,20 @@ public abstract class AbstractMetadataGenerator {
     }
 
     private IRequirement[] extractExtraEntriesAsIURequirement(File location) {
-        Properties buildProperties = Utils.loadBuildProperties(location);
-        if (buildProperties == null || buildProperties.size() == 0)
-            return null;
+        BuildProperties buildProps = buildPropertiesParser.parse(location);
         ArrayList<IRequirement> result = new ArrayList<IRequirement>();
-        Set<Entry<Object, Object>> pairs = buildProperties.entrySet();
-        for (Entry<Object, Object> pair : pairs) {
-            if (!(pair.getValue() instanceof String))
-                continue;
-            String buildPropertyKey = (String) pair.getKey();
-            if (buildPropertyKey.startsWith("extra.")) {
-                createRequirementFromExtraClasspathProperty(result, ((String) pair.getValue()).split(","));
-            }
+        for (Entry<String, List<String>> entry : buildProps.getJarToExtraClasspathMap().entrySet()) {
+            createRequirementFromExtraClasspathProperty(result, entry.getValue());
         }
-
-        String extra = buildProperties.getProperty("jars.extra.classpath");
-        if (extra != null) {
-            createRequirementFromExtraClasspathProperty(result, extra.split(","));
-        }
+        createRequirementFromExtraClasspathProperty(result, buildProps.getJarsExtraClasspath());
         if (result.isEmpty())
             return null;
         return result.toArray(new IRequirement[result.size()]);
     }
 
-    private void createRequirementFromExtraClasspathProperty(ArrayList<IRequirement> result, String[] urls) {
-        for (int i = 0; i < urls.length; i++) {
-            createRequirementFromPlatformURL(result, urls[i].trim());
+    private void createRequirementFromExtraClasspathProperty(ArrayList<IRequirement> result, List<String> urls) {
+        for (String url : urls) {
+            createRequirementFromPlatformURL(result, url);
         }
     }
 
@@ -122,8 +110,7 @@ public abstract class AbstractMetadataGenerator {
                     VersionRange.emptyRange, null, false, false));
     }
 
-    private void publish(Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts, PublisherInfo publisherInfo,
-            List<IPublisherAction> actions) {
+    private DependencyMetadata publish(PublisherInfo publisherInfo, List<IPublisherAction> actions) {
         PublisherResult result = new PublisherResult();
 
         Publisher publisher = new Publisher(publisherInfo, result);
@@ -134,16 +121,26 @@ public abstract class AbstractMetadataGenerator {
             throw new RuntimeException(StatusTool.collectProblems(status), status.getException());
         }
 
-        if (units != null) {
-            units.addAll(result.getIUs(null, null));
+        DependencyMetadata metadata = new DependencyMetadata();
+
+        metadata.setMetadata(true, result.getIUs(null, PublisherResult.ROOT));
+        metadata.setMetadata(false, result.getIUs(null, PublisherResult.NON_ROOT));
+
+        IArtifactRepository artifactRepository = publisherInfo.getArtifactRepository();
+        if (artifactRepository instanceof TransientArtifactRepository) {
+            metadata.setArtifacts(((TransientArtifactRepository) artifactRepository).getArtifactDescriptors());
         }
 
-        if (artifacts != null) {
-            IArtifactRepository artifactRepository = publisherInfo.getArtifactRepository();
-            if (artifactRepository instanceof TransientArtifactRepository) {
-                artifacts.addAll(((TransientArtifactRepository) artifactRepository).getArtifactDescriptors());
-            }
-        }
+        return metadata;
+    }
+
+    // injected by DS runtime
+    public void setBuildPropertiesParser(BuildPropertiesParser buildPropertiesReader) {
+        this.buildPropertiesParser = buildPropertiesReader;
+    }
+
+    protected BuildPropertiesParser getBuildPropertiesParser() {
+        return buildPropertiesParser;
     }
 
 }

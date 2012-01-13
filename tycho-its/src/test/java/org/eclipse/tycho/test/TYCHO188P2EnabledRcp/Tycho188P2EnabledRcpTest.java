@@ -132,6 +132,11 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
             String bundleConfiguration = configIni.getProperty("osgi.bundles");
             assertTrue("Installation is not configured to use the simpleconfigurator",
                     bundleConfiguration.startsWith("reference:file:org.eclipse.equinox.simpleconfigurator"));
+            // TODO all these assertions should be in the test method directly
+            String expectedProfileName = env.os.equals("linux") ? "ProfileNameForLinux"
+                    : "ConfiguredDefaultProfileName";
+            assertEquals("eclipse.p2.profile in config.ini", expectedProfileName,
+                    configIni.getProperty("eclipse.p2.profile"));
 
             assertRootFolder(installedProductArchive, product.getRootFolderName());
 

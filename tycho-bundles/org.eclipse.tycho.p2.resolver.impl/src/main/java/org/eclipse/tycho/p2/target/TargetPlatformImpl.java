@@ -15,6 +15,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -38,9 +38,10 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 public class TargetPlatformImpl implements P2TargetPlatform {
 
-    private final IQueryable<IInstallableUnit> allIUs;
+    private final Collection<IInstallableUnit> allIUs;
     private final Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs;
     private final Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs;
+    private final Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs;
     private final LocalMetadataRepository localMetadataRepository;
 
     private final String executionEnvironment;
@@ -50,15 +51,17 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     private final IProvisioningAgent agent;
     private final MavenLogger logger;
 
-    public TargetPlatformImpl(IQueryable<IInstallableUnit> allIUs,
+    public TargetPlatformImpl(Collection<IInstallableUnit> allTargetPlatformIUs,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs,
+            Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs,
             LocalMetadataRepository localMetadataRepository, String executionEnvironment,
             List<URI> allRemoteArtifactRepositories, LocalArtifactRepository localMavenRepository,
             IProvisioningAgent agent, MavenLogger logger) {
-        this.allIUs = allIUs;
+        this.allIUs = allTargetPlatformIUs;
         this.mavenArtifactIUs = mavenArtifactIUs;
         this.reactorProjectIUs = reactorProjectIUs;
+        this.reactorProjectSecondaryIUs = reactorProjectSecondaryIUs;
         this.localMetadataRepository = localMetadataRepository;
         this.executionEnvironment = executionEnvironment;
         this.remoteArtifactRepositories = allRemoteArtifactRepositories;
@@ -68,8 +71,8 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         this.logger = logger;
     }
 
-    public IQueryable<IInstallableUnit> getInstallableUnits() {
-        return allIUs;
+    public Collection<IInstallableUnit> getInstallableUnits() {
+        return Collections.unmodifiableCollection(allIUs);
     }
 
     @SuppressWarnings("restriction")
@@ -79,11 +82,13 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet();
     }
 
-    public LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectRoot) {
+    public LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectRoot, boolean primary) {
         LinkedHashSet<IInstallableUnit> ius = new LinkedHashSet<IInstallableUnit>();
         boolean projectExists = false;
 
-        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : reactorProjectIUs.entrySet()) {
+        Map<ClassifiedLocation, Set<IInstallableUnit>> projectIUs = primary ? reactorProjectIUs
+                : reactorProjectSecondaryIUs;
+        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : projectIUs.entrySet()) {
             if (projectRoot.equals(entry.getKey().getLocation())) {
                 ius.addAll(entry.getValue());
                 projectExists = true;
@@ -105,29 +110,21 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
     public void reportUsedIUs(Collection<IInstallableUnit> usedUnits) {
         warnAboutLocalIus(usedUnits);
-        downloadArtifacts(usedUnits);
     }
 
     public void warnAboutLocalIus(Collection<IInstallableUnit> units) {
         final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
-        if (logger.isDebugEnabled()) {
-            // TODO 364134 fix this text: these units are _in_ the target platform
-            logger.debug("The following locally built units are considered during target platform resolution:");
-            for (IInstallableUnit unit : localIUs) {
-                logger.debug("  " + unit.getId() + "/" + unit.getVersion());
-            }
-        }
         localIUs.retainAll(units);
         if (!localIUs.isEmpty()) {
-            // TODO 364134 fix this text: these units are actually used 
-            logger.warn("Project build target platform includes the following locally built units:");
+            logger.warn("The following locally built units have been used to resolve project dependencies:");
             for (IInstallableUnit localIu : localIUs) {
                 logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
             }
         }
     }
 
-    private void downloadArtifacts(Collection<IInstallableUnit> usedUnits) {
+    // TODO this method should not be necessary; instead download should happen on access
+    public void downloadArtifacts(Collection<IInstallableUnit> usedUnits) {
         P2ArtifactDownloadTool downloadTool = new P2ArtifactDownloadTool(agent, logger);
 
         List<IArtifactKey> remoteArtifacts = new ArrayList<IArtifactKey>();

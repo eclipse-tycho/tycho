@@ -16,7 +16,6 @@ import java.util.LinkedHashSet;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
@@ -26,7 +25,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
  */
 public interface P2TargetPlatform extends TargetPlatform {
 
-    IQueryable<IInstallableUnit> getInstallableUnits();
+    Collection<IInstallableUnit> getInstallableUnits();
 
     /**
      * Return IUs that represent packages provided by target JRE
@@ -35,14 +34,16 @@ public interface P2TargetPlatform extends TargetPlatform {
 
     /**
      * Notify the target platform implementation about which IUs are actually used. This for example
-     * allows debug output and the preparation of caches.
+     * allows debug output.
      */
     void reportUsedIUs(Collection<IInstallableUnit> usedUnits);
+
+    void downloadArtifacts(Collection<IInstallableUnit> usedUnits);
 
     File getLocalArtifactFile(IArtifactKey key);
 
     // TODO 364134 revise the relationship of target platform and dependency only IUs
-    LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectLocation);
+    LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectLocation, boolean primary);
 
     IArtifactFacade getMavenArtifact(IInstallableUnit iu);
 

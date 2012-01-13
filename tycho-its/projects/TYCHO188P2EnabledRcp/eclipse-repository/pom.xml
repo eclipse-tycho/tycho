@@ -46,6 +46,13 @@
 									<attachId>extra</attachId>
 								</product>
 							</products>
+							<profile>ConfiguredDefaultProfileName</profile>
+							<profileNames>
+								<profileName>
+									<name>ProfileNameForLinux</name>
+									<os>linux</os>
+								</profileName>
+							</profileNames>
 						</configuration>
 					</plugin>
 				</plugins>

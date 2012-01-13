@@ -26,6 +26,11 @@ public interface ReactorProject {
     public static final String CTX_DEPENDENCY_METADATA = "tycho.dependency-metadata";
 
     /**
+     * Conventional key used to store secondary dependency metadata in MavenProject.context
+     */
+    public static final String CTX_SECONDARY_DEPENDENCY_METADATA = "tycho.secondary-dependency-metadata";
+
+    /**
      * Conventional sources jar Maven artifact classifier.
      */
     public static final String SOURCE_ARTIFACT_CLASSIFIER = "sources";
@@ -77,15 +82,23 @@ public interface ReactorProject {
      */
     // public Set<String> getClassifiers();
 
-    public void setDependencyMetadata(String classifier, Set<Object /* IInstallableUnit */> installableUnits);
+    public void setDependencyMetadata(String classifier, boolean primary,
+            Set<Object /* IInstallableUnit */> installableUnits);
 
     /**
      * Returns live set of P2 IInstallableUnit's that describe requirements and provided
      * capabilities of this project used during project dependency resolution for the specified
      * classifier.
      */
-    public Set<Object /* IInstallableUnit */> getDependencyMetadata(String classifier);
+    public Set<Object /* IInstallableUnit */> getDependencyMetadata(String classifier, boolean primary);
 
+    /**
+     * Returns project dependency metadata.
+     * <p/>
+     * Returned map is keyed by project attached artifact classifier, where <code>null</code>
+     * represents main the project artifact. Map values are sets of both primary and secondary
+     * project installable units.
+     */
     public Map<String, Set<Object>> getDependencyMetadata();
 
     /**

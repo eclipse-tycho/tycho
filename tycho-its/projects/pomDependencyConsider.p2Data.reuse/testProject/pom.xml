@@ -18,6 +18,12 @@
 			<artifactId>pomDependencyConsider.p2Data.reuse.testDataBundle</artifactId>
 			<version>0.0.1</version>
 		</dependency>
+        <dependency>
+            <groupId>tycho-its-project.pomDependencyConsider.p2Data.reuse</groupId>
+            <artifactId>pomDependencyConsider.p2Data.reuse.testDataBundle</artifactId>
+            <version>0.0.1</version>
+            <classifier>sources</classifier>
+        </dependency>
 	</dependencies>
 
 	<build>

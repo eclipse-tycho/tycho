@@ -35,7 +35,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.eclipse.osgi.service.resolver.ImportPackageSpecification;
 import org.eclipse.osgi.util.ManifestElement;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 
 @SuppressWarnings("restriction")
 public class BundleDependenciesAction extends TychoBundleAction {

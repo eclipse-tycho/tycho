@@ -16,8 +16,10 @@ import static org.eclipse.tycho.p2.impl.publisher.rootfiles.SegmentHelper.segmen
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
+
+import org.eclipse.tycho.core.facade.BuildProperties;
 
 public class RootPropertiesParser {
     static class ParsingResult {
@@ -62,13 +64,11 @@ public class RootPropertiesParser {
 
     static final String ROOT_KEY_SEGMENT = "root";
 
-    static final String ROOT_DOT = ROOT_KEY_SEGMENT + ".";
-
     private static final String LITERAL_DOT_EXPRESSION = "\\.";
 
     File baseDir;
 
-    Properties buildProperties;
+    Map<String, String> rootEntries;
 
     ParsingResult parsingResult = new ParsingResult();
 
@@ -78,11 +78,10 @@ public class RootPropertiesParser {
 
     private boolean useDefaultExcludes;
 
-    public RootPropertiesParser(File baseDir, Properties buildProperties) {
+    public RootPropertiesParser(File baseDir, BuildProperties buildProperties) {
         this.baseDir = baseDir;
-        this.buildProperties = buildProperties;
-        this.useDefaultExcludes = Boolean.parseBoolean(buildProperties.getProperty("rootFiles.useDefaultExcludes",
-                "true"));
+        this.rootEntries = buildProperties.getRootEntries();
+        this.useDefaultExcludes = buildProperties.isRootFilesUseDefaultExcludes();
     }
 
     public HashMap<ConfigSpec, RootFilesProperties> getPermissionsAndLinksResult() {
@@ -90,9 +89,9 @@ public class RootPropertiesParser {
     }
 
     public void parse() {
-        for (Entry<?, ?> entry : buildProperties.entrySet()) {
-            keySegments = splitKey((String) entry.getKey());
-            valueSegments = splitAndTrimValue((String) entry.getValue());
+        for (Entry<String, String> entry : rootEntries.entrySet()) {
+            keySegments = splitKey(entry.getKey());
+            valueSegments = splitAndTrimValue(entry.getValue());
             parseBuildPropertiesLine();
         }
     }
@@ -110,7 +109,7 @@ public class RootPropertiesParser {
         return segments;
     }
 
-    void parseBuildPropertiesLine() {
+    private void parseBuildPropertiesLine() {
         if (segmentEquals(keySegments, 0, ROOT_KEY_SEGMENT)) {
             parseRootPropertiesLine();
         }

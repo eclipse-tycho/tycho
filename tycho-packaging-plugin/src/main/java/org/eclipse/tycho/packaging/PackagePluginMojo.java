@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
@@ -29,6 +28,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
@@ -114,9 +114,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             if (pluginFile.exists()) {
                 pluginFile.delete();
             }
-            Properties buildProperties = pdeProject.getBuildProperties();
-            List<String> binInludesList = toFilePattern(buildProperties.getProperty("bin.includes"));
-            List<String> binExcludesList = toFilePattern(buildProperties.getProperty("bin.excludes"));
+            BuildProperties buildProperties = pdeProject.getBuildProperties();
+            List<String> binInludesList = buildProperties.getBinIncludes();
+            List<String> binExcludesList = buildProperties.getBinExcludes();
 
             BuildOutputJar dotOutputJar = pdeProject.getDotOutputJar();
             if (dotOutputJar != null && binInludesList.contains(dotOutputJar.getName())) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,20 +38,55 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
     private final Set<IArtifactKey> changedDescriptors = new HashSet<IArtifactKey>();
     private final LocalRepositoryP2Indices localRepoIndices;
 
+    // TODO what is the agent needed for? does using the default agent harm?
     public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices) {
         this(Activator.getProvisioningAgent(), localRepoIndices);
     }
 
-    public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices) {
-        super(agent, localRepoIndices.getBasedir().toURI(), localRepoIndices.getArtifactsIndex(),
-                new LocalRepositoryReader(localRepoIndices.getBasedir()));
-        this.localRepoIndices = localRepoIndices;
+    public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices, RepositoryReader contentLocator) {
+        this(Activator.getProvisioningAgent(), localRepoIndices, contentLocator);
     }
 
-    public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices, RepositoryReader contentLocator) {
-        super(Activator.getProvisioningAgent(), localRepoIndices.getBasedir().toURI(), localRepoIndices
-                .getArtifactsIndex(), contentLocator);
+    public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices) {
+        this(agent, localRepoIndices, new LocalRepositoryReader(localRepoIndices.getBasedir()));
+    }
+
+    public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices,
+            RepositoryReader contentLocator) {
+        super(agent, localRepoIndices.getBasedir().toURI(), contentLocator);
         this.localRepoIndices = localRepoIndices;
+        loadMaven();
+    }
+
+    private void loadMaven() {
+        final ArtifactsIO io = new ArtifactsIO();
+        TychoRepositoryIndex index = localRepoIndices.getArtifactsIndex();
+
+        for (final GAV gav : index.getProjectGAVs()) {
+            try {
+                File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
+                        RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+                if (!localArtifactFileLocation.exists()) {
+                    // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
+                    index.removeGav(gav);
+                } else {
+                    final InputStream is = contentLocator.getContents(gav,
+                            RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
+                            RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+                    try {
+                        final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
+                        for (IArtifactDescriptor descriptor : gavDescriptors) {
+                            internalAddDescriptor(descriptor);
+                        }
+                    } finally {
+                        is.close();
+                    }
+                }
+            } catch (IOException e) {
+                // TODO throw properly typed exception if repository cannot be loaded
+                e.printStackTrace();
+            }
+        }
     }
 
     private void saveMaven() {

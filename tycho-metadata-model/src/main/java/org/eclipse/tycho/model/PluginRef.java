@@ -113,4 +113,7 @@ public class PluginRef {
         dom.setAttribute("install-size", Long.toString(size));
     }
 
+    Element getDom() {
+        return dom;
+    }
 }

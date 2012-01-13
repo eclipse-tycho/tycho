@@ -17,7 +17,6 @@ import java.util.Properties;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -25,6 +24,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
@@ -44,6 +44,9 @@ public class DefaultTargetPlatformConfigurationReader {
     @Requirement
     private Map<String, TychoProject> projectTypes;
 
+    @Requirement
+    private TargetPlatformFilterConfigurationReader filterReader;
+
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project) {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
 
@@ -60,10 +63,6 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 addTargetEnvironments(result, project, configuration);
 
-                addExtraRequirements(result, configuration);
-
-                setOptionalResolutionAction(result, configuration);
-
                 setTargetPlatformResolver(result, configuration);
 
                 setTarget(result, session, project, configuration);
@@ -75,6 +74,8 @@ public class DefaultTargetPlatformConfigurationReader {
                 setDisableP2Mirrors(result, configuration);
 
                 setExecutionEnvironment(result, configuration);
+
+                readFilters(result, configuration);
             }
         }
 
@@ -111,33 +112,9 @@ public class DefaultTargetPlatformConfigurationReader {
             result.setImplicitTargetEnvironment(false);
         }
 
-        if (result.getTarget() != null && result.getOptionalResolutionAction() != null) {
-            throw new RuntimeException(
-                    "<optationDependencies> and <target> target platform configuration parameters cannot be used simultaneusly "
-                            + project.toString());
-        }
-
         return result;
     }
 
-    private void setOptionalResolutionAction(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom optionalDependenciesDom = configuration.getChild("optionalDependencies");
-        if (optionalDependenciesDom == null) {
-            return;
-        }
-
-        String optionalDependencies = optionalDependenciesDom.getValue();
-
-        if (!TargetPlatformConfiguration.OPTIONAL_RESOLUTION_REQUIRE.equals(optionalDependencies)
-                && !TargetPlatformConfiguration.OPTIONAL_RESOLUTION_IGNORE.equals(optionalDependencies)) {
-            throw new RuntimeException(
-                    "Illegal value of <optationDependencies> target platform configuration parameter "
-                            + optionalDependencies);
-        }
-
-        result.setOptionalResolutionAction(optionalDependencies);
-    }
-    
     private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom eeDom = configuration.getChild("executionEnvironment");
         if (eeDom == null) {
@@ -154,24 +131,6 @@ public class DefaultTargetPlatformConfigurationReader {
 
             result.setExecutionEnvironment(ee);
         }
-    }
-
-    private void addExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom requirementsDom = configuration.getChild("extraRequirements");
-        if (requirementsDom == null) {
-            return;
-        }
-        for (Xpp3Dom requirementDom : requirementsDom.getChildren("requirement")) {
-            result.addExtraRequirement(newRequirement(requirementDom));
-        }
-    }
-
-    private Dependency newRequirement(Xpp3Dom requirementDom) {
-        Dependency d = new Dependency();
-        d.setType(requirementDom.getChild("type").getValue());
-        d.setArtifactId(requirementDom.getChild("id").getValue());
-        d.setVersion(requirementDom.getChild("versionRange").getValue());
-        return d;
     }
 
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
@@ -309,6 +268,13 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return new TargetEnvironment(osDom.getValue(), wsDom.getValue(), archDom.getValue(), null /* nl */);
+    }
+
+    private void readFilters(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom filtersElement = configuration.getChild("filters");
+        if (filtersElement != null) {
+            result.setFilters(filterReader.parseFilterConfiguration(filtersElement));
+        }
     }
 
 }

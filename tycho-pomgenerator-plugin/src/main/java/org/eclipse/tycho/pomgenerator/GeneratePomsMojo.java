@@ -646,7 +646,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private void generatePluginPom(Model parent, File basedir) throws MojoExecutionException {
-        ArtifactDescriptor bundle = platform.getArtifact(basedir);
+        ArtifactDescriptor bundle = getArtifact(basedir);
         ArtifactKey key = bundle.getKey();
         Model model;
         if ((testSuffix != null && basedir.getName().endsWith(testSuffix))
@@ -665,6 +665,11 @@ public class GeneratePomsMojo extends AbstractMojo {
         model.setVersion(toMavenVersion(key.getVersion().toString()));
 
         writePom(basedir, model);
+    }
+
+    protected ArtifactDescriptor getArtifact(File basedir) {
+        Map<String, ArtifactDescriptor> classified = platform.getArtifact(basedir);
+        return classified != null ? classified.get(null) : null;
     }
 
     private static String toMavenVersion(String osgiVersion) {

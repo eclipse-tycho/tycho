@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test project with compiler options affecting dependency resolution
+Bundle-SymbolicName: org.eclipse.tycho.test.compilerOptions;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ActivationPolicy: lazy

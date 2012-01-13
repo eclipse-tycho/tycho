@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
@@ -35,23 +34,24 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
 @SuppressWarnings("restriction")
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
-    private static final String[] SUPPORTED_TYPES = { P2Resolver.TYPE_ECLIPSE_PLUGIN,
-            P2Resolver.TYPE_ECLIPSE_TEST_PLUGIN, P2Resolver.TYPE_ECLIPSE_FEATURE, P2Resolver.TYPE_ECLIPSE_UPDATE_SITE,
-            P2Resolver.TYPE_ECLIPSE_APPLICATION, P2Resolver.TYPE_ECLIPSE_REPOSITORY };
+    private static final String[] SUPPORTED_TYPES = { ArtifactKey.TYPE_ECLIPSE_PLUGIN,
+            ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN, ArtifactKey.TYPE_ECLIPSE_FEATURE,
+            ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE, ArtifactKey.TYPE_ECLIPSE_APPLICATION,
+            ArtifactKey.TYPE_ECLIPSE_REPOSITORY };
 
     /**
      * Whether we need full p2 metadata (false) or just required capabilities.
@@ -62,6 +62,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         this.dependenciesOnly = dependenciesOnly;
     }
 
+    // no-args constructor required by DS
     public P2GeneratorImpl() {
         this(false);
     }
@@ -74,6 +75,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         for (IArtifactFacade artifact : artifacts) {
             PublisherInfo publisherInfo = new PublisherInfo();
 
+            DependencyMetadata metadata;
+
             // meta data handling for root files
             if ("eclipse-feature".equals(artifact.getPackagingType())) {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH
@@ -82,15 +85,18 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                         publisherInfo, targetDir);
                 publisherInfo.setArtifactRepository(artifactsRepository);
 
-                super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo, null);
+                metadata = super.generateMetadata(artifact, null, publisherInfo, null);
 
                 attachedArtifacts.putAll(artifactsRepository.getPublishedArtifacts());
             } else {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_NO_MD5);
                 TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
                 publisherInfo.setArtifactRepository(artifactsRepository);
-                super.generateMetadata(artifact, null, units, artifactDescriptors, publisherInfo, null);
+                metadata = super.generateMetadata(artifact, null, publisherInfo, null);
             }
+
+            units.addAll(metadata.getInstallableUnits());
+            artifactDescriptors.addAll(metadata.getArtifactDescriptors());
         }
 
         new MetadataIO().writeXML(units, attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_METADATA)
@@ -99,13 +105,12 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS).getLocation());
     }
 
-    public void generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
-            Set<IInstallableUnit> units, Set<IArtifactDescriptor> artifacts) {
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments) {
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
         publisherInfo.setArtifactRepository(new TransientArtifactRepository());
 
-        super.generateMetadata(artifact, environments, units, artifacts, publisherInfo, null);
+        return super.generateMetadata(artifact, environments, publisherInfo, null);
     }
 
     @Override
@@ -120,13 +125,13 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
         String packaging = artifact.getPackagingType();
         File location = artifact.getLocation();
-        if (P2Resolver.TYPE_ECLIPSE_PLUGIN.equals(packaging) || P2Resolver.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
+        if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging) || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
             if (dependenciesOnly && optionalAction != null) {
                 actions.add(new BundleDependenciesAction(location, optionalAction));
             } else {
                 actions.add(new TychoBundleAction(location));
             }
-        } else if (P2Resolver.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Feature feature = new FeatureParser().parse(location);
             feature.setLocation(location.getAbsolutePath());
             if (dependenciesOnly) {
@@ -134,7 +139,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             } else {
                 actions.add(new FeaturesAction(new Feature[] { feature }));
             }
-        } else if (P2Resolver.TYPE_ECLIPSE_APPLICATION.equals(packaging)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_APPLICATION.equals(packaging)) {
             String product = new File(location, artifact.getArtifactId() + ".product").getAbsolutePath();
             try {
                 IProductDescriptor productDescriptor = new ProductFile2(product);
@@ -146,13 +151,13 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        } else if (P2Resolver.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)) {
             if (dependenciesOnly) {
                 actions.add(new SiteDependenciesAction(location, artifact.getArtifactId(), artifact.getVersion()));
             } else {
                 actions.add(new SiteXMLAction(location.toURI(), null));
             }
-        } else if (P2Resolver.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
             for (File productFile : getProductFiles(location)) {
                 String product = productFile.getAbsolutePath();
                 IProductDescriptor productDescriptor;
@@ -228,7 +233,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 artifact.getClassidier()));
         advice.add(getExtraEntriesAdvice(artifact));
 
-        IFeatureRootAdvice featureRootAdvice = FeatureRootAdvice.createRootFileAdvice(artifact);
+        IFeatureRootAdvice featureRootAdvice = FeatureRootAdvice.createRootFileAdvice(artifact,
+                getBuildPropertiesParser());
         if (featureRootAdvice != null) {
             advice.add(featureRootAdvice);
         }

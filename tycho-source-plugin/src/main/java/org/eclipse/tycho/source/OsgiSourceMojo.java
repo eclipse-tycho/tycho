@@ -11,30 +11,23 @@
 package org.eclipse.tycho.source;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.archiver.FileSet;
-import org.codehaus.plexus.archiver.util.DefaultFileSet;
-import org.codehaus.plexus.util.AbstractScanner;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.osgi.framework.Version;
 
@@ -47,6 +40,8 @@ import org.osgi.framework.Version;
  * @phase prepare-package
  */
 public class OsgiSourceMojo extends AbstractSourceJarMojo {
+
+    private static final String GOAL = "plugin-source";
 
     private static final String MANIFEST_HEADER_BUNDLE_MANIFEST_VERSION = "Bundle-ManifestVersion";
     private static final String MANIFEST_HEADER_BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
@@ -110,14 +105,24 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      */
     private Map<String, TychoProject> projectTypes;
 
+    /**
+     * @component
+     */
+    private BuildPropertiesParser buildPropertiesParser;
+
     /** {@inheritDoc} */
     protected List<String> getSources(MavenProject p) throws MojoExecutionException {
+        return getSources(project, usePdeSourceRoots, requireSourceRoots, buildPropertiesParser);
+    }
+
+    protected static List<String> getSources(MavenProject p, boolean usePdeSourceRoots, boolean requireSourceRoots,
+            BuildPropertiesParser buildPropertiesParser) throws MojoExecutionException {
         if (usePdeSourceRoots) {
-            Properties props = getBuildProperties();
             List<String> sources = new ArrayList<String>();
-            for (Entry<Object, Object> entry : props.entrySet()) {
-                if (((String) entry.getKey()).startsWith("source.")) {
-                    sources.addAll(getSourceDirs((String) entry.getValue()));
+            for (List<String> sourceFolderList : buildPropertiesParser.parse(p.getBasedir()).getJarToSourceFolderMap()
+                    .values()) {
+                for (String sourceFolder : sourceFolderList) {
+                    sources.add(new File(p.getBasedir(), sourceFolder).getAbsolutePath());
                 }
             }
             if (requireSourceRoots && sources.isEmpty()) {
@@ -129,92 +134,30 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         }
     }
 
-    private List<String> getSourceDirs(String sourceRaw) {
-        List<String> sources = new ArrayList<String>();
-        for (String source : sourceRaw.split(",")) {
-            sources.add(new File(project.getBasedir(), source.trim()).getAbsolutePath());
-        }
-        return sources;
-    }
-
     /** {@inheritDoc} */
     protected List<Resource> getResources(MavenProject p) throws MojoExecutionException {
         if (excludeResources) {
             return Collections.emptyList();
         }
         if (usePdeSourceRoots) {
-            Properties props = getBuildProperties();
-            String srcIncludes = props.getProperty("src.includes");
-            if (srcIncludes == null) {
+            BuildProperties buildProperties = buildPropertiesParser.parse(p.getBasedir());
+            List<String> srcIncludesList = buildProperties.getSourceIncludes();
+            if (srcIncludesList.isEmpty()) {
                 return Collections.emptyList();
             }
-            List<String> srcInludesList = toFilePattern(props.getProperty("src.includes"));
-            List<String> srcExcludesList = toFilePattern(props.getProperty("src.excludes"));
-            //FileSet src = getFileSet(project.getBasedir(), includes, excludes);
             Resource resource = new Resource();
             resource.setDirectory(project.getBasedir().getAbsolutePath());
-            resource.setExcludes(srcExcludesList);
-            resource.setIncludes(srcInludesList);
+            resource.setExcludes(buildProperties.getSourceExcludes());
+            resource.setIncludes(srcIncludesList);
             return Collections.singletonList(resource);
         }
 
         return p.getResources();
     }
 
-    protected List<String> toFilePattern(String pattern) {
-        ArrayList<String> result = new ArrayList<String>();
-        if (pattern != null) {
-            StringTokenizer st = new StringTokenizer(pattern, ",");
-            while (st.hasMoreTokens()) {
-                result.add(st.nextToken().trim());
-            }
-        }
-
-        return result;
-    }
-
-    protected FileSet getFileSet(File basedir, List<String> includes, List<String> excludes) {
-        DefaultFileSet fileSet = new DefaultFileSet();
-        fileSet.setDirectory(basedir);
-        fileSet.setIncludes(includes.toArray(new String[includes.size()]));
-
-        Set<String> allExcludes = new LinkedHashSet<String>();
-        if (excludes != null) {
-            allExcludes.addAll(excludes);
-        }
-        if (useDefaultSourceExcludes) {
-            allExcludes.addAll(Arrays.asList(AbstractScanner.DEFAULTEXCLUDES));
-        }
-
-        fileSet.setExcludes(allExcludes.toArray(new String[allExcludes.size()]));
-
-        return fileSet;
-    }
-
     /** {@inheritDoc} */
     protected String getClassifier() {
         return ReactorProject.SOURCE_ARTIFACT_CLASSIFIER;
-    }
-
-    // TODO check how to fix this code duplicated
-    private Properties getBuildProperties() throws MojoExecutionException {
-        File file = new File(project.getBasedir(), "build.properties");
-        if (!file.canRead()) {
-            throw new MojoExecutionException("Unable to read build.properties file");
-        }
-
-        Properties buildProperties = new Properties();
-        try {
-            InputStream is = new FileInputStream(file);
-            try {
-                buildProperties.load(is);
-            } finally {
-                is.close();
-            }
-        } catch (IOException e) {
-            throw new MojoExecutionException("Exception reading build.properties file", e);
-        }
-        return buildProperties;
     }
 
     @Override
@@ -259,18 +202,59 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     @Override
     protected boolean isRelevantProject(MavenProject project) {
+        return isRelevantProjectImpl(project, buildPropertiesParser);
+    }
+
+    protected static boolean isRelevantProjectImpl(MavenProject project, BuildPropertiesParser buildPropertiesParser) {
         String packaging = project.getPackaging();
         boolean relevant = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging)
                 || org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
         if (!relevant) {
             return false;
         }
-        try {
-            return requireSourceRoots || !getSources(project).isEmpty();
-        } catch (MojoExecutionException e) {
-            // can't happen
+
+        // this assumes that sources generation has to be explicitly enabled in pom.xml
+        Plugin plugin = project.getPlugin("org.eclipse.tycho:tycho-source-plugin");
+
+        if (plugin == null) {
+            return false;
         }
-        return true;
+
+        for (PluginExecution execution : plugin.getExecutions()) {
+            if (execution.getGoals().contains(GOAL)) {
+                boolean requireSourceRoots = Boolean.parseBoolean(getParameterValue(execution, "requireSourceRoots",
+                        "false"));
+                if (requireSourceRoots) {
+                    return true;
+                }
+                boolean usePdeSourceRoots = Boolean.parseBoolean(getParameterValue(execution, "usePdeSourceRoots",
+                        "true"));
+                try {
+                    if (!getSources(project, usePdeSourceRoots, requireSourceRoots, buildPropertiesParser).isEmpty()) {
+                        return true;
+                    }
+                } catch (MojoExecutionException e) {
+                    // can't happen because requireSourceRoots==false 
+                }
+            }
+        }
+
+        return false;
     }
 
+    private static String getParameterValue(PluginExecution execution, String name, String defaultValue) {
+        String value = getElementValue((Xpp3Dom) execution.getConfiguration(), name);
+        return value != null ? value : defaultValue;
+    }
+
+    private static String getElementValue(Xpp3Dom config, String name) {
+        if (config == null) {
+            return null;
+        }
+        Xpp3Dom child = config.getChild(name);
+        if (child == null) {
+            return null;
+        }
+        return child.getValue();
+    }
 }

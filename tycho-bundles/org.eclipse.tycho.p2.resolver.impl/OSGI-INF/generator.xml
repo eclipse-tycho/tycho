@@ -5,6 +5,7 @@
      <service>
         <provide interface="org.eclipse.tycho.p2.metadata.P2Generator"/>
      </service>
+     <reference bind="setBuildPropertiesParser" cardinality="1..1" interface="org.eclipse.tycho.core.facade.BuildPropertiesParser" name="BuildPropertiesParser" policy="static"/>
   </scr:component>
   <scr:component name="org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator">
      <implementation class="org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator"/>
@@ -12,6 +13,7 @@
      <service>
         <provide interface="org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator"/>
      </service>
+     <reference bind="setBuildPropertiesParser" cardinality="1..1" interface="org.eclipse.tycho.core.facade.BuildPropertiesParser" name="BuildPropertiesParser" policy="static"/>
   </scr:component>
   <scr:component name="org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator">
      <implementation class="org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator"/>
@@ -19,5 +21,6 @@
      <service>
         <provide interface="org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator"/>
      </service>
+     <reference bind="setBuildPropertiesParser" cardinality="1..1" interface="org.eclipse.tycho.core.facade.BuildPropertiesParser" name="BuildPropertiesParser" policy="static"/>
   </scr:component>
 </components>

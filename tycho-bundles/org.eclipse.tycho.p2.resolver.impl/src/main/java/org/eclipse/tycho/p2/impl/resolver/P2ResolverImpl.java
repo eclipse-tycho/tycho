@@ -17,15 +17,21 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.CompoundQueryable;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -33,7 +39,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 @SuppressWarnings("restriction")
 public class P2ResolverImpl implements P2Resolver {
@@ -53,19 +59,25 @@ public class P2ResolverImpl implements P2Resolver {
 
     private P2TargetPlatform context;
 
+    private Set<IInstallableUnit> usedTargetPlatformUnits;
+
     public P2ResolverImpl(MavenLogger logger) {
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
     }
 
-    public List<P2ResolutionResult> resolveProject(TargetPlatform context, File projectLocation) {
-        this.context = (P2TargetPlatform) context;
+    public List<P2ResolutionResult> resolveProject(TargetPlatform targetPlatform, File projectLocation) {
+        this.context = (P2TargetPlatform) targetPlatform;
 
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
+        usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
 
         for (Map<String, String> properties : environments) {
             results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(properties, logger)));
         }
+
+        context.reportUsedIUs(usedTargetPlatformUnits);
+        usedTargetPlatformUnits = null;
 
         return results;
     }
@@ -79,32 +91,48 @@ public class P2ResolverImpl implements P2Resolver {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(properties, logger);
         P2TargetPlatform contextImpl = (P2TargetPlatform) context;
         strategy.setJREUIs(contextImpl.getJREIUs());
-        strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
+        strategy.setAvailableInstallableUnits(new QueryableArray(contextImpl.getInstallableUnits().toArray(
+                new IInstallableUnit[0])));
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
         strategy.setAdditionalRequirements(additionalRequirements);
 
-        P2ResolutionResult result = new P2ResolutionResult();
+        MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
         for (IInstallableUnit iu : strategy.resolve(monitor)) {
-            result.addArtifact(TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), null, null, iu);
+            result.addArtifact(TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
         }
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     protected P2ResolutionResult resolveProject(File projectLocation, ResolutionStrategy strategy) {
-        strategy.setAvailableInstallableUnits(context.getInstallableUnits());
-        strategy.setJREUIs(context.getJREIUs());
-        LinkedHashSet<IInstallableUnit> projectIUs = context.getReactorProjectIUs(projectLocation);
-        strategy.setRootInstallableUnits(projectIUs);
+        strategy.setRootInstallableUnits(context.getReactorProjectIUs(projectLocation, true));
         strategy.setAdditionalRequirements(additionalRequirements);
+        IQueryable<IInstallableUnit> availableUnits = new QueryableArray(context.getInstallableUnits().toArray(
+                new IInstallableUnit[0]));
+        LinkedHashSet<IInstallableUnit> projectSecondaryIUs = context.getReactorProjectIUs(projectLocation, false);
+        if (!projectSecondaryIUs.isEmpty()) {
+            availableUnits = new CompoundQueryable<IInstallableUnit>(toArray(availableUnits,
+                    new CollectionResult<IInstallableUnit>(projectSecondaryIUs)));
+        }
+        strategy.setAvailableInstallableUnits(availableUnits);
+        strategy.setJREUIs(context.getJREIUs());
 
         Collection<IInstallableUnit> newState = strategy.resolve(monitor);
-        context.reportUsedIUs(newState);
 
+        if (usedTargetPlatformUnits != null) {
+            usedTargetPlatformUnits.addAll(newState);
+        }
+
+        context.downloadArtifacts(newState);
         return toResolutionResult(newState);
     }
 
+    private static <T> T[] toArray(T... t) {
+        return t;
+    }
+
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState) {
-        P2ResolutionResult result = new P2ResolutionResult();
+        DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
         for (IInstallableUnit iu : newState) {
             IArtifactFacade mavenArtifact = context.getMavenArtifact(iu);
             if (mavenArtifact != null) {
@@ -121,7 +149,7 @@ public class P2ResolverImpl implements P2Resolver {
         return result;
     }
 
-    private void collectNonReactorIUs(P2ResolutionResult result, Collection<IInstallableUnit> newState) {
+    private void collectNonReactorIUs(DefaultP2ResolutionResult result, Collection<IInstallableUnit> newState) {
         for (IInstallableUnit iu : newState) {
             if (!isReactorArtifact(iu)) {
                 result.addNonReactorUnit(iu);
@@ -133,7 +161,7 @@ public class P2ResolverImpl implements P2Resolver {
         return context.getMavenArtifact(iu) instanceof IReactorArtifactFacade;
     }
 
-    private void addArtifactFile(P2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key) {
+    private void addArtifactFile(DefaultP2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key) {
         File file = context.getLocalArtifactFile(key);
         if (file == null) {
             return;
@@ -146,11 +174,11 @@ public class P2ResolverImpl implements P2Resolver {
         String mavenClassidier = reactorArtifact != null ? reactorArtifact.getClassidier() : null;
 
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            platform.addArtifact(P2Resolver.TYPE_ECLIPSE_PLUGIN, id, version, file, mavenClassidier, iu);
+            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, file, mavenClassidier, iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                platform.addArtifact(P2Resolver.TYPE_ECLIPSE_FEATURE, featureId, version, file, mavenClassidier, iu);
+                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, file, mavenClassidier, iu);
             }
         }
 
@@ -158,23 +186,23 @@ public class P2ResolverImpl implements P2Resolver {
         // throw new IllegalArgumentException();
     }
 
-    private void addMavenArtifact(P2ResolutionResult platform, IArtifactFacade mavenArtifact, IInstallableUnit iu) {
+    private void addMavenArtifact(DefaultP2ResolutionResult platform, IArtifactFacade mavenArtifact, IInstallableUnit iu) {
         String type = mavenArtifact.getPackagingType();
         String id = iu.getId();
         String version = iu.getVersion().toString();
         File location = mavenArtifact.getLocation();
         String mavenClassidier = mavenArtifact.getClassidier();
 
-        if (TYPE_ECLIPSE_FEATURE.equals(type)) {
-            id = getFeatureId(iu);
-            if (id == null) {
-                throw new IllegalStateException("Feature id is null for maven artifact at "
-                        + mavenArtifact.getLocation() + " with classifier " + mavenArtifact.getClassidier());
+        if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
+            String featureId = getFeatureId(iu);
+            if (featureId != null) {
+                // feature can have additional IUs injected via p2.inf
+                id = featureId;
             }
         } else if ("jar".equals(type)) {
             // this must be an OSGi bundle coming from a maven repository
             // TODO check if iu actually provides CAPABILITY_NS_OSGI_BUNDLE capability
-            type = TYPE_ECLIPSE_PLUGIN;
+            type = ArtifactKey.TYPE_ECLIPSE_PLUGIN;
         }
 
         platform.addArtifact(type, id, version, location, mavenClassidier, iu);
@@ -197,10 +225,10 @@ public class P2ResolverImpl implements P2Resolver {
         if (P2Resolver.TYPE_INSTALLABLE_UNIT.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id,
                     new VersionRange(versionRange), null, false, true));
-        } else if (P2Resolver.TYPE_ECLIPSE_PLUGIN.equals(type)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, id,
                     new VersionRange(versionRange), null, false, true));
-        } else if (P2Resolver.TYPE_ECLIPSE_FEATURE.equals(type)) {
+        } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id
                     + ".feature.group", new VersionRange(versionRange), null, false, true));
             // TODO make ".feature.group" a constant in FeaturesAction

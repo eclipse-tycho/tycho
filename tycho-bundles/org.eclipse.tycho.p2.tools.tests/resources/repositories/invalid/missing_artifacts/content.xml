@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='repository-with-artifact-reference' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1318860649077'/>
+  </properties>
+  <units size='1'>
+    <unit id='tycho551.bundle1' version='1.0.0.201110171410' singleton='false'>
+      <update id='tycho551.bundle1' range='[0.0.0,1.0.0.201110171410)' severity='0'/>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='tycho551.bundle1' version='1.0.0.201110171410'/>
+        <provided namespace='osgi.bundle' name='tycho551.bundle1' version='1.0.0.201110171410'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='3'>
+        <required namespace='osgi.bundle' name='org.junit' range='0.0.0'/>
+        <required namespace='java.package' name='org.osgi.framework' range='0.0.0'/>
+        <required namespace='java.package' name='tycho551.bundle2.api' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='tycho551.bundle1' version='1.0.0.201110171410'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: tycho551.bundle1&#xA;Bundle-Version: 1.0.0.201110171410
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>

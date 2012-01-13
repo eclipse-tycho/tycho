@@ -18,5 +18,13 @@ public interface IReactorArtifactFacade extends IArtifactFacade {
      */
     public static final String SOURCE_BUNDLE_SUFFIX = ".source";
 
-    public Set<Object/* IInstallableUnit */> getDependencyMetadata();
+    /**
+     * Returns primary or secondary IInstallableUnits provided by the reactor project, never
+     * <code>null</code>.
+     * <p/>
+     * Primary IUs are used to determine project dependencies. Secondary IUs can be used to resolve
+     * dependencies of other reactor projects but do not affect dependencies of this project unless
+     * required by the primary IUs.
+     */
+    public Set<Object/* IInstallableUnit */> getDependencyMetadata(boolean primary);
 }

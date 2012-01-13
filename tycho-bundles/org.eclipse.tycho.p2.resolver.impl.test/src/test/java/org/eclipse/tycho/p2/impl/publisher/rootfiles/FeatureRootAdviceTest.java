@@ -20,7 +20,9 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
+import org.eclipse.tycho.core.facade.BuildPropertiesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -74,7 +76,8 @@ public class FeatureRootAdviceTest {
     }
 
     static IFeatureRootAdvice createAdvice(Properties buildProperties) {
-        return new FeatureRootAdvice(buildProperties, FEATURE_PROJECT_TEST_RESOURCE_ROOT, DEFAULT_ARTIFACT_ID);
+        return new FeatureRootAdvice(new BuildPropertiesImpl(buildProperties), FEATURE_PROJECT_TEST_RESOURCE_ROOT,
+                DEFAULT_ARTIFACT_ID);
     }
 
     static void callGetDescriptorsForAllConfigurations(IFeatureRootAdvice advice) {
@@ -85,7 +88,8 @@ public class FeatureRootAdviceTest {
 
     @Test
     public void testFeatureRootAdviceComputePath() throws Exception {
-        IFeatureRootAdvice rootFileAdvice = FeatureRootAdvice.createRootFileAdvice(createDefaultArtifactMock());
+        IFeatureRootAdvice rootFileAdvice = FeatureRootAdvice.createRootFileAdvice(createDefaultArtifactMock(),
+                new BuildPropertiesParserForTesting());
 
         File file1 = new File(FEATURE_PROJECT_TEST_RESOURCE_ROOT, ROOT_FILE_NAME).getCanonicalFile();
         IPath expectedPathFile1 = new Path(ROOT_FILE_NAME);

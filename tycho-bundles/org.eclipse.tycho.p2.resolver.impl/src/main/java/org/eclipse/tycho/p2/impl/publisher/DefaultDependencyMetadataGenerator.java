@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
@@ -28,15 +25,8 @@ public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implemen
         super(true);
     }
 
-    public Set<Object> generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
             OptionalResolutionAction optionalAction) {
-        LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-        LinkedHashSet<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<IArtifactDescriptor>();
-
-        PublisherInfo publisherInfo = new PublisherInfo();
-        super.generateMetadata(artifact, environments, units, artifactDescriptors, publisherInfo, optionalAction);
-
-        return new LinkedHashSet<Object>(units);
+        return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction);
     }
-
 }

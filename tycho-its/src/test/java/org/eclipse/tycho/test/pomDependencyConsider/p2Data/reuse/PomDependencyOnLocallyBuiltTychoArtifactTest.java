@@ -13,6 +13,7 @@ package org.eclipse.tycho.test.pomDependencyConsider.p2Data.reuse;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
+import org.codehaus.plexus.DefaultPlexusContainer;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.LocalMavenRepositoryTool;
@@ -54,9 +55,9 @@ public class PomDependencyOnLocallyBuiltTychoArtifactTest extends AbstractTychoI
         Verifier testDataProject = getVerifier("pomDependencyConsider.p2Data.reuse/testDataBundle", false);
         testDataProject.executeGoal("install");
         testDataProject.verifyErrorFreeLog();
-
         // prevent that the created bundle & source bundle can be automatically seen by other Tycho builds
-        LocalMavenRepositoryTool localRepo = new LocalMavenRepositoryTool();
-        localRepo.hideAllLocalTychoArtifacts();
+        LocalMavenRepositoryTool localRepo = new DefaultPlexusContainer().lookup(LocalMavenRepositoryTool.class);
+        localRepo.removeLinesFromMetadataIndex(TEST_PROJECT_POM_DEPENDENCY.getGroupId() + ":"
+                + TEST_PROJECT_POM_DEPENDENCY.getArtifactId() + ":" + TEST_PROJECT_POM_DEPENDENCY.getVersion());
     }
 }

@@ -137,6 +137,10 @@ public class Feature {
         return dom.getAttributeValue("id");
     }
 
+    public void setId(String id) {
+        dom.setAttribute("id", id);
+    }
+
     public static Feature read(File file) throws IOException {
         FileInputStream is = new FileInputStream(file);
         return read(is); // closes the stream
@@ -201,6 +205,11 @@ public class Feature {
         } catch (IOException e) {
             throw new RuntimeException("Could not read feature descriptor at " + location.getAbsolutePath(), e);
         }
+    }
+
+    public void addPlugin(PluginRef plugin) {
+        dom.addNode(plugin.getDom());
+        plugins = null;
     }
 
 }

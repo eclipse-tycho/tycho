@@ -6,6 +6,7 @@ Bundle-Name: Tycho Core Maven/OSGi Shared Classes (Incubation)
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.facade,
+ org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.locking.facade
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.eclipse.tycho

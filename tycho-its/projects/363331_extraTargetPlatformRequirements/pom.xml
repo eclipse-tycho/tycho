@@ -5,24 +5,26 @@
   <groupId>tycho-its-project</groupId>
   <artifactId>363331_extraTargetPlatformRequirements</artifactId>
   <version>1.0.0</version>
-  <packaging>eclipse-test-plugin</packaging>
+  <packaging>eclipse-plugin</packaging>
 
   <properties>
     <tycho-version>0.13.0</tycho-version>
     <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
     <e352-repo>http://download.eclipse.org/releases/galileo</e352-repo>
+    <e36x-repo>http://download.eclipse.org/releases/helios</e36x-repo>
+    <e37x-repo>http://download.eclipse.org/releases/indigo</e37x-repo>
   </properties>
 
   <repositories>
     <repository>
-      <id>e342</id>
+      <id>osgi42</id>
       <layout>p2</layout>
-      <url>${e342-repo}</url>
+      <url>${e36x-repo}</url>
     </repository>
     <repository>
-      <id>e352</id>
+      <id>osgi43</id>
       <layout>p2</layout>
-      <url>${e352-repo}</url>
+      <url>${e37x-repo}</url>
     </repository>
   </repositories>
 
@@ -36,7 +38,7 @@
       </plugin>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
-        <artifactId>target-platform-configuration</artifactId>
+        <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
           <extraRequirements>
@@ -44,7 +46,7 @@
             <requirement>
               <type>eclipse-plugin</type>
               <id>org.eclipse.osgi</id>
-              <versionRange>[3.4,3.5)</versionRange>
+              <versionRange>[3.6,3.7)</versionRange>
             </requirement>
           </extraRequirements>
         </configuration>

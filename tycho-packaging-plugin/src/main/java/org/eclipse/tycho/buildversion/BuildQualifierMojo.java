@@ -10,20 +10,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.osgi.framework.Version;
 
 /**
@@ -66,14 +62,19 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     private SimpleDateFormat format;
 
     /**
-     * @parameter default-value="${project.basedir}/build.properties"
+     * @parameter default-value="${project.basedir}"
      */
-    private File buildPropertiesFile;
+    private File baseDir;
 
     /**
      * @parameter expression="${forceContextQualifier}"
      */
     private String forceContextQualifier;
+
+    /**
+     * @component
+     */
+    private BuildPropertiesParser buildPropertiesParser;
 
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
@@ -103,7 +104,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         String qualifier = forceContextQualifier;
 
         if (qualifier == null) {
-            qualifier = getBuildProperties().getProperty("forceContextQualifier");
+            qualifier = buildPropertiesParser.parse(baseDir).getForceContextQualifier();
         }
 
         if (qualifier == null) {
@@ -140,21 +141,4 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         return timestamp;
     }
 
-    // TODO move to a helper, we must have ~100 implementations of this logic
-    private Properties getBuildProperties() {
-        Properties props = new Properties();
-        try {
-            if (buildPropertiesFile.canRead()) {
-                InputStream is = new BufferedInputStream(new FileInputStream(buildPropertiesFile));
-                try {
-                    props.load(is);
-                } finally {
-                    is.close();
-                }
-            }
-        } catch (IOException e) {
-            getLog().warn("Exception reading build.properties file", e);
-        }
-        return props;
-    }
 }

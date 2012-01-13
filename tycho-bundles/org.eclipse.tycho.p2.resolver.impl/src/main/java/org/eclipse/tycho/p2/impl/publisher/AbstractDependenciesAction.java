@@ -90,6 +90,7 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
         addPublisherAdvice(publisherInfo);
 
         processCapabilityAdvice(iud, publisherInfo);
+        processInstallableUnitPropertiesAdvice(iud, publisherInfo);
 
         IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
         results.addIU(iu, PublisherResult.ROOT);
@@ -97,7 +98,10 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
         InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(iu, publisherInfo);
         if (others != null) {
             for (InstallableUnitDescription other : others) {
-                results.addIU(MetadataFactory.createInstallableUnit(other), PublisherResult.ROOT);
+                // using PublisherResult.NON_ROOT results in these IUs appear after the primary
+                // see org.eclipse.equinox.p2.publisher.PublisherResult.getIUs(String, String)
+                // see org.eclipse.tycho.p2.metadata.IReactorArtifactFacade.getDependencyMetadata()
+                results.addIU(MetadataFactory.createInstallableUnit(other), PublisherResult.NON_ROOT);
             }
         }
 

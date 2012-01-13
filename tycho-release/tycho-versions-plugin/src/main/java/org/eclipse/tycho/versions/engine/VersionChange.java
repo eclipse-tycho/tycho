@@ -25,8 +25,8 @@ public class VersionChange {
 
     public VersionChange(MutablePomFile pom, String version, String newVersion) {
         this.pom = pom;
-        this.version = VersionsEngine.toCanonicalVersion(version);
-        this.newVersion = VersionsEngine.toCanonicalVersion(newVersion);
+        this.version = Versions.toCanonicalVersion(version);
+        this.newVersion = Versions.toCanonicalVersion(newVersion);
     }
 
     public String getGroupId() {

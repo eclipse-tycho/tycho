@@ -66,7 +66,7 @@ public class ChainedExecutionListener extends AbstractExecutionListener {
     @Override
     public void projectStarted(ExecutionEvent event) {
         for (ExecutionListener listener : listeners) {
-
+            listener.projectStarted(event);
         }
     }
 

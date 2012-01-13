@@ -12,23 +12,18 @@ package org.eclipse.tycho.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.maven.model.Dependency;
+import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 
 public class TargetPlatformConfiguration {
 
     public static final String POM_DEPENDENCIES_CONSIDER = "consider";
 
-    public static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
-
-    public static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
-
     private String resolver;
 
     private List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
-
-    private List<Dependency> extraRequirements = new ArrayList<Dependency>();
 
     private boolean implicitTargetEnvironment = true;
 
@@ -40,9 +35,9 @@ public class TargetPlatformConfiguration {
 
     private boolean disableP2Mirrors;
 
-    private String optionalAction;
-
     private String executionEnvironment;
+
+    private List<TargetPlatformFilter> filters;
 
     /**
      * Returns the list of configured target environments, or the running environment if no
@@ -106,22 +101,6 @@ public class TargetPlatformConfiguration {
         return disableP2Mirrors;
     }
 
-    public void addExtraRequirement(Dependency requirement) {
-        extraRequirements.add(requirement);
-    }
-
-    public List<Dependency> getExtraRequirements() {
-        return extraRequirements;
-    }
-
-    public void setOptionalResolutionAction(String optionalAction) {
-        this.optionalAction = optionalAction;
-    }
-
-    public String getOptionalResolutionAction() {
-        return optionalAction;
-    }
-
     public String getExecutionEnvironment() {
         return executionEnvironment;
     }
@@ -129,4 +108,16 @@ public class TargetPlatformConfiguration {
     public void setExecutionEnvironment(String executionEnvironment) {
         this.executionEnvironment = executionEnvironment;
     }
+
+    public void setFilters(List<TargetPlatformFilter> filters) {
+        this.filters = filters;
+    }
+
+    public List<TargetPlatformFilter> getFilters() {
+        if (filters == null)
+            return Collections.emptyList();
+        else
+            return filters;
+    }
+
 }

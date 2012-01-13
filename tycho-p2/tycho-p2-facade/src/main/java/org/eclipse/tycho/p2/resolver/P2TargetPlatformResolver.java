@@ -57,6 +57,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
@@ -72,23 +73,25 @@ import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformRes
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.core.resolver.CompilerOptions;
+import org.eclipse.tycho.core.resolver.CompilerOptionsManager;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator.OptionalResolutionAction;
+import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 // TODO 364134 rename this class
 @Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
@@ -112,6 +115,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
 
+    @Requirement
+    private CompilerOptionsManager compilerOptionsManager;
+
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
@@ -134,15 +140,12 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<Map<String, String>> environments = getEnvironments(configuration);
 
-        OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
+        CompilerOptions compilerOptions = compilerOptionsManager.getCompilerOptions(project);
 
-        if (TargetPlatformConfiguration.OPTIONAL_RESOLUTION_IGNORE.equals(configuration.getOptionalResolutionAction())) {
-            optionalAction = OptionalResolutionAction.IGNORE;
-        }
-
-        Set<Object> metadata = generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null),
-                environments, optionalAction);
-        reactorProject.setDependencyMetadata(null, metadata);
+        IDependencyMetadata metadata = generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null),
+                environments, compilerOptions.getOptionalResolutionAction());
+        reactorProject.setDependencyMetadata(null, true, metadata.getMetadata(true));
+        reactorProject.setDependencyMetadata(null, false, metadata.getMetadata(false));
 
         // let external providers contribute additional metadata
         try {
@@ -202,6 +205,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         if (configuration.getTarget() != null) {
             addTargetFileContentToTargetPlatform(configuration, tpBuilder, session);
         }
+
+        tpBuilder.addFilters(configuration.getFilters());
 
         return tpBuilder.buildTargetPlatform();
     }
@@ -351,6 +356,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
 
             try {
+                getLogger().debug("Resolving target definition file \"" + configuration.getTarget() + "\"");
                 resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
             } catch (TargetDefinitionSyntaxException e) {
                 throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
@@ -362,7 +368,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
-            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects, List<Dependency> dependencies) {
+            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
+            DependencyResolverConfiguration resolverConfiguration) {
 
         // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
         // --> split this information logically, e.g. through two distinct interfaces
@@ -370,13 +377,13 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         P2Resolver osgiResolverImpl = resolverFactory.createResolver();
 
-        return doResolvePlatform(session, project, reactorProjects, dependencies, resolutionContext, osgiResolverImpl,
-                configuration);
+        return doResolvePlatform(session, project, reactorProjects, resolverConfiguration, resolutionContext,
+                osgiResolverImpl, configuration);
     }
 
     protected DependencyArtifacts doResolvePlatform(final MavenSession session, final MavenProject project,
-            List<ReactorProject> reactorProjects, List<Dependency> dependencies, TargetPlatform resolutionContext,
-            P2Resolver resolver, TargetPlatformConfiguration configuration) {
+            List<ReactorProject> reactorProjects, DependencyResolverConfiguration resolverConfiguration,
+            TargetPlatform resolutionContext, P2Resolver resolver, TargetPlatformConfiguration configuration) {
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
@@ -386,14 +393,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             projects.put(otherProject.getBasedir(), otherProject);
         }
 
-        if (dependencies != null) {
-            for (Dependency dependency : dependencies) {
+        if (resolverConfiguration != null) {
+            for (Dependency dependency : resolverConfiguration.getExtraRequirements()) {
                 resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
             }
-        }
-
-        for (Dependency dependency : configuration.getExtraRequirements()) {
-            resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
         }
 
         if (!isAllowConflictingDependencies(project, configuration)) {

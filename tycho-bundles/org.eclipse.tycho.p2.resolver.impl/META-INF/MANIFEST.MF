@@ -30,8 +30,10 @@ Export-Package: org.eclipse.tycho.p2.impl;x-friends:="org.eclipse.tycho.p2.impl.
  org.eclipse.tycho.p2.impl.publisher.rootfiles;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.repo;x-friends:="org.eclipse.tycho.p2.impl.test,org.eclipse.tycho.p2.maven.repository.tests",
  org.eclipse.tycho.p2.impl.resolver;x-friends:="org.eclipse.tycho.p2.impl.test"
-Import-Package: org.eclipse.tycho.artifacts,
+Import-Package: org.eclipse.tycho,
+ org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.facade,
+ org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.p2.metadata,
  org.eclipse.tycho.p2.repository,

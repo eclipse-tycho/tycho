@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+
 public interface P2ResolverFactory {
 
     public TargetPlatformBuilder createTargetPlatformBuilder(String bree, boolean disableP2Mirrors);

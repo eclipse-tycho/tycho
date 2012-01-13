@@ -23,7 +23,7 @@
         <configuration>
           <format>yyyyMMddHHmm</format>
           
-          <buildPropertiesFile>target/projects/buildqualifier/p002/build.properties</buildPropertiesFile>
+          <baseDir>target/projects/buildqualifier/p002/</baseDir>
         </configuration>
       </plugin>
     </plugins>

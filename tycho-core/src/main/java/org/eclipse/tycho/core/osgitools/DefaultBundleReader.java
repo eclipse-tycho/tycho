@@ -12,23 +12,23 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.codehaus.plexus.archiver.ArchiverException;
-import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
+import org.eclipse.tycho.core.facade.LRUCache;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
@@ -36,22 +36,25 @@ import org.eclipse.tycho.locking.facade.FileLocker;
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
 
     public static final String CACHE_PATH = ".cache/tycho";
-    private static final Map<File, OsgiManifest> manifestCache = new HashMap<File, OsgiManifest>();
+    private final LRUCache<String, OsgiManifest> manifestCache = new LRUCache<String, OsgiManifest>(50);
 
     private File cacheDir;
     private Set<String> extractedFiles = new HashSet<String>();
-
-    @Requirement(hint = "zip")
-    private UnArchiver zipUnArchiver;
 
     @Requirement
     private FileLockService fileLockService;
 
     public OsgiManifest loadManifest(File bundleLocation) {
-        OsgiManifest manifest = manifestCache.get(bundleLocation);
+        String locationPath;
+        try {
+            locationPath = bundleLocation.getCanonicalPath();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        OsgiManifest manifest = manifestCache.get(locationPath);
         if (manifest == null) {
             manifest = doLoadManifest(bundleLocation);
-            manifestCache.put(bundleLocation, manifest);
+            manifestCache.put(locationPath, manifest);
         }
         return manifest;
     }
@@ -153,21 +156,17 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                 if (extractedFiles.contains(resultPath) && result.exists()) {
                     return result;
                 } else {
-                    zipUnArchiver.setSourceFile(bundleLocation);
-                    outputDirectory.mkdirs();
                     FileLocker locker = fileLockService.getFileLocker(outputDirectory);
-                    locker.lock();
+                    locker.lock(5 * 60 * 1000L);
                     try {
-                        zipUnArchiver.extract(path, outputDirectory);
+                        extractZipEntries(bundleLocation, path, outputDirectory);
                     } finally {
                         locker.release();
                     }
                     extractedFiles.add(resultPath);
                 }
-            } catch (ArchiverException e) {
-                throw new RuntimeException(e);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("IOException while extracting '" + path + "' from " + bundleLocation, e);
             }
         }
         if (result.exists()) {
@@ -178,4 +177,45 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         }
     }
 
+    private void extractZipEntries(File bundleLocation, String path, File outputDirectory) throws IOException {
+        ZipFile zip = new ZipFile(bundleLocation);
+        try {
+            ZipEntry singleEntry = zip.getEntry(path);
+            InputStream singleEntryStream;
+            if (singleEntry != null && !singleEntry.isDirectory()
+                    && (singleEntryStream = zip.getInputStream(singleEntry)) != null) {
+                // fix for performance bug 367098: avoid loop if path is a single zip file entry
+                copyStreamToFile(singleEntryStream, new File(outputDirectory, singleEntry.getName()),
+                        singleEntry.getTime());
+            } else {
+                // loop over all entries and extract matching
+                for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
+                    ZipEntry zipEntry = entries.nextElement();
+                    if (!zipEntry.isDirectory() && zipEntry.getName().startsWith(path)) {
+                        copyStreamToFile(zip.getInputStream(zipEntry), new File(outputDirectory, zipEntry.getName()),
+                                zipEntry.getTime());
+                    }
+                }
+            }
+        } finally {
+            zip.close();
+        }
+    }
+
+    private static void copyStreamToFile(InputStream in, File outputFile, long timestamp) throws IOException {
+        if (in == null) {
+            return;
+        }
+        outputFile.getParentFile().mkdirs();
+        FileOutputStream out = new FileOutputStream(outputFile);
+        try {
+            IOUtil.copy(in, out);
+        } finally {
+            in.close();
+            out.close();
+        }
+        if (timestamp > 0) {
+            outputFile.setLastModified(timestamp);
+        }
+    }
 }

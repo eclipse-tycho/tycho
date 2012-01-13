@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-test-project</groupId>
+	<artifactId>target-filter-config</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-plugin</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<filters>
+						<filter>
+							<!-- example: restrict version of a bundle -->
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.osgi</id>
+							<restrictTo>
+								<versionRange>[3.6,3.7)</versionRange>
+							</restrictTo>
+						</filter>
+						<filter>
+							<!-- semantically equivalent full notation of the previous example -->
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.osgi</id>
+							<restrictTo>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.osgi</id>
+								<versionRange>[3.6,3.7)</versionRange>
+							</restrictTo>
+						</filter>
+						<filter>
+							<!-- example: remove all providers of the package javax.persistence 
+							     except the bundle javax.persistence, which implements jpa 2.0 -->
+							<type>java-package</type>
+							<id>javax.persistence</id>
+							<restrictTo>
+								<type>osgi-bundle</type>
+								<id>javax.persistence</id>
+								<versionRange>2.0</versionRange>
+							</restrictTo>
+						</filter>
+						<filter>
+							<!-- example: if Eclipse 3.6.x is used, enforce the use of SR2, e.g. to prevent use of versions with bug 321386 to avoid TYCHO-382 -->
+							<type>eclipse-plugin</type>
+							<id>org.eclipse.equinox.app</id>
+							<versionRange>[3.6.0,3.7.0)</versionRange>
+							<restrictTo>
+								<version>3.6.2.v00000000</version>
+							</restrictTo>
+						</filter>
+						<filter>
+							<!-- example: enforce an exact version of the a.jre.javase magic IU. Note: this may collide with the actions taken for Tycho bug 364095 -->
+							<type>p2-installable-unit</type>
+							<id>a.jre.javase</id>
+							<restrictTo>
+								<version>1.5.0</version>
+							</restrictTo>
+						</filter>
+					</filters>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

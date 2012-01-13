@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="368079_productArchiveFormat" id="product" application="application" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false">
+
+   <plugins>
+      <plugin id="org.eclipse.osgi"/>
+   </plugins>
+
+</product>

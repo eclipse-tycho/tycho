@@ -11,53 +11,42 @@
 package org.eclipse.tycho.core.osgitools.project;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 
 public class EclipsePluginProjectImpl implements EclipsePluginProject {
 
     private final ReactorProject project;
-    private final Properties buildProperties;
+    private final BuildProperties buildProperties;
 
     private final LinkedHashMap<String, BuildOutputJar> outputJars = new LinkedHashMap<String, BuildOutputJar>();
     private final BuildOutputJar dotOutputJar;
 
-    public EclipsePluginProjectImpl(ReactorProject project) throws IOException {
+    public EclipsePluginProjectImpl(ReactorProject project, BuildPropertiesParser buildPropertiesParser)
+            throws IOException {
         this.project = project;
-        this.buildProperties = loadProperties(project);
+        this.buildProperties = buildPropertiesParser.parse(project.getBasedir());
 
-        //
         LinkedHashMap<String, BuildOutputJar> jars = new LinkedHashMap<String, BuildOutputJar>();
-        String jarsOrder = buildProperties.getProperty("jars.compile.order");
-        if (jarsOrder != null) {
-            for (String jarName : jarsOrder.split(",")) {
-                jars.put(jarName, null);
-            }
+        for (String jarName : buildProperties.getJarsCompileOrder()) {
+            jars.put(jarName, null);
         }
 
-        List<String> globalExtraClasspath = new ArrayList<String>();
-        if (buildProperties.getProperty("jars.extra.classpath") != null)
-            globalExtraClasspath.addAll(Arrays.asList(buildProperties.getProperty("jars.extra.classpath").split(",")));
+        List<String> extraClasspath = new ArrayList<String>();
+        extraClasspath.addAll(buildProperties.getJarsExtraClasspath());
 
         String dotJarName = null;
 
-        for (Map.Entry<Object, Object> entry : buildProperties.entrySet()) {
-            String key = (String) entry.getKey();
-            String value = (String) entry.getValue();
-            if (!key.startsWith("source.")) {
-                continue;
-            }
-
-            String jarName = key.substring(7);
+        for (Entry<String, List<String>> entry : buildProperties.getJarToSourceFolderMap().entrySet()) {
+            String jarName = entry.getKey();
             if (jarName.equals(".")) {
                 dotJarName = ".";
             } else if (dotJarName == null && jarName.endsWith("/")) {
@@ -69,15 +58,13 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
 
             File outputDirectory = jarName.equals(dotJarName) ? project.getOutputDirectory() : new File(
                     project.getBuildDirectory(), jarName + "-classes");
-            List<File> sourceFolders = toFileList(project.getBasedir(), value.split(","));
+            List<File> sourceFolders = toFileList(project.getBasedir(), entry.getValue());
 
-            List<String> extraEntries = new ArrayList<String>();
-            if (buildProperties.getProperty("extra." + jarName) != null) {
-                extraEntries.addAll(Arrays.asList(buildProperties.getProperty("extra." + jarName).split(",")));
-                extraEntries.addAll(globalExtraClasspath);
+            List<String> jarExtraEntries = buildProperties.getJarToExtraClasspathMap().get(jarName);
+            if (jarExtraEntries != null) {
+                extraClasspath.addAll(jarExtraEntries);
             }
-            jars.put(jarName, new BuildOutputJar(jarName, outputDirectory, sourceFolders,
-                    extraEntries.size() == 0 ? globalExtraClasspath : extraEntries));
+            jars.put(jarName, new BuildOutputJar(jarName, outputDirectory, sourceFolders, extraClasspath));
         }
 
         this.dotOutputJar = dotJarName != null ? jars.get(dotJarName) : null;
@@ -89,34 +76,12 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
         }
     }
 
-    private List<File> toFileList(File parent, String[] names) throws IOException {
+    private List<File> toFileList(File parent, List<String> names) throws IOException {
         ArrayList<File> result = new ArrayList<File>();
         for (String name : names) {
-            result.add(new File(parent, name.trim()).getCanonicalFile());
+            result.add(new File(parent, name).getCanonicalFile());
         }
         return result;
-    }
-
-    private static Properties loadProperties(ReactorProject project) throws IOException {
-        File file = new File(project.getBasedir(), "build.properties");
-
-        Properties buildProperties = new Properties();
-        if (file.canRead()) {
-            InputStream is = new FileInputStream(file);
-            try {
-                buildProperties.load(is);
-            } finally {
-                is.close();
-            }
-        }
-
-//		throw new IllegalArgumentException("Unable to read build.properties file");
-
-        return buildProperties;
-    }
-
-    public Properties getBuildProperties() {
-        return buildProperties;
     }
 
     public ReactorProject getMavenProject() {
@@ -133,6 +98,10 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
 
     public Map<String, BuildOutputJar> getOutputJarMap() {
         return outputJars;
+    }
+
+    public BuildProperties getBuildProperties() {
+        return buildProperties;
     }
 
 }

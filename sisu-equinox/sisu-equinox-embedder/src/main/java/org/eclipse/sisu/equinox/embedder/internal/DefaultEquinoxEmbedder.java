@@ -271,7 +271,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
             try {
                 FileUtils.deleteDirectory(tempConfigDir);
             } catch (IOException e) {
-                getLogger().error("Exception while deleting " + tempConfigDir, e);
+                getLogger().warn("Exception while deleting temp folder " + tempConfigDir, e);
             }
             frameworkContext = null;
         }

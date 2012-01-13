@@ -10,22 +10,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine.tests;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
-import org.codehaus.plexus.PlexusTestCase;
 import org.eclipse.tycho.testing.TestUtil;
+import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
+import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 
-public class VersionsEngineTest extends PlexusTestCase {
+public class VersionsEngineTest extends AbstractVersionChangeTest {
     public void testSimple() throws Exception {
         File basedir = TestUtil.getBasedir("projects/simple");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("simple", "1.0.1.qualifier");
         engine.apply();
 
@@ -36,8 +33,7 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testMultimodule() throws Exception {
         File basedir = TestUtil.getBasedir("projects/multimodule");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
         engine.addVersionChange("parent", "1.0.1.qualifier");
         engine.apply();
 
@@ -62,8 +58,7 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testProfile() throws Exception {
         File basedir = TestUtil.getBasedir("projects/profile");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
         engine.addVersionChange("parent", "1.0.1.qualifier");
         engine.apply();
 
@@ -79,8 +74,7 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testAggregator() throws Exception {
         File basedir = TestUtil.getBasedir("projects/aggregator");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
         engine.addVersionChange("aggregator", "1.0.1.qualifier");
         engine.addVersionChange("parent", "1.0.1.qualifier");
         engine.apply();
@@ -99,8 +93,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testDependencySimple() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencysimple");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("someproject", "1.0.1.qualifier");
         engine.apply();
 
@@ -115,8 +109,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testDependencyOtherVersion() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencyotherversion");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("someproject", "1.0.1.qualifier");
         engine.apply();
 
@@ -131,8 +125,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testDependencyManagmentSimple() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencymanagementsimple");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("someproject", "1.0.1.qualifier");
         engine.apply();
 
@@ -147,8 +141,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testDependencyManagmentOtherVersion() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencymanagementotherversion");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("someproject", "1.0.1.qualifier");
         engine.apply();
 
@@ -163,8 +157,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testDeepNesting() throws Exception {
         File basedir = TestUtil.getBasedir("projects/deepnesting");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("parent", "1.0.1.qualifier");
         engine.apply();
 
@@ -181,8 +175,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testDeepNestingInverseOrder() throws Exception {
         File basedir = TestUtil.getBasedir("projects/deepnesting");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("child", "1.0.1.qualifier");
         engine.addVersionChange("parent", "1.0.1.qualifier");
         engine.apply();
@@ -200,8 +194,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testExplicitVersion() throws Exception {
         File basedir = TestUtil.getBasedir("projects/exlicitversion");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("parent", "1.0.1.qualifier");
         engine.apply();
 
@@ -217,8 +211,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testPomDependencyNoVersion() throws Exception {
         File basedir = TestUtil.getBasedir("projects/dependencynoversion");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("testmodule", "4.8");
         engine.apply();
 
@@ -228,8 +222,8 @@ public class VersionsEngineTest extends PlexusTestCase {
     public void testIgnoreWhitespace() throws Exception {
         File basedir = TestUtil.getBasedir("projects/ignorewhitespace");
 
-        VersionsEngine engine = lookup(VersionsEngine.class);
-        engine.addBasedir(basedir);
+        VersionsEngine engine = newEngine(basedir);
+
         engine.addVersionChange("parent", "1.0.1.qualifier");
         engine.apply();
 
@@ -241,52 +235,24 @@ public class VersionsEngineTest extends PlexusTestCase {
 
     public void testWrongSnapshotVersion() throws Exception {
         try {
-            VersionsEngine.assertIsOsgiVersion("1.2.3_SNAPSHOT");
+            Versions.assertIsOsgiVersion("1.2.3_SNAPSHOT");
             fail("invalid version accepted");
         } catch (NumberFormatException e) {
         }
     }
 
     public void testAssertOsgiVersion() {
-        VersionsEngine.assertIsOsgiVersion("1.2.3.qualifier");
+        Versions.assertIsOsgiVersion("1.2.3.qualifier");
     }
 
-    private void assertPom(File basedir) throws IOException {
-        assertFileContent(new File(basedir, "pom.xml"));
-    }
+    private VersionsEngine newEngine(File basedir) throws Exception {
+        VersionsEngine engine = lookup(VersionsEngine.class);
+        ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);
 
-    private void assertBundleManifest(File basedir) throws IOException {
-        assertFileContent(new File(basedir, "META-INF/MANIFEST.MF"));
-    }
+        reader.addBasedir(basedir);
 
-    private void assertFeatureXml(File basedir) throws IOException {
-        assertFileContent(new File(basedir, "feature.xml"));
-    }
+        engine.setProjects(reader.getProjects());
 
-    private void assertSiteXml(File basedir) throws IOException {
-        assertFileContent(new File(basedir, "site.xml"));
-    }
-
-    private void assertProductFile(File basedir, String name) throws IOException {
-        assertFileContent(new File(basedir, name));
-    }
-
-    private void assertFileContent(File actual) throws IOException {
-        File expected = new File(actual.getParentFile(), actual.getName() + "_expected");
-        assertEquals(toAsciiString(expected), toAsciiString(actual));
-    }
-
-    private String toAsciiString(File file) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-        try {
-            String str;
-            while ((str = r.readLine()) != null) {
-                sb.append(str).append('\n');
-            }
-        } finally {
-            r.close();
-        }
-        return sb.toString();
+        return engine;
     }
 }

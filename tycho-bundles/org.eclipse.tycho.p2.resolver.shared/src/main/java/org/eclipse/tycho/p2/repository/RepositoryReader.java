@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,9 +34,7 @@ public interface RepositoryReader {
      * trigger a download of the artifact if necessary.
      * 
      * @return the local location of the artifact; never <code>null</code>
-     * @throws IOException
-     *             if the artifact does not exist or cannot be obtained.
      */
-    File getLocalArtifactLocation(GAV gav, String classifier, String extension) throws IOException;
+    File getLocalArtifactLocation(GAV gav, String classifier, String extension);
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
 package org.eclipse.tycho.p2.tools;
 
 import java.util.List;
+
+import org.eclipse.tycho.core.facade.BuildOutputDirectory;
 
 public class BuildContext {
     private final String qualifier;

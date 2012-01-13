@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: 351842_testOptionalDependencies
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.junit,
+ org.eclipse.core.runtime,
+ org.eclipse.equinox.frameworkadmin;bundle-version="[1.0.0,1.0.100)";resolution:=optional,
+ org.eclipse.equinox.frameworkadmin;bundle-version="1.0.100";resolution:=optional

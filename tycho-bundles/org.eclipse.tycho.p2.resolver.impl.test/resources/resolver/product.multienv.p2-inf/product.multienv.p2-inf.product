@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="product.multienv.p2-inf" uid="product.multienv.p2-inf" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false">
+
+</product>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,11 +38,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 /**
  * Base class for p2 artifact repositories with GAV-based artifact storage.
@@ -58,57 +56,12 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
     protected Set<IArtifactDescriptor> descriptors = new HashSet<IArtifactDescriptor>();
 
-    protected TychoRepositoryIndex artifactsIndex;
-
-    private final RepositoryReader contentLocator;
-
-    @Deprecated
-    protected AbstractMavenArtifactRepository(URI uri, TychoRepositoryIndex artifactsIndex,
-            RepositoryReader contentLocator) {
-        this(Activator.getProvisioningAgent(), uri, artifactsIndex, contentLocator);
-    }
-
-    protected AbstractMavenArtifactRepository(IProvisioningAgent agent, URI uri, TychoRepositoryIndex artifactsIndex,
-            RepositoryReader contentLocator) {
-        this(agent, uri, contentLocator);
-        this.artifactsIndex = artifactsIndex;
-        loadMaven();
-    }
+    protected final RepositoryReader contentLocator;
 
     protected AbstractMavenArtifactRepository(IProvisioningAgent agent, URI uri, RepositoryReader contentLocator) {
         super(agent, "Maven Local Repository", AbstractMavenArtifactRepository.class.getName(), VERSION, uri, null,
                 null, null);
         this.contentLocator = contentLocator;
-    }
-
-    protected void loadMaven() {
-        final ArtifactsIO io = new ArtifactsIO();
-
-        for (final GAV gav : artifactsIndex.getProjectGAVs()) {
-            try {
-                File localArtifactFileLocation = contentLocator.getLocalArtifactLocation(gav,
-                        RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
-                if (!localArtifactFileLocation.exists()) {
-                    // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
-                    artifactsIndex.removeGav(gav);
-                } else {
-                    final InputStream is = contentLocator.getContents(gav,
-                            RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                            RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
-                    try {
-                        final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
-                        for (IArtifactDescriptor descriptor : gavDescriptors) {
-                            internalAddDescriptor(descriptor);
-                        }
-                    } finally {
-                        is.close();
-                    }
-                }
-            } catch (IOException e) {
-                // TODO throw properly typed exception if repository cannot be loaded
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
@@ -153,8 +106,12 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
     public void addDescriptor(IArtifactDescriptor descriptor) {
         super.addDescriptor(descriptor);
         internalAddDescriptor(descriptor);
+        descriptorsChanged();
     }
 
+    /**
+     * Adds a descriptor without triggering {@link #descriptorsChanged()}.
+     */
     protected final void internalAddDescriptor(IArtifactDescriptor descriptor) {
         descriptors.add(descriptor);
 
@@ -169,14 +126,26 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         descriptorsForKey.add(descriptor);
     }
 
-    // TODO shouldn't this be implemented in the super class from p2?
+    protected final void descriptorsChanged() {
+        // TODO check if store is disabled
+        store();
+    }
+
+    /**
+     * Called whenever the list of descriptors needs to be persisted.
+     */
+    protected void store() {
+        // TODO split this class in writable and non-writable repos to avoid empty implementation
+    }
+
     @Override
     public void addDescriptors(IArtifactDescriptor[] descriptors) {
         super.addDescriptors(descriptors);
 
         for (IArtifactDescriptor descriptor : descriptors) {
-            addDescriptor(descriptor);
+            internalAddDescriptor(descriptor);
         }
+        descriptorsChanged();
     }
 
     GAV getGAV(IArtifactDescriptor descriptor) {
@@ -274,11 +243,6 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
             extension = "jar.pack.gz";
         }
 
-        try {
-            return contentLocator.getLocalArtifactLocation(gav, classifier, extension);
-        } catch (IOException e) {
-            // TODO revise getLocalArtifactLocation implementation: if it wouldn't download remote artifacts, we wouldn't need the IOException
-            throw new RuntimeException(e);
-        }
+        return contentLocator.getLocalArtifactLocation(gav, classifier, extension);
     }
 }

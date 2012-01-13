@@ -21,6 +21,8 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.facade.BuildPropertiesImpl;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest;
@@ -147,11 +149,11 @@ public class FeatureRootfileArtifactRepositoryTest {
         return desc;
     }
 
-    private Properties rootPropertiesWithGlobalAndWindowsFiles() {
+    private BuildProperties rootPropertiesWithGlobalAndWindowsFiles() {
         Properties buildProperties = new Properties();
         buildProperties.put("root.win32.win32.x86", "file:rootfiles/file1.txt");
         buildProperties.put("root", "file:rootfiles/file2.txt");
-        return buildProperties;
+        return new BuildPropertiesImpl(buildProperties);
     }
 
 }

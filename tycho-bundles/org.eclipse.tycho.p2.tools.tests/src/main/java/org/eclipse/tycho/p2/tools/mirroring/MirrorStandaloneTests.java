@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2011, 2012 SAP AG and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
 import static org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest.repoFile;
@@ -9,14 +19,15 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Collections;
 
+import org.eclipse.tycho.core.facade.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
+import org.eclipse.tycho.p2.tools.test.util.MemoryLog;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,7 +47,7 @@ public class MirrorStandaloneTests {
 
     @Before
     public void initTestContext() {
-        MavenLogger logger = new MirrorApplicationServiceTest.MemoryLog();
+        MavenLogger logger = new MemoryLog(true);
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
         subject = new MirrorApplicationServiceImpl();
         MavenContextImpl mavenContext = new MavenContextImpl();

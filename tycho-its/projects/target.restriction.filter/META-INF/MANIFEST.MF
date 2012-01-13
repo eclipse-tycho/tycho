@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: trf.testbundle
+Bundle-SymbolicName: trf.testbundle;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Require-Bundle: org.eclipse.osgi,
+ org.junit
+Bundle-Activator: test.Activator
+Bundle-ActivationPolicy: lazy

@@ -12,34 +12,35 @@ package org.eclipse.tycho.p2.impl.test;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
 import org.junit.Test;
 
 public class P2MetadataGeneratorImplTest {
     @Test
     public void gav() throws Exception {
         P2GeneratorImpl impl = new P2GeneratorImpl(false);
-
+        impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
         File location = new File("resources/generator/bundle").getCanonicalFile();
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";
         String version = "1.0.0-SNAPSHOT";
         List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
-        Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-        Set<IArtifactDescriptor> artifacts = new LinkedHashSet<IArtifactDescriptor>();
-        impl.generateMetadata(new ArtifactMock(location, groupId, artifactId, version, P2Resolver.TYPE_ECLIPSE_PLUGIN),
-                environments, units, artifacts);
+        DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(location, groupId, artifactId, version,
+                ArtifactKey.TYPE_ECLIPSE_PLUGIN), environments);
+
+        List<IInstallableUnit> units = new ArrayList<IInstallableUnit>(metadata.getInstallableUnits());
+        List<IArtifactDescriptor> artifacts = new ArrayList<IArtifactDescriptor>(metadata.getArtifactDescriptors());
 
         Assert.assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();

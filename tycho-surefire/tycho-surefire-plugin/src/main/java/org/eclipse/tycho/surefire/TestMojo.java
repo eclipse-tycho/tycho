@@ -13,17 +13,16 @@ package org.eclipse.tycho.surefire;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -56,9 +55,12 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.SimpleDependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
@@ -170,6 +172,14 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
      * @parameter expression="${tycho.showEclipseLog}" default-value="false"
      */
     private boolean showEclipseLog;
+
+    /**
+     * Set this to "true" to redirect the unit test standard output to a file (found in
+     * reportsDirectory/testName-output.txt).
+     * 
+     * @parameter expression="${maven.test.redirectTestOutputToFile}" default-value="false"
+     */
+    private boolean redirectTestOutputToFile;
 
     /**
      * Base directory where all reports are written to.
@@ -341,6 +351,9 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
     /** @component */
     private ToolchainManager toolchainManager;
 
+    /** @component */
+    private BuildPropertiesParser buildPropertiesParser;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip || skipExec || skipTests) {
             getLog().info("Skipping tests");
@@ -389,7 +402,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
 
         DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project,
-                targetPlatform, reactorProjects, dependencies);
+                targetPlatform, reactorProjects, new SimpleDependencyResolverConfiguration(dependencies));
 
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");
@@ -424,7 +437,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
                     testRuntime.addBundle(artifact.getKey(), project.getBasedir());
                     continue;
                 }
-                File file = otherProject.getArtifact();
+                File file = otherProject.getArtifact(artifact.getClassifier());
                 if (file != null) {
                     testRuntime.addBundle(artifact.getKey(), file);
                     continue;
@@ -494,6 +507,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         p.put("testclassesdirectory", testClassesDirectory.getAbsolutePath());
         p.put("reportsdirectory", reportsDirectory.getAbsolutePath());
         p.put("testprovider", getTestProvider(testFramework));
+        p.put("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
 
         if (test != null) {
             String test = this.test;
@@ -754,44 +768,30 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         sb.append(otherProject.getOutputDirectory());
         sb.append(',').append(otherProject.getTestOutputDirectory());
 
-        Properties buildProperties = new Properties();
-        File file = new File(otherProject.getBasedir(), "build.properties");
-        try {
-            FileInputStream is = new FileInputStream(file);
-            try {
-                buildProperties.load(is);
-            } finally {
-                is.close();
+        BuildProperties buildProperties = buildPropertiesParser.parse(otherProject.getBasedir());
+        for (Entry<String, String> outputEntry : buildProperties.getJarToOutputFolderMap().entrySet()) {
+            if (".".equals(outputEntry.getKey())) {
+                continue;
             }
-
-            // TODO plugin package mojo has this same logic, move to a helper
-            final String OUTPUT = "output.";
-            final String SOURCE = "source.";
-
-            for (Iterator<Object> iterator = buildProperties.keySet().iterator(); iterator.hasNext();) {
-                String key = (String) iterator.next();
-                String[] classesDir = null;
-                if (key.startsWith(OUTPUT) && !key.equals("output..")) {
-                    classesDir = buildProperties.getProperty(key).split(",");
-                } else if (key.startsWith(SOURCE) && !key.equals("source..")) {
-                    String fileName = key.substring(SOURCE.length());
-                    classesDir = new String[] { otherProject.getBuildDirectory().getName() + "/"
-                            + fileName.substring(0, fileName.length() - 4) + "-classes" };
-                }
-                if (classesDir != null) {
-                    for (String dir : classesDir) {
-                        if (sb.length() > 0)
-                            sb.append(',');
-                        sb.append(dir);
-                    }
-                }
-            }
-
-        } catch (IOException e) {
-            getLog().debug("Exception reading build.properties of " + otherProject.getId(), e);
+            appendCommaSeparated(sb, outputEntry.getValue());
         }
-
+        for (Entry<String, List<String>> sourceEntry : buildProperties.getJarToSourceFolderMap().entrySet()) {
+            String fileName = sourceEntry.getKey();
+            if (".".equals(fileName)) {
+                continue;
+            }
+            String classesDir = otherProject.getBuildDirectory().getName() + "/"
+                    + fileName.substring(0, fileName.length() - ".jar".length()) + "-classes";
+            appendCommaSeparated(sb, classesDir);
+        }
         return sb.toString();
+    }
+
+    private static void appendCommaSeparated(StringBuilder sb, String string) {
+        if (sb.length() > 0) {
+            sb.append(',');
+        }
+        sb.append(string);
     }
 
     private List<String> getBundlesToExplode() {

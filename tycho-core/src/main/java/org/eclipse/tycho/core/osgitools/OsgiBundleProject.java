@@ -45,6 +45,7 @@ import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.UnknownEnvironmentException;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
@@ -66,6 +67,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private BundleReader bundleReader;
+
+    @Requirement
+    private BuildPropertiesParser buildPropertiesParser;
 
     @Requirement
     private EquinoxResolver resolver;
@@ -165,7 +169,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<ClasspathEntry> classpath = new ArrayList<ClasspathEntry>();
 
         // project itself
-        ArtifactDescriptor artifact = artifacts.getArtifact(project.getBasedir());
+        ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(), bundleDescription.getSymbolicName());
         ReactorProject projectProxy = DefaultReactorProject.adapt(project);
         List<File> projectClasspath = getThisProjectClasspath(artifact, projectProxy);
         classpath.add(new DefaultClasspathEntry(projectProxy, artifact.getKey(), projectClasspath, null));
@@ -176,7 +180,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         // dependencies
         for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
             File location = new File(entry.desc.getLocation());
-            ArtifactDescriptor otherArtifact = artifacts.getArtifact(location);
+            ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.desc.getSymbolicName());
             ReactorProject otherProject = otherArtifact.getMavenProject();
             List<File> locations;
             if (otherProject != null) {
@@ -193,6 +197,18 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
         addPDESourceRoots(project);
+    }
+
+    protected ArtifactDescriptor getArtifact(DependencyArtifacts artifacts, File location, String id) {
+        Map<String, ArtifactDescriptor> classified = artifacts.getArtifact(location);
+        if (classified != null) {
+            for (ArtifactDescriptor artifact : classified.values()) {
+                if (id.equals(artifact.getKey().getId())) {
+                    return artifact;
+                }
+            }
+        }
+        return null;
     }
 
     private void addPDESourceRoots(MavenProject project) {
@@ -222,7 +238,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
         if (pdeProject == null) {
             try {
-                pdeProject = new EclipsePluginProjectImpl(otherProject);
+                pdeProject = new EclipsePluginProjectImpl(otherProject, buildPropertiesParser);
                 otherProject.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT, pdeProject);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -440,7 +456,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         } else {
             // PDE compatibility (I really feel generous today)
             String pdeProfile = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
-                    .getProperty("jre.compilation.profile");
+                    .getJreCompilationProfile();
             if (pdeProfile != null) {
                 return getExecutionEnvironment(project, pdeProfile.trim());
             }

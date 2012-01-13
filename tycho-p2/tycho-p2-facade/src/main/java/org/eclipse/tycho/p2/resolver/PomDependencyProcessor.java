@@ -24,7 +24,7 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 public class PomDependencyProcessor {
 

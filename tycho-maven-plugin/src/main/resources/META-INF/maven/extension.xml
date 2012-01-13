@@ -7,6 +7,8 @@
     <exportedPackage>org.eclipse.osgi</exportedPackage>
     <exportedPackage>org.eclipse.sisu.equinox</exportedPackage>
     <exportedPackage>org.eclipse.tycho.p2.resolver</exportedPackage>
+    
+    <exportedPackage>de.pdark.decentxml</exportedPackage>
   </exportedPackages>
 
   <exportedArtifacts>
@@ -21,5 +23,7 @@
     <exportedArtifact>org.eclipse.tycho:sisu-equinox-api</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:sisu-equinox-embedder</exportedArtifact>
     <exportedArtifact>org.eclipse.tycho:org.eclipse.osgi</exportedArtifact>
+    
+    <exportedArtifact>de.pdark:decentxml</exportedArtifact>
   </exportedArtifacts>
 </extension>

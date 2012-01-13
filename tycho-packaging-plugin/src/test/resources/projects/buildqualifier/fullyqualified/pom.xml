@@ -18,7 +18,7 @@
         <configuration>
           <packaging>eclipse-plugin</packaging>
           <format>yyyyMMddHHmm</format>
-          <buildPropertiesFile>target/projects/buildqualifier/fullyqualified/build.properties</buildPropertiesFile>
+          <baseDir>target/projects/buildqualifier/fullyqualified/</baseDir>
         </configuration>
       </plugin>
     </plugins>

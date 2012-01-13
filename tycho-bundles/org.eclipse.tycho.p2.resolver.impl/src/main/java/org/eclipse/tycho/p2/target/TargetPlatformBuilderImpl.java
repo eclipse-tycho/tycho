@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -46,7 +45,6 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -58,6 +56,7 @@ import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
@@ -72,14 +71,16 @@ import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
+import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
-import org.eclipse.tycho.repository.registry.impl.ArtifactRepositoryBlackboard;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
@@ -163,15 +164,23 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
 
+    private Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
+
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
 
     private Set<String> reactorInstallableUnitIds = new HashSet<String>();
 
     public void addReactorArtifact(IReactorArtifactFacade artifact) {
-        Set<IInstallableUnit> units = toSet(artifact.getDependencyMetadata(), IInstallableUnit.class);
+        addReactorProjectIUs(artifact, reactorProjectIUs, true);
+        addReactorProjectIUs(artifact, reactorProjectSecondaryIUs, false);
+    }
+
+    private void addReactorProjectIUs(IReactorArtifactFacade artifact,
+            Map<ClassifiedLocation, Set<IInstallableUnit>> projectIUs, boolean primary) {
+        Set<IInstallableUnit> units = toSet(artifact.getDependencyMetadata(primary), IInstallableUnit.class);
 
         ClassifiedLocation key = new ClassifiedLocation(artifact);
-        reactorProjectIUs.put(key, units);
+        projectIUs.put(key, units);
         addMavenArtifact(key, artifact, units);
 
         for (IInstallableUnit unit : units) {
@@ -213,12 +222,15 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     public void addMavenArtifact(ClassifiedLocation key, IArtifactFacade artifact, Set<IInstallableUnit> units) {
         for (IInstallableUnit unit : units) {
-            mavenInstallableUnits.put(unit, artifact);
-            if (logger.isDebugEnabled()) {
-                logger.debug("P2Resolver: artifact "
-                        + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion()).toString()
-                        + " at location " + artifact.getLocation() + " resolves installable unit "
-                        + new VersionedId(unit.getId(), unit.getVersion()));
+            String classifier = unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+            if (classifier == null ? key.getClassifier() == null : classifier.equals(key.getClassifier())) {
+                mavenInstallableUnits.put(unit, artifact);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("P2Resolver: artifact "
+                            + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion())
+                                    .toString() + " at location " + artifact.getLocation()
+                            + " resolves installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
+                }
             }
         }
     }
@@ -344,7 +356,13 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
         TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, agent, logger);
-        content.add(resolver.resolveContent(definition));
+        TargetPlatformContent targetFileContent = resolver.resolveContent(definition);
+        content.add(targetFileContent);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Added " + targetFileContent.getUnits().size()
+                    + " units, the content of the target definition file, to the target platform");
+        }
     }
 
     // --------------------------------------------------------------------------------
@@ -420,7 +438,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         logger.debug("Registered artifact repository " + blackboardKey);
 
         assertNoDuplicateReactorUIs();
-        IQueryable<IInstallableUnit> allTargetPlatformIUs = gatherAvailableInstallableUnits(monitor);
+        LinkedHashSet<IInstallableUnit> targetPlatformIUs = gatherAvailableInstallableUnits(monitor);
+        applyConfiguredFilters(targetPlatformIUs);
 
         List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
         for (IArtifactRepository artifactRepository : artifactRepositories) {
@@ -430,15 +449,15 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
 
-        return new TargetPlatformImpl(allTargetPlatformIUs, mavenInstallableUnits, reactorProjectIUs,
-                localMetadataRepository, executionEnvironment, allRemoteArtifactRepositories, localArtifactRepository,
-                agent, logger);
+        return new TargetPlatformImpl(targetPlatformIUs, mavenInstallableUnits, reactorProjectIUs,
+                reactorProjectSecondaryIUs, localMetadataRepository, executionEnvironment,
+                allRemoteArtifactRepositories, localArtifactRepository, agent, logger);
     }
 
     // -------------------------------------------------------------------------
 
-    private IQueryable<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
-        Collection<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+    private LinkedHashSet<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetPlatformContent contentPart : content) {
             filterJREUIs(result, contentPart.getUnits());
@@ -474,8 +493,29 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         }
         result.addAll(getJREIUs());
         sub.done();
-        // this is a real shame
-        return new QueryableArray(result.toArray(new IInstallableUnit[result.size()]));
+
+        if (logger.isDebugEnabled()) {
+            IQueryResult<IInstallableUnit> locallyInstalledIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS,
+                    null);
+            logger.debug("Added " + countElements(locallyInstalledIUs.iterator())
+                    + " locally built units to the target platform");
+
+            // TODO it is questionable if the following is useful at all; instead, the full metadata should be written to a file for target platform debugging 
+//            logger.debug("The following locally built units are added to the target platform:");
+//            for (IInstallableUnit unit : locallyInstalledIUs.toSet()) {
+//                logger.debug("  " + unit.getId() + "/" + unit.getVersion());
+//            }
+        }
+
+        return result;
+    }
+
+    private int countElements(Iterator<?> iterator) {
+        int result = 0;
+        for (; iterator.hasNext(); iterator.next()) {
+            ++result;
+        }
+        return result;
     }
 
     /**
@@ -512,6 +552,18 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         PublisherResult results = new PublisherResult();
         new JREAction(executionEnvironment).perform(new PublisherInfo(), results, new NullProgressMonitor());
         return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet();
+    }
+
+    // -------------------------------------------------------------------------
+
+    private List<TargetPlatformFilter> iuFilters = new ArrayList<TargetPlatformFilter>();
+
+    public void addFilters(List<TargetPlatformFilter> filters) {
+        this.iuFilters.addAll(filters);
+    }
+
+    private void applyConfiguredFilters(LinkedHashSet<IInstallableUnit> units) {
+        new TargetPlatformFilterEvaluator(iuFilters).filterUnits(units);
     }
 
     // -------------------------------------------------------------------------------

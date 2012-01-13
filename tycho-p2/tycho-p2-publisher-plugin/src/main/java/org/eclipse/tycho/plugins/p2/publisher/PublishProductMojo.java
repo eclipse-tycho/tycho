@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,13 +25,15 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
+import org.eclipse.tycho.core.facade.BuildOutputDirectory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.locking.facade.FileLockService;
+import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Launcher;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration.ConfigIni;
-import org.eclipse.tycho.p2.tools.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
@@ -52,6 +54,11 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * @component role="org.codehaus.plexus.archiver.UnArchiver" role-hint="zip"
      */
     private UnArchiver deflater;
+
+    /**
+     * @component
+     */
+    private FileLockService fileLockService;
 
     @Override
     protected Collection<?> publishContent(PublisherService publisherService) throws MojoExecutionException,
@@ -176,6 +183,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * We expect an p2 advice file called "xx.p2.inf" next to a product file "xx.product".
      */
     static File getSourceP2InfFile(File productFile) {
+        // This must match org.eclipse.tycho.p2.impl.publisher.ProductDependenciesAction.addPublisherAdvice(IPublisherInfo)
         final int indexOfExtension = productFile.getName().indexOf(".product");
         final String p2infFilename = productFile.getName().substring(0, indexOfExtension) + ".p2.inf";
         return new File(productFile.getParentFile(), p2infFilename);
@@ -242,12 +250,18 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 return unzipped.getAbsoluteFile();
             }
             try {
-                // unzip now then:
-                unzipped.mkdirs();
-                deflater.setSourceFile(equinoxExecFeature);
-                deflater.setDestDirectory(unzipped);
-                deflater.extract();
-                return unzipped.getAbsoluteFile();
+                FileLocker locker = fileLockService.getFileLocker(equinoxExecFeature);
+                locker.lock();
+                try {
+                    // unzip now then:
+                    unzipped.mkdirs();
+                    deflater.setSourceFile(equinoxExecFeature);
+                    deflater.setDestDirectory(unzipped);
+                    deflater.extract();
+                    return unzipped.getAbsoluteFile();
+                } finally {
+                    locker.release();
+                }
             } catch (ArchiverException e) {
                 throw new MojoFailureException("Unable to unzip the eqiuinox executable feature", e);
             }

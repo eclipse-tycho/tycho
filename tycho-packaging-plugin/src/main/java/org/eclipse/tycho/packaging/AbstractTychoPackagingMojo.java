@@ -11,13 +11,11 @@
 package org.eclipse.tycho.packaging;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -63,19 +61,6 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
      * @component role="org.eclipse.tycho.core.TychoProject"
      */
     private Map<String, TychoProject> projectTypes;
-
-    protected List<String> toFilePattern(String pattern) {
-        ArrayList<String> result = new ArrayList<String>();
-
-        if (pattern != null) {
-            StringTokenizer st = new StringTokenizer(pattern, ",");
-            while (st.hasMoreTokens()) {
-                result.add(st.nextToken().trim());
-            }
-        }
-
-        return result;
-    }
 
     protected FileSet getFileSet(File basedir, List<String> includes, List<String> excludes) {
         DefaultFileSet fileSet = new DefaultFileSet();

@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Set;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 
 public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
@@ -27,9 +28,11 @@ public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
 
     private String packagingType;
 
-    private final String classifier;
+    private String classifier;
 
     private Set<Object> dependencyMetadata;
+
+    private Set<Object> secondaryDependencyMetadata;
 
     public ArtifactMock(File location, String groupId, String artifactId, String version, String packagingType,
             String classifier) {
@@ -69,11 +72,16 @@ public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
         return classifier;
     }
 
-    public Set<Object> getDependencyMetadata() {
-        return dependencyMetadata;
+    public void setClassifier(String classifier) {
+        this.classifier = classifier;
     }
 
-    public void setDependencyMetadata(Set<Object> dependencyMetadata) {
-        this.dependencyMetadata = dependencyMetadata;
+    public Set<Object> getDependencyMetadata(boolean primary) {
+        return primary ? dependencyMetadata : secondaryDependencyMetadata;
+    }
+
+    public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
+        this.dependencyMetadata = dependencyMetadata.getMetadata(true);
+        this.secondaryDependencyMetadata = dependencyMetadata.getMetadata(false);
     }
 }

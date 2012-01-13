@@ -22,11 +22,12 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.resolver.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.After;
@@ -71,7 +72,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
 
         String id = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
         File bundle = ResourceUtil.resourceFile("resolver/bundle01");
-        addReactorProject(bundle, P2Resolver.TYPE_ECLIPSE_PLUGIN, id);
+        addReactorProject(bundle, ArtifactKey.TYPE_ECLIPSE_PLUGIN, id);
 
         List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
         return results;
