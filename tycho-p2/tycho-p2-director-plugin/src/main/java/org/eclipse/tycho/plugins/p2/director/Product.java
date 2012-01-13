@@ -34,6 +34,12 @@ public final class Product {
      */
     private String rootFolder;
 
+    /**
+     * The name of the output archive file (without extension). If omitted, the id will be used
+     * instead.
+     */
+    private String archiveFileName;
+
     public Product() {
     }
 
@@ -58,6 +64,13 @@ public final class Product {
         return rootFolder;
     }
 
+    /**
+     * @return An archive file name without extension
+     */
+    public String getArchiveFileName() {
+        return archiveFileName;
+    }
+
     @Override
     public String toString() {
         return "Product [id=" + id + ", attachId=" + attachId + "]";
@@ -69,6 +82,7 @@ public final class Product {
         int result = 1;
         result = prime * result + ((attachId == null) ? 0 : attachId.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((archiveFileName == null) ? 0 : archiveFileName.hashCode());
         return result;
     }
 
@@ -78,7 +92,8 @@ public final class Product {
             return true;
         if (obj instanceof Product) {
             Product other = (Product) obj;
-            return equals(this.id, other.id) && equals(this.attachId, other.attachId);
+            return equals(this.id, other.id) && equals(this.attachId, other.attachId)
+                    && equals(this.archiveFileName, other.archiveFileName);
         }
         return false;
     }
@@ -90,5 +105,9 @@ public final class Product {
             return false;
         else
             return left.equals(right);
+    }
+
+    public void setArchiveFileName(String anArchiveFileName) {
+        this.archiveFileName = anArchiveFileName;
     }
 }

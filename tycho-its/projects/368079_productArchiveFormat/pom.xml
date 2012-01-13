@@ -86,6 +86,13 @@
             <!-- non-zip for macosx -->
             <macosx>tar.gz</macosx>
           </formats>
+          <!-- custom archive file name -->
+          <products>
+              <product>
+                  <id>368079_productArchiveFormat</id>
+                  <archiveFileName>customArchiveName</archiveFileName>
+              </product>
+          </products>
         </configuration>
       </plugin>
     </plugins>

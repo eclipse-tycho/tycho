@@ -126,7 +126,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                             + " format=" + format);
                 }
 
-                File productArchive = new File(getProductsBuildDirectory(), product.getId() + "-"
+                File productArchive = new File(getProductsBuildDirectory(), getArchiveFileName(product) + "-"
                         + getOsWsArch(env, '.') + "." + format);
 
                 try {
@@ -143,6 +143,14 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 final String artifactClassifier = getArtifactClassifier(product, env, format);
                 helper.attachArtifact(getProject(), format, artifactClassifier, productArchive);
             }
+        }
+    }
+
+    static String getArchiveFileName(Product product) {
+        if (product.getArchiveFileName() != null) {
+            return product.getArchiveFileName();
+        } else {
+            return product.getId();
         }
     }
 
