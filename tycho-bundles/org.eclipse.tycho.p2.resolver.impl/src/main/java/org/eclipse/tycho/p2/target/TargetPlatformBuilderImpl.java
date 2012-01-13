@@ -410,7 +410,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
         Set<IInstallableUnit> reactorProjectUIs = getReactorProjectUIs();
 
-        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters)
+        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters, logger)
                 : null;
 
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(monitor);

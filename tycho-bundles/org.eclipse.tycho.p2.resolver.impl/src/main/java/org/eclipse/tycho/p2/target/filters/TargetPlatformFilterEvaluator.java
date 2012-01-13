@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,18 +26,25 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
+import org.eclipse.tycho.core.facade.MavenLogger;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformFilterEvaluator {
 
     private final List<TargetPlatformFilter> filters;
+    final MavenLogger logger;
+    private final FilterLogger filterLogger;
 
-    public TargetPlatformFilterEvaluator(List<TargetPlatformFilter> filters) {
+    public TargetPlatformFilterEvaluator(List<TargetPlatformFilter> filters, MavenLogger logger) {
         this.filters = Collections.unmodifiableList(new ArrayList<TargetPlatformFilter>(filters));
-    }
+        this.logger = logger;
 
-    TargetPlatformFilterEvaluator(TargetPlatformFilter filter) {
-        this(Collections.singletonList(filter));
+        // TODO enable debug logging; currently the filtering is done repeatedly on subsets of the target platform, leading to excessive amount of debug output 
+//        if (this.logger.isDebugEnabled())
+//            this.filterLogger = new DebugFilterLogger();
+//        else
+        this.filterLogger = new FilterLogger();
+
     }
 
     /**
@@ -50,7 +57,6 @@ public class TargetPlatformFilterEvaluator {
      */
     public void filterUnits(Collection<IInstallableUnit> targetPlatformUnits)
             throws TargetPlatformFilterSyntaxException {
-        // TODO 356579 log
 
         for (TargetPlatformFilter filter : filters) {
             applyFilter(filter, targetPlatformUnits);
@@ -72,6 +78,8 @@ public class TargetPlatformFilterEvaluator {
     private void applyRemoveAllFilter(TargetPlatformFilter filter, Collection<IInstallableUnit> targetPlatformUnits) {
         ParsedCapabilityPattern scopePattern = parsePattern(filter.getScopePattern(), null);
 
+        // TODO implement debug logging
+
         for (Iterator<IInstallableUnit> unitIterator = targetPlatformUnits.iterator(); unitIterator.hasNext();) {
             IInstallableUnit unit = unitIterator.next();
 
@@ -85,15 +93,24 @@ public class TargetPlatformFilterEvaluator {
         ParsedCapabilityPattern scopePattern = parsePattern(filter.getScopePattern(), null);
         ParsedCapabilityPattern restrictionPattern = parsePattern(filter.getActionPattern(), scopePattern);
 
+        filterLogger.beginEvaluation(filter);
+
         for (Iterator<IInstallableUnit> unitIterator = targetPlatformUnits.iterator(); unitIterator.hasNext();) {
             IInstallableUnit unit = unitIterator.next();
 
             if (matches(unit, scopePattern)) {
                 if (!matches(unit, restrictionPattern)) {
                     unitIterator.remove();
+
+                    filterLogger.unitRemoved(unit);
+                } else {
+                    filterLogger.unitKept(unit);
                 }
             }
+
         }
+
+        filterLogger.endEvaluation();
     }
 
     private boolean matches(IInstallableUnit unit, ParsedCapabilityPattern pattern) {
@@ -227,6 +244,55 @@ public class TargetPlatformFilterEvaluator {
             if (versionRangeReq == null)
                 return true;
             return versionRangeReq.isIncluded(version);
+        }
+    }
+
+    private class FilterLogger {
+        TargetPlatformFilter currentFilter;
+        int unitsKept;
+        int unitsRemoved;
+
+        public void beginEvaluation(TargetPlatformFilter filter) {
+            currentFilter = filter;
+            unitsKept = 0;
+            unitsRemoved = 0;
+        }
+
+        public void unitKept(IInstallableUnit unit) {
+            ++unitsKept;
+        }
+
+        public void unitRemoved(IInstallableUnit unit) {
+            ++unitsRemoved;
+        }
+
+        public void endEvaluation() {
+            if (unitsRemoved > 0 && unitsKept == 0) {
+                logger.warn("Removed all units from the target platform matching {"
+                        + currentFilter.getScopePattern().printMembers()
+                        + "} because none of the units passed the restriction filter {"
+                        + currentFilter.getActionPattern().printMembers() + "}");
+            }
+        }
+    }
+
+    private class DebugFilterLogger extends FilterLogger {
+        @Override
+        public void beginEvaluation(TargetPlatformFilter filter) {
+            super.beginEvaluation(filter);
+            logger.debug("Applying " + filter);
+        }
+
+        @Override
+        public void unitKept(IInstallableUnit unit) {
+            super.unitKept(unit);
+            logger.debug("  Keeping unit " + unit.getId() + "/" + unit.getVersion());
+        }
+
+        @Override
+        public void unitRemoved(IInstallableUnit unit) {
+            super.unitRemoved(unit);
+            logger.debug("  Removing unit " + unit.getId() + "/" + unit.getVersion());
         }
     }
 }

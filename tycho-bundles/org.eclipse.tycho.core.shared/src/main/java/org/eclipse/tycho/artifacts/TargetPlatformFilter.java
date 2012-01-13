@@ -61,6 +61,21 @@ public final class TargetPlatformFilter {
         return actionPattern;
     }
 
+    @Override
+    public String toString() {
+        String commonPart = "TargetPlatformFilter(scope=" + scopePattern + ", action=" + action;
+        switch (action) {
+        case REMOVE_ALL:
+            return commonPart + ")";
+
+        case RESTRICT:
+            return commonPart + ", restriction=" + actionPattern + ")";
+
+        default:
+            return super.toString();
+        }
+    }
+
     public enum FilterAction {
         REMOVE_ALL, RESTRICT
     }
@@ -126,20 +141,32 @@ public final class TargetPlatformFilter {
 
         @Override
         public String toString() {
-            StringBuilder result = new StringBuilder();
+            StringBuilder result = new StringBuilder("CapabilityPattern(");
+            printMembers(result);
+            result.append(")");
+            return result.toString();
+        }
+
+        private void printMembers(StringBuilder result) {
+            int lengthWithoutMembers = result.length();
 
             if (type != null)
                 result.append("type=" + type + ", ");
             if (id != null)
-                result.append("id=" + id + ", ");
+                result.append("id=\"" + id + "\", ");
             if (version != null)
-                result.append("version=" + version + ", ");
+                result.append("version=\"" + version + "\", ");
             if (versionRange != null)
-                result.append("versionRange=" + versionRange + ", ");
+                result.append("versionRange=\"" + versionRange + "\", ");
 
-            result.setLength(Math.max(0, result.length() - 2));
-            result.append(")");
-            return "TargetPlatformFilter(" + result.toString();
+            // trim trailing comma
+            result.setLength(Math.max(lengthWithoutMembers, result.length() - 2));
+        }
+
+        public String printMembers() {
+            StringBuilder result = new StringBuilder();
+            printMembers(result);
+            return result.toString();
         }
 
         @Override

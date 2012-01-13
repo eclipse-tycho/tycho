@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,9 @@ import static org.eclipse.tycho.artifacts.TargetPlatformFilter.restrictionFilter
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersion;
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
@@ -23,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -34,11 +37,11 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
+import org.eclipse.tycho.test.util.MemoryLog;
 import org.eclipse.tycho.test.util.P2Context;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.matchers.TypeSafeMatcher;
@@ -56,12 +59,14 @@ public class TargetPlatformFilterEvaluatorTest {
 
     private TargetPlatformFilterEvaluator subject;
 
+    private MemoryLog logger;
+
     @Before
     public void setUp() throws Exception {
-        // TODO do this in beforeClass -> requires @ClassRule from junit >= 4.9
-        baselineUnits = loadTestUnits();
-
+        baselineUnits = loadTestUnits(); // TODO do this in beforeClass -> requires @ClassRule from junit >= 4.9
         workUnits = new LinkedHashSet<IInstallableUnit>(baselineUnits);
+
+        logger = new MemoryLog(true);
     }
 
     private Set<IInstallableUnit> loadTestUnits() throws Exception {
@@ -73,9 +78,18 @@ public class TargetPlatformFilterEvaluatorTest {
         return testDataRepository.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
     }
 
+    private TargetPlatformFilterEvaluator newEvaluator(List<TargetPlatformFilter> filters) {
+        return new TargetPlatformFilterEvaluator(filters, logger);
+    }
+
+    private TargetPlatformFilterEvaluator newEvaluator(TargetPlatformFilter filter) {
+        return new TargetPlatformFilterEvaluator(Collections.singletonList(filter), logger);
+    }
+
     @Test
     public void testNoFilters() {
-        subject = new TargetPlatformFilterEvaluator(Collections.<TargetPlatformFilter> emptyList());
+        List<TargetPlatformFilter> filters = Collections.<TargetPlatformFilter> emptyList();
+        subject = newEvaluator(filters);
 
         subject.filterUnits(workUnits);
 
@@ -85,7 +99,7 @@ public class TargetPlatformFilterEvaluatorTest {
     @Test
     public void testRemoveAllOfBundleId() throws Exception {
         TargetPlatformFilter removeAllFilter = removeAllFilter(ALL_MULTIVERSION_BUNDLES);
-        subject = new TargetPlatformFilterEvaluator(removeAllFilter);
+        subject = newEvaluator(removeAllFilter);
 
         subject.filterUnits(workUnits);
 
@@ -98,7 +112,7 @@ public class TargetPlatformFilterEvaluatorTest {
     public void testRemoveAllOfUnitId() throws Exception {
         CapabilityPattern unitIdPattern = patternWithVersion(CapabilityType.P2_INSTALLABLE_UNIT, "main.product.id",
                 null);
-        subject = new TargetPlatformFilterEvaluator(removeAllFilter(unitIdPattern));
+        subject = newEvaluator(removeAllFilter(unitIdPattern));
 
         subject.filterUnits(workUnits);
 
@@ -110,7 +124,7 @@ public class TargetPlatformFilterEvaluatorTest {
     public void testUnitAndBundleIdDistinction() throws Exception {
         // does not match because main.product.id is not a bundle
         CapabilityPattern bundleIdPattern = patternWithVersion(CapabilityType.OSGI_BUNDLE, "main.product.id", null);
-        subject = new TargetPlatformFilterEvaluator(removeAllFilter(bundleIdPattern));
+        subject = newEvaluator(removeAllFilter(bundleIdPattern));
 
         subject.filterUnits(workUnits);
 
@@ -120,8 +134,8 @@ public class TargetPlatformFilterEvaluatorTest {
     @Test
     public void testRestrictToExactVersion() throws Exception {
         TargetPlatformFilter versionFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
-                patternWithVersion(null, null, "1.0.0"));
-        subject = new TargetPlatformFilterEvaluator(versionFilter);
+                patternWithVersion(null, null, "1.0"));
+        subject = newEvaluator(versionFilter);
 
         subject.filterUnits(workUnits);
 
@@ -132,8 +146,8 @@ public class TargetPlatformFilterEvaluatorTest {
     @Test
     public void testRestrictToVersionRange() throws Exception {
         TargetPlatformFilter versionRangeFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
-                patternWithVersionRange(null, null, "[1.0.0,2.0.0)"));
-        subject = new TargetPlatformFilterEvaluator(versionRangeFilter);
+                patternWithVersionRange(null, null, "[1.0.0,2)"));
+        subject = newEvaluator(versionRangeFilter);
 
         subject.filterUnits(workUnits);
 
@@ -146,7 +160,7 @@ public class TargetPlatformFilterEvaluatorTest {
         TargetPlatformFilter providerFilter = restrictionFilter(
                 patternWithoutVersion(CapabilityType.JAVA_PACKAGE, "javax.persistence"),
                 patternWithoutVersion(CapabilityType.OSGI_BUNDLE, "javax.persistence"));
-        subject = new TargetPlatformFilterEvaluator(providerFilter);
+        subject = newEvaluator(providerFilter);
 
         subject.filterUnits(workUnits);
 
@@ -159,7 +173,7 @@ public class TargetPlatformFilterEvaluatorTest {
         TargetPlatformFilter packageVersionFilter = restrictionFilter(
                 patternWithoutVersion(CapabilityType.JAVA_PACKAGE, "javax.persistence"),
                 patternWithVersion(null, null, "1.0.0")); // inherit attributes from scope pattern
-        subject = new TargetPlatformFilterEvaluator(packageVersionFilter);
+        subject = newEvaluator(packageVersionFilter);
 
         subject.filterUnits(workUnits);
 
@@ -167,17 +181,30 @@ public class TargetPlatformFilterEvaluatorTest {
         assertThat(removedUnits(), hasSize(1));
     }
 
-    @Ignore("TODO")
+    @SuppressWarnings("unchecked")
     @Test
     public void testWarningIfRestrictionRemovesAll() throws Exception {
+        TargetPlatformFilter versionFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
+                patternWithVersion(null, null, "3.0.0"));
+        subject = newEvaluator(versionFilter);
 
+        subject.filterUnits(workUnits);
+
+        // 3.0.0 doesn't exist, so all applicable units shall be removed...
+        assertThat(removedUnits(), hasItem("trf.bundle.multiversion_1.0.0"));
+        assertThat(removedUnits(), hasItem("trf.bundle.multiversion_2.0.0"));
+        assertThat(removedUnits(), hasSize(2));
+
+        // ... but this yields a warning
+        assertThat(logger.warnings,
+                hasItem(allOf(containsString("Removed all units"), containsString("trf.bundle.multiversion"))));
     }
 
     @Test(expected = TargetPlatformFilterSyntaxException.class)
     public void testNonParsableVersion() throws Exception {
         TargetPlatformFilter invalidFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
                 patternWithVersion(null, null, "1.a"));
-        subject = new TargetPlatformFilterEvaluator(invalidFilter);
+        subject = newEvaluator(invalidFilter);
 
         subject.filterUnits(workUnits);
     }
@@ -186,7 +213,7 @@ public class TargetPlatformFilterEvaluatorTest {
     public void testNonParsableVersionRange() throws Exception {
         TargetPlatformFilter invalidFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,
                 patternWithVersionRange(null, null, "[1.0.0,")); // "[1.0.0," is invalid; "1.0.0" is the range from 1 to infinity
-        subject = new TargetPlatformFilterEvaluator(invalidFilter);
+        subject = newEvaluator(invalidFilter);
 
         subject.filterUnits(workUnits);
     }
