@@ -41,9 +41,10 @@ public final class Product {
     private boolean includeVersion;
 
     /**
-     * The name of the output zip file. If omitted, the id will be used instead.
+     * The name of the output archive file (without extension). If omitted, the id will be used
+     * instead.
      */
-    private String zipFileName;
+    private String archiveFileName;
 
     private String version;
 
@@ -77,8 +78,11 @@ public final class Product {
         return includeVersion;
     }
 
-    public String getZipFileName() {
-        return zipFileName;
+    /**
+     * @return An archive file name with an extension
+     */
+    public String getArchiveFileName() {
+        return archiveFileName;
     }
 
     @Override
@@ -92,7 +96,7 @@ public final class Product {
         int result = 1;
         result = prime * result + ((attachId == null) ? 0 : attachId.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((zipFileName == null) ? 0 : zipFileName.hashCode());
+        result = prime * result + ((archiveFileName == null) ? 0 : archiveFileName.hashCode());
         result = prime * result + ((version == null) ? 0 : version.hashCode());
         result = prime * result + (Boolean.valueOf(includeVersion).hashCode());
         return result;
@@ -105,7 +109,7 @@ public final class Product {
         if (obj instanceof Product) {
             Product other = (Product) obj;
             return equals(this.id, other.id) && equals(this.attachId, other.attachId)
-                    && equals(this.zipFileName, other.zipFileName) && equals(this.version, other.version)
+                    && equals(this.archiveFileName, other.archiveFileName) && equals(this.version, other.version)
                     && (this.includeVersion == other.includeVersion);
         }
         return false;
@@ -128,8 +132,8 @@ public final class Product {
         this.version = version;
     }
 
-    public void setZipFileName(String aZipFileName) {
-        this.zipFileName = aZipFileName;
+    public void setArchiveFileName(String anArchiveFileName) {
+        this.archiveFileName = anArchiveFileName;
     }
 
 }

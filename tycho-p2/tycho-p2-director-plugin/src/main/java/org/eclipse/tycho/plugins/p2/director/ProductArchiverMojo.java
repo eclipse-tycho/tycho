@@ -126,7 +126,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                             + " format=" + format);
                 }
 
-                File productArchive = new File(getProductsBuildDirectory(), getZipFileName(product) + "-"
+                File productArchive = new File(getProductsBuildDirectory(), getArchiveFileName(product) + "-"
                         + getOsWsArch(env, '.') + "." + format);
 
                 try {
@@ -146,11 +146,11 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         }
     }
 
-    static String getZipFileName(Product product) {
-        // overwrite output zip file name
+    static String getArchiveFileName(Product product) {
+        // overwrite output archive file name
         String name;
-        if (product.getZipFileName() != null) {
-            name = product.getZipFileName();
+        if (product.getArchiveFileName() != null) {
+            name = product.getArchiveFileName();
         } else {
             name = product.getId();
         }
