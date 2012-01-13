@@ -12,7 +12,11 @@ package org.eclipse.tycho.extras.sourcefeature;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
@@ -23,15 +27,18 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.core.ArtifactDependencyVisitor;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.osgitools.AbstractArtifactDependencyWalker;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
-import org.eclipse.tycho.packaging.FeatureXmlTransformer;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -52,6 +59,18 @@ public class SourceFeatureMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
+     * Bundles and features that do not have corresponding sources.
+     * 
+     * @parameter
+     */
+    @SuppressWarnings("unused")
+    private PlexusConfiguration excludes;
+
+    private final Set<String> excludedPlugins = new HashSet<String>();
+
+    private final Set<String> excludedFeatures = new HashSet<String>();
+
+    /**
      * @parameter
      */
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
@@ -67,14 +86,12 @@ public class SourceFeatureMojo extends AbstractMojo {
     private MavenProjectHelper projectHelper;
 
     /**
-     * @component
-     */
-    private FeatureXmlTransformer featureXmlSomething;
-
-    /**
      * @component role="org.eclipse.tycho.core.TychoProject"
      */
     private Map<String, TychoProject> projectTypes;
+
+    /** @component */
+    private EquinoxServiceFactory equinox;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         File template = new File(project.getBasedir(), FEATURE_TEMPLATE_DIR);
@@ -96,21 +113,14 @@ public class SourceFeatureMojo extends AbstractMojo {
         archiver.setOutputFile(outputJarFile);
 
         try {
-            File featureXml = getSourcesFeatureXml(project);
+            File sourceFeatireDir = getSourcesFeatureDir(project);
+            File featureXml = new File(sourceFeatireDir, Feature.FEATURE_XML);
 
-            DependencyArtifacts dependencies = tychoProject.getDependencyArtifacts(project);
+            TargetPlatform targetPlatform = tychoProject.getTargetPlatform(project);
 
-            final Feature sourceFeature = getSourceFeature(project);
+            final Feature sourceFeature = getSourceFeature(project, targetPlatform);
 
-            AbstractArtifactDependencyWalker walker = new AbstractArtifactDependencyWalker(dependencies, null) {
-                public void walk(ArtifactDependencyVisitor visitor) {
-                    traverseFeature(project.getBasedir(), sourceFeature, visitor);
-                }
-            };
-
-            Feature feature = featureXmlSomething
-                    .transform(DefaultReactorProject.adapt(project), sourceFeature, walker);
-            Feature.write(feature, featureXml);
+            Feature.write(sourceFeature, featureXml);
 
             DefaultFileSet mainFileSet = new DefaultFileSet();
             mainFileSet.setDirectory(template);
@@ -122,20 +132,26 @@ public class SourceFeatureMojo extends AbstractMojo {
             archiver.createArchive(project, archive);
 
             projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
-
+        } catch (MojoExecutionException e) {
+            throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Could not package source feature jar", e);
         }
     }
 
-    static File getSourcesFeatureXml(MavenProject project) {
-        File featureXml = new File(project.getBuild().getDirectory(), "source-feature/feature.xml");
-        featureXml.getParentFile().mkdirs();
-        return featureXml;
+    static File getSourcesFeatureDir(MavenProject project) {
+        File dir = new File(project.getBuild().getDirectory(), SOURCES_FEATURE_CLASSIFIER);
+        dir.mkdirs();
+        new File(dir, "p2.inf").delete();
+        return dir;
     }
 
-    static Feature getSourceFeature(MavenProject project) throws IOException {
-        Feature feature = Feature.read(new File(project.getBasedir(), "feature.xml"));
+    private Feature getSourceFeature(MavenProject project, TargetPlatform targetPlatform) throws IOException,
+            MojoExecutionException {
+        P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
+        P2Resolver p2 = factory.createResolver();
+
+        Feature feature = Feature.read(new File(project.getBuild().getDirectory(), "feature.xml"));
 
         Document document = new Document();
         document.setRootNode(new Element("feature"));
@@ -144,18 +160,89 @@ public class SourceFeatureMojo extends AbstractMojo {
         sourceFeature.setId(feature.getId() + ".source");
         sourceFeature.setVersion(feature.getVersion());
 
+        // make sure versions of sources and binary features match
+        FeatureRef binaryRef = new FeatureRef(new Element("includes"));
+        binaryRef.setId(feature.getId());
+        binaryRef.setVersion(feature.getVersion());
+        sourceFeature.addFeatureRef(binaryRef);
+
+        List<PluginRef> missingSourcePlugins = new ArrayList<PluginRef>();
+        List<FeatureRef> missingSourceFeatures = new ArrayList<FeatureRef>();
+
+        // include available source bundles
         for (PluginRef pluginRef : feature.getPlugins()) {
-            PluginRef sourcePluginRef = new PluginRef("plugin");
 
-            // TODO lookup in target platform
-            sourcePluginRef.setId(pluginRef.getId() + ".source");
-            sourcePluginRef.setVersion(pluginRef.getVersion());
-            sourcePluginRef.setDownloadSide(0);
-            sourcePluginRef.setInstallSize(0);
-            sourcePluginRef.setUnpack(false);
+            if (excludedPlugins.contains(pluginRef.getId())) {
+                continue;
+            }
 
-            sourceFeature.addPlugin(sourcePluginRef);
+            // version is expected to be fully expanded at this point
+            P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, pluginRef.getId() + ".source",
+                    pluginRef.getVersion());
+            if (result.getArtifacts().size() == 1) {
+                Entry sourceBundle = result.getArtifacts().iterator().next();
+
+                PluginRef sourceRef = new PluginRef("plugin");
+                sourceRef.setId(sourceBundle.getId());
+                sourceRef.setVersion(sourceBundle.getVersion());
+                sourceRef.setDownloadSide(0);
+                sourceRef.setInstallSize(0);
+                if (pluginRef.getOs() != null) {
+                    sourceRef.setOs(pluginRef.getOs());
+                }
+                if (pluginRef.getWs() != null) {
+                    sourceRef.setWs(pluginRef.getWs());
+                }
+                if (pluginRef.getArch() != null) {
+                    sourceRef.setArch(pluginRef.getArch());
+                }
+                sourceRef.setUnpack(false);
+
+                sourceFeature.addPlugin(sourceRef);
+            } else {
+                missingSourcePlugins.add(pluginRef);
+            }
         }
+
+        // include available source features
+        for (FeatureRef featureRef : feature.getIncludedFeatures()) {
+
+            if (excludedFeatures.contains(featureRef.getId())) {
+                continue;
+            }
+
+            String sourceId = featureRef.getId() + ".source";
+
+            P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, sourceId + ".feature.group",
+                    featureRef.getVersion());
+            if (result.getArtifacts().size() == 1) {
+                Entry entry = result.getArtifacts().iterator().next();
+
+                FeatureRef sourceRef = new FeatureRef(new Element("includes"));
+                sourceRef.setId(sourceId);
+                sourceRef.setVersion(entry.getVersion());
+                sourceFeature.addFeatureRef(sourceRef);
+            } else {
+                missingSourceFeatures.add(featureRef);
+            }
+        }
+
+        if (!missingSourceFeatures.isEmpty() || !missingSourcePlugins.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("Could not generate source feature for project " + project.toString()).append("\n");
+
+            if (!missingSourcePlugins.isEmpty()) {
+                sb.append("    Missing sources for plugins " + missingSourcePlugins.toString()).append("\n");
+            }
+
+            if (!missingSourceFeatures.isEmpty()) {
+                sb.append("    Missing sources for features " + missingSourceFeatures.toString()).append("\n");
+            }
+
+            throw new MojoExecutionException(sb.toString());
+        }
+
         return sourceFeature;
     }
 
@@ -164,4 +251,30 @@ public class SourceFeatureMojo extends AbstractMojo {
         return new File(project.getBuild().getDirectory(), filename);
     }
 
+    public void setExcludes(PlexusConfiguration excludes) {
+        for (PlexusConfiguration plugin : excludes.getChildren("plugin")) {
+            String id = getAttribute(plugin, "id");
+            if (id != null) {
+                excludedPlugins.add(id);
+            }
+        }
+        for (PlexusConfiguration plugin : excludes.getChildren("feature")) {
+            String id = getAttribute(plugin, "id");
+            if (id != null) {
+                excludedFeatures.add(id);
+            }
+        }
+    }
+
+    private String getAttribute(PlexusConfiguration dom, String attrName) {
+        String attr = dom.getAttribute(attrName);
+        if (attr == null) {
+            return null;
+        }
+        attr = attr.trim();
+        if (attr.length() == 0) {
+            return null;
+        }
+        return attr;
+    }
 }

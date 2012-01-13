@@ -11,13 +11,19 @@
   <properties>
     <tycho-version>0.14.0-SNAPSHOT</tycho-version>
     <tycho-extras-version>0.14.0-SNAPSHOT</tycho-extras-version>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+    <junit-repo>file:///tmp/junit</junit-repo>
+    <e342-repo>http://download.eclipse.org/eclipse/updates/3.4</e342-repo>
   </properties>
 
 
   <repositories>
     <repository>
-      <id>e342</id>
+      <id>junit</id>
+      <layout>p2</layout>
+      <url>${junit-repo}</url>
+    </repository>
+    <repository>
+      <id>eclipse</id>
       <layout>p2</layout>
       <url>${e342-repo}</url>
     </repository>
@@ -38,10 +44,7 @@
   </pluginRepositories>
 
   <modules>
-    <module>sourcefeature.bundle</module>
-    <module>sourcefeature.bundle.nosource</module>
     <module>sourcefeature.feature</module>
-    <module>sourcefeature.feature.indirect</module>
     <module>sourcefeature.repository</module>
   </modules>
 

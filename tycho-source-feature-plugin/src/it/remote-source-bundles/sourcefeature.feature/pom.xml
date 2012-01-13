@@ -24,11 +24,6 @@
             <goals>
               <goal>source-feature</goal>
             </goals>
-            <configuration>
-              <excludes>
-                <plugin id="sourcefeature.bundle.nosource"/>
-              </excludes>
-            </configuration>
           </execution>
         </executions>
       </plugin>

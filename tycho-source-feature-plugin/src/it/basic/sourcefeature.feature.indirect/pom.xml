@@ -8,7 +8,7 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>sourcefeature.feature</artifactId>
+  <artifactId>sourcefeature.feature.indirect</artifactId>
   <packaging>eclipse-feature</packaging>
 
   <build>
@@ -24,11 +24,6 @@
             <goals>
               <goal>source-feature</goal>
             </goals>
-            <configuration>
-              <excludes>
-                <plugin id="sourcefeature.bundle.nosource"/>
-              </excludes>
-            </configuration>
           </execution>
         </executions>
       </plugin>

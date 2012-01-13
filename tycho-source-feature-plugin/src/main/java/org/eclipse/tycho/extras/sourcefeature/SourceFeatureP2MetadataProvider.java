@@ -24,21 +24,21 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.resolver.CompilerOptions;
-import org.eclipse.tycho.core.resolver.CompilerOptionsManager;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 
+import de.pdark.decentxml.Document;
+import de.pdark.decentxml.Element;
+import de.pdark.decentxml.XMLDeclaration;
+
 @Component(role = P2MetadataProvider.class, hint = "org.eclipse.tycho.extras.sourcefeature.SourceFeatureP2MetadataProvider")
 public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Initializable {
     @Requirement
     private Logger log;
-
-    @Requirement
-    private CompilerOptionsManager compilerOptionsManager;
 
     @Requirement
     private EquinoxServiceFactory equinox;
@@ -52,22 +52,46 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
             return;
         }
 
-        CompilerOptions compilerOptions = compilerOptionsManager.getCompilerOptions(project);
-
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-source-feature-plugin");
         if (plugin != null) {
             try {
-                Feature sourceFeature = SourceFeatureMojo.getSourceFeature(project);
+                File sourceFeatureBasedir = SourceFeatureMojo.getSourcesFeatureDir(project);
 
-                String classifier = SourceFeatureMojo.SOURCES_FEATURE_CLASSIFIER;
-                File sourceFeatureBasedir = new File(project.getBuild().getDirectory(), classifier);
-                sourceFeatureBasedir.mkdirs();
+                /*
+                 * There is no easy way to determine what *exact* source bundles/features will be
+                 * included in the source feature at this point. Because of this, the source feature
+                 * dependency-only metadata does not include any dependencies.
+                 * 
+                 * This has two implications.
+                 * 
+                 * First, any missing source bundles/features will not be detected/reported until
+                 * source feature mojo is executed. This is inconsistent with how everything else
+                 * works in Tycho, but probably is a good thing.
+                 * 
+                 * More importantly, though, source bundles/features are not included as transitive
+                 * dependencies of other reactor projects that include the source feature. To solve
+                 * this for eclipse-repository project, repository project dependencies are
+                 * recalculated during repository packaging. Other 'aggregating' project types, like
+                 * eclipse-update-site and eclipse-feature with deployableFeature=true, will not be
+                 * compatible with source features until
+                 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=353889 is implemented.
+                 */
+                Feature feature = Feature.read(new File(project.getBasedir(), "feature.xml"));
+
+                Document document = new Document();
+                document.setRootNode(new Element("feature"));
+                document.setXmlDeclaration(new XMLDeclaration("1.0", "UTF-8"));
+                Feature sourceFeature = new Feature(document);
+
+                sourceFeature.setId(feature.getId() + ".source");
+                sourceFeature.setVersion(feature.getVersion());
 
                 Feature.write(sourceFeature, new File(sourceFeatureBasedir, Feature.FEATURE_XML));
 
+                String classifier = SourceFeatureMojo.SOURCES_FEATURE_CLASSIFIER;
                 IArtifactFacade artifact = new AttachedArtifact(project, sourceFeatureBasedir, classifier);
                 IDependencyMetadata metadata = generator.generateMetadata(artifact, null,
-                        compilerOptions.getOptionalResolutionAction());
+                        OptionalResolutionAction.REQUIRE);
                 reactorProject.setDependencyMetadata(classifier, true, metadata.getMetadata());
             } catch (IOException e) {
                 log.error("Could not create sources feature.xml", e);

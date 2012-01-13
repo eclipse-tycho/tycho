@@ -4,22 +4,19 @@
       label="sourcefeature.feature"
       version="1.0.0.qualifier">
 
-   <includes
-         id="sourcefeature.feature.indirect"
-         version="0.0.0"/>
-
    <plugin
-         id="sourcefeature.bundle"
+         id="org.junit"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="3.8.2.qualifier"
          unpack="false"/>
 
+
    <plugin
-         id="sourcefeature.bundle.nosource"
+         id="org.junit"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="4.8.2.qualifier"
          unpack="false"/>
 
 </feature>
