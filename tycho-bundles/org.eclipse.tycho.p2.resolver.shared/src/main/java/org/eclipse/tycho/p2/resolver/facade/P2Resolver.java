@@ -42,4 +42,9 @@ public interface P2Resolver {
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation);
 
     public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties);
+
+    /**
+     * Resolves specified installable unit identified by id and version.
+     */
+    public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String version);
 }
