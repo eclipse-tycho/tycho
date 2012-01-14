@@ -212,4 +212,8 @@ public class Feature {
         plugins = null;
     }
 
+    public void addFeatureRef(FeatureRef feature) {
+        dom.addNode(feature.getDom());
+        features = null;
+    }
 }
