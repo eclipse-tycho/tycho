@@ -24,11 +24,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -38,6 +40,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.P2Generator;
@@ -111,7 +115,15 @@ public class P2MetadataMojo extends AbstractMojo {
                 }
             }
 
-            getP2Generator().generateMetadata(artifacts, artifactsToBeAttached, targetDir);
+            Map<String, Set<Object>> generateMetadata = getP2Generator().generateMetadata(artifacts,
+                    artifactsToBeAttached, targetDir);
+
+            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+
+            for (Map.Entry<String, Set<Object>> entry : generateMetadata.entrySet()) {
+                reactorProject.setDependencyMetadata(entry.getKey(), true, entry.getValue());
+                reactorProject.setDependencyMetadata(entry.getKey(), false, Collections.emptySet());
+            }
         } catch (IOException e) {
             throw new MojoExecutionException("Could not generate P2 metadata", e);
         }

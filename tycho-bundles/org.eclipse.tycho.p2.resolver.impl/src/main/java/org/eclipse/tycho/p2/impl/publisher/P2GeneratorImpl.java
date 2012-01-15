@@ -15,9 +15,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
@@ -67,8 +69,10 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         this(false);
     }
 
-    public void generateMetadata(List<IArtifactFacade> artifacts, Map<String, IArtifactFacade> attachedArtifacts,
-            File targetDir) throws IOException {
+    public Map<String, Set<Object>> generateMetadata(List<IArtifactFacade> artifacts,
+            Map<String, IArtifactFacade> attachedArtifacts, File targetDir) throws IOException {
+        Map<String, Set<Object>> result = new LinkedHashMap<String, Set<Object>>();
+
         LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
         LinkedHashSet<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<IArtifactDescriptor>();
 
@@ -97,12 +101,19 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
             units.addAll(metadata.getInstallableUnits());
             artifactDescriptors.addAll(metadata.getArtifactDescriptors());
+
+            // secondary metadata is meant to represent installable units that are provided by this project
+            // but do not affect dependencies of the project itself. generateMetadata is called at the end
+            // of project build lifecycle, and primary/secondary metadata separation is irrelevant at this point 
+            result.put(artifact.getClassidier(), new LinkedHashSet<Object>(metadata.getInstallableUnits()));
         }
 
         new MetadataIO().writeXML(units, attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_METADATA)
                 .getLocation());
         new ArtifactsIO().writeXML(artifactDescriptors,
                 attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS).getLocation());
+
+        return result;
     }
 
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments) {
