@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -215,7 +216,21 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         EclipsePluginProjectImpl eclipsePluginProject = getEclipsePluginProject(DefaultReactorProject.adapt(project));
         for (BuildOutputJar outputJar : eclipsePluginProject.getOutputJars()) {
             for (File sourceFolder : outputJar.getSourceFolders()) {
+                removeDuplicateTestCompileRoot(sourceFolder, project.getTestCompileSourceRoots());
                 project.addCompileSourceRoot(sourceFolder.getAbsolutePath());
+            }
+        }
+    }
+
+    private void removeDuplicateTestCompileRoot(File sourceFolder, List<String> testCompileSourceRoots) {
+        for (Iterator<String> iterator = testCompileSourceRoots.iterator(); iterator.hasNext();) {
+            String testCompileRoot = iterator.next();
+            if (sourceFolder.equals(new File(testCompileRoot))) {
+                // avoid duplicate source folders (bug 368445)
+                iterator.remove();
+                getLogger().debug(
+                        "Removed duplicate test compile root " + testCompileRoot + " from maven project model");
+                return;
             }
         }
     }
