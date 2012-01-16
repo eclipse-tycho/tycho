@@ -45,6 +45,7 @@
 		<module>org.eclipse.tycho.p2.resolver.impl.test</module>
 		<module>org.eclipse.tycho.p2.maven.repository.tests</module>
 		<module>org.eclipse.tycho.p2.tools.tests</module>
+		<module>org.eclipse.tycho.test.utils</module>
 
 		<!-- non-Tycho bundles in the Tycho's OSGi runtime -->
 		<module>tycho-bundles-external</module>

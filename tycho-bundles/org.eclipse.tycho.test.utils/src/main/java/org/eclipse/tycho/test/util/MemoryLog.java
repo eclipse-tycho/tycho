@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.tools.test.util;
+package org.eclipse.tycho.test.util;
 
 import java.util.ArrayList;
 import java.util.List;

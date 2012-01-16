@@ -13,9 +13,9 @@ import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCache;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverFactoryImpl;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
+import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.test.util.NoopFileLockService;
-import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Before;
 import org.junit.Test;
 

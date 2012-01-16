@@ -27,7 +27,7 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
-import org.eclipse.tycho.p2.tools.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.MemoryLog;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

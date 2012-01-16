@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
 import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.containsEntry;
 import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.entry;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasGAV;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasId;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasVersion;
-import static org.eclipse.tycho.test.util.ResourceUtil.resourceFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;

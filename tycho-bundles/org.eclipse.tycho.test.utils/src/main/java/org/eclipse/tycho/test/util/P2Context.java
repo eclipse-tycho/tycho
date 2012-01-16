@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.tycho.test.util;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.p2.impl.Activator;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
 
