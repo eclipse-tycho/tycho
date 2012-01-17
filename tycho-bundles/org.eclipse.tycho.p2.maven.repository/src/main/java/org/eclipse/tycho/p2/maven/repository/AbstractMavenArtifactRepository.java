@@ -222,7 +222,7 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
     public File getArtifactFile(IArtifactKey key) {
         Set<IArtifactDescriptor> descriptors = descriptorsMap.get(key);
-        if (descriptors.isEmpty())
+        if (descriptors == null || descriptors.isEmpty())
             return null;
         else {
             // TODO determine which one is the raw artifact, i.e. not the pack200 artifact 
