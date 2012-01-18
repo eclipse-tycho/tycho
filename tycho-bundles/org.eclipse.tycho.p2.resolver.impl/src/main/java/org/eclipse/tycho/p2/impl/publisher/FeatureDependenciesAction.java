@@ -93,6 +93,13 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
     protected Set<IRequirement> getRequiredCapabilities() {
         Set<IRequirement> required = new LinkedHashSet<IRequirement>();
 
+        if (feature.getLicenseFeature() != null) {
+            String id = feature.getLicenseFeature() + FEATURE_GROUP_IU_SUFFIX;
+            VersionRange range = getVersionRange(createVersion(feature.getLicenseFeatureVersion()));
+            required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null,
+                    false/* optional */, false /* multiple */));
+        }
+
         for (FeatureEntry entry : feature.getEntries()) {
             if (entry.isPatch()) {
                 // this entry declares the feature being patch. it does not introduce any additional content in the

@@ -141,6 +141,30 @@ public class Feature {
         dom.setAttribute("id", id);
     }
 
+    public String getLicenseFeature() {
+        return dom.getAttributeValue("license-feature");
+    }
+
+    public void setLicenseFeature(String featureId) {
+        if (featureId != null) {
+            dom.setAttribute("license-feature", featureId);
+        } else {
+            dom.removeAttribute("license-feature");
+        }
+    }
+
+    public String getLicenseFeatureVersion() {
+        return dom.getAttributeValue("license-feature-version");
+    }
+
+    public void setLicenseFeatureVersion(String version) {
+        if (version != null) {
+            dom.setAttribute("license-feature-version", version);
+        } else {
+            dom.removeAttribute("license-feature-version");
+        }
+    }
+
     public static Feature read(File file) throws IOException {
         FileInputStream is = new FileInputStream(file);
         return read(is); // closes the stream

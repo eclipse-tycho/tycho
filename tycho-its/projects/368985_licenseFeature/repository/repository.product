@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="repository" id="repository" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
+
+   <features>
+      <feature id="feature" version="1.2.3.qualifier"/>
+      <feature id="feature.conflicting-dependencies" version="1.2.3.qualifier"/>
+   </features>
+
+</product>
