@@ -242,6 +242,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         Set<String> excludes = new HashSet<String>(buildProperties.getBinExcludes());
         excludes.add(Feature.FEATURE_XML);
         excludes.add(FEATURE_PROPERTIES);
+        excludes.add(BuildPropertiesParser.BUILD_PROPERTIES);
 
         // mavenArchiver ignores license feature files that are also present in 'this' feature
         // i.e. if there is a conflict, files from 'this' feature win

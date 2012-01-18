@@ -62,6 +62,9 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
             assertNotNull(zip.getEntry("file-license.txt"));
             assertNull(zip.getEntry("file-unlicense.txt"));
 
+            // do not leak build.properties into 'this' feature
+            assertNull(zip.getEntry("build.properties"));
+
             // license feature id/version are stripped off
             Feature feature = Feature.read(zip.getInputStream(zip.getEntry(Feature.FEATURE_XML)));
             assertNull(feature.getLicenseFeature());
