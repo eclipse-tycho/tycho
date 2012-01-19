@@ -182,19 +182,23 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
                 if (licenseFeature != null) {
                     ZipFile zip = new ZipFile(licenseFeature);
-                    ZipEntry entry = zip.getEntry(FEATURE_PROPERTIES);
-                    if (entry != null) {
-                        if (os == null) {
-                            os = new BufferedOutputStream(new FileOutputStream(featureProperties));
-                        } else {
-                            IOUtil.copy("\n", os);
+                    try {
+                        ZipEntry entry = zip.getEntry(FEATURE_PROPERTIES);
+                        if (entry != null) {
+                            if (os == null) {
+                                os = new BufferedOutputStream(new FileOutputStream(featureProperties));
+                            } else {
+                                IOUtil.copy("\n", os);
+                            }
+                            InputStream is = zip.getInputStream(entry);
+                            try {
+                                IOUtil.copy(is, os);
+                            } finally {
+                                is.close();
+                            }
                         }
-                        InputStream is = zip.getInputStream(entry);
-                        try {
-                            IOUtil.copy(is, os);
-                        } finally {
-                            is.close();
-                        }
+                    } finally {
+                        zip.close();
                     }
                 } else if (localFeatureProperties.canRead()) {
                     featureProperties = localFeatureProperties;
