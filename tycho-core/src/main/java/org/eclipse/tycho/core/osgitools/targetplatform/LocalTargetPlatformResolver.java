@@ -95,8 +95,6 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
                 }
             }
         }
-
-        platform.addSite(parentDir);
     }
 
     public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
@@ -111,8 +109,6 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
         DefaultTargetPlatform platform = new DefaultTargetPlatform(DefaultReactorProject.adapt(project));
 
         for (File site : layout.getSites()) {
-            platform.addSite(site);
-
             for (File plugin : layout.getPlugins(site)) {
                 ArtifactKey artifactKey = getArtifactKey(session, plugin);
 

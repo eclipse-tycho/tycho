@@ -198,12 +198,6 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
         return a != null ? a.equals(b) : b == null;
     }
 
-    /**
-     * @deprecated get rid of me, I am not used for anything
-     */
-    public void addSite(File location) {
-    }
-
     public void dump() {
         for (Map.Entry<ArtifactKey, ArtifactDescriptor> entry : artifacts.entrySet()) {
             System.out.println(entry.getKey() + "\t" + entry.getValue());

@@ -446,8 +446,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             Map<File, ReactorProject> projects, P2ResolutionResult result) {
         DefaultTargetPlatform platform = new DefaultTargetPlatform(project);
 
-        platform.addSite(new File(session.getLocalRepository().getBasedir()));
-
         platform.addNonReactorUnits(result.getNonReactorUnits());
 
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
