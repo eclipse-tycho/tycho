@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.utils;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 
@@ -53,5 +54,13 @@ public class TychoProjectUtils {
             throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
         }
         return targetPlatformConfiguration;
+    }
+
+    public static TargetPlatform getTargetPlatform(MavenProject project) {
+        TargetPlatform targetPlatform = (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);
+        if (targetPlatform == null) {
+            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
+        }
+        return targetPlatform;
     }
 }
