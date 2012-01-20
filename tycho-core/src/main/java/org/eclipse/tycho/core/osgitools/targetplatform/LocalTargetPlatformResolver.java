@@ -108,7 +108,7 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
-        DefaultTargetPlatform platform = new DefaultTargetPlatform();
+        DefaultTargetPlatform platform = new DefaultTargetPlatform(DefaultReactorProject.adapt(project));
 
         for (File site : layout.getSites()) {
             platform.addSite(site);

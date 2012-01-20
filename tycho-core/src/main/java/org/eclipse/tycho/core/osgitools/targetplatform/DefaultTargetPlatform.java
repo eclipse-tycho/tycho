@@ -13,6 +13,7 @@ package org.eclipse.tycho.core.osgitools.targetplatform;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -37,9 +38,20 @@ import org.osgi.framework.Version;
 public class DefaultTargetPlatform implements DependencyArtifacts {
     private static final Version VERSION_0_0_0 = new Version("0.0.0");
 
+    /**
+     * ArtifactKey cache used to correlate equal instances to reduce memory usage
+     */
     private static final WeakHashMap<ArtifactKey, ArtifactKey> KEY_CACHE = new WeakHashMap<ArtifactKey, ArtifactKey>();
 
-    private static final WeakHashMap<ArtifactKey, ArtifactDescriptor> ARTIFACT_CACHE = new WeakHashMap<ArtifactKey, ArtifactDescriptor>();
+    /**
+     * ArtifactDescriptor cache used to correlate equal instances to reduce memory usage
+     */
+    private static final WeakHashMap<ArtifactDescriptor, ArtifactDescriptor> ARTIFACT_CACHE = new WeakHashMap<ArtifactDescriptor, ArtifactDescriptor>();
+
+    /**
+     * 'this' project, i.e. the project the dependencies were resolved for. can be null.
+     */
+    protected final ReactorProject project;
 
     protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<ArtifactKey, ArtifactDescriptor>();
 
@@ -50,6 +62,14 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
      * reactor.
      */
     protected final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<Object>();
+
+    public DefaultTargetPlatform() {
+        this(null);
+    }
+
+    public DefaultTargetPlatform(ReactorProject project) {
+        this.project = project;
+    }
 
     public List<ArtifactDescriptor> getArtifacts(String type) {
         ArrayList<ArtifactDescriptor> result = new ArrayList<ArtifactDescriptor>();
@@ -71,8 +91,53 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
     }
 
     public void addArtifact(ArtifactDescriptor artifact) {
+        addArtifact(artifact, false);
+    }
+
+    protected void addArtifact(ArtifactDescriptor artifact, boolean merge) {
+        if (artifact.getClass() != DefaultArtifactDescriptor.class) {
+            throw new IllegalAccessError();
+        }
+
         ArtifactKey key = normalizeKey(artifact.getKey());
 
+        File location;
+        try {
+            location = artifact.getLocation().getCanonicalFile();
+        } catch (IOException e) {
+            // not sure what good this will do to the caller
+            location = artifact.getLocation().getAbsoluteFile();
+        }
+
+        ArtifactDescriptor original = artifacts.get(key);
+
+        Set<Object> units = null;
+
+        if (original != null) {
+            // can't use DefaultArtifactDescriptor.equals because artifact.location is not normalized
+            if (!eq(original.getLocation(), location) || !eq(original.getClassifier(), artifact.getClassifier())
+                    || !eq(original.getMavenProject(), artifact.getMavenProject())) {
+                // TODO better error message
+                throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey());
+            }
+
+            // artifact equals to original
+            if (eq(original.getInstallableUnits(), artifact.getInstallableUnits())) {
+                return;
+            }
+
+            if (!merge) {
+                // TODO better error message
+                throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey());
+            }
+
+            units = new LinkedHashSet<Object>(original.getInstallableUnits());
+            units.addAll(artifact.getInstallableUnits());
+        } else {
+            units = artifact.getInstallableUnits();
+        }
+
+        // reuse artifact keys to reduce memory usage
         ArtifactKey cachedKey = KEY_CACHE.get(key);
         if (cachedKey != null) {
             key = cachedKey;
@@ -80,18 +145,23 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
             KEY_CACHE.put(key, key);
         }
 
-        artifact = normalizeArtifact(artifact);
-
-        ArtifactDescriptor cachedArtifact = ARTIFACT_CACHE.get(key);
-        File location = artifact.getLocation();
-        if (cachedArtifact != null && eq(cachedArtifact.getLocation(), location)
-                && eq(cachedArtifact.getMavenProject(), artifact.getMavenProject())) {
-            artifact = cachedArtifact;
-        } else {
-            ARTIFACT_CACHE.put(key, artifact);
+        if (units != null) {
+            units = Collections.unmodifiableSet(units);
         }
 
-        artifacts.put(key, artifact);
+        // recreate artifact descriptor to use normalized location, key and units 
+        artifact = new DefaultArtifactDescriptor(key, location, artifact.getMavenProject(), artifact.getClassifier(),
+                units);
+
+        // reuse cached artifact descriptor instance to reduce memory usage
+        ArtifactDescriptor cachedArtifact = ARTIFACT_CACHE.get(artifact);
+        if (cachedArtifact != null) {
+            artifact = cachedArtifact;
+        } else {
+            ARTIFACT_CACHE.put(artifact, artifact);
+        }
+
+        artifacts.put(artifact.getKey(), artifact);
 
         Map<String, ArtifactDescriptor> classified = locations.get(location);
         if (classified == null) {
@@ -115,23 +185,9 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
         classified.put(artifact.getClassifier(), artifact);
     }
 
-    private ArtifactDescriptor normalizeArtifact(ArtifactDescriptor artifact) {
-        try {
-            File location = artifact.getLocation().getCanonicalFile();
-            if (!location.equals(artifact.getLocation())) {
-                return new DefaultArtifactDescriptor(artifact.getKey(), location, artifact.getMavenProject(),
-                        artifact.getClassifier(), artifact.getInstallableUnits());
-            }
-            return artifact;
-        } catch (IOException e) {
-            // not sure what good this will do to the caller
-            return artifact;
-        }
-    }
-
     protected ArtifactKey normalizeKey(ArtifactKey key) {
+        // normalize eclipse-test-plugin... after all, a bundle is a bundle.
         if (org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(key.getType())) {
-            // normalize eclipse-test-plugin... after all, a bundle is a bundle.
             key = new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, key.getId(),
                     key.getVersion());
         }
@@ -252,6 +308,17 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
 
     public Set<?/* IInstallableUnit */> getNonReactorUnits() {
         return nonReactorUnits;
+    }
+
+    public Set<?/* IInstallableUnit */> getInstallableUnits() {
+        Set<Object> units = new LinkedHashSet<Object>();
+        for (ArtifactDescriptor artifact : artifacts.values()) {
+            if (project == null || !project.equals(artifact.getMavenProject())) {
+                units.addAll(artifact.getInstallableUnits());
+            }
+        }
+        units.addAll(nonReactorUnits);
+        return Collections.unmodifiableSet(units);
     }
 
     public void addNonReactorUnits(Set<?/* IInstallableUnit */> installableUnits) {

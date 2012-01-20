@@ -69,6 +69,7 @@ import org.eclipse.tycho.core.maven.utils.PluginRealmHelper.PluginFilter;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
@@ -402,14 +403,16 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         if (!isAllowConflictingDependencies(project, configuration)) {
             List<P2ResolutionResult> results = resolver.resolveProject(resolutionContext, project.getBasedir());
 
-            MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform();
+            MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform(
+                    DefaultReactorProject.adapt(project));
 
             // FIXME this is just wrong
             for (int i = 0; i < configuration.getEnvironments().size(); i++) {
                 TargetEnvironment environment = configuration.getEnvironments().get(i);
                 P2ResolutionResult result = results.get(i);
 
-                DefaultTargetPlatform platform = newDefaultTargetPlatform(session, projects, result);
+                DefaultTargetPlatform platform = newDefaultTargetPlatform(session,
+                        DefaultReactorProject.adapt(project), projects, result);
 
                 // addProjects( session, platform );
 
@@ -420,7 +423,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         } else {
             P2ResolutionResult result = resolver.collectProjectDependencies(resolutionContext, project.getBasedir());
 
-            return newDefaultTargetPlatform(session, projects, result);
+            return newDefaultTargetPlatform(session, DefaultReactorProject.adapt(project), projects, result);
         }
     }
 
@@ -439,9 +442,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return false;
     }
 
-    protected DefaultTargetPlatform newDefaultTargetPlatform(MavenSession session, Map<File, ReactorProject> projects,
-            P2ResolutionResult result) {
-        DefaultTargetPlatform platform = new DefaultTargetPlatform();
+    protected DefaultTargetPlatform newDefaultTargetPlatform(MavenSession session, ReactorProject project,
+            Map<File, ReactorProject> projects, P2ResolutionResult result) {
+        DefaultTargetPlatform platform = new DefaultTargetPlatform(project);
 
         platform.addSite(new File(session.getLocalRepository().getBasedir()));
 

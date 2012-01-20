@@ -69,4 +69,31 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
         }
         return sb.toString();
     }
+
+    @Override
+    public int hashCode() {
+        int hash = key.hashCode();
+        hash = 17 * hash + location.hashCode();
+        hash = 17 * hash + (classifier != null ? classifier.hashCode() : 0);
+        hash = 17 * hash + (project != null ? project.hashCode() : 0);
+        hash = 17 * hash + (installableUnits != null ? installableUnits.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        // explicitly disallow comparison with subclasses
+        if (obj == null || obj.getClass() != DefaultArtifactDescriptor.class) {
+            return false;
+        }
+
+        DefaultArtifactDescriptor other = (DefaultArtifactDescriptor) obj;
+
+        return eq(key, other.key) && eq(location, other.location) && eq(project, other.project)
+                && eq(classifier, other.classifier) && eq(installableUnits, other.installableUnits);
+    }
+
+    private static <T> boolean eq(T a, T b) {
+        return a != null ? a.equals(b) : b == null;
+    }
 }
