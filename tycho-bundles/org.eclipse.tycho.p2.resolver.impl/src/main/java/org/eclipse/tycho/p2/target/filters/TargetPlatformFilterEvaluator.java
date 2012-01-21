@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -28,12 +27,13 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 
+@SuppressWarnings("restriction")
 public class TargetPlatformFilterEvaluator {
 
     private final List<TargetPlatformFilter> filters;
 
     public TargetPlatformFilterEvaluator(List<TargetPlatformFilter> filters) {
-        this.filters = filters;
+        this.filters = Collections.unmodifiableList(new ArrayList<TargetPlatformFilter>(filters));
     }
 
     TargetPlatformFilterEvaluator(TargetPlatformFilter filter) {
@@ -43,10 +43,12 @@ public class TargetPlatformFilterEvaluator {
     /**
      * Applies the filters to the given set. Prints out log messages.
      * 
+     * TODO "filter" usually returns filtered results, consider different name
+     * 
      * @param targetPlatformUnits
      *            The set of units to be filtered. Collection is modified by the method.
      */
-    public void filterUnits(LinkedHashSet<IInstallableUnit> targetPlatformUnits)
+    public void filterUnits(Collection<IInstallableUnit> targetPlatformUnits)
             throws TargetPlatformFilterSyntaxException {
         // TODO 356579 log
 
@@ -55,7 +57,7 @@ public class TargetPlatformFilterEvaluator {
         }
     }
 
-    private void applyFilter(TargetPlatformFilter filter, LinkedHashSet<IInstallableUnit> targetPlatformUnits) {
+    private void applyFilter(TargetPlatformFilter filter, Collection<IInstallableUnit> targetPlatformUnits) {
         switch (filter.getAction()) {
         case REMOVE_ALL:
             applyRemoveAllFilter(filter, targetPlatformUnits);
@@ -79,7 +81,7 @@ public class TargetPlatformFilterEvaluator {
         }
     }
 
-    private void applyRestrictionFilter(TargetPlatformFilter filter, LinkedHashSet<IInstallableUnit> targetPlatformUnits) {
+    private void applyRestrictionFilter(TargetPlatformFilter filter, Collection<IInstallableUnit> targetPlatformUnits) {
         ParsedCapabilityPattern scopePattern = parsePattern(filter.getScopePattern(), null);
         ParsedCapabilityPattern restrictionPattern = parsePattern(filter.getActionPattern(), scopePattern);
 
@@ -117,7 +119,6 @@ public class TargetPlatformFilterEvaluator {
         return false;
     }
 
-    @SuppressWarnings("restriction")
     private IProvidedCapability getBundleCapability(IInstallableUnit unit) {
         for (IProvidedCapability capability : unit.getProvidedCapabilities()) {
             if (BundlesAction.CAPABILITY_NS_OSGI_BUNDLE.equals(capability.getNamespace())) {
@@ -127,7 +128,6 @@ public class TargetPlatformFilterEvaluator {
         return null;
     }
 
-    @SuppressWarnings("restriction")
     private List<IProvidedCapability> getPackageCapabilities(IInstallableUnit unit) {
         Collection<IProvidedCapability> allCapabilities = unit.getProvidedCapabilities();
         List<IProvidedCapability> packageCapabilities = new ArrayList<IProvidedCapability>(allCapabilities.size());
