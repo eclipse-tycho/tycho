@@ -86,10 +86,11 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
-        // TODO attach target platform to project for use in mojos (e.g. to fix bug 359902)
         // TODO 364134 cache target platform (e.g. by checking if there is already an attached target platform)
         logger.info("Computing target platform for " + project);
         TargetPlatform targetPlatform = resolver.computeTargetPlatform(session, project, reactorProjects);
+
+        dr.setTargetPlatform(project, targetPlatform);
 
         DependencyResolverConfiguration resolverConfiguration = compilerOptionsManager.getCompilerOptions(project);
 
