@@ -12,7 +12,6 @@ package org.eclipse.tycho.artifacts.p2;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -43,7 +42,7 @@ public interface P2TargetPlatform extends TargetPlatform {
     File getLocalArtifactFile(IArtifactKey key);
 
     // TODO 364134 revise the relationship of target platform and dependency only IUs
-    LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectLocation, boolean primary);
+    Collection<IInstallableUnit> getReactorProjectIUs(File projectLocation, boolean primary);
 
     IArtifactFacade getMavenArtifact(IInstallableUnit iu);
 

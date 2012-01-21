@@ -12,7 +12,6 @@ package org.eclipse.tycho.p2.impl.resolver;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -24,7 +23,7 @@ public abstract class ResolutionStrategy {
 
     protected Collection<IInstallableUnit> jreIUs;
 
-    protected Set<IInstallableUnit> rootIUs;
+    protected Collection<IInstallableUnit> rootIUs;
 
     protected List<IRequirement> additionalRequirements;
 
@@ -32,7 +31,7 @@ public abstract class ResolutionStrategy {
         this.availableIUs = availableIUs;
     }
 
-    public void setRootInstallableUnits(Set<IInstallableUnit> rootIUs) {
+    public void setRootInstallableUnits(Collection<IInstallableUnit> rootIUs) {
         this.rootIUs = rootIUs;
     }
 

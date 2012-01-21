@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,8 @@ import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
@@ -162,44 +163,18 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     // ---------------------------------------------------------------------
 
-    private Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
-
-    private Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs = new HashMap<ClassifiedLocation, Set<IInstallableUnit>>();
+    private Map<ClassifiedLocation, IReactorArtifactFacade> reactorProjects = new LinkedHashMap<ClassifiedLocation, IReactorArtifactFacade>();
 
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
 
-    private Set<String> reactorInstallableUnitIds = new HashSet<String>();
-
     public void addReactorArtifact(IReactorArtifactFacade artifact) {
-        addReactorProjectIUs(artifact, reactorProjectIUs, true);
-        addReactorProjectIUs(artifact, reactorProjectSecondaryIUs, false);
-    }
-
-    private void addReactorProjectIUs(IReactorArtifactFacade artifact,
-            Map<ClassifiedLocation, Set<IInstallableUnit>> projectIUs, boolean primary) {
-        Set<IInstallableUnit> units = toSet(artifact.getDependencyMetadata(primary), IInstallableUnit.class);
-
         ClassifiedLocation key = new ClassifiedLocation(artifact);
-        projectIUs.put(key, units);
-        addMavenArtifact(key, artifact, units);
 
-        for (IInstallableUnit unit : units) {
-            reactorInstallableUnitIds.add(unit.getId());
-        }
-    }
+//        if (reactorProjects.containsKey(key)) {
+//            throw new IllegalStateException();
+//        }
 
-    private static <T> Set<T> toSet(Collection<Object> collection, Class<T> targetType) {
-        if (collection == null || collection.isEmpty()) {
-            return Collections.emptySet();
-        }
-
-        LinkedHashSet<T> set = new LinkedHashSet<T>();
-
-        for (Object o : collection) {
-            set.add(targetType.cast(o));
-        }
-
-        return set;
+        reactorProjects.put(key, artifact);
     }
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile) {
@@ -430,16 +405,23 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.projectLocation = projectLocation;
     }
 
-    public TargetPlatform buildTargetPlatform() {
+    public P2TargetPlatform buildTargetPlatform() {
         // TODO 364134 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
         IArtifactRepository resolutionContextArtifactRepo = getSupplementaryArtifactRepository();
         RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey.forResolutionContextArtifacts(projectLocation);
         ArtifactRepositoryBlackboard.putRepository(blackboardKey, resolutionContextArtifactRepo);
         logger.debug("Registered artifact repository " + blackboardKey);
 
-        assertNoDuplicateReactorUIs();
-        LinkedHashSet<IInstallableUnit> targetPlatformIUs = gatherAvailableInstallableUnits(monitor);
-        applyConfiguredFilters(targetPlatformIUs);
+        Set<IInstallableUnit> reactorProjectUIs = getReactorProjectUIs();
+
+        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters)
+                : null;
+
+        LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(monitor);
+        applyFilters(filter, externalUIs, reactorProjectUIs);
+
+        LinkedHashSet<IInstallableUnit> mavenIUs = gatherMavenInstallableUnits();
+        applyFilters(filter, mavenIUs, reactorProjectUIs);
 
         List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
         for (IArtifactRepository artifactRepository : artifactRepositories) {
@@ -449,49 +431,36 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
 
-        return new TargetPlatformImpl(targetPlatformIUs, mavenInstallableUnits, reactorProjectIUs,
-                reactorProjectSecondaryIUs, localMetadataRepository, executionEnvironment,
-                allRemoteArtifactRepositories, localArtifactRepository, agent, logger);
+        return new TargetPlatformImpl(reactorProjects.values(),//
+                externalUIs, //
+                mavenInstallableUnits, //
+                getJREIUs(), //
+                filter, //
+                localMetadataRepository, //
+                allRemoteArtifactRepositories, //
+                localArtifactRepository, //
+                agent, //
+                logger);
     }
 
     // -------------------------------------------------------------------------
 
-    private LinkedHashSet<IInstallableUnit> gatherAvailableInstallableUnits(IProgressMonitor monitor) {
+    /**
+     * external installable units collevted from p2 repositories, .target files and local maven
+     * repository
+     */
+    private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(IProgressMonitor monitor) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetPlatformContent contentPart : content) {
-            filterJREUIs(result, contentPart.getUnits());
+            result.addAll(contentPart.getUnits());
         }
-
-        filterJREUIs(result, mavenInstallableUnits.keySet());
 
         SubMonitor sub = SubMonitor.convert(monitor, metadataRepositories.size() * 200);
         for (IMetadataRepository repository : metadataRepositories) {
             IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.ALL_UNITS, sub.newChild(100));
-            for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-                IInstallableUnit iu = it.next();
-
-                if (isPartialIU(iu)) {
-                    logger.debug("PARTIAL IU: " + iu);
-                    continue;
-                }
-
-                if (isJREUI(iu)) {
-                    continue;
-                }
-
-                if (!isReactorInstallableUnit(iu)) {
-                    if (!reactorInstallableUnitIds.contains(iu.getId())) {
-                        result.add(iu);
-                    } else {
-                        // this produces too much noise in STDOUT
-//                        logger.debug( "External IU " + iu + " from repository " + repository.getLocation()
-//                            + " has the same id as reactor project. External IU is ignored." );
-                    }
-                }
-            }
+            result.addAll(matches.toUnmodifiableSet());
         }
-        result.addAll(getJREIUs());
         sub.done();
 
         if (logger.isDebugEnabled()) {
@@ -510,6 +479,13 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         return result;
     }
 
+    /**
+     * installable units from pom-first artifacts, excluding reactor project
+     */
+    private LinkedHashSet<IInstallableUnit> gatherMavenInstallableUnits() {
+        return new LinkedHashSet<IInstallableUnit>(mavenInstallableUnits.keySet());
+    }
+
     private int countElements(Iterator<?> iterator) {
         int result = 0;
         for (; iterator.hasNext(); iterator.next()) {
@@ -522,16 +498,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
      * p2 repositories are polluted with useless a.jre/config.a.jre IUs. These IUs do not represent
      * current/desired JRE and can expose resolver to packages that are not actually available.
      */
-    private void filterJREUIs(Collection<IInstallableUnit> result, Collection<? extends IInstallableUnit> units) {
-        for (IInstallableUnit iu : units) {
-            if (isJREUI(iu)) {
-                logger.debug("Ignored a.jre installable unit " + iu.toString());
-                continue;
-            }
-            result.add(iu);
-        }
-    }
-
     private boolean isJREUI(IInstallableUnit iu) {
         // See JREAction
         return iu.getId().startsWith("a.jre") || iu.getId().startsWith("config.a.jre");
@@ -539,10 +505,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private static boolean isPartialIU(IInstallableUnit iu) {
         return Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue();
-    }
-
-    private boolean isReactorInstallableUnit(IInstallableUnit iu) {
-        return mavenInstallableUnits.get(iu) instanceof IReactorArtifactFacade;
     }
 
     /**
@@ -562,8 +524,31 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.iuFilters.addAll(filters);
     }
 
-    private void applyConfiguredFilters(LinkedHashSet<IInstallableUnit> units) {
-        new TargetPlatformFilterEvaluator(iuFilters).filterUnits(units);
+    private void applyFilters(TargetPlatformFilterEvaluator filter, LinkedHashSet<IInstallableUnit> units,
+            Set<IInstallableUnit> reactorProjectUIs) {
+
+        Set<String> reactorIUIDs = new HashSet<String>();
+        for (IInstallableUnit unit : reactorProjectUIs) {
+            reactorIUIDs.add(unit.getId());
+        }
+
+        // a.jre/config.a.jre installable units
+        // partial installable units
+        // installable units shadowed by reactor projects
+        Iterator<IInstallableUnit> iter = units.iterator();
+        while (iter.hasNext()) {
+            IInstallableUnit unit = iter.next();
+            if (isJREUI(unit) || isPartialIU(unit) || reactorIUIDs.contains(unit.getId())) {
+                // TODO log
+                iter.remove();
+                continue;
+            }
+        }
+
+        // configured filters
+        if (filter != null) {
+            filter.filterUnits(units);
+        }
     }
 
     // -------------------------------------------------------------------------------
@@ -576,18 +561,22 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     // -------------------------------------------------------------------------------
 
-    private void assertNoDuplicateReactorUIs() throws DuplicateReactorIUsException {
+    private Set<IInstallableUnit> getReactorProjectUIs() throws DuplicateReactorIUsException {
         Map<IInstallableUnit, Set<File>> reactorUIs = new HashMap<IInstallableUnit, Set<File>>();
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<IInstallableUnit, Set<File>>();
 
-        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : reactorProjectIUs.entrySet()) {
-            for (IInstallableUnit iu : entry.getValue()) {
+        for (IReactorArtifactFacade project : reactorProjects.values()) {
+            LinkedHashSet<IInstallableUnit> projectIUs = new LinkedHashSet<IInstallableUnit>();
+            projectIUs.addAll(toSet(project.getDependencyMetadata(true), IInstallableUnit.class));
+            projectIUs.addAll(toSet(project.getDependencyMetadata(false), IInstallableUnit.class));
+
+            for (IInstallableUnit iu : projectIUs) {
                 Set<File> locations = reactorUIs.get(iu);
                 if (locations == null) {
                     locations = new LinkedHashSet<File>();
                     reactorUIs.put(iu, locations);
                 }
-                locations.add(entry.getKey().getLocation());
+                locations.add(project.getLocation());
                 if (locations.size() > 1) {
                     duplicateReactorUIs.put(iu, locations);
                 }
@@ -597,6 +586,22 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         if (!duplicateReactorUIs.isEmpty()) {
             throw new DuplicateReactorIUsException(duplicateReactorUIs);
         }
+
+        return reactorUIs.keySet();
+    }
+
+    static <T> Set<T> toSet(Collection<Object> collection, Class<T> targetType) {
+        if (collection == null || collection.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        LinkedHashSet<T> set = new LinkedHashSet<T>();
+
+        for (Object o : collection) {
+            set.add(targetType.cast(o));
+        }
+
+        return set;
     }
 
 }

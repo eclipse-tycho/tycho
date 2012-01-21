@@ -218,8 +218,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("P2resolver.addMavenProject " + otherProject.getId());
             }
-            // TODO does this add the main artifact dependency metadata twice?
-            resolutionContext.addReactorArtifact(new ReactorArtifactFacade(otherProject, null));
 
             Map<String, Set<Object>> dependencyMetadata = otherProject.getDependencyMetadata();
             if (dependencyMetadata != null) {

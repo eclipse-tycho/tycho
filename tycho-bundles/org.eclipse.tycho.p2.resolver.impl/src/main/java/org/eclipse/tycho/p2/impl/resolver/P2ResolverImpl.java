@@ -109,7 +109,7 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setAdditionalRequirements(additionalRequirements);
         IQueryable<IInstallableUnit> availableUnits = new QueryableArray(context.getInstallableUnits().toArray(
                 new IInstallableUnit[0]));
-        LinkedHashSet<IInstallableUnit> projectSecondaryIUs = context.getReactorProjectIUs(projectLocation, false);
+        Collection<IInstallableUnit> projectSecondaryIUs = context.getReactorProjectIUs(projectLocation, false);
         if (!projectSecondaryIUs.isEmpty()) {
             availableUnits = new CompoundQueryable<IInstallableUnit>(toArray(availableUnits,
                     new CollectionResult<IInstallableUnit>(projectSecondaryIUs)));

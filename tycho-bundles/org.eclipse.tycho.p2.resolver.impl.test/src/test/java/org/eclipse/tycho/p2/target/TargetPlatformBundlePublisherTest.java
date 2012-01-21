@@ -52,7 +52,7 @@ public class TargetPlatformBundlePublisherTest {
         String bundleId = "org.eclipse.osgi";
         String bundleVersion = "3.5.2.R35x_v20100126";
 
-        File bundleFile = resourceFile("pom-dependencies/" + bundleId + "_" + bundleVersion + ".jar");
+        File bundleFile = resourceFile("platformbuilder/pom-dependencies/" + bundleId + "_" + bundleVersion + ".jar");
         IArtifactFacade bundleArtifact = new ArtifactMock(bundleFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
         localRepo.addArtifact(bundleArtifact);
 
@@ -72,7 +72,7 @@ public class TargetPlatformBundlePublisherTest {
 
     @Test
     public void testPomDependencyOnPlainJar() throws Exception {
-        File jarFile = resourceFile("pom-dependencies/non-bundle.jar");
+        File jarFile = resourceFile("platformbuilder/pom-dependencies/non-bundle.jar");
         IArtifactFacade jarArtifact = new ArtifactMock(jarFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
 
         IInstallableUnit unit = subject.attemptToPublishBundle(jarArtifact);
@@ -82,7 +82,7 @@ public class TargetPlatformBundlePublisherTest {
 
     @Test
     public void testPomDependencyOnOtherType() throws Exception {
-        File otherFile = resourceFile("pom-dependencies/other-type.xml");
+        File otherFile = resourceFile("platformbuilder/pom-dependencies/other-type.xml");
         IArtifactFacade otherArtifact = new ArtifactMock(otherFile, GROUP_ID, ARTIFACT_ID, VERSION, "pom");
 
         IInstallableUnit unit = subject.attemptToPublishBundle(otherArtifact);
