@@ -14,12 +14,23 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
+import org.codehaus.plexus.interpolation.InterpolationException;
+import org.codehaus.plexus.interpolation.Interpolator;
+import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
+import org.codehaus.plexus.interpolation.SingleResponseValueSource;
+import org.codehaus.plexus.interpolation.StringSearchInterpolator;
+import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
@@ -34,6 +45,7 @@ import org.eclipse.tycho.model.Launcher;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration.ConfigIni;
+import org.eclipse.tycho.model.ProductConfiguration.ConfigurationProperty;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
@@ -69,7 +81,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(producFile);
 
                 final Product buildProduct = prepareBuildProduct(producFile, productConfiguration, getBuildDirectory(),
-                        getQualifier());
+                        getQualifier(), newInterpolator());
 
                 Collection<?> ius = publisherService.publishProduct(buildProduct.productFile,
                         productConfiguration.includeLaunchers() ? getEquinoxExecutableFeature() : null, flavor);
@@ -95,8 +107,21 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * </p>
      */
     static Product prepareBuildProduct(File productFile, ProductConfiguration productConfiguration,
-            BuildOutputDirectory targetDir, String qualifier) throws MojoExecutionException, IOException {
+            BuildOutputDirectory targetDir, String qualifier, Interpolator interpolator) throws MojoExecutionException,
+            IOException {
         qualifyVersions(productConfiguration, qualifier);
+
+        List<ConfigurationProperty> properties = productConfiguration.getConfigurationProperties();
+        if (properties != null && interpolator != null) {
+            for (ConfigurationProperty property : properties) {
+                try {
+                    property.setValue(interpolator.interpolate(property.getValue()));
+                } catch (InterpolationException e) {
+                    throw new MojoExecutionException("Could not interpolate product configuration property "
+                            + property.getName(), e);
+                }
+            }
+        }
 
         final String productId = productConfiguration.getId();
         if (productId == null) {
@@ -267,4 +292,37 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             }
         }
     }
+
+    protected Interpolator newInterpolator() {
+        final MavenProject mavenProject = getProject();
+        final MavenSession mavenSession = getSession();
+        final Properties baseProps = new Properties();
+        baseProps.putAll(mavenProject.getProperties());
+        baseProps.putAll(mavenSession.getSystemProperties());
+        baseProps.putAll(mavenSession.getUserProperties());
+
+        final Settings settings = mavenSession.getSettings();
+
+        // roughly match resources plugin behaviour
+
+        final StringSearchInterpolator interpolator = new StringSearchInterpolator();
+        interpolator.addValueSource(new PrefixedObjectValueSource("project", mavenProject));
+        interpolator.addValueSource(new PrefixedObjectValueSource("settings", settings));
+        interpolator.addValueSource(new SingleResponseValueSource("localRepository", settings.getLocalRepository()));
+        interpolator.addValueSource(new ValueSource() {
+            public Object getValue(String expression) {
+                return baseProps.getProperty(expression);
+            }
+
+            public void clearFeedback() {
+            }
+
+            @SuppressWarnings("rawtypes")
+            public List getFeedback() {
+                return Collections.EMPTY_LIST;
+            }
+        });
+        return interpolator;
+    }
+
 }
