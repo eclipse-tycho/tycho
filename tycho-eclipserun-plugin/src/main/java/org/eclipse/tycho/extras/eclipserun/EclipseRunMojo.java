@@ -38,10 +38,11 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
-import org.eclipse.tycho.core.SimpleDependencyResolverConfiguration;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 
 /**
@@ -141,15 +142,29 @@ public class EclipseRunMojo extends AbstractMojo {
             List<ReactorProject> reactorProjects) throws MojoExecutionException {
         TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
-        List<Dependency> dependencies = getBasicDependencies();
+        final List<Dependency> dependencies = getBasicDependencies();
         if (this.dependencies != null) {
             dependencies.addAll(Arrays.asList(this.dependencies));
         }
 
         TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
 
+        DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
+            public OptionalResolutionAction getOptionalResolutionAction() {
+                return OptionalResolutionAction.REQUIRE;
+            }
+
+            public List<Dependency> getExtraRequirements() {
+                return dependencies;
+            }
+        };
+
+        // igorf: I am not convinced that using project dependencies is expected/desired here. Original usecase
+        // for eclipse-run mojo was to build documentation index, which most likely does not require project
+        // dependencies, but some other unrelated set of bundles.  
+
         DependencyArtifacts runtimeArtifacts = platformResolver.resolveDependencies(session, project, targetPlatform,
-                reactorProjects, new SimpleDependencyResolverConfiguration(dependencies));
+                reactorProjects, resolverConfiguration);
 
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
 
