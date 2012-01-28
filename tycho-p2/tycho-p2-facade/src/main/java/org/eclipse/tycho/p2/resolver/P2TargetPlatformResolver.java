@@ -74,10 +74,12 @@ import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformRes
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
@@ -132,7 +134,13 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
-        Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, reactorProject);
+        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
+                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        List<Map<String, String>> environments = getEnvironments(configuration);
+        OptionalResolutionAction optionalAction = configuration.getDependencyResolverConfiguration()
+                .getOptionalResolutionAction();
+        Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, environments,
+                optionalAction);
         for (Map.Entry<String, IDependencyMetadata> entry : metadata.entrySet()) {
             reactorProject.setDependencyMetadata(entry.getKey(), true, entry.getValue().getMetadata(true));
             reactorProject.setDependencyMetadata(entry.getKey(), false, entry.getValue().getMetadata(false));
@@ -140,15 +148,12 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
-            final MavenProject project, final ReactorProject reactorProject) {
-
-        TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
-                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-        List<Map<String, String>> environments = getEnvironments(configuration);
+            final MavenProject project, final List<Map<String, String>> environments,
+            final OptionalResolutionAction optionalAction) {
 
         final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<String, IDependencyMetadata>();
-        metadata.put(null, generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null), environments,
-                configuration.getDependencyResolverConfiguration().getOptionalResolutionAction()));
+        metadata.put(null, generator.generateMetadata(new AttachedArtifact(project, project.getBasedir(), null),
+                environments, optionalAction));
 
         // let external providers contribute additional metadata
         try {
@@ -157,7 +162,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                     try {
                         for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
                             Map<String, IDependencyMetadata> providedMetadata = provider.getDependencyMetadata(session,
-                                    project, reactorProject);
+                                    project, null, optionalAction);
                             if (providedMetadata != null) {
                                 metadata.putAll(providedMetadata);
                             }
