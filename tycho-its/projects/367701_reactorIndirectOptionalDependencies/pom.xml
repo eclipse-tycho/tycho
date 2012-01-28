@@ -18,6 +18,19 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+    <description>
+    Project dependency resolution must not be affected by optionalDependencies configuration of other reactor
+    projects.
+
+    'reactorbundle' has optional dependency on 'org.eclipse.equinox.frameworkadmin' bundle. Dependency resolution
+    of 'reactorbundle' bundles treats 'org.eclipse.equinox.frameworkadmin' dependency as required (see bug 351842 [1]).
+
+    'testbundle' test bundle, which depends on 'reactorbundle' is not expected to have 
+    'org.eclipse.equinox.frameworkadmin' as a dependency. 
+
+    [1] https://bugs.eclipse.org/bugs/show_bug.cgi?id=351842 
+    </description>
+
 	<properties>
 		<tycho.version>0.14.0-SNAPSHOT</tycho.version>
 		<e342-repo>http://download.eclipse.org/eclipse/updates/3.4</e342-repo>
