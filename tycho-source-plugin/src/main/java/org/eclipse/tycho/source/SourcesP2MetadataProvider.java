@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -36,13 +39,14 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
 
     private DependencyMetadataGenerator sourcesGenerator;
 
-    public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
+    public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
+            ReactorProject reactorProject) {
         if (OsgiSourceMojo.isRelevantProjectImpl(project, buildPropertiesParser)) {
             ReactorArtifactFacade sourcesArtifact = new ReactorArtifactFacade(reactorProject, "sources");
-            IDependencyMetadata metadata = sourcesGenerator.generateMetadata(sourcesArtifact, null,
-                    OptionalResolutionAction.REQUIRE);
-            reactorProject.setDependencyMetadata(sourcesArtifact.getClassidier(), false, metadata.getMetadata());
+            return Collections.singletonMap(sourcesArtifact.getClassidier(),
+                    sourcesGenerator.generateMetadata(sourcesArtifact, null, OptionalResolutionAction.REQUIRE));
         }
+        return null;
     }
 
     public void initialize() throws InitializationException {

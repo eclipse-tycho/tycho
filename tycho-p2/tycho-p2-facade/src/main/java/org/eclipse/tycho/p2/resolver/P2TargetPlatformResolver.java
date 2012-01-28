@@ -132,16 +132,23 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
+        Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, reactorProject);
+        for (Map.Entry<String, IDependencyMetadata> entry : metadata.entrySet()) {
+            reactorProject.setDependencyMetadata(entry.getKey(), true, entry.getValue().getMetadata(true));
+            reactorProject.setDependencyMetadata(entry.getKey(), false, entry.getValue().getMetadata(false));
+        }
+    }
+
+    protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
+            final MavenProject project, final ReactorProject reactorProject) {
+
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<Map<String, String>> environments = getEnvironments(configuration);
 
-        DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
-
-        IDependencyMetadata metadata = generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null),
-                environments, resolverConfiguration.getOptionalResolutionAction());
-        reactorProject.setDependencyMetadata(null, true, metadata.getMetadata(true));
-        reactorProject.setDependencyMetadata(null, false, metadata.getMetadata(false));
+        final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<String, IDependencyMetadata>();
+        metadata.put(null, generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null), environments,
+                configuration.getDependencyResolverConfiguration().getOptionalResolutionAction()));
 
         // let external providers contribute additional metadata
         try {
@@ -149,7 +156,11 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 public void run() {
                     try {
                         for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
-                            provider.setupProject(session, project, reactorProject);
+                            Map<String, IDependencyMetadata> providedMetadata = provider.getDependencyMetadata(session,
+                                    project, reactorProject);
+                            if (providedMetadata != null) {
+                                metadata.putAll(providedMetadata);
+                            }
                         }
                     } catch (ComponentLookupException e) {
                         // have not found anything
@@ -163,6 +174,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         } catch (MavenExecutionException e) {
             throw new RuntimeException(e);
         }
+
+        return metadata;
     }
 
     protected boolean isTychoP2Plugin(PluginDescriptor pluginDescriptor) {
