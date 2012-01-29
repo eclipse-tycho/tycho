@@ -7,7 +7,7 @@
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
 <unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20120123-1704-7P7OFvNFLWUl76sUqHOCz0ZV"/>
 <unit id="org.eclipse.sdk.ide" version="3.8.0.I20120125-1800"/>
-<repository location="http://download.eclipse.org/eclipse/updates/3.8-I-builds"/>
+<repository location="http://download.eclipse.org/eclipse/updates/3.8milestones"/>
 </location>
 
 </locations>

@@ -93,8 +93,8 @@
             4. Close and release staged artifacts into repository 'Releases'
 
 # Version corresponds to the Eclipse 3.8M4
-EQUINOX_VERSION=3.8.0.v20111111-1618
-JDT_VERSION=3.8.1.v20111205-1355
+EQUINOX_VERSION=3.8.0.v20120123-1419
+JDT_VERSION=3.8.1.v20120125-1544
 
 # Location of unpacked Eclipse SDK
 PLUGINS=/tmp/eclipse/plugins
@@ -116,8 +116,8 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
   -Dsources=$PLUGINS/org.eclipse.jdt.core.source_$JDT_VERSION.jar
 		 -->
 
-		<equinoxVersion>3.8.0.v20111111-1618</equinoxVersion>
-		<jdtVersion>3.8.1.v20111205-1355</jdtVersion>
+		<equinoxVersion>3.8.0.v20120123-1419</equinoxVersion>
+		<jdtVersion>3.8.1.v20120125-1544</jdtVersion>
 
 		<!-- version of tycho used by this build -->
 		<tychoBootstrapVersion>0.13.0</tychoBootstrapVersion>
@@ -475,4 +475,12 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
         </snapshotRepository>
   	</distributionManagement>
 
+<!--
+    <repositories>
+        <repository>
+            <id>staging</id>
+            <url>https://oss.sonatype.org/content/groups/staging</url>
+        </repository>
+    </repositories>
+-->
 </project>

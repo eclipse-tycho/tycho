@@ -20,7 +20,7 @@ This pom.xml is needed to satisfy Maven Central repository deployment requiremen
 
   <groupId>org.eclipse.tycho</groupId>
   <artifactId>org.eclipse.jdt.core</artifactId>
-  <version>3.8.1.v20111205-1355</version>
+  <version>3.8.1.v20120125-1544</version>
 
   <name>Tycho org.eclipse.jdt.core dependency (Incubation)</name>
   <description>This is org.eclipse.jdt.core jar used by Tycho</description>
