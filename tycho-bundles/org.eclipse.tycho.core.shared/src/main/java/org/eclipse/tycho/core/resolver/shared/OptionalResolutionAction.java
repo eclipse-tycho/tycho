@@ -24,5 +24,5 @@ public enum OptionalResolutionAction {
     /**
      * Treat optional dependencies as optional.
      */
-    //OPTIONAL,
+    OPTIONAL,
 }

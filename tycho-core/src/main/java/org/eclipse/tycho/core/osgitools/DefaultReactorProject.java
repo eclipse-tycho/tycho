@@ -161,7 +161,7 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Set<Object>> getDependencyMetadata(boolean primary) {
+    protected Map<String, Set<Object>> getDependencyMetadata(boolean primary) {
         Map<String, Set<Object>> metadata = (Map<String, Set<Object>>) project
                 .getContextValue(getDependencyMetadataKey(primary));
         return metadata;

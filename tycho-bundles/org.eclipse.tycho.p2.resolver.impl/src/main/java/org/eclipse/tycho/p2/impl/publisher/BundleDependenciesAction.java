@@ -54,6 +54,10 @@ public class BundleDependenciesAction extends TychoBundleAction {
     @Override
     protected void addImportPackageRequirement(ArrayList<IRequirement> reqsDeps, ImportPackageSpecification importSpec,
             ManifestElement[] rawImportPackageHeader) {
+        if (optionalAction == OptionalResolutionAction.OPTIONAL) {
+            super.addImportPackageRequirement(reqsDeps, importSpec, rawImportPackageHeader);
+            return;
+        }
         VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
         final boolean required = !isOptional(importSpec) || optionalAction == OptionalResolutionAction.REQUIRE;
         if (required) {
@@ -66,6 +70,10 @@ public class BundleDependenciesAction extends TychoBundleAction {
     @Override
     protected void addRequireBundleRequirement(ArrayList<IRequirement> reqsDeps, BundleSpecification requiredBundle,
             ManifestElement[] rawRequireBundleHeader) {
+        if (optionalAction == OptionalResolutionAction.OPTIONAL) {
+            super.addRequireBundleRequirement(reqsDeps, requiredBundle, rawRequireBundleHeader);
+            return;
+        }
         VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange());
         final boolean required = !requiredBundle.isOptional() || optionalAction == OptionalResolutionAction.REQUIRE;
         if (required) {
@@ -114,6 +122,9 @@ public class BundleDependenciesAction extends TychoBundleAction {
             @Override
             protected IRequirement createRequirement(String namespace, String name, VersionRange range, String filter,
                     boolean optional, boolean multiple, boolean greedy) {
+                if (optionalAction == OptionalResolutionAction.OPTIONAL) {
+                    return super.createRequirement(namespace, symbolicName, range, filter, optional, multiple, greedy);
+                }
                 return BundleDependenciesAction.this.createRequirement(namespace, name, range, filter, optional,
                         multiple, greedy);
             }
