@@ -52,17 +52,6 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private static final String VERSION_QUALIFIER = "qualifier";
 
     /**
-     * If set to true, compiler will use source folders defined in build.properties file and will
-     * ignore ${project.compileSourceRoots}/${project.testCompileSourceRoots}.
-     * 
-     * Compilation will fail with an error, if this parameter is set to true but the project does
-     * not have valid build.properties file.
-     * 
-     * @parameter default-value="true"
-     */
-    private boolean usePdeSourceRoots;
-
-    /**
      * Whether the source jar should be an Eclipse source bundle.
      * 
      * @parameter default-value="true"
@@ -114,26 +103,22 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     /** {@inheritDoc} */
     protected List<String> getSources(MavenProject p) throws MojoExecutionException {
-        return getSources(project, usePdeSourceRoots, requireSourceRoots, buildPropertiesParser);
+        return getSources(project, requireSourceRoots, buildPropertiesParser);
     }
 
-    protected static List<String> getSources(MavenProject p, boolean usePdeSourceRoots, boolean requireSourceRoots,
+    protected static List<String> getSources(MavenProject p, boolean requireSourceRoots,
             BuildPropertiesParser buildPropertiesParser) throws MojoExecutionException {
-        if (usePdeSourceRoots) {
-            List<String> sources = new ArrayList<String>();
-            for (List<String> sourceFolderList : buildPropertiesParser.parse(p.getBasedir()).getJarToSourceFolderMap()
-                    .values()) {
-                for (String sourceFolder : sourceFolderList) {
-                    sources.add(new File(p.getBasedir(), sourceFolder).getAbsolutePath());
-                }
+        List<String> sources = new ArrayList<String>();
+        for (List<String> sourceFolderList : buildPropertiesParser.parse(p.getBasedir()).getJarToSourceFolderMap()
+                .values()) {
+            for (String sourceFolder : sourceFolderList) {
+                sources.add(new File(p.getBasedir(), sourceFolder).getAbsolutePath());
             }
-            if (requireSourceRoots && sources.isEmpty()) {
-                throw new MojoExecutionException("no source folders found in build.properties");
-            }
-            return sources;
-        } else {
-            return p.getCompileSourceRoots();
         }
+        if (requireSourceRoots && sources.isEmpty()) {
+            throw new MojoExecutionException("no source folders found in build.properties");
+        }
+        return sources;
     }
 
     /** {@inheritDoc} */
@@ -141,21 +126,17 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         if (excludeResources) {
             return Collections.emptyList();
         }
-        if (usePdeSourceRoots) {
-            BuildProperties buildProperties = buildPropertiesParser.parse(p.getBasedir());
-            List<String> srcIncludesList = buildProperties.getSourceIncludes();
-            if (srcIncludesList.isEmpty()) {
-                return Collections.emptyList();
-            }
-            checkSourceIncludesExist(p, buildProperties);
-            Resource resource = new Resource();
-            resource.setDirectory(project.getBasedir().getAbsolutePath());
-            resource.setExcludes(buildProperties.getSourceExcludes());
-            resource.setIncludes(srcIncludesList);
-            return Collections.singletonList(resource);
+        BuildProperties buildProperties = buildPropertiesParser.parse(p.getBasedir());
+        List<String> srcIncludesList = buildProperties.getSourceIncludes();
+        if (srcIncludesList.isEmpty()) {
+            return Collections.emptyList();
         }
-
-        return p.getResources();
+        checkSourceIncludesExist(p, buildProperties);
+        Resource resource = new Resource();
+        resource.setDirectory(project.getBasedir().getAbsolutePath());
+        resource.setExcludes(buildProperties.getSourceExcludes());
+        resource.setIncludes(srcIncludesList);
+        return Collections.singletonList(resource);
     }
 
     /** {@inheritDoc} */
@@ -230,10 +211,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
                 if (requireSourceRoots) {
                     return true;
                 }
-                boolean usePdeSourceRoots = Boolean.parseBoolean(getParameterValue(execution, "usePdeSourceRoots",
-                        "true"));
                 try {
-                    if (!getSources(project, usePdeSourceRoots, requireSourceRoots, buildPropertiesParser).isEmpty()) {
+                    if (!getSources(project, requireSourceRoots, buildPropertiesParser).isEmpty()) {
                         return true;
                     }
                 } catch (MojoExecutionException e) {

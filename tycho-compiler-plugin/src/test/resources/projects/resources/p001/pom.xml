@@ -15,9 +15,7 @@
         <version>${tycho-version}</version>
         <configuration>
           <compilerId>jdt</compilerId>
-          <outputDirectory>target/projects/resources/p001/target/classes</outputDirectory>
           <buildDirectory>target/projects/resources/p001/target</buildDirectory>
-          <usePdeSourceRoots>true</usePdeSourceRoots>
         </configuration>
       </plugin>
     </plugins>

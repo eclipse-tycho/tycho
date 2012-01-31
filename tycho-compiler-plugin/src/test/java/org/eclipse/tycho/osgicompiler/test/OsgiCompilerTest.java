@@ -43,9 +43,6 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     private AbstractOsgiCompilerMojo getMojo(List<MavenProject> projects, MavenProject project) throws Exception {
         AbstractOsgiCompilerMojo mojo = (AbstractOsgiCompilerMojo) lookupMojo("compile", project.getFile());
         setVariableValueToObject(mojo, "project", project);
-//		setVariableValueToObject(mojo, "storage", storage);
-        setVariableValueToObject(mojo, "outputDirectory",
-                new File(project.getBuild().getOutputDirectory()).getAbsoluteFile());
         setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
 
         // tycho-compiler-jdt does not support forked compilation
