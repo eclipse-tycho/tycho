@@ -330,4 +330,13 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             assertTrue(message.contains("System.foo();"));
         }
     }
+
+    public void test367431_frameworkExtensionCompileAccessRules() throws Exception {
+        File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
+        List<MavenProject> projects = getSortedProjects(basedir, new File(
+                "src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));
+
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+    }
 }

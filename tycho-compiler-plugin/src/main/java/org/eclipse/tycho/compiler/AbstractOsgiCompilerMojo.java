@@ -364,6 +364,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                 accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
             }
 
+            // now add packages exported by framework extension bundles 
+            accessRules.addAll(((BundleProject) getBundleProject()).getBootClasspathExtraAccessRules(project));
+
             compilerConfiguration
                     .addCompilerCustomArgument("org.osgi.framework.system.packages", toString(accessRules));
         }

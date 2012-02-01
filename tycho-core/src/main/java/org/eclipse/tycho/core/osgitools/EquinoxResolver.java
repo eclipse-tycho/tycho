@@ -12,10 +12,12 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -30,6 +32,7 @@ import org.eclipse.osgi.service.resolver.ResolverError;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.osgi.service.resolver.VersionConstraint;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -40,6 +43,7 @@ import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 @Component(role = EquinoxResolver.class)
 public class EquinoxResolver {
@@ -83,6 +87,16 @@ public class EquinoxResolver {
 
     protected void resolveState(State state) {
         state.resolve(false);
+
+        // warn about missing/ambiguous/inconsistent system.bundle
+        BundleDescription[] bundles = state.getBundles("system.bundle");
+        if (bundles == null || bundles.length == 0) {
+            logger.warn("No sustem.bundle");
+        } else if (bundles.length > 1) {
+            logger.warn("Multiple system.bundles " + Arrays.toString(bundles));
+        } else if (bundles[0].getBundleId() != 0) {
+            logger.warn("system.bundle bundleId == " + bundles[0].getBundleId());
+        }
     }
 
     public String toDebugString(State state) {
@@ -132,34 +146,70 @@ public class EquinoxResolver {
 
         state.setPlatformProperties(properties);
 
-        // add system bundle
-        state.addBundle(factory.createBundleDescription(state, getSystemBundleManifest(properties), "", 0));
+        Map<File, Dictionary<String, String>> systemBundles = new LinkedHashMap<File, Dictionary<String, String>>();
+        Map<File, Dictionary<String, String>> externalBundles = new LinkedHashMap<File, Dictionary<String, String>>();
+        Map<File, Dictionary<String, String>> projects = new LinkedHashMap<File, Dictionary<String, String>>();
 
-        long id = 1;
-
-        // make sure reactor projects override anything from target platform
-        // that has the same bundle symbolic name
-        ArrayList<ArtifactDescriptor> projects = new ArrayList<ArtifactDescriptor>();
         for (ArtifactDescriptor artifact : artifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
-            if (artifact.getMavenProject() != null) {
-                projects.add(artifact);
+            File location = artifact.getLocation();
+            Dictionary<String, String> mf = loadManifest(location);
+            if (isFrameworkImplementation(location, mf)) {
+                systemBundles.put(location, mf);
+            } else if (artifact.getMavenProject() != null) {
+                projects.put(location, mf);
             } else {
-                addBundle(state, id++, artifact.getLocation(), false);
+                externalBundles.put(location, mf);
             }
         }
-        for (ArtifactDescriptor artifact : projects) {
-            addBundle(state, id++, artifact.getLocation(), true);
+
+        long id = 0;
+        if (systemBundles.isEmpty()) {
+            // there were no OSGi framework implementations among bundles being resolve
+            // fabricate system.bundle to export visible JRE packages
+            state.addBundle(factory.createBundleDescription(state, getSystemBundleManifest(properties), "", id++));
+        } else {
+            // use first framework implementation found as system bundle, i.e. bundleId==0
+            // TODO test what happens when multiple framework implementations are present
+            for (Map.Entry<File, Dictionary<String, String>> entry : systemBundles.entrySet()) {
+                addBundle(state, id++, entry.getKey(), entry.getValue(), false);
+            }
         }
+        for (Map.Entry<File, Dictionary<String, String>> entry : externalBundles.entrySet()) {
+            addBundle(state, id++, entry.getKey(), entry.getValue(), false);
+        }
+        for (Map.Entry<File, Dictionary<String, String>> entry : projects.entrySet()) {
+            // make sure reactor projects override anything from the target platform
+            // that has the same bundle symbolic name
+            addBundle(state, id++, entry.getKey(), entry.getValue(), true/* override */);
+        }
+
         return state;
     }
 
-    public void addBundle(State state, long id, File bundleLocation, boolean override) throws BundleException {
-        if (bundleLocation == null || !bundleLocation.exists()) {
-            throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation);
+    private boolean isFrameworkImplementation(File location, Dictionary<String, String> mf) {
+        // starting with OSGi R4.2, /META-INF/services/org.osgi.framework.launch.FrameworkFactory
+        // can be used to detect framework implementation
+        // See http://www.osgi.org/javadoc/r4v42/org/osgi/framework/launch/FrameworkFactory.html
+
+        // Assume only framework implementation export org.osgi.framework package
+        String value = (String) mf.get(Constants.EXPORT_PACKAGE);
+        if (value != null) {
+            try {
+                ManifestElement[] exports = ManifestElement.parseHeader(Constants.EXPORT_PACKAGE, value);
+                for (ManifestElement export : exports) {
+                    if ("org.osgi.framework".equals(export.getValue())) {
+                        return true;
+                    }
+                }
+            } catch (BundleException e) {
+                // fall through
+            }
         }
+        return false;
+    }
 
-        Dictionary mf = loadManifest(bundleLocation);
-
+    public void addBundle(State state, long id, File bundleLocation, Dictionary<String, String> mf, boolean override)
+            throws BundleException {
         BundleDescription descriptor = factory.createBundleDescription(state, mf, getCanonicalPath(bundleLocation), id);
 
         if (override) {
@@ -185,14 +235,18 @@ public class EquinoxResolver {
         }
     }
 
-    private Dictionary loadManifest(File bundleLocation) {
+    private Dictionary<String, String> loadManifest(File bundleLocation) {
+        if (bundleLocation == null || !bundleLocation.exists()) {
+            throw new IllegalArgumentException("bundleLocation not found: " + bundleLocation);
+        }
+
         return manifestReader.loadManifest(bundleLocation).getHeaders();
     }
 
-    private Dictionary getSystemBundleManifest(Properties properties) {
+    private Dictionary<String, String> getSystemBundleManifest(Properties properties) {
         String systemPackages = properties.getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES);
 
-        Dictionary systemBundleManifest = new Hashtable();
+        Dictionary<String, String> systemBundleManifest = new Hashtable<String, String>();
         systemBundleManifest.put(org.eclipse.osgi.framework.internal.core.Constants.BUNDLE_SYMBOLICNAME,
                 SYSTEM_BUNDLE_SYMBOLIC_NAME);
         systemBundleManifest.put(org.eclipse.osgi.framework.internal.core.Constants.BUNDLE_VERSION, "0.0.0");

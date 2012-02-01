@@ -38,6 +38,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
@@ -197,6 +198,10 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
         }
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
+
+        project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES,
+                dependencyComputer.computeBootClasspathExtraAccessRules(state.getStateHelper(), bundleDescription));
+
         addPDESourceRoots(project);
     }
 
@@ -270,6 +275,16 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             throw new IllegalStateException();
         }
         return classpath;
+    }
+
+    public List<ClasspathEntry.AccessRule> getBootClasspathExtraAccessRules(MavenProject project) {
+        @SuppressWarnings("unchecked")
+        List<ClasspathEntry.AccessRule> rules = (List<AccessRule>) project
+                .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES);
+        if (rules == null) {
+            throw new IllegalStateException();
+        }
+        return rules;
     }
 
     /**

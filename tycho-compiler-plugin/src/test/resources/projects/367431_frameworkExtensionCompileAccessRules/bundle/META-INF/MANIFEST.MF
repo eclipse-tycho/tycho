@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle
+Bundle-Version: 1.0.0.qualifier
+Import-Package: com.sun.net.ssl.internal.ssl
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

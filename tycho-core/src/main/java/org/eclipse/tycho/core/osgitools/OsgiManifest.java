@@ -152,7 +152,7 @@ public class OsgiManifest {
         }
     }
 
-    private ManifestElement[] getManifestElements(String key) throws OsgiManifestParserException {
+    public ManifestElement[] getManifestElements(String key) throws OsgiManifestParserException {
         try {
             return ManifestElement.parseHeader(key, headers.get(key));
         } catch (BundleException e) {

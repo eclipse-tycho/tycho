@@ -14,9 +14,12 @@ import java.util.List;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 
 public interface BundleProject extends TychoProject {
     public List<ClasspathEntry> getClasspath(MavenProject project);
+
+    public List<AccessRule> getBootClasspathExtraAccessRules(MavenProject project);
 
     /**
      * Returns the value of the specified attribute key in the project's MANIFEST, or null if the
