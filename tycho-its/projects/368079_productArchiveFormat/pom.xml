@@ -9,7 +9,6 @@
   <packaging>eclipse-repository</packaging>
 
   <properties>
-    <tycho.version>0.14.0-SNAPSHOT</tycho.version>
     <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
   </properties>
 
@@ -26,14 +25,14 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho.version}</version>
+        <version>${tycho-version}</version>
         <extensions>true</extensions>
       </plugin>
 
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho.version}</version>
+        <version>${tycho-version}</version>
         <configuration>
           <environments>
             <environment>
@@ -58,7 +57,7 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-p2-director-plugin</artifactId>
-        <version>${tycho.version}</version>
+        <version>${tycho-version}</version>
         <executions>
           <execution>
             <id>materialize-products</id>

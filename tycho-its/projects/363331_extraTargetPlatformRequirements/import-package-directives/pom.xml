@@ -26,7 +26,6 @@
   </description>
 
   <properties>
-    <tycho-version>0.14.0-SNAPSHOT</tycho-version>
     <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
   </properties>
 
