@@ -366,6 +366,33 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 					<artifactId>maven-install-plugin</artifactId>
 					<version>2.3.1</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.0</version>
+					<configuration>
+					    <relativizeDecorationLinks>false</relativizeDecorationLinks>
+						<reportPlugins>
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-plugin-plugin</artifactId>
+								<version>2.9</version>
+							</plugin>
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-project-info-reports-plugin</artifactId>
+								<version>2.4</version>
+								<reportSets>
+									<reportSet>
+										<reports>
+											<report>index</report>
+										</reports>
+									</reportSet>
+								</reportSets>
+							</plugin>
+						</reportPlugins>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -384,6 +411,8 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 		<module>tycho-packaging-plugin</module>
 		<module>tycho-source-plugin</module>
 		<module>target-platform-configuration</module>
+		<module>tycho-maven-plugin</module>
+		<module>tycho-pomgenerator-plugin</module>
 
 		<!-- surefire -->
 		<module>tycho-surefire</module>
@@ -401,61 +430,6 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 			<modules>
 				<module>tycho-its</module>
 			</modules>
-		</profile>
-
-		<profile>
-			<id>buildextensions</id>
-			<activation>
-				<property>
-					<name>!site.generation</name>
-				</property>
-			</activation>
-			<!-- these modules fail during site generation (error: no mojo descriptors 
-				found), so for now we exclude them when invoking mvn site -->
-			<modules>
-				<module>tycho-maven-plugin</module>
-				<module>tycho-pomgenerator-plugin</module>
-			</modules>
-		</profile>
-
-		<profile>
-			<id>site</id>
-			<activation>
-				<property>
-					<name>site.generation</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-site-plugin</artifactId>
-						<version>3.0</version>
-						<configuration>
-						    <relativizeDecorationLinks>false</relativizeDecorationLinks>
-							<reportPlugins>
-								<plugin>
-									<groupId>org.apache.maven.plugins</groupId>
-									<artifactId>maven-plugin-plugin</artifactId>
-									<version>2.9</version>
-								</plugin>
-								<plugin>
-									<groupId>org.apache.maven.plugins</groupId>
-									<artifactId>maven-project-info-reports-plugin</artifactId>
-									<version>2.4</version>
-									<reportSets>
-										<reportSet>
-											<reports>
-												<report>index</report>
-											</reports>
-										</reportSet>
-									</reportSets>
-								</plugin>
-							</reportPlugins>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 	</profiles>
 
