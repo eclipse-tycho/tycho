@@ -79,6 +79,10 @@
               <cloneProjectsTo>target/it</cloneProjectsTo>
               <localRepositoryPath>target/local-repo</localRepositoryPath>
               <postBuildHookScript>verify.bsh</postBuildHookScript>
+			  <properties>
+			    <tycho-version>${tycho-version}</tycho-version>
+			    <tycho-extras-version>${project.version}</tycho-extras-version>
+			  </properties>
             </configuration>
             <executions>
               <execution>

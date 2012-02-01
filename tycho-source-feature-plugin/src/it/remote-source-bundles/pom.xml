@@ -9,8 +9,6 @@
 
 
   <properties>
-    <tycho-version>0.14.0-SNAPSHOT</tycho-version>
-    <tycho-extras-version>0.14.0-SNAPSHOT</tycho-extras-version>
     <junit-repo>file:///tmp/junit</junit-repo>
     <e342-repo>http://download.eclipse.org/eclipse/updates/3.4</e342-repo>
   </properties>

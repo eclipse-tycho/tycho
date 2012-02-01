@@ -7,10 +7,6 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <properties>
-    <tycho-version>0.14.0-SNAPSHOT</tycho-version>
-  </properties>
-
   <pluginRepositories>
     <pluginRepository>
       <!-- temporary workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=360628 -->
