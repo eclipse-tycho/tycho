@@ -12,6 +12,9 @@ package org.eclipse.tycho.extras.sourcefeature;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -23,9 +26,9 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
@@ -45,11 +48,12 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
 
     private DependencyMetadataGenerator generator;
 
-    public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
+    public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
+            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
         File template = new File(project.getBasedir(), SourceFeatureMojo.FEATURE_TEMPLATE_DIR);
 
         if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || !template.isDirectory()) {
-            return;
+            return null;
         }
 
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-source-feature-plugin");
@@ -90,13 +94,14 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
 
                 String classifier = SourceFeatureMojo.SOURCES_FEATURE_CLASSIFIER;
                 IArtifactFacade artifact = new AttachedArtifact(project, sourceFeatureBasedir, classifier);
-                IDependencyMetadata metadata = generator.generateMetadata(artifact, null,
-                        OptionalResolutionAction.REQUIRE);
-                reactorProject.setDependencyMetadata(classifier, true, metadata.getMetadata());
+                return Collections.singletonMap(classifier,
+                        generator.generateMetadata(artifact, null, OptionalResolutionAction.REQUIRE));
             } catch (IOException e) {
                 log.error("Could not create sources feature.xml", e);
             }
         }
+
+        return null;
     }
 
     public void initialize() throws InitializationException {

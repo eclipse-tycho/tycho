@@ -11,6 +11,9 @@
 package org.eclipse.tycho.extras.custombundle;
 
 import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -22,9 +25,8 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
@@ -41,9 +43,9 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
 
     private DependencyMetadataGenerator generator;
 
-    public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-
+    public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
+            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
+        Map<String, IDependencyMetadata> metadata = new LinkedHashMap<String, IDependencyMetadata>();
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-custom-bundle-plugin");
         if (plugin != null) {
             // it is possible to configure manifest location at <plugin> level, but it does not make sense to do so
@@ -52,12 +54,11 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
                 String classifier = getClassifier(execution);
                 if (location != null && classifier != null) {
                     IArtifactFacade artifact = new AttachedArtifact(project, location, classifier);
-                    IDependencyMetadata metadata = generator.generateMetadata(artifact, null, configuration
-                            .getDependencyResolverConfiguration().getOptionalResolutionAction());
-                    reactorProject.setDependencyMetadata(classifier, false, metadata.getMetadata());
+                    metadata.put(classifier, generator.generateMetadata(artifact, environments, optionalAction));
                 }
             }
         }
+        return metadata;
     }
 
     private String getClassifier(PluginExecution execution) {
