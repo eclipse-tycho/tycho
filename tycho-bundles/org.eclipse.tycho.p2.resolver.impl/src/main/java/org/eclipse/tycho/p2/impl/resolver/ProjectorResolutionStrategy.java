@@ -18,7 +18,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
@@ -26,7 +25,6 @@ import org.eclipse.equinox.internal.p2.director.Projector;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.p2.director.Slicer;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -39,23 +37,18 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.util.StatusTool;
 
 @SuppressWarnings("restriction")
 public class ProjectorResolutionStrategy extends ResolutionStrategy {
     private static final IInstallableUnit[] IU_ARRAY = new IInstallableUnit[0];
 
-    private final Map<String, String> properties;
-
-    private final MavenLogger logger;
-
-    public ProjectorResolutionStrategy(Map<String, String> properties, MavenLogger logger) {
-        this.properties = properties;
-        this.logger = logger;
+    public ProjectorResolutionStrategy(MavenLogger logger) {
+        super(logger);
     }
 
-    // TODO share code with TargetDefionitionResolver
-    public Collection<IInstallableUnit> resolve(IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
+        properties = addFeatureJarFilter(properties);
+
         Map<String, String> newSelectionContext = SimplePlanner.createSelectionContext(properties);
 
         // additional requirements can be either ius or bundles, and apparently projector does not like bundle
@@ -86,8 +79,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
         IQueryable<IInstallableUnit> slice = slicer.slice(rootWithExtraIUs.toArray(IU_ARRAY), monitor);
 
         if (slice == null) {
-            throw new RuntimeException(StatusTool.collectProblems(slicer.getStatus()), new CoreException(
-                    slicer.getStatus()));
+            throw newResolutionException(slicer.getStatus());
         }
 
         if (logger.isExtendedDebugEnabled()) {
@@ -108,7 +100,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
             }
             logger.error("");
 
-            throw new RuntimeException(StatusTool.collectProblems(s), s.getException());
+            throw newResolutionException(s);
         }
         Collection<IInstallableUnit> newState = projector.extractSolution();
 
@@ -184,25 +176,11 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
                             iu.getFilter(), 1 /* min */, iu.isSingleton() ? 1 : Integer.MAX_VALUE /* max */, true /* greedy */));
         }
 
-        requirements.addAll(additionalRequirements);
+        if (additionalRequirements != null) {
+            requirements.addAll(additionalRequirements);
+        }
 
         iud.setRequirements((IRequirement[]) requirements.toArray(new IRequirement[requirements.size()]));
         return MetadataFactory.createInstallableUnit(iud);
-    }
-
-    private Set<IInstallableUnit> createAdditionalRequirementsIU() {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
-
-        if (!additionalRequirements.isEmpty()) {
-            InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-            String time = Long.toString(System.currentTimeMillis());
-            iud.setId("tycho-extra-" + time);
-            iud.setVersion(Version.createOSGi(0, 0, 0, time));
-            iud.setRequirements(additionalRequirements.toArray(new IRequiredCapability[additionalRequirements.size()]));
-
-            result.add(MetadataFactory.createInstallableUnit(iud));
-        }
-
-        return result;
     }
 }

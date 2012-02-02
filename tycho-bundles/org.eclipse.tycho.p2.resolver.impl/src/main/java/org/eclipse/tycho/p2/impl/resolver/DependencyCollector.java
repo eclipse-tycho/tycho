@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.impl.resolver;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,14 +31,13 @@ import org.eclipse.tycho.p2.impl.publisher.FeatureDependenciesAction;
 
 @SuppressWarnings("restriction")
 public class DependencyCollector extends ResolutionStrategy {
-    private final MavenLogger logger;
 
     public DependencyCollector(MavenLogger logger) {
-        this.logger = logger;
+        super(logger);
     }
 
     @Override
-    public Collection<IInstallableUnit> resolve(IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         LinkedHashSet<IStatus> errors = new LinkedHashSet<IStatus>();

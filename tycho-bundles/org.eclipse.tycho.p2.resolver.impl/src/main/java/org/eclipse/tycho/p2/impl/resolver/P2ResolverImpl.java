@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.impl.resolver;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -76,7 +77,7 @@ public class P2ResolverImpl implements P2Resolver {
         usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
 
         for (Map<String, String> properties : environments) {
-            results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(properties, logger)));
+            results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(logger), properties));
         }
 
         context.reportUsedIUs(usedTargetPlatformUnits);
@@ -87,11 +88,11 @@ public class P2ResolverImpl implements P2Resolver {
 
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation) {
         this.context = (P2TargetPlatform) context;
-        return resolveProject(projectLocation, new DependencyCollector(logger));
+        return resolveProject(projectLocation, new DependencyCollector(logger), Collections.<String, String> emptyMap());
     }
 
     public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties) {
-        ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(properties, logger);
+        ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
         P2TargetPlatform contextImpl = (P2TargetPlatform) context;
         strategy.setJREUIs(contextImpl.getJREIUs());
         strategy.setAvailableInstallableUnits(new QueryableArray(contextImpl.getInstallableUnits().toArray(
@@ -100,14 +101,15 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setAdditionalRequirements(additionalRequirements);
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
-        for (IInstallableUnit iu : strategy.resolve(monitor)) {
+        for (IInstallableUnit iu : strategy.resolve(environments, monitor)) {
             result.addArtifact(TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
         }
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    protected P2ResolutionResult resolveProject(File projectLocation, ResolutionStrategy strategy) {
+    protected P2ResolutionResult resolveProject(File projectLocation, ResolutionStrategy strategy,
+            Map<String, String> properties) {
         strategy.setRootInstallableUnits(context.getReactorProjectIUs(projectLocation, true));
         strategy.setAdditionalRequirements(additionalRequirements);
         IQueryable<IInstallableUnit> availableUnits = new QueryableArray(context.getInstallableUnits().toArray(
@@ -120,7 +122,7 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setAvailableInstallableUnits(availableUnits);
         strategy.setJREUIs(context.getJREIUs());
 
-        Collection<IInstallableUnit> newState = strategy.resolve(monitor);
+        Collection<IInstallableUnit> newState = strategy.resolve(properties, monitor);
 
         if (usedTargetPlatformUnits != null) {
             usedTargetPlatformUnits.addAll(newState);

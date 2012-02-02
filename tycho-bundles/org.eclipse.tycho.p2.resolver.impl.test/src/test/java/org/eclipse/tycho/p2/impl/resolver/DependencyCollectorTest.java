@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.impl.resolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.eclipse.core.runtime.MultiStatus;
@@ -54,7 +55,7 @@ public class DependencyCollectorTest {
         dc.setAvailableInstallableUnits(new CollectionResult<IInstallableUnit>(new ArrayList<IInstallableUnit>()));
 
         try {
-            dc.resolve(new NullProgressMonitor());
+            dc.resolve(Collections.<String, String> emptyMap(), new NullProgressMonitor());
             Assert.fail();
         } catch (RuntimeException e) {
             Throwable cause = e.getCause();

@@ -511,9 +511,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             properties.put(PlatformPropertiesUtils.OSGI_ARCH, environment.getArch());
             ExecutionEnvironmentUtils.loadVMProfile(properties);
 
-            // TODO does not belong here
-            properties.put("org.eclipse.update.install.features", "true");
-
             Map<String, String> map = new LinkedHashMap<String, String>();
             for (Object key : properties.keySet()) {
                 map.put(key.toString(), properties.getProperty(key.toString()));
