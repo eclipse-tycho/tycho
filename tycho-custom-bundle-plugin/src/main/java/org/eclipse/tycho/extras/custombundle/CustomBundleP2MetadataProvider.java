@@ -11,9 +11,11 @@
 package org.eclipse.tycho.extras.custombundle;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -54,7 +56,10 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
                 String classifier = getClassifier(execution);
                 if (location != null && classifier != null) {
                     IArtifactFacade artifact = new AttachedArtifact(project, location, classifier);
-                    metadata.put(classifier, generator.generateMetadata(artifact, environments, optionalAction));
+                    metadata.put(
+                            classifier,
+                            new SecondaryDependencyMetadata(generator.generateMetadata(artifact, environments,
+                                    optionalAction)));
                 }
             }
         }
@@ -89,4 +94,19 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
     }
 
+    private static class SecondaryDependencyMetadata implements IDependencyMetadata {
+        final Set<Object> metadata;
+
+        public SecondaryDependencyMetadata(IDependencyMetadata original) {
+            metadata = Collections.unmodifiableSet(original.getMetadata());
+        }
+
+        public Set<Object> getMetadata(boolean primary) {
+            return primary ? Collections.emptySet() : metadata;
+        }
+
+        public Set<Object> getMetadata() {
+            return metadata;
+        }
+    }
 }
