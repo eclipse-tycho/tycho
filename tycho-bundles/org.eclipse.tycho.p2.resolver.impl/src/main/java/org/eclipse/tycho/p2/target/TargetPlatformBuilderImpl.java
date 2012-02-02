@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.URIUtil;
@@ -42,9 +41,6 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherResult;
-import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -99,7 +95,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     /**
      * Target execution environment profile name or null to use system default profile name.
      */
-    private final String executionEnvironment;
+    private final JREInstallableUnits jreIUs;
 
     /** maven local repository as P2 IArtifactRepository */
     private final LocalArtifactRepository localArtifactRepository;
@@ -135,7 +131,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.disableP2Mirrors = disableP2Mirrors;
 
         // TODO 364134 make this a setter - this property is side-effect free (i.e. it has no effect before gatherAvailableUnits)
-        this.executionEnvironment = executionEnvironment;
+        this.jreIUs = new JREInstallableUnits(executionEnvironment);
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
         this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, logger);
@@ -330,7 +326,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
-        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, agent, logger);
+        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, jreIUs, agent, logger);
         TargetPlatformContent targetFileContent = resolver.resolveContent(definition);
         content.add(targetFileContent);
 
@@ -434,7 +430,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         return new TargetPlatformImpl(reactorProjects.values(),//
                 externalUIs, //
                 mavenInstallableUnits, //
-                getJREIUs(), //
+                jreIUs.getJREIUs(), //
                 filter, //
                 localMetadataRepository, //
                 allRemoteArtifactRepositories, //
@@ -494,26 +490,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         return result;
     }
 
-    /**
-     * p2 repositories are polluted with useless a.jre/config.a.jre IUs. These IUs do not represent
-     * current/desired JRE and can expose resolver to packages that are not actually available.
-     */
-    private boolean isJREUI(IInstallableUnit iu) {
-        // See JREAction
-        return iu.getId().startsWith("a.jre") || iu.getId().startsWith("config.a.jre");
-    }
-
     private static boolean isPartialIU(IInstallableUnit iu) {
         return Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue();
-    }
-
-    /**
-     * Return IUs that represent packages provided by target JRE
-     */
-    private Collection<IInstallableUnit> getJREIUs() {
-        PublisherResult results = new PublisherResult();
-        new JREAction(executionEnvironment).perform(new PublisherInfo(), results, new NullProgressMonitor());
-        return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet();
     }
 
     // -------------------------------------------------------------------------
@@ -538,7 +516,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         Iterator<IInstallableUnit> iter = units.iterator();
         while (iter.hasNext()) {
             IInstallableUnit unit = iter.next();
-            if (isJREUI(unit) || isPartialIU(unit) || reactorIUIDs.contains(unit.getId())) {
+            if (jreIUs.isJREUI(unit) || isPartialIU(unit) || reactorIUIDs.contains(unit.getId())) {
                 // TODO log
                 iter.remove();
                 continue;

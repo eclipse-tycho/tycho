@@ -50,7 +50,8 @@ public class TargetDefinitionResolverIncludeModeTests {
         Map<String, String> emptyMap = new HashMap<String, String>();
         List<Map<String, String>> environments = Collections.singletonList(emptyMap);
 
-        subject = new TargetDefinitionResolver(environments, p2Context.getAgent(), new MavenLoggerStub());
+        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
+                new MavenLoggerStub());
     }
 
     @Test
@@ -66,7 +67,8 @@ public class TargetDefinitionResolverIncludeModeTests {
         TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
         Map<String, String> emptyMap = new HashMap<String, String>();
         List<Map<String, String>> environments = Collections.singletonList(emptyMap);
-        subject = new TargetDefinitionResolver(environments, p2Context.getAgent(), new MavenLoggerStub(false, false));
+        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
+                new MavenLoggerStub(false, false));
         subject.resolveContent(definition);
     }
 

@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -49,10 +51,6 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.StatusTool;
 
-/**
- * TODO respect target execution environment profile. Current implementation assumes current JRE and
- * will select wrong installable units for restricted target profiles like OSGi/Minimum-1.0
- */
 public class TargetDefinitionResolver {
 
     private IMetadataRepositoryManager metadataManager;
@@ -61,8 +59,14 @@ public class TargetDefinitionResolver {
 
     private final List<Map<String, String>> environments;
 
-    public TargetDefinitionResolver(List<Map<String, String>> environments, IProvisioningAgent agent, MavenLogger logger) {
+    private final JREInstallableUnits jreIUs;
+
+    private final IProgressMonitor monitor = new NullProgressMonitor();
+
+    public TargetDefinitionResolver(List<Map<String, String>> environments, JREInstallableUnits jreIUs,
+            IProvisioningAgent agent, MavenLogger logger) {
         this.environments = environments;
+        this.jreIUs = jreIUs;
         this.logger = logger;
         this.metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
     }
@@ -71,7 +75,8 @@ public class TargetDefinitionResolver {
             TargetDefinitionResolutionException {
 
         List<URI> artifactRepositories = new ArrayList<URI>();
-        List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
+
+        Set<IInstallableUnit> availableUnits = new LinkedHashSet<IInstallableUnit>();
 
         Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>();
 
@@ -94,6 +99,7 @@ public class TargetDefinitionResolver {
                 }
                 includeAllEnvironments = iuLocationDefinition.includeAllEnvironments();
 
+                List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
                 for (Repository repository : iuLocationDefinition.getRepositories()) {
                     artifactRepositories.add(repository.getLocation());
                     metadataRepositories.add(loadRepository(repository));
@@ -105,6 +111,14 @@ public class TargetDefinitionResolver {
                 for (Unit unit : iuLocationDefinition.getUnits()) {
                     rootIUs.add(getUnitInstance(locationUnits, unit));
                 }
+
+                Iterator<IInstallableUnit> iterator = locationUnits.query(QueryUtil.ALL_UNITS, monitor).iterator();
+                while (iterator.hasNext()) {
+                    IInstallableUnit unit = iterator.next();
+                    if (!jreIUs.isJREUI(unit)) {
+                        availableUnits.add(unit);
+                    }
+                }
             } else {
                 logger.warn(NLS.bind("Target location type: {0} is not supported",
                         locationDefinition.getTypeDescription()));
@@ -112,14 +126,13 @@ public class TargetDefinitionResolver {
         }
 
         Collection<IInstallableUnit> units;
-        if (!metadataRepositories.isEmpty()) {
+        if (!availableUnits.isEmpty()) {
             ResolutionStrategy strategy = getResolutionStrategy(includeMode, includeAllEnvironments);
 
             strategy.setRootInstallableUnits(rootIUs);
-            strategy.setAvailableInstallableUnits(new CompoundQueryable<IInstallableUnit>(metadataRepositories
-                    .toArray(new IMetadataRepository[metadataRepositories.size()])));
-            strategy.setJREUIs(Collections.<IInstallableUnit> emptyList()); // TODO
-            units = strategy.resolve(environments, new NullProgressMonitor());
+            strategy.setAvailableInstallableUnits(new CollectionResult<IInstallableUnit>(availableUnits));
+            strategy.setJREUIs(jreIUs.getJREIUs());
+            units = strategy.resolve(environments, monitor);
         } else {
             units = Collections.emptySet();
         }
@@ -173,7 +186,7 @@ public class TargetDefinitionResolver {
 
     private IMetadataRepository loadRepository(Repository repository) {
         try {
-            return metadataManager.loadRepository(repository.getLocation(), null);
+            return metadataManager.loadRepository(repository.getLocation(), monitor);
         } catch (ProvisionException e) {
             throw new TargetDefinitionResolutionException("Failed to load metadata repository from location "
                     + repository.getLocation(), e);
@@ -202,7 +215,7 @@ public class TargetDefinitionResolver {
         IQuery<IInstallableUnit> matchingIUQuery = QueryUtil.createIUQuery(unitReference.getId(), version);
         IQuery<IInstallableUnit> latestMatchingIUQuery = QueryUtil.createLatestQuery(matchingIUQuery);
 
-        IQueryResult<IInstallableUnit> queryResult = units.query(latestMatchingIUQuery, null);
+        IQueryResult<IInstallableUnit> queryResult = units.query(latestMatchingIUQuery, monitor);
         return queryResult;
     }
 

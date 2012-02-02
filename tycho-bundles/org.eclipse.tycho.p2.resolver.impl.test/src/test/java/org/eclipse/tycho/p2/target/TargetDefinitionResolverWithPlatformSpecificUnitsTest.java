@@ -62,7 +62,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     public void testResolutionWithGenericPlatform() throws Exception {
         Map<String, String> emptyMap = Collections.emptyMap();
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
-        subject = new TargetDefinitionResolver(Collections.singletonList(emptyMap), p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(Collections.singletonList(emptyMap), new JREInstallableUnits(null),
+                p2Context.getAgent(), logger);
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -74,7 +75,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     public void testPlannerResolutionWithOnePlatform() throws Exception {
         Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
-        subject = new TargetDefinitionResolver(Collections.singletonList(environment), p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(Collections.singletonList(environment), new JREInstallableUnits(null),
+                p2Context.getAgent(), logger);
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -90,7 +92,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         List<Map<String, String>> environments = Arrays.asList(createEnvironment("gtk", "linux", "x86_64"),
                 createEnvironment("win32", "win32", "x86"), createEnvironment("carbon", "macosx", "x86"));
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
-        subject = new TargetDefinitionResolver(environments, p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
+                logger);
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -104,7 +107,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     public void testSlicerResolutionWithOnePlatform() throws Exception {
         Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
-        subject = new TargetDefinitionResolver(Collections.singletonList(environment), p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(Collections.singletonList(environment), new JREInstallableUnits(null),
+                p2Context.getAgent(), logger);
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -120,7 +124,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         List<Map<String, String>> environments = Arrays.asList(createEnvironment("win32", "win32", "x86"),
                 createEnvironment("carbon", "macosx", "x86"));
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
-        subject = new TargetDefinitionResolver(environments, p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
+                logger);
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -134,7 +139,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     public void testSlicerResolutionWithIncludeAllEnvironments() throws Exception {
         Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true));
-        subject = new TargetDefinitionResolver(Collections.singletonList(environment), p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(Collections.singletonList(environment), new JREInstallableUnits(null),
+                p2Context.getAgent(), logger);
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -149,7 +155,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         Map<String, String> environment = Collections.emptyMap();
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true),
                 new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, false));
-        subject = new TargetDefinitionResolver(Collections.singletonList(environment), p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(Collections.singletonList(environment), new JREInstallableUnits(null),
+                p2Context.getAgent(), logger);
 
         subject.resolveContent(targetDefinition);
     }

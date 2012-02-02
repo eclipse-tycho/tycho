@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeModeTests.PlannerLocationStub;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
@@ -77,7 +78,8 @@ public class TargetDefinitionResolverTest {
         Map<String, String> emptyMap = new HashMap<String, String>();
         List<Map<String, String>> environments = Collections.singletonList(emptyMap);
 
-        subject = new TargetDefinitionResolver(environments, p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
+                logger);
     }
 
     @Test
@@ -187,6 +189,22 @@ public class TargetDefinitionResolverTest {
         subject.resolveContent(definition);
     }
 
+    @Test
+    public void testRestrictedExecutionEnvironment() throws Exception {
+        Map<String, String> emptyMap = new HashMap<String, String>();
+        List<Map<String, String>> environments = Collections.singletonList(emptyMap);
+
+        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits("CDC-1.0/Foundation-1.0"),
+                p2Context.getAgent(), logger);
+
+        VersionedId seed = new VersionedId("dom-client", "0.0.1.SNAPSHOT");
+        TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.JAVAXXML, seed));
+        TargetPlatformContent units = subject.resolveContent(definition);
+        assertThat(versionedIdsOf(units),
+                bagEquals(versionedIdList(seed, new VersionedId("javax.xml", "0.0.1.SNAPSHOT"))));
+
+    }
+
     static <T> Matcher<Collection<T>> bagEquals(final Collection<T> collection) {
         return new TypeSafeMatcher<Collection<T>>() {
 
@@ -230,7 +248,7 @@ public class TargetDefinitionResolverTest {
     }
 
     enum TestRepositories {
-        NONE, V1, V2, V1_AND_V2, UNSATISFIED, INVALID
+        NONE, V1, V2, V1_AND_V2, UNSATISFIED, INVALID, JAVAXXML
     }
 
     static class LocationStub implements InstallableUnitLocation {
@@ -259,6 +277,8 @@ public class TargetDefinitionResolverTest {
                 return Collections.singletonList(new RepositoryStub("unsatisfied"));
             case INVALID:
                 return Collections.singletonList(new RepositoryStub(null));
+            case JAVAXXML:
+                return Collections.singletonList(new RepositoryStub("repositories/", "javax.xml"));
             case NONE:
                 return Collections.emptyList();
             }
@@ -295,17 +315,22 @@ public class TargetDefinitionResolverTest {
 
     static class RepositoryStub implements Repository {
 
+        private final String basedir;
         private final String repository;
 
-        public RepositoryStub(String repository) {
+        public RepositoryStub(String basedir, String repository) {
+            this.basedir = basedir;
             this.repository = repository;
+        }
+
+        public RepositoryStub(String repository) {
+            this("targetresolver/", repository);
         }
 
         public URI getLocation() {
             try {
                 if (repository != null) {
-                    File repo = ResourceUtil.resourceFile("targetresolver/" + repository + "/content.xml")
-                            .getParentFile();
+                    File repo = ResourceUtil.resourceFile(basedir + repository + "/content.xml").getParentFile();
                     return repo.toURI();
                 }
                 return URI.create("invalid:hello");
