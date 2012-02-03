@@ -12,7 +12,7 @@ export MAVEN_PARAMS="-Dmaven.repo.local=/tmp/tycho-bootstrap.localrepo -Dit.cliO
 
 $TYCHO_M2_HOME/bin/mvn clean install -U -e -V ${MAVEN_PARAMS} || exit
 
-$TYCHO_M2_HOME/bin/mvn -f tycho-its/pom.xml clean test -Pparallel -U -e -V ${TYCHO_TEST_TARGET_PLATFORM} ${MAVEN_PARAMS} || exit
+$TYCHO_M2_HOME/bin/mvn -f tycho-its/pom.xml clean test -U -e -V ${TYCHO_TEST_TARGET_PLATFORM} ${MAVEN_PARAMS} || exit
 
 # uncomment to generate project documentation
 # $TYCHO_M2_HOME/bin/mvn -Dsite.generation site:stage ${MAVEN_PARAMS} || exit

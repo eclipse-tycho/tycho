@@ -205,6 +205,20 @@ public class TargetDefinitionResolverTest {
 
     }
 
+    @Test
+    public void test370502_requireJREIUs() throws Exception {
+        Map<String, String> emptyMap = new HashMap<String, String>();
+        List<Map<String, String>> environments = Collections.singletonList(emptyMap);
+
+        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits("J2SE-1.5"), p2Context.getAgent(),
+                logger);
+
+        VersionedId seed = new VersionedId("sdk", "1.0.0");
+        TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.REQUIREJREIUS, seed));
+        TargetPlatformContent units = subject.resolveContent(definition);
+        assertThat(versionedIdsOf(units), bagEquals(versionedIdList(seed)));
+    }
+
     static <T> Matcher<Collection<T>> bagEquals(final Collection<T> collection) {
         return new TypeSafeMatcher<Collection<T>>() {
 
@@ -248,7 +262,7 @@ public class TargetDefinitionResolverTest {
     }
 
     enum TestRepositories {
-        NONE, V1, V2, V1_AND_V2, UNSATISFIED, INVALID, JAVAXXML
+        NONE, V1, V2, V1_AND_V2, UNSATISFIED, INVALID, JAVAXXML, REQUIREJREIUS
     }
 
     static class LocationStub implements InstallableUnitLocation {
@@ -279,6 +293,8 @@ public class TargetDefinitionResolverTest {
                 return Collections.singletonList(new RepositoryStub(null));
             case JAVAXXML:
                 return Collections.singletonList(new RepositoryStub("repositories/", "javax.xml"));
+            case REQUIREJREIUS:
+                return Collections.singletonList(new RepositoryStub("repositories/", "requirejreius"));
             case NONE:
                 return Collections.emptyList();
             }

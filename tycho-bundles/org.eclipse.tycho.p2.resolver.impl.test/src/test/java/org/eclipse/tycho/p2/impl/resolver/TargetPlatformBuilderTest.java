@@ -56,7 +56,8 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(2, units.size());
+        Assert.assertEquals(3, units.size());
+        assertContainsIU(units, "a.jre");
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
 
@@ -66,7 +67,8 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(3, units.size());
+        Assert.assertEquals(4, units.size());
+        assertContainsIU(units, "a.jre");
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
         assertContainsIU(units, "test.ui.source");
@@ -77,7 +79,8 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(3, units.size());
+        Assert.assertEquals(4, units.size());
+        assertContainsIU(units, "a.jre");
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
         assertContainsIU(units, "test.ui");
@@ -106,9 +109,10 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(3, units.size());
+        Assert.assertEquals(4, units.size());
         Assert.assertEquals("1.0.0.qualifier", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion()
                 .toString());
+        assertContainsIU(units, "a.jre");
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
 
@@ -119,9 +123,10 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         artifact.setDependencyMetadata(metadata);
 
         units = platform.getInstallableUnits();
-        Assert.assertEquals(3, units.size());
+        Assert.assertEquals(4, units.size());
         Assert.assertEquals("1.0.0.123abc", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion()
                 .toString());
+        assertContainsIU(units, "a.jre");
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
 
@@ -164,10 +169,11 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(5, units.size());
+        Assert.assertEquals(6, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle");
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.source");
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.secondary");
+        assertContainsIU(units, "a.jre");
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
 
@@ -196,9 +202,10 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(units.toString(), 3, units.size());
+        Assert.assertEquals(units.toString(), 4, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group");
         // assertContainsIU(units, "iu.p2.inf"); removed by the filter
+        assertContainsIU(units, "a.jre");
         assertContainsIU(units, "a.jre.javase");
         assertContainsIU(units, "config.a.jre.javase");
 
