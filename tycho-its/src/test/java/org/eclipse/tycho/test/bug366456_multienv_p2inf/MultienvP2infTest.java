@@ -20,6 +20,7 @@ import java.util.zip.ZipFile;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.pdark.decentxml.Document;
@@ -55,9 +56,7 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
         //disabled due to a limitation of BundlesAction
         //Assert.assertTrue(ids.contains("tychotest.bundle.macosx"));
 
-        // disabled due to apparent bug in MirrorApplication or publisher
-        // TODO requires further investigation
-        //Assert.assertTrue(ids.contains("tychotest.feature.macosx"));
-        //Assert.assertTrue(ids.contains("tychotest.product.macosx"));
+        Assert.assertTrue(ids.contains("tychotest.feature.macosx"));
+        Assert.assertTrue(ids.contains("tychotest.product.macosx"));
     }
 }
