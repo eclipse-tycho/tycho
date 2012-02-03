@@ -87,10 +87,14 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
 
     /**
      * @parameter expression="${project}"
+     * @readonly
      */
     private MavenProject project;
 
     /**
+     * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
+     * session on the specified port.
+     * 
      * @parameter expression="${debugPort}"
      */
     private int debugPort;

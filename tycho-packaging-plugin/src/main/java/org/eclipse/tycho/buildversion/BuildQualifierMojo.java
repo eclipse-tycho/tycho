@@ -51,6 +51,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     /**
      * @parameter expression="${session}"
+     * @readonly
      */
     private MavenSession session;
 

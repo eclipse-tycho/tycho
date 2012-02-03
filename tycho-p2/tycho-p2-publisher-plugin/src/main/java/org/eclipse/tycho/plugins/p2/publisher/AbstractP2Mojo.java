@@ -28,10 +28,16 @@ import org.eclipse.tycho.p2.tools.TargetEnvironment;
 // TODO share between Maven plug-ins?
 public abstract class AbstractP2Mojo extends AbstractMojo {
 
-    /** @parameter expression="${session}" */
+    /**
+     * @parameter expression="${session}"
+     * @readonly
+     */
     private MavenSession session;
 
-    /** @parameter expression="${project}" */
+    /**
+     * @parameter expression="${project}"
+     * @readonly
+     */
     private MavenProject project;
 
     /**

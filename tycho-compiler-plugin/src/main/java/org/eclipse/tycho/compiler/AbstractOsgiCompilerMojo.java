@@ -82,6 +82,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     /**
      * @parameter expression="${project}"
+     * @readonly
      */
     private MavenProject project;
 
@@ -101,7 +102,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      */
     private MavenArtifactRef[] extraClasspathElements;
 
-    /** @parameter expression="${session}" */
+    /**
+     * @parameter expression="${session}"
+     * @readonly
+     */
     private MavenSession session;
 
     /** @component */

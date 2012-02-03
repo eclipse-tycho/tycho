@@ -23,10 +23,16 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 abstract class AbstractProductMojo extends AbstractMojo {
 
-    /** @parameter expression="${project}" */
+    /**
+     * @parameter expression="${project}"
+     * @readonly
+     */
     private MavenProject project;
 
-    /** @parameter expression="${session}" */
+    /**
+     * @parameter expression="${session}"
+     * @readonly
+     */
     private MavenSession session;
 
     /**

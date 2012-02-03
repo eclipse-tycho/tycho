@@ -35,10 +35,16 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
  * @requiresProject
  */
 public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
-    /** @parameter expression="${session}" */
+    /**
+     * @parameter expression="${session}"
+     * @readonly
+     */
     protected MavenSession session;
 
-    /** @parameter expression="${project}" */
+    /**
+     * @parameter expression="${project}"
+     * @readonly
+     */
     protected MavenProject project;
 
     /** @parameter default-value="true" */
