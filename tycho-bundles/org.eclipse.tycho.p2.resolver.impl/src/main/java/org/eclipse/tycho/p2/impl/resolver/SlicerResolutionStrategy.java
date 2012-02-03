@@ -21,6 +21,8 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -36,6 +38,10 @@ public class SlicerResolutionStrategy extends ResolutionStrategy {
     @Override
     public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
         properties = addFeatureJarFilter(properties);
+
+        @SuppressWarnings("unchecked")
+        IQueryable<IInstallableUnit> availableIUs = new CompoundQueryable<IInstallableUnit>(toArray(this.availableIUs,
+                new CollectionResult<IInstallableUnit>(jreIUs)));
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false, monitor));
@@ -56,7 +62,19 @@ public class SlicerResolutionStrategy extends ResolutionStrategy {
             throw newResolutionException(slicer.getStatus());
         }
 
-        return slice.query(QueryUtil.ALL_UNITS, monitor).toSet();
+        Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>(slice.query(QueryUtil.ALL_UNITS, monitor)
+                .toUnmodifiableSet());
+        result.removeAll(jreIUs);
+
+        if (logger.isExtendedDebugEnabled()) {
+            logger.debug("Resolved IUs:\n" + ResolverDebugUtils.toDebugString(result, false));
+        }
+
+        return result;
+    }
+
+    private static <T> T[] toArray(T... t) {
+        return t;
     }
 
     protected boolean ignoreFilters() {

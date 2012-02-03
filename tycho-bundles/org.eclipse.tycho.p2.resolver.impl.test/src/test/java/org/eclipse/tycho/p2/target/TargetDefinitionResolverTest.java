@@ -214,8 +214,11 @@ public class TargetDefinitionResolverTest {
                 logger);
 
         VersionedId seed = new VersionedId("sdk", "1.0.0");
-        TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.REQUIREJREIUS, seed));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetPlatformContent units = subject.resolveContent(definitionWith(new PlannerLocationStub(
+                TestRepositories.REQUIREJREIUS, seed)));
+        assertThat(versionedIdsOf(units), bagEquals(versionedIdList(seed)));
+
+        units = subject.resolveContent(definitionWith(new LocationStub(TestRepositories.REQUIREJREIUS, seed)));
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(seed)));
     }
 
