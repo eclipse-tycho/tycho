@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
-import static org.eclipse.tycho.packaging.IncludeValidationHelper.checkBinIncludesExist;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -135,7 +133,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
             if (binIncludesList.size() > 0) {
                 String dotOutputJarName = dotOutputJar != null ? dotOutputJar.getName() : ".";
-                checkBinIncludesExist(project, buildProperties, dotOutputJarName);
+                checkBinIncludesExist(buildProperties, dotOutputJarName);
                 archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
             }
 

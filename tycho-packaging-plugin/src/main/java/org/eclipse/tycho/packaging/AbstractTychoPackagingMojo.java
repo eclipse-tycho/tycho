@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.PlexusContainer;
@@ -29,6 +30,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 /**
@@ -57,6 +59,15 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
      */
     protected String qualifier;
 
+    /**
+     * If set to <code>true</code> (the default), missing build.properties bin.includes will cause
+     * build failure. If set to <code>false</code>, missing build.properties bin.includes will be
+     * reported as warnings but the build will not fail.
+     * 
+     * @parameter default-value="true"
+     */
+    protected boolean strictBinIncludes;
+
     /** @component */
     protected PlexusContainer plexus;
 
@@ -67,6 +78,11 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
      * @component role="org.eclipse.tycho.core.TychoProject"
      */
     private Map<String, TychoProject> projectTypes;
+
+    /**
+     * @component
+     */
+    private IncludeValidationHelper includeValidationHelper;
 
     protected FileSet getFileSet(File basedir, List<String> includes, List<String> excludes) {
         DefaultFileSet fileSet = new DefaultFileSet();
@@ -110,6 +126,11 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         String originalVersion = getTychoProjectFacet().getArtifactKey(reactorProject).getVersion();
         reactorProject.setExpandedVersion(originalVersion, qualifier);
+    }
+
+    protected void checkBinIncludesExist(BuildProperties buildProperties, String... ignoredIncludes)
+            throws MojoExecutionException {
+        includeValidationHelper.checkBinIncludesExist(project, buildProperties, strictBinIncludes, ignoredIncludes);
     }
 
 }

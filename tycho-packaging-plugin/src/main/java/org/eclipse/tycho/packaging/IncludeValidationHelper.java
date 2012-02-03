@@ -18,26 +18,37 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.eclipse.tycho.core.facade.BuildProperties;
 
+@Component(role = IncludeValidationHelper.class)
 public class IncludeValidationHelper {
 
-    private IncludeValidationHelper() {
+    @Requirement
+    private Logger log;
+
+    public IncludeValidationHelper() {
     }
 
-    public static void checkBinIncludesExist(MavenProject project, BuildProperties buildProperties,
+    public IncludeValidationHelper(Logger log) {
+        this.log = log;
+    }
+
+    public void checkBinIncludesExist(MavenProject project, BuildProperties buildProperties, boolean strict,
             String... ignoredIncludes) throws MojoExecutionException {
-        checkIncludesExist("bin.includes", buildProperties.getBinIncludes(), project, ignoredIncludes);
+        checkIncludesExist("bin.includes", buildProperties.getBinIncludes(), project, strict, ignoredIncludes);
     }
 
-    public static void checkSourceIncludesExist(MavenProject project, BuildProperties buildProperties)
+    public void checkSourceIncludesExist(MavenProject project, BuildProperties buildProperties, boolean strict)
             throws MojoExecutionException {
-        checkIncludesExist("src.includes", buildProperties.getSourceIncludes(), project);
+        checkIncludesExist("src.includes", buildProperties.getSourceIncludes(), project, strict);
     }
 
-    private static void checkIncludesExist(String buildPropertiesKey, List<String> includePatterns,
-            MavenProject project, String... ignoredIncludes) throws MojoExecutionException {
+    private void checkIncludesExist(String buildPropertiesKey, List<String> includePatterns, MavenProject project,
+            boolean strict, String... ignoredIncludes) throws MojoExecutionException {
         File baseDir = project.getBasedir();
         List<String> nonMatchingIncludes = new ArrayList<String>();
         List<String> ignoreList = Arrays.asList(ignoredIncludes);
@@ -58,8 +69,13 @@ public class IncludeValidationHelper {
             }
         }
         if (nonMatchingIncludes.size() > 0) {
-            throw new MojoExecutionException(new File(baseDir, "build.properties").getAbsolutePath() + ": "
-                    + buildPropertiesKey + " value(s) " + nonMatchingIncludes + " do not match any files.");
+            String message = new File(baseDir, "build.properties").getAbsolutePath() + ": " + buildPropertiesKey
+                    + " value(s) " + nonMatchingIncludes + " do not match any files.";
+            if (strict) {
+                throw new MojoExecutionException(message);
+            } else {
+                log.warn(message);
+            }
         }
     }
 

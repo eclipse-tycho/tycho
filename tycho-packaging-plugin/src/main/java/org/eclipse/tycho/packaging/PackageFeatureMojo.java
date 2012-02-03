@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
-import static org.eclipse.tycho.packaging.IncludeValidationHelper.checkBinIncludesExist;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -126,7 +124,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         }
 
         BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
-        checkBinIncludesExist(project, buildProperties);
+        checkBinIncludesExist(buildProperties);
 
         File featureProperties = getFeatureProperties(licenseFeature, buildProperties);
 

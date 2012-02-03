@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
-import static org.eclipse.tycho.packaging.IncludeValidationHelper.checkSourceIncludesExist;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +29,7 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.packaging.IncludeValidationHelper;
 import org.osgi.framework.Version;
 
 /**
@@ -92,6 +91,15 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     protected boolean requireSourceRoots;
 
     /**
+     * If set to <code>true</code> (the default), missing build.properties src.includes will cause
+     * build failure. If set to <code>false</code>, missing build.properties src.includes will be
+     * reported as warnings but the build will not fail.
+     * 
+     * @parameter default-value="true"
+     */
+    protected boolean strictSrcIncludes;
+
+    /**
      * @component role="org.eclipse.tycho.core.TychoProject"
      */
     private Map<String, TychoProject> projectTypes;
@@ -100,6 +108,11 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      * @component
      */
     private BuildPropertiesParser buildPropertiesParser;
+
+    /**
+     * @component
+     */
+    private IncludeValidationHelper includeValidationHelper;
 
     /** {@inheritDoc} */
     protected List<String> getSources(MavenProject p) throws MojoExecutionException {
@@ -131,7 +144,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         if (srcIncludesList.isEmpty()) {
             return Collections.emptyList();
         }
-        checkSourceIncludesExist(p, buildProperties);
+        includeValidationHelper.checkSourceIncludesExist(p, buildProperties, strictSrcIncludes);
         Resource resource = new Resource();
         resource.setDirectory(project.getBasedir().getAbsolutePath());
         resource.setExcludes(buildProperties.getSourceExcludes());
