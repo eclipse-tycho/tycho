@@ -19,19 +19,17 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.util.StatusTool;
 
-@SuppressWarnings("restriction")
-public abstract class ResolutionStrategy {
-    protected IQueryable<IInstallableUnit> availableIUs;
+public abstract class AbstractResolutionStrategy {
+    protected static final IInstallableUnit[] EMPTY_IU_ARRAY = new IInstallableUnit[0];
+
+    protected final MavenLogger logger;
+
+    protected Collection<IInstallableUnit> availableIUs;
 
     protected Collection<IInstallableUnit> jreIUs;
 
@@ -39,13 +37,11 @@ public abstract class ResolutionStrategy {
 
     protected List<IRequirement> additionalRequirements;
 
-    protected final MavenLogger logger;
-
-    protected ResolutionStrategy(MavenLogger logger) {
+    protected AbstractResolutionStrategy(MavenLogger logger) {
         this.logger = logger;
     }
 
-    public void setAvailableInstallableUnits(IQueryable<IInstallableUnit> availableIUs) {
+    public void setAvailableInstallableUnits(Collection<IInstallableUnit> availableIUs) {
         this.availableIUs = availableIUs;
     }
 
@@ -73,22 +69,6 @@ public abstract class ResolutionStrategy {
 
     public abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
 
-    protected Set<IInstallableUnit> createAdditionalRequirementsIU() {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
-
-        if (additionalRequirements != null && !additionalRequirements.isEmpty()) {
-            InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-            String time = Long.toString(System.currentTimeMillis());
-            iud.setId("tycho-extra-" + time);
-            iud.setVersion(Version.createOSGi(0, 0, 0, time));
-            iud.setRequirements(additionalRequirements.toArray(new IRequiredCapability[additionalRequirements.size()]));
-
-            result.add(MetadataFactory.createInstallableUnit(iud));
-        }
-
-        return result;
-    }
-
     protected Map<String, String> addFeatureJarFilter(Map<String, String> environment) {
         final Map<String, String> selectionContext = new HashMap<String, String>(environment);
         selectionContext.put("org.eclipse.update.install.features", "true");
@@ -98,5 +78,4 @@ public abstract class ResolutionStrategy {
     protected RuntimeException newResolutionException(IStatus status) {
         return new RuntimeException(StatusTool.collectProblems(status), status.getException());
     }
-
 }

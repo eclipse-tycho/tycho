@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.director.Projector;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
@@ -39,11 +40,19 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.facade.MavenLogger;
 
 @SuppressWarnings("restriction")
-public class ProjectorResolutionStrategy extends ResolutionStrategy {
-    private static final IInstallableUnit[] IU_ARRAY = new IInstallableUnit[0];
+public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
     public ProjectorResolutionStrategy(MavenLogger logger) {
         super(logger);
+    }
+
+    @Override
+    protected Slicer newSlicer(IQueryable<IInstallableUnit> availableUnits, Map<String, String> properties) {
+        return new Slicer(availableUnits, properties, false);
+    }
+
+    protected boolean isSlicerError(MultiStatus slicerStatus) {
+        return slicerStatus.matches(IStatus.ERROR | IStatus.CANCEL);
     }
 
     public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
@@ -51,44 +60,15 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
 
         Map<String, String> newSelectionContext = SimplePlanner.createSelectionContext(properties);
 
-        // additional requirements can be either ius or bundles, and apparently projector does not like bundle
-        // requirements to be listed directly under entryPointIU (i.e. the first Project.encode parameter)
-        // To workaround this, we do the following
-        // 1. wrap additional requirements into extra IU
-        // 2. add the extra IU as requirement of entryPointIU
-        // 3. tell projector the extra IUs is already installed, via Project.encode alreadyExistingRoots parameter
-
-        Set<IInstallableUnit> extraIUs = createAdditionalRequirementsIU();
+        IQueryable<IInstallableUnit> slice = slice(properties, monitor);
 
         // force JRE UIs to be part of resolved state
         Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>(this.rootIUs);
         rootIUs.addAll(jreIUs);
 
-        Set<IInstallableUnit> rootWithExtraIUs = new LinkedHashSet<IInstallableUnit>();
-        rootWithExtraIUs.addAll(rootIUs);
-        rootWithExtraIUs.addAll(extraIUs);
-
-        if (logger.isExtendedDebugEnabled()) {
-            logger.debug("Selection context: " + properties.toString());
-            logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false, monitor));
-            logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
-            logger.debug("Extra IUs:\n" + ResolverDebugUtils.toDebugString(extraIUs, true));
-        }
-
-        Slicer slicer = new Slicer(availableIUs, newSelectionContext, false);
-        IQueryable<IInstallableUnit> slice = slicer.slice(rootWithExtraIUs.toArray(IU_ARRAY), monitor);
-
-        if (slice == null) {
-            throw newResolutionException(slicer.getStatus());
-        }
-
-        if (logger.isExtendedDebugEnabled()) {
-            logger.debug("Slice:\n" + ResolverDebugUtils.toDebugString(slice, false, monitor));
-        }
-
         Projector projector = new Projector(slice, newSelectionContext, new HashSet<IInstallableUnit>(), false);
-        projector.encode(createMetaIU(rootIUs), extraIUs.toArray(IU_ARRAY) /* alreadyExistingRoots */,
-                new QueryableArray(IU_ARRAY) /* installedIUs */, rootIUs /* newRoots */, monitor);
+        projector.encode(createMetaIU(rootIUs), EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(
+                EMPTY_IU_ARRAY) /* installedIUs */, rootIUs /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
             Set<Explanation> explanation = projector.getExplanation(monitor);
@@ -107,7 +87,7 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
         // remove JRE IUs from resolved state
         newState.removeAll(jreIUs);
 
-        fixSWT(newState, newSelectionContext, monitor);
+        fixSWT(new QueryableCollection(this.availableIUs), newState, newSelectionContext, monitor);
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Resolved IUs:\n" + ResolverDebugUtils.toDebugString(newState, false));
@@ -116,8 +96,8 @@ public class ProjectorResolutionStrategy extends ResolutionStrategy {
         return newState;
     }
 
-    private void fixSWT(Collection<IInstallableUnit> ius, Map<String, String> newSelectionContext,
-            IProgressMonitor monitor) {
+    private void fixSWT(IQueryable<IInstallableUnit> availableIUs, Collection<IInstallableUnit> ius,
+            Map<String, String> newSelectionContext, IProgressMonitor monitor) {
         boolean swt = false;
         for (IInstallableUnit iu : ius) {
             if ("org.eclipse.swt".equals(iu.getId())) {

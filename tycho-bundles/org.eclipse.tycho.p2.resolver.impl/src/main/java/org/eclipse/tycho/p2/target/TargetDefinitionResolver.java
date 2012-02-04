@@ -28,7 +28,6 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -39,7 +38,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.ProjectorResolutionStrategy;
-import org.eclipse.tycho.p2.impl.resolver.ResolutionStrategy;
+import org.eclipse.tycho.p2.impl.resolver.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.impl.resolver.SlicerResolutionStrategy;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
@@ -127,10 +126,10 @@ public class TargetDefinitionResolver {
 
         Collection<IInstallableUnit> units;
         if (!availableUnits.isEmpty()) {
-            ResolutionStrategy strategy = getResolutionStrategy(includeMode, includeAllEnvironments);
+            AbstractResolutionStrategy strategy = getResolutionStrategy(includeMode, includeAllEnvironments);
 
             strategy.setRootInstallableUnits(rootIUs);
-            strategy.setAvailableInstallableUnits(new CollectionResult<IInstallableUnit>(availableUnits));
+            strategy.setAvailableInstallableUnits(availableUnits);
             strategy.setJREUIs(jreIUs.getJREIUs());
             units = strategy.resolve(environments, monitor);
         } else {
@@ -140,7 +139,7 @@ public class TargetDefinitionResolver {
         return new ResolvedDefinition(units, artifactRepositories);
     }
 
-    private ResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments) {
+    private AbstractResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments) {
         switch (includeMode) {
         case PLANNER:
             return getPlannerResolutionStrategy(includeAllEnvironments);
@@ -151,7 +150,7 @@ public class TargetDefinitionResolver {
         }
     }
 
-    private ResolutionStrategy getSlicerResolutionStrategy(final boolean ignoreFilters) {
+    private AbstractResolutionStrategy getSlicerResolutionStrategy(final boolean ignoreFilters) {
         return new SlicerResolutionStrategy(logger) {
             @Override
             public Collection<IInstallableUnit> resolve(List<Map<String, String>> allproperties,
@@ -172,7 +171,7 @@ public class TargetDefinitionResolver {
         };
     }
 
-    private ResolutionStrategy getPlannerResolutionStrategy(boolean includeAllEnvironments) {
+    private AbstractResolutionStrategy getPlannerResolutionStrategy(boolean includeAllEnvironments) {
         if (includeAllEnvironments) {
             throw new TargetDefinitionResolutionException(
                     "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
