@@ -40,6 +40,23 @@
 	  <developerConnection>scm:git:ssh://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.git</developerConnection>
 	  <url>http://git.eclipse.org/c/tycho/org.eclipse.tycho.git</url>
 	</scm>
+	<developers>
+		<developer>
+			<name>Igor Fedorenko</name>
+			<organization>Sonatype</organization>
+			<organizationUrl>http://www.sonatype.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Tobias Oberlies</name>
+			<organization>SAP</organization>
+			<organizationUrl>http://www.sap.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Jan Sievers</name>
+			<organization>SAP</organization>
+			<organizationUrl>http://www.sap.com</organizationUrl>
+		</developer>
+	</developers>
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
