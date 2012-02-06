@@ -377,6 +377,11 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 								<groupId>org.apache.maven.plugins</groupId>
 								<artifactId>maven-plugin-plugin</artifactId>
 								<version>2.9</version>
+								<configuration>
+									<requirements>
+									  <maven>${maven-version}</maven>
+									</requirements>								
+								</configuration>
 							</plugin>
 							<plugin>
 								<groupId>org.apache.maven.plugins</groupId>
