@@ -91,7 +91,7 @@ public class EquinoxResolver {
         // warn about missing/ambiguous/inconsistent system.bundle
         BundleDescription[] bundles = state.getBundles("system.bundle");
         if (bundles == null || bundles.length == 0) {
-            logger.warn("No sustem.bundle");
+            logger.warn("No system.bundle");
         } else if (bundles.length > 1) {
             logger.warn("Multiple system.bundles " + Arrays.toString(bundles));
         } else if (bundles[0].getBundleId() != 0) {
