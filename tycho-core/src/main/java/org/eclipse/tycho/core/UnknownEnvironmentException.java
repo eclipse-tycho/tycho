@@ -18,6 +18,7 @@ public class UnknownEnvironmentException extends Exception {
     private final String environmentName;
 
     public UnknownEnvironmentException(String environmentName) {
+        super("Unknown OSGi execution environment: '" + environmentName + "'");
         this.environmentName = environmentName;
     }
 
