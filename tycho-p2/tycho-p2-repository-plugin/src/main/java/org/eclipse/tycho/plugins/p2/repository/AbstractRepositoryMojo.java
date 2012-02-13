@@ -23,10 +23,16 @@ import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
 
 public abstract class AbstractRepositoryMojo extends AbstractMojo {
-    /** @parameter expression="${session}" */
+    /**
+     * @parameter expression="${session}"
+     * @readonly
+     */
     private MavenSession session;
 
-    /** @parameter expression="${project}" */
+    /**
+     * @parameter expression="${project}"
+     * @readonly
+     */
     private MavenProject project;
 
     /**

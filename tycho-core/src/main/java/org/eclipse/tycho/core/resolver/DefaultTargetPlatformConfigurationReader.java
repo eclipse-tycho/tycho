@@ -17,6 +17,7 @@ import java.util.Properties;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
@@ -30,11 +31,15 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.UnknownEnvironmentException;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {
+    private static final String OPTIONAL_RESOLUTION_REQUIRE = "require";
+    private static final String OPTIONAL_RESOLUTION_IGNORE = "ignore";
+
     @Requirement
     private Logger logger;
 
@@ -76,6 +81,10 @@ public class DefaultTargetPlatformConfigurationReader {
                 setExecutionEnvironment(result, configuration);
 
                 readFilters(result, configuration);
+
+                readExtraRequirements(result, configuration);
+
+                setOptionalDependencies(result, configuration);
             }
         }
 
@@ -113,6 +122,54 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return result;
+    }
+
+    private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom resolverDom = getDependencyResolutionDom(configuration);
+        if (resolverDom == null) {
+            return;
+        }
+
+        Xpp3Dom optionalDependenciesDom = resolverDom.getChild("optionalDependencies");
+        if (optionalDependenciesDom == null) {
+            return;
+        }
+
+        String optionalDependencies = optionalDependenciesDom.getValue();
+
+        if (OPTIONAL_RESOLUTION_REQUIRE.equals(optionalDependencies)) {
+            result.setOptionalResolutionAction(OptionalResolutionAction.REQUIRE);
+        } else if (OPTIONAL_RESOLUTION_IGNORE.equals(optionalDependencies)) {
+            result.setOptionalResolutionAction(OptionalResolutionAction.IGNORE);
+        } else {
+            throw new RuntimeException("Illegal value of <optionalDependencies> dependency resolution parameter: "
+                    + optionalDependencies);
+        }
+    }
+
+    private void readExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom resolverDom = getDependencyResolutionDom(configuration);
+        if (resolverDom == null) {
+            return;
+        }
+
+        Xpp3Dom requirementsDom = resolverDom.getChild("extraRequirements");
+        if (requirementsDom == null) {
+            return;
+        }
+
+        for (Xpp3Dom requirementDom : requirementsDom.getChildren("requirement")) {
+            Dependency d = new Dependency();
+            d.setType(requirementDom.getChild("type").getValue());
+            d.setArtifactId(requirementDom.getChild("id").getValue());
+            d.setVersion(requirementDom.getChild("versionRange").getValue());
+            result.addExtraRequirement(d);
+        }
+
+    }
+
+    private Xpp3Dom getDependencyResolutionDom(Xpp3Dom configuration) {
+        return configuration.getChild("dependency-resolution");
     }
 
     private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {

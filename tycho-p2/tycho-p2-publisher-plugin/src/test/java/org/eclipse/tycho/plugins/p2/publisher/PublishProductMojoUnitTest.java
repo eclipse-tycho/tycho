@@ -85,7 +85,7 @@ public class PublishProductMojoUnitTest {
         ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
         BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
         Product buildProduct = PublishProductMojo.prepareBuildProduct(productFile, productConfiguration, buildBasedir,
-                "buildQualifier");
+                "buildQualifier", null);
 
         Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
         Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
@@ -114,7 +114,7 @@ public class PublishProductMojoUnitTest {
         ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
         BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
         Product buildProduct = PublishProductMojo.prepareBuildProduct(productFile, productConfiguration, buildBasedir,
-                "");
+                "", null);
 
         Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
         Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());

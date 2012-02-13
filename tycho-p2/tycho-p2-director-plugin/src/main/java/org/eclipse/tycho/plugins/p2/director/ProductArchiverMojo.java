@@ -175,4 +175,3 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         return artifactClassifier;
     }
 }
-

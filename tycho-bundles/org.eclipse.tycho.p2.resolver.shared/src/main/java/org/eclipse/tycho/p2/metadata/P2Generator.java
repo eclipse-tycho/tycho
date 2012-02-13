@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface P2Generator {
     /**
@@ -28,6 +29,6 @@ public interface P2Generator {
      *            zip)
      * @throws IOException
      */
-    public void generateMetadata(List<IArtifactFacade> artifacts, Map<String, IArtifactFacade> artifactsToBeAttached,
-            File targetDir) throws IOException;
+    public Map<String, Set<Object>> generateMetadata(List<IArtifactFacade> artifacts,
+            Map<String, IArtifactFacade> artifactsToBeAttached, File targetDir) throws IOException;
 }

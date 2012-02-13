@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.impl.resolver;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,16 +21,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.query.CollectionResult;
-import org.eclipse.equinox.p2.query.CompoundQueryable;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -73,7 +73,7 @@ public class P2ResolverImpl implements P2Resolver {
         usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
 
         for (Map<String, String> properties : environments) {
-            results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(properties, logger)));
+            results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(logger), properties));
         }
 
         context.reportUsedIUs(usedTargetPlatformUnits);
@@ -84,40 +84,38 @@ public class P2ResolverImpl implements P2Resolver {
 
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation) {
         this.context = (P2TargetPlatform) context;
-        return resolveProject(projectLocation, new DependencyCollector(logger));
+        return resolveProject(projectLocation, new DependencyCollector(logger), Collections.<String, String> emptyMap());
     }
 
     public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties) {
-        ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(properties, logger);
+        ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
         P2TargetPlatform contextImpl = (P2TargetPlatform) context;
         strategy.setJREUIs(contextImpl.getJREIUs());
-        strategy.setAvailableInstallableUnits(new QueryableArray(contextImpl.getInstallableUnits().toArray(
-                new IInstallableUnit[0])));
+        strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
         strategy.setAdditionalRequirements(additionalRequirements);
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
-        for (IInstallableUnit iu : strategy.resolve(monitor)) {
+        for (IInstallableUnit iu : strategy.resolve(environments, monitor)) {
             result.addArtifact(TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
         }
         return result;
     }
 
-    @SuppressWarnings("unchecked")
-    protected P2ResolutionResult resolveProject(File projectLocation, ResolutionStrategy strategy) {
+    protected P2ResolutionResult resolveProject(File projectLocation, AbstractResolutionStrategy strategy,
+            Map<String, String> properties) {
         strategy.setRootInstallableUnits(context.getReactorProjectIUs(projectLocation, true));
         strategy.setAdditionalRequirements(additionalRequirements);
-        IQueryable<IInstallableUnit> availableUnits = new QueryableArray(context.getInstallableUnits().toArray(
-                new IInstallableUnit[0]));
-        LinkedHashSet<IInstallableUnit> projectSecondaryIUs = context.getReactorProjectIUs(projectLocation, false);
+        Collection<IInstallableUnit> availableUnits = context.getInstallableUnits();
+        Collection<IInstallableUnit> projectSecondaryIUs = context.getReactorProjectIUs(projectLocation, false);
         if (!projectSecondaryIUs.isEmpty()) {
-            availableUnits = new CompoundQueryable<IInstallableUnit>(toArray(availableUnits,
-                    new CollectionResult<IInstallableUnit>(projectSecondaryIUs)));
+            availableUnits = new LinkedHashSet<IInstallableUnit>(availableUnits);
+            availableUnits.addAll(projectSecondaryIUs);
         }
         strategy.setAvailableInstallableUnits(availableUnits);
         strategy.setJREUIs(context.getJREIUs());
 
-        Collection<IInstallableUnit> newState = strategy.resolve(monitor);
+        Collection<IInstallableUnit> newState = strategy.resolve(properties, monitor);
 
         if (usedTargetPlatformUnits != null) {
             usedTargetPlatformUnits.addAll(newState);
@@ -125,10 +123,6 @@ public class P2ResolverImpl implements P2Resolver {
 
         context.downloadArtifacts(newState);
         return toResolutionResult(newState);
-    }
-
-    private static <T> T[] toArray(T... t) {
-        return t;
     }
 
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState) {
@@ -240,4 +234,23 @@ public class P2ResolverImpl implements P2Resolver {
         return additionalRequirements;
     }
 
+    public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String version) {
+        this.context = (P2TargetPlatform) context;
+
+        QueryableCollection queriable = new QueryableCollection(((P2TargetPlatform) context).getInstallableUnits());
+
+        Version v = Version.create(version);
+        VersionRange range = new VersionRange(v, true, v, true);
+        IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null,
+                1 /* min */, 1 /* max */, false /* greedy */);
+
+        IQueryResult<IInstallableUnit> result = queriable.query(QueryUtil.createMatchQuery(requirement.getMatches()),
+                monitor);
+
+        Set<IInstallableUnit> newState = result.toUnmodifiableSet();
+
+        this.context.downloadArtifacts(newState);
+
+        return toResolutionResult(newState);
+    }
 }

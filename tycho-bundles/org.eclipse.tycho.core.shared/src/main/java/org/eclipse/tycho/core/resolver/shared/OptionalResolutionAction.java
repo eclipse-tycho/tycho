@@ -20,4 +20,9 @@ public enum OptionalResolutionAction {
      * Ignore optional dependencies.
      */
     IGNORE,
+
+    /**
+     * Treat optional dependencies as optional.
+     */
+    OPTIONAL,
 }

@@ -14,12 +14,7 @@
         <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
-          <compileSourceRoots>
-            <compileSourceRoot>target/projects/multisource/p001/src</compileSourceRoot>
-            <compileSourceRoot>target/projects/multisource/p001/src2</compileSourceRoot>
-          </compileSourceRoots>
           <compilerId>jdt</compilerId>
-          <outputDirectory>target/projects/multisource/p001/target/classes</outputDirectory>
           <buildDirectory>target/projects/multisource/p001/target</buildDirectory>
         </configuration>
       </plugin>

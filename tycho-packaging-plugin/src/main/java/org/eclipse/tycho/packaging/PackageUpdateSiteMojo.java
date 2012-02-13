@@ -28,6 +28,7 @@ public class PackageUpdateSiteMojo extends AbstractMojo {
     /**
      * @parameter expression="${project}"
      * @required
+     * @readonly
      */
     protected MavenProject project;
 

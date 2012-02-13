@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: tod.reactorbundle
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.equinox.frameworkadmin;resolution:=optional

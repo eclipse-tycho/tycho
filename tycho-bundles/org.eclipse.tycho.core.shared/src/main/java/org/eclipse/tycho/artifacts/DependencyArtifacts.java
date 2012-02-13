@@ -11,6 +11,7 @@
 package org.eclipse.tycho.artifacts;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,14 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 
 /**
- * The result from resolving a project's dependencies against the target platform.
+ * DependencyArtifacts is a collection of artifacts and their corresponding metadata.
+ * <p>
+ * Each artifact represents a file and can be uniquely identified either by (type,id,version) or by
+ * (location,classifier) tuple. Each artifact has associated (p2) metadata.
+ * <p>
+ * In some cases it is not possible or not practical to associate external dependency metadata, i.e.
+ * metadata not coming from a reactor project, with a specific artifact. Such metadata can only be
+ * accessed via {@link #getInstallableUnits()}
  */
 public interface DependencyArtifacts {
     /**
@@ -75,6 +83,17 @@ public interface DependencyArtifacts {
      * @return Set&lt;IInstallableUnit&gt; or null
      */
     public Set<?/* IInstallableUnit */> getNonReactorUnits();
+
+    /**
+     * Collection of dependency metadata (p2 installable units). Includes metadata associated with
+     * dependency artifacts and metadata that is not possible or not practical to assosiate with a
+     * specific artifact, like, for example, p2 repository category installable units.
+     * <p>
+     * The result does not include metadata associated with 'this' project.
+     * 
+     * @return Set&lt;IInstallableUnit&gt; or null
+     */
+    public Collection<?/* IInstallableUnit */> getInstallableUnits();
 
     /**
      * For debug purposes only, do not use.

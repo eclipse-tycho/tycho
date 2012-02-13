@@ -15,9 +15,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 
-public class TargetPlatformConfiguration {
+public class TargetPlatformConfiguration implements DependencyResolverConfiguration {
 
     public static final String POM_DEPENDENCIES_CONSIDER = "consider";
 
@@ -38,6 +40,10 @@ public class TargetPlatformConfiguration {
     private String executionEnvironment;
 
     private List<TargetPlatformFilter> filters;
+
+    private OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
+
+    private final List<Dependency> extraRequirements = new ArrayList<Dependency>();
 
     /**
      * Returns the list of configured target environments, or the running environment if no
@@ -120,4 +126,23 @@ public class TargetPlatformConfiguration {
             return filters;
     }
 
+    public DependencyResolverConfiguration getDependencyResolverConfiguration() {
+        return this;
+    }
+
+    public List<Dependency> getExtraRequirements() {
+        return extraRequirements;
+    }
+
+    public OptionalResolutionAction getOptionalResolutionAction() {
+        return optionalAction;
+    }
+
+    public void addExtraRequirement(Dependency requirement) {
+        extraRequirements.add(requirement);
+    }
+
+    public void setOptionalResolutionAction(OptionalResolutionAction optionalAction) {
+        this.optionalAction = optionalAction;
+    }
 }

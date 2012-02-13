@@ -8,7 +8,6 @@
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
-    <tycho.version>0.14.0-SNAPSHOT</tycho.version>
     <e342-repo>http://download.eclipse.org/eclipse/updates/3.4</e342-repo>
     <e352-repo>http://download.eclipse.org/eclipse/updates/3.5</e352-repo>
   </properties>
@@ -31,19 +30,21 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho.version}</version>
+        <version>${tycho-version}</version>
         <extensions>true</extensions>
       </plugin>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-compiler-plugin</artifactId>
-        <version>${tycho.version}</version>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
         <configuration>
-          <!--
-            this bundle has mutually exclusive optional dependencies 
-            on two versions of org.eclipse.equinox.frameworkadmin
-          -->
-          <optionalDependencies>ignore</optionalDependencies>
+          <dependency-resolution>
+            <!--
+              this bundle has mutually exclusive optional dependencies 
+              on two versions of org.eclipse.equinox.frameworkadmin
+            -->
+            <optionalDependencies>ignore</optionalDependencies>
+          </dependency-resolution>
         </configuration>
       </plugin>
     </plugins>

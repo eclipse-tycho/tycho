@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?metadataRepository version='1.1.0'?>
-<repository name='dom' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+<repository name='javax.xml' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1321674068477'/>
+    <property name='p2.timestamp' value='1322108484916'/>
   </properties>
-  <units size='3'>
+  <units size='4'>
     <unit id='javax.xml' version='0.0.1.SNAPSHOT' singleton='false'>
       <update id='javax.xml' range='[0.0.0,0.0.1.SNAPSHOT)' severity='0'/>
       <properties size='1'>
@@ -47,6 +47,32 @@
         <instructions size='1'>
           <instruction key='install'>
 
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='dom-client' version='0.0.1.SNAPSHOT' singleton='false'>
+      <update id='dom-client' range='[0.0.0,0.0.1.SNAPSHOT)' severity='0'/>
+      <properties size='1'>
+        <property name='org.eclipse.equinox.p2.name' value='dom-client'/>
+      </properties>
+      <provides size='4'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='dom-client' version='0.0.1.SNAPSHOT'/>
+        <provided namespace='osgi.bundle' name='dom-client' version='0.0.1.SNAPSHOT'/>
+        <provided namespace='java.package' name='test' version='0.0.1.SNAPSHOT'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='java.package' name='org.w3c.dom' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='dom-client' version='0.0.1.SNAPSHOT'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Built-By: igor&#xA;Export-Package: test;uses:=&quot;org.w3c.dom&quot;;version=&quot;0.0.1.SNAPSHOT&quot;&#xA;Build-Jdk: 1.6.0_26&#xA;Bundle-Name: dom-client&#xA;Bundle-Version: 0.0.1.SNAPSHOT&#xA;Bnd-LastModified: 1322108427073&#xA;Bundle-SymbolicName: dom-client&#xA;Import-Package: org.w3c.dom&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Manifest-Version: 1&#xA;Tool: Bnd-1.43.0&#xA;
           </instruction>
         </instructions>
       </touchpointData>

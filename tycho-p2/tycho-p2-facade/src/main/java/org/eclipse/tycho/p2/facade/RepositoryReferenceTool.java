@@ -13,9 +13,9 @@ package org.eclipse.tycho.p2.facade;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -23,7 +23,16 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TargetPlatformResolver;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.metadata.MetadataSerializable;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -45,6 +54,9 @@ public class RepositoryReferenceTool {
 
     @Requirement
     private EquinoxServiceFactory osgiServices;
+
+    @Requirement
+    private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list
@@ -81,70 +93,67 @@ public class RepositoryReferenceTool {
             repositories.addArtifactRepository(publisherResults);
         }
 
-        addRepositoriesOfReferencedModules(repositories, module);
-
         repositories.addArtifactRepository(RepositoryBlackboardKey.forResolutionContextArtifacts(module.getBasedir()));
 
         // metadata and artifacts of target platform
-        File targetPlatform = materializeTargetPlatformRepository(module);
-        repositories.addMetadataRepository(targetPlatform);
+        addTargetPlatformRepository(repositories, session, module);
         repositories.addArtifactRepository(new File(session.getLocalRepository().getBasedir()));
         return repositories;
     }
 
-    private static void addRepositoriesOfReferencedModules(RepositoryReferences sources, MavenProject currentProject)
-            throws MojoExecutionException, MojoFailureException {
-        for (MavenProject referencedProject : currentProject.getProjectReferences().values()) {
-            String packaging = referencedProject.getPackaging();
-            if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging)
-                    || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)
-                    || ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
-                // check that expected repository files are there (for more descriptive problem messages)
-                File metadataXml = getAttachedArtifact(referencedProject, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA);
-                File artifactXml = getAttachedArtifact(referencedProject,
-                        RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
-                File artifactLocations = new File(artifactXml.getParentFile(),
-                        RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS);
-                if (!artifactLocations.isFile()) {
-                    throw new MojoFailureException("Missing required file \"" + artifactLocations
-                            + "\" in target folder of module " + referencedProject.getId());
-                }
-
-                sources.addMetadataRepository(metadataXml.getParentFile());
-                sources.addArtifactRepository(artifactXml.getParentFile());
-            }
-        }
-    }
-
-    private static File getAttachedArtifact(MavenProject project, String classifier) throws MojoFailureException {
-        for (Artifact artifact : project.getAttachedArtifacts()) {
-            if (classifier.equals(artifact.getClassifier())) {
-                return artifact.getFile();
-            }
-        }
-        throw new MojoFailureException("Missing required artifact '" + classifier + "' in module " + project.getId());
-    }
-
     /**
-     * Restores the p2 metadata view on the module's build target platform (without reactor
-     * projects) that was calculated during the initial dependency resolution (see
+     * Restores the p2 metadata view on the module's build target platform that was calculated
+     * during the initial dependency resolution (see
      * org.eclipse.tycho.p2.resolver.P2ResolverImpl.toResolutionResult(...)).
      */
-    private File materializeTargetPlatformRepository(MavenProject module) throws MojoExecutionException,
-            MojoFailureException {
+    private void addTargetPlatformRepository(RepositoryReferences sources, MavenSession session, MavenProject project)
+            throws MojoExecutionException, MojoFailureException {
         try {
-            File repositoryLocation = new File(module.getBuild().getDirectory(), "targetPlatformRepository");
+            File repositoryLocation = new File(project.getBuild().getDirectory(), "targetPlatformRepository");
             repositoryLocation.mkdirs();
             FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"));
             try {
                 MetadataSerializable serializer = osgiServices.getService(MetadataSerializable.class);
-                Set<?> targetPlatformInstallableUnits = TychoProjectUtils.getDependencyArtifacts(module)
-                        .getNonReactorUnits();
+
+                TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(project);
+
+                TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
+
+                TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+
+                DependencyResolverConfiguration resolverConfiguration = configuration
+                        .getDependencyResolverConfiguration();
+
+                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
+                        targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration);
+
+                // this contains dependency-only metadata for 'this' project
+                Set<Object> targetPlatformInstallableUnits = new HashSet<Object>(
+                        dependencyArtifacts.getInstallableUnits());
+
+                for (ArtifactDescriptor artifact : dependencyArtifacts.getArtifacts()) {
+                    ReactorProject otherProject = artifact.getMavenProject();
+                    if (otherProject == null) {
+                        continue; // can't really happen
+                    }
+                    if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(otherProject.getPackaging())
+                            || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(otherProject.getPackaging())
+                            || ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(otherProject.getPackaging())) {
+                        File artifactXml = otherProject.getArtifact(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
+                        if (artifactXml == null || !artifactXml.isFile()) {
+                            throw new MojoFailureException("Missing required file \""
+                                    + RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS
+                                    + "\" in target folder of module " + otherProject.getId());
+                        }
+                        sources.addArtifactRepository(artifactXml.getParentFile());
+                    }
+                }
+
                 serializer.serialize(stream, targetPlatformInstallableUnits);
             } finally {
                 stream.close();
             }
-            return repositoryLocation;
+            sources.addMetadataRepository(repositoryLocation);
         } catch (IOException e) {
             throw new MojoExecutionException("I/O exception while writing the build target platform to disk", e);
         }

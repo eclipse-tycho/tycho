@@ -55,7 +55,8 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
-import org.eclipse.tycho.core.SimpleDependencyResolverConfiguration;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
@@ -64,7 +65,9 @@ import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.launching.LaunchConfigurationFactory;
 import org.osgi.framework.Version;
@@ -84,10 +87,14 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
 
     /**
      * @parameter expression="${project}"
+     * @readonly
      */
     private MavenProject project;
 
     /**
+     * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
+     * session on the specified port.
+     * 
      * @parameter expression="${debugPort}"
      */
     private int debugPort;
@@ -390,19 +397,33 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
             List<ReactorProject> reactorProjects) throws MojoExecutionException {
         TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
-        ArrayList<Dependency> dependencies = new ArrayList<Dependency>();
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+
+        final ArrayList<Dependency> dependencies = new ArrayList<Dependency>();
 
         if (this.dependencies != null) {
             dependencies.addAll(Arrays.asList(this.dependencies));
         }
+
+        dependencies.addAll(configuration.getDependencyResolverConfiguration().getExtraRequirements());
 
         dependencies.addAll(getTestDependencies());
 
         // TODO 364134 re-use target platform from dependency resolution
         TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
 
+        final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
+            public OptionalResolutionAction getOptionalResolutionAction() {
+                return OptionalResolutionAction.IGNORE;
+            }
+
+            public List<Dependency> getExtraRequirements() {
+                return dependencies;
+            }
+        };
+
         DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project,
-                targetPlatform, reactorProjects, new SimpleDependencyResolverConfiguration(dependencies));
+                targetPlatform, reactorProjects, resolverConfiguration);
 
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");

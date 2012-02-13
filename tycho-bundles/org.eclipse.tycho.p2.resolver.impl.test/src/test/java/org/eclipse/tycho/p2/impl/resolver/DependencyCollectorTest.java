@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.impl.resolver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.eclipse.core.runtime.MultiStatus;
@@ -22,7 +23,6 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.query.CollectionResult;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,10 +51,10 @@ public class DependencyCollectorTest {
 
         dc.setRootInstallableUnits(rootUIs);
         dc.setAdditionalRequirements(new ArrayList<IRequirement>());
-        dc.setAvailableInstallableUnits(new CollectionResult<IInstallableUnit>(new ArrayList<IInstallableUnit>()));
+        dc.setAvailableInstallableUnits(Collections.<IInstallableUnit> emptyList());
 
         try {
-            dc.resolve(new NullProgressMonitor());
+            dc.resolve(Collections.<String, String> emptyMap(), new NullProgressMonitor());
             Assert.fail();
         } catch (RuntimeException e) {
             Throwable cause = e.getCause();

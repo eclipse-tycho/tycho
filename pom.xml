@@ -40,13 +40,30 @@
 	  <developerConnection>scm:git:ssh://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.git</developerConnection>
 	  <url>http://git.eclipse.org/c/tycho/org.eclipse.tycho.git</url>
 	</scm>
+	<developers>
+		<developer>
+			<name>Igor Fedorenko</name>
+			<organization>Sonatype</organization>
+			<organizationUrl>http://www.sonatype.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Tobias Oberlies</name>
+			<organization>SAP</organization>
+			<organizationUrl>http://www.sap.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Jan Sievers</name>
+			<organization>SAP</organization>
+			<organizationUrl>http://www.sap.com</organizationUrl>
+		</developer>
+	</developers>
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
 
 	<groupId>org.eclipse.tycho</groupId>
 	<artifactId>tycho</artifactId>
-	<version>0.14.0-SNAPSHOT</version>
+	<version>0.14.0</version>
 	<packaging>pom</packaging>
 
 	<name>Tycho (Incubation)</name>
@@ -93,8 +110,8 @@
             4. Close and release staged artifacts into repository 'Releases'
 
 # Version corresponds to the Eclipse 3.8M4
-EQUINOX_VERSION=3.8.0.v20111111-1618
-JDT_VERSION=3.8.1.v20111205-1355
+EQUINOX_VERSION=3.8.0.v20120123-1419
+JDT_VERSION=3.8.1.v20120125-1544
 
 # Location of unpacked Eclipse SDK
 PLUGINS=/tmp/eclipse/plugins
@@ -116,8 +133,8 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
   -Dsources=$PLUGINS/org.eclipse.jdt.core.source_$JDT_VERSION.jar
 		 -->
 
-		<equinoxVersion>3.8.0.v20111111-1618</equinoxVersion>
-		<jdtVersion>3.8.1.v20111205-1355</jdtVersion>
+		<equinoxVersion>3.8.0.v20120123-1419</equinoxVersion>
+		<jdtVersion>3.8.1.v20120125-1544</jdtVersion>
 
 		<!-- version of tycho used by this build -->
 		<tychoBootstrapVersion>0.13.0</tychoBootstrapVersion>
@@ -366,6 +383,38 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 					<artifactId>maven-install-plugin</artifactId>
 					<version>2.3.1</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.0</version>
+					<configuration>
+					    <relativizeDecorationLinks>false</relativizeDecorationLinks>
+						<reportPlugins>
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-plugin-plugin</artifactId>
+								<version>2.9</version>
+								<configuration>
+									<requirements>
+									  <maven>${maven-version}</maven>
+									</requirements>								
+								</configuration>
+							</plugin>
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-project-info-reports-plugin</artifactId>
+								<version>2.4</version>
+								<reportSets>
+									<reportSet>
+										<reports>
+											<report>index</report>
+										</reports>
+									</reportSet>
+								</reportSets>
+							</plugin>
+						</reportPlugins>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -384,6 +433,8 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 		<module>tycho-packaging-plugin</module>
 		<module>tycho-source-plugin</module>
 		<module>target-platform-configuration</module>
+		<module>tycho-maven-plugin</module>
+		<module>tycho-pomgenerator-plugin</module>
 
 		<!-- surefire -->
 		<module>tycho-surefire</module>
@@ -402,60 +453,41 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
 				<module>tycho-its</module>
 			</modules>
 		</profile>
-
-		<profile>
-			<id>buildextensions</id>
-			<activation>
-				<property>
-					<name>!site.generation</name>
-				</property>
-			</activation>
-			<!-- these modules fail during site generation (error: no mojo descriptors 
-				found), so for now we exclude them when invoking mvn site -->
-			<modules>
-				<module>tycho-maven-plugin</module>
-				<module>tycho-pomgenerator-plugin</module>
-			</modules>
-		</profile>
-
-		<profile>
-			<id>site</id>
-			<activation>
-				<property>
-					<name>site.generation</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-site-plugin</artifactId>
-						<version>3.0-beta-3</version>
-						<configuration>
-							<reportPlugins>
-								<plugin>
-									<groupId>org.apache.maven.plugins</groupId>
-									<artifactId>maven-plugin-plugin</artifactId>
-									<version>2.5.1</version>
-								</plugin>
-								<plugin>
-									<groupId>org.apache.maven.plugins</groupId>
-									<artifactId>maven-project-info-reports-plugin</artifactId>
-									<version>2.2</version>
-									<reportSets>
-										<reportSet>
-											<reports>
-												<report>index</report>
-											</reports>
-										</reportSet>
-									</reportSets>
-								</plugin>
-							</reportPlugins>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
+	<profile>
+		<id>release</id>
+		<build>
+			<plugins>
+				<plugin>
+					<!-- see https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.4</version>
+					<executions>
+						<execution>
+							<id>sign-artifacts</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.8.1</version>
+					<executions>
+						<execution>
+							<id>javadoc-jar</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</build>
+	</profile>
 	</profiles>
 
 	<!--need this to make site:stage happy -->
@@ -475,4 +507,12 @@ $CMD -DpomFile=org.eclipse.jdt.core.pom \
         </snapshotRepository>
   	</distributionManagement>
 
+<!--
+    <repositories>
+        <repository>
+            <id>staging</id>
+            <url>https://oss.sonatype.org/content/groups/staging</url>
+        </repository>
+    </repositories>
+-->
 </project>

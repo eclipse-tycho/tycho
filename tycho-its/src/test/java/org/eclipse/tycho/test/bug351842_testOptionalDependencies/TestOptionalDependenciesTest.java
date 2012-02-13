@@ -26,4 +26,12 @@ public class TestOptionalDependenciesTest extends AbstractTychoIntegrationTest {
         verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
     }
+
+    @Test
+    public void reactorIndirectOptionalDependencies() throws Exception {
+        Verifier verifier = getVerifier("/367701_reactorIndirectOptionalDependencies", false);
+        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
+        verifier.verifyErrorFreeLog();
+    }
 }

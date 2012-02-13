@@ -14,6 +14,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 
 /**
@@ -56,4 +57,10 @@ public interface TychoProject {
      * Project target execution environment used during the build or null.
      */
     public ExecutionEnvironment getExecutionEnvironment(MavenProject project);
+
+    /**
+     * Project target platform, i.e. set of artifacts and their corresponding metadata used during
+     * project dependency resolution.
+     */
+    public TargetPlatform getTargetPlatform(MavenProject project);
 }

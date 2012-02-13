@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>tycho-its-project.363331_extraTargetPlatformRequirements.dynamicimport-package</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <description>
+  'bundle.tests' dynamicimport-package from 'bundle'. This test asserts that the package can be resolved
+  when running the tests. 
+
+  Although not validated by this test, dynamicimport-package is expected to work for indirect dependencies, 
+  i.e. test requires a bundle which in turn dynamicimport-package from another bundle. Likewise, 
+  dynamicimport-package is expected to work for packages exported by fragments.
+
+  I am not 100% sure if dynamicimport-package should also work for static class references, but this is
+  not supported by neither PDE/IDE nor Tycho. For now we can assume that dynamicimport-package
+  only concerns running the tests and does not require explicit support outside of TestMojo.
+  </description>
+
+  <properties>
+    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+  </properties>
+
+  <modules>
+    <module>bundle</module>
+    <module>bundle.tests</module>
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>e342</id>
+      <layout>p2</layout>
+      <url>${e342-repo}</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -15,11 +15,11 @@ import java.io.File;
 
 public interface BuildPropertiesParser {
 
+    public static final String BUILD_PROPERTIES = "build.properties";
+
     /**
      * Parse the file "build.properties" in baseDir. If the file does not exist or cannot be read,
      * an "empty" {@link BuildProperties} will be returned.
-     * 
      */
     public BuildProperties parse(File baseDir);
-
 }

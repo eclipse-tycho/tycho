@@ -18,11 +18,7 @@
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<compileSourceRoots>
-						<compileSourceRoot>target/projects/accessrules/p002/src</compileSourceRoot>
-					</compileSourceRoots>
 					<compilerId>jdt</compilerId>
-					<outputDirectory>target/projects/p002/accessrules/target/classes</outputDirectory>
 					<buildDirectory>target/projects/p002/accessrules/target</buildDirectory>
 				</configuration>
 			</plugin>

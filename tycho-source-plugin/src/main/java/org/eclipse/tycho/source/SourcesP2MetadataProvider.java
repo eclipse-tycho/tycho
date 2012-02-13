@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.source;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
@@ -17,11 +21,11 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
-import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
+import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
+import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 
@@ -36,13 +40,14 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
 
     private DependencyMetadataGenerator sourcesGenerator;
 
-    public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
+    public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
+            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
         if (OsgiSourceMojo.isRelevantProjectImpl(project, buildPropertiesParser)) {
-            ReactorArtifactFacade sourcesArtifact = new ReactorArtifactFacade(reactorProject, "sources");
-            IDependencyMetadata metadata = sourcesGenerator.generateMetadata(sourcesArtifact, null,
-                    OptionalResolutionAction.REQUIRE);
-            reactorProject.setDependencyMetadata(sourcesArtifact.getClassidier(), false, metadata.getMetadata());
+            IArtifactFacade sourcesArtifact = new AttachedArtifact(project, project.getBasedir(), "sources");
+            return Collections.singletonMap(sourcesArtifact.getClassidier(),
+                    sourcesGenerator.generateMetadata(sourcesArtifact, null, OptionalResolutionAction.REQUIRE));
         }
+        return null;
     }
 
     public void initialize() throws InitializationException {

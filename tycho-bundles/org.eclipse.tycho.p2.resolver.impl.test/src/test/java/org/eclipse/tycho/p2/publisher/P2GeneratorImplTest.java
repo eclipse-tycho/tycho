@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.publisher;
 
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasGAV;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -159,6 +160,27 @@ public class P2GeneratorImplTest {
         IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
         assertTrue(requirement.isGreedy());
         assertEquals(1, requirement.getMin());
+        assertEquals(1, requirement.getMax());
+        assertEquals(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, requirement.getNamespace());
+        assertEquals("org.eclipse.osgi", requirement.getName());
+    }
+
+    @Test
+    public void testOptionalRequireBundle_OPTIONAL() throws Exception {
+        DependencyMetadataGenerator generator = createDependencyMetadataGenerator();
+        File location = new File("resources/generator/optional-require-bundle").getCanonicalFile();
+        ArtifactMock artifactMock = new ArtifactMock(location, "optional-require-bundle", "optional-require-bundle",
+                "0.0.1", "eclipse-plugin");
+        Set<Object> units = generator.generateMetadata(artifactMock, getEnvironments(),
+                OptionalResolutionAction.OPTIONAL).getMetadata();
+        assertEquals(1, units.size());
+        IInstallableUnit iu = getUnit("optional-require-bundle", units);
+        assertNotNull(iu);
+        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        assertEquals(1, requirements.size());
+        IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
+        assertFalse(requirement.isGreedy());
+        assertEquals(0, requirement.getMin());
         assertEquals(1, requirement.getMax());
         assertEquals(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, requirement.getNamespace());
         assertEquals("org.eclipse.osgi", requirement.getName());

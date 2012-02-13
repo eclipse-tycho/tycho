@@ -31,6 +31,7 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
 import org.eclipse.tycho.resolver.TychoDependencyResolver;
 
@@ -41,9 +42,6 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
     @Requirement
     private DefaultTargetPlatformConfigurationReader configurationReader;
-
-    @Requirement
-    private CompilerOptionsManager compilerOptionsManager;
 
     @Requirement
     private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
@@ -86,12 +84,15 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
-        // TODO attach target platform to project for use in mojos (e.g. to fix bug 359902)
         // TODO 364134 cache target platform (e.g. by checking if there is already an attached target platform)
         logger.info("Computing target platform for " + project);
         TargetPlatform targetPlatform = resolver.computeTargetPlatform(session, project, reactorProjects);
 
-        DependencyResolverConfiguration resolverConfiguration = compilerOptionsManager.getCompilerOptions(project);
+        dr.setTargetPlatform(project, targetPlatform);
+
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+
+        DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
         logger.info("Resolving dependencies of " + project);
         DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,

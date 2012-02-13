@@ -20,8 +20,16 @@ public class FeatureRef {
         this.dom = dom;
     }
 
+    public FeatureRef(String name) {
+        this(new Element(name));
+    }
+
     public String getId() {
         return dom.getAttributeValue("id");
+    }
+
+    public void setId(String id) {
+        dom.setAttribute("id", id);
     }
 
     public String getVersion() {

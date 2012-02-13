@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,19 +82,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     /**
      * @parameter expression="${project}"
+     * @readonly
      */
     private MavenProject project;
-
-    /**
-     * If set to true, compiler will use source folders defined in build.properties file and will
-     * ignore ${project.compileSourceRoots}/${project.testCompileSourceRoots}.
-     * 
-     * Compilation will fail with an error, if this parameter is set to true but the project does
-     * not have valid build.properties file.
-     * 
-     * @parameter default-value="true"
-     */
-    private boolean usePdeSourceRoots;
 
     /**
      * Transitively add specified maven artifacts to compile classpath in addition to elements
@@ -113,7 +102,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      */
     private MavenArtifactRef[] extraClasspathElements;
 
-    /** @parameter expression="${session}" */
+    /**
+     * @parameter expression="${session}"
+     * @readonly
+     */
     private MavenSession session;
 
     /** @component */
@@ -175,17 +167,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      */
     private BuildOutputJar outputJar;
 
-    private final Set<File> outputFolders = new LinkedHashSet<File>();
-
     /**
      * @component role="org.eclipse.tycho.core.TychoProject"
      */
     private Map<String, TychoProject> projectTypes;
 
     public void execute() throws MojoExecutionException, CompilationFailureException {
-        if (usePdeSourceRoots) {
-            getLog().info("Using compile source roots from build.properties");
-        }
         for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
             this.outputJar = jar;
             this.outputJar.getOutputDirectory().mkdirs();
@@ -285,7 +272,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     protected final List<String> getCompileSourceRoots() throws MojoExecutionException {
-        return usePdeSourceRoots ? getPdeCompileSourceRoots() : getConfiguredCompileSourceRoots();
+        ArrayList<String> roots = new ArrayList<String>();
+        for (File folder : outputJar.getSourceFolders()) {
+            try {
+                roots.add(folder.getCanonicalPath());
+            } catch (IOException e) {
+                throw new MojoExecutionException("Unexpected IOException", e);
+            }
+        }
+        return roots;
     }
 
     public List<SourcepathEntry> getSourcepath() throws MojoExecutionException {
@@ -315,8 +310,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         }
         return entries;
     }
-
-    protected abstract List<String> getConfiguredCompileSourceRoots();
 
     protected SourceInclusionScanner getSourceInclusionScanner(int staleMillis) {
         SourceInclusionScanner scanner = null;
@@ -348,28 +341,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return scanner;
     }
 
-    protected List<String> getPdeCompileSourceRoots() throws MojoExecutionException {
-        ArrayList<String> roots = new ArrayList<String>();
-        for (File folder : outputJar.getSourceFolders()) {
-            try {
-                roots.add(folder.getCanonicalPath());
-            } catch (IOException e) {
-                throw new MojoExecutionException("Unexpected IOException", e);
-            }
-        }
-        return roots;
-    }
-
     @Override
     protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots)
             throws MojoExecutionException {
         CompilerConfiguration compilerConfiguration = super.getCompilerConfiguration(compileSourceRoots);
-        if (usePdeSourceRoots) {
-            String encoding = getEclipsePluginProject().getBuildProperties().getJarToJavacDefaultEncodingMap()
-                    .get(outputJar.getName());
-            if (encoding != null) {
-                compilerConfiguration.setSourceEncoding(encoding);
-            }
+        String encoding = getEclipsePluginProject().getBuildProperties().getJarToJavacDefaultEncodingMap()
+                .get(outputJar.getName());
+        if (encoding != null) {
+            compilerConfiguration.setSourceEncoding(encoding);
         }
         configureSourceAndTargetLevel(compilerConfiguration);
         configureJavaHome(compilerConfiguration);
@@ -388,6 +367,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             for (String pkg : environment.getSystemPackages()) {
                 accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
             }
+
+            // now add packages exported by framework extension bundles 
+            accessRules.addAll(((BundleProject) getBundleProject()).getBootClasspathExtraAccessRules(project));
 
             compilerConfiguration
                     .addCompilerCustomArgument("org.osgi.framework.system.packages", toString(accessRules));

@@ -12,6 +12,8 @@ package org.eclipse.tycho.core.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
@@ -79,6 +81,21 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
         MavenProject project2 = (MavenProject) projects.get(2);
         Assert.assertEquals("provider", project1.getArtifactId());
         Assert.assertEquals("consumer", project2.getArtifactId());
+    }
+
+    public void testInjectDuplicateSourceFolders() throws Exception {
+        File pom = new File(getBasedir("projects/sourceFolders"), "pom.xml");
+        List<MavenProject> projects = getSortedProjects(newMavenExecutionRequest(pom));
+        MavenProject project = (MavenProject) projects.get(0);
+        List<File> sourceRootFiles = new ArrayList<File>();
+        for (String compileRoot : project.getCompileSourceRoots()) {
+            sourceRootFiles.add(new File(compileRoot));
+        }
+        List<File> testRootFiles = new ArrayList<File>();
+        for (String testCompileRoot : project.getTestCompileSourceRoots()) {
+            testRootFiles.add(new File(testCompileRoot));
+        }
+        assertTrue(Collections.disjoint(sourceRootFiles, testRootFiles));
     }
 
     private void assertDependenciesContains(List<Dependency> mavenDependencies, String groupId, String artifactId,

@@ -19,7 +19,6 @@
         <version>${tycho-version}</version>
         <configuration>
           <compilerId>jdt</compilerId>
-          <usePdeSourceRoots>true</usePdeSourceRoots>
           <source>1.5</source>
 	      <target>jsr14</target>
         </configuration>

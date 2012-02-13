@@ -16,54 +16,72 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.equinox.p2.publisher.PublisherResult;
-import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
+import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 
 public class TargetPlatformImpl implements P2TargetPlatform {
 
-    private final Collection<IInstallableUnit> allIUs;
+    /**
+     * IInstallableUnits available from p2 repositories, either directly or via .target files, and
+     * from local maven repository
+     */
+    private final Collection<IInstallableUnit> externalIUs;
+
+    /**
+     * Installable unit(s) that represent capabilities of the target JRE.
+     */
+    private final Collection<IInstallableUnit> jreUIs;
+
+    /**
+     * IInstallableUnits that correspond to pom dependency artifacts.
+     */
     private final Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs;
-    private final Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs;
-    private final Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs;
+
+    /**
+     * Reactor build projects
+     */
+    private final Collection<IReactorArtifactFacade> reactorProjects;
+
+    // FIXME only used to warn about locally installed artifacts, this logic does not belong here
     private final LocalMetadataRepository localMetadataRepository;
 
-    private final String executionEnvironment;
     private final List<URI> remoteArtifactRepositories;
     private final LocalArtifactRepository localMavenRepository;
 
     private final IProvisioningAgent agent;
     private final MavenLogger logger;
 
-    public TargetPlatformImpl(Collection<IInstallableUnit> allTargetPlatformIUs,
-            Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
-            Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectIUs,
-            Map<ClassifiedLocation, Set<IInstallableUnit>> reactorProjectSecondaryIUs,
-            LocalMetadataRepository localMetadataRepository, String executionEnvironment,
+    /**
+     * Reactor project IU filter. Non-reactor IUs are prefiltered for performance reasons
+     */
+    private final TargetPlatformFilterEvaluator filter;
+
+    public TargetPlatformImpl(Collection<IReactorArtifactFacade> reactorProjects, Collection<IInstallableUnit> ius,
+            Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs, Collection<IInstallableUnit> jreUIs,
+            TargetPlatformFilterEvaluator filter, LocalMetadataRepository localMetadataRepository,
             List<URI> allRemoteArtifactRepositories, LocalArtifactRepository localMavenRepository,
             IProvisioningAgent agent, MavenLogger logger) {
-        this.allIUs = allTargetPlatformIUs;
+        this.reactorProjects = reactorProjects;
+        this.externalIUs = ius;
+        this.jreUIs = jreUIs;
         this.mavenArtifactIUs = mavenArtifactIUs;
-        this.reactorProjectIUs = reactorProjectIUs;
-        this.reactorProjectSecondaryIUs = reactorProjectSecondaryIUs;
+        this.filter = filter;
         this.localMetadataRepository = localMetadataRepository;
-        this.executionEnvironment = executionEnvironment;
         this.remoteArtifactRepositories = allRemoteArtifactRepositories;
         this.localMavenRepository = localMavenRepository;
 
@@ -72,36 +90,74 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     }
 
     public Collection<IInstallableUnit> getInstallableUnits() {
-        return Collections.unmodifiableCollection(allIUs);
+        Set<IInstallableUnit> allius = new LinkedHashSet<IInstallableUnit>();
+
+        allius.addAll(getReactorProjectIUs().keySet());
+
+        allius.addAll(externalIUs);
+
+        allius.addAll(mavenArtifactIUs.keySet());
+
+        allius.addAll(jreUIs);
+
+        return Collections.unmodifiableCollection(allius);
     }
 
-    @SuppressWarnings("restriction")
-    public Collection<IInstallableUnit> getJREIUs() {
-        PublisherResult results = new PublisherResult();
-        new JREAction(executionEnvironment).perform(new PublisherInfo(), results, new NullProgressMonitor());
-        return results.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet();
-    }
+    public Map<IInstallableUnit, IReactorArtifactFacade> getReactorProjectIUs() {
+        Map<IInstallableUnit, IReactorArtifactFacade> allius = new LinkedHashMap<IInstallableUnit, IReactorArtifactFacade>();
 
-    public LinkedHashSet<IInstallableUnit> getReactorProjectIUs(File projectRoot, boolean primary) {
-        LinkedHashSet<IInstallableUnit> ius = new LinkedHashSet<IInstallableUnit>();
-        boolean projectExists = false;
-
-        Map<ClassifiedLocation, Set<IInstallableUnit>> projectIUs = primary ? reactorProjectIUs
-                : reactorProjectSecondaryIUs;
-        for (Map.Entry<ClassifiedLocation, Set<IInstallableUnit>> entry : projectIUs.entrySet()) {
-            if (projectRoot.equals(entry.getKey().getLocation())) {
-                ius.addAll(entry.getValue());
-                projectExists = true;
+        for (IReactorArtifactFacade project : reactorProjects) {
+            for (Object iu : project.getDependencyMetadata(true)) {
+                allius.put((IInstallableUnit) iu, project);
+            }
+            for (Object iu : project.getDependencyMetadata(false)) {
+                allius.put((IInstallableUnit) iu, project);
             }
         }
 
-        if (!projectExists)
+        filterUnits(allius.keySet());
+
+        return Collections.unmodifiableMap(allius);
+    }
+
+    private void filterUnits(Collection<IInstallableUnit> keySet) {
+        if (filter != null) {
+            filter.filterUnits(keySet);
+        }
+    }
+
+    public Collection<IInstallableUnit> getJREIUs() {
+        return jreUIs;
+    }
+
+    public Collection<IInstallableUnit> getReactorProjectIUs(File projectRoot, boolean primary) {
+        boolean found = false;
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        for (IReactorArtifactFacade project : reactorProjects) {
+            if (project.getLocation().equals(projectRoot)) {
+                found = true;
+                result.addAll(TargetPlatformBuilderImpl.toSet(project.getDependencyMetadata(primary),
+                        IInstallableUnit.class));
+            }
+        }
+        if (!found) {
             throw new IllegalArgumentException("Not a reactor project: " + projectRoot);
-        return ius;
+        }
+        filterUnits(result);
+        return Collections.unmodifiableSet(result);
     }
 
     public IArtifactFacade getMavenArtifact(IInstallableUnit iu) {
-        return mavenArtifactIUs.get(iu);
+        // number of reactor projects is not huge, so this should not be a performance problem
+        Map<IInstallableUnit, IReactorArtifactFacade> reactorProjectIUs = getReactorProjectIUs();
+
+        IArtifactFacade artifact = reactorProjectIUs.get(iu);
+
+        if (artifact == null) {
+            artifact = mavenArtifactIUs.get(iu);
+        }
+
+        return artifact;
     }
 
     public File getLocalArtifactFile(IArtifactKey key) {
@@ -112,6 +168,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         warnAboutLocalIus(usedUnits);
     }
 
+    // FIXME this logic does not belong here
     public void warnAboutLocalIus(Collection<IInstallableUnit> units) {
         final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
         localIUs.retainAll(units);

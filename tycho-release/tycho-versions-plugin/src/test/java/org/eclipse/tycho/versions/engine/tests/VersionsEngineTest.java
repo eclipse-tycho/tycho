@@ -238,6 +238,9 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
             Versions.assertIsOsgiVersion("1.2.3_SNAPSHOT");
             fail("invalid version accepted");
         } catch (NumberFormatException e) {
+            // thrown by equinox <3.8M5
+        } catch (IllegalArgumentException e) {
+            // thrown by equinox 3.8M5
         }
     }
 

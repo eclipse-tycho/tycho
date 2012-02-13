@@ -115,11 +115,11 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                 pluginFile.delete();
             }
             BuildProperties buildProperties = pdeProject.getBuildProperties();
-            List<String> binInludesList = buildProperties.getBinIncludes();
+            List<String> binIncludesList = buildProperties.getBinIncludes();
             List<String> binExcludesList = buildProperties.getBinExcludes();
 
             BuildOutputJar dotOutputJar = pdeProject.getDotOutputJar();
-            if (dotOutputJar != null && binInludesList.contains(dotOutputJar.getName())) {
+            if (dotOutputJar != null && binIncludesList.contains(dotOutputJar.getName())) {
                 String prefix;
                 if (dotOutputJar.getName().endsWith("/")) {
                     // prefix is a relative path to folder inside the jar: something like WEB-INF/classes/
@@ -131,8 +131,10 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                 archiver.getArchiver().addDirectory(dotOutputJar.getOutputDirectory(), prefix);
             }
 
-            if (binInludesList.size() > 0) {
-                archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binInludesList, binExcludesList));
+            if (binIncludesList.size() > 0) {
+                String dotOutputJarName = dotOutputJar != null ? dotOutputJar.getName() : ".";
+                checkBinIncludesExist(buildProperties, dotOutputJarName);
+                archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
             }
 
             File manifest = updateManifest();

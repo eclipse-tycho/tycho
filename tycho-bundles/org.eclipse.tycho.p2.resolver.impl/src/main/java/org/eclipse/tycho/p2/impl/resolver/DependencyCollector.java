@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.impl.resolver;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,35 +24,35 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.impl.publisher.FeatureDependenciesAction;
 
 @SuppressWarnings("restriction")
-public class DependencyCollector extends ResolutionStrategy {
-    private final MavenLogger logger;
+public class DependencyCollector extends AbstractResolutionStrategy {
 
     public DependencyCollector(MavenLogger logger) {
-        this.logger = logger;
+        super(logger);
     }
 
     @Override
-    public Collection<IInstallableUnit> resolve(IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         LinkedHashSet<IStatus> errors = new LinkedHashSet<IStatus>();
 
         if (logger.isExtendedDebugEnabled()) {
-            logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false, monitor));
+            logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false));
             logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
-            logger.debug("Extra IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
         }
 
         result.addAll(rootIUs);
 
+        QueryableCollection availableUIsQueryable = new QueryableCollection(availableIUs);
         for (IInstallableUnit iu : rootIUs) {
-            collectIncludedIUs(result, errors, iu, true, monitor);
+            collectIncludedIUs(availableUIsQueryable, result, errors, iu, true, monitor);
         }
 
         if (logger.isExtendedDebugEnabled()) {
@@ -70,8 +71,8 @@ public class DependencyCollector extends ResolutionStrategy {
         return result;
     }
 
-    private void collectIncludedIUs(Set<IInstallableUnit> result, Set<IStatus> errors, IInstallableUnit iu,
-            boolean immediate, IProgressMonitor monitor) {
+    private void collectIncludedIUs(IQueryable<IInstallableUnit> availableIUs, Set<IInstallableUnit> result,
+            Set<IStatus> errors, IInstallableUnit iu, boolean immediate, IProgressMonitor monitor) {
         // features listed in site.xml directly
         // features/bundles included in included features (RequiredCapability.isVersionStrict is approximation of this)
 
@@ -86,7 +87,7 @@ public class DependencyCollector extends ResolutionStrategy {
                     result.add(match);
 
                     if (isFeature(match)) {
-                        collectIncludedIUs(result, errors, match, false, monitor);
+                        collectIncludedIUs(availableIUs, result, errors, match, false, monitor);
                     }
                 }
             } else {

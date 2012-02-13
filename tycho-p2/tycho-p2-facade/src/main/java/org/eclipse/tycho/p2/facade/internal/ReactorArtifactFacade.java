@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.facade.internal;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.tycho.ReactorProject;
@@ -51,7 +52,8 @@ public class ReactorArtifactFacade implements IReactorArtifactFacade {
     }
 
     public Set<Object/* IInstallableUnit */> getDependencyMetadata(boolean primary) {
-        return wrappedProject.getDependencyMetadata(classifier, primary);
+        Set<Object> result = wrappedProject.getDependencyMetadata(classifier, primary);
+        return result != null ? result : Collections.emptySet();
     }
 
     public String getClassidier() {

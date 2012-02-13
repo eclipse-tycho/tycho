@@ -30,24 +30,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
 
     /**
-     * The source directories containing the test-source to be compiled.
-     * 
-     * @parameter expression="${project.testCompileSourceRoots}"
-     * @required
-     * @readonly
-     */
-    private List<String> compileSourceRoots;
-
-    /**
-     * The directory where compiled test classes go.
-     * 
-     * @parameter expression="${project.build.testOutputDirectory}"
-     * @required
-     * @readonly
-     */
-    private File testOutputDirectory;
-
-    /**
      * The directory where compiled test classes go.
      * 
      * @parameter expression="${project.build.outputDirectory}"
@@ -57,17 +39,6 @@ public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
     private File outputDirectory;
 
     @Override
-    protected List<String> getConfiguredCompileSourceRoots() {
-        return compileSourceRoots;
-    }
-
-    /**
-     * output directory for this compile - the test output directory
-     */
-    protected File getConfiguredOutputDirectory() {
-        return testOutputDirectory;
-    }
-
     public List getClasspathElements() throws MojoExecutionException {
         List result = super.getClasspathElements();
         result.add(0, outputDirectory.getAbsolutePath() + "[+**/*]");

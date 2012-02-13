@@ -11,6 +11,7 @@ abstract class AbstractVersionsMojo extends AbstractMojo {
 
     /**
      * @parameter expression="${session}"
+     * @readonly
      */
     protected MavenSession session;
 

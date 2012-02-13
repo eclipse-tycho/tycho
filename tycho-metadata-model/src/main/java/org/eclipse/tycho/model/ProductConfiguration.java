@@ -40,7 +40,7 @@ import de.pdark.decentxml.XMLWriter;
  * parser implementations. org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile
  */
 public class ProductConfiguration {
-    private static XMLParser parser = new XMLParser();
+    private static final XMLParser parser = new XMLParser();
 
     public static ProductConfiguration read(File file) throws IOException {
         InputStream is = new BufferedInputStream(new FileInputStream(file));
@@ -205,6 +205,24 @@ public class ProductConfiguration {
         return Collections.unmodifiableMap(configs);
     }
 
+    public List<ConfigurationProperty> getConfigurationProperties() {
+        Element configurationsDom = dom.getChild("configurations");
+        if (configurationsDom == null) {
+            return null;
+        }
+
+        List<Element> propertyDoms = configurationsDom.getChildren("property");
+        if (propertyDoms == null) {
+            return null;
+        }
+
+        List<ConfigurationProperty> properties = new ArrayList<ConfigurationProperty>();
+        for (Element properyDom : propertyDoms) {
+            properties.add(new ConfigurationProperty(properyDom));
+        }
+        return Collections.unmodifiableList(properties);
+    }
+
     public String getMacIcon() {
         Element domLauncher = dom.getChild("launcher");
         if (domLauncher == null) {
@@ -274,4 +292,23 @@ public class ProductConfiguration {
 
     }
 
+    public static class ConfigurationProperty {
+        private final Element dom;
+
+        public ConfigurationProperty(Element dom) {
+            this.dom = dom;
+        }
+
+        public String getName() {
+            return dom.getAttributeValue("name");
+        }
+
+        public String getValue() {
+            return dom.getAttributeValue("value");
+        }
+
+        public void setValue(String value) {
+            dom.setAttribute("value", value);
+        }
+    }
 }

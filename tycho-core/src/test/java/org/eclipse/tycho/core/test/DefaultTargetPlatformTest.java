@@ -12,10 +12,16 @@ package org.eclipse.tycho.core.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
+import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
+import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -67,6 +73,7 @@ public class DefaultTargetPlatformTest {
         tp.addArtifactFile(key, new File(version), null);
     }
 
+    @Test
     public void testRelativePath() throws IOException {
         DefaultTargetPlatform tp = new DefaultTargetPlatform();
 
@@ -78,5 +85,81 @@ public class DefaultTargetPlatformTest {
 
         Assert.assertNotNull(tp.getArtifact(relative.getCanonicalFile()));
         Assert.assertNotNull(tp.getArtifact(canonical));
+    }
+
+    @Test
+    public void testEqualArtifacts() {
+        DefaultTargetPlatform tp = new DefaultTargetPlatform();
+
+        ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
+        File location = new File("location");
+
+        tp.addArtifactFile(key, location, asSet("a"));
+        tp.addArtifactFile(key, location, asSet("a"));
+
+        Assert.assertEquals(1, tp.getArtifacts().size());
+    }
+
+    @Test
+    public void testInconsistentArtifacts() {
+        DefaultTargetPlatform tp = new DefaultTargetPlatform();
+
+        ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
+        File location = new File("location");
+
+        tp.addArtifactFile(key, location, asSet("a"));
+        try {
+            tp.addArtifactFile(key, location, asSet("b"));
+        } catch (IllegalStateException e) {
+            // expected
+        }
+
+    }
+
+    @Test
+    public void testMultiEnvironmentMetadataMerge() {
+        ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
+        File location = new File("location");
+
+        DefaultTargetPlatform tpA = new DefaultTargetPlatform();
+        tpA.addArtifactFile(key, location, asSet("a"));
+
+        DefaultTargetPlatform tpB = new DefaultTargetPlatform();
+        tpB.addArtifactFile(key, location, asSet("a", "b"));
+
+        MultiEnvironmentTargetPlatform tp = new MultiEnvironmentTargetPlatform();
+
+        tp.addPlatform(new TargetEnvironment("a", "a", "a", "a"), tpA);
+        tp.addPlatform(new TargetEnvironment("b", "b", "b", "b"), tpB);
+
+        List<ArtifactDescriptor> artifacts = tp.getArtifacts();
+
+        Assert.assertEquals(1, artifacts.size());
+
+        Set<Object> units = artifacts.get(0).getInstallableUnits();
+        Assert.assertEquals(2, units.size());
+        Assert.assertTrue(units.contains("a"));
+        Assert.assertTrue(units.contains("b"));
+    }
+
+    private Set<Object> asSet(Object... values) {
+        Set<Object> result = new LinkedHashSet<Object>();
+        for (Object v : values) {
+            result.add(v);
+        }
+        return result;
+    }
+
+    @Test
+    public void testInstallableUnits() {
+        DefaultTargetPlatform tp = new DefaultTargetPlatform();
+
+        ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
+        File location = new File("location");
+
+        tp.addArtifactFile(key, location, asSet("a"));
+        tp.addNonReactorUnits(asSet("b"));
+
+        Assert.assertEquals(asSet("a", "b"), tp.getInstallableUnits());
     }
 }

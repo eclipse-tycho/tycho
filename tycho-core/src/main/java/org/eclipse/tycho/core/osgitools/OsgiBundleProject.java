@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
@@ -196,6 +198,10 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
         }
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
+
+        project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES,
+                dependencyComputer.computeBootClasspathExtraAccessRules(state.getStateHelper(), bundleDescription));
+
         addPDESourceRoots(project);
     }
 
@@ -215,7 +221,21 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         EclipsePluginProjectImpl eclipsePluginProject = getEclipsePluginProject(DefaultReactorProject.adapt(project));
         for (BuildOutputJar outputJar : eclipsePluginProject.getOutputJars()) {
             for (File sourceFolder : outputJar.getSourceFolders()) {
+                removeDuplicateTestCompileRoot(sourceFolder, project.getTestCompileSourceRoots());
                 project.addCompileSourceRoot(sourceFolder.getAbsolutePath());
+            }
+        }
+    }
+
+    private void removeDuplicateTestCompileRoot(File sourceFolder, List<String> testCompileSourceRoots) {
+        for (Iterator<String> iterator = testCompileSourceRoots.iterator(); iterator.hasNext();) {
+            String testCompileRoot = iterator.next();
+            if (sourceFolder.equals(new File(testCompileRoot))) {
+                // avoid duplicate source folders (bug 368445)
+                iterator.remove();
+                getLogger().debug(
+                        "Removed duplicate test compile root " + testCompileRoot + " from maven project model");
+                return;
             }
         }
     }
@@ -255,6 +275,16 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             throw new IllegalStateException();
         }
         return classpath;
+    }
+
+    public List<ClasspathEntry.AccessRule> getBootClasspathExtraAccessRules(MavenProject project) {
+        @SuppressWarnings("unchecked")
+        List<ClasspathEntry.AccessRule> rules = (List<AccessRule>) project
+                .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES);
+        if (rules == null) {
+            throw new IllegalStateException();
+        }
+        return rules;
     }
 
     /**

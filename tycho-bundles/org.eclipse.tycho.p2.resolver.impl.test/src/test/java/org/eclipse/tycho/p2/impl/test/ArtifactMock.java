@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.impl.test;
 
 import java.io.File;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -30,9 +31,9 @@ public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
 
     private String classifier;
 
-    private Set<Object> dependencyMetadata;
+    private Set<Object> dependencyMetadata = new LinkedHashSet<Object>();
 
-    private Set<Object> secondaryDependencyMetadata;
+    private Set<Object> secondaryDependencyMetadata = new LinkedHashSet<Object>();
 
     public ArtifactMock(File location, String groupId, String artifactId, String version, String packagingType,
             String classifier) {
@@ -81,7 +82,7 @@ public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = dependencyMetadata.getMetadata(true);
-        this.secondaryDependencyMetadata = dependencyMetadata.getMetadata(false);
+        this.dependencyMetadata = new LinkedHashSet<Object>(dependencyMetadata.getMetadata(true));
+        this.secondaryDependencyMetadata = new LinkedHashSet<Object>(dependencyMetadata.getMetadata(false));
     }
 }

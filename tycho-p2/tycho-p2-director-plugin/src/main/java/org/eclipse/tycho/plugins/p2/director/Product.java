@@ -35,14 +35,14 @@ public final class Product {
     private String rootFolder;
 
     /**
-     * Whether to include the version number in the product build. May be omitted, which results in
-     * no version number included.
+     * <<<<<<< HEAD Whether to include the version number in the product build. May be omitted,
+     * which results in no version number included.
      */
     private boolean includeVersion;
 
     /**
-     * The name of the output archive file (without extension). If omitted, the id will be used
-     * instead.
+     * ======= >>>>>>> f7b8bf9f9d919ea6dade342acb289a0e91880519 The name of the output archive file
+     * (without extension). If omitted, the id will be used instead.
      */
     private String archiveFileName;
 
@@ -135,5 +135,4 @@ public final class Product {
     public void setArchiveFileName(String anArchiveFileName) {
         this.archiveFileName = anArchiveFileName;
     }
-
 }

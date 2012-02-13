@@ -13,6 +13,8 @@ package org.eclipse.tycho.core.osgitools.targetplatform;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetEnvironment;
 
@@ -20,11 +22,21 @@ import org.eclipse.tycho.core.TargetEnvironment;
 public class MultiEnvironmentTargetPlatform extends DefaultTargetPlatform {
     public Map<TargetEnvironment, DependencyArtifacts> platforms = new LinkedHashMap<TargetEnvironment, DependencyArtifacts>();
 
+    public MultiEnvironmentTargetPlatform() {
+        this(null);
+    }
+
+    public MultiEnvironmentTargetPlatform(ReactorProject project) {
+        super(project);
+    }
+
     public void addPlatform(TargetEnvironment environment, DefaultTargetPlatform platform) {
         platforms.put(environment, platform);
 
-        artifacts.putAll(platform.artifacts);
-        locations.putAll(platform.locations);
+        for (ArtifactDescriptor artifact : platform.artifacts.values()) {
+            addArtifact(artifact, true);
+        }
+
         nonReactorUnits.addAll(platform.nonReactorUnits);
     }
 

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +20,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.eclipse.osgi.internal.resolver.ExportPackageDescriptionImpl;
 import org.eclipse.osgi.service.resolver.BaseDescription;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
@@ -26,8 +29,10 @@ import org.eclipse.osgi.service.resolver.ExportPackageDescription;
 import org.eclipse.osgi.service.resolver.HostSpecification;
 import org.eclipse.osgi.service.resolver.ImportPackageSpecification;
 import org.eclipse.osgi.service.resolver.StateHelper;
+import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
+import org.osgi.framework.Constants;
 
 /**
  * Helper class that computes compile dependencies of a bundle project.
@@ -40,6 +45,9 @@ import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
  */
 @Component(role = DependencyComputer.class)
 public class DependencyComputer {
+
+    @Requirement
+    private BundleReader manifestReader;
 
     public static class DependencyEntry {
         public final BundleDescription desc;
@@ -251,4 +259,39 @@ public class DependencyComputer {
         return true; //"true".equals(state.getManifestAttribute(desc, "Eclipse-ExtensibleAPI"));
     }
 
+    /**
+     * Although totally not obvious from the specification text, section 3.15 "Extension Bundles" of
+     * OSGi Core Spec apparently says that framework extension bundles can export additional
+     * packaged of the underlying JRE. More specific explanation is provided in [1] and I verified
+     * that at least Equinox 3.7.1 does indeed behave like described.
+     * <p/>
+     * There does not seem to be a way to tell which packages exported by a framework extension
+     * bundle are supposed to come from JRE and which from the bundle itself, so returned classpath
+     * access rules include all packages exported by the framework extension bundles.
+     * 
+     * [1] http://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
+     */
+    public List<AccessRule> computeBootClasspathExtraAccessRules(StateHelper helper, BundleDescription desc) {
+        List<AccessRule> result = new ArrayList<AccessRule>();
+        ExportPackageDescription[] exports = helper.getVisiblePackages(desc);
+        for (ExportPackageDescription export : exports) {
+            BundleDescription host = export.getExporter();
+            BaseDescription fragment = ((ExportPackageDescriptionImpl) export).getFragmentDeclaration();
+            if (host.getBundleId() == 0 && fragment != null && isFrameworkExtension(fragment.getSupplier())) {
+                result.add(getRule(helper, host, export));
+            }
+        }
+        return result;
+    }
+
+    private boolean isFrameworkExtension(BundleDescription bundle) {
+        OsgiManifest mf = manifestReader.loadManifest(new File(bundle.getLocation()));
+        ManifestElement[] elements = mf.getManifestElements(Constants.FRAGMENT_HOST);
+        if (elements.length == 1) {
+            if (Constants.EXTENSION_FRAMEWORK.equals(elements[0].getDirective(Constants.EXTENSION_DIRECTIVE))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

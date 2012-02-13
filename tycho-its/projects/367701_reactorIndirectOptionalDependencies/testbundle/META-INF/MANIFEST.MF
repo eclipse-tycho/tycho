@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: tod.testbundle
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.junit,
+ tod.reactorbundle,
+ org.eclipse.core.runtime

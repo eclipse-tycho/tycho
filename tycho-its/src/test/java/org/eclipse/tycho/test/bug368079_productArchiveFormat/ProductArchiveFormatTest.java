@@ -28,9 +28,9 @@ public class ProductArchiveFormatTest extends AbstractTychoIntegrationTest {
 
         File basedir = new File(verifier.getBasedir());
 
-        assertFileExists(basedir, "target/products/368079_productArchiveFormat-win32.win32.x86.zip");
-        assertFileExists(basedir, "target/products/368079_productArchiveFormat-linux.gtk.x86.zip");
-        assertFileExists(basedir, "target/products/368079_productArchiveFormat-macosx.cocoa.x86_64.tar.gz");
+        assertFileExists(basedir, "target/products/customArchiveName-win32.win32.x86.zip");
+        assertFileExists(basedir, "target/products/customArchiveName-linux.gtk.x86.zip");
+        assertFileExists(basedir, "target/products/customArchiveName-macosx.cocoa.x86_64.tar.gz");
     }
 
 }

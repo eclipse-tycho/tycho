@@ -69,16 +69,17 @@ import org.eclipse.tycho.core.maven.utils.PluginRealmHelper.PluginFilter;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
-import org.eclipse.tycho.core.resolver.CompilerOptions;
-import org.eclipse.tycho.core.resolver.CompilerOptionsManager;
+import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
@@ -115,9 +116,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
 
-    @Requirement
-    private CompilerOptionsManager compilerOptionsManager;
-
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
@@ -139,13 +137,21 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
         List<Map<String, String>> environments = getEnvironments(configuration);
+        Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, environments,
+                OptionalResolutionAction.OPTIONAL);
+        for (Map.Entry<String, IDependencyMetadata> entry : metadata.entrySet()) {
+            reactorProject.setDependencyMetadata(entry.getKey(), true, entry.getValue().getMetadata(true));
+            reactorProject.setDependencyMetadata(entry.getKey(), false, entry.getValue().getMetadata(false));
+        }
+    }
 
-        CompilerOptions compilerOptions = compilerOptionsManager.getCompilerOptions(project);
+    protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
+            final MavenProject project, final List<Map<String, String>> environments,
+            final OptionalResolutionAction optionalAction) {
 
-        IDependencyMetadata metadata = generator.generateMetadata(new ReactorArtifactFacade(reactorProject, null),
-                environments, compilerOptions.getOptionalResolutionAction());
-        reactorProject.setDependencyMetadata(null, true, metadata.getMetadata(true));
-        reactorProject.setDependencyMetadata(null, false, metadata.getMetadata(false));
+        final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<String, IDependencyMetadata>();
+        metadata.put(null, generator.generateMetadata(new AttachedArtifact(project, project.getBasedir(), null),
+                environments, optionalAction));
 
         // let external providers contribute additional metadata
         try {
@@ -153,7 +159,11 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 public void run() {
                     try {
                         for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
-                            provider.setupProject(session, project, reactorProject);
+                            Map<String, IDependencyMetadata> providedMetadata = provider.getDependencyMetadata(session,
+                                    project, null, optionalAction);
+                            if (providedMetadata != null) {
+                                metadata.putAll(providedMetadata);
+                            }
                         }
                     } catch (ComponentLookupException e) {
                         // have not found anything
@@ -167,6 +177,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         } catch (MavenExecutionException e) {
             throw new RuntimeException(e);
         }
+
+        return metadata;
     }
 
     protected boolean isTychoP2Plugin(PluginDescriptor pluginDescriptor) {
@@ -192,7 +204,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 ee != null ? ee.getProfileName() : null, configuration.isDisableP2Mirrors());
         tpBuilder.setProjectLocation(project.getBasedir());
 
-        addReactorProjectsToTargetPlatform(reactorProjects, tpBuilder);
+        addThisReactorProjectToTargetPlatform(session, project, configuration, tpBuilder);
+
+        addOtherReactorProjectsToTargetPlatform(project, reactorProjects, tpBuilder);
 
         if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
             addPomDependenciesToTargetPlatform(project, tpBuilder, reactorProjects, session);
@@ -211,14 +225,42 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return tpBuilder.buildTargetPlatform();
     }
 
-    private void addReactorProjectsToTargetPlatform(List<ReactorProject> reactorProjects,
+    private void addThisReactorProjectToTargetPlatform(MavenSession session, MavenProject project,
+            TargetPlatformConfiguration configuration, TargetPlatformBuilder tpBuilder) {
+        // 'this' project should obey optionalDependencnies configuration
+
+        final List<Map<String, String>> environments = getEnvironments(configuration);
+        final OptionalResolutionAction optionalAction = configuration.getDependencyResolverConfiguration()
+                .getOptionalResolutionAction();
+        Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
+                optionalAction);
+        final Map<String, Set<Object>> metadata = new LinkedHashMap<String, Set<Object>>();
+        final Map<String, Set<Object>> secondaryMetadata = new LinkedHashMap<String, Set<Object>>();
+        for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
+            metadata.put(entry.getKey(), entry.getValue().getMetadata(true));
+            secondaryMetadata.put(entry.getKey(), entry.getValue().getMetadata(false));
+        }
+        ReactorProject reactorProjet = new DefaultReactorProject(project) {
+            @Override
+            protected Map<String, Set<Object>> getDependencyMetadata(boolean primary) {
+                return primary ? metadata : secondaryMetadata;
+            }
+        };
+        for (String classifier : dependencyMetadata.keySet()) {
+            tpBuilder.addReactorArtifact(new ReactorArtifactFacade(reactorProjet, classifier));
+        }
+    }
+
+    private void addOtherReactorProjectsToTargetPlatform(MavenProject project, List<ReactorProject> reactorProjects,
             TargetPlatformBuilder resolutionContext) {
+
         for (ReactorProject otherProject : reactorProjects) {
+            if (otherProject.sameProject(project)) {
+                continue;
+            }
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("P2resolver.addMavenProject " + otherProject.getId());
             }
-            // TODO does this add the main artifact dependency metadata twice?
-            resolutionContext.addReactorArtifact(new ReactorArtifactFacade(otherProject, null));
 
             Map<String, Set<Object>> dependencyMetadata = otherProject.getDependencyMetadata();
             if (dependencyMetadata != null) {
@@ -402,14 +444,16 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         if (!isAllowConflictingDependencies(project, configuration)) {
             List<P2ResolutionResult> results = resolver.resolveProject(resolutionContext, project.getBasedir());
 
-            MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform();
+            MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform(
+                    DefaultReactorProject.adapt(project));
 
             // FIXME this is just wrong
             for (int i = 0; i < configuration.getEnvironments().size(); i++) {
                 TargetEnvironment environment = configuration.getEnvironments().get(i);
                 P2ResolutionResult result = results.get(i);
 
-                DefaultTargetPlatform platform = newDefaultTargetPlatform(session, projects, result);
+                DefaultTargetPlatform platform = newDefaultTargetPlatform(session,
+                        DefaultReactorProject.adapt(project), projects, result);
 
                 // addProjects( session, platform );
 
@@ -420,7 +464,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         } else {
             P2ResolutionResult result = resolver.collectProjectDependencies(resolutionContext, project.getBasedir());
 
-            return newDefaultTargetPlatform(session, projects, result);
+            return newDefaultTargetPlatform(session, DefaultReactorProject.adapt(project), projects, result);
         }
     }
 
@@ -439,11 +483,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return false;
     }
 
-    protected DefaultTargetPlatform newDefaultTargetPlatform(MavenSession session, Map<File, ReactorProject> projects,
-            P2ResolutionResult result) {
-        DefaultTargetPlatform platform = new DefaultTargetPlatform();
-
-        platform.addSite(new File(session.getLocalRepository().getBasedir()));
+    protected DefaultTargetPlatform newDefaultTargetPlatform(MavenSession session, ReactorProject project,
+            Map<File, ReactorProject> projects, P2ResolutionResult result) {
+        DefaultTargetPlatform platform = new DefaultTargetPlatform(project);
 
         platform.addNonReactorUnits(result.getNonReactorUnits());
 
@@ -468,9 +510,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             properties.put(PlatformPropertiesUtils.OSGI_WS, environment.getWs());
             properties.put(PlatformPropertiesUtils.OSGI_ARCH, environment.getArch());
             ExecutionEnvironmentUtils.loadVMProfile(properties);
-
-            // TODO does not belong here
-            properties.put("org.eclipse.update.install.features", "true");
 
             Map<String, String> map = new LinkedHashMap<String, String>();
             for (Object key : properties.keySet()) {

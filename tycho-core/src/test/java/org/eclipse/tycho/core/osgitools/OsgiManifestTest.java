@@ -56,7 +56,8 @@ public class OsgiManifestTest {
             parseManifest("invalidVersion.mf");
             fail();
         } catch (InvalidOSGiManifestException e) {
-            assertEquals("Exception parsing OSGi MANIFEST testLocation: invalid qualifier: %invalidQualifier",
+            assertEquals(
+                    "Exception parsing OSGi MANIFEST testLocation: invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\"",
                     e.getMessage());
         }
     }
@@ -67,7 +68,8 @@ public class OsgiManifestTest {
             parseManifest("invalidVersionQualifier.mf");
             fail();
         } catch (InvalidOSGiManifestException e) {
-            assertEquals("Exception parsing OSGi MANIFEST testLocation: Bundle-Version 'invalid' is invalid",
+            assertEquals(
+                    "Exception parsing OSGi MANIFEST testLocation: invalid version \"invalid\": non-numeric \"invalid\"",
                     e.getMessage());
         }
     }

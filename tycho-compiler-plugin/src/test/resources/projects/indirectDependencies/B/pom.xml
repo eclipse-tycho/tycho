@@ -18,7 +18,6 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<compilerId>jdt</compilerId>
-					<usePdeSourceRoots>true</usePdeSourceRoots>
 				</configuration>
 			</plugin>
 		</plugins>
