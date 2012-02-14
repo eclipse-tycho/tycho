@@ -144,8 +144,6 @@ public class EquinoxResolver {
     protected State newState(DependencyArtifacts artifacts, Properties properties) throws BundleException {
         State state = factory.createState(true);
 
-        state.setPlatformProperties(properties);
-
         Map<File, Dictionary<String, String>> systemBundles = new LinkedHashMap<File, Dictionary<String, String>>();
         Map<File, Dictionary<String, String>> externalBundles = new LinkedHashMap<File, Dictionary<String, String>>();
         Map<File, Dictionary<String, String>> projects = new LinkedHashMap<File, Dictionary<String, String>>();
@@ -182,6 +180,12 @@ public class EquinoxResolver {
             // that has the same bundle symbolic name
             addBundle(state, id++, entry.getKey(), entry.getValue(), true/* override */);
         }
+
+        // force our system.bundle
+        Hashtable<Object, Object> platformProperties = new Hashtable<Object, Object>(properties);
+        platformProperties.put(org.eclipse.osgi.framework.internal.core.Constants.STATE_SYSTEM_BUNDLE,
+                state.getBundle(0).getSymbolicName());
+        state.setPlatformProperties(platformProperties);
 
         return state;
     }
