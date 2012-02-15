@@ -16,10 +16,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TargetEnvironment;
+import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.junit.Assert;
@@ -161,5 +165,62 @@ public class DefaultTargetPlatformTest {
         tp.addNonReactorUnits(asSet("b"));
 
         Assert.assertEquals(asSet("a", "b"), tp.getInstallableUnits());
+    }
+
+    @Test
+    public void testDoNotCacheArtifactsThatRepresentReactorProjects() {
+        // IInstallableUnit #hashCode and #equals methods only use (version,id) tuple to determine IU equality
+        // Reactor projects are expected to produce different IUs potentially with the same (version,id) during the build
+        // This test verifies that different DefaultTargetPlatform can have the same reactor project with different IUs
+        // even when IUs (version,id) are the same
+
+        ReactorProject project = new DefaultReactorProject(new MavenProject());
+        ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
+        File location = new File("location");
+
+        DefaultTargetPlatform tp1 = new DefaultTargetPlatform();
+        tp1.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, asSet(new FunnyEquals("id", "a"))));
+
+        DefaultTargetPlatform tp2 = new DefaultTargetPlatform();
+        tp2.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, asSet(new FunnyEquals("id", "b"))));
+
+        Assert.assertEquals("a", //
+                ((FunnyEquals) tp1.getArtifact(location).get(null).getInstallableUnits().iterator().next()).getData());
+        Assert.assertEquals("b", //
+                ((FunnyEquals) tp2.getArtifact(location).get(null).getInstallableUnits().iterator().next()).getData());
+    }
+
+    private static final class FunnyEquals {
+        private final String id;
+        private final String data;
+
+        public FunnyEquals(String id, String data) {
+            this.id = id;
+            this.data = data;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+
+            if (!(obj instanceof FunnyEquals)) {
+                return false;
+            }
+
+            FunnyEquals other = (FunnyEquals) obj;
+
+            return id.equals(other.id);
+        }
+
+        public String getData() {
+            return data;
+        }
     }
 }

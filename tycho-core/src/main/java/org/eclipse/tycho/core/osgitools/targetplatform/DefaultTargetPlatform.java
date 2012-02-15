@@ -153,12 +153,15 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
         artifact = new DefaultArtifactDescriptor(key, location, artifact.getMavenProject(), artifact.getClassifier(),
                 units);
 
-        // reuse cached artifact descriptor instance to reduce memory usage
-        ArtifactDescriptor cachedArtifact = ARTIFACT_CACHE.get(artifact);
-        if (cachedArtifact != null) {
-            artifact = cachedArtifact;
-        } else {
-            ARTIFACT_CACHE.put(artifact, artifact);
+        // for external artifacts, reuse cached artifact descriptor instance to reduce memory usage
+        // do not cache reactor project artifact descriptors because their IUs can change without changing (id,version)
+        if (artifact.getMavenProject() == null) {
+            ArtifactDescriptor cachedArtifact = ARTIFACT_CACHE.get(artifact);
+            if (cachedArtifact != null) {
+                artifact = cachedArtifact;
+            } else {
+                ARTIFACT_CACHE.put(artifact, artifact);
+            }
         }
 
         artifacts.put(artifact.getKey(), artifact);
