@@ -90,7 +90,10 @@ public class ExecutionEnvironmentUtils {
     }
 
     public static void loadVMProfile(Properties properties) {
-        Properties profileProps = findVMProfile(properties);
+        applyProfileProperties(properties, findVMProfile(properties));
+    }
+
+    public static void applyProfileProperties(Properties properties, Properties profileProps) {
         String systemExports = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
         // set the system exports property using the vm profile; only if the property is not already set
         if (systemExports == null) {

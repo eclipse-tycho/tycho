@@ -39,6 +39,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -57,8 +58,9 @@ public class EquinoxResolver {
     @Requirement
     private Logger logger;
 
-    public State newResolvedState(MavenProject project, DependencyArtifacts artifacts) throws BundleException {
-        Properties properties = getPlatformProperties(project);
+    public State newResolvedState(MavenProject project, ExecutionEnvironment ee, DependencyArtifacts artifacts)
+            throws BundleException {
+        Properties properties = getPlatformProperties(project, ee);
 
         State state = newState(artifacts, properties);
 
@@ -72,7 +74,7 @@ public class EquinoxResolver {
     }
 
     public State newResolvedState(File basedir, DependencyArtifacts artifacts) throws BundleException {
-        Properties properties = getPlatformProperties(new Properties(), null);
+        Properties properties = getPlatformProperties(new Properties(), null, null);
 
         State state = newState(artifacts, properties);
 
@@ -115,24 +117,29 @@ public class EquinoxResolver {
         return sb.toString();
     }
 
-    protected Properties getPlatformProperties(MavenProject project) {
+    protected Properties getPlatformProperties(MavenProject project, ExecutionEnvironment ee) {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         TargetEnvironment environment = configuration.getEnvironments().get(0);
 
         Properties properties = new Properties();
         properties.putAll((Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES));
 
-        return getPlatformProperties(properties, environment);
+        return getPlatformProperties(properties, environment, ee);
     }
 
-    protected Properties getPlatformProperties(Properties properties, TargetEnvironment environment) {
+    protected Properties getPlatformProperties(Properties properties, TargetEnvironment environment,
+            ExecutionEnvironment ee) {
         if (environment != null) {
             properties.put(PlatformPropertiesUtils.OSGI_OS, environment.getOs());
             properties.put(PlatformPropertiesUtils.OSGI_WS, environment.getWs());
             properties.put(PlatformPropertiesUtils.OSGI_ARCH, environment.getArch());
         }
 
-        ExecutionEnvironmentUtils.loadVMProfile(properties);
+        if (ee != null) {
+            ExecutionEnvironmentUtils.applyProfileProperties(properties, ee.getProfileProperties());
+        } else {
+            ExecutionEnvironmentUtils.loadVMProfile(properties);
+        }
 
         // Put Equinox OSGi resolver into development mode.
         // See http://www.nabble.com/Re:-resolving-partially-p18449054.html

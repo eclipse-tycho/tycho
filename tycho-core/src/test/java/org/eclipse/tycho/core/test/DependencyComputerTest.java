@@ -19,8 +19,10 @@ import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
@@ -51,9 +53,12 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
 
         MavenProject project = basedirMap.get(new File(basedir, "bundle"));
-        DependencyArtifacts platform = (DependencyArtifacts) project.getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
+        DependencyArtifacts platform = (DependencyArtifacts) project
+                .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
 
-        State state = resolver.newResolvedState(project, platform);
+        TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+
+        State state = resolver.newResolvedState(project, bundleProject.getExecutionEnvironment(project), platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getCanonicalPath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);

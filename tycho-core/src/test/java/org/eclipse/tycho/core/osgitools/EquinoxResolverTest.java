@@ -10,11 +10,19 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.project.MavenProject;
+import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.osgi.framework.BundleException;
 
@@ -37,11 +45,29 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
     }
 
     public void test_noSystemBundle() throws BundleException {
-        Properties properties = subject.getPlatformProperties(new Properties(), null);
+        Properties properties = subject.getPlatformProperties(new Properties(), null, null);
         State state = subject.newState(new DefaultTargetPlatform(), properties);
 
         BundleDescription[] bundles = state.getBundles("system.bundle");
 
         assertEquals(1, bundles.length);
+    }
+
+    public void test_bundleRuntimeExecutionEnvironment() throws Exception {
+        TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+
+        File basedir = getBasedir("projects/bree");
+
+        Properties properties = new Properties();
+        properties.put("tycho-version", TychoVersion.getTychoVersion());
+
+        List<MavenProject> projects = getSortedProjects(basedir, properties, null);
+        assertEquals(5, projects.size());
+
+        assertEquals("executionenvironment.manifest", projects.get(1).getArtifactId());
+        ExecutionEnvironment ee = bundleProject.getExecutionEnvironment(projects.get(1));
+        assertEquals("CDC-1.0/Foundation-1.0", ee.getProfileName());
+        Properties platformProperties = subject.getPlatformProperties(projects.get(1), ee);
+        assertEquals("javax.microedition.io", platformProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
     }
 }

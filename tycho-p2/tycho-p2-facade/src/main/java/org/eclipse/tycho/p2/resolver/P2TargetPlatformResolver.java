@@ -76,7 +76,6 @@ import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPla
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
-import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
@@ -509,7 +508,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             properties.put(PlatformPropertiesUtils.OSGI_OS, environment.getOs());
             properties.put(PlatformPropertiesUtils.OSGI_WS, environment.getWs());
             properties.put(PlatformPropertiesUtils.OSGI_ARCH, environment.getArch());
-            ExecutionEnvironmentUtils.loadVMProfile(properties);
 
             Map<String, String> map = new LinkedHashMap<String, String>();
             for (Object key : properties.keySet()) {

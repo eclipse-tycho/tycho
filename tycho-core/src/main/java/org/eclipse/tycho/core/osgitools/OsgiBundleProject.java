@@ -247,7 +247,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     protected State getResolverState(MavenProject project, DependencyArtifacts artifacts) {
         try {
-            return resolver.newResolvedState(project, artifacts);
+            return resolver.newResolvedState(project, getExecutionEnvironment(project), artifacts);
         } catch (BundleException e) {
             throw new RuntimeException(e);
         }

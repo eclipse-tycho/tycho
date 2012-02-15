@@ -303,17 +303,20 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         properties.put("tycho-version", TychoVersion.getTychoVersion());
 
         List<MavenProject> projects = getSortedProjects(basedir, properties, null);
-        assertEquals(4, projects.size());
+        assertEquals(5, projects.size());
 
         TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_PLUGIN);
 
-        assertEquals("executionenvironment.pom-hard", projects.get(1).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(1)).getProfileName());
+        assertEquals("executionenvironment.manifest", projects.get(1).getArtifactId());
+        assertEquals("CDC-1.0/Foundation-1.0", bundleProject.getExecutionEnvironment(projects.get(1)).getProfileName());
 
-        assertEquals("executionenvironment.pom-soft-buildproperties", projects.get(2).getArtifactId());
-        assertEquals("OSGi/Minimum-1.1", bundleProject.getExecutionEnvironment(projects.get(2)).getProfileName());
+        assertEquals("executionenvironment.pom-hard", projects.get(2).getArtifactId());
+        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(2)).getProfileName());
 
-        assertEquals("executionenvironment.pom-soft-manifest", projects.get(3).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(3)).getProfileName());
+        assertEquals("executionenvironment.pom-soft-buildproperties", projects.get(3).getArtifactId());
+        assertEquals("OSGi/Minimum-1.1", bundleProject.getExecutionEnvironment(projects.get(3)).getProfileName());
+
+        assertEquals("executionenvironment.pom-soft-manifest", projects.get(4).getArtifactId());
+        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(4)).getProfileName());
     }
 }

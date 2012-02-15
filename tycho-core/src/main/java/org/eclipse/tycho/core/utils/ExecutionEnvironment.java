@@ -34,6 +34,7 @@ public class ExecutionEnvironment implements Comparable<ExecutionEnvironment> {
     private String compilerTargetLevel;
     private String[] systemPackages;
     private EEVersion eeVersion;
+    private Properties profileProperties;
 
     /**
      * Do no instantiate. Use factory method instead
@@ -46,6 +47,8 @@ public class ExecutionEnvironment implements Comparable<ExecutionEnvironment> {
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
         this.systemPackages = profileProperties.getProperty("org.osgi.framework.system.packages").split(",");
         this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
+        this.profileProperties = new Properties();
+        this.profileProperties.putAll(profileProperties);
     }
 
     private EEVersion parseEEVersion(String systemCaps) {
@@ -104,13 +107,11 @@ public class ExecutionEnvironment implements Comparable<ExecutionEnvironment> {
         return systemPackages;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
     public int compareTo(ExecutionEnvironment otherEnv) {
         return eeVersion.compareTo(otherEnv.eeVersion);
     }
 
+    public Properties getProfileProperties() {
+        return profileProperties;
+    }
 }

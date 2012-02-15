@@ -9,6 +9,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>manifest</module>
     <module>pom-hard</module>
     <module>pom-soft-buildproperties</module>
     <module>pom-soft-manifest</module>
