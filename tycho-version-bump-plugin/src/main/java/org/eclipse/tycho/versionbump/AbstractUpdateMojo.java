@@ -62,6 +62,8 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
         properties.put(PlatformPropertiesUtils.OSGI_OS, PlatformPropertiesUtils.getOS(properties));
         properties.put(PlatformPropertiesUtils.OSGI_WS, PlatformPropertiesUtils.getWS(properties));
         properties.put(PlatformPropertiesUtils.OSGI_ARCH, PlatformPropertiesUtils.getArch(properties));
+
+        // TODO this does not honour project <executionEnvironment> configuration
         ExecutionEnvironmentUtils.loadVMProfile(properties);
 
         // TODO does not belong here
