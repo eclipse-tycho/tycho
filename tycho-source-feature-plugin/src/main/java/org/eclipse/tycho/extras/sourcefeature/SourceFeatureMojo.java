@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -28,13 +29,16 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -66,6 +70,11 @@ public class SourceFeatureMojo extends AbstractMojo {
     @SuppressWarnings("unused")
     private PlexusConfiguration excludes;
 
+    /**
+     * @parameter default-value="${session}"
+     */
+    private MavenSession session;
+
     private final Set<String> excludedPlugins = new HashSet<String>();
 
     private final Set<String> excludedFeatures = new HashSet<String>();
@@ -92,6 +101,9 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     /** @component */
     private EquinoxServiceFactory equinox;
+
+    /** @component */
+    private Logger logger;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         File template = new File(project.getBasedir(), FEATURE_TEMPLATE_DIR);
@@ -149,7 +161,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     private Feature getSourceFeature(MavenProject project, TargetPlatform targetPlatform) throws IOException,
             MojoExecutionException {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
-        P2Resolver p2 = factory.createResolver();
+        P2Resolver p2 = factory.createResolver(new MavenLoggerAdapter(logger, DebugUtils.isDebugEnabled(session,
+                project)));
 
         Feature feature = Feature.read(new File(project.getBuild().getDirectory(), "feature.xml"));
 
