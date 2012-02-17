@@ -38,8 +38,7 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
         MavenContextImpl mavenContext = new MavenContextImpl();
         mavenContext.setLocalRepositoryRoot(new File(session.getLocalRepository().getBasedir()));
         mavenContext.setOffline(session.isOffline());
-        boolean extendedDebug = session.getUserProperties().getProperty("tycho.debug.resolver") != null;
-        mavenContext.setLogger(new MavenLoggerAdapter(logger, extendedDebug));
+        mavenContext.setLogger(new MavenLoggerAdapter(logger, false));
         framework.registerService(MavenContext.class, mavenContext);
     }
 }

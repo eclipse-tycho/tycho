@@ -68,6 +68,7 @@ import org.eclipse.tycho.core.maven.utils.PluginRealmHelper;
 import org.eclipse.tycho.core.maven.utils.PluginRealmHelper.PluginFilter;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformResolver;
@@ -78,6 +79,7 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -416,7 +418,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         // --> split this information logically, e.g. through two distinct interfaces
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
-        P2Resolver osgiResolverImpl = resolverFactory.createResolver();
+        P2Resolver osgiResolverImpl = resolverFactory.createResolver(new MavenLoggerAdapter(getLogger(), DebugUtils
+                .isDebugEnabled(session, project)));
 
         return doResolvePlatform(session, project, reactorProjects, resolverConfiguration, resolutionContext,
                 osgiResolverImpl, configuration);

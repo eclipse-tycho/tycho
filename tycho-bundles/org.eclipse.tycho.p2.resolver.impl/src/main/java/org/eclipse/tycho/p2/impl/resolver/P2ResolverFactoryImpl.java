@@ -37,8 +37,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         return new TargetPlatformBuilderImpl(agent, mavenContext, bree, localRepoIndices, disableP2Mirrors);
     }
 
-    public P2ResolverImpl createResolver() {
-        return new P2ResolverImpl(mavenContext.getLogger());
+    public P2ResolverImpl createResolver(MavenLogger logger) {
+        return new P2ResolverImpl(logger);
     }
 
     // --------------
