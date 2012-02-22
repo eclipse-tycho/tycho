@@ -602,7 +602,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
                 getLog().warn(message);
             }
             break;
-        default:
+        case RunResult.FAILURE:
             String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
                     + " for the individual test results.";
             if (testFailureIgnore) {
@@ -610,7 +610,15 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
             } else {
                 throw new MojoFailureException(errorMessage);
             }
-
+            break;
+        case 13: // The "unlucky 13" as returned by org.eclipse.equinox.laucher.Main if equinox closes because of a Throwable.
+            throw new MojoFailureException(
+                    "Could not start testHarness or testApplication. See .metadata/.log file for details");
+        case 111: // Equinox and test app started, surefire fails. AbstractUITestApplication.SUREFIRE_COULD_NOT_PERFORM_TESTS
+            throw new MojoFailureException(
+                    "An error occured while trying to load or perform tests. See log above for details");
+        default:
+            throw new MojoFailureException("An unexpected error occured (returned code " + result + ")");
         }
     }
 

@@ -22,6 +22,8 @@ public abstract class AbstractUITestApplication implements ITestHarness {
 
     private static final String DEFAULT_APP_3_0 = "org.eclipse.ui.ide.workbench"; //$NON-NLS-1$
 
+    public static final int SUREFIRE_COULD_NOT_PERFORM_TESTS = 111; // arbitrary value
+
     private int fTestRunnerResult = -1;
     private String[] fArgs = new String[0];
     private TestableObject fTestableObject;
@@ -34,8 +36,8 @@ public abstract class AbstractUITestApplication implements ITestHarness {
                     try {
                         fTestRunnerResult = OsgiSurefireBooter.run(fArgs);
                     } catch (Exception e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
+                        fTestRunnerResult = SUREFIRE_COULD_NOT_PERFORM_TESTS;
                     }
                 }
             });
@@ -43,8 +45,8 @@ public abstract class AbstractUITestApplication implements ITestHarness {
             try {
                 fTestRunnerResult = OsgiSurefireBooter.run(fArgs);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
+                fTestRunnerResult = SUREFIRE_COULD_NOT_PERFORM_TESTS;
             }
         }
         fTestableObject.testingFinished();
@@ -111,8 +113,15 @@ public abstract class AbstractUITestApplication implements ITestHarness {
         fTestableObject = PlatformUI.getTestableObject();
         fTestableObject.setTestHarness(this);
         Object application = getApplication(args);
-        runApplication(application, args);
-        return new Integer(fTestRunnerResult);
+        try {
+            runApplication(application, args);
+            return new Integer(fTestRunnerResult);
+        } catch (Throwable ex) {
+            // Throwable to catch also SWTError.
+            // A throwable at this point make JVM return Exit code 13
+            // as implemented in org.eclipse.equinox.launcher.Main
+            throw new Exception("Error while starting testApplication", ex);
+        }
     }
 
     protected abstract void runApplication(Object application, String[] args) throws Exception;
