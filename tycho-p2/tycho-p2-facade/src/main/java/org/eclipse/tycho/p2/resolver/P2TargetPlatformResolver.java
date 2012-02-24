@@ -323,9 +323,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
             TargetPlatformBuilder resolutionContext, MavenSession session) {
         try {
-            URI uri = new URL(repository.getUrl()).toURI();
-
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
+                URI uri = new URL(repository.getUrl()).toURI();
+
                 if (session.isOffline()) {
                     getLogger().debug(
                             "Offline mode, using local cache only for repository " + repository.getId() + " ("
@@ -346,9 +346,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 }
             }
         } catch (MalformedURLException e) {
-            getLogger().warn("Could not parse repository URL", e);
+            throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
         } catch (URISyntaxException e) {
-            getLogger().warn("Could not parse repository URL", e);
+            throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
         }
     }
 
