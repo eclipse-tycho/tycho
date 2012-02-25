@@ -39,7 +39,7 @@ import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")

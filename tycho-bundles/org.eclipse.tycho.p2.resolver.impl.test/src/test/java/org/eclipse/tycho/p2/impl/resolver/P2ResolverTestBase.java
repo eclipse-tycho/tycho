@@ -34,7 +34,7 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
-import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Before;
 

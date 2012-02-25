@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Before;
 import org.junit.Test;
 
