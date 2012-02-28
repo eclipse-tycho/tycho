@@ -6,4 +6,5 @@
    </service>
    <reference bind="setMavenContext" cardinality="1..1" interface="org.eclipse.tycho.core.facade.MavenContext" name="MavenContext" policy="static"/>
    <reference bind="setReactorRepositoryManager" cardinality="1..1" interface="org.eclipse.tycho.repository.registry.ReactorRepositoryManager" name="ReactorRepositoryManager" policy="static"/>
+   <reference bind="setBuildPropertiesParser" cardinality="1..1" interface="org.eclipse.tycho.core.facade.BuildPropertiesParser" name="BuildPropertiesParser" policy="static"/>
 </scr:component>

@@ -16,16 +16,24 @@ import java.util.Collections;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.Publisher;
+import org.eclipse.equinox.p2.publisher.eclipse.Feature;
+import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -38,13 +46,15 @@ class PublisherServiceImpl implements PublisherService {
     private final BuildContext context;
     private final PublisherInfoTemplate configuration;
     private final PublishingRepository publishingRepository;
+    private final BuildPropertiesParser buildPropertiesParser;
     private final MavenLogger logger;
 
     public PublisherServiceImpl(BuildContext context, PublisherInfoTemplate publisherConfiguration,
-            PublishingRepository publishingRepository, MavenLogger logger) {
+            PublishingRepository publishingRepository, BuildPropertiesParser buildPropertiesParser, MavenLogger logger) {
         this.context = context;
         this.configuration = publisherConfiguration;
         this.publishingRepository = publishingRepository;
+        this.buildPropertiesParser = buildPropertiesParser;
         this.logger = logger;
     }
 
@@ -58,6 +68,7 @@ class PublisherServiceImpl implements PublisherService {
          * of the category IUs (see {@link
          * org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction#buildCategoryId(String)}).
          */
+        // TODO do not silently ignore missing features
         CategoryXMLAction categoryXMLAction = new CategoryXMLAction(categoryDefinition.toURI(), context.getQualifier());
 
         /*
@@ -86,6 +97,63 @@ class PublisherServiceImpl implements PublisherService {
         Collection<IInstallableUnit> allIUs = executePublisher(action, metadataRepository, artifactRepository);
 
         return selectUnit(allIUs, productDescriptor.getId());
+    }
+
+    public Collection<?> publishFeature(File featureJar) throws FacadeException {
+        Feature featureModel;
+//        try {
+//            ZipFile zip = new ZipFile(featureJar);
+//            try {
+//                ZipEntry entry = zip.getEntry("feature.xml");
+//                if (entry == null)
+//                    throw new IllegalStateException("No feature.xml in " + featureJar.getAbsolutePath());
+//                FeatureManifestParser parser = new FeatureManifestParser();
+//                featureModel = parser.parse(zip.getInputStream(entry), featureJar.toURI().toURL());
+//                IStatus status = parser.getStatus();
+//                if (status != null && status.matches(IStatus.WARNING | IStatus.ERROR | IStatus.CANCEL)) {
+//                    throw new FacadeException(StatusTool.collectProblems(status), StatusTool.findException(status));
+//                }
+//            } finally {
+//                zip.close();
+//            }
+//        } catch (IOException e) {
+//            throw new FacadeException(e);
+//        } catch (SAXException e) {
+//            throw new FacadeException(e);
+//        }
+        featureModel = new FeatureParser().parse(featureJar);
+        featureModel.setLocation(featureJar.getAbsolutePath());
+
+        try {
+            publishingRepository.addArtifactLocation(null, featureJar);
+        } catch (ProvisionException e) {
+            // TODO Auto-generated catch block
+            throw new RuntimeException(e);
+        }
+
+        // TODO this is wrong
+        File projectRoot = featureJar.getParentFile().getParentFile();
+        BuildProperties buildProperties = buildPropertiesParser.parse(projectRoot);
+        FeatureRootAdvice featureRootAdvice = new FeatureRootAdvice(buildProperties, projectRoot, featureModel.getId());
+
+        ResultSpyAction resultSpy = new ResultSpyAction();
+        IPublisherAction[] actions = new IPublisherAction[] { new FeaturesAction(new Feature[] { featureModel }),
+                resultSpy };
+
+        IMetadataRepository metadataRepository = publishingRepository.getMetadataRepository();
+        IArtifactRepository artifactRepository = publishingRepository
+                .getArtifactRepositoryForWriting(new FeatureWriteSession(featureModel.getId()));
+        IPublisherInfo publisherInfo = configuration.newPublisherInfo(metadataRepository, artifactRepository);
+        publisherInfo.addAdvice(featureRootAdvice);
+
+        Publisher publisher = new Publisher(publisherInfo);
+
+        IStatus result = publisher.publish(actions, null);
+        handlePublisherStatus(result);
+
+        Collection<IInstallableUnit> allIUs = resultSpy.getAllIUs();
+
+        return selectUnit(allIUs, featureModel.getId() + ".feature.group");
     }
 
     private Collection<IInstallableUnit> executePublisher(IPublisherAction action,

@@ -134,6 +134,9 @@ public class RepositoryReferenceTool {
                     if (otherProject == null) {
                         continue; // can't really happen
                     }
+                    if (otherProject.sameProject(project)) {
+                        continue;
+                    }
                     if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(otherProject.getPackaging())
                             || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(otherProject.getPackaging())
                             || ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(otherProject.getPackaging())) {

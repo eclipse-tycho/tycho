@@ -14,6 +14,7 @@ import static org.eclipse.tycho.p2.tools.test.util.ResourceUtil.resolveTestResou
 import static org.eclipse.tycho.test.util.TychoMatchers.endsWithString;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
@@ -21,12 +22,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -37,6 +40,7 @@ import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
+import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.MemoryLog;
 import org.eclipse.tycho.test.util.P2Context;
 import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
@@ -59,6 +63,9 @@ public class PublisherServiceTest {
     public TemporaryFolder tempManager = new TemporaryFolder();
     @Rule
     public P2Context p2Context = new P2Context();
+    @Rule
+    public StubServiceRegistration<BuildPropertiesParser> buildPropertiesParserRegistration = new StubServiceRegistration<BuildPropertiesParser>(
+            BuildPropertiesParser.class, new BuildPropertiesParserForTesting());
 
     @Rule
     public StubServiceRegistration<MavenContext> mavenContextRegistration = new StubServiceRegistration<MavenContext>(
@@ -83,7 +90,8 @@ public class PublisherServiceTest {
                 outputDirectory));
         PublisherInfoTemplate publisherConfiguration = new PublisherInfoTemplate(contextRepositories, buildContext,
                 p2Context.getAgent());
-        subject = new PublisherServiceImpl(buildContext, publisherConfiguration, outputRepository, mavenLogger);
+        subject = new PublisherServiceImpl(buildContext, publisherConfiguration, outputRepository,
+                new BuildPropertiesParserForTesting(), mavenLogger);
     }
 
     @Test
@@ -121,6 +129,25 @@ public class PublisherServiceTest {
         assertThat(artifactLocations.keySet(), hasItem(executableClassifier));
         assertThat(artifactLocations.get(executableClassifier), isFile());
         assertThat(artifactLocations.get(executableClassifier).toString(), endsWithString(".zip"));
+
+//        openFolderAndSleep(outputDirectory);
+    }
+
+    @Test
+    public void testFeaturePublishing() throws Exception {
+        File productDefinition = resolveTestResource("resources/publishers/eclipse-feature/subDir/feature-0.1.0.jar");
+
+        Collection<?> publishedFeatureIU = subject.publishFeature(productDefinition);
+
+        assertEquals(publishedFeatureIU.size(), 1);
+
+        List<String> outputDirectoryFiles = Arrays.asList(outputDirectory.list());
+        assertThat(outputDirectoryFiles, hasItem("p2content.xml"));
+        assertThat(outputDirectoryFiles, hasItem("p2artifacts.xml"));
+        assertThat(outputDirectoryFiles, hasItem("local-artifacts.properties"));
+
+        // TODO assert published unit
+        // TODO assert binary artifact
 
 //        openFolderAndSleep(outputDirectory);
     }

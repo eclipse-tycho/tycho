@@ -148,7 +148,8 @@
               </generate-resources>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-feature,
-                org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default,
+                org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-feature,
+                org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:attach-artifacts,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:feature-p2-metadata
               </package>
               <install>

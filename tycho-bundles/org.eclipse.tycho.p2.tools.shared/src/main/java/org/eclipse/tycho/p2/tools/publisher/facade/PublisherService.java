@@ -42,4 +42,7 @@ public interface PublisherService {
      */
     Collection</* IInstallableUnit */?> publishProduct(File productDefinition, File launcherBinaries, String flavor)
             throws FacadeException;
+
+    // TODO document
+    Collection<?> publishFeature(File featureJar) throws FacadeException;
 }

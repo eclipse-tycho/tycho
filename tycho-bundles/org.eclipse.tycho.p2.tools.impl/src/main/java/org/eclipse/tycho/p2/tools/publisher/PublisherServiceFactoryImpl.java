@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
+import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -22,13 +23,14 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
     private MavenContext mavenContext;
     private ReactorRepositoryManager reactorRepoManager;
+    private BuildPropertiesParser buildPropertiesParser;
 
     public PublisherService createPublisher(RepositoryReferences contextRepos, BuildContext context)
             throws FacadeException {
         checkCollaborators();
 
         return new PublisherServiceImpl(context, new PublisherInfoTemplate(contextRepos, context,
-                reactorRepoManager.getAgent()), reactorRepoManager.getPublishingRepository(context.getProject()),
+                reactorRepoManager.getAgent()), reactorRepoManager.getPublishingRepository(context.getProject()), buildPropertiesParser,
                 mavenContext.getLogger());
     }
 
@@ -40,8 +42,12 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
         this.reactorRepoManager = reactorRepoManager;
     }
 
+    public void setBuildPropertiesParser(BuildPropertiesParser buildPropertiesReader) {
+        this.buildPropertiesParser = buildPropertiesReader;
+    }
+
     private void checkCollaborators() {
-        if (mavenContext == null || reactorRepoManager == null) {
+        if (mavenContext == null || reactorRepoManager == null || buildPropertiesParser == null) {
             throw new IllegalStateException(); // shoudn't happen; see OSGI-INF/publisherfactory.xml
         }
     }
