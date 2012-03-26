@@ -12,12 +12,22 @@ package org.eclipse.tycho.core.facade;
 
 import java.io.File;
 
-
 public class MavenContextImpl implements MavenContext {
 
     private File localRepositoryRoot;
     private MavenLogger mavenLogger;
     private boolean offline;
+
+    // constructor for tests
+    public MavenContextImpl(File localRepositoryRoot, boolean offline, MavenLogger mavenLogger) {
+        this.localRepositoryRoot = localRepositoryRoot;
+        this.offline = offline;
+        this.mavenLogger = mavenLogger;
+    }
+
+    // constructor for DS
+    public MavenContextImpl() {
+    }
 
     public void setOffline(boolean offline) {
         this.offline = offline;

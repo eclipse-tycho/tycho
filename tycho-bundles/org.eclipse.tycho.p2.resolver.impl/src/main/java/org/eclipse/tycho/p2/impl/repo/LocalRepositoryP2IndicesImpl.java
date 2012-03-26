@@ -20,13 +20,33 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
 
-    private boolean initialized = false;
+    // collaborators
     private MavenContext mavenContext;
-    private TychoRepositoryIndex artifactsIndex;
-    private TychoRepositoryIndex metadataIndex;
     private FileLockService fileLockService;
 
+    // derived members
+    private boolean initialized = false;
+    private TychoRepositoryIndex artifactsIndex;
+    private TychoRepositoryIndex metadataIndex;
+
+    // constructor for DS
     public LocalRepositoryP2IndicesImpl() {
+    }
+
+    // injected by DS runtime
+    public void setMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
+    }
+
+    // injected by DS runtime
+    public void setFileLockService(FileLockService fileLockService) {
+        this.fileLockService = fileLockService;
+    }
+
+    // test constructor
+    public LocalRepositoryP2IndicesImpl(MavenContext mavenContext, FileLockService fileLockService) {
+        this.mavenContext = mavenContext;
+        this.fileLockService = fileLockService;
     }
 
     private void checkInitialized() {
@@ -39,43 +59,18 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
         initialized = true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.tycho.p2.repository.LocalP2Repository#getArtifactsIndex()
-     */
     public TychoRepositoryIndex getArtifactsIndex() {
         checkInitialized();
         return artifactsIndex;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.tycho.p2.repository.LocalP2Repository#getMetadataIndex()
-     */
     public TychoRepositoryIndex getMetadataIndex() {
         checkInitialized();
         return metadataIndex;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.tycho.p2.repository.LocalP2Repository#getLocation()
-     */
     public File getBasedir() {
         return mavenContext.getLocalRepositoryRoot();
-    }
-
-    // injected by DS runtime
-    public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
-    }
-
-    // injected by DS runtime
-    public void setFileLockService(FileLockService fileLockService) {
-        this.fileLockService = fileLockService;
     }
 
 }

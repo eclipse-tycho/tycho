@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.resolver;
 
-import static org.eclipse.tycho.p2.impl.resolver.P2ResolverTest.getLocalRepositoryLocation;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
@@ -97,6 +96,10 @@ public class P2ResolverTestBase {
         context.addReactorArtifact(artifact);
     }
 
+    static File getLocalRepositoryLocation() throws IOException {
+        return new File("target/localrepo").getCanonicalFile();
+    }
+
     protected MavenContext createMavenContext(boolean offline, MavenLogger logger) throws IOException {
         MavenContextImpl mavenContext = new MavenContextImpl();
         mavenContext.setOffline(offline);
@@ -110,6 +113,7 @@ public class P2ResolverTestBase {
         MavenContext mavenContext = createMavenContext(offline, new MavenLoggerStub());
         p2ResolverFactory.setMavenContext(mavenContext);
         p2ResolverFactory.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
+        p2ResolverFactory.setRemoteAgentManager(createRemoteAgentManager(mavenContext));
         return p2ResolverFactory;
     }
 
@@ -118,5 +122,11 @@ public class P2ResolverTestBase {
         localRepoIndices.setMavenContext(mavenContext);
         localRepoIndices.setFileLockService(new NoopFileLockService());
         return localRepoIndices;
+    }
+
+    protected RemoteAgentManager createRemoteAgentManager(MavenContext mavenContext) {
+        RemoteAgentManager manager = new RemoteAgentManager();
+        manager.setMavenContext(mavenContext);
+        return manager;
     }
 }

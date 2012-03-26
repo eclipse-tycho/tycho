@@ -41,10 +41,6 @@ import org.junit.Test;
 
 public class P2ResolverTest extends P2ResolverTestBase {
 
-    static File getLocalRepositoryLocation() throws IOException {
-        return new File("target/localrepo").getCanonicalFile();
-    }
-
     @Before
     public void initDefaultResolver() throws Exception {
         org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
