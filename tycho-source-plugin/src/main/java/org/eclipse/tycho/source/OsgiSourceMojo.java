@@ -28,7 +28,10 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.packaging.IncludeValidationHelper;
 import org.osgi.framework.Version;
 
@@ -48,6 +51,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private static final String MANIFEST_HEADER_BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
     private static final String MANIFEST_HEADER_BUNDLE_VERSION = "Bundle-Version";
     private static final String MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE = "Eclipse-SourceBundle";
+    private static final String MANIFEST_BUNDLE_NAME = "Bundle-Name";
+    private static final String MANIFEST_BUNDLE_VENDOR = "Bundle-Vendor";
     private static final String VERSION_QUALIFIER = "qualifier";
 
     /**
@@ -114,6 +119,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      */
     private IncludeValidationHelper includeValidationHelper;
 
+    private BundleReader bundleReader;
+
     /** {@inheritDoc} */
     protected List<String> getSources(MavenProject p) throws MojoExecutionException {
         return getSources(project, requireSourceRoots, buildPropertiesParser);
@@ -172,6 +179,13 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         String symbolicName = artifactKey.getId();
         String version = artifactKey.getVersion();
 
+        if (bundleReader == null) {
+            bundleReader = new DefaultBundleReader();
+        }
+        OsgiManifest origManifest = bundleReader.loadManifest(project.getBasedir());
+        String bundleName = origManifest.getValue(MANIFEST_BUNDLE_NAME);
+        String bundleVendor = origManifest.getValue(MANIFEST_BUNDLE_VENDOR);
+
         if (symbolicName != null && version != null) {
             mavenArchiveConfiguration.addManifestEntry(MANIFEST_HEADER_BUNDLE_MANIFEST_VERSION, "2");
 
@@ -184,6 +198,9 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
             mavenArchiveConfiguration.addManifestEntry(MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE, symbolicName
                     + ";version=\"" + expandedVersion + "\";roots:=\".\"");
+
+            mavenArchiveConfiguration.addManifestEntry(MANIFEST_BUNDLE_NAME, bundleName + " Source");
+            mavenArchiveConfiguration.addManifestEntry(MANIFEST_BUNDLE_VENDOR, bundleVendor);
         } else {
             getLog().info("NOT adding source bundle manifest entries. Incomplete or no bundle information available.");
         }

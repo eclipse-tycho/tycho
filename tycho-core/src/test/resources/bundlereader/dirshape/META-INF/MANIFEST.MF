@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: test
+Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.tycho.test;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.tycho.p2.impl.Activator
@@ -41,3 +41,4 @@ Service-Component: OSGI-INF/generator.xml,
  OSGI-INF/proxyfacade.xml,
  OSGI-INF/resolver.xml
 Bundle-Vendor: %providerName
+Bundle-Localization: plugin

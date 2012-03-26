@@ -1,10 +1,19 @@
 package org.eclipse.tycho.core.osgitools;
 
 import static org.osgi.framework.Constants.BUNDLE_CLASSPATH;
+import static org.osgi.framework.Constants.BUNDLE_LOCALIZATION;
 import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.jar.JarFile;
 
 import org.eclipse.osgi.framework.util.Headers;
 import org.eclipse.osgi.util.ManifestElement;
@@ -33,6 +42,7 @@ public class OsgiManifest {
     private String[] bundleClassPath;
     private ExecutionEnvironment[] executionEnvironments;
     private boolean isDirectoryShape;
+    private Map<String, String> bundlePropFileMap;
 
     private OsgiManifest(InputStream stream, String location) throws OsgiManifestParserException {
         this.location = location;
@@ -41,6 +51,7 @@ public class OsgiManifest {
         } catch (BundleException e) {
             throw new OsgiManifestParserException(location, e);
         }
+        this.bundlePropFileMap = parseBundleLocalization();
         this.bundleSymbolicName = parseMandatoryFirstValue(BUNDLE_SYMBOLICNAME);
         this.bundleVersion = parseBundleVersion();
         this.bundleClassPath = parseBundleClasspath();
@@ -100,11 +111,45 @@ public class OsgiManifest {
                 && "dir".equals(bundleShapeElements[0].getValue());
     }
 
+    private Map<String, String> parseBundleLocalization() {
+        String fileValue = headers.get(BUNDLE_LOCALIZATION);
+        fileValue = (fileValue != null) ? fileValue : Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
+        Properties properties = new Properties();
+        Map<String, String> ret = new HashMap<String, String>();
+
+        try {
+            String dir = location.replace(JarFile.MANIFEST_NAME, "");
+            FileInputStream ins = new FileInputStream(dir + fileValue + ".properties");
+            properties.load(ins);
+            ins.close();
+
+            Enumeration<String> keys = headers.keys();
+            while (keys.hasMoreElements()) {
+                String key = keys.nextElement();
+                String value = headers.get(key);
+                // if the value is '%foo' we look for 'foo'
+                if (value.startsWith("%")) {
+                    String realValue = (String) properties.get(value.substring(1));
+                    ret.put(key, realValue);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            // no bundle localization used, or the file does not exist
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
+        return ret;
+    }
+
     public Headers<String, String> getHeaders() {
         return headers;
     }
 
     public String getValue(String key) {
+        if (bundlePropFileMap != null && bundlePropFileMap.containsKey(key)) {
+            return bundlePropFileMap.get(key);
+        }
         return headers.get(key);
     }
 
