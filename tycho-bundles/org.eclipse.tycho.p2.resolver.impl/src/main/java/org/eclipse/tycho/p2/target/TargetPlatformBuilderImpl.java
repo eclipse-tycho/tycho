@@ -59,18 +59,13 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
-import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCache;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
@@ -88,7 +83,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private final boolean offline;
 
-    private final IProvisioningAgent agent;
+    private final IProvisioningAgent remoteAgent;
+
+    private final IMetadataRepositoryManager remoteMetadataRepositoryManager;
+
+    private final IArtifactRepositoryManager remoteArtifactRepositoryManager;
 
     private final boolean disableP2Mirrors;
 
@@ -103,27 +102,24 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     /** maven local repository as P2 IMetadataRepository */
     private final LocalMetadataRepository localMetadataRepository;
 
-    public TargetPlatformBuilderImpl(IProvisioningAgent agent, MavenContext mavenContext, String executionEnvironment,
-            LocalRepositoryP2Indices localRepositoryIndices, boolean disableP2Mirrors) {
-        this.agent = agent;
+    public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
+            String executionEnvironment, LocalArtifactRepository localArtifactRepo, LocalMetadataRepository localMetadataRepo,
+            boolean disableP2Mirrors)
+            throws ProvisionException {
+        this.remoteAgent = remoteAgent;
         this.logger = mavenContext.getLogger();
         this.monitor = new LoggingProgressMonitor(logger);
 
-        this.metadataRepositoryManager = (IMetadataRepositoryManager) agent
+        this.remoteMetadataRepositoryManager = (IMetadataRepositoryManager) remoteAgent
                 .getService(IMetadataRepositoryManager.SERVICE_NAME);
-        if (metadataRepositoryManager == null) {
+        if (remoteMetadataRepositoryManager == null) {
             throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
         }
 
-        this.artifactRepositoryManager = (IArtifactRepositoryManager) agent
+        this.remoteArtifactRepositoryManager = (IArtifactRepositoryManager) remoteAgent
                 .getService(IArtifactRepositoryManager.SERVICE_NAME);
-        if (artifactRepositoryManager == null) {
+        if (remoteArtifactRepositoryManager == null) {
             throw new IllegalStateException("No artifact repository manager found"); //$NON-NLS-1$
-        }
-
-        this.repositoryCache = (P2RepositoryCache) agent.getService(P2RepositoryCache.SERVICE_NAME);
-        if (repositoryCache == null) {
-            throw new IllegalStateException("No Tycho p2 reposiutory cache found");
         }
 
         this.offline = mavenContext.isOffline();
@@ -137,24 +133,10 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, logger);
 
         // setup p2 views of maven local repository
-        URI uri = localRepositoryRoot.toURI();
+        this.localArtifactRepository = localArtifactRepo;
+        this.localMetadataRepository = localMetadataRepo;
 
-        LocalArtifactRepository localRepository = (LocalArtifactRepository) repositoryCache.getArtifactRepository(uri);
-        LocalMetadataRepository localMetadataRepository = (LocalMetadataRepository) repositoryCache
-                .getMetadataRepository(uri);
-
-        if (localRepository == null || localMetadataRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(localRepositoryRoot);
-            TychoRepositoryIndex metadataIndex = localRepositoryIndices.getMetadataIndex();
-            localRepository = new LocalArtifactRepository(localRepositoryIndices, contentLocator);
-            localMetadataRepository = new LocalMetadataRepository(uri, metadataIndex, contentLocator);
-            repositoryCache.putRepository(uri, localMetadataRepository, localRepository);
-        }
-
-        metadataRepositories.add(localMetadataRepository);
-
-        this.localMetadataRepository = localMetadataRepository;
-        this.localArtifactRepository = localRepository;
+        metadataRepositories.add(this.localMetadataRepository);
     }
 
     // ---------------------------------------------------------------------
@@ -242,25 +224,15 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         IMetadataRepository metadataRepository = null;
         IArtifactRepository artifactRepository = null;
 
-        // check metadata cache, first
-        metadataRepository = (IMetadataRepository) repositoryCache.getMetadataRepository(location);
-        artifactRepository = (IArtifactRepository) repositoryCache.getArtifactRepository(location);
-        if (metadataRepository != null && (offline || artifactRepository != null)) {
-            // cache hit
-            metadataRepositories.add(metadataRepository);
-            if (artifactRepository != null) {
-                artifactRepositories.add(artifactRepository);
-            }
-            logger.info("Adding repository (cached) " + location.toASCIIString());
-            return;
-        }
-
         try {
-            metadataRepository = metadataRepositoryManager.loadRepository(location, monitor);
+            // TODO always log that a p2 repository is adde to the target platform somewhere; used to be either from p2 or the following line
+            // logger.info("Adding repository (cached) " + location.toASCIIString());
+
+            metadataRepository = remoteMetadataRepositoryManager.loadRepository(location, monitor);
             metadataRepositories.add(metadataRepository);
 
             if (!offline || URIUtil.isFileURI(location)) {
-                artifactRepository = artifactRepositoryManager.loadRepository(location, monitor);
+                artifactRepository = remoteArtifactRepositoryManager.loadRepository(location, monitor);
                 artifactRepositories.add(artifactRepository);
 
                 forceSingleThreadedDownload(artifactRepository);
@@ -268,8 +240,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                     forceMirrorsDisabled(artifactRepository);
                 }
             }
-
-            repositoryCache.putRepository(location, metadataRepository, artifactRepository);
 
             // processPartialIUs( metadataRepository, artifactRepository );
         } catch (ProvisionException e) {
@@ -286,7 +256,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             } else if (artifactRepository instanceof CompositeArtifactRepository) {
                 List<URI> children = ((CompositeArtifactRepository) artifactRepository).getChildren();
                 for (URI child : children) {
-                    forceSingleThreadedDownload(artifactRepositoryManager.loadRepository(child, monitor));
+                    forceSingleThreadedDownload(remoteArtifactRepositoryManager.loadRepository(child, monitor));
                 }
             }
         } catch (Exception e) {
@@ -304,7 +274,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             }
         } else if (artifactRepository instanceof CompositeArtifactRepository) {
             for (URI child : ((CompositeArtifactRepository) artifactRepository).getChildren()) {
-                forceMirrorsDisabled(artifactRepositoryManager.loadRepository(child, monitor));
+                forceMirrorsDisabled(remoteArtifactRepositoryManager.loadRepository(child, monitor));
             }
         }
 
@@ -326,7 +296,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
-        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, jreIUs, agent, logger);
+        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, jreIUs, remoteAgent, logger);
         TargetPlatformContent targetFileContent = resolver.resolveContent(definition);
         content.add(targetFileContent);
 
@@ -410,8 +380,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
         Set<IInstallableUnit> reactorProjectUIs = getReactorProjectUIs();
 
-        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters, logger)
-                : null;
+        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters,
+                logger) : null;
 
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(monitor);
         applyFilters(filter, externalUIs, reactorProjectUIs);
@@ -435,7 +405,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 localMetadataRepository, //
                 allRemoteArtifactRepositories, //
                 localArtifactRepository, //
-                agent, //
+                remoteAgent, //
                 logger);
     }
 
@@ -528,14 +498,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             filter.filterUnits(units);
         }
     }
-
-    // -------------------------------------------------------------------------------
-
-    private final IMetadataRepositoryManager metadataRepositoryManager;
-
-    private final IArtifactRepositoryManager artifactRepositoryManager;
-
-    private final P2RepositoryCache repositoryCache;
 
     // -------------------------------------------------------------------------------
 

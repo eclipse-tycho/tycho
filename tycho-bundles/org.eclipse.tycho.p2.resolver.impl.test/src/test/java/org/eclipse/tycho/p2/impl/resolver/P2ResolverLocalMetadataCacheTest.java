@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.resolver;
 
-import static org.eclipse.tycho.p2.impl.resolver.P2ResolverTest.getLocalRepositoryLocation;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
@@ -43,7 +42,6 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
 
     @Before
     public void initResolver() throws Exception {
-        P2ResolverFactoryImpl.purgeAgents();
         P2ResolverFactoryImpl p2ResolverFactoryImpl = createP2ResolverFactory(false);
         context = p2ResolverFactoryImpl.createTargetPlatformBuilder(null, DISABLE_MIRRORS);
         impl = new P2ResolverImpl(new MavenLoggerStub());
@@ -89,6 +87,7 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
         MavenContext mavenContext = createMavenContext(true, new MavenLoggerStub());
         p2ResolverFactory.setMavenContext(mavenContext);
         p2ResolverFactory.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
+        p2ResolverFactory.setRemoteAgentManager(createRemoteAgentManager(mavenContext));
         context = p2ResolverFactory.createTargetPlatformBuilder(null, DISABLE_MIRRORS);
         List<P2ResolutionResult> results = resolveFromHttp(context, impl, servedUrl);
 
@@ -123,8 +122,6 @@ public class P2ResolverLocalMetadataCacheTest extends P2ResolverTestBase {
 
         // make remote server inaccessible
         server.stop();
-
-        P2ResolverFactoryImpl.purgeAgents();
 
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
         context = p2ResolverFactory.createTargetPlatformBuilder(null, DISABLE_MIRRORS);

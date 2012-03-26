@@ -120,4 +120,8 @@ public class HttpServer {
         return servers.get(contextName).getAccessedUrls();
     }
 
+    public void clearAccessedUrls(String contextName) {
+        servers.get(contextName).getAccessedUrls().clear();
+    }
+
 }
