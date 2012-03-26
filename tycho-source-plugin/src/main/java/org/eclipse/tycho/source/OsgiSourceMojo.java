@@ -28,8 +28,12 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.osgitools.BundleReader;
+import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.packaging.IncludeValidationHelper;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 /**
@@ -48,6 +52,9 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private static final String MANIFEST_HEADER_BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
     private static final String MANIFEST_HEADER_BUNDLE_VERSION = "Bundle-Version";
     private static final String MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE = "Eclipse-SourceBundle";
+    private static final String MANIFEST_BUNDLE_NAME = "Bundle-Name";
+    private static final String MANIFEST_BUNDLE_VENDOR = "Bundle-Vendor";
+    private static final String MANIFEST_BUNDLE_LOCALIZATION = "Bundle-Localization";
     private static final String VERSION_QUALIFIER = "qualifier";
 
     /**
@@ -114,6 +121,11 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      */
     private IncludeValidationHelper includeValidationHelper;
 
+    /**
+     * @component
+     */
+    private BundleReader bundleReader;
+
     /** {@inheritDoc} */
     protected List<String> getSources(MavenProject p) throws MojoExecutionException {
         return getSources(project, requireSourceRoots, buildPropertiesParser);
@@ -128,6 +140,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
                 sources.add(new File(p.getBasedir(), sourceFolder).getAbsolutePath());
             }
         }
+
         if (requireSourceRoots && sources.isEmpty()) {
             throw new MojoExecutionException("no source folders found in build.properties");
         }
@@ -149,6 +162,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         resource.setDirectory(project.getBasedir().getAbsolutePath());
         resource.setExcludes(buildProperties.getSourceExcludes());
         resource.setIncludes(srcIncludesList);
+
         return Collections.singletonList(resource);
     }
 
@@ -172,6 +186,19 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         String symbolicName = artifactKey.getId();
         String version = artifactKey.getVersion();
 
+        if (bundleReader == null) {
+            bundleReader = new DefaultBundleReader();
+        }
+        OsgiManifest origManifest = bundleReader.loadManifest(project.getBasedir());
+        String bundleName = origManifest.getValue(MANIFEST_BUNDLE_NAME);
+        String bundleVendor = origManifest.getValue(MANIFEST_BUNDLE_VENDOR);
+        String bundleLocalization = origManifest.getValue(MANIFEST_BUNDLE_LOCALIZATION);
+        if (bundleLocalization == null) {
+            bundleLocalization = Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME + "-src";
+        } else {
+            bundleLocalization += "-src";
+        }
+
         if (symbolicName != null && version != null) {
             mavenArchiveConfiguration.addManifestEntry(MANIFEST_HEADER_BUNDLE_MANIFEST_VERSION, "2");
 
@@ -184,6 +211,17 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
             mavenArchiveConfiguration.addManifestEntry(MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE, symbolicName
                     + ";version=\"" + expandedVersion + "\";roots:=\".\"");
+
+            if (!bundleName.startsWith("%")) {
+                bundleName += " Source";
+            }
+            mavenArchiveConfiguration.addManifestEntry(MANIFEST_BUNDLE_NAME, bundleName);
+            mavenArchiveConfiguration.addManifestEntry(MANIFEST_BUNDLE_VENDOR, bundleVendor);
+
+            BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+            if (buildProperties.getSourceIncludes().contains(bundleLocalization + ".properties")) {
+                mavenArchiveConfiguration.addManifestEntry(MANIFEST_BUNDLE_LOCALIZATION, bundleLocalization);
+            }
         } else {
             getLog().info("NOT adding source bundle manifest entries. Incomplete or no bundle information available.");
         }

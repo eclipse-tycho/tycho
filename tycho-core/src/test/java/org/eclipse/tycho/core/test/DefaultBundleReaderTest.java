@@ -90,6 +90,8 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         File dir = new File("src/test/resources/bundlereader/dirshape");
         OsgiManifest manifest = bundleReader.loadManifest(dir);
         assertEquals("org.eclipse.tycho.test", manifest.getBundleSymbolicName());
+        assertEquals("test", manifest.getValue("Bundle-Name"));
+        assertEquals("%providerName", manifest.getValue("Bundle-Vendor"));
     }
 
     public void testLoadManifestFromJar() throws Exception {
