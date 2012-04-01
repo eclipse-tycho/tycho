@@ -11,27 +11,44 @@
 package org.eclipse.tycho.test.util;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
 
 public final class P2Context extends ExternalResource {
-    TemporaryFolder tempFolder = new TemporaryFolder();
+    private final TemporaryFolder tempManager;
     private IProvisioningAgent agent;
+
+    public P2Context() {
+        this.tempManager = new TemporaryFolder();
+    }
 
     @Override
     protected void before() throws Throwable {
-        tempFolder.create();
-        agent = Activator.createProvisioningAgent(tempFolder.newFolder("p2agent").toURI());
-
+        tempManager.create();
     }
 
     @Override
     protected void after() {
-        agent.stop();
-        tempFolder.delete();
+        if (agent != null) {
+            agent.stop();
+        }
+        tempManager.delete();
     }
 
-    public IProvisioningAgent getAgent() {
+    /**
+     * Returns an instance of an {@link IProvisioningAgent}. If this instance acts as a JUnit
+     * {@link Rule}, there is a separate instance for each test.
+     */
+    public IProvisioningAgent getAgent() throws ProvisionException {
+        if (agent == null) {
+            agent = Activator.createProvisioningAgent(tempManager.newFolder("p2agent").toURI());
+        }
         return agent;
+    }
+
+    public <T> T getService(Class<T> type) throws ProvisionException {
+        return type.cast(getAgent().getService(type.getCanonicalName()));
     }
 }
