@@ -13,6 +13,7 @@ package org.eclipse.tycho.buildversion;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.maven.artifact.Artifact;
@@ -28,7 +29,6 @@ import org.osgi.framework.Version;
  * <ol>
  * <li>explicit -DforceContextQualifier command line parameter</li>
  * <li>forceContextQualifier from ${project.baseDir}/build.properties</li>
- * <li>the tag that was used to fetch the bundle (only when using map file)</li>
  * <li>a time stamp in the form YYYYMMDDHHMM (ie 200605121600)</li>
  * </ol>
  * The generated qualifier is assigned to <code>buildQualifier</code> project property. Unqualified
@@ -38,6 +38,32 @@ import org.osgi.framework.Version;
  * guarantees that the same timestamp is used for all projects in reactor build. Different projects
  * can use different formats to expand the timestamp, however (highly not recommended but possible).
  * 
+ * <p>
+ * Starting with version 0.15, it is now possible to use custom build timestamp generation logic.
+ * The primary usecase is to generate build version qualifier based on the timestamp of the last
+ * project commit. Here is example pom.xml snippet that enables custom timestamp generation logic
+ * 
+ * <pre>
+ *      ...
+ *      &lt;plugin>
+ *         &lt;groupId>org.eclipse.tycho&lt;/groupId>
+ *         &lt;artifactId>tycho-packaging-plugin&lt;/artifactId>
+ *         &lt;version>${tycho-version}&lt;/version>
+ *         &lt;dependencies>
+ *           &lt;dependency>
+ *             &lt;groupId>timestamp-provider-groupid&lt;/groupId>
+ *             &lt;artifactId>timestamp-provider-artifactid&lt;/artifactId>
+ *             &lt;version>timestamp-provider-version&lt;/version>
+ *           &lt;/dependency>
+ *         &lt;/dependencies>
+ *         &lt;configuration>
+ *           &lt;timestampProvider>custom&lt;/timestampProvider>
+ *         &lt;/configuration>
+ *      &lt;/plugin>
+ *      ...
+ * 
+ * </pre>
+ * 
  * @goal build-qualifier
  * @phase validate
  */
@@ -46,8 +72,6 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     public static final String BUILD_QUALIFIER_PROPERTY = "buildQualifier";
 
     public static final String UNQUALIFIED_VERSION_PROPERTY = "unqualifiedVersion";
-
-    private static final String REACTOR_BUILD_TIMESTAMP_PROPERTY = "reactorBuildTimestampProperty";
 
     /**
      * @parameter expression="${session}"
@@ -73,9 +97,21 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     private String forceContextQualifier;
 
     /**
+     * Role hint of a custom build timestamp provider.
+     * 
+     * @parameter
+     */
+    private String timestampProvider;
+
+    /**
      * @component
      */
     private BuildPropertiesParser buildPropertiesParser;
+
+    /**
+     * @component role="org.eclipse.tycho.buildversion.BuildTimestampProvider"
+     */
+    private Map<String, BuildTimestampProvider> timestampProviders;
 
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
@@ -109,7 +145,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
 
         if (qualifier == null) {
-            Date timestamp = getSessionTimestamp();
+            Date timestamp = getBuildTimestamp();
             qualifier = getQualifier(timestamp);
         }
 
@@ -129,17 +165,13 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         return version;
     }
 
-    private Date getSessionTimestamp() {
-        Date timestamp;
-        String value = session.getUserProperties().getProperty(REACTOR_BUILD_TIMESTAMP_PROPERTY);
-        if (value != null) {
-            timestamp = new Date(Long.parseLong(value));
-        } else {
-            timestamp = new Date();
-            session.getUserProperties().setProperty(REACTOR_BUILD_TIMESTAMP_PROPERTY,
-                    Long.toString(timestamp.getTime()));
+    private Date getBuildTimestamp() throws MojoExecutionException {
+        String hint = timestampProvider != null ? timestampProvider : DefaultBuildTimestampProvider.ROLE_HINT;
+        BuildTimestampProvider provider = timestampProviders.get(hint);
+        if (provider == null) {
+            throw new MojoExecutionException("Unable to lookup BuildTimestampProvider with hint='" + hint + "'");
         }
-        return timestamp;
+        return provider.getTimestamp(session);
     }
 
 }
