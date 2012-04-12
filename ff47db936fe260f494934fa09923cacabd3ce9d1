@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOG3//9aw\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildTimestampProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-12T11:31:22Z",
+      "side": 1,
+      "message": "Just out of curiosity: does the MavenSession have a current project attribute? Or is this a typo and should say \"current session\"",
+      "revId": "ff47db936fe260f494934fa09923cacabd3ce9d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
