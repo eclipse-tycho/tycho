@@ -13,12 +13,19 @@ package org.eclipse.tycho.buildversion;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class BuildQualifierTest extends AbstractTychoMojoTestCase {
@@ -161,6 +168,55 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         } finally {
             TimeZone.setDefault(oldTimeZone);
         }
+    }
+
+    public void testStableQualifier() throws Exception {
+        File basedir = getBasedir("projects/stablebuildqualifier/basic");
+
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenSession session = newMavenSession(projects.get(0), projects);
+
+        executeMojo(session, getProject(projects, "bundle01"));
+        executeMojo(session, getProject(projects, "bundle02"));
+        executeMojo(session, getProject(projects, "feature02"), "build-qualifier-aggregator");
+        executeMojo(session, getProject(projects, "feature"), "build-qualifier-aggregator");
+
+        assertQualifier("201205191500", projects, "feature");
+        assertQualifier("201205191500", projects, "bundle01");
+        assertQualifier("201205191300", projects, "feature02");
+        assertQualifier("201205192000", projects, "bundle02");
+    }
+
+    public void testUnparsableIncludedArtifactQualifier() throws Exception {
+        File basedir = getBasedir("projects/stablebuildqualifier/unpasablequalifier");
+
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenSession session = newMavenSession(projects.get(0), projects);
+
+        executeMojo(session, getProject(projects, "bundle"));
+        executeMojo(session, getProject(projects, "feature"));
+
+        assertQualifier("201205191300", projects, "feature");
+    }
+
+    private void assertQualifier(String expected, List<MavenProject> projects, String artifactId) {
+        MavenProject project = getProject(projects, artifactId);
+        assertEquals(expected, project.getProperties().getProperty(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
+    }
+
+    private void executeMojo(MavenSession session, MavenProject project) throws Exception {
+        executeMojo(session, project, "build-qualifier");
+    }
+
+    protected void executeMojo(MavenSession session, MavenProject project, String goal) throws Exception,
+            ComponentConfigurationException, MojoExecutionException, MojoFailureException {
+        session.setCurrentProject(project);
+        BuildQualifierMojo mojo = (BuildQualifierMojo) lookupConfiguredMojo(session, newMojoExecution(goal));
+        mojo.execute();
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        String version = lookup(TychoProject.class, project.getPackaging()).getArtifactKey(reactorProject).getVersion();
+        reactorProject.setExpandedVersion(version,
+                project.getProperties().getProperty(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
     }
 
     private String createTimeStampInTimeZone(String timeZone, Date date) {

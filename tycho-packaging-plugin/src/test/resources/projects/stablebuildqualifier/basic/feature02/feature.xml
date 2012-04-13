@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="feature02"
+      label="feature02"
+      version="1.0.0.201205191300">
+
+   <plugin
+         id="bundle02"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>
