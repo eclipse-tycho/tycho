@@ -16,6 +16,23 @@
       "revId": "7970a580d443edd41a6e68b8766beedf2b18126a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//9Zg\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/compiler/AnnotationProcessorTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-04-13T12:02:51Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this fail with \"No tests were executed!\" error?",
+      "revId": "7970a580d443edd41a6e68b8766beedf2b18126a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
