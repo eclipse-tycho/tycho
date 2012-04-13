@@ -140,7 +140,7 @@
             <id>default</id>
             <phases>
               <validate>
-                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier,
+                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier-aggregator,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-id,
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:validate-version
               </validate>
