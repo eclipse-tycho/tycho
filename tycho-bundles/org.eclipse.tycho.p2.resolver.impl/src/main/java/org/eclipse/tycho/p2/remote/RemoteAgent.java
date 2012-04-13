@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.impl.Activator;
 
@@ -22,12 +23,16 @@ public class RemoteAgent implements IProvisioningAgent {
 
     private IProvisioningAgent delegate;
 
-    public RemoteAgent(MavenContext mavenContext) throws ProvisionException {
-        this.delegate = createConfiguredProvisioningAgent(mavenContext);
+    public RemoteAgent(MavenContext mavenContext, boolean disableMirrors) throws ProvisionException {
+        this.delegate = createConfiguredProvisioningAgent(mavenContext, disableMirrors);
     }
 
-    private static IProvisioningAgent createConfiguredProvisioningAgent(MavenContext mavenContext)
-            throws ProvisionException {
+    public RemoteAgent(MavenContext mavenContext) throws ProvisionException {
+        this(mavenContext, false);
+    }
+
+    private static IProvisioningAgent createConfiguredProvisioningAgent(MavenContext mavenContext,
+            boolean disableMirrors) throws ProvisionException {
         // TODO set a temporary folder as persistence location
         IProvisioningAgent agent = Activator.newProvisioningAgent();
 
@@ -43,6 +48,14 @@ public class RemoteAgent implements IProvisioningAgent {
         // cache indices of p2 repositories in the local Maven repository
         TychoP2RepositoryCacheManager cacheMgr = new TychoP2RepositoryCacheManager(transport, mavenContext);
         agent.registerService(CacheManager.SERVICE_NAME, cacheMgr);
+
+        if (disableMirrors) {
+            IArtifactRepositoryManager plainRepoManager = (IArtifactRepositoryManager) agent
+                    .getService(IArtifactRepositoryManager.SERVICE_NAME);
+            IArtifactRepositoryManager mirrorDisablingRepoManager = new MirrorDisablingArtifactRepositoryManager(
+                    plainRepoManager);
+            agent.registerService(IArtifactRepositoryManager.SERVICE_NAME, mirrorDisablingRepoManager);
+        }
 
         return agent;
     }
