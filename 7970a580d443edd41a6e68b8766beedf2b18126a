@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOG3//9Zc\u003d",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/JDTCompiler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-13T12:00:23Z",
+      "side": 1,
+      "message": "AFAIK, this should be the name followed by the company owning the copyright.\n\nhttp://www.eclipse.org/legal/copyrightandlicensenotice.php gives this example: \"John Smith (XYZ Corp.)\".",
+      "revId": "7970a580d443edd41a6e68b8766beedf2b18126a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
