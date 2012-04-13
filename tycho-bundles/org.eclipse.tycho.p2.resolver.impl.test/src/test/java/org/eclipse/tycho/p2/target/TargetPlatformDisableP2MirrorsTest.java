@@ -36,7 +36,7 @@ public class TargetPlatformDisableP2MirrorsTest {
     public void testDisableP2Mirrors() throws Exception {
         TargetPlatformBuilderImpl context = createResolutionContext(true);
 
-        URI location = ResourceUtil.resourceFile("p2-mirrors-disable/disablemirrors").toURI();
+        URI location = ResourceUtil.resourceFile("p2-mirrors-disable").toURI();
         context.addP2Repository(location);
         assertNull(getP2MirrorsUrlFromCachedRepository(location));
     }
@@ -59,7 +59,7 @@ public class TargetPlatformDisableP2MirrorsTest {
         mavenContext.setLocalRepositoryRoot(localRepo);
         mavenContext.setLogger(new MavenLoggerStub());
         RemoteAgentManager remoteAgentManager = createRemoteAgentManager(mavenContext);
-        IProvisioningAgent agent = remoteAgentManager.getProvisioningAgent();
+        IProvisioningAgent agent = remoteAgentManager.getProvisioningAgent(disableP2Mirrors);
         repositoryCache = (P2RepositoryCache) agent.getService(P2RepositoryCache.SERVICE_NAME);
         assertNotNull(repositoryCache);
 

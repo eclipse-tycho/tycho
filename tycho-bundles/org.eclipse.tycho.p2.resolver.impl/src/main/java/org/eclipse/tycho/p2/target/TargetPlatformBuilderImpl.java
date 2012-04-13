@@ -90,8 +90,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private final IProvisioningAgent agent;
 
-    private final boolean disableP2Mirrors;
-
     /**
      * Target execution environment profile name or null to use system default profile name.
      */
@@ -104,7 +102,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private final LocalMetadataRepository localMetadataRepository;
 
     public TargetPlatformBuilderImpl(IProvisioningAgent agent, MavenContext mavenContext, String executionEnvironment,
-            LocalRepositoryP2Indices localRepositoryIndices, boolean disableP2Mirrors) {
+            LocalRepositoryP2Indices localRepositoryIndices) {
         this.agent = agent;
         this.logger = mavenContext.getLogger();
         this.monitor = new LoggingProgressMonitor(logger);
@@ -127,8 +125,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         }
 
         this.offline = mavenContext.isOffline();
-
-        this.disableP2Mirrors = disableP2Mirrors;
 
         // TODO 364134 make this a setter - this property is side-effect free (i.e. it has no effect before gatherAvailableUnits)
         this.jreIUs = new JREInstallableUnits(executionEnvironment);
@@ -264,9 +260,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 artifactRepositories.add(artifactRepository);
 
                 forceSingleThreadedDownload(artifactRepository);
-                if (disableP2Mirrors) {
-                    forceMirrorsDisabled(artifactRepository);
-                }
             }
 
             repositoryCache.putRepository(location, metadataRepository, artifactRepository);
@@ -292,22 +285,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         } catch (Exception e) {
             // we've tried
         }
-    }
-
-    private void forceMirrorsDisabled(IArtifactRepository artifactRepository) throws ProvisionException {
-        if (artifactRepository instanceof SimpleArtifactRepository) {
-            try {
-                OrderedProperties p = getProperties(artifactRepository);
-                p.remove(org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.PROP_MIRRORS_URL);
-            } catch (Exception e) {
-                throw new RuntimeException("Could not disable p2 mirrors", e);
-            }
-        } else if (artifactRepository instanceof CompositeArtifactRepository) {
-            for (URI child : ((CompositeArtifactRepository) artifactRepository).getChildren()) {
-                forceMirrorsDisabled(artifactRepositoryManager.loadRepository(child, monitor));
-            }
-        }
-
     }
 
     private OrderedProperties getProperties(IArtifactRepository artifactRepository) throws NoSuchFieldException,
