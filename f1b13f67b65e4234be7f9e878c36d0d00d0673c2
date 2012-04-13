@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOG3//9Yw\u003d",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/AbstractUITestApplication.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-04-13T14:51:49Z",
+      "side": 1,
+      "message": "don\u0027t like to implicitly rely on magic return code in org.eclipse.equinox.launcher.Main here.\n\nWhy not return new Integer(SUREFIRE_COULD_NOT_PERFORM_TESTS) here too?\n\nexit code 13 is only for really low-level errors where we didn\u0027t even reach the run() method() of this class.",
+      "revId": "f1b13f67b65e4234be7f9e878c36d0d00d0673c2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//9Ys\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-04-13T14:51:49Z",
+      "side": 1,
+      "message": "we should be more specif about the log file location (see \"expeced log file\" earlier in this class).\n\nAlso IIRC for very low-level errors, the error log is in configuration/\u003cTIMESTAMP\u003e.log",
+      "revId": "f1b13f67b65e4234be7f9e878c36d0d00d0673c2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
