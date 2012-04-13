@@ -11,6 +11,7 @@
 package org.eclipse.tycho.buildversion;
 
 import java.io.File;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -20,6 +21,12 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.ArtifactDependencyVisitor;
+import org.eclipse.tycho.core.FeatureDescription;
+import org.eclipse.tycho.core.PluginDescription;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.osgi.framework.Version;
 
@@ -31,12 +38,21 @@ import org.osgi.framework.Version;
  * <li>forceContextQualifier from ${project.baseDir}/build.properties</li>
  * <li>a time stamp in the form YYYYMMDDHHMM (ie 200605121600)</li>
  * </ol>
+ * 
+ * <p>
  * The generated qualifier is assigned to <code>buildQualifier</code> project property. Unqualified
  * project version is assigned to <code>unqualifiedVersion</code> project property. Unqualified
  * version is calculated based on <code>${project.version}</code> and can be used for any Tycho
- * project (eclipse-update-site, eclipse-application, etc) and regular maven project. Implementation
- * guarantees that the same timestamp is used for all projects in reactor build. Different projects
- * can use different formats to expand the timestamp, however (highly not recommended but possible).
+ * project (eclipse-update-site, eclipse-application, etc) and regular maven project. Different
+ * projects can use different formats to expand the timestamp, however (highly not recommended but
+ * possible).
+ * 
+ * <p>
+ * For "aggregate" project packaging types, like eclipse-feature, build timestamp is calculated as
+ * the latest timestamp of the project itself and timestamps of bundles and features directly
+ * included in the project. This is meant to work with custom timestamp providers (see below) and
+ * generate build qualifier based on build contents, i.e. the source code, and not the time the
+ * build was started.
  * 
  * <p>
  * Starting with version 0.15, it is now possible to use custom build timestamp generation logic.
@@ -80,7 +96,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     private MavenSession session;
 
     /**
-     * Specify a message format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
+     * Specify a date format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
      * 
      * @parameter default-value="yyyyMMddHHmm"
      */
@@ -146,7 +162,69 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
         if (qualifier == null) {
             Date timestamp = getBuildTimestamp();
-            qualifier = getQualifier(timestamp);
+
+            // TODO make stable qualifier logic optional
+
+            final Date[] latestTimestamp = new Date[] { timestamp };
+
+            TychoProject projectType = projectTypes.get(project.getPackaging());
+            if (projectType == null) {
+                throw new IllegalStateException("Unknown or unsupported packaging type " + packaging);
+            }
+
+            projectType.getDependencyWalker(project).walk(new ArtifactDependencyVisitor() {
+                @Override
+                public boolean visitFeature(FeatureDescription feature) {
+                    if (feature.getFeatureRef() == null) {
+                        // 'this' feature
+                        return true; // visit immediately included features
+                    }
+                    visitArtifact(feature);
+                    return false; // do not visit indirectly included features/bundles
+                }
+
+                @Override
+                public void visitPlugin(PluginDescription plugin) {
+                    if (plugin.getPluginRef() == null) {
+                        // 'this' bundle
+                        return;
+                    }
+                    visitArtifact(plugin);
+                }
+
+                private void visitArtifact(ArtifactDescriptor artifact) {
+                    ReactorProject otherProject = artifact.getMavenProject();
+                    String otherVersion = (otherProject != null) ? otherVersion = otherProject.getExpandedVersion()
+                            : artifact.getKey().getVersion();
+                    Version v = Version.parseVersion(otherVersion);
+                    String otherQualifier = v.getQualifier();
+                    if (otherQualifier != null) {
+                        Date timestamp = parseQualifier(otherQualifier);
+                        if (timestamp != null) {
+                            if (latestTimestamp[0].compareTo(timestamp) < 0) {
+                                latestTimestamp[0] = timestamp;
+                            }
+                        } else {
+                            getLog().debug("Could not parse qualifier timestamp " + otherQualifier);
+                        }
+                    }
+                }
+
+                private Date parseQualifier(String qualifier) {
+                    return parseQualifier(qualifier, format);
+                }
+
+                private Date parseQualifier(String qualifier, SimpleDateFormat format) {
+                    ParsePosition pos = new ParsePosition(0);
+                    Date timestamp = format.parse(qualifier, pos);
+                    if (timestamp != null && pos.getIndex() == qualifier.length()) {
+                        return timestamp;
+                    }
+                    return null;
+                }
+            });
+
+            qualifier = getQualifier(latestTimestamp[0]);
         }
 
         project.getProperties().put(BUILD_QUALIFIER_PROPERTY, qualifier);
