@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Michael Pellaton (Netcetera) - add finalName mojo parameter
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
@@ -30,8 +31,16 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
      */
     private Archiver inflater;
 
+    /**
+     * Name of the generated zip file (without extension).
+     * 
+     * @parameter expression="${project.build.finalName}"
+     */
+    private String finalName;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File destFile = getBuildDirectory().getChild(getProject().getArtifactId() + ".zip");
+
+        File destFile = getBuildDirectory().getChild(finalName + ".zip");
 
         try {
             inflater.addDirectory(getAssemblyRepositoryLocation());
