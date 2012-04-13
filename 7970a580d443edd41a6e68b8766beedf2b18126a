@@ -51,6 +51,24 @@
       "revId": "7970a580d443edd41a6e68b8766beedf2b18126a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//9Y8\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/compiler/AnnotationProcessorTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-04-13T13:32:08Z",
+      "side": 1,
+      "message": "Never mind, I did something stupid as usual. The test project behaves as it should.",
+      "parentUuid": "AABOG3//9ZE\u003d",
+      "revId": "7970a580d443edd41a6e68b8766beedf2b18126a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
