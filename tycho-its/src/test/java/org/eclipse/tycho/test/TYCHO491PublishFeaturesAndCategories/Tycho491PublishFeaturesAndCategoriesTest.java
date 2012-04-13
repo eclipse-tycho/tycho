@@ -36,6 +36,8 @@ public class Tycho491PublishFeaturesAndCategoriesTest extends AbstractTychoInteg
 
     private static final String ARTIFACT_ID = "example-eclipse-repository";
 
+    private static final String PROJECT_VERSION = "1.0.0-SNAPSHOT";
+
     private static final String QUALIFIER = "20101116-forcedQualifier";
 
     @Test
@@ -110,7 +112,8 @@ public class Tycho491PublishFeaturesAndCategoriesTest extends AbstractTychoInteg
 
     static private void assertRepositoryContainsArtifact(Verifier verifier, String artifactPath) throws IOException,
             ZipException {
-        File repositoryArtifact = new File(verifier.getBasedir(), MODULE + "/target/" + ARTIFACT_ID + ".zip");
+        File repositoryArtifact = new File(verifier.getBasedir(), MODULE + "/target/" + ARTIFACT_ID + "-"
+                + PROJECT_VERSION + ".zip");
         assertZipContainsEntry(repositoryArtifact, artifactPath);
     }
 
