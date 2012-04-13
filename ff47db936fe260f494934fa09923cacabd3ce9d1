@@ -16,6 +16,24 @@
       "revId": "ff47db936fe260f494934fa09923cacabd3ce9d1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//9ao\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildTimestampProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-04-13T12:03:59Z",
+      "side": 1,
+      "message": "Yes, session does have current project, but we may pass project explicitly. WDYT?\n\n(just testing gerrit, really :-) )",
+      "parentUuid": "AABOG3//9aw\u003d",
+      "revId": "ff47db936fe260f494934fa09923cacabd3ce9d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
