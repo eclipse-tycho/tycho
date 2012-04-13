@@ -34,6 +34,24 @@
       "revId": "ff47db936fe260f494934fa09923cacabd3ce9d1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//9ZM\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildTimestampProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-13T13:12:53Z",
+      "side": 1,
+      "message": "Thanks, didn\u0027t know that. In that case, passing the project is redundant and hence I wouldn\u0027t do it.",
+      "parentUuid": "AABOG3//9ao\u003d",
+      "revId": "ff47db936fe260f494934fa09923cacabd3ce9d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
