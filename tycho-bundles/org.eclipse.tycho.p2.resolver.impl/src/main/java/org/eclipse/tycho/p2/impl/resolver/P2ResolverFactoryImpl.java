@@ -28,8 +28,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     public TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree, boolean disableP2Mirrors) {
         IProvisioningAgent remoteAgent;
         try {
-            remoteAgent = remoteAgentManager.getProvisioningAgent();
-            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, bree, localRepoIndices, disableP2Mirrors);
+            remoteAgent = remoteAgentManager.getProvisioningAgent(disableP2Mirrors);
+            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, bree, localRepoIndices);
         } catch (ProvisionException e) {
             throw new RuntimeException(e);
         }
