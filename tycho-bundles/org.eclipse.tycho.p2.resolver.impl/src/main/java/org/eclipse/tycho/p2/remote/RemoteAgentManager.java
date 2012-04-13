@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenContext;
@@ -22,8 +25,11 @@ public class RemoteAgentManager {
 
     private MavenContext mavenContext;
 
-    // TODO stop during bundle.stop?
-    private IProvisioningAgent cachedAgent;
+    /**
+     * Cached provisioning agent instances, indexed by the disableMirrors parameter.
+     */
+    // TODO stop when this service is stopped?
+    private Map<Boolean, IProvisioningAgent> cachedAgents = new HashMap<Boolean, IProvisioningAgent>(2);
 
     public RemoteAgentManager(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
@@ -33,11 +39,23 @@ public class RemoteAgentManager {
     public RemoteAgentManager() {
     }
 
-    public synchronized IProvisioningAgent getProvisioningAgent() throws ProvisionException {
-        if (cachedAgent == null) {
-            cachedAgent = new RemoteAgent(mavenContext);
+    public synchronized IProvisioningAgent getProvisioningAgent(boolean disableMirrors) throws ProvisionException {
+        Boolean key = Boolean.valueOf(disableMirrors);
+
+        IProvisioningAgent agent = cachedAgents.get(key);
+        if (agent == null) {
+            agent = new RemoteAgent(mavenContext, disableMirrors);
+            cachedAgents.put(key, agent);
+
+            if (cachedAgents.size() > 1) {
+                String message = "The target platform configuration disableP2Mirrors=" + disableMirrors
+                        + " in this project is different from the configuration in other projects"
+                        + " in the same reactor."
+                        + " This may lead to redundant loading of p2 repositories and hence a slower build.";
+                mavenContext.getLogger().warn(message);
+            }
         }
-        return cachedAgent;
+        return agent;
     }
 
     public void setMavenContext(MavenContext mavenContext) {

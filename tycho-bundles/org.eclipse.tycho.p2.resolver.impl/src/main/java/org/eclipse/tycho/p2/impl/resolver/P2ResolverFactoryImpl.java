@@ -39,13 +39,12 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     public TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree, boolean disableP2Mirrors) {
         IProvisioningAgent remoteAgent;
         try {
-            remoteAgent = remoteAgentManager.getProvisioningAgent();
+            remoteAgent = remoteAgentManager.getProvisioningAgent(disableP2Mirrors);
             LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(
                     mavenContext.getLocalRepositoryRoot(), localRepoIndices);
             LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(
                     mavenContext.getLocalRepositoryRoot(), localRepoIndices);
-            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, bree, localArtifactRepo, localMetadataRepo,
-                    disableP2Mirrors);
+            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, bree, localArtifactRepo, localMetadataRepo);
         } catch (ProvisionException e) {
             throw new RuntimeException(e);
         }
