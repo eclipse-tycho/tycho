@@ -32,12 +32,14 @@ import org.osgi.framework.Version;
  * <li>forceContextQualifier from ${project.baseDir}/build.properties</li>
  * <li>a time stamp in the form YYYYMMDDHHMM (ie 200605121600)</li>
  * </ol>
+ * 
+ * <p>
  * The generated qualifier is assigned to <code>buildQualifier</code> project property. Unqualified
  * project version is assigned to <code>unqualifiedVersion</code> project property. Unqualified
  * version is calculated based on <code>${project.version}</code> and can be used for any Tycho
- * project (eclipse-update-site, eclipse-application, etc) and regular maven project. Implementation
- * guarantees that the same timestamp is used for all projects in reactor build. Different projects
- * can use different formats to expand the timestamp, however (highly not recommended but possible).
+ * project (eclipse-update-site, eclipse-application, etc) and regular maven project. Different
+ * projects can use different formats to expand the timestamp, however (highly not recommended but
+ * possible).
  * 
  * <p>
  * Starting with version 0.16, it is now possible to use custom build timestamp generation logic.
@@ -78,46 +80,46 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
      * @parameter expression="${session}"
      * @readonly
      */
-    private MavenSession session;
+    protected MavenSession session;
 
     /**
-     * Specify a message format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
+     * Specify a date format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
      * 
      * @parameter default-value="yyyyMMddHHmm"
      */
-    private SimpleDateFormat format;
+    protected SimpleDateFormat format;
 
     /**
      * @parameter default-value="${project.basedir}"
      */
-    private File baseDir;
+    protected File baseDir;
 
     /**
      * @parameter expression="${forceContextQualifier}"
      */
-    private String forceContextQualifier;
+    protected String forceContextQualifier;
 
     /**
      * Role hint of a custom build timestamp provider.
      * 
      * @parameter
      */
-    private String timestampProvider;
+    protected String timestampProvider;
 
     /**
      * @parameter expression="${mojoExecution}"
      */
-    private MojoExecution execution;
+    protected MojoExecution execution;
 
     /**
      * @component
      */
-    private BuildPropertiesParser buildPropertiesParser;
+    protected BuildPropertiesParser buildPropertiesParser;
 
     /**
      * @component role="org.eclipse.tycho.buildversion.BuildTimestampProvider"
      */
-    private Map<String, BuildTimestampProvider> timestampProviders;
+    protected Map<String, BuildTimestampProvider> timestampProviders;
 
     // setter is needed to make sure we always use UTC
     public void setFormat(String formatString) {
@@ -171,7 +173,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         return version;
     }
 
-    private Date getBuildTimestamp() throws MojoExecutionException {
+    protected Date getBuildTimestamp() throws MojoExecutionException {
         String hint = timestampProvider != null ? timestampProvider : DefaultBuildTimestampProvider.ROLE_HINT;
         BuildTimestampProvider provider = timestampProviders.get(hint);
         if (provider == null) {
