@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOG3//9O0\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/TYCHO491PublishFeaturesAndCategories/Tycho491PublishFeaturesAndCategoriesTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-16T14:16:50Z",
+      "side": 1,
+      "message": "got it: this change is needed, because the default changed from \u003cartifactId\u003e.zip to \u003cartifactId\u003e-\u003cversion\u003e.zip",
+      "revId": "557a981c7c2edb739ea419826cc57b97ee8996bd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
