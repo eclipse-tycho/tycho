@@ -602,7 +602,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
                 getLog().warn(message);
             }
             break;
-        default:
+        case RunResult.FAILURE:
             String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
                     + " for the individual test results.";
             if (testFailureIgnore) {
@@ -610,7 +610,10 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
             } else {
                 throw new MojoFailureException(errorMessage);
             }
-
+            break;
+        default:
+            throw new MojoFailureException("An unexpected error occured (return code " + result
+                    + "). See log for details.");
         }
     }
 
