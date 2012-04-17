@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.remote;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -26,7 +26,8 @@ import org.eclipse.tycho.p2.impl.Activator;
 /**
  * workaround for https://bugs.eclipse.org/357357
  */
-public class OfflineTransport extends Transport {
+@SuppressWarnings("restriction")
+class OfflineTransport extends Transport {
 
     private static final Status OFFLINE_STATUS = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "offline");
 
