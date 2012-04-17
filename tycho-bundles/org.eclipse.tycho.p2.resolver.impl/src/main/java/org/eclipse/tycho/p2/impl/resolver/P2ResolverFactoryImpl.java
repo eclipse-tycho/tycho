@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.resolver;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenContext;
@@ -25,6 +21,7 @@ import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
+    private static IProvisioningAgent cachedAgent;
     private MavenContext mavenContext;
     private LocalRepositoryP2Indices localRepoIndices;
 
@@ -39,58 +36,15 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     // --------------
 
-    /**
-     * IProvisioningAgent's must be long-lived because they keep instances of tycho repository
-     * cache. Cache instances are parametrized by local repository path and offline mode and thus
-     * different agent must be used for each (localrepo,offline) combination.
-     * 
-     * @TODO move to activator and stop all agents during Bundle#stop
-     */
-    private static final Map<AgentKey, IProvisioningAgent> agents = new HashMap<P2ResolverFactoryImpl.AgentKey, IProvisioningAgent>();
-
-    private static class AgentKey {
-        public final File localMavenRepositoryRoot;
-        public final boolean offline;
-
-        public AgentKey(File localMavenRepositoryRoot, boolean offline) {
-            this.localMavenRepositoryRoot = localMavenRepositoryRoot;
-            this.offline = offline;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 17;
-            hash = hash * 31 + localMavenRepositoryRoot.hashCode();
-            hash = hash * 31 + (offline ? 1 : 0);
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof AgentKey)) {
-                return false;
-            }
-            AgentKey other = (AgentKey) obj;
-            return localMavenRepositoryRoot.equals(other.localMavenRepositoryRoot) && offline == other.offline;
-        }
-    }
-
     public static synchronized IProvisioningAgent getProvisioningAgent(MavenContext mavenContext) {
-        AgentKey agentKey = new AgentKey(mavenContext.getLocalRepositoryRoot(), mavenContext.isOffline());
-        IProvisioningAgent agent = agents.get(agentKey);
-        if (agent == null) {
+        if (cachedAgent == null) {
             try {
-                agent = new RemoteAgent(mavenContext);
-
-                agents.put(agentKey, agent);
+                cachedAgent = new RemoteAgent(mavenContext);
             } catch (ProvisionException e) {
                 throw new RuntimeException(e);
             }
         }
-        return agent;
+        return cachedAgent;
     }
 
     public void setMavenContext(MavenContext mavenContext) {
@@ -105,6 +59,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
      * This method is meant for use by tests to purge any cache state between test invocations
      */
     public static void purgeAgents() {
-        agents.clear();
+        cachedAgent = null;
     }
 }
