@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,26 +14,22 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.equinox.internal.p2.repository.CacheManager;
-import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.impl.Activator;
+import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 
-@SuppressWarnings("restriction")
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
 
     private MavenContext mavenContext;
     private LocalRepositoryP2Indices localRepoIndices;
 
     public TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree, boolean disableP2Mirrors) {
-        IProvisioningAgent agent = getProvisioningAgent(mavenContext.getLocalRepositoryRoot(),
-                mavenContext.isOffline(), mavenContext.getLogger());
+        IProvisioningAgent agent = getProvisioningAgent(mavenContext);
         return new TargetPlatformBuilderImpl(agent, mavenContext, bree, localRepoIndices, disableP2Mirrors);
     }
 
@@ -82,29 +78,12 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         }
     }
 
-    public static synchronized IProvisioningAgent getProvisioningAgent(File localMavenRepositoryRoot, boolean offline,
-            MavenLogger logger) {
-        AgentKey agentKey = new AgentKey(localMavenRepositoryRoot, offline);
+    public static synchronized IProvisioningAgent getProvisioningAgent(MavenContext mavenContext) {
+        AgentKey agentKey = new AgentKey(mavenContext.getLocalRepositoryRoot(), mavenContext.isOffline());
         IProvisioningAgent agent = agents.get(agentKey);
         if (agent == null) {
             try {
-                agent = Activator.newProvisioningAgent();
-                final Transport transport;
-                if (offline) {
-                    transport = new OfflineTransport();
-                    agent.registerService(Transport.SERVICE_NAME, transport);
-                } else {
-                    transport = (Transport) agent.getService(Transport.SERVICE_NAME);
-                }
-                // setup p2 cache manager
-                TychoP2RepositoryCacheManager cacheMgr = new TychoP2RepositoryCacheManager(transport, logger);
-                cacheMgr.setOffline(offline);
-                cacheMgr.setLocalRepositoryLocation(localMavenRepositoryRoot);
-                agent.registerService(CacheManager.SERVICE_NAME, cacheMgr);
-
-                // setup tycho repo cache
-                P2RepositoryCache tychoCache = new P2RepositoryCacheImpl();
-                agent.registerService(P2RepositoryCache.SERVICE_NAME, tychoCache);
+                agent = new RemoteAgent(mavenContext);
 
                 agents.put(agentKey, agent);
             } catch (ProvisionException e) {

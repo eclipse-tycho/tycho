@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.remote;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,24 +18,27 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 
-/**
- * @author igor
- */
 @SuppressWarnings("restriction")
-public class TychoP2RepositoryCacheManager extends CacheManager {
+class TychoP2RepositoryCacheManager extends CacheManager {
     public static final String CACHE_RELPATH = ".cache/tycho/p2-repository-metadata";
 
-    private boolean offline;
+    private final boolean offline;
 
-    private File localRepositoryLocation;
+    private final File localRepositoryLocation;
 
     private final MavenLogger logger;
 
-    public TychoP2RepositoryCacheManager(Transport transport, MavenLogger logger) {
+    public TychoP2RepositoryCacheManager(Transport transport, MavenContext mavenContext) {
         super(null, transport);
-        this.logger = logger;
+
+        this.localRepositoryLocation = mavenContext.getLocalRepositoryRoot();
+        this.offline = mavenContext.isOffline();
+        this.logger = mavenContext.getLogger();
+        if (logger == null)
+            throw new NullPointerException();
     }
 
     @Override
@@ -50,6 +53,11 @@ public class TychoP2RepositoryCacheManager extends CacheManager {
             throw new ProvisionException("Repository system is offline and no local cache available for "
                     + repositoryLocation.toString());
         } else {
+            /**
+             * Here, we could implement a cache refreshment policy, but the
+             * AbstractRepositoryManager keeps soft references to loaded repositories which turns
+             * out to be sufficient.
+             */
             try {
                 return super.createCache(repositoryLocation, prefix, monitor);
             } catch (IOException e) {
@@ -81,11 +89,4 @@ public class TychoP2RepositoryCacheManager extends CacheManager {
         return new File(localRepositoryLocation, CACHE_RELPATH);
     }
 
-    public void setOffline(boolean offline) {
-        this.offline = offline;
-    }
-
-    public void setLocalRepositoryLocation(File localRepositoryLocation) {
-        this.localRepositoryLocation = localRepositoryLocation;
-    }
 }

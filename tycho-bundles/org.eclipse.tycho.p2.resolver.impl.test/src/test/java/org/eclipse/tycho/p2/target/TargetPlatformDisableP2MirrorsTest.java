@@ -27,7 +27,8 @@ public class TargetPlatformDisableP2MirrorsTest {
     @Before
     public void setUp() {
         localRepo = new File("target/localrepo");
-        IProvisioningAgent agent = P2ResolverFactoryImpl.getProvisioningAgent(localRepo, false, new MavenLoggerStub());
+        IProvisioningAgent agent = P2ResolverFactoryImpl.getProvisioningAgent(new MavenContextImpl(localRepo, false,
+                new MavenLoggerStub()));
         repositoryCache = (P2RepositoryCache) agent.getService(P2RepositoryCache.SERVICE_NAME);
         assertNotNull(repositoryCache);
     }
