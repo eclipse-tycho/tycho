@@ -32,6 +32,10 @@ public class BuildOutputJar {
         return name;
     }
 
+    public boolean isDirClasspathEntry() {
+        return ".".equals(name) || name.endsWith("/");
+    }
+
     public File getOutputDirectory() {
         return outputDirectory;
     }
