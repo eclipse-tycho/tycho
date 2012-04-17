@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
@@ -83,21 +84,20 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
     }
 
     private void createSubJars() throws MojoExecutionException {
-        BuildOutputJar dotOutputJar = pdeProject.getDotOutputJar();
-        String dotOutputJarName = dotOutputJar != null ? dotOutputJar.getName() : ".";
         for (BuildOutputJar jar : pdeProject.getOutputJars()) {
-            if (!jar.getName().equals(dotOutputJarName)) {
-                makeJar(jar.getName(), jar.getOutputDirectory());
+            if (!jar.isDirClasspathEntry()) {
+                makeJar(jar);
             }
         }
     }
 
-    private File makeJar(String jarName, File classesFolder) throws MojoExecutionException {
+    private File makeJar(BuildOutputJar jar) throws MojoExecutionException {
+        String jarName = jar.getName();
         try {
             File jarFile = new File(project.getBasedir(), jarName);
             JarArchiver archiver = new JarArchiver();
             archiver.setDestFile(jarFile);
-            archiver.addDirectory(classesFolder);
+            archiver.addDirectory(jar.getOutputDirectory());
             archiver.createArchive();
             return jarFile;
         } catch (Exception e) {
@@ -118,22 +118,19 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             List<String> binIncludesList = buildProperties.getBinIncludes();
             List<String> binExcludesList = buildProperties.getBinExcludes();
 
-            BuildOutputJar dotOutputJar = pdeProject.getDotOutputJar();
-            if (dotOutputJar != null && binIncludesList.contains(dotOutputJar.getName())) {
-                String prefix;
-                if (dotOutputJar.getName().endsWith("/")) {
-                    // prefix is a relative path to folder inside the jar: something like WEB-INF/classes/
-                    prefix = dotOutputJar.getName();
-                } else {
-                    // dotOutputJar.getName().equals(".")
-                    prefix = "";
+            List<String> binIncludesIgnoredForValidation = new ArrayList<String>();
+            // 1. handle dir classpath entries and "."            
+            for (BuildOutputJar outputJar : pdeProject.getOutputJarMap().values()) {
+                String jarName = outputJar.getName();
+                if (binIncludesList.contains(jarName) && outputJar.isDirClasspathEntry()) {
+                    binIncludesIgnoredForValidation.add(jarName);
+                    String prefix = ".".equals(jarName) ? "" : jarName;
+                    archiver.getArchiver().addDirectory(outputJar.getOutputDirectory(), prefix);
                 }
-                archiver.getArchiver().addDirectory(dotOutputJar.getOutputDirectory(), prefix);
             }
-
+            // 2. handle nested jars and included resources
             if (binIncludesList.size() > 0) {
-                String dotOutputJarName = dotOutputJar != null ? dotOutputJar.getName() : ".";
-                checkBinIncludesExist(buildProperties, dotOutputJarName);
+                checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
                 archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
             }
 

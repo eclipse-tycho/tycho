@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.BuildProperties;
@@ -45,19 +46,23 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
 
         String dotJarName = null;
 
-        for (Entry<String, List<String>> entry : buildProperties.getJarToSourceFolderMap().entrySet()) {
+        Set<Entry<String, List<String>>> jarToSourceFolderEntries = buildProperties.getJarToSourceFolderMap()
+                .entrySet();
+        for (Entry<String, List<String>> entry : jarToSourceFolderEntries) {
             String jarName = entry.getKey();
-            if (jarName.equals(".")) {
-                dotJarName = ".";
-            } else if (dotJarName == null && jarName.endsWith("/")) {
-                //maven project accomodates a single output directory for the bundle's '.'-jar.
-                //take the first jarname that is a folder and use it so the maven's output directory
-                //matches it in the final archive.
+            File outputDirectory;
+            if (".".equals(jarName) || jarToSourceFolderEntries.size() == 1) {
+                // in case of one classpath entry which is not ".", also use standard
+                // maven output dir for better interoperability with plain maven plugins
                 dotJarName = jarName;
+                outputDirectory = project.getOutputDirectory();
+            } else {
+                String classesDir = jarName;
+                if (jarName.endsWith("/")) {
+                    classesDir = jarName.substring(0, jarName.length() - 1);
+                }
+                outputDirectory = new File(project.getBuildDirectory(), classesDir + "-classes");
             }
-
-            File outputDirectory = jarName.equals(dotJarName) ? project.getOutputDirectory() : new File(
-                    project.getBuildDirectory(), jarName + "-classes");
             List<File> sourceFolders = toFileList(project.getBasedir(), entry.getValue());
 
             List<String> jarExtraEntries = buildProperties.getJarToExtraClasspathMap().get(jarName);
