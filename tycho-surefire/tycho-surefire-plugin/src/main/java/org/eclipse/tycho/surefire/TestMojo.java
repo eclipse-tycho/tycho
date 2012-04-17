@@ -67,7 +67,6 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.launching.LaunchConfiguration;
-import org.eclipse.tycho.launching.LaunchConfigurationFactory;
 import org.osgi.framework.Version;
 
 /**
@@ -76,7 +75,7 @@ import org.osgi.framework.Version;
  * @requiresProject true
  * @requiresDependencyResolution runtime
  */
-public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory {
+public class TestMojo extends AbstractMojo {
 
     /**
      * @parameter default-value="${project.build.directory}/work"
@@ -384,12 +383,12 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
             }
         }
 
-        EquinoxInstallation testRuntime = createEclipseInstallation(false, DefaultReactorProject.adapt(session));
+        EquinoxInstallation testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
         runTest(testRuntime);
     }
 
-    private EquinoxInstallation createEclipseInstallation(boolean includeReactorProjects,
-            List<ReactorProject> reactorProjects) throws MojoExecutionException {
+    private EquinoxInstallation createEclipseInstallation(List<ReactorProject> reactorProjects)
+            throws MojoExecutionException {
         TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
@@ -467,7 +466,7 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
             testRuntime.addBundle(getBundleArtifacyKey(file), file, true);
         }
 
-        createDevProperties(includeReactorProjects, reactorProjects);
+        createDevProperties(reactorProjects);
         createSurefireProperties(projectType.getArtifactKey(DefaultReactorProject.adapt(project)).getId(),
                 testFramework);
 
@@ -745,22 +744,8 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         return result;
     }
 
-    private void createDevProperties(boolean includeReactorProjects, List<ReactorProject> reactorProjects)
-            throws MojoExecutionException {
+    private void createDevProperties(List<ReactorProject> reactorProjects) throws MojoExecutionException {
         Properties dev = new Properties();
-
-        if (includeReactorProjects) {
-            // this is needed for IDE integration, where we want to use reactor project output folders
-            dev.put("@ignoredot@", "true");
-            for (ReactorProject otherProject : reactorProjects) {
-                if ("eclipse-test-plugin".equals(otherProject.getPackaging())
-                        || "eclipse-plugin".equals(otherProject.getPackaging())) {
-                    TychoProject projectType = projectTypes.get(otherProject.getPackaging());
-                    dev.put(projectType.getArtifactKey(otherProject).getId(), getBuildOutputDirectories(otherProject));
-                }
-            }
-        }
-
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
         TychoProject projectType = projectTypes.get(project.getPackaging());
@@ -836,17 +821,4 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         return files;
     }
 
-    public LaunchConfiguration createLaunchConfiguration(List<ReactorProject> reactorProjects) {
-        try {
-            EquinoxInstallation testRuntime = createEclipseInstallation(true, reactorProjects);
-
-            return createCommandLine(testRuntime, work);
-        } catch (MalformedURLException e) {
-            getLog().error(e);
-        } catch (MojoExecutionException e) {
-            getLog().error(e);
-        }
-
-        return null;
-    }
 }
