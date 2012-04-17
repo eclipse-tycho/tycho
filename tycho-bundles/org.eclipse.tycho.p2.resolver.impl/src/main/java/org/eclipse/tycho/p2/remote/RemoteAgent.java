@@ -17,8 +17,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.p2.impl.Activator;
-import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCache;
-import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCacheImpl;
 
 @SuppressWarnings("restriction")
 public class RemoteAgent implements IProvisioningAgent {
@@ -58,15 +56,6 @@ public class RemoteAgent implements IProvisioningAgent {
                     plainRepoManager);
             agent.registerService(IArtifactRepositoryManager.SERVICE_NAME, mirrorDisablingRepoManager);
         }
-
-        /**
-         * The RemoteAgentMetadataCacheTest shows that this extra cache is not needed. It has only
-         * been (temporarily) re-added here for incremental integration into the (still) unchanged
-         * code in TargetPlatformBuilderImpl.
-         */
-        // TODO delete this cache
-        P2RepositoryCache tychoCache = new P2RepositoryCacheImpl();
-        agent.registerService(P2RepositoryCache.SERVICE_NAME, tychoCache);
 
         return agent;
     }
