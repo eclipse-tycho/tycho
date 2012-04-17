@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NestedJArsAndDirs
+Bundle-SymbolicName: nestedJarsAndDirs
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .,
+ internal1.jar,
+ internal2/
+Export-Package: org.eclipse.tycho.its.nestedJarsAndDirs.internal1;version="1.0.0.qualifier"
