@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -60,10 +59,9 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.facade.BuildProperties;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
+import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
@@ -357,9 +355,6 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
 
     /** @component */
     private ToolchainManager toolchainManager;
-
-    /** @component */
-    private BuildPropertiesParser buildPropertiesParser;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip || skipExec || skipTests) {
@@ -783,27 +778,16 @@ public class TestMojo extends AbstractMojo implements LaunchConfigurationFactory
         }
     }
 
-    private String getBuildOutputDirectories(ReactorProject otherProject) {
+    private String getBuildOutputDirectories(ReactorProject reactorProject) {
         StringBuilder sb = new StringBuilder();
-
-        sb.append(otherProject.getOutputDirectory());
-        sb.append(',').append(otherProject.getTestOutputDirectory());
-
-        BuildProperties buildProperties = buildPropertiesParser.parse(otherProject.getBasedir());
-        for (Entry<String, String> outputEntry : buildProperties.getJarToOutputFolderMap().entrySet()) {
-            if (".".equals(outputEntry.getKey())) {
+        sb.append(reactorProject.getOutputDirectory());
+        sb.append(',').append(reactorProject.getTestOutputDirectory());
+        for (BuildOutputJar outputJar : osgiBundle.getEclipsePluginProject(reactorProject).getOutputJars()) {
+            if (".".equals(outputJar.getName())) {
+                // handled above
                 continue;
             }
-            appendCommaSeparated(sb, outputEntry.getValue());
-        }
-        for (Entry<String, List<String>> sourceEntry : buildProperties.getJarToSourceFolderMap().entrySet()) {
-            String fileName = sourceEntry.getKey();
-            if (".".equals(fileName)) {
-                continue;
-            }
-            String classesDir = otherProject.getBuildDirectory().getName() + "/"
-                    + fileName.substring(0, fileName.length() - ".jar".length()) + "-classes";
-            appendCommaSeparated(sb, classesDir);
+            appendCommaSeparated(sb, outputJar.getOutputDirectory().getAbsolutePath());
         }
         return sb.toString();
     }
