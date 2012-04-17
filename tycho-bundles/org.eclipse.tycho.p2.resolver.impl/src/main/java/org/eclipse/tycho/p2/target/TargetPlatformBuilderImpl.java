@@ -88,7 +88,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private final boolean offline;
 
-    private final IProvisioningAgent agent;
+    private final IProvisioningAgent remoteAgent;
+
+    private final IMetadataRepositoryManager remoteMetadataRepositoryManager;
+
+    private final IArtifactRepositoryManager remoteArtifactRepositoryManager;
 
     /**
      * Target execution environment profile name or null to use system default profile name.
@@ -101,25 +105,26 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     /** maven local repository as P2 IMetadataRepository */
     private final LocalMetadataRepository localMetadataRepository;
 
-    public TargetPlatformBuilderImpl(IProvisioningAgent agent, MavenContext mavenContext, String executionEnvironment,
-            LocalRepositoryP2Indices localRepositoryIndices) {
-        this.agent = agent;
+    public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
+            String executionEnvironment, LocalArtifactRepository localArtifactRepo,
+            LocalMetadataRepository localMetadataRepo) throws ProvisionException {
+        this.remoteAgent = remoteAgent;
         this.logger = mavenContext.getLogger();
         this.monitor = new LoggingProgressMonitor(logger);
 
-        this.metadataRepositoryManager = (IMetadataRepositoryManager) agent
+        this.remoteMetadataRepositoryManager = (IMetadataRepositoryManager) remoteAgent
                 .getService(IMetadataRepositoryManager.SERVICE_NAME);
-        if (metadataRepositoryManager == null) {
+        if (remoteMetadataRepositoryManager == null) {
             throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
         }
 
-        this.artifactRepositoryManager = (IArtifactRepositoryManager) agent
+        this.remoteArtifactRepositoryManager = (IArtifactRepositoryManager) remoteAgent
                 .getService(IArtifactRepositoryManager.SERVICE_NAME);
-        if (artifactRepositoryManager == null) {
+        if (remoteArtifactRepositoryManager == null) {
             throw new IllegalStateException("No artifact repository manager found"); //$NON-NLS-1$
         }
 
-        this.repositoryCache = (P2RepositoryCache) agent.getService(P2RepositoryCache.SERVICE_NAME);
+        this.repositoryCache = (P2RepositoryCache) remoteAgent.getService(P2RepositoryCache.SERVICE_NAME);
         if (repositoryCache == null) {
             throw new IllegalStateException("No Tycho p2 reposiutory cache found");
         }
@@ -133,24 +138,10 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, logger);
 
         // setup p2 views of maven local repository
-        URI uri = localRepositoryRoot.toURI();
+        this.localArtifactRepository = localArtifactRepo;
+        this.localMetadataRepository = localMetadataRepo;
 
-        LocalArtifactRepository localRepository = (LocalArtifactRepository) repositoryCache.getArtifactRepository(uri);
-        LocalMetadataRepository localMetadataRepository = (LocalMetadataRepository) repositoryCache
-                .getMetadataRepository(uri);
-
-        if (localRepository == null || localMetadataRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(localRepositoryRoot);
-            TychoRepositoryIndex metadataIndex = localRepositoryIndices.getMetadataIndex();
-            localRepository = new LocalArtifactRepository(localRepositoryIndices, contentLocator);
-            localMetadataRepository = new LocalMetadataRepository(uri, metadataIndex, contentLocator);
-            repositoryCache.putRepository(uri, localMetadataRepository, localRepository);
-        }
-
-        metadataRepositories.add(localMetadataRepository);
-
-        this.localMetadataRepository = localMetadataRepository;
-        this.localArtifactRepository = localRepository;
+        metadataRepositories.add(this.localMetadataRepository);
     }
 
     // ---------------------------------------------------------------------
@@ -252,11 +243,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         }
 
         try {
-            metadataRepository = metadataRepositoryManager.loadRepository(location, monitor);
+            metadataRepository = remoteMetadataRepositoryManager.loadRepository(location, monitor);
             metadataRepositories.add(metadataRepository);
 
             if (!offline || URIUtil.isFileURI(location)) {
-                artifactRepository = artifactRepositoryManager.loadRepository(location, monitor);
+                artifactRepository = remoteArtifactRepositoryManager.loadRepository(location, monitor);
                 artifactRepositories.add(artifactRepository);
 
                 forceSingleThreadedDownload(artifactRepository);
@@ -279,7 +270,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             } else if (artifactRepository instanceof CompositeArtifactRepository) {
                 List<URI> children = ((CompositeArtifactRepository) artifactRepository).getChildren();
                 for (URI child : children) {
-                    forceSingleThreadedDownload(artifactRepositoryManager.loadRepository(child, monitor));
+                    forceSingleThreadedDownload(remoteArtifactRepositoryManager.loadRepository(child, monitor));
                 }
             }
         } catch (Exception e) {
@@ -303,7 +294,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
-        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, jreIUs, agent, logger);
+        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, jreIUs, remoteAgent, logger);
         TargetPlatformContent targetFileContent = resolver.resolveContent(definition);
         content.add(targetFileContent);
 
@@ -387,8 +378,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
         Set<IInstallableUnit> reactorProjectUIs = getReactorProjectUIs();
 
-        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters, logger)
-                : null;
+        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters,
+                logger) : null;
 
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(monitor);
         applyFilters(filter, externalUIs, reactorProjectUIs);
@@ -412,7 +403,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 localMetadataRepository, //
                 allRemoteArtifactRepositories, //
                 localArtifactRepository, //
-                agent, //
+                remoteAgent, //
                 logger);
     }
 
@@ -507,10 +498,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     }
 
     // -------------------------------------------------------------------------------
-
-    private final IMetadataRepositoryManager metadataRepositoryManager;
-
-    private final IArtifactRepositoryManager artifactRepositoryManager;
 
     private final P2RepositoryCache repositoryCache;
 
