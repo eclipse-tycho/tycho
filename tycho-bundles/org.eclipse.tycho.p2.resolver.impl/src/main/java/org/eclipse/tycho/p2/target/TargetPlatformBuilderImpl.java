@@ -59,18 +59,13 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
-import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCache;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
-import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
@@ -122,11 +117,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 .getService(IArtifactRepositoryManager.SERVICE_NAME);
         if (remoteArtifactRepositoryManager == null) {
             throw new IllegalStateException("No artifact repository manager found"); //$NON-NLS-1$
-        }
-
-        this.repositoryCache = (P2RepositoryCache) remoteAgent.getService(P2RepositoryCache.SERVICE_NAME);
-        if (repositoryCache == null) {
-            throw new IllegalStateException("No Tycho p2 reposiutory cache found");
         }
 
         this.offline = mavenContext.isOffline();
@@ -229,20 +219,10 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         IMetadataRepository metadataRepository = null;
         IArtifactRepository artifactRepository = null;
 
-        // check metadata cache, first
-        metadataRepository = (IMetadataRepository) repositoryCache.getMetadataRepository(location);
-        artifactRepository = (IArtifactRepository) repositoryCache.getArtifactRepository(location);
-        if (metadataRepository != null && (offline || artifactRepository != null)) {
-            // cache hit
-            metadataRepositories.add(metadataRepository);
-            if (artifactRepository != null) {
-                artifactRepositories.add(artifactRepository);
-            }
-            logger.info("Adding repository (cached) " + location.toASCIIString());
-            return;
-        }
-
         try {
+            // TODO always log that a p2 repository is added to the target platform somewhere; used to be either from p2 or the following line
+            // logger.info("Adding repository (cached) " + location.toASCIIString());
+
             metadataRepository = remoteMetadataRepositoryManager.loadRepository(location, monitor);
             metadataRepositories.add(metadataRepository);
 
@@ -252,8 +232,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
                 forceSingleThreadedDownload(artifactRepository);
             }
-
-            repositoryCache.putRepository(location, metadataRepository, artifactRepository);
 
             // processPartialIUs( metadataRepository, artifactRepository );
         } catch (ProvisionException e) {
@@ -496,10 +474,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             filter.filterUnits(units);
         }
     }
-
-    // -------------------------------------------------------------------------------
-
-    private final P2RepositoryCache repositoryCache;
 
     // -------------------------------------------------------------------------------
 
