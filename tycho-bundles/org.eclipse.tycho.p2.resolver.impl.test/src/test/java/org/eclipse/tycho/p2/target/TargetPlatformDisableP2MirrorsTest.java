@@ -7,13 +7,16 @@ import java.io.File;
 import java.net.URI;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.resolver.P2RepositoryCache;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverFactoryImpl;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
+import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Before;
@@ -27,10 +30,6 @@ public class TargetPlatformDisableP2MirrorsTest {
     @Before
     public void setUp() {
         localRepo = new File("target/localrepo");
-        IProvisioningAgent agent = P2ResolverFactoryImpl.getProvisioningAgent(new MavenContextImpl(localRepo, false,
-                new MavenLoggerStub()));
-        repositoryCache = (P2RepositoryCache) agent.getService(P2RepositoryCache.SERVICE_NAME);
-        assertNotNull(repositoryCache);
     }
 
     @Test
@@ -53,14 +52,20 @@ public class TargetPlatformDisableP2MirrorsTest {
         assertNotNull(getP2MirrorsUrlFromCachedRepository(location));
     }
 
-    private TargetPlatformBuilderImpl createResolutionContext(boolean disableP2Mirrors) {
+    private TargetPlatformBuilderImpl createResolutionContext(boolean disableP2Mirrors) throws ProvisionException {
         P2ResolverFactoryImpl p2ResolverFactoryImpl = new P2ResolverFactoryImpl();
         MavenContextImpl mavenContext = new MavenContextImpl();
         mavenContext.setOffline(false);
         mavenContext.setLocalRepositoryRoot(localRepo);
         mavenContext.setLogger(new MavenLoggerStub());
+        RemoteAgentManager remoteAgentManager = createRemoteAgentManager(mavenContext);
+        IProvisioningAgent agent = remoteAgentManager.getProvisioningAgent();
+        repositoryCache = (P2RepositoryCache) agent.getService(P2RepositoryCache.SERVICE_NAME);
+        assertNotNull(repositoryCache);
+
         p2ResolverFactoryImpl.setMavenContext(mavenContext);
         p2ResolverFactoryImpl.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
+        p2ResolverFactoryImpl.setRemoteAgentManager(remoteAgentManager);
         TargetPlatformBuilderImpl context = p2ResolverFactoryImpl.createTargetPlatformBuilder(null, disableP2Mirrors);
         return context;
     }
@@ -70,6 +75,12 @@ public class TargetPlatformDisableP2MirrorsTest {
         localRepoIndices.setMavenContext(mavenContext);
         localRepoIndices.setFileLockService(new NoopFileLockService());
         return localRepoIndices;
+    }
+
+    private RemoteAgentManager createRemoteAgentManager(MavenContext mavenContext) {
+        RemoteAgentManager manager = new RemoteAgentManager();
+        manager.setMavenContext(mavenContext);
+        return manager;
     }
 
     private String getP2MirrorsUrlFromCachedRepository(URI location) {
