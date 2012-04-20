@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -266,14 +267,19 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     }
 
     // ------------------------------------------------------------------------------
+    private static Map<TargetDefinition, TargetPlatformContent> targetDefinitionCache = new Hashtable<TargetDefinition, TargetPlatformContent>();
 
     // TODO have other target platform content contributors also add to this list
     private List<TargetPlatformContent> content = new ArrayList<TargetPlatformContent>();
 
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
-        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, jreIUs, remoteAgent, logger);
-        TargetPlatformContent targetFileContent = resolver.resolveContent(definition);
+        TargetPlatformContent targetFileContent = targetDefinitionCache.get(definition);
+        if (targetFileContent == null) {
+            TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, jreIUs, remoteAgent, logger);
+            targetFileContent = resolver.resolveContent(definition);
+            targetDefinitionCache.put(definition, targetFileContent);
+        }
         content.add(targetFileContent);
 
         if (logger.isDebugEnabled()) {

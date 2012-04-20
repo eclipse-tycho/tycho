@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -352,18 +353,29 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
     }
 
+    private static Map<String, TargetDefinitionFile> targetDefinitionCache = new Hashtable<String, TargetDefinitionFile>();
+
     private void addTargetFileContentToTargetPlatform(TargetPlatformConfiguration configuration,
             TargetPlatformBuilder resolutionContext, MavenSession session) {
-        final TargetDefinitionFile target;
+        File targetFile = configuration.getTarget();
+        String targetFileHash;
         try {
-            target = TargetDefinitionFile.read(configuration.getTarget());
-        } catch (TargetDefinitionSyntaxException e) {
-            throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
-                    + e.getMessage(), e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            targetFileHash = TargetDefinitionFile.getHashCode(targetFile);
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
         }
 
+        TargetDefinitionFile target = targetDefinitionCache.get(targetFileHash);
+        if (target == null) {
+            try {
+                target = TargetDefinitionFile.read(targetFile);
+            } catch (TargetDefinitionSyntaxException e) {
+                throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
+                        + e.getMessage(), e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         Set<URI> uris = new HashSet<URI>();
 
         for (Location location : target.getLocations()) {
@@ -408,6 +420,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget(), e);
             }
         }
+        targetDefinitionCache.put(targetFileHash, target);
     }
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,

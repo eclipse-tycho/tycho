@@ -10,16 +10,21 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +47,8 @@ public class TargetDefinitionFile implements TargetDefinition {
     private Element dom;
 
     private Document document;
+
+    private String targetFileHash;
 
     public static class IULocation implements TargetDefinition.InstallableUnitLocation {
         private final Element dom;
@@ -178,7 +185,10 @@ public class TargetDefinitionFile implements TargetDefinition {
     public static TargetDefinitionFile read(File file) throws IOException {
         FileInputStream input = new FileInputStream(file);
         try {
-            return new TargetDefinitionFile(parser.parse(new XMLIOSource(input)));
+            TargetDefinitionFile targetDef = new TargetDefinitionFile(parser.parse(new XMLIOSource(input)));
+            String hash = getHashCode(file);
+            targetDef.setTargetFileHash(hash);
+            return targetDef;
         } catch (XMLParseException e) {
             throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(), e);
         } finally {
@@ -202,6 +212,49 @@ public class TargetDefinitionFile implements TargetDefinition {
         } finally {
             IOUtil.close(os);
         }
+    }
+
+    public static String getHashCode(File f) throws IOException {
+        String result = null;
+        MessageDigest digest = null;
+        InputStream is = null;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        try {
+            is = new BufferedInputStream(new FileInputStream(f));
+            byte buffer[] = new byte[8192];
+            for (int read = 0; (read = is.read(buffer)) > 0;)
+                digest.update(buffer, 0, read);
+
+            byte md5sum[] = digest.digest();
+            BigInteger bigInt = new BigInteger(1, md5sum);
+            result = bigInt.toString(16);
+        } finally {
+            is.close();
+        }
+        return result;
+    }
+
+    public String getTargetFileHash() {
+        return targetFileHash;
+    }
+
+    public void setTargetFileHash(String targetFileHash) {
+        this.targetFileHash = targetFileHash;
+    }
+
+    public boolean equals(Object o) {
+        boolean result = false;
+        if (o instanceof TargetDefinitionFile) {
+            TargetDefinitionFile other = (TargetDefinitionFile) o;
+            String h1 = getTargetFileHash();
+            String h2 = other.getTargetFileHash();
+            result = h1 != null && h1.equals(h2);
+        }
+        return result;
     }
 
 }
