@@ -114,11 +114,20 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 	protected String target;
 
 	/**
-	 * The -encoding argument for the Java compiler
+	 * The -encoding argument for the Java compiler (kept for backwards compatibility)
 	 * 
 	 * @parameter expression="${maven.compiler.encoding}"
+	 * @readonly
+	 * @deprecated use {@link #encoding}
 	 */
-	private String encoding;
+	private String mavenCompilerEncoding;
+
+    /**
+     * The -encoding argument for the Java compiler
+     * 
+     * @parameter expression="${project.build.sourceEncoding}"
+     */
+    private String encoding;
 
 	/**
 	 * The granularity in milliseconds of the last modification date for testing
@@ -441,7 +450,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
 		compilerConfiguration.setTargetVersion(target != null? target: DEFAULT_TARGET_VERSION);
 
-		compilerConfiguration.setSourceEncoding(encoding);
+		compilerConfiguration.setSourceEncoding(getEncoding());
 
 		if ((compilerArguments != null) || (compilerArgument != null)) {
 			LinkedHashMap cplrArgsCopy = new LinkedHashMap();
@@ -503,7 +512,14 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 		return compilerConfiguration;
 	}
 
-	private String getMemoryValue(String setting) {
+    private String getEncoding() {
+        if (encoding != null) {
+            return encoding;
+        }
+        return mavenCompilerEncoding;
+    }
+
+    private String getMemoryValue(String setting) {
 		String value = null;
 
 		// Allow '128' or '128m'
