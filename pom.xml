@@ -83,12 +83,13 @@
         <module>tycho-eclipserun-plugin</module>
         <module>tycho-source-feature-plugin</module>
         <module>pack200</module>
+        <module>tycho-buildtimestamp-jgit</module>
 	</modules>
 
 	<repositories>
 		<repository>
 			<id>tycho-snapshots</id>
-			<url>https://oss.sonatype.org/content/groups/public</url>
+			<url>file:///var/tmp/local-tycho</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -98,7 +99,7 @@
 	<pluginRepositories>
 		<pluginRepository>
 			<id>tycho-snapshots</id>
-			<url>https://oss.sonatype.org/content/groups/public</url>
+            <url>file:///var/tmp/local-tycho</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
