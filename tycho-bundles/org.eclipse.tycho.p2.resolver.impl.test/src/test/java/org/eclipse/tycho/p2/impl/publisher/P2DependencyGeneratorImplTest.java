@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.impl.publisher;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,8 +82,8 @@ public class P2DependencyGeneratorImplTest {
 
         assertEquals(2, units.size());
 
-        IInstallableUnit unit = units.get(0);
-        assertEquals("org.eclipse.tycho.p2.impl.test.bundle-p2-inf", unit.getId());
+        IInstallableUnit unit = getUnitWithId("org.eclipse.tycho.p2.impl.test.bundle-p2-inf");
+        assertNotNull(unit);
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
         List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
@@ -91,7 +92,16 @@ public class P2DependencyGeneratorImplTest {
         assertEquals(IInstallableUnit.NAMESPACE_IU_ID, requirement.getNamespace());
         assertEquals("required.p2.inf", requirement.getName());
 
-        assertEquals("iu.p2.inf", units.get(1).getId());
+        assertNotNull(getUnitWithId("iu.p2.inf"));
+    }
+
+    private IInstallableUnit getUnitWithId(String id) {
+        for (IInstallableUnit unit : units) {
+            if (id.equals(unit.getId())) {
+                return unit;
+            }
+        }
+        return null;
     }
 
     @Test
@@ -186,9 +196,9 @@ public class P2DependencyGeneratorImplTest {
         generateDependencies("rcp-p2-inf", ArtifactKey.TYPE_ECLIPSE_APPLICATION);
 
         assertEquals(2, units.size());
-        IInstallableUnit unit = units.get(0);
+        IInstallableUnit unit = getUnitWithId("org.eclipse.tycho.p2.impl.test.rcp-p2-inf");
 
-        assertEquals("org.eclipse.tycho.p2.impl.test.rcp-p2-inf", unit.getId());
+        assertNotNull(unit);
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
         List<IRequirement> requirement = new ArrayList<IRequirement>(unit.getRequirements());
@@ -199,7 +209,7 @@ public class P2DependencyGeneratorImplTest {
 
         assertEquals(0, artifacts.size());
 
-        assertEquals("iu.p2.inf", units.get(1).getId());
+        assertNotNull(getUnitWithId("iu.p2.inf"));
     }
 
     @Test
