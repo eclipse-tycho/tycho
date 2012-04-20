@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOG3//8x8\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBuilderImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-20T13:49:45Z",
+      "side": 0,
+      "message": "environment and jreIUs should have been attributes to this call instead of the constructor of TargetDefinitionResolver. My bad.",
+      "revId": "032cd75a703746ba2a0214e10557a07ab62c3355",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}

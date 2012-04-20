@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOG3//8yA\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBuilderImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-20T13:49:45Z",
+      "side": 1,
+      "message": "Unfortunately, this cache implementation may be incorrect in some cases. The target definition resolution also depends on the values of the environments and jreIUs members, which may differ within one reactor. With the cache, these values would be ignored.",
+      "revId": "36a7a2efdb1c60f65ee13d60a12808a700b16d1e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//8x0\u003d",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/P2TargetPlatformResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-20T13:49:45Z",
+      "side": 1,
+      "message": "Huh, a second cache? I know that resolving the target file may take a while, but the parsing? Do you (happen to) have a comparison of how much you save through this cache and how much through the other one?\n\nIt is certainly best to also cache the parsing, but we shouldn\u0027t need a second cache for this. To solve this, we should make TargetDefinitionFile.read callable from the OSGi side of Tycho (e.g. through a new factory service), and call both parsing and resolution in case of a cache miss in the (only) cache in OSGi.",
+      "revId": "36a7a2efdb1c60f65ee13d60a12808a700b16d1e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
