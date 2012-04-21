@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.codehaus.plexus.archiver.ArchiverException;
-import org.codehaus.plexus.archiver.gzip.GZipCompressor;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -34,7 +33,6 @@ import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.PluginRef;
-import org.eclipse.tycho.packaging.pack200.Pack200Archiver;
 
 /**
  * Assembles standard eclipse update site directory structure on local filesystem.
@@ -52,11 +50,6 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
     private final File target;
 
     private Map<String, String> archives;
-
-    /**
-     * If true, will copy/generate pack200 archives in additional to plugin jar files.
-     */
-    private boolean pack200;
 
     /**
      * If true, generated update site will include plugins folders for plugins with
@@ -177,11 +170,6 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
             } else {
                 copyFile(location, outputJar);
             }
-
-            // if ( pack200 )
-            // {
-            // shipPack200( outputJar );
-            // }
         }
     }
 
@@ -254,32 +242,6 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
         }
     }
 
-    private void shipPack200(File jar) {
-        // TODO validate if the jar has been pack200 pre-conditioned
-
-        File outputPack = new File(jar.getParentFile(), jar.getName() + ".pack");
-
-        Pack200Archiver packArchiver = new Pack200Archiver();
-        packArchiver.setSourceJar(jar);
-        packArchiver.setDestFile(outputPack);
-        try {
-            packArchiver.createArchive();
-        } catch (IOException e) {
-            throw new RuntimeException("Could not create pack200 archive", e);
-        }
-
-        GZipCompressor gzCompressor = new GZipCompressor();
-        gzCompressor.setDestFile(new File(jar.getParentFile(), jar.getName() + ".pack.gz"));
-        gzCompressor.setSourceFile(outputPack);
-        try {
-            gzCompressor.execute();
-        } catch (ArchiverException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
-        outputPack.delete();
-    }
-
     private void packDir(File sourceDir, File targetZip) {
         ZipArchiver archiver;
         try {
@@ -301,10 +263,6 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
 
     public void setArchives(Map<String, String> archives) {
         this.archives = archives;
-    }
-
-    public void setPack200(boolean pack200) {
-        this.pack200 = pack200;
     }
 
     public void setUnpackPlugins(boolean unpack) {

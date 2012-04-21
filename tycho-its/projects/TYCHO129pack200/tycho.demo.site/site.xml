@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site pack200="true">
-   <feature url="features/tycho.demo.feature_1.0.0.jar" id="tycho.demo.feature" version="1.0.0"/>
-</site>

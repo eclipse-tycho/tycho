@@ -52,7 +52,6 @@ public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
             UpdateSite site = UpdateSite.read(new File(basedir, UpdateSite.SITE_XML));
 
             UpdateSiteAssembler assembler = new UpdateSiteAssembler(session, target);
-            assembler.setPack200(site.isPack200());
             if (inlineArchives) {
                 assembler.setArchives(site.getArchives());
             }
@@ -83,14 +82,15 @@ public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
 
             File file = new File(target, "site.xml");
             UpdateSite.write(site, file);
-			
-			// Copy the associate sites file, if necessary
-			if (site.getAssociateSitesUrl() != null) {
-				File srcAssociateSitesFile = new File(basedir, site.getAssociateSitesUrl());
-				if (srcAssociateSitesFile.exists()) {
-					FileUtils.copyFile(srcAssociateSitesFile, new File(target + File.separator + site.getAssociateSitesUrl()));
-				}
-			}
+
+            // Copy the associate sites file, if necessary
+            if (site.getAssociateSitesUrl() != null) {
+                File srcAssociateSitesFile = new File(basedir, site.getAssociateSitesUrl());
+                if (srcAssociateSitesFile.exists()) {
+                    FileUtils.copyFile(srcAssociateSitesFile,
+                            new File(target + File.separator + site.getAssociateSitesUrl()));
+                }
+            }
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
