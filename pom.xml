@@ -82,6 +82,7 @@
         <module>tycho-custom-bundle-plugin</module>
         <module>tycho-eclipserun-plugin</module>
         <module>tycho-source-feature-plugin</module>
+        <module>pack200</module>
 	</modules>
 
 	<repositories>
