@@ -32,7 +32,7 @@
               </test>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-plugin,
-                org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata
+                org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default
               </package>
               <integration-test></integration-test>
               <install>
@@ -94,7 +94,7 @@
               <test></test>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-plugin,
-                org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata
+                org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default
               </package>
               <integration-test>
                 org.eclipse.tycho:tycho-surefire-plugin:${project.version}:test
@@ -148,7 +148,7 @@
               </generate-resources>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-feature,
-                org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata,
+                org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:feature-p2-metadata
               </package>
               <install>
