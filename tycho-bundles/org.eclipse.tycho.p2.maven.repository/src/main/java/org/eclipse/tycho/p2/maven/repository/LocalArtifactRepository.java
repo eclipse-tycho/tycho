@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -154,7 +155,13 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         }
 
         File basedir = getBasedir();
-        File file = new File(basedir, RepositoryLayoutHelper.getRelativePath(gav, null, null));
+        String classifier = null;
+        String extension = null;
+        if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
+            classifier = RepositoryLayoutHelper.PACK200_CLASSIFIER;
+            extension = RepositoryLayoutHelper.PACK200_EXTENSION;
+        }
+        File file = new File(basedir, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
         file.getParentFile().mkdirs();
 
         // TODO ideally, repository index should be updated after artifact has been written to the file
@@ -196,15 +203,15 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
     }
 
     @Override
-    public void addDescriptor(IArtifactDescriptor descriptor) {
-        super.addDescriptor(descriptor);
+    public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+        super.addDescriptor(descriptor, monitor);
 
         changedDescriptors.add(descriptor.getArtifactKey());
     }
 
     @Override
-    public void removeDescriptor(IArtifactDescriptor descriptor) {
-        super.removeDescriptor(descriptor);
+    public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+        super.removeDescriptor(descriptor, monitor);
 
         IArtifactKey key = descriptor.getArtifactKey();
 
@@ -224,5 +231,4 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         // TODO this doesn't work if the descriptor is not in changedDescriptors
         // TODO who needs this method?
     }
-
 }

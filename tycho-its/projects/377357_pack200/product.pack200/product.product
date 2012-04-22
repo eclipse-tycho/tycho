@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="product.pack200" id="product.pack200" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false">
+
+   <plugins>
+      <plugin id="bundle" version="0.0.0"/>
+      <plugin id="org.eclipse.osgi" version="0.0.0"/>
+   </plugins>
+
+</product>

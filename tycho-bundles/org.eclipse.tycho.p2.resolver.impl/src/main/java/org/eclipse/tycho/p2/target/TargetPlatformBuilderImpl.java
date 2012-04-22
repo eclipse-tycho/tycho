@@ -89,6 +89,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private final IArtifactRepositoryManager remoteArtifactRepositoryManager;
 
+    private boolean includePackedArtifacts;
+
     /**
      * Target execution environment profile name or null to use system default profile name.
      */
@@ -382,6 +384,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 allRemoteArtifactRepositories, //
                 localArtifactRepository, //
                 remoteAgent, //
+                includePackedArtifacts, //
                 logger);
     }
 
@@ -520,4 +523,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         return set;
     }
 
+    public void setIncludePackedArtifacts(boolean include) {
+        this.includePackedArtifacts = include;
+    }
 }

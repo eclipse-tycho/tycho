@@ -10,39 +10,105 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 @SuppressWarnings("restriction")
 public class MavenMirrorRequest extends MirrorRequest {
 
-    private final LocalArtifactRepository localRepository;
+    private final boolean includePackedArtifacts;
 
-    public MavenMirrorRequest(IArtifactKey key, LocalArtifactRepository localRepository, Transport transport) {
+    public MavenMirrorRequest(IArtifactKey key, LocalArtifactRepository localRepository, Transport transport,
+            boolean includePackedArtifacts) {
         super(key, localRepository, null, null, transport);
 
-        this.localRepository = localRepository;
+        this.includePackedArtifacts = includePackedArtifacts;
     }
 
     @Override
     public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
         setSourceRepository(sourceRepository);
 
-        // check local repo to avoid duplicate downloads
+        // igorf
+        // the code below is suboptimal. it will download packed artifact twice
+        // proper implementation goes beyond how much I know p2 (and far beyond how much I care to learn that nonsense)
 
-        if (localRepository.contains(getArtifactKey())) {
-            setResult(Status.OK_STATUS);
+        IArtifactDescriptor canonical = null;
+        IArtifactDescriptor packed = null;
 
-            return;
+        for (IArtifactDescriptor descriptor : source.getArtifactDescriptors(getArtifactKey())) {
+            if (descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
+                canonical = descriptor;
+            } else if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
+                packed = descriptor;
+            }
         }
 
-        // not a maven repo and not in maven local repo, delegate to p2 implementation
+        if (includePackedArtifacts && packed != null) {
+            // raw copy of pack200 artifact+descriptor
+            if (!contains(target, packed.getArtifactKey(), true)) {
+                monitor.subTask("Downloading packed " + getArtifactKey().getId());
+                IStatus status;
+                try {
+                    OutputStream destination = target.getOutputStream(packed);
+                    try {
+                        status = source.getRawArtifact(packed, destination, monitor);
+                    } finally {
+                        try {
+                            destination.close();
+                        } catch (IOException e) {
+                            // ignored
+                        }
+                    }
+                } catch (ProvisionException e) {
+                    status = e.getStatus();
+                }
+                if (!status.isOK()) {
+                    if (target.contains(packed)) {
+                        target.removeDescriptor(packed, monitor);
+                    }
+                    setResult(status);
+                    return;
+                }
+            }
+        }
 
-        super.perform(sourceRepository, monitor);
+        // copy jar
+        ArtifactDescriptor targetDescriptor = new ArtifactDescriptor(canonical);
+        IStatus status = Status.OK_STATUS;
+        if (!target.contains(targetDescriptor)) {
+            monitor.subTask("Downloading " + getArtifactKey().getId());
+            status = transfer(targetDescriptor, packed != null ? packed : canonical, monitor);
+        }
+
+        if (!status.isOK() && target.contains(targetDescriptor)) {
+            target.removeDescriptor(targetDescriptor, monitor);
+        }
+
+        setResult(status);
+        return;
     }
 
+    private boolean contains(IArtifactRepository repository, IArtifactKey artifactKey, boolean packed) {
+        for (IArtifactDescriptor descriptor : repository.getArtifactDescriptors(artifactKey)) {
+            String format = descriptor.getProperties().get(IArtifactDescriptor.FORMAT);
+            if (packed && IArtifactDescriptor.FORMAT_PACKED.equals(format)) {
+                return true;
+            } else if (!packed && format == null) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
