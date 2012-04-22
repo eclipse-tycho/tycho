@@ -93,7 +93,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
                 attachedArtifacts.putAll(artifactsRepository.getPublishedArtifacts());
             } else {
-                publisherInfo.setArtifactOptions(IPublisherInfo.A_NO_MD5);
+                publisherInfo.setArtifactOptions(IPublisherInfo.A_PUBLISH | IPublisherInfo.A_NO_MD5);
                 TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
                 publisherInfo.setArtifactRepository(artifactsRepository);
                 metadata = super.generateMetadata(artifact, null, publisherInfo, null);

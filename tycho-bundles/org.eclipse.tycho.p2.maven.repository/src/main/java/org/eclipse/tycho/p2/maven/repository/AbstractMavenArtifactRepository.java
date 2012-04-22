@@ -103,8 +103,8 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
     }
 
     @Override
-    public void addDescriptor(IArtifactDescriptor descriptor) {
-        super.addDescriptor(descriptor);
+    public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+        super.addDescriptor(descriptor, monitor);
         internalAddDescriptor(descriptor);
         descriptorsChanged();
     }
@@ -139,8 +139,8 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
     }
 
     @Override
-    public void addDescriptors(IArtifactDescriptor[] descriptors) {
-        super.addDescriptors(descriptors);
+    public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+        super.addDescriptors(descriptors, monitor);
 
         for (IArtifactDescriptor descriptor : descriptors) {
             internalAddDescriptor(descriptor);
@@ -203,9 +203,9 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         String classifier = RepositoryLayoutHelper.getClassifier(descriptor.getProperties());
         String extension = RepositoryLayoutHelper.getExtension(descriptor.getProperties());
 
-        if ("packed".equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
-            classifier = "pack200";
-            extension = "jar.pack.gz";
+        if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
+            classifier = RepositoryLayoutHelper.PACK200_CLASSIFIER;
+            extension = RepositoryLayoutHelper.PACK200_EXTENSION;
         }
 
         try {
@@ -222,12 +222,14 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
     public File getArtifactFile(IArtifactKey key) {
         Set<IArtifactDescriptor> descriptors = descriptorsMap.get(key);
-        if (descriptors == null || descriptors.isEmpty())
-            return null;
-        else {
-            // TODO determine which one is the raw artifact, i.e. not the pack200 artifact 
-            return getArtifactFile(descriptors.iterator().next());
+        if (descriptors != null) {
+            for (IArtifactDescriptor descriptor : descriptors) {
+                if (descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
+                    return getArtifactFile(descriptor);
+                }
+            }
         }
+        return null;
     }
 
     public File getArtifactFile(IArtifactDescriptor descriptor) {
@@ -238,9 +240,9 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
         // TODO where does this magic come from? the logic behind this should be made explicit and e.g. moved into a separate class
         // TODO bring together with other pack200 magic in org.eclipse.tycho.p2.maven.repository.MavenArtifactRepository.downloadArtifact(IArtifactDescriptor, OutputStream)
-        if ("packed".equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
-            classifier = "pack200";
-            extension = "jar.pack.gz";
+        if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
+            classifier = RepositoryLayoutHelper.PACK200_CLASSIFIER;
+            extension = RepositoryLayoutHelper.PACK200_EXTENSION;
         }
 
         return contentLocator.getLocalArtifactLocation(gav, classifier, extension);

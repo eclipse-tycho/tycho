@@ -85,6 +85,8 @@ public class DefaultTargetPlatformConfigurationReader {
                 readExtraRequirements(result, configuration);
 
                 setOptionalDependencies(result, configuration);
+
+                setIncludePackedArtifacts(result, configuration);
             }
         }
 
@@ -122,6 +124,15 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return result;
+    }
+
+    private void setIncludePackedArtifacts(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom includePackedArtifactsDom = configuration.getChild("includePackedArtifacts");
+        if (includePackedArtifactsDom == null) {
+            return;
+        }
+
+        result.setIncludePackedArtifacts(Boolean.parseBoolean(includePackedArtifactsDom.getValue()));
     }
 
     private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {

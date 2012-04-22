@@ -55,7 +55,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
-            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
+            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, true);
             mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
             try {
                 // we want to see mirror progress as this is a possibly long-running operation
@@ -115,10 +115,11 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?> seedUnits, BuildContext context, boolean includeAllDependencies) throws FacadeException {
+            Collection<?> seedUnits, BuildContext context, boolean includeAllDependencies, boolean includePacked)
+            throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
-            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent);
+            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, includePacked);
 
             // mirror scope: seed units...
             mirrorApp.setSourceIUs(toInstallableUnitList(seedUnits));
@@ -151,8 +152,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     private static MirrorApplication createMirrorApplication(RepositoryReferences sources,
-            DestinationRepositoryDescriptor destination, IProvisioningAgent agent) {
-        final MirrorApplication mirrorApp = new MirrorApplication(agent);
+            DestinationRepositoryDescriptor destination, IProvisioningAgent agent, boolean includePacked) {
+        final MirrorApplication mirrorApp = new MirrorApplication(agent, includePacked);
 
         List<RepositoryDescriptor> sourceDescriptors = createSourceDescriptors(sources);
         for (RepositoryDescriptor sourceDescriptor : sourceDescriptors) {

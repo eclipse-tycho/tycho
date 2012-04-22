@@ -45,4 +45,6 @@ public interface TargetPlatformBuilder {
 
     public TargetPlatform buildTargetPlatform();
 
+    public void setIncludePackedArtifacts(boolean include);
+
 }

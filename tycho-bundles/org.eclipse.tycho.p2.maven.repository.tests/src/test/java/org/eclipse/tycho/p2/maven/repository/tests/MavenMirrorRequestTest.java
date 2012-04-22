@@ -48,7 +48,7 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
         IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.osgi",
                 Version.parseVersion("3.4.3.R34x_v20081215-1030"));
 
-        MavenMirrorRequest request = new MavenMirrorRequest(key, localRepository, transport);
+        MavenMirrorRequest request = new MavenMirrorRequest(key, localRepository, transport, false);
 
         repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
 

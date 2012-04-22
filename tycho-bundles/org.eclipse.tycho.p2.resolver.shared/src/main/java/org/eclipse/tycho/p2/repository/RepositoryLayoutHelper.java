@@ -63,6 +63,9 @@ public class RepositoryLayoutHelper {
 
     public static final String DEFAULT_EXTERNSION = "jar";
 
+    public static final String PACK200_CLASSIFIER = "pack200";
+    public static final String PACK200_EXTENSION = "jar.pack.gz";
+
     public static String getRelativePath(GAV gav, String classifier, String extension) {
         return getRelativePath(gav.getGroupId(), gav.getArtifactId(), gav.getVersion(), classifier, extension);
     }
