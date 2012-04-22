@@ -3,15 +3,11 @@
 REPO=$1
 REPODIR=`cd $REPO; pwd`
 
-/opt/eclipse-3.5/eclipse/eclipse \
- -application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator \
- -nosplash \
- -updateSite "$REPODIR" \
- -site "file://$REPODIR/site.xml" \
+/opt/eclipse-3.8/eclipse/eclipse -nosplash \
+ -application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher \
+ -source $REPODIR \
  -metadataRepository "file://$REPODIR" \
- -metadataRepositoryName "$REPO" \
  -artifactRepository "file://$REPODIR" \
- -artifactRepositoryName "$REPO" \
- -noDefaultIUs \
+ -publishArtifacts -reusePack200Files \
  -vmargs -Xmx512m
 

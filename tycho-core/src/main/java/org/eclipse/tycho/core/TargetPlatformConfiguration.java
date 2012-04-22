@@ -45,6 +45,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private final List<Dependency> extraRequirements = new ArrayList<Dependency>();
 
+    private boolean includePackedArtifacts;
+
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -144,5 +146,13 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void setOptionalResolutionAction(OptionalResolutionAction optionalAction) {
         this.optionalAction = optionalAction;
+    }
+
+    public void setIncludePackedArtifacts(boolean include) {
+        this.includePackedArtifacts = include;
+    }
+
+    public boolean isIncludePackedArtifacts() {
+        return includePackedArtifacts;
     }
 }

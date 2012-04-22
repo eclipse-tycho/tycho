@@ -13,7 +13,9 @@ package org.eclipse.tycho.p2.impl.publisher.repo;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,6 +23,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -28,6 +31,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 
+@SuppressWarnings("restriction")
 public class TransientArtifactRepository extends AbstractArtifactRepository {
 
     protected Set<IArtifactDescriptor> descriptors = new LinkedHashSet<IArtifactDescriptor>();
@@ -36,9 +40,15 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
 
     public TransientArtifactRepository() {
         super(null, "TransientArtifactRepository", TransientArtifactRepository.class.getName(), "1.0.0", null, null,
-                null, null);
+                null, newProperties());
         super.setLocation(URI.create("memory:" + getClass().getName() + "@"
                 + Integer.toHexString(System.identityHashCode(this))));
+    }
+
+    private static Map<String, String> newProperties() {
+        Map<String, String> properties = new LinkedHashMap<String, String>();
+        properties.put(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS, "true");
+        return properties;
     }
 
     @Override

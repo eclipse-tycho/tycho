@@ -41,12 +41,14 @@ public interface MirrorApplicationService {
      *            environment specific installable units
      * @param includeAllDependencies
      *            Whether to include all transitive dependencies
+     * @param includePacked
+     *            Whether to include packed artifacts
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, boolean includeAllDependencies)
-            throws FacadeException;
+            Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, boolean includeAllDependencies,
+            boolean includePacked) throws FacadeException;
 
     /**
      * Copies installable units from the source repositories to the destination repository. The

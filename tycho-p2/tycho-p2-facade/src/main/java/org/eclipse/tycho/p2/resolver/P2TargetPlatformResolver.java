@@ -204,6 +204,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(//
                 ee != null ? ee.getProfileName() : null, configuration.isDisableP2Mirrors());
         tpBuilder.setProjectLocation(project.getBasedir());
+        tpBuilder.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
 
         addThisReactorProjectToTargetPlatform(session, project, configuration, tpBuilder);
 
