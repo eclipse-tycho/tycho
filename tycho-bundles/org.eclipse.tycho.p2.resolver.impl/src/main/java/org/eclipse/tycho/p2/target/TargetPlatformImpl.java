@@ -71,11 +71,13 @@ public class TargetPlatformImpl implements P2TargetPlatform {
      */
     private final TargetPlatformFilterEvaluator filter;
 
+    private final boolean includePackedArtifacts;
+
     public TargetPlatformImpl(Collection<IReactorArtifactFacade> reactorProjects, Collection<IInstallableUnit> ius,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs, Collection<IInstallableUnit> jreUIs,
             TargetPlatformFilterEvaluator filter, LocalMetadataRepository localMetadataRepository,
             List<URI> allRemoteArtifactRepositories, LocalArtifactRepository localMavenRepository,
-            IProvisioningAgent agent, MavenLogger logger) {
+            IProvisioningAgent agent, boolean includePackedArtifacts, MavenLogger logger) {
         this.reactorProjects = reactorProjects;
         this.externalIUs = ius;
         this.jreUIs = jreUIs;
@@ -86,6 +88,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         this.localMavenRepository = localMavenRepository;
 
         this.agent = agent;
+        this.includePackedArtifacts = includePackedArtifacts;
         this.logger = logger;
     }
 
@@ -194,7 +197,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         }
 
         downloadTool.downloadArtifactsToLocalMavenRepository(remoteArtifacts, remoteArtifactRepositories,
-                localMavenRepository);
+                localMavenRepository, includePackedArtifacts);
 
         // TODO is this needed?
         localMetadataRepository.save();

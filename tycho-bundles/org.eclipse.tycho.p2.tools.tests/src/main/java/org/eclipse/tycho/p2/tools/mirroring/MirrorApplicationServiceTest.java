@@ -81,7 +81,8 @@ public class MirrorApplicationServiceTest {
 
     @Test
     public void testMirrorFeatureWithContent() throws Exception {
-        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false);
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context,
+                false, false);
 
         assertEquals(Collections.emptyList(), logger.warnings);
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
@@ -90,7 +91,8 @@ public class MirrorApplicationServiceTest {
 
     @Test
     public void testMirrorPatch() throws Exception {
-        subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo, seedFor(FEATURE_PATCH_IU), context, false);
+        subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo, seedFor(FEATURE_PATCH_IU), context, false,
+                false);
 
         assertEquals(Collections.emptyList(), logger.warnings);
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
@@ -100,7 +102,7 @@ public class MirrorApplicationServiceTest {
     @Test
     public void testMirrorFeatureAndPatch() throws Exception {
         subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo,
-                seedFor(SIMPLE_FEATURE_IU, FEATURE_PATCH_IU), context, false);
+                seedFor(SIMPLE_FEATURE_IU, FEATURE_PATCH_IU), context, false, false);
 
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
         assertTrue(repoFile(destinationRepo, "features/" + SIMPLE_FEATURE + "_1.0.0.jar").exists());
@@ -118,7 +120,7 @@ public class MirrorApplicationServiceTest {
          * since it is not easy to distinguish between patched and unpatched dependencies, only a
          * warning is issued.
          */
-        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false);
+        subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, false);
 
         assertTrue(logger.warnings.size() > 0);
     }

@@ -43,11 +43,12 @@ public class P2ArtifactDownloadTool {
     }
 
     public void downloadArtifactsToLocalMavenRepository(List<IArtifactKey> artifacts,
-            List<URI> artifactRepositoryLocations, LocalArtifactRepository localMavenRepository) {
+            List<URI> artifactRepositoryLocations, LocalArtifactRepository localMavenRepository,
+            boolean includePackedArtifacts) {
 
         List<MavenMirrorRequest> requests = new ArrayList<MavenMirrorRequest>();
         for (IArtifactKey key : artifacts) {
-            requests.add(new MavenMirrorRequest(key, localMavenRepository, getTransport()));
+            requests.add(new MavenMirrorRequest(key, localMavenRepository, getTransport(), includePackedArtifacts));
         }
 
         IArtifactRepository repository = createCompositeRepository(artifactRepositoryLocations);
