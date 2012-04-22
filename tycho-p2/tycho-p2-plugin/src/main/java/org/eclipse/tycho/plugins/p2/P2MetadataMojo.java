@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +63,14 @@ public class P2MetadataMojo extends AbstractMojo {
     /** @component */
     private EquinoxServiceFactory equinox;
 
+    /**
+     * Project types which this plugin supports.
+     * 
+     * @parameter
+     */
+    private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin",
+            "eclipse-feature");
+
     private P2Generator p2;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -80,7 +89,7 @@ public class P2MetadataMojo extends AbstractMojo {
     }
 
     protected void attachP2Metadata() throws MojoExecutionException {
-        if (!attachP2Metadata) {
+        if (!attachP2Metadata || !supportedProjectTypes.contains(project.getPackaging())) {
             return;
         }
 
