@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOG3//8m0\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-23T16:29:07Z",
+      "side": 1,
+      "message": "Will we get rid of the fork again? I would be more convinced if there was a patch proposed and accepted in p2.",
+      "revId": "dda55f0d6e83c04f8101fd72cdfa9e07264b9465",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//8m8\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/bug377358/org/eclipse/equinox/p2/internal/repository/mirroring/Mirroring.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-23T16:29:07Z",
+      "side": 1,
+      "message": "Is this the only change in this fork? For reviewing\u0026tracking purposes, it would be good to have two commits: one with the unchanged file and one with your changes.",
+      "revId": "dda55f0d6e83c04f8101fd72cdfa9e07264b9465",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//8m4\u003d",
+        "filename": "tycho-its/projects/377357_pack200/bundle/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-23T16:29:07Z",
+      "side": 1,
+      "message": "I think I have understood what this does, but this is far from trivial. A comment would like \"disable default execution; execute after copy-resources call here in the POM instead\" would be good here.",
+      "revId": "dda55f0d6e83c04f8101fd72cdfa9e07264b9465",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOG3//8nM\u003d",
+        "filename": "tycho-its/projects/377357_pack200/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-04-23T16:29:07Z",
+      "side": 1,
+      "message": "What is this block needed for?",
+      "revId": "dda55f0d6e83c04f8101fd72cdfa9e07264b9465",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
