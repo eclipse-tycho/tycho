@@ -52,6 +52,15 @@ public class IncludeValidationHelper {
         File baseDir = project.getBasedir();
         List<String> nonMatchingIncludes = new ArrayList<String>();
         List<String> ignoreList = Arrays.asList(ignoredIncludes);
+        if (includePatterns == null || includePatterns.isEmpty()) {
+            String message = new File(baseDir, "build.properties").getAbsolutePath() + ": " + buildPropertiesKey
+                    + " value(s) must be specified.";
+            if (strict) {
+                throw new MojoExecutionException(message);
+            } else {
+                log.warn(message);
+            }
+        }
         for (String includePattern : includePatterns) {
             if (ignoreList.contains(includePattern)) {
                 continue;

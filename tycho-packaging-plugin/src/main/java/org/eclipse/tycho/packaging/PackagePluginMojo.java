@@ -129,10 +129,8 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                 }
             }
             // 2. handle nested jars and included resources
-            if (binIncludesList.size() > 0) {
-                checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
-                archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
-            }
+            checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
+            archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
 
             File manifest = updateManifest();
             if (manifest.exists()) {
