@@ -59,6 +59,17 @@ public class IncludeValidationHelperTest {
     }
 
     @Test
+    public void testCheckBinIncludesNotSpecified() throws Exception {
+        BuildPropertiesImpl buildProperties = createBuildProperties("no.bin.includes", "bin.includes is not specified");
+        try {
+            subject.checkBinIncludesExist(createMockProject(), buildProperties, true);
+            fail();
+        } catch (MojoExecutionException e) {
+            assertStringContains("TODO", e.getMessage());
+        }
+    }
+
+    @Test
     public void testCheckSourceIncludesDontExist() throws Exception {
         BuildPropertiesImpl buildProperties = createBuildProperties("src.includes", "foo3, bar3*,**/*.me");
         try {
