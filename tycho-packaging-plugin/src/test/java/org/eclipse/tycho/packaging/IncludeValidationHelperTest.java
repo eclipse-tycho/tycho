@@ -65,7 +65,7 @@ public class IncludeValidationHelperTest {
             subject.checkBinIncludesExist(createMockProject(), buildProperties, true);
             fail();
         } catch (MojoExecutionException e) {
-            assertStringContains("TODO", e.getMessage());
+            assertStringContains("bin.includes value(s) must be specified", e.getMessage());
         }
     }
 
