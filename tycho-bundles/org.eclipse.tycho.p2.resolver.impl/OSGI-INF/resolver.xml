@@ -7,4 +7,5 @@
    <reference bind="setMavenContext" cardinality="1..1" interface="org.eclipse.tycho.core.facade.MavenContext" name="MavenContext" policy="static"/>
    <reference bind="setLocalRepositoryIndices" cardinality="1..1" interface="org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices" name="LocalRepositoryP2Indices" policy="static"/>
    <reference bind="setRemoteAgentManager" cardinality="1..1" interface="org.eclipse.tycho.p2.remote.RemoteAgentManager" name="RemoteAgentManager" policy="static"/>
+   <reference bind="setTargetDefinitionResolverService" cardinality="1..1" interface="org.eclipse.tycho.p2.target.TargetDefinitionResolverService" name="TargetDefinitionResolverService" policy="static"/>
 </scr:component>

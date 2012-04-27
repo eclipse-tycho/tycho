@@ -89,6 +89,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private final IArtifactRepositoryManager remoteArtifactRepositoryManager;
 
+    private final TargetDefinitionResolverService targetDefinitionResolverService;
+
     private boolean includePackedArtifacts;
 
     /**
@@ -103,9 +105,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private final LocalMetadataRepository localMetadataRepository;
 
     public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
-            String executionEnvironment, LocalArtifactRepository localArtifactRepo,
-            LocalMetadataRepository localMetadataRepo) throws ProvisionException {
+            TargetDefinitionResolverService targetDefinitionResolverService, String executionEnvironment,
+            LocalArtifactRepository localArtifactRepo, LocalMetadataRepository localMetadataRepo)
+            throws ProvisionException {
         this.remoteAgent = remoteAgent;
+        this.targetDefinitionResolverService = targetDefinitionResolverService;
         this.logger = mavenContext.getLogger();
         this.monitor = new LoggingProgressMonitor(logger);
 
@@ -274,8 +278,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
-        TargetDefinitionResolver resolver = new TargetDefinitionResolver(environments, jreIUs, remoteAgent, logger);
-        TargetPlatformContent targetFileContent = resolver.resolveContent(definition);
+        TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(definition,
+                environments, jreIUs, remoteAgent);
         content.add(targetFileContent);
 
         if (logger.isDebugEnabled()) {

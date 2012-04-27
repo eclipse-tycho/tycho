@@ -32,6 +32,7 @@ import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 import org.eclipse.tycho.repository.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.NoopFileLockService;
@@ -114,6 +115,7 @@ public class P2ResolverTestBase {
         p2ResolverFactory.setMavenContext(mavenContext);
         p2ResolverFactory.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
         p2ResolverFactory.setRemoteAgentManager(createRemoteAgentManager(mavenContext));
+        p2ResolverFactory.setTargetDefinitionResolverService(new TargetDefinitionResolverService(mavenContext));
         return p2ResolverFactory;
     }
 

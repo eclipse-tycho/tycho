@@ -23,6 +23,7 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 
 public class P2ResolverFactoryImpl implements P2ResolverFactory {
@@ -34,6 +35,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private MavenContext mavenContext;
     private LocalRepositoryP2Indices localRepoIndices;
     private RemoteAgentManager remoteAgentManager;
+    private TargetDefinitionResolverService targetDefinitionResolverService;
 
     public TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree, boolean disableP2Mirrors) {
         IProvisioningAgent remoteAgent;
@@ -43,7 +45,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
                     mavenContext.getLocalRepositoryRoot(), localRepoIndices);
             LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(
                     mavenContext.getLocalRepositoryRoot(), localRepoIndices);
-            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, bree, localArtifactRepo, localMetadataRepo);
+            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, targetDefinitionResolverService, bree,
+                    localArtifactRepo, localMetadataRepo);
         } catch (ProvisionException e) {
             throw new RuntimeException(e);
         }
@@ -72,6 +75,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         return new P2ResolverImpl(logger);
     }
 
+    // setters for DS
+
     public void setMavenContext(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
     }
@@ -84,4 +89,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         this.remoteAgentManager = remoteAgentManager;
     }
 
+    public void setTargetDefinitionResolverService(TargetDefinitionResolverService targetDefinitionResolverService) {
+        this.targetDefinitionResolverService = targetDefinitionResolverService;
+    }
 }
