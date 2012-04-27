@@ -42,8 +42,8 @@ public class ExecutionEnvironmentTest {
 
     @Before
     public void setUp() throws Exception {
-        javaSE6Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6");
         javaSE7Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7");
+        javaSE6Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6");
         j2SE5Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5");
         j2SE14Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4");
         j2SE13Environment = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.3");
@@ -58,6 +58,7 @@ public class ExecutionEnvironmentTest {
 
     @Test
     public void testNotNull() {
+        assertNotNull(javaSE7Enviroment);
         assertNotNull(javaSE6Enviroment);
         assertNotNull(j2SE5Enviroment);
         assertNotNull(j2SE14Environment);
@@ -73,6 +74,7 @@ public class ExecutionEnvironmentTest {
 
     @Test
     public void testGetProfileName() {
+        assertEquals("JavaSE-1.7", javaSE7Enviroment.getProfileName());
         assertEquals("JavaSE-1.6", javaSE6Enviroment.getProfileName());
         assertEquals("J2SE-1.5", j2SE5Enviroment.getProfileName());
         assertEquals("J2SE-1.4", j2SE14Environment.getProfileName());
@@ -99,6 +101,7 @@ public class ExecutionEnvironmentTest {
         assertEquals("1.3", j2SE14Environment.getCompilerSourceLevel());
         assertEquals("1.5", j2SE5Enviroment.getCompilerSourceLevel());
         assertEquals("1.6", javaSE6Enviroment.getCompilerSourceLevel());
+        assertEquals("1.7", javaSE7Enviroment.getCompilerSourceLevel());
     }
 
     @Test
@@ -114,6 +117,7 @@ public class ExecutionEnvironmentTest {
         assertEquals("1.2", j2SE14Environment.getCompilerTargetLevel());
         assertEquals("1.5", j2SE5Enviroment.getCompilerTargetLevel());
         assertEquals("1.6", javaSE6Enviroment.getCompilerTargetLevel());
+        assertEquals("1.7", javaSE7Enviroment.getCompilerTargetLevel());
     }
 
     @Test

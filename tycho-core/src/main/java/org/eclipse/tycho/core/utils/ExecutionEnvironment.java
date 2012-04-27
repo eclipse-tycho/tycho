@@ -53,8 +53,9 @@ public class ExecutionEnvironment implements Comparable<ExecutionEnvironment> {
 
     private EEVersion parseEEVersion(String systemCaps) {
         if (systemCaps == null && "JRE-1.1".equals(profileName)) {
-            // system capabilities entry is missing for JRE-1.1   
-            return new EEVersion(Version.parseVersion("1.1"), EEType.JAVA_SE);
+            // system capabilities entry is missing for JRE-1.1 
+            // TODO remove workaround when https://bugs.eclipse.org/377277 is fixed
+            return new EEVersion(Version.parseVersion("1.1"), EEType.JRE);
         }
         List<EEVersion> eeVersions = new ArrayList<EEVersion>();
         try {

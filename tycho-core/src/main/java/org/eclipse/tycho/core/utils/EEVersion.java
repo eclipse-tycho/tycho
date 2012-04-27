@@ -18,7 +18,7 @@ public class EEVersion implements Comparable<EEVersion> {
     public enum EEType {
 
         // order is significant for comparison
-        OSGI_MINIMUM("OSGi/Minimum"), CDC_FOUNDATION("CDC/Foundation"), JAVA_SE("JavaSE");
+        OSGI_MINIMUM("OSGi/Minimum"), CDC_FOUNDATION("CDC/Foundation"), JRE("JRE"), JAVA_SE("JavaSE");
 
         private final String profileName;
 
