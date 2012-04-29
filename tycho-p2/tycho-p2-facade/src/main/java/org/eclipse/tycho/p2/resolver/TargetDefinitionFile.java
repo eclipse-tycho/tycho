@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,19 +7,25 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    SAP AG - cache target definition resolution result (bug 373806)
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,13 +41,15 @@ import de.pdark.decentxml.XMLParseException;
 import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
-public class TargetDefinitionFile implements TargetDefinition {
+public final class TargetDefinitionFile implements TargetDefinition {
 
     private static XMLParser parser = new XMLParser();
 
     private Element dom;
 
     private Document document;
+
+    private String fileContentHash;
 
     public static class IULocation implements TargetDefinition.InstallableUnitLocation {
         private final Element dom;
@@ -76,6 +84,12 @@ public class TargetDefinitionFile implements TargetDefinition {
             return dom.getAttributeValue("type");
         }
 
+        /**
+         * @deprecated Not for productive use. Breaks the
+         *             {@link TargetDefinitionFile#equals(Object)} and
+         *             {@link TargetDefinitionFile#hashCode()} implementations.
+         */
+        @Deprecated
         public void setType(String type) {
             dom.setAttribute("type", type);
         }
@@ -130,6 +144,12 @@ public class TargetDefinitionFile implements TargetDefinition {
             }
         }
 
+        /**
+         * @deprecated Not for productive use. Breaks the
+         *             {@link TargetDefinitionFile#equals(Object)} and
+         *             {@link TargetDefinitionFile#hashCode()} implementations.
+         */
+        @Deprecated
         public void setLocation(String location) {
             dom.setAttribute("location", location);
         }
@@ -150,14 +170,34 @@ public class TargetDefinitionFile implements TargetDefinition {
             return dom.getAttributeValue("version");
         }
 
+        /**
+         * @deprecated Not for productive use. Breaks the
+         *             {@link TargetDefinitionFile#equals(Object)} and
+         *             {@link TargetDefinitionFile#hashCode()} implementations.
+         */
+        @Deprecated
         public void setVersion(String version) {
             dom.setAttribute("version", version);
         }
     }
 
-    public TargetDefinitionFile(Document document) {
-        this.document = document;
-        this.dom = document.getRootElement();
+    private TargetDefinitionFile(File source) {
+        try {
+            this.fileContentHash = getHashCode(source);
+
+            FileInputStream input = new FileInputStream(source);
+            try {
+                this.document = parser.parse(new XMLIOSource(source));
+                this.dom = document.getRootElement();
+            } finally {
+                input.close();
+            }
+        } catch (XMLParseException e) {
+            throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new TargetDefinitionSyntaxException("I/O error while reading target definition file: "
+                    + e.getMessage(), e);
+        }
     }
 
     public List<? extends TargetDefinition.Location> getLocations() {
@@ -176,14 +216,7 @@ public class TargetDefinitionFile implements TargetDefinition {
     }
 
     public static TargetDefinitionFile read(File file) throws IOException {
-        FileInputStream input = new FileInputStream(file);
-        try {
-            return new TargetDefinitionFile(parser.parse(new XMLIOSource(input)));
-        } catch (XMLParseException e) {
-            throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(), e);
-        } finally {
-            IOUtil.close(input);
-        }
+        return new TargetDefinitionFile(file);
     }
 
     public static void write(TargetDefinitionFile target, File file) throws IOException {
@@ -202,6 +235,45 @@ public class TargetDefinitionFile implements TargetDefinition {
         } finally {
             IOUtil.close(os);
         }
+    }
+
+    public static String getHashCode(File f) throws IOException {
+        String result = null;
+        MessageDigest digest = null;
+        InputStream is = null;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        try {
+            is = new BufferedInputStream(new FileInputStream(f));
+            byte buffer[] = new byte[8192];
+            for (int read = 0; (read = is.read(buffer)) > 0;)
+                digest.update(buffer, 0, read);
+
+            byte md5sum[] = digest.digest();
+            BigInteger bigInt = new BigInteger(1, md5sum);
+            result = bigInt.toString(16);
+        } finally {
+            is.close();
+        }
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return fileContentHash.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof TargetDefinitionFile))
+            return false;
+        TargetDefinitionFile other = (TargetDefinitionFile) obj;
+        return fileContentHash.equals(other.fileContentHash);
     }
 
 }
