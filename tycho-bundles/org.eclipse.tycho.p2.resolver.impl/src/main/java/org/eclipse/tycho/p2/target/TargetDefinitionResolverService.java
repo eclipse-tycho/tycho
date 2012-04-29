@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,9 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 
 public class TargetDefinitionResolverService {
 
+    private Map<ResolutionArguments, TargetPlatformContent> resolutionCache = new HashMap<TargetDefinitionResolverService.ResolutionArguments, TargetPlatformContent>();
+
+    // (static) collaborator
     private MavenLogger logger;
 
     // constructor for DS
@@ -33,7 +37,25 @@ public class TargetDefinitionResolverService {
 
     public TargetPlatformContent getTargetDefinitionContent(TargetDefinition definition,
             List<Map<String, String>> environments, JREInstallableUnits jreIUs, IProvisioningAgent agent) {
-        return new TargetDefinitionResolver(environments, jreIUs, agent, logger).resolveContent(definition);
+        ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
+
+        TargetPlatformContent resolution = resolutionCache.get(arguments);
+
+        if (resolution == null) {
+            resolution = resolveFromArguments(arguments);
+            resolutionCache.put(arguments, resolution);
+        }
+        return resolution;
+    }
+
+    // this method must only have the cache key as parameter (to make sure that the key is complete)
+    private TargetPlatformContent resolveFromArguments(ResolutionArguments arguments) {
+
+        // TODO more details?
+        logger.debug("Resolving target definition content");
+
+        return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.agent, logger)
+                .resolveContent(arguments.definition);
     }
 
     // setter for DS
@@ -41,4 +63,55 @@ public class TargetDefinitionResolverService {
         this.logger = mavenContext.getLogger();
     }
 
+    private static final class ResolutionArguments {
+
+        final TargetDefinition definition;
+        final List<Map<String, String>> environments;
+        final JREInstallableUnits jreIUs;
+        final IProvisioningAgent agent;
+
+        public ResolutionArguments(TargetDefinition definition, List<Map<String, String>> environments,
+                JREInstallableUnits jreIUs, IProvisioningAgent agent) {
+            this.definition = definition;
+            this.environments = environments;
+            this.jreIUs = jreIUs;
+            this.agent = agent;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 61;
+            int result = 1;
+            result = prime * result + ((agent == null) ? 0 : agent.hashCode());
+            result = prime * result + ((definition == null) ? 0 : definition.hashCode());
+            result = prime * result + ((environments == null) ? 0 : environments.hashCode());
+            result = prime * result + ((jreIUs == null) ? 0 : jreIUs.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!(obj instanceof ResolutionArguments))
+                return false;
+
+            ResolutionArguments other = (ResolutionArguments) obj;
+            return eq(jreIUs, other.jreIUs) //
+                    && eq(definition, other.definition) //
+                    && eq(agent, other.agent) // expected to be object identity
+                    && eq(environments, other.environments);
+        }
+
+    }
+
+    static <T> boolean eq(T left, T right) {
+        if (left == right) {
+            return true;
+        } else if (left == null) {
+            return false;
+        } else {
+            return left.equals(right);
+        }
+    }
 }

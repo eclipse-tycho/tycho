@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.QueryUtil;
 
 @SuppressWarnings("restriction")
-class JREInstallableUnits {
+final class JREInstallableUnits {
 
     private final String executionEnvironment;
 
@@ -84,5 +84,33 @@ class JREInstallableUnits {
 
     private static void put(Map<VersionedId, IInstallableUnit> units, IInstallableUnit unit) {
         units.put(new VersionedId(unit.getId(), unit.getVersion()), unit);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((executionEnvironment == null) ? 0 : executionEnvironment.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof JREInstallableUnits))
+            return false;
+        JREInstallableUnits other = (JREInstallableUnits) obj;
+        return eq(executionEnvironment, other.executionEnvironment);
+    }
+
+    private static <T> boolean eq(T left, T right) {
+        if (left == right) {
+            return true;
+        } else if (left == null) {
+            return false;
+        } else {
+            return left.equals(right);
+        }
     }
 }

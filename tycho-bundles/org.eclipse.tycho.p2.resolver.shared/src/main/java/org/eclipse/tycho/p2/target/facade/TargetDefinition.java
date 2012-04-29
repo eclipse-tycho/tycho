@@ -18,6 +18,12 @@ public interface TargetDefinition {
 
     public List<? extends Location> getLocations();
 
+    @Override
+    public boolean equals(Object obj);
+
+    @Override
+    public int hashCode();
+
     public interface Location {
 
         /**
