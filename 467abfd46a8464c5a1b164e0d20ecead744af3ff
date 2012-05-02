@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHH///Z0\u003d",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-05-02T07:51:32Z",
+      "side": 1,
+      "message": "What is the idea between this chain of conversions? Wouldn\u0027t it be just as good to use the byte[] directly?",
+      "revId": "467abfd46a8464c5a1b164e0d20ecead744af3ff",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
