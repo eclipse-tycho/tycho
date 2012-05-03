@@ -34,6 +34,24 @@
       "revId": "467abfd46a8464c5a1b164e0d20ecead744af3ff",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHH///VY\u003d",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-05-03T11:23:51Z",
+      "side": 1,
+      "message": "If you can\u0027t explain these lines, this makes me believe that you haven\u0027t developed this code yourself. \n\nI have found the byte[] -\u003e BigInterger -\u003e String conversion in this StackOverflow post, so http://stackoverflow.com/a/421696 we have to consider this contribution as non-IP-clean.",
+      "parentUuid": "AABOHH///WM\u003d",
+      "revId": "467abfd46a8464c5a1b164e0d20ecead744af3ff",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
