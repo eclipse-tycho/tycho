@@ -16,6 +16,24 @@
       "revId": "467abfd46a8464c5a1b164e0d20ecead744af3ff",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHH///WM\u003d",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 623
+      },
+      "writtenOn": "2012-05-03T08:52:17Z",
+      "side": 1,
+      "message": "The idea behind the proposed patch is to introduce a Map\u003cTargetDefinition, TargePlatformContent\u003e and to skip resolution of a TargetDefinition object when it is already resolved. \nThe question here is how to detect that two TargetDefinition instances are equal? Each TargetDefinition is caused by some .target file (TargetPlatformConfiguration::getTarget()). \nMost probably we can assume that two TargetDefinition are equal if they are caused by one and the same .target file. In order to be on the safe side we decided to accept that two TargetDefinition instances are equal when the MD5 hash code of their caused by .target files are equal /which is probably not needed/. \nRegarding the answer you have previously commented about “why two caches ?”– the second cache actually maps some String/MD5 hash code/ to some TargetDefinition instance. If the .target files are immutable during the mvn session probably it is enough to assume that two targetDefinition objects are equal if they are caused by one and the same .target file.  In addition, the second cache eliminates the need to parse the .target definition XML file if a target with the same MD5 hash code is already resolved. \nThe method “getHashCode(File f)” is a well known way to calculate MD5 hash code of some file, so there is nothing interesting here.",
+      "parentUuid": "AABOHH///Z0\u003d",
+      "revId": "467abfd46a8464c5a1b164e0d20ecead744af3ff",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
