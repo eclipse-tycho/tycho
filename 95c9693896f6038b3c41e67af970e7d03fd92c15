@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHH///Z4\u003d",
+        "filename": "tycho-source-plugin/src/main/java/org/eclipse/tycho/source/OsgiSourceMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-05-03T09:00:32Z",
+      "side": 1,
+      "message": "bundleReader should be injected as a plexus @component",
+      "revId": "95c9693896f6038b3c41e67af970e7d03fd92c15",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
