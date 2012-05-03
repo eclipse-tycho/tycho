@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.6"?>
 
-<target name="Target platform for Tycho's bundles" sequenceNumber="0">
+<target name="Target platform for Tycho's bundles" sequenceNumber="1">
 <locations>
-
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20120305-1541-7P7OFvNFLWUl7Dqyq6OBBmS"/>
-<unit id="org.eclipse.sdk.ide" version="4.2.0.I20120417-1000"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.2-I-builds/I20120417-1000/"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20120426-1529-7P7OFvNFLWUl7UmDUz0O8_a2"/>
+<unit id="org.eclipse.sdk.ide" version="4.2.0.I20120502-1800"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.2-I-builds/I20120502-1800/"/>
 </location>
-
 </locations>
 </target>
