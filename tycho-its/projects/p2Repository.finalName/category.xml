@@ -1,3 +1,3 @@
 <site>
-   <feature url="features/org.eclipse.equinox.executable_0.0.0.jar" id="org.eclipse.equinox.executable" version="0.0.0"/>
+   <feature url="features/feature_0.0.0.jar" id="feature" version="0.0.0"/>
 </site>

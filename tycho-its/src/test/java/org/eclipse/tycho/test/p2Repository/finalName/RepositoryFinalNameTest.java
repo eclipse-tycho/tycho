@@ -27,8 +27,8 @@ public class RepositoryFinalNameTest extends AbstractTychoIntegrationTest {
     @Test
     public void testCustomFinalName() throws Exception {
         Verifier verifier = getVerifier("/p2Repository.finalName", false);
-        verifier.getCliOptions().add("-Dp2.repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoal("package");
+        verifier.getCliOptions().add("-Dp2.repo=" + ResourceUtil.P2Repositories.SIMPLE_FEATURE.toString());
+        verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         File repositoryArchive = new File(verifier.getBasedir(), "target/" + FINAL_NAME + ".zip");
         String name = repositoryArchive.getAbsolutePath();

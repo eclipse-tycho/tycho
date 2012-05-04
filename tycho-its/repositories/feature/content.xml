@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='repo' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='1336138829395'/>
+  </properties>
+  <units size='3'>
+    <unit id='feature.feature.jar' version='1.0.0.201205041337'>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Feature'/>
+        <property name='maven-groupId' value='tycho-its-project.test-content'/>
+        <property name='maven-artifactId' value='feature'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='feature.feature.jar' version='1.0.0.201205041337'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='feature' version='1.0.0.201205041337'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature' id='feature' version='1.0.0.201205041337'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='feature.feature.group' version='1.0.0.201205041337' singleton='false'>
+      <update id='feature.feature.group' range='[0.0.0,1.0.0.201205041337)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='Feature'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+        <property name='maven-groupId' value='tycho-its-project.test-content'/>
+        <property name='maven-artifactId' value='feature'/>
+        <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='feature.feature.group' version='1.0.0.201205041337'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='feature.feature.jar' range='[1.0.0.201205041337,1.0.0.201205041337]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+    <unit id='201205041340.Default' version='1.0.0.2--clnh--773573C3A599G'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='Uncategorized'/>
+        <property name='org.eclipse.equinox.p2.description' value='Default category for otherwise uncategorized features'/>
+        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='201205041340.Default' version='1.0.0.2--clnh--773573C3A599G'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='feature.feature.group' range='[1.0.0.201205041337,1.0.0.201205041337]'/>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+  </units>
+</repository>
