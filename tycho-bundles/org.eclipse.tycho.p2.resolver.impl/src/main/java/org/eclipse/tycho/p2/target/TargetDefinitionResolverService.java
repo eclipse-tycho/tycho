@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,11 @@ public class TargetDefinitionResolverService {
         TargetPlatformContent resolution = resolutionCache.get(arguments);
 
         if (resolution == null) {
+            if (logger.isDebugEnabled()) {
+                debugCacheMiss(arguments);
+                logger.debug("Resolving target definition content...");
+            }
+
             resolution = resolveFromArguments(arguments);
             resolutionCache.put(arguments, resolution);
         }
@@ -51,11 +57,32 @@ public class TargetDefinitionResolverService {
     // this method must only have the cache key as parameter (to make sure that the key is complete)
     private TargetPlatformContent resolveFromArguments(ResolutionArguments arguments) {
 
-        // TODO more details?
-        logger.debug("Resolving target definition content");
-
         return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.agent, logger)
                 .resolveContent(arguments.definition);
+    }
+
+    private void debugCacheMiss(ResolutionArguments arguments) {
+        if (resolutionCache.isEmpty()) {
+            logger.debug("Target definition resolution cache miss: " + "Cache is empty");
+            return;
+        }
+
+        // find cache entries which differ only in one of the arguments
+        List<String> fieldsInWhichDistanceOneEntriesDiffer = new ArrayList<String>();
+        for (ResolutionArguments existingKey : resolutionCache.keySet()) {
+            List<String> differingFields = arguments.getNonEqualFields(existingKey);
+            if (differingFields.size() == 1) {
+                fieldsInWhichDistanceOneEntriesDiffer.add(differingFields.get(0));
+            }
+        }
+
+        if (fieldsInWhichDistanceOneEntriesDiffer.isEmpty()) {
+            logger.debug("Target definition resolution cache miss: " + "All entries differ in more than one parameter");
+        } else {
+            logger.debug("Target definition resolution cache miss: "
+                    + "All entries differ, but there are entries which only differ in one parameter: "
+                    + fieldsInWhichDistanceOneEntriesDiffer);
+        }
     }
 
     // setter for DS
@@ -103,6 +130,15 @@ public class TargetDefinitionResolverService {
                     && eq(environments, other.environments);
         }
 
+        public List<String> getNonEqualFields(ResolutionArguments other) {
+            List<String> result = new ArrayList<String>();
+            addIfNonEqual(result, "target definition", definition, other.definition);
+            addIfNonEqual(result, "execution environment", jreIUs, other.jreIUs);
+            addIfNonEqual(result, "target environments", environments, other.environments);
+            addIfNonEqual(result, "remote p2 repository options", agent, other.agent);
+            return result;
+        }
+
     }
 
     static <T> boolean eq(T left, T right) {
@@ -112,6 +148,12 @@ public class TargetDefinitionResolverService {
             return false;
         } else {
             return left.equals(right);
+        }
+    }
+
+    static <T> void addIfNonEqual(List<String> result, String stringToAdd, T left, T right) {
+        if (!eq(left, right)) {
+            result.add(stringToAdd);
         }
     }
 }
