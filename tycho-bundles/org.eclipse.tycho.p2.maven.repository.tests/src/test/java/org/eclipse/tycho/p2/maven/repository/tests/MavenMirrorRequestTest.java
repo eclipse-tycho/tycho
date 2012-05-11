@@ -55,4 +55,27 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
         Assert.assertEquals(1, localRepository.getArtifactDescriptors(key).length);
     }
 
+    @Test
+    public void testMirrorNoCanonicalArtifact() throws Exception {
+        IProvisioningAgent agent = Activator.getProvisioningAgent();
+        Transport transport = (Transport) agent.getService(Transport.SERVICE_NAME);
+
+        IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent
+                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+
+        IArtifactRepository repository = manager.loadRepository(new File("resources/repositories/packgz").toURI(),
+                monitor);
+
+        LocalArtifactRepository localRepository = new LocalArtifactRepository(localRepoIndices);
+
+        IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.ecf",
+                Version.parseVersion("3.1.300.v20120319-0616"));
+
+        MavenMirrorRequest request = new MavenMirrorRequest(key, localRepository, transport, false);
+
+        repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
+
+        Assert.assertEquals(1, localRepository.getArtifactDescriptors(key).length);
+    }
+
 }

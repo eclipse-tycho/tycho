@@ -55,6 +55,15 @@ public class MavenMirrorRequest extends MirrorRequest {
             }
         }
 
+        if (canonical == null) {
+            canonical = packed;
+        }
+
+        if (canonical == null) {
+            // TODO log!
+            return;
+        }
+
         if (includePackedArtifacts && packed != null) {
             // raw copy of pack200 artifact+descriptor
             if (!contains(target, packed.getArtifactKey(), true)) {
