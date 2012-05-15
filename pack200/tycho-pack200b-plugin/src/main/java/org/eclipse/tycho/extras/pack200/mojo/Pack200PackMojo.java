@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -51,6 +52,9 @@ public class Pack200PackMojo extends AbstractMojo {
      */
     private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin");
 
+    /** @parameter expression="${plugin.artifacts}" */
+    private List<Artifact> pluginArtifacts;
+
     /** @component */
     private Pack200Archiver pack200;
 
@@ -69,7 +73,7 @@ public class Pack200PackMojo extends AbstractMojo {
 
         try {
             File packFile = new File(buildDirectory, jarFile.getName() + ".pack.gz");
-            if (pack200.pack(jarFile, packFile)) {
+            if (pack200.pack(pluginArtifacts, jarFile, packFile)) {
                 projectHelper.attachArtifact(project, RepositoryLayoutHelper.PACK200_EXTENSION,
                         RepositoryLayoutHelper.PACK200_CLASSIFIER, packFile);
             }

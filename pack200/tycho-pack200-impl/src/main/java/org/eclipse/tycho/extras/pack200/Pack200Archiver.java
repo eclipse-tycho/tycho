@@ -10,24 +10,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.pack200;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
-import java.util.jar.Pack200.Packer;
-import java.util.jar.Pack200.Unpacker;
-import java.util.zip.GZIPOutputStream;
 
+import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -47,7 +41,7 @@ public class Pack200Archiver {
      * @return <code>true</code> if the target pack file was created, <code>false</code> if the
      *         target file was not created
      */
-    public boolean normalize(File file, File packFile) throws IOException {
+    public boolean normalize(List<Artifact> pluginArtifacts, File file, File packFile) throws IOException {
         // read eclipse.inf from the input jar file
         // create a temp jar file with updated eclipse.inf
         // pack the temp jar
@@ -64,18 +58,7 @@ public class Pack200Archiver {
                 File tmpFile = File.createTempFile(file.getName(), ".prepack");
                 try {
                     updateEclipseInf(jarFile, eclipseInf, tmpFile);
-                    JarInputStream is = new JarInputStream(new BufferedInputStream(new FileInputStream(tmpFile)));
-                    try {
-                        OutputStream os = new BufferedOutputStream(new FileOutputStream(packFile));
-                        try {
-                            Packer packer = newPacker();
-                            packer.pack(is, os);
-                        } finally {
-                            IOUtil.close(os);
-                        }
-                    } finally {
-                        IOUtil.close(is);
-                    }
+                    getPack200().pack(pluginArtifacts, tmpFile, packFile);
                 } finally {
                     if (!tmpFile.delete()) {
                         throw new IOException("Could not delete temporary file " + tmpFile.getAbsolutePath());
@@ -93,13 +76,20 @@ public class Pack200Archiver {
         return false;
     }
 
-    private Packer newPacker() {
-        Packer packer = Pack200.newPacker();
-        // From Pack200.Packer javadoc:
-        //    ... the segment limit may also need to be set to "-1", 
-        //    to prevent accidental variation of segment boundaries as class file sizes change slightly
-        packer.properties().put(Packer.SEGMENT_LIMIT, "-1");
-        return packer;
+    private Pack200Wrapper getPack200() {
+        // pack200 in java 6 and earlier has a memory leak that results in eventual OOME for large multimodule projects
+        // the OOME is triggered by repetitive in-process execution of pack200 for different input jars
+        // to workaround, fork pack200 to a separate JVM for each jar
+        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6888127
+
+        try {
+            // java.nio.file.FileSystem was introduced in java 7, so this will fail with CNFE on earlier jdk versions
+            // this is how ant detects java7 too, see org.apache.tools.ant.util.JavaEnvUtils
+            Class.forName("java.nio.file.FileSystem");
+            return new Pack200Wrapper();
+        } catch (ClassNotFoundException mustBeJava6orEarlier) {
+            return new ForkedPack200Wrapper();
+        }
     }
 
     private void updateEclipseInf(JarFile jarFile, EclipseInf eclipseInf, File tmpFile) throws IOException {
@@ -146,31 +136,17 @@ public class Pack200Archiver {
         jos.closeEntry();
     }
 
-    public void unpack(File packFile, File jarFile) throws IOException {
-        JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(jarFile)));
-        try {
-            Unpacker unpacker = Pack200.newUnpacker();
-            unpacker.unpack(packFile, jos);
-        } finally {
-            IOUtil.close(jos);
-        }
+    public void unpack(List<Artifact> pluginArtifacts, File packFile, File jarFile) throws IOException {
+        getPack200().unpack(pluginArtifacts, packFile, jarFile);
     }
 
-    public boolean pack(File file, File packFile) throws IOException {
+    public boolean pack(List<Artifact> pluginArtifacts, File file, File packFile) throws IOException {
         JarFile jarFile = new JarFile(file);
         try {
             EclipseInf eclipseInf = EclipseInf.readEclipseInf(jarFile);
             if (eclipseInf.shouldPack() && eclipseInf.isPackNormalized()) {
                 log.info("Pack200 packing jar " + file.getAbsolutePath());
-
-                File jarpackgz = new File(file.getCanonicalPath() + ".pack.gz");
-                OutputStream os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(jarpackgz)));
-                try {
-                    Packer packer = newPacker();
-                    packer.pack(jarFile, os);
-                } finally {
-                    IOUtil.close(os);
-                }
+                getPack200().pack(pluginArtifacts, file, packFile);
                 return true;
             }
         } finally {

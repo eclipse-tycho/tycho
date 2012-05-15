@@ -20,7 +20,6 @@
   </parent>
 
   <artifactId>tycho-pack200-its</artifactId>
-  <packaging>pom</packaging>
 
   <dependencies>
     <dependency>

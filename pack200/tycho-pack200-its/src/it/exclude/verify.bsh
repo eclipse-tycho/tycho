@@ -1,0 +1,8 @@
+import java.io.*;
+
+File packgz = new File(basedir, "bundle/target/pack200.bundle-1.0.0-SNAPSHOT.jar.pack.gz"); 
+if (packgz.canRead()) {
+  throw new Exception("Unexepcted file present " + packgz);
+}
+
+return true;
