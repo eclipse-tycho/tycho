@@ -107,8 +107,8 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         MavenExecutionResult result = new DefaultMavenExecutionResult();
         DefaultRepositorySystemSession repositorySession = new DefaultRepositorySystemSession();
         MavenSession session = new MavenSession(getContainer(), repositorySession, request, result);
-        session.setCurrentProject(project);
         session.setProjects(projects);
+        session.setCurrentProject(project);
         return session;
     }
 
