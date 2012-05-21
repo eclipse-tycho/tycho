@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,9 +37,10 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.impl.resolver.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.impl.resolver.AbstractResolutionStrategy;
+import org.eclipse.tycho.p2.impl.resolver.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.impl.resolver.SlicerResolutionStrategy;
+import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
@@ -53,6 +54,7 @@ import org.eclipse.tycho.p2.util.StatusTool;
 public class TargetDefinitionResolver {
 
     private IMetadataRepositoryManager metadataManager;
+    private IRepositoryIdManager repositoryIdManager;
 
     private final MavenLogger logger;
 
@@ -68,6 +70,7 @@ public class TargetDefinitionResolver {
         this.jreIUs = jreIUs;
         this.logger = logger;
         this.metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+        this.repositoryIdManager = (IRepositoryIdManager) agent.getService(IRepositoryIdManager.SERVICE_NAME);
     }
 
     public TargetPlatformContent resolveContent(TargetDefinition definition) throws TargetDefinitionSyntaxException,
@@ -100,6 +103,7 @@ public class TargetDefinitionResolver {
 
                 List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
                 for (Repository repository : iuLocationDefinition.getRepositories()) {
+                    repositoryIdManager.addMapping(repository.getId(), repository.getLocation());
                     artifactRepositories.add(repository.getLocation());
                     metadataRepositories.add(loadRepository(repository));
                 }
@@ -161,13 +165,15 @@ public class TargetDefinitionResolver {
                 return super.resolve(allproperties, monitor);
             }
 
+            @Override
             protected boolean ignoreFilters() {
                 return ignoreFilters;
-            };
+            }
 
+            @Override
             protected RuntimeException newResolutionException(IStatus status) {
                 return TargetDefinitionResolver.this.newResolutionException(status);
-            };
+            }
         };
     }
 
@@ -177,9 +183,10 @@ public class TargetDefinitionResolver {
                     "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
         }
         return new ProjectorResolutionStrategy(logger) {
+            @Override
             protected RuntimeException newResolutionException(IStatus status) {
                 return TargetDefinitionResolver.this.newResolutionException(status);
-            };
+            }
         };
     }
 

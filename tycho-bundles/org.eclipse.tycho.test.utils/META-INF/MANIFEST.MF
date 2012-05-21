@@ -7,17 +7,22 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.junit;bundle-version="[4.8.1,5.0.0)",
  org.eclipse.equinox.p2.core;bundle-version="1.0.100",
  org.eclipse.equinox.p2.metadata;bundle-version="1.0.0",
+ org.eclipse.equinox.p2.repository;bundle-version="2.2.0",
  org.eclipse.jetty.server,
  org.eclipse.jetty.util,
  org.eclipse.jetty.http,
  org.eclipse.jetty.security,
  org.eclipse.jetty.servlet,
  javax.servlet;bundle-version="2.5.0",
- org.eclipse.equinox.common;bundle-version="3.6.100"
+ org.eclipse.equinox.common;bundle-version="3.6.100",
+ org.eclipse.equinox.ds;bundle-version="1.4.0"
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.tycho.test.util
 Import-Package: org.eclipse.tycho.core.facade,
+ org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.locking.facade,
+ org.eclipse.tycho.p2.remote,
  org.osgi.framework
 Bundle-Activator: org.eclipse.tycho.test.util.Activator
 Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/repositoryIdManagerFallback.xml

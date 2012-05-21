@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0">
+   <implementation class="org.eclipse.tycho.p2.remote.test.util.NoopRepositoryIdManagerFactory"/>
+   <service>
+      <provide interface="org.eclipse.equinox.p2.core.spi.IAgentServiceFactory"/>
+   </service>
+   <property name="p2.agent.servicename" type="String" value="org.eclipse.tycho.p2.remote.IRepositoryIdManager"/>
+</scr:component>
