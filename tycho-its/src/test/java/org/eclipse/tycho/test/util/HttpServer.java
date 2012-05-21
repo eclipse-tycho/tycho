@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,21 +23,21 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.handler.ContextHandlerCollection;
-import org.mortbay.jetty.security.Constraint;
-import org.mortbay.jetty.security.ConstraintMapping;
-import org.mortbay.jetty.security.HashUserRealm;
-import org.mortbay.jetty.security.Password;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.jetty.servlet.ServletHandler;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.util.URIUtil;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.URIUtil;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Password;
 
 public class HttpServer {
     private static class MonitoringServlet extends DefaultServlet {
@@ -111,34 +111,35 @@ public class HttpServer {
 
     private static HttpServer doStartServer(String username, String password, int port) throws Exception {
         Server server = new Server();
+
         ContextHandlerCollection contexts = new ContextHandlerCollection();
         server.setHandler(contexts);
+
         Connector connector = new SocketConnector();
         connector.setPort(port);
         server.addConnector(connector);
-        server.start();
 
-        Context context;
         if (username != null) {
-            context = new Context(server, "/", Context.SESSIONS | Context.SECURITY);
+            HashLoginService userRealm = new HashLoginService("default");
+            userRealm.putUser(username, new Password(password), new String[] { Constraint.ANY_ROLE });
 
-            HashUserRealm userRealm = new HashUserRealm("default");
-            userRealm.put(username, new Password(password));
-
-            Constraint constraint = new Constraint(Constraint.__BASIC_AUTH, Constraint.ANY_ROLE);
+            Constraint constraint = new Constraint("default", Constraint.ANY_ROLE);
             constraint.setAuthenticate(true);
-
             ConstraintMapping constraintMapping = new ConstraintMapping();
             constraintMapping.setPathSpec("/*");
             constraintMapping.setConstraint(constraint);
 
-            context.getSecurityHandler().setUserRealm(userRealm);
-            context.getSecurityHandler().setAuthMethod(Constraint.__BASIC_AUTH);
-            context.getSecurityHandler().setConstraintMappings(new ConstraintMapping[] { constraintMapping });
-        } else {
-            context = new Context(server, "/", 0);
+            ConstraintSecurityHandler securedHandler = new ConstraintSecurityHandler();
+            securedHandler.setAuthenticator(new BasicAuthenticator());
+            securedHandler.addConstraintMapping(constraintMapping);
+            securedHandler.setLoginService(userRealm);
+
+            // chain handlers together
+            securedHandler.setHandler(contexts);
+            server.setHandler(securedHandler);
         }
 
+        server.start();
         return new HttpServer(port, server, contexts);
     }
 
@@ -148,22 +149,17 @@ public class HttpServer {
     }
 
     public String addServer(String contextName, final File content) {
-        ContextHandler context = new ContextHandler();
-        context.setContextPath(URIUtil.SLASH + contextName);
-        {
-            context.setResourceBase(content.getAbsolutePath());
-            MonitoringServlet monitoringServlet = new MonitoringServlet();
-            // no dir listing
-            contextName2servletsMap.put(contextName, monitoringServlet);
-            ServletHandler servletHandler = new ServletHandler();
-            servletHandler.addServletWithMapping(new ServletHolder(monitoringServlet), URIUtil.SLASH);
-            context.setHandler(servletHandler);
-            contexts.addHandler(context);
-            try {
-                context.start();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        ServletContextHandler context = new ServletContextHandler(contexts, URIUtil.SLASH + contextName);
+        context.setResourceBase(content.getAbsolutePath());
+
+        MonitoringServlet monitoringServlet = new MonitoringServlet();
+        contextName2servletsMap.put(contextName, monitoringServlet);
+        context.addServlet(new ServletHolder(monitoringServlet), URIUtil.SLASH);
+        contexts.addHandler(context);
+        try {
+            context.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         return getUrl(contextName);
     }
