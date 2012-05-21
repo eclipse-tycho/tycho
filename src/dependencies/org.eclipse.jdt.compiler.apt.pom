@@ -20,7 +20,7 @@ This pom.xml is needed to satisfy Maven Central repository deployment requiremen
 
   <groupId>org.eclipse.tycho</groupId>
   <artifactId>org.eclipse.jdt.compiler.apt</artifactId>
-  <version>1.0.500.v20111201-1324</version>
+  <version>1.0.500.v20120423-0553</version>
 
   <name>Tycho org.eclipse.jdt.compiler.apt dependency (Incubation)</name>
   <description>This is org.eclipse.jdt.compiler.apt jar used by Tycho</description>
