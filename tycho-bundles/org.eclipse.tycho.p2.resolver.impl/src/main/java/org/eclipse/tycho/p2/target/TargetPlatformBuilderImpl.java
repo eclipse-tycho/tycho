@@ -14,10 +14,8 @@ package org.eclipse.tycho.p2.target;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
@@ -43,19 +40,16 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
-import org.eclipse.equinox.security.storage.ISecurePreferences;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
@@ -64,6 +58,7 @@ import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
+import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -86,8 +81,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private final IProvisioningAgent remoteAgent;
 
     private final IMetadataRepositoryManager remoteMetadataRepositoryManager;
-
     private final IArtifactRepositoryManager remoteArtifactRepositoryManager;
+    private IRepositoryIdManager remoteRepositoryIdManager;
 
     private final TargetDefinitionResolverService targetDefinitionResolverService;
 
@@ -124,6 +119,9 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         if (remoteArtifactRepositoryManager == null) {
             throw new IllegalStateException("No artifact repository manager found"); //$NON-NLS-1$
         }
+
+        this.remoteRepositoryIdManager = (IRepositoryIdManager) remoteAgent
+                .getService(IRepositoryIdManager.SERVICE_NAME);
 
         this.offline = mavenContext.isOffline();
 
@@ -221,19 +219,22 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
      */
     private final List<IArtifactRepository> artifactRepositories = new ArrayList<IArtifactRepository>();
 
-    public void addP2Repository(URI location) {
+    public void addP2Repository(MavenRepositoryLocation location) {
         IMetadataRepository metadataRepository = null;
         IArtifactRepository artifactRepository = null;
 
         try {
+            remoteRepositoryIdManager.addMapping(location.getId(), location.getURL());
+
             // TODO always log that a p2 repository is added to the target platform somewhere; used to be either from p2 or the following line
             // logger.info("Adding repository (cached) " + location.toASCIIString());
 
-            metadataRepository = remoteMetadataRepositoryManager.loadRepository(location, monitor);
+            metadataRepository = remoteMetadataRepositoryManager.loadRepository(location.getURL(), monitor);
             metadataRepositories.add(metadataRepository);
 
-            if (!offline || URIUtil.isFileURI(location)) {
-                artifactRepository = remoteArtifactRepositoryManager.loadRepository(location, monitor);
+            // TODO the agent should return transparently return empty repositories in offline mode
+            if (!offline || URIUtil.isFileURI(location.getURL())) {
+                artifactRepository = remoteArtifactRepositoryManager.loadRepository(location.getURL(), monitor);
                 artifactRepositories.add(artifactRepository);
 
                 forceSingleThreadedDownload(artifactRepository);
@@ -243,6 +244,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         } catch (ProvisionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // convenience method for tests
+    public void addP2Repository(URI location) {
+        addP2Repository(new MavenRepositoryLocation(null, location));
     }
 
     protected void forceSingleThreadedDownload(IArtifactRepository artifactRepository) {
@@ -278,8 +284,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
-        TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(definition,
-                environments, jreIUs, remoteAgent);
+        TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
+                definition, environments, jreIUs, remoteAgent);
         content.add(targetFileContent);
 
         if (logger.isDebugEnabled()) {
@@ -291,58 +297,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     // --------------------------------------------------------------------------------
     // creating copy&paste from org.eclipse.equinox.internal.p2.repository.Credentials.forLocation(URI, boolean,
     // AuthenticationInfo)
-    public void setCredentials(URI location, String username, String password) {
-        ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
-
-        // if URI is not opaque, just getting the host may be enough
-        String host = location.getHost();
-        if (host == null) {
-            String scheme = location.getScheme();
-            if (URIUtil.isFileURI(location) || scheme == null) {
-                // If the URI references a file, a password could possibly be needed for the directory
-                // (it could be a protected zip file representing a compressed directory) - in this
-                // case the key is the path without the last segment.
-                // Using "Path" this way may result in an empty string - which later will result in
-                // an invalid key.
-                host = new Path(location.toString()).removeLastSegments(1).toString();
-            } else {
-                // it is an opaque URI - details are unknown - can only use entire string.
-                host = location.toString();
-            }
-        }
-        String nodeKey;
-        try {
-            nodeKey = URLEncoder.encode(host, "UTF-8"); //$NON-NLS-1$
-        } catch (UnsupportedEncodingException e2) {
-            // fall back to default platform encoding
-            try {
-                // Uses getProperty "file.encoding" instead of using deprecated URLEncoder.encode(String location)
-                // which does the same, but throws NPE on missing property.
-                String enc = System.getProperty("file.encoding");//$NON-NLS-1$
-                if (enc == null) {
-                    throw new UnsupportedEncodingException(
-                            "No UTF-8 encoding and missing system property: file.encoding"); //$NON-NLS-1$
-                }
-                nodeKey = URLEncoder.encode(host, enc);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        String nodeName = IRepository.PREFERENCE_NODE + '/' + nodeKey;
-
-        ISecurePreferences prefNode = securePreferences.node(nodeName);
-
-        try {
-            if (!username.equals(prefNode.get(IRepository.PROP_USERNAME, username))
-                    || !password.equals(prefNode.get(IRepository.PROP_PASSWORD, password))) {
-                logger.info("Redefining access credentials for repository host " + host);
-            }
-            prefNode.put(IRepository.PROP_USERNAME, username, false);
-            prefNode.put(IRepository.PROP_PASSWORD, password, false);
-        } catch (StorageException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     // -------------------------------------------------------------------------
 
