@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,9 +32,6 @@ import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
-import org.apache.maven.artifact.repository.Authentication;
-import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
@@ -42,8 +39,6 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.settings.Mirror;
-import org.apache.maven.settings.Server;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -75,6 +70,7 @@ import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformRes
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
@@ -88,9 +84,6 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
@@ -111,9 +104,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     @Requirement
     private RepositorySystem repositorySystem;
 
-    @Requirement(hint = "p2")
-    private ArtifactRepositoryLayout p2layout;
-
     @Requirement
     private ProjectDependenciesResolver projectDependenciesResolver;
 
@@ -129,9 +119,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     private P2ResolverFactory resolverFactory;
 
     private DependencyMetadataGenerator generator;
-
-    private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
-            ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
 
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
@@ -219,7 +206,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
 
         if (configuration.getTarget() != null) {
-            addTargetFileContentToTargetPlatform(configuration, tpBuilder, session);
+            addTargetFileContentToTargetPlatform(configuration, tpBuilder);
         }
 
         tpBuilder.addFilters(configuration.getFilters());
@@ -325,27 +312,11 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             TargetPlatformBuilder resolutionContext, MavenSession session) {
         try {
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
-                URI uri = new URL(repository.getUrl()).toURI();
-
-                if (session.isOffline()) {
-                    getLogger().debug(
-                            "Offline mode, using local cache only for repository " + repository.getId() + " ("
-                                    + repository.getUrl() + ")");
-                }
-
-                try {
-                    Authentication auth = repository.getAuthentication();
-                    if (auth != null) {
-                        resolutionContext.setCredentials(uri, auth.getUsername(), auth.getPassword());
-                    }
-
-                    resolutionContext.addP2Repository(uri);
+                URI url = new URL(repository.getUrl()).toURI();
+                resolutionContext.addP2Repository(new MavenRepositoryLocation(repository.getId(), url));
 
                     getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
                 }
-            }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
         } catch (URISyntaxException e) {
@@ -354,54 +325,14 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     private void addTargetFileContentToTargetPlatform(TargetPlatformConfiguration configuration,
-            TargetPlatformBuilder resolutionContext, MavenSession session) {
+            TargetPlatformBuilder resolutionContext) {
         final TargetDefinitionFile target;
         try {
             target = TargetDefinitionFile.read(configuration.getTarget());
-        } catch (TargetDefinitionSyntaxException e) {
-            throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
-                    + e.getMessage(), e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        Set<URI> uris = new HashSet<URI>();
-
-        for (Location location : target.getLocations()) {
-            if (!(location instanceof InstallableUnitLocation)) {
-                continue;
-            }
-            for (TargetDefinition.Repository repository : ((InstallableUnitLocation) location).getRepositories()) {
-
-                try {
-                    URI uri = getMirror(repository, session.getRequest().getMirrors());
-                    if (uris.add(uri)) {
-                        if (!session.isOffline()) {
-                            String id = repository.getId();
-                            if (id != null) {
-                                Server server = session.getSettings().getServer(id);
-
-                                if (server != null) {
-                                    // TODO don't do this via magic side-effects, but when loading repositories
-                                    resolutionContext.setCredentials(uri, server.getUsername(), server.getPassword());
-                                } else {
-                                    getLogger().info(
-                                            "Unknown server id=" + id + " for repository location="
-                                                    + repository.getLocation());
-                                }
-                            }
-
-                            // TODO mirrors are no longer considered -> lookup mirrors when loading p2 repositories
-                        }
-                    }
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        try {
             getLogger().debug("Adding target definition file \"" + configuration.getTarget() + "\"");
             resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } catch (TargetDefinitionSyntaxException e) {
             throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
                     + e.getMessage(), e);
@@ -521,21 +452,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
 
         return environments;
-    }
-
-    private URI getMirror(TargetDefinition.Repository location, List<Mirror> mirrors) throws URISyntaxException {
-        URI p2RepositoryLocation = location.getLocation();
-        String id = location.getId();
-        if (id == null) {
-            id = p2RepositoryLocation.toString();
-        }
-
-        ArtifactRepository repository = repositorySystem.createArtifactRepository(id, p2RepositoryLocation.toString(),
-                p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
-
-        Mirror mirror = repositorySystem.getMirror(repository, mirrors);
-
-        return mirror != null ? new URI(mirror.getUrl()) : p2RepositoryLocation;
     }
 
     public void initialize() throws InitializationException {
