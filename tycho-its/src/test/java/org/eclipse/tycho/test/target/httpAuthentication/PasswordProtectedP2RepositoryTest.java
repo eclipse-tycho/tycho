@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
         server.stop();
     }
 
-    // TODO these tests are not independent - the code under test seems to cache passwords, so the second test can pass even if the implementation is broken
     @Test
     public void testRepository() throws Exception {
         String url = server.addServer("foo", ResourceUtil.resolveTestResource("repositories/e342"));

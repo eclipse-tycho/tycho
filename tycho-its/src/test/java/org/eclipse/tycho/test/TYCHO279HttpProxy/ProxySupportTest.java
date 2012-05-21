@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,17 +31,16 @@ import javax.xml.xpath.XPathFactory;
 import junit.framework.Assert;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
 import org.sonatype.jettytestsuite.ProxyServer;
-import org.sonatype.jettytestsuite.proxy.FileServerServlet;
 import org.sonatype.jettytestsuite.proxy.MonitorableProxyServlet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -128,19 +127,18 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
 
     private void startHttpProxyServer(boolean useAuthentication, String user, String password) throws Exception {
         proxyServer = new ProxyServer();
-        Server proxy = new Server();
-        Connector connector = new SocketConnector();
         proxyPort = findFreePort();
-        connector.setPort(proxyPort);
-        proxy.addConnector(connector);
-        Context context = new Context(proxy, "/", 0);
+        proxyServer.setPort(proxyPort);
+        proxyServer.initialize();
+
         Map<String, String> authMap = new HashMap<String, String>();
         if (useAuthentication) {
             authMap.put(user, password);
         }
-        proxyServlet = new MonitorableProxyServlet(useAuthentication, authMap);
-        context.addServlet(new ServletHolder(proxyServlet), "/");
-        proxyServer.setServer(proxy);
+        proxyServlet = proxyServer.getProxyServlet();
+        proxyServlet.setAuthentications(authMap);
+        proxyServlet.setUseAuthentication(useAuthentication);
+
         proxyServer.start();
     }
 
@@ -150,9 +148,10 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
         httpServerPort = findFreePort();
         connector.setPort(httpServerPort);
         httpServer.addConnector(connector);
-        Context context = new Context(httpServer, "/", 0);
-        FileServerServlet servlet = new FileServerServlet(new File(baseDir, "repo"));
-        context.addServlet(new ServletHolder(servlet), PATH + "*");
+        ContextHandler context = new ContextHandler(httpServer, "/test");
+        context.setResourceBase(new File(baseDir, "repo").getAbsolutePath());
+        context.setHandler(new ResourceHandler());
+        httpServer.setHandler(context);
         httpServer.start();
     }
 
