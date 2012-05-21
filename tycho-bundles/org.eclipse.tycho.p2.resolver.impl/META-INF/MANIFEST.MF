@@ -29,7 +29,8 @@ Export-Package: org.eclipse.tycho.p2.impl;x-friends:="org.eclipse.tycho.p2.impl.
  org.eclipse.tycho.p2.impl.publisher.repo;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.publisher.rootfiles;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.repo;x-friends:="org.eclipse.tycho.p2.impl.test,org.eclipse.tycho.p2.maven.repository.tests",
- org.eclipse.tycho.p2.impl.resolver;x-friends:="org.eclipse.tycho.p2.impl.test"
+ org.eclipse.tycho.p2.impl.resolver;x-friends:="org.eclipse.tycho.p2.impl.test",
+ org.eclipse.tycho.p2.remote
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.facade,

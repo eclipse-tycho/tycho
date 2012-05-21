@@ -15,7 +15,10 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContext;
+import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 import org.eclipse.tycho.p2.impl.Activator;
 
 @SuppressWarnings("restriction")
@@ -23,16 +26,22 @@ public class RemoteAgent implements IProvisioningAgent {
 
     private IProvisioningAgent delegate;
 
-    public RemoteAgent(MavenContext mavenContext, boolean disableP2Mirrors) throws ProvisionException {
-        this.delegate = createConfiguredProvisioningAgent(mavenContext, disableP2Mirrors);
+    public RemoteAgent(MavenContext mavenContext, MavenRepositorySettings mavenRepositorySettings,
+            boolean disableMirrors) throws ProvisionException {
+        this.delegate = createConfiguredProvisioningAgent(mavenContext, disableMirrors, mavenRepositorySettings);
     }
 
-    public RemoteAgent(MavenContext mavenContext) throws ProvisionException {
-        this(mavenContext, false);
+    // test constructors
+    RemoteAgent(MavenContext mavenContext, boolean disableP2Mirrors) throws ProvisionException {
+        this(mavenContext, null, disableP2Mirrors);
+    }
+
+    RemoteAgent(MavenContext mavenContext) throws ProvisionException {
+        this(mavenContext, null, false);
     }
 
     private static IProvisioningAgent createConfiguredProvisioningAgent(MavenContext mavenContext,
-            boolean disableP2Mirrors) throws ProvisionException {
+            boolean disableP2Mirrors, MavenRepositorySettings mavenRepositorySettings) throws ProvisionException {
         // TODO set a temporary folder as persistence location
         AgentBuilder agent = new AgentBuilder(Activator.newProvisioningAgent());
 
@@ -53,6 +62,10 @@ public class RemoteAgent implements IProvisioningAgent {
             addP2MirrorDisablingRepositoryManager(agent);
         }
 
+        if (mavenRepositorySettings != null) {
+            addMavenAwareRepositoryManagers(agent, mavenRepositorySettings, mavenContext.getLogger());
+        }
+
         return agent.getAgent();
     }
 
@@ -62,6 +75,26 @@ public class RemoteAgent implements IProvisioningAgent {
         IArtifactRepositoryManager mirrorDisablingRepoManager = new P2MirrorDisablingArtifactRepositoryManager(
                 plainRepoManager);
         agent.registerService(IArtifactRepositoryManager.class, mirrorDisablingRepoManager);
+    }
+
+    private static void addMavenAwareRepositoryManagers(AgentBuilder agent,
+            MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
+
+        // register service which stores mapping between URLs and IDs (used by Maven)
+        RemoteRepositoryHelper remoteRepositoryHelper = new RemoteRepositoryHelper(mavenRepositorySettings, logger);
+        agent.registerService(IRepositoryIdManager.class, remoteRepositoryHelper);
+
+        // wrap metadata repository manager
+        IMetadataRepositoryManager plainMetadataRepoManager = agent.getService(IMetadataRepositoryManager.class);
+        IMetadataRepositoryManager remoteMetadataRepoManager = new RemoteMetadataRepositoryManager(
+                plainMetadataRepoManager, remoteRepositoryHelper);
+        agent.registerService(IMetadataRepositoryManager.class, remoteMetadataRepoManager);
+
+        // wrap artifact repository manager
+        IArtifactRepositoryManager plainArtifactRepoManager = agent.getService(IArtifactRepositoryManager.class);
+        RemoteArtifactRepositoryManager remoteArtifactRepoManager = new RemoteArtifactRepositoryManager(
+                plainArtifactRepoManager, remoteRepositoryHelper);
+        agent.registerService(IArtifactRepositoryManager.class, remoteArtifactRepoManager);
     }
 
     /**

@@ -5,4 +5,5 @@
       <provide interface="org.eclipse.tycho.p2.remote.RemoteAgentManager"/>
    </service>
    <reference bind="setMavenContext" cardinality="1..1" interface="org.eclipse.tycho.core.facade.MavenContext" name="MavenContext" policy="static"/>
+   <reference bind="setMavenRepositorySettings" cardinality="1..1" interface="org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings" name="MavenRepositorySettings" policy="static"/>
 </scr:component>
