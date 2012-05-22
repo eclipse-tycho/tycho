@@ -140,7 +140,7 @@ public class P2MetadataMojo extends AbstractMojo {
         for (Entry<String, IArtifactFacade> entry : artifactsToBeAttached.entrySet()) {
             IArtifactFacade artifactFacade = entry.getValue();
 
-            projectHelper.attachArtifact(project, artifactFacade.getPackagingType(), artifactFacade.getClassidier(),
+            projectHelper.attachArtifact(project, artifactFacade.getPackagingType(), artifactFacade.getClassifier(),
                     artifactFacade.getLocation());
 
         }

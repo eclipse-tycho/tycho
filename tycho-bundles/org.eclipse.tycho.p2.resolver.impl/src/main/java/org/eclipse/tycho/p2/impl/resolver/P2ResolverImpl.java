@@ -165,7 +165,7 @@ public class P2ResolverImpl implements P2Resolver {
 
         String id = iu.getId();
         String version = iu.getVersion().toString();
-        String mavenClassidier = reactorArtifact != null ? reactorArtifact.getClassidier() : null;
+        String mavenClassidier = reactorArtifact != null ? reactorArtifact.getClassifier() : null;
 
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
             platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, file, mavenClassidier, iu);
@@ -185,7 +185,7 @@ public class P2ResolverImpl implements P2Resolver {
         String id = iu.getId();
         String version = iu.getVersion().toString();
         File location = mavenArtifact.getLocation();
-        String mavenClassidier = mavenArtifact.getClassidier();
+        String mavenClassidier = mavenArtifact.getClassifier();
 
         if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
             String featureId = getFeatureId(iu);

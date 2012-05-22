@@ -119,7 +119,7 @@ public class FeatureRootfileArtifactRepositoryTest {
 
         IArtifactFacade artifactFacade = attachedArtifacts.get(expectedClassifier);
 
-        Assert.assertEquals(artifactFacade.getClassidier(), expectedClassifier);
+        Assert.assertEquals(artifactFacade.getClassifier(), expectedClassifier);
         Assert.assertEquals(artifactFacade.getLocation().getName(), expectedLocationFileName);
     }
 

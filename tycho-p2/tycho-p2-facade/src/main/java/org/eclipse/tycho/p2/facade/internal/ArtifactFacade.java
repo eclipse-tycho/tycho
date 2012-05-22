@@ -44,7 +44,7 @@ public class ArtifactFacade implements IArtifactFacade {
         return wrappedArtifact.getType();
     }
 
-    public String getClassidier() {
+    public String getClassifier() {
         return wrappedArtifact.getClassifier();
     }
 

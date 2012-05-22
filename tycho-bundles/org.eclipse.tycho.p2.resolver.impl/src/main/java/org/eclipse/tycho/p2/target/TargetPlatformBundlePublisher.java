@@ -155,7 +155,7 @@ public class TargetPlatformBundlePublisher {
 
         private void enableUnitAnnotationWithGAV() {
             MavenPropertiesAdvice advice = new MavenPropertiesAdvice(mavenArtifact.getGroupId(),
-                    mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), mavenArtifact.getClassidier());
+                    mavenArtifact.getArtifactId(), mavenArtifact.getVersion(), mavenArtifact.getClassifier());
             publisherInfo.addAdvice(advice);
         }
 
@@ -229,7 +229,7 @@ public class TargetPlatformBundlePublisher {
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, mavenArtifact.getGroupId());
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, mavenArtifact.getArtifactId());
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_VERSION, mavenArtifact.getVersion());
-            String classifier = mavenArtifact.getClassidier();
+            String classifier = mavenArtifact.getClassifier();
             if (classifier != null && classifier.length() > 0) {
                 internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, classifier);
             }
