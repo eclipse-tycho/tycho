@@ -139,6 +139,9 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     private FileLockService fileLockService;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        getLog().warn(
+                "packaging type eclipse-application is deprecated, use eclipse-repository instead. "
+                        + "For details see http://wiki.eclipse.org/Tycho_Messages_Explained#eclipse_application");
         if (!productConfigurationFile.exists()) {
             throw new MojoExecutionException("Product configuration file not found "
                     + productConfigurationFile.getAbsolutePath());
