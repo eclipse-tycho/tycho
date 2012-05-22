@@ -252,6 +252,9 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         if (value == null || !value.startsWith("%")) {
             return value;
         }
+        if (l10nProps == null) {
+            return null;
+        }
         String key = value.substring(1).trim();
         return l10nProps.getProperty(key);
     }
