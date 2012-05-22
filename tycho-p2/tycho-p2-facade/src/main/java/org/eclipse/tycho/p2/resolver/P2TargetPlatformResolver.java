@@ -398,17 +398,17 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                     throw new RuntimeException(e);
                 }
             }
-
-            try {
-                getLogger().debug("Adding target definition file \"" + configuration.getTarget() + "\"");
-                resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
-            } catch (TargetDefinitionSyntaxException e) {
-                throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
-                        + e.getMessage(), e);
-            } catch (TargetDefinitionResolutionException e) {
-                throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget(), e);
-            }
         }
+        try {
+            getLogger().debug("Adding target definition file \"" + configuration.getTarget() + "\"");
+            resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
+        } catch (TargetDefinitionSyntaxException e) {
+            throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
+                    + e.getMessage(), e);
+        } catch (TargetDefinitionResolutionException e) {
+            throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget(), e);
+        }
+
     }
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
