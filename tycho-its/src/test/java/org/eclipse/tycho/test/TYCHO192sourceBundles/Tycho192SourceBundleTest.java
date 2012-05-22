@@ -17,7 +17,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,6 +36,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
+import org.osgi.framework.Constants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -100,9 +105,20 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
         JarFile sourceJar = new JarFile(sourceJars[0]);
         try {
             assertNotNull(sourceJar.getEntry("helloworld/MessageProvider.java"));
+            Attributes sourceBundleHeaders = sourceJar.getManifest().getMainAttributes();
+            assertEquals("%bundleName", sourceBundleHeaders.getValue(Constants.BUNDLE_NAME));
+            assertEquals("%bundleVendor", sourceBundleHeaders.getValue(Constants.BUNDLE_VENDOR));
+            assertEquals("OSGI-INF/l10n/bundle-src", sourceBundleHeaders.getValue(Constants.BUNDLE_LOCALIZATION));
+            ZipEntry l10nPropsEntry = sourceJar.getEntry("OSGI-INF/l10n/bundle-src.properties");
+            assertNotNull(l10nPropsEntry);
+            Properties l10nProps = new Properties();
+            InputStream propsStream = sourceJar.getInputStream(l10nPropsEntry);
+            l10nProps.load(propsStream);
+            assertEquals(2, l10nProps.size());
+            assertEquals("Hello Plugin Source", l10nProps.getProperty("bundleName"));
+            assertEquals("Hello Vendor", l10nProps.getProperty("bundleVendor"));
         } finally {
             sourceJar.close();
         }
     }
-
 }

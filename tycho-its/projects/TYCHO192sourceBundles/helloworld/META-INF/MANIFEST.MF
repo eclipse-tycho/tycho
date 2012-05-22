@@ -2,3 +2,5 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: helloworld
 Bundle-Version: 0.1.0.qualifier
+Bundle-Name: %pluginName
+Bundle-Vendor: %pluginVendor
