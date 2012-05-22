@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHn///LQ\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildQualifierMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-05-22T07:57:07Z",
+      "side": 1,
+      "message": "I\u0027m not a big fan of programming against the packaging type, because this may stand in the way of extensibility.\n\nWouldn\u0027t it be possible to move this code into a new goal, e.g. \"aggregate-build-qualifier\", and have that goal replace \"build-qualifier\" in the eclipse-feature lifecycle?",
+      "revId": "8933383f482b02224efb597e32f1e72a91ca8c98",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
