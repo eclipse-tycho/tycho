@@ -25,7 +25,7 @@ public interface IArtifactFacade {
 
     public String getArtifactId();
 
-    public String getClassidier();
+    public String getClassifier();
 
     public String getVersion();
 

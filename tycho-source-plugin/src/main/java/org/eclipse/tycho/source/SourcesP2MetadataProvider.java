@@ -44,7 +44,7 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
             List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
         if (OsgiSourceMojo.isRelevantProjectImpl(project, buildPropertiesParser)) {
             IArtifactFacade sourcesArtifact = new AttachedArtifact(project, project.getBasedir(), "sources");
-            return Collections.singletonMap(sourcesArtifact.getClassidier(),
+            return Collections.singletonMap(sourcesArtifact.getClassifier(),
                     sourcesGenerator.generateMetadata(sourcesArtifact, null, OptionalResolutionAction.REQUIRE));
         }
         return null;

@@ -105,7 +105,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             // secondary metadata is meant to represent installable units that are provided by this project
             // but do not affect dependencies of the project itself. generateMetadata is called at the end
             // of project build lifecycle, and primary/secondary metadata separation is irrelevant at this point 
-            result.put(artifact.getClassidier(), new LinkedHashSet<Object>(metadata.getInstallableUnits()));
+            result.put(artifact.getClassifier(), new LinkedHashSet<Object>(metadata.getInstallableUnits()));
         }
 
         new MetadataIO().writeXML(units, attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_METADATA)
@@ -241,7 +241,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact) {
         ArrayList<IPublisherAdvice> advice = new ArrayList<IPublisherAdvice>();
         advice.add(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
-                artifact.getClassidier()));
+                artifact.getClassifier()));
         advice.add(getExtraEntriesAdvice(artifact));
 
         IFeatureRootAdvice featureRootAdvice = FeatureRootAdvice.createRootFileAdvice(artifact,

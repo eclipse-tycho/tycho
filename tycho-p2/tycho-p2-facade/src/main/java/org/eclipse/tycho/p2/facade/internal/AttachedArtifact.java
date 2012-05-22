@@ -41,7 +41,7 @@ public class AttachedArtifact implements IArtifactFacade {
         return project.getArtifactId();
     }
 
-    public String getClassidier() {
+    public String getClassifier() {
         return classifier;
     }
 

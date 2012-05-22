@@ -56,7 +56,4 @@ public class ReactorArtifactFacade implements IReactorArtifactFacade {
         return result != null ? result : Collections.emptySet();
     }
 
-    public String getClassidier() {
-        return classifier;
-    }
 }

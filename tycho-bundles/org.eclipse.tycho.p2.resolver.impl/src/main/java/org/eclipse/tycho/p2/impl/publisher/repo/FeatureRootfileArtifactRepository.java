@@ -61,7 +61,7 @@ public class FeatureRootfileArtifactRepository extends TransientArtifactReposito
             return ROOTFILE_EXTENSION;
         }
 
-        public String getClassidier() {
+        public String getClassifier() {
             return this.classifier;
         }
 
@@ -141,7 +141,7 @@ public class FeatureRootfileArtifactRepository extends TransientArtifactReposito
             target = new BufferedOutputStream(new FileOutputStream(outputFile));
 
             RootfileArtifact rootfileArtifact = new RootfileArtifact(outputFile, mavenArtifactClassifier);
-            this.publishedArtifacts.put(rootfileArtifact.getClassidier(), rootfileArtifact);
+            this.publishedArtifacts.put(rootfileArtifact.getClassifier(), rootfileArtifact);
 
             descriptors.add(simpleArtifactDescriptor);
         } catch (FileNotFoundException e) {

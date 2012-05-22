@@ -27,7 +27,7 @@ public class MavenCoordinates {
 
     public MavenCoordinates(IArtifactFacade artifact) {
         this.gav = new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
-        this.classifier = artifact.getClassidier();
+        this.classifier = artifact.getClassifier();
         this.extension = artifact.getPackagingType(); // TODO this is probably wrong
     }
 

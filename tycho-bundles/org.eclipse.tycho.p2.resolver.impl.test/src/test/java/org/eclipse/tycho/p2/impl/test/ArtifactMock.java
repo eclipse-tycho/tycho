@@ -69,7 +69,7 @@ public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
         return packagingType;
     }
 
-    public String getClassidier() {
+    public String getClassifier() {
         return classifier;
     }
 

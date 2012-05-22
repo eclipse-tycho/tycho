@@ -29,7 +29,7 @@ public class ClassifiedLocation {
     }
 
     public ClassifiedLocation(IArtifactFacade artifact) {
-        this(artifact.getLocation(), artifact.getClassidier());
+        this(artifact.getLocation(), artifact.getClassifier());
     }
 
     public File getLocation() {
