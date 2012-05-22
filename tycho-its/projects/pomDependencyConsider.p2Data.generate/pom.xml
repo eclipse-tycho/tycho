@@ -23,6 +23,12 @@
 			<artifactId>gson</artifactId>
 			<version>1.6</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.tycho</groupId>
+		    <artifactId>org.eclipse.jdt.compiler.apt</artifactId>
+		    <version>1.0.500.v20120423-0553</version>
+		    <classifier>sources</classifier>
+		</dependency>		
 	</dependencies>
 
 	<build>

@@ -229,7 +229,10 @@ public class TargetPlatformBundlePublisher {
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, mavenArtifact.getGroupId());
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, mavenArtifact.getArtifactId());
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_VERSION, mavenArtifact.getVersion());
-            internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, null);
+            String classifier = mavenArtifact.getClassidier();
+            if (classifier != null && classifier.length() > 0) {
+                internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, classifier);
+            }
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, null);
             return internalDescriptor;
         }
