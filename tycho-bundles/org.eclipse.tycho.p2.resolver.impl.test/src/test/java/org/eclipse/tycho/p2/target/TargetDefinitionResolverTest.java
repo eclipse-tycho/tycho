@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.target;
 
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
@@ -222,6 +223,18 @@ public class TargetDefinitionResolverTest {
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(seed)));
     }
 
+    @Test
+    public void testResolveWithBundleInclusionListYieldsWarning() {
+        List<Location> noLocations = Collections.emptyList();
+        TargetDefinition definition = new TargetDefinitionStub(noLocations, true);
+        subject.resolveContent(definition);
+
+        // this was bug 373776: the includeBundles tag (which is the selection on the Content tab) was silently ignored
+        assertThat(logger.getWarnings(),
+                hasItem(containsString("De-selecting bundles in a target definition file is not supported")));
+
+    }
+
     static <T> Matcher<Collection<T>> bagEquals(final Collection<T> collection) {
         return new TypeSafeMatcher<Collection<T>>() {
 
@@ -254,13 +267,23 @@ public class TargetDefinitionResolverTest {
 
     static class TargetDefinitionStub implements TargetDefinition {
         private List<Location> locations;
+        private final boolean hasBundleSelectionList;
 
         public TargetDefinitionStub(List<Location> locations) {
+            this(locations, false);
+        }
+
+        public TargetDefinitionStub(List<Location> locations, boolean hasBundleSelectionList) {
             this.locations = locations;
+            this.hasBundleSelectionList = hasBundleSelectionList;
         }
 
         public List<Location> getLocations() {
             return locations;
+        }
+
+        public boolean hasIncludedBundles() {
+            return hasBundleSelectionList;
         }
     }
 

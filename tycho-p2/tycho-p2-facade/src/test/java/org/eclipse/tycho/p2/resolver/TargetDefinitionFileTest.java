@@ -29,7 +29,7 @@ import org.junit.Test;
 public class TargetDefinitionFileTest {
     @Test
     public void testTarget() throws Exception {
-        List<? extends Location> locations = readTarget("target.target");
+        List<? extends Location> locations = readTargetLocations("target.target");
         assertEquals(2, locations.size());
 
         InstallableUnitLocation location = (InstallableUnitLocation) locations.get(0);
@@ -51,7 +51,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testLocationTypes() throws Exception {
-        List<? extends Location> locations = readTarget("locationtypes.target");
+        List<? extends Location> locations = readTargetLocations("locationtypes.target");
         assertEquals("Directory", locations.get(0).getTypeDescription());
         assertEquals("Profile", locations.get(1).getTypeDescription());
         assertEquals("Feature", locations.get(2).getTypeDescription());
@@ -65,7 +65,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testDefaultIncludeModeValues() throws Exception {
-        List<? extends Location> locations = readTarget("includeModes.target");
+        List<? extends Location> locations = readTargetLocations("includeModes.target");
         InstallableUnitLocation locationWithDefaults = (InstallableUnitLocation) locations.get(0);
         assertEquals(IncludeMode.PLANNER, locationWithDefaults.getIncludeMode());
         assertEquals(false, locationWithDefaults.includeAllEnvironments());
@@ -73,7 +73,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testExplictIncludeModeValues() throws Exception {
-        List<? extends Location> locations = readTarget("includeModes.target");
+        List<? extends Location> locations = readTargetLocations("includeModes.target");
         InstallableUnitLocation locationWithPlanner = (InstallableUnitLocation) locations.get(1);
         InstallableUnitLocation locationWithSlicer = (InstallableUnitLocation) locations.get(2);
         InstallableUnitLocation locationWithSlicerAndAllEnvironments = (InstallableUnitLocation) locations.get(3);
@@ -86,21 +86,36 @@ public class TargetDefinitionFileTest {
 
     @Test(expected = TargetDefinitionSyntaxException.class)
     public void testInvalidXML() throws Exception {
-        readTarget("invalidXML.target");
+        readTargetLocations("invalidXML.target");
     }
 
     @Test(expected = TargetDefinitionSyntaxException.class)
     public void testInvalidIncludeMode() throws Exception {
-        List<? extends Location> locations = readTarget("invalidMode.target");
+        List<? extends Location> locations = readTargetLocations("invalidMode.target");
 
         // allow exception to be thrown late
         InstallableUnitLocation invalidIncludeModeLocation = (InstallableUnitLocation) locations.get(0);
         invalidIncludeModeLocation.getIncludeMode();
     }
 
-    private List<? extends Location> readTarget(String fileName) throws IOException {
-        TargetDefinitionFile target = TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName));
-        return target.getLocations();
+    @Test
+    public void testBundleSelectionList() throws Exception {
+        TargetDefinitionFile targetFile = readTarget("withBundleSelection.target");
+        assertTrue(targetFile.hasIncludedBundles());
+    }
+
+    @Test
+    public void testNoBundleSelectionList() throws Exception {
+        TargetDefinitionFile targetFile = readTarget("target.target");
+        assertFalse(targetFile.hasIncludedBundles());
+    }
+
+    private TargetDefinitionFile readTarget(String fileName) throws IOException {
+        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName));
+    }
+
+    private List<? extends Location> readTargetLocations(String fileName) throws IOException {
+        return readTarget(fileName).getLocations();
     }
 
 }

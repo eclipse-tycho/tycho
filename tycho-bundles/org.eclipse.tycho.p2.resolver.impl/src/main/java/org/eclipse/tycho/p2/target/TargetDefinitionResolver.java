@@ -37,8 +37,8 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.impl.resolver.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.impl.resolver.AbstractResolutionStrategy;
+import org.eclipse.tycho.p2.impl.resolver.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.impl.resolver.SlicerResolutionStrategy;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
@@ -134,6 +134,11 @@ public class TargetDefinitionResolver {
             units = strategy.resolve(environments, monitor);
         } else {
             units = Collections.emptySet();
+        }
+
+        if (definition.hasIncludedBundles()) {
+            // the bundle selection list is currently not taken into account (see bug 373776)
+            logger.warn("De-selecting bundles in a target definition file is not supported. See http://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
         }
 
         return new ResolvedDefinition(units, artifactRepositories);

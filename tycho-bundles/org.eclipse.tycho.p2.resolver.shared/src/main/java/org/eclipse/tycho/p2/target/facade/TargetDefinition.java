@@ -18,6 +18,12 @@ public interface TargetDefinition {
 
     public List<? extends Location> getLocations();
 
+    /**
+     * Returns <code>true</code> if the target definition specifies an explicit list of bundles to
+     * include (i.e. an <tt>&lt;includeBundles&gt;</tt> in target definition files).
+     */
+    boolean hasIncludedBundles();
+
     @Override
     public boolean equals(Object obj);
 
