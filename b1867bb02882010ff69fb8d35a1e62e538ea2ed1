@@ -16,6 +16,24 @@
       "revId": "b1867bb02882010ff69fb8d35a1e62e538ea2ed1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//+9M\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/TargetDefinition.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-05-23T14:16:01Z",
+      "side": 1,
+      "message": "This would obviously also work right now, but this signature is anticipating a proper implementation later on, when Object is replaced by a List of something. For the users side, this would be a compatible change.\n\nThis is more playing around though, so if you like, feel free to change it.",
+      "parentUuid": "AABOHn//++Q\u003d",
+      "revId": "b1867bb02882010ff69fb8d35a1e62e538ea2ed1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
