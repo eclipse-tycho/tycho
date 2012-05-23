@@ -59,6 +59,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     private void createResolver() {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
         p2 = factory.createResolver(new MavenLoggerAdapter(logger, false));
+        p2.setEnvironments(getEnvironments());
         resolutionContext = factory.createTargetPlatformBuilder(null, false);
     }
 
