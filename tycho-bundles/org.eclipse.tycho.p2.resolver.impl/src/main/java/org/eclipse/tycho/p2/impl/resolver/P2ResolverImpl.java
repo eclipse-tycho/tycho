@@ -89,7 +89,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties) {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
-        P2TargetPlatform contextImpl = (P2TargetPlatform) context;
+        P2TargetPlatform contextImpl = (P2TargetPlatform) context.buildTargetPlatform();
         strategy.setJREUIs(contextImpl.getJREIUs());
         strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
