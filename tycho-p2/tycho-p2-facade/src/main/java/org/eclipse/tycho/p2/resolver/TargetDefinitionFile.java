@@ -203,6 +203,15 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return Collections.unmodifiableList(locations);
     }
 
+    public Object getIncludedBundles() {
+        // to be implemented properly when resolver takes this into account (enhancement 373776)
+        if (dom.getChild("includeBundles") != null) {
+            return new Object();
+        } else {
+            return null;
+        }
+    }
+
     public static TargetDefinitionFile read(File file) throws IOException {
         return new TargetDefinitionFile(file);
     }

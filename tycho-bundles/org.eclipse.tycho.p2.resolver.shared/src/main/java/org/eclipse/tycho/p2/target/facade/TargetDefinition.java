@@ -18,6 +18,13 @@ public interface TargetDefinition {
 
     public List<? extends Location> getLocations();
 
+    /**
+     * Returns a non-null value if the target definition specifies an explicit list of bundles to
+     * include (i.e. an <tt>&lt;includeBundles&gt;</tt> in target definition files), or
+     * <code>null</code> otherwise.
+     */
+    Object getIncludedBundles();
+
     @Override
     public boolean equals(Object obj);
 
