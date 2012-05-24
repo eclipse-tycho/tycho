@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHn//+3M\u003d",
+        "filename": "tycho-p2/tycho-p2-plugin/src/main/java/org/eclipse/tycho/plugins/p2/AbstractP2MetadataMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-05-24T11:43:31Z",
+      "side": 1,
+      "message": "This will suppress the warning for update site and category mojos, where I think the warning is justified.",
+      "revId": "d0051bbdbb74c76081101bdbfc15a92c73674f52",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
