@@ -72,7 +72,10 @@ public final class DirectorMojo extends AbstractProductMojo {
                         "-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures), //
                         "-roaming", //
                         "-p2.os", env.getOs(), "-p2.ws", env.getWs(), "-p2.arch", env.getArch() };
-                getLog().info("Calling director with arguments: " + Arrays.toString(args));
+                getLog().info(
+                        "Installing product " + product.getId() + " for environment " + env + " to "
+                                + destination.getAbsolutePath());
+                getLog().debug("Calling director with arguments: " + Arrays.toString(args));
                 final Object result = director.run(args);
                 if (!DirectorApplicationWrapper.EXIT_OK.equals(result)) {
                     throw new MojoFailureException("P2 director return code was " + result);
