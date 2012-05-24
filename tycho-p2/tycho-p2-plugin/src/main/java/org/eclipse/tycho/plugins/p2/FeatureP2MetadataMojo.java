@@ -18,4 +18,11 @@ public class FeatureP2MetadataMojo extends AbstractP2MetadataMojo {
     protected String getPublisherApplication() {
         return "org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher";
     }
+
+    @Override
+    protected void logUpdateSiteLocationNotFound() {
+        // this only matters if PackageFeatureMojo#deployableFeature=true
+        getLog().debug(getUpdateSiteLocation().getAbsolutePath() + " does not exist or is not a directory");
+    }
+
 }
