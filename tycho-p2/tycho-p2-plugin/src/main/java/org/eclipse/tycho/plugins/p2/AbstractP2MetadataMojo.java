@@ -87,13 +87,17 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
             if (getUpdateSiteLocation().isDirectory()) {
                 generateMetadata();
             } else {
-                getLog().warn(getUpdateSiteLocation().getAbsolutePath() + " does not exist or is not a directory");
+                logUpdateSiteLocationNotFound();
             }
         } catch (MojoFailureException e) {
             throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Cannot generate P2 metadata", e);
         }
+    }
+
+    protected void logUpdateSiteLocationNotFound() {
+        getLog().warn(getUpdateSiteLocation().getAbsolutePath() + " does not exist or is not a directory");
     }
 
     private void generateMetadata() throws Exception {
