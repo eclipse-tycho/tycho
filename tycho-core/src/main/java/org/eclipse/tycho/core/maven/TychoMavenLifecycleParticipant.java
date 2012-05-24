@@ -11,7 +11,9 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
@@ -48,10 +50,11 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         if (disableLifecycleParticipation(session)) {
             return;
         }
+        List<MavenProject> projects = session.getProjects();
+        validateUniqueBaseDirs(projects);
         registerExecutionListener(session);
         configureComponents(session);
 
-        List<MavenProject> projects = session.getProjects();
         for (MavenProject project : projects) {
             resolver.setupProject(session, project, DefaultReactorProject.adapt(project));
         }
@@ -59,6 +62,22 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
         for (MavenProject project : projects) {
             resolver.resolveProject(session, project, reactorProjects);
+        }
+    }
+
+    private void validateUniqueBaseDirs(List<MavenProject> projects) throws MavenExecutionException {
+        // we store intermediate build results in the target/ folder and use the baseDir as unique key
+        // so multiple modules in the same baseDir would lead to irreproducible/unexpected results
+        // e.g. with mvn clean. This should really not be supported by maven core
+        Set<File> baseDirs = new HashSet<File>();
+        for (MavenProject project : projects) {
+            File basedir = project.getBasedir();
+            if (baseDirs.contains(basedir)) {
+                throw new MavenExecutionException("Multiple modules within the same basedir are not supported: "
+                        + basedir, project.getFile());
+            } else {
+                baseDirs.add(basedir);
+            }
         }
     }
 
