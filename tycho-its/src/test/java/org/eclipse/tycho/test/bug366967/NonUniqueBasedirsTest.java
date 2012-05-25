@@ -27,7 +27,7 @@ public class NonUniqueBasedirsTest extends AbstractTychoIntegrationTest {
         } catch (VerificationException e) {
             // expected
         }
-        verifier.verifyTextInLog("Multiple modules with the same basedir are not supported");
+        verifier.verifyTextInLog("Multiple modules within the same basedir are not supported");
     }
 
 }
