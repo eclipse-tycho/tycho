@@ -11,6 +11,7 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,9 +70,14 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         // we store intermediate build results in the target/ folder and use the baseDir as unique key
         // so multiple modules in the same baseDir would lead to irreproducible/unexpected results
         // e.g. with mvn clean. This should really not be supported by maven core
-        Set<File> baseDirs = new HashSet<File>();
+        Set<String> baseDirs = new HashSet<String>();
         for (MavenProject project : projects) {
-            File basedir = project.getBasedir();
+            String basedir;
+            try {
+                basedir = project.getBasedir().getCanonicalPath();
+            } catch (IOException e) {
+                throw new MavenExecutionException("Failed to get canonical path ", e);
+            }
             if (baseDirs.contains(basedir)) {
                 throw new MavenExecutionException("Multiple modules within the same basedir are not supported: "
                         + basedir, project.getFile());
