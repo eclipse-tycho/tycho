@@ -47,6 +47,7 @@
 				<filtering>true</filtering>
 				<includes>
 					<include>**/testversion.properties</include>
+                    <include>META-INF/maven/plugin.xml</include>
 				</includes>
 			</testResource>
 			<testResource>
@@ -152,6 +153,11 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
