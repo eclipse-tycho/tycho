@@ -95,6 +95,7 @@ public class MavenMirrorRequest extends MirrorRequest {
 
         // copy jar
         ArtifactDescriptor targetDescriptor = new ArtifactDescriptor(canonical);
+        targetDescriptor.setProperty(IArtifactDescriptor.FORMAT, null);
         IStatus status = Status.OK_STATUS;
         if (!target.contains(targetDescriptor)) {
             monitor.subTask("Downloading " + getArtifactKey().getId());

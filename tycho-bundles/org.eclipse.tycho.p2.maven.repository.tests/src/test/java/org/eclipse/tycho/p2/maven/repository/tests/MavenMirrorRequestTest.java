@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.maven.repository.tests;
 
 import java.io.File;
+import java.util.jar.JarFile;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -19,6 +20,7 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
@@ -71,11 +73,42 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
         IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.ecf",
                 Version.parseVersion("3.1.300.v20120319-0616"));
 
-        MavenMirrorRequest request = new MavenMirrorRequest(key, localRepository, transport, false);
+        MavenMirrorRequest request = new MavenMirrorRequest(key, localRepository, transport, true);
 
         repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
 
-        Assert.assertEquals(1, localRepository.getArtifactDescriptors(key).length);
+        IArtifactDescriptor[] descriptors = localRepository.getArtifactDescriptors(key);
+        Assert.assertEquals(2, descriptors.length);
+        Assert.assertNotNull(getDescriptor(descriptors, null)); // canonical
+        Assert.assertNotNull(getDescriptor(descriptors, IArtifactDescriptor.FORMAT_PACKED));
+
+        File file = localRepository.getArtifactFile(getDescriptor(descriptors, null));
+        Assert.assertTrue(file.isFile() && file.canRead());
+
+        // make sure this is actually a jar
+        JarFile jar = new JarFile(file);
+        try {
+            Assert.assertNotNull(jar.getManifest());
+        } finally {
+            jar.close();
+        }
     }
 
+    private IArtifactDescriptor getDescriptor(IArtifactDescriptor[] descriptors, String format) {
+        if (descriptors == null) {
+            return null;
+        }
+
+        for (IArtifactDescriptor descriptor : descriptors) {
+            if (format != null) {
+                if (format.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
+                    return descriptor;
+                }
+            } else if (descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
+                return descriptor;
+            }
+        }
+
+        return null;
+    }
 }
