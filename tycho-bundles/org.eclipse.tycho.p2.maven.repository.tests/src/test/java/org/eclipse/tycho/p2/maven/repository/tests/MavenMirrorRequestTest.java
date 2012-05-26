@@ -94,6 +94,44 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
         }
     }
 
+    @Test
+    public void testCorruptedPackedArtifact() throws Exception {
+        IProvisioningAgent agent = Activator.getProvisioningAgent();
+        Transport transport = (Transport) agent.getService(Transport.SERVICE_NAME);
+
+        IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent
+                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+
+        IArtifactRepository repository = manager.loadRepository(new File("resources/repositories/packgz").toURI(),
+                monitor);
+
+        LocalArtifactRepository localRepository = new LocalArtifactRepository(localRepoIndices);
+
+        IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.osgi",
+                Version.parseVersion("3.4.3.R34x_v20081215-1030"));
+
+        MavenMirrorRequest request = new MavenMirrorRequest(key, localRepository, transport, true);
+
+        repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
+
+        IArtifactDescriptor[] descriptors = localRepository.getArtifactDescriptors(key);
+        Assert.assertEquals(2, descriptors.length);
+        Assert.assertNotNull(getDescriptor(descriptors, null)); // canonical
+        Assert.assertNotNull(getDescriptor(descriptors, IArtifactDescriptor.FORMAT_PACKED));
+
+        File file = localRepository.getArtifactFile(getDescriptor(descriptors, null));
+        Assert.assertTrue(file.isFile() && file.canRead());
+
+        // make sure this is actually a jar
+        JarFile jar = new JarFile(file);
+        try {
+            Assert.assertNotNull(jar.getManifest());
+        } finally {
+            jar.close();
+        }
+
+    }
+
     private IArtifactDescriptor getDescriptor(IArtifactDescriptor[] descriptors, String format) {
         if (descriptors == null) {
             return null;

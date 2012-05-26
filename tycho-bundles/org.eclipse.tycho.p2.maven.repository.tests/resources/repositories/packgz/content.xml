@@ -1,11 +1,86 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?metadataRepository version='1.1.0'?>
-<repository name='packgz' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
+<repository name='packgz' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1336737208053'/>
+    <property name='p2.timestamp' value='1338060413234'/>
   </properties>
-  <units size='3'>
+  <units size='4'>
+    <unit id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
+      <update id='org.eclipse.osgi' range='[0.0.0,3.4.3.R34x_v20081215-1030)' severity='0'/>
+      <properties size='5'>
+        <property name='df_LT.systemBundle' value='OSGi System Bundle'/>
+        <property name='df_LT.eclipse.org' value='Eclipse.org'/>
+        <property name='org.eclipse.equinox.p2.name' value='%systemBundle'/>
+        <property name='org.eclipse.equinox.p2.description' value='%systemBundle'/>
+        <property name='org.eclipse.equinox.p2.provider' value='%eclipse.org'/>
+      </properties>
+      <provides size='52'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'/>
+        <provided namespace='osgi.bundle' name='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.event' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.console' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.eventmgr' version='1.1.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.log' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.datalocation' version='1.1.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.debug' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.environment' version='1.1.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.localization' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.pluginconversion' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.resolver' version='1.2.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.runnable' version='1.1.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.security' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.service.urlconversion' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.signedcontent' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.storagemanager' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.util' version='1.1.0'/>
+        <provided namespace='java.package' name='org.osgi.framework' version='1.4.0'/>
+        <provided namespace='java.package' name='org.osgi.service.condpermadmin' version='1.0.0'/>
+        <provided namespace='java.package' name='org.osgi.service.packageadmin' version='1.2.0'/>
+        <provided namespace='java.package' name='org.osgi.service.permissionadmin' version='1.2.0'/>
+        <provided namespace='java.package' name='org.osgi.service.startlevel' version='1.1.0'/>
+        <provided namespace='java.package' name='org.osgi.service.url' version='1.0.0'/>
+        <provided namespace='java.package' name='org.osgi.util.tracker' version='1.3.3'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.adaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.internal.adaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.core.runtime.internal.stats' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.baseadaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.baseadaptor.bundlefile' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.baseadaptor.hooks' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.baseadaptor.loader' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.adaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.debug' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.core' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.protocol' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.protocol.bundleentry' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.protocol.bundleresource' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.protocol.reference' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.internal.reliablefile' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.launcher' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.framework.util' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.baseadaptor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.module' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.profile' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.resolver' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.provisional.service.security' version='1.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.provisional.verifier' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.service.security' version='0.0.0'/>
+        <provided namespace='java.package' name='org.eclipse.osgi.internal.signedcontent' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Version: 3.4.3.R34x_v20081215-1030&#xA;Bundle-DocUrl: http://www.eclipse.org&#xA;Bundle-Copyright: %copyright&#xA;Eclipse-SystemBundle: true&#xA;Eclipse-ExtensibleAPI: true&#xA;Export-Package: org.eclipse.osgi.event;version=&quot;1.0&quot;,org.eclipse.osgi.framework.console;version=&quot;1.0&quot;,org.eclipse.osgi.framework.eventmgr;version=&quot;1.1&quot;,org.eclipse.osgi.framework.log;version=&quot;1.0&quot;,org.eclipse.osgi.service.datalocation;version=&quot;1.1&quot;,org.eclipse.osgi.service.debug;version=&quot;1.0&quot;,org.eclipse.osgi.service.environment;version=&quot;1.1&quot;,org.eclipse.osgi.service.localization;version=&quot;1.0&quot;,org.eclipse.osgi.service.pluginconversion;version=&quot;1.0&quot;,org.eclipse.osgi.service.resolver;version=&quot;1.2&quot;,org.eclipse.osgi.service.runnable;version=&quot;1.1&quot;,org.eclipse.osgi.service.security; version=&quot;1.0&quot;,org.eclipse.osgi.service.urlconversion;version=&quot;1.0&quot;,org.eclipse.osgi.signedcontent; version=&quot;1.0&quot;,org.eclipse.osgi.storagemanager;version=&quot;1.0&quot;,org.eclipse.osgi.util;version=&quot;1.1&quot;,org.osgi.framework;version=&quot;1.4&quot;,org.osgi.service.condpermadmin;version=&quot;1.0&quot;,org.osgi.service.packageadmin;version=&quot;1.2&quot;,org.osgi.service.permissionadmin;version=&quot;1.2&quot;,org.osgi.service.startlevel;version=&quot;1.1&quot;,org.osgi.service.url;version=&quot;1.0&quot;,org.osgi.util.tracker;version=&quot;1.3.3&quot;,org.eclipse.core.runtime.adaptor;x-friends:=&quot;org.eclipse.core.runtime&quot;,org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.eclipse.core.runtime.internal.stats;x-friends:=&quot;org.eclipse.core.runtime&quot;,org.eclipse.osgi.baseadaptor;x-internal:=true,org.eclipse.osgi.baseadaptor.bundlefile;x-internal:=true,org.eclipse.osgi.baseadaptor.hooks;x-internal:=true,org.eclipse.osgi.baseadaptor.loader;x-internal:=true,org.eclipse.osgi.framework.adaptor;x-internal:=true,org.eclipse.osgi.framework.debug;x-internal:=true,org.eclipse.osgi.framework.internal.core;x-internal:=true,org.eclipse.osgi.framework.internal.protocol;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.bundleentry;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.bundleresource;x-internal:=true,org.eclipse.osgi.framework.internal.protocol.reference;x-internal:=true,org.eclipse.osgi.framework.internal.reliablefile;x-internal:=true,org.eclipse.osgi.framework.launcher;x-internal:=true,org.eclipse.osgi.framework.util;x-internal:=true,org.eclipse.osgi.internal.baseadaptor;x-internal:=true,org.eclipse.osgi.internal.module;x-internal:=true,org.eclipse.osgi.internal.profile;x-internal:=true,org.eclipse.osgi.internal.resolver;x-internal:=true,org.eclipse.osgi.internal.provisional.service.security; x-friends:=&quot;org.eclipse.equinox.security.ui&quot;;version=&quot;1.0.0&quot;,org.eclipse.osgi.internal.provisional.verifier;x-friends:=&quot;org.eclipse.update.core,org.eclipse.ui.workbench,org.eclipse.equinox.p2.artifact.repository&quot;,org.eclipse.osgi.internal.service.security;x-friends:=&quot;org.eclipse.equinox.security.ui&quot;,org.eclipse.osgi.internal.signedcontent; x-internal:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundleActivator&#xA;Bundle-RequiredExecutionEnvironment: J2SE-1.5,OSGi/Minimum-1.1&#xA;Bundle-Localization: systembundle&#xA;Bundle-SymbolicName: org.eclipse.osgi; singleton:=true&#xA;Export-Service: org.osgi.service.packageadmin.PackageAdmin,org.osgi.service.permissionadmin.PermissionAdmin,org.osgi.service.startlevel.StartLevel,org.eclipse.osgi.service.debug.DebugOptions&#xA;Main-Class: org.eclipse.core.runtime.adaptor.EclipseStarter&#xA;Bundle-Description: %systemBundle&#xA;Bundle-Vendor: %eclipse.org&#xA;Bundle-Name: %systemBundle&#xA;Bundle-ManifestVersion: 2&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
     <unit id='config.a.jre' version='1.6.0' singleton='false'>
       <hostRequirements size='1'>
         <required namespace='org.eclipse.equinox.p2.iu' name='a.jre' range='1.6.0'/>

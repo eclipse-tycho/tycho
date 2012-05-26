@@ -100,10 +100,17 @@ public class MavenMirrorRequest extends MirrorRequest {
         if (!target.contains(targetDescriptor)) {
             monitor.subTask("Downloading " + getArtifactKey().getId());
             status = transfer(targetDescriptor, packed != null ? packed : canonical, monitor);
-        }
 
-        if (!status.isOK() && target.contains(targetDescriptor)) {
-            target.removeDescriptor(targetDescriptor, monitor);
+            if (!status.isOK()) {
+                target.removeDescriptor(targetDescriptor, monitor);
+                if (canonical != packed) {
+                    status = transfer(targetDescriptor, canonical, monitor);
+                }
+            }
+
+            if (!status.isOK()) {
+                target.removeDescriptor(targetDescriptor, monitor);
+            }
         }
 
         setResult(status);
