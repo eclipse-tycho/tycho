@@ -254,7 +254,37 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 			<dependency>
 				<groupId>org.apache.maven.plugin-testing</groupId>
 				<artifactId>maven-plugin-testing-harness</artifactId>
-				<version>2.0-alpha-1</version>
+				<version>2.0</version>
+                <exclusions>
+                  <exclusion>
+                    <artifactId>maven-aether-provider</artifactId>
+                    <groupId>org.apache.maven</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>maven-core</artifactId>
+                    <groupId>org.apache.maven</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>plexus-utils</artifactId>
+                    <groupId>org.codehaus.plexus</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>maven-model</artifactId>
+                    <groupId>org.apache.maven</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>maven-plugin-api</artifactId>
+                    <groupId>org.apache.maven</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>plexus-archiver</artifactId>
+                    <groupId>org.codehaus.plexus</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>maven-compat</artifactId>
+                    <groupId>org.apache.maven</groupId>
+                  </exclusion>
+                </exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven</groupId>

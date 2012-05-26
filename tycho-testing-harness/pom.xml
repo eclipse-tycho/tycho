@@ -24,27 +24,33 @@
 	<name>Tycho Testing Harness (Incubation)</name>
 
 	<dependencies>
+        <dependency>
+            <artifactId>maven-core</artifactId>
+            <groupId>org.apache.maven</groupId>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-testing</groupId>
 			<artifactId>maven-plugin-testing-harness</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
 		</dependency>
+        <dependency>
+            <artifactId>junit</artifactId>
+            <groupId>junit</groupId>
+            <scope>compile</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
 			<artifactId>maven-verifier</artifactId>
 			<version>1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>compile</scope>
+			<exclusions>
+  			  <exclusion>
+  			    <artifactId>junit</artifactId>
+  			    <groupId>junit</groupId>
+  			  </exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
