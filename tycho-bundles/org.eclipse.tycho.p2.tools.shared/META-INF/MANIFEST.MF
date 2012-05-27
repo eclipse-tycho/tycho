@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bundle-Version: 0.15.0.qualifier
+Bundle-Version: 0.16.0.qualifier
 Bundle-Name: Tycho p2 Tools Maven/OSGi Shared Classes (Incubation)
 Bundle-ManifestVersion: 2
 Bundle-Description: Exposes tools for manipulating p2 data, which are implemented in OSGi bundles, to Maven plug-ins

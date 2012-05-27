@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product uid="tycho-bundles-external" name="org.eclipse.tycho.p2" id="org.eclipse.equinox.p2.director.app.product" application="org.eclipse.equinox.p2.director.app.application" version="0.15.0.qualifier" useFeatures="false" includeLaunchers="false">
+<product uid="tycho-bundles-external" name="org.eclipse.tycho.p2" id="org.eclipse.equinox.p2.director.app.product" application="org.eclipse.equinox.p2.director.app.application" version="0.16.0.qualifier" useFeatures="false" includeLaunchers="false">
 
    <configIni use="default">
    </configIni>

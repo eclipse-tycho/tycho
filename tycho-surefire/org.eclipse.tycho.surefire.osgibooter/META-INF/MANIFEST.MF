@@ -6,7 +6,7 @@ Eclipse-AutoStart: true
 Bundle-ClassPath: .,
  jars/surefire-booter-2.10.jar,
  jars/surefire-api-2.10.jar
-Bundle-Version: 0.15.0.qualifier
+Bundle-Version: 0.16.0.qualifier
 Bundle-Name: Tycho Surefire OSGi Booter Eclipse Application (Incubation)
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.tycho.surefire.osgibooter;singleton:=true
