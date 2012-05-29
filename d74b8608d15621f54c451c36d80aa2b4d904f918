@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHn//+oE\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-05-29T07:53:30Z",
+      "side": 1,
+      "message": "is this needed because we want to consume a newer version with a bug fixed?\n\nI know this is PITA but we probably also need to update https://dev.eclipse.org/ipzilla/show_bug.cgi?id\u003d5252",
+      "revId": "d74b8608d15621f54c451c36d80aa2b4d904f918",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
