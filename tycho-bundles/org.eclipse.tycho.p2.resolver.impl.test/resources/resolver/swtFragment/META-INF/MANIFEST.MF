@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.eclipse.tycho.p2.impl.resolver.test.swtFragment
+Bundle-SymbolicName: org.eclipse.tycho.p2.impl.resolver.swtFragment
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.eclipse.swt; bundle-version="[3.0.0,4.0.0)"

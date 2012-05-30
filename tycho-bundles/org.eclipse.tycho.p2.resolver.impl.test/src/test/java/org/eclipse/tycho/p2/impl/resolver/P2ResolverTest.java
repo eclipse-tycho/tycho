@@ -222,6 +222,25 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertContainsUnit("org.eclipse.swt.gtk.linux.x86_64", result.getNonReactorUnits());
     }
 
+    @Test
+    public void swtFragment() throws Exception {
+        context.addP2Repository(resourceFile("repositories/e361").toURI());
+
+        File bundle = resourceFile("resolver/swtFragment");
+        String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.swtFragment";
+        addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
+
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertEquals(2, result.getArtifacts().size());
+        Assert.assertEquals(1, result.getNonReactorUnits().size());
+
+        assertContainsUnit("org.eclipse.swt", result.getNonReactorUnits());
+    }
+
     private static void assertContainsUnit(String unitID, Set<?> units) {
         Assert.assertFalse("Unit " + unitID + " not found", getInstallableUnits(unitID, units).isEmpty());
     }
