@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 @SuppressWarnings("restriction")
 public class MavenMirrorRequest extends MirrorRequest {
@@ -94,8 +93,7 @@ public class MavenMirrorRequest extends MirrorRequest {
         }
 
         // copy jar
-        ArtifactDescriptor targetDescriptor = new ArtifactDescriptor(canonical);
-        targetDescriptor.setProperty(IArtifactDescriptor.FORMAT, null);
+        IArtifactDescriptor targetDescriptor = target.createArtifactDescriptor(canonical.getArtifactKey());
         IStatus status = Status.OK_STATUS;
         if (!target.contains(targetDescriptor)) {
             monitor.subTask("Downloading " + getArtifactKey().getId());
