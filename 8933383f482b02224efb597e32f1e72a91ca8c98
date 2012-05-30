@@ -16,6 +16,24 @@
       "revId": "8933383f482b02224efb597e32f1e72a91ca8c98",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn///KE\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildQualifierMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-05-30T14:30:08Z",
+      "side": 1,
+      "message": "Can you elaborate you concerns? Adding new mojo is trivial but I need to understand the problem before I can comment on a solution.\n\nAll tycho-compatible packaging types already must have corresponding TychoProject implementation, so proposed change does not seem to impede extensibility unless you plan to rework/remove TychoProject in the near future.",
+      "parentUuid": "AABOHn///LQ\u003d",
+      "revId": "8933383f482b02224efb597e32f1e72a91ca8c98",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
