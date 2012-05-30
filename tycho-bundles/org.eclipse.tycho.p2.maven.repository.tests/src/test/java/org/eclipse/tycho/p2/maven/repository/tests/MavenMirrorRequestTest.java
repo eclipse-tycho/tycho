@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.MavenMirrorRequest;
@@ -54,7 +55,11 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
 
         repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
 
-        Assert.assertEquals(1, localRepository.getArtifactDescriptors(key).length);
+        IArtifactDescriptor[] descriptors = localRepository.getArtifactDescriptors(key);
+        Assert.assertEquals(1, descriptors.length);
+        Assert.assertNotNull(descriptors[0]);
+        Assert.assertTrue(descriptors[0].getProperties().isEmpty());
+        Assert.assertEquals(0, descriptors[0].getProcessingSteps().length);
     }
 
     @Test
@@ -79,12 +84,19 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
 
         IArtifactDescriptor[] descriptors = localRepository.getArtifactDescriptors(key);
         Assert.assertEquals(2, descriptors.length);
-        Assert.assertNotNull(getDescriptor(descriptors, null)); // canonical
-        Assert.assertNotNull(getDescriptor(descriptors, IArtifactDescriptor.FORMAT_PACKED));
+        IArtifactDescriptor packed = getDescriptor(descriptors, IArtifactDescriptor.FORMAT_PACKED);
+        Assert.assertNotNull(packed);
+        Assert.assertEquals(IArtifactDescriptor.FORMAT_PACKED, packed.getProperty(IArtifactDescriptor.FORMAT));
+        Assert.assertEquals(1, packed.getProcessingSteps().length);
+        Assert.assertEquals("org.eclipse.equinox.p2.processing.Pack200Unpacker",
+                packed.getProcessingSteps()[0].getProcessorId());
 
-        File file = localRepository.getArtifactFile(getDescriptor(descriptors, null));
+        IArtifactDescriptor canonical = getDescriptor(descriptors, null);
+        Assert.assertNotNull(canonical);
+        Assert.assertTrue(canonical.getProperties().isEmpty());
+        Assert.assertEquals(0, canonical.getProcessingSteps().length);
+        File file = localRepository.getArtifactFile(canonical);
         Assert.assertTrue(file.isFile() && file.canRead());
-
         // make sure this is actually a jar
         JarFile jar = new JarFile(file);
         try {
@@ -92,6 +104,7 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
         } finally {
             jar.close();
         }
+
     }
 
     @Test
@@ -129,7 +142,47 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
         } finally {
             jar.close();
         }
+    }
 
+    @Test
+    public void testArtifactImplementationClass() throws Exception {
+        // The point of this test is to ensure that the same IArtifact implementation used by MavenMirrorRequest
+        // and by (maven) LocalArtifactRepository. If MavenMirrorRequest and LocalArtifactRepository use different
+        // IArtifact implementation, this results in duplicate copies of the artifact descriptor.
+
+        IProvisioningAgent agent = Activator.getProvisioningAgent();
+        Transport transport = (Transport) agent.getService(Transport.SERVICE_NAME);
+
+        IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent
+                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+
+        IArtifactRepository repository = manager.loadRepository(new File("resources/repositories/e342").toURI(),
+                monitor);
+
+        IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.osgi",
+                Version.parseVersion("3.4.3.R34x_v20081215-1030"));
+
+        LocalArtifactRepository localRepository;
+        MavenMirrorRequest request;
+        IArtifactDescriptor[] descriptors;
+
+        localRepository = new LocalArtifactRepository(localRepoIndices);
+
+        // mirror
+        request = new MavenMirrorRequest(key, localRepository, transport, false);
+        repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
+        descriptors = localRepository.getArtifactDescriptors(key);
+        Assert.assertEquals(1, descriptors.length);
+        Assert.assertTrue(descriptors[0].getClass() == ArtifactDescriptor.class);
+
+        // force reload
+        localRepository.save();
+
+        // make sure the same artifact implementation is loaded from metadata
+        localRepository = new LocalArtifactRepository(localRepoIndices);
+        descriptors = localRepository.getArtifactDescriptors(key);
+        Assert.assertEquals(1, descriptors.length);
+        Assert.assertTrue(descriptors[0].getClass() == ArtifactDescriptor.class);
     }
 
     private IArtifactDescriptor getDescriptor(IArtifactDescriptor[] descriptors, String format) {
