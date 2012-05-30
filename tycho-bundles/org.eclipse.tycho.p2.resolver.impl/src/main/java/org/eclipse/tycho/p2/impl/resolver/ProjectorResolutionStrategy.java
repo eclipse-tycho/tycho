@@ -110,6 +110,18 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             return;
         }
 
+        // 380934 one of rootIUs can be SWT or an SWT fragment
+        for (IInstallableUnit iu : rootIUs) {
+            if ("org.eclipse.swt".equals(iu.getId())) {
+                return;
+            }
+            for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
+                if ("osgi.fragment".equals(provided.getNamespace()) && "org.eclipse.swt".equals(provided.getName())) {
+                    return;
+                }
+            }
+        }
+
         IInstallableUnit swtFragment = null;
 
         all_ius: for (Iterator<IInstallableUnit> iter = availableIUs.query(QueryUtil.ALL_UNITS, monitor).iterator(); iter

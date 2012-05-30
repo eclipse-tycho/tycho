@@ -222,6 +222,60 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertContainsUnit("org.eclipse.swt.gtk.linux.x86_64", result.getNonReactorUnits());
     }
 
+    @Test
+    public void swt() throws Exception {
+        File swt = resourceFile("resolver/swt/org.eclipse.swt");
+        addReactorProject(swt, TYPE_ECLIPSE_PLUGIN, "org.eclipse.swt");
+        File swtFragment = resourceFile("resolver/swt/swtFragment");
+        addReactorProject(swtFragment, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.swtFragment");
+
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), swt);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertEquals(1, result.getArtifacts().size());
+        assertContainLocation(result, swt);
+    }
+
+    @Test
+    public void swtFragment() throws Exception {
+        File swt = resourceFile("resolver/swt/org.eclipse.swt");
+        addReactorProject(swt, TYPE_ECLIPSE_PLUGIN, "org.eclipse.swt");
+        File swtFragment = resourceFile("resolver/swt/swtFragment");
+        addReactorProject(swtFragment, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.swtFragment");
+
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), swtFragment);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertEquals(2, result.getArtifacts().size());
+        Assert.assertEquals(0, result.getNonReactorUnits().size());
+
+        assertContainLocation(result, swtFragment);
+        assertContainLocation(result, swt);
+    }
+
+    @Test
+    public void swtFragmentWithRemoteSWT() throws Exception {
+        context.addP2Repository(resourceFile("repositories/e361").toURI());
+
+        File swtFragment = resourceFile("resolver/swt/swtFragment");
+        addReactorProject(swtFragment, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.swtFragment");
+
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), swtFragment);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertEquals(2, result.getArtifacts().size());
+        Assert.assertEquals(1, result.getNonReactorUnits().size());
+
+        assertContainLocation(result, swtFragment);
+        assertContainsUnit("org.eclipse.swt", result.getNonReactorUnits());
+    }
+
     private static void assertContainsUnit(String unitID, Set<?> units) {
         Assert.assertFalse("Unit " + unitID + " not found", getInstallableUnits(unitID, units).isEmpty());
     }
