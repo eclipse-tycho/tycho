@@ -16,6 +16,24 @@
       "revId": "e6af95cabf43bf477f3cfef9b1b1cf2d939bd969",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//+YY\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/resolver/ProjectorResolutionStrategy.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-05-31T11:09:14Z",
+      "side": 1,
+      "message": "Yes, target definition is also being swt fixed but most sane target definitions would already include swt fragments, in which case swt fix is a noop. \n\nI do agree we need to disable swt fix for target files, but this is a separate issue and we should deal with it with a separate bugzilla and git commit. I\u0027ve opened bug 381167 to track this.",
+      "parentUuid": "AABOHn//+ZE\u003d",
+      "revId": "e6af95cabf43bf477f3cfef9b1b1cf2d939bd969",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
