@@ -84,6 +84,7 @@
         <module>tycho-source-feature-plugin</module>
         <module>pack200</module>
         <module>tycho-buildtimestamp-jgit</module>
+		<module>target-platform-validation-plugin</module>
 	</modules>
 
 	<repositories>
