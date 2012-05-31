@@ -34,6 +34,24 @@
       "revId": "8933383f482b02224efb597e32f1e72a91ca8c98",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//+Y4\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildQualifierMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-05-31T09:27:24Z",
+      "side": 1,
+      "message": "The vision is to allow others to define new packaging types by picking mojos from the default lifecycle of our packaging types (without having to register a new component). For this to work, we\u0027d need to get a away from the packaging type based reasoning (\"this is packaging type xyz hence I do this\") to a more concern-based reasoning (\"the mojo for an aggregate type is used, therfore...\"). Switching behaviour via different Mojos is a step in that direction.\n\nAnd in unrelated terms, it seems to me that aggregate qualifier computation is significantly different to the standard qualifier computation to justify a separation into mojos.",
+      "parentUuid": "AABOHn///KE\u003d",
+      "revId": "8933383f482b02224efb597e32f1e72a91ca8c98",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
