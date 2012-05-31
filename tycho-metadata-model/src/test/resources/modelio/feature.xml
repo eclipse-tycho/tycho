@@ -6,20 +6,26 @@
       provider-name="COMPANY">
 
    <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+      Test Description
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
-   </copyright>
+	<!-- LEFT Blank to test case dom node does not exist -->
+   <!--copyright url="http://www.example.com/copyright">
+      Test Copyright
+   </copyright-->
 
    <license url="http://www.example.com/license">
-      [Enter License Description here.]
+      Test License
    </license>
 
    <includes
          id="featureB"
          version="0.0.0"/>
+
+   <requires>
+      <import plugin="pluginB"/>
+      <import feature="featureC"/>
+   </requires>
 
    <plugin
          id="pluginA"
@@ -27,10 +33,5 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <requires>
-      <import plugin="pluginB"/>
-      <import feature="featureC"/>
-   </requires>
 
 </feature>

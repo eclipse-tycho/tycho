@@ -80,14 +80,38 @@ public class EclipseModelTest extends TestCase {
         assertEquals("pluginB", requires.get(0).getImports().get(0).getPlugin());
         assertEquals("featureC", requires.get(0).getImports().get(1).getFeature());
 
+        // not structural data - getters
+        assertEquals("featureA", feature.getLabel());
+        assertEquals("COMPANY", feature.getProvider());
+        assertEquals("Test License", feature.getLicense().trim());
+        assertEquals("http://www.example.com/license", feature.getLicenseURL());
+        assertEquals(null, feature.getCopyrightURL());
+        assertEquals(null, feature.getCopyright());
+
         feature.setVersion("1.2.3");
         plugins.get(0).setVersion("3.4.5");
+
+        // not structural data - setters
+        feature.setLabel("featureA_MODIFIED");
+        feature.setProvider("COMPANY_MODIFIED");
+        feature.setLicense("Test License MODIFIED");
+        feature.setLicenseURL("http://www.example.com/license_MODIFIED");
+        feature.setCopyright("Test Copyright");
+        feature.setCopyrightURL("http://www.example.com/copyright");
 
         File updatedFile = new File(target, "feature.xml");
         Feature.write(feature, updatedFile);
         Feature updated = Feature.read(updatedFile);
         assertEquals("1.2.3", updated.getVersion());
         assertEquals("3.4.5", updated.getPlugins().get(0).getVersion());
+
+        // not structural data - persistence
+        assertEquals("featureA_MODIFIED", feature.getLabel());
+        assertEquals("COMPANY_MODIFIED", feature.getProvider());
+        assertEquals("Test License MODIFIED", feature.getLicense());
+        assertEquals("http://www.example.com/license_MODIFIED", feature.getLicenseURL());
+        assertEquals("http://www.example.com/copyright", feature.getCopyrightURL());
+        assertEquals("Test Copyright", feature.getCopyright());
     }
 
     public void testPlatform() throws Exception {
