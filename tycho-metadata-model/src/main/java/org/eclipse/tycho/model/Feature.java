@@ -240,4 +240,131 @@ public class Feature {
         dom.addNode(feature.getDom());
         features = null;
     }
+
+    //////
+    // Other (not structural) feature content
+    //////
+
+    // label
+    public String getLabel() {
+        return dom.getAttributeValue("label");
+    }
+
+    public void setLabel(String label) {
+        dom.setAttribute("label", label);
+    }
+
+    // provider
+    public String getProvider() {
+        return dom.getAttributeValue("provider-name");
+    }
+
+    public void setProvider(String provider) {
+        dom.setAttribute("provider-name", provider);
+    }
+
+    // description + url
+    public String getDescription() {
+        Element descElement = dom.getChild("description");
+        if (descElement != null) {
+            return descElement.getText();
+        }
+        return null;
+    }
+
+    public void setDescription(String description) {
+        Element descElement = dom.getChild("description");
+        if (descElement == null) {
+            descElement = new Element("description");
+            dom.addNode(descElement);
+        }
+        descElement.setText(description);
+    }
+
+    public String getDescriptionURL() {
+        Element descElement = dom.getChild("description");
+        if (descElement != null) {
+            return descElement.getAttributeValue("url");
+        }
+        return null;
+    }
+
+    public void setDescriptionURL(String descriptionURL) {
+        Element descElement = dom.getChild("description");
+        if (descElement == null) {
+            descElement = new Element("description");
+            dom.addNode(descElement);
+        }
+        descElement.setAttribute("url", descriptionURL);
+    }
+
+    // copyright + url
+    public String getCopyright() {
+        Element copyrightElement = dom.getChild("copyright");
+        if (copyrightElement != null) {
+            return copyrightElement.getText();
+        }
+        return null;
+    }
+
+    public void setCopyright(String description) {
+        Element copyrightElement = dom.getChild("copyright");
+        if (copyrightElement == null) {
+            copyrightElement = new Element("copyright");
+            dom.addNode(copyrightElement);
+        }
+        copyrightElement.setText(description);
+    }
+
+    public String getCopyrightURL() {
+        Element copyrightElement = dom.getChild("copyright");
+        if (copyrightElement != null) {
+            return copyrightElement.getAttributeValue("url");
+        }
+        return null;
+    }
+
+    public void setCopyrightURL(String copyrightURL) {
+        Element copyrightElement = dom.getChild("copyright");
+        if (copyrightElement == null) {
+            copyrightElement = new Element("copyright");
+            dom.addNode(copyrightElement);
+        }
+        copyrightElement.setAttribute("url", copyrightURL);
+    }
+
+    // license + url
+    public String getLicense() {
+        Element licenseElement = dom.getChild("license");
+        if (licenseElement != null) {
+            return licenseElement.getText();
+        }
+        return null;
+    }
+
+    public void setLicense(String license) {
+        Element licenseElement = dom.getChild("license");
+        if (licenseElement == null) {
+            licenseElement = new Element("license");
+            dom.addNode(licenseElement);
+        }
+        licenseElement.setText(license);
+    }
+
+    public String getLicenseURL() {
+        Element licenseElement = dom.getChild("license");
+        if (licenseElement != null) {
+            return licenseElement.getAttributeValue("url");
+        }
+        return null;
+    }
+
+    public void setLicenseURL(String licenseURL) {
+        Element licenseElement = dom.getChild("license");
+        if (licenseElement == null) {
+            licenseElement = new Element("license");
+            dom.addNode(licenseElement);
+        }
+        licenseElement.setAttribute("url", licenseURL);
+    }
 }
