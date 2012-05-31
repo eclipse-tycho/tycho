@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHn//+ZE\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/resolver/ProjectorResolutionStrategy.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-05-31T08:19:03Z",
+      "side": 1,
+      "message": "A context question: I\u0027ve seen that the ProjectorResolutionStrategy is also used by the TargetDefinitionResolver. Does this mean that target definitions also get \"SWT fixed\"? I see the need for this in dependency resolution, but I doubt that target definition resolution include this.",
+      "revId": "e6af95cabf43bf477f3cfef9b1b1cf2d939bd969",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
