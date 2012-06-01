@@ -28,11 +28,11 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 
 @SuppressWarnings("restriction")
-class MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryManager {
+class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryManager {
 
     private IArtifactRepositoryManager delegate;
 
-    public MirrorDisablingArtifactRepositoryManager(IArtifactRepositoryManager originalRepositoryManager) {
+    public P2MirrorDisablingArtifactRepositoryManager(IArtifactRepositoryManager originalRepositoryManager) {
         this.delegate = originalRepositoryManager;
     }
 

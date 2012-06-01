@@ -39,16 +39,16 @@ public class RemoteAgentManager {
     public RemoteAgentManager() {
     }
 
-    public synchronized IProvisioningAgent getProvisioningAgent(boolean disableMirrors) throws ProvisionException {
-        Boolean key = Boolean.valueOf(disableMirrors);
+    public synchronized IProvisioningAgent getProvisioningAgent(boolean disableP2Mirrors) throws ProvisionException {
+        Boolean key = Boolean.valueOf(disableP2Mirrors);
 
         IProvisioningAgent agent = cachedAgents.get(key);
         if (agent == null) {
-            agent = new RemoteAgent(mavenContext, disableMirrors);
+            agent = new RemoteAgent(mavenContext, disableP2Mirrors);
             cachedAgents.put(key, agent);
 
             if (cachedAgents.size() > 1) {
-                String message = "The target platform configuration disableP2Mirrors=" + disableMirrors
+                String message = "The target platform configuration disableP2Mirrors=" + disableP2Mirrors
                         + " in this project is different from the configuration in other projects"
                         + " in the same reactor."
                         + " This may lead to redundant loading of p2 repositories and hence a slower build.";
