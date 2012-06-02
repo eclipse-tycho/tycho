@@ -16,6 +16,24 @@
       "revId": "a0252b51482202c90de2e9fed35789362ef1da43",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//+Nk\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildQualifierMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-02T19:05:19Z",
+      "side": 1,
+      "message": "Good catch, I meant to delete paragraph, the text has already been moved to qualifier-aggregator mojo.",
+      "parentUuid": "AABOHn//+N0\u003d",
+      "revId": "a0252b51482202c90de2e9fed35789362ef1da43",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
