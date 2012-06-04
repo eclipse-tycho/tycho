@@ -226,12 +226,16 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private Properties readL10nProps(OsgiManifest manifest) throws MojoExecutionException {
         String bundleL10nBase = manifest.getValue(BUNDLE_LOCALIZATION);
         if (bundleL10nBase == null) {
-            bundleL10nBase = "plugin";
+            bundleL10nBase = BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
         }
         File l10nPropsFile = new File(project.getBasedir(), bundleL10nBase + ".properties");
         if (!l10nPropsFile.isFile()) {
-            getLog().warn("bundle localization file " + l10nPropsFile + " not found");
-            return null;
+            bundleL10nBase = "plugin";
+            l10nPropsFile = new File(project.getBasedir(), bundleL10nBase + ".properties");
+            if (!l10nPropsFile.isFile()) {
+                getLog().warn("bundle localization file " + l10nPropsFile + " not found");
+                return null;
+            }
         }
         Properties l10nProps = new Properties();
         FileInputStream in = null;
