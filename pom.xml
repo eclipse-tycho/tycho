@@ -89,7 +89,7 @@
 	<repositories>
 		<repository>
 			<id>tycho-snapshots</id>
-			<url>file:///var/tmp/local-tycho</url>
+			<url>https://oss.sonatype.org/content/groups/public</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -99,7 +99,7 @@
 	<pluginRepositories>
 		<pluginRepository>
 			<id>tycho-snapshots</id>
-            <url>file:///var/tmp/local-tycho</url>
+            <url>https://oss.sonatype.org/content/groups/public</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
