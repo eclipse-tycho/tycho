@@ -53,40 +53,34 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
     private class MavenRepositorySettingsProvider implements MavenRepositorySettings {
 
         public MavenRepositoryLocation getMirror(MavenRepositoryLocation location) {
-            String id = location.getId();
-
-            // TODO check repository type?
-            if (id == null) {
-                id = location.getURL().toString();
-            }
-
-            ArtifactRepository locationAsMavenRepository = repositorySystem.createArtifactRepository(id, location
-                    .getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
-
-            Mirror mirror = repositorySystem.getMirror(locationAsMavenRepository, context.getSession().getRequest()
-                    .getMirrors());
-            if (mirror != null) {
-                return new MavenRepositoryLocation(mirror.getId(), URI.create(mirror.getUrl()));
-            } else {
+            if (location.getId() == null) {
                 return null;
             }
+            // TODO check repository type?
+
+            ArtifactRepository locationAsMavenRepository = repositorySystem.createArtifactRepository(location.getId(),
+                    location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
+            Mirror mirror = repositorySystem.getMirror(locationAsMavenRepository, context.getSession().getRequest()
+                    .getMirrors());
+
+            if (mirror != null) {
+                return new MavenRepositoryLocation(mirror.getId(), URI.create(mirror.getUrl()));
+            }
+            return null;
         }
 
         public MavenRepositorySettings.Credentials getCredentials(MavenRepositoryLocation location) {
             if (location.getId() == null) {
                 return null;
-            } else {
-                Server serverSettings = context.getSession().getSettings().getServer(location.getId());
-
-                if (serverSettings != null) {
-                    return new MavenRepositorySettings.Credentials(serverSettings.getUsername(),
-                            serverSettings.getPassword());
-                } else {
-                    logger.info("Unknown server ID '" + location.getId() + "' for repository location "
-                            + location.getURL());
-                    return null;
-                }
             }
+
+            Server serverSettings = context.getSession().getSettings().getServer(location.getId());
+
+            if (serverSettings != null) {
+                return new MavenRepositorySettings.Credentials(serverSettings.getUsername(),
+                        serverSettings.getPassword());
+            }
+            return null;
         }
 
     }

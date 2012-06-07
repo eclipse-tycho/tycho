@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.remote;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
@@ -84,6 +85,20 @@ public class RemoteAgentMavenMirrorsTest {
         prepareMavenMirrorConfiguration(repositoryId, mirroredUrl);
 
         Repositories repos = loadRepositories(repositoryId, originalUrl);
+
+        assertThat(repos.getMetadataRepository(), notNullValue());
+        assertThat(repos.getArtifactRepository(), notNullValue());
+    }
+
+    @Test
+    public void testLoadFromMirroredLocationWithFallbackId() throws Exception {
+        URI originalUrl = URI.create(localServer.addServer("original", noContent())); // will fail if used
+        URI mirroredUrl = URI.create(localServer.addServer("mirrored", ResourceUtil.resourceFile("repositories/e342")));
+        String repositoryFallbackId = originalUrl.toString();
+        assertFalse("self-test: fallback ID shall be URL without trailing slash", repositoryFallbackId.endsWith("/"));
+        prepareMavenMirrorConfiguration(repositoryFallbackId, mirroredUrl);
+
+        Repositories repos = loadRepositories(null, originalUrl);
 
         assertThat(repos.getMetadataRepository(), notNullValue());
         assertThat(repos.getArtifactRepository(), notNullValue());

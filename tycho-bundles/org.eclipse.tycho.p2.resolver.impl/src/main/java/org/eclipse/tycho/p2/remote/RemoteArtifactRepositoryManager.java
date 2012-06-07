@@ -34,22 +34,11 @@ class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
     }
 
     private URI translate(URI location) {
-        if (isMemoryURI(location))
-            return location;
-
         return repositoryHelper.getEffectiveLocation(location);
     }
 
     private URI translateAndPrepareLoad(URI location) throws ProvisionException {
-        if (isMemoryURI(location))
-            return location;
-
         return repositoryHelper.getEffectiveLocationAndPrepareLoad(location);
-    }
-
-    // for short-cuts for memory composite repositories; see org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository.createMemoryComposite(IProvisioningAgent)
-    private static boolean isMemoryURI(URI location) {
-        return "memory:".equals(location.getScheme());
     }
 
     public void addRepository(URI location) {
