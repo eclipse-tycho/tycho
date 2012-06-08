@@ -19,9 +19,9 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry {
     private final String type;
 
-    private final String id;
+    private String id;
 
-    private final String version;
+    private String version;
 
     private final File location;
 
@@ -66,6 +66,14 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     public String getClassifier() {
         return classifier;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
 }

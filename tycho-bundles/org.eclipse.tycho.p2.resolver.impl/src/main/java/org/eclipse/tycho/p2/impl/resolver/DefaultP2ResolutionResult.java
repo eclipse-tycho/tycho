@@ -34,7 +34,7 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
         return entries.values();
     }
 
-    public void addArtifact(String type, String id, String version, File location, String classifier,
+    public void addArtifact(String type, String id, String version, boolean primary, File location, String classifier,
             IInstallableUnit installableUnit) {
         // (location,classifier) is not null, but can have multiple associated IUs
 
@@ -45,6 +45,14 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
         if (entry == null) {
             entry = new DefaultP2ResolutionResultEntry(type, id, version, location, classifier);
             entries.put(key, entry);
+        } else {
+            // bug 375715: entry may have been created for extra IUs from a p2.inf
+            if (primary) {
+                // set correct id/version for this entry
+                entry.setId(id);
+                entry.setVersion(version);
+            }
+
         }
 
         entry.addInstallableUnit(installableUnit);
