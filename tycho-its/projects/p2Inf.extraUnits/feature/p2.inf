@@ -1,0 +1,99 @@
+#
+# Define the P2 IUFragraments that provide the CU's 
+# (configuration units) to auto-start the core bundles. 
+#
+# Add the requirement for the 0th fragment to the feature
+requires.0.namespace = org.eclipse.equinox.p2.iu
+requires.0.name = org.eclipse.core.runtime.iufragment
+#
+# Add the requirement for the 1nd fragment to the feature
+requires.1.namespace = org.eclipse.equinox.p2.iu
+requires.1.name = org.eclipse.equinox.common.iufragment
+
+requires.2.namespace = org.eclipse.equinox.p2.iu
+requires.2.name = peu.bundle.iufragment
+
+#
+# Define the IUFragment for org.eclipse.core.runtime
+units.0.id = org.eclipse.core.runtime.iufragment
+units.0.version = 1.0.0
+units.0.provides.1.namespace = org.eclipse.equinox.p2.iu
+units.0.provides.1.name = org.eclipse.core.runtime.iufragment
+units.0.provides.1.version=1.0.0 
+units.0.hostRequirements.1.namespace=osgi.bundle
+units.0.hostRequirements.1.name=org.eclipse.core.runtime
+units.0.hostRequirements.1.range=[3.4.0,4.0.0)
+units.0.hostRequirements.1.greedy=false
+units.0.hostRequirements.2.namespace=org.eclipse.equinox.p2.eclipse.type
+units.0.hostRequirements.2.name=bundle
+units.0.hostRequirements.2.range=[1.0.0,2.0.0)
+units.0.hostRequirements.2.greedy=false
+units.0.requires.1.namespace=osgi.bundle 
+units.0.requires.1.name=org.eclipse.core.runtime
+units.0.requires.1.range=[3.4.0,4.0.0)
+units.0.requires.1.greedy=false
+units.0.requires.2.namespace=org.eclipse.equinox.p2.eclipse.type
+units.0.requires.2.name=bundle
+units.0.requires.2.range=[1.0.0,2.0.0)
+units.0.requires.2.greedy=false 
+units.0.instructions.install=installBundle(bundle:${artifact});
+units.0.instructions.uninstall=uninstallBundle(bundle:${artifact});
+units.0.instructions.configure=setStartLevel(startLevel:4); markStarted(started:true);
+units.0.instructions.unconfigure=setStartLevel(startLevel:-1); markStarted(started:false);
+
+#
+# Define the IUFragment for org.eclipse.equinox.common
+units.1.id = org.eclipse.equinox.common.iufragment
+units.1.version = 1.0.0
+units.1.provides.1.namespace = org.eclipse.equinox.p2.iu
+units.1.provides.1.name = org.eclipse.equinox.common.iufragment
+units.1.provides.1.version=1.0.0 
+units.1.hostRequirements.1.namespace=osgi.bundle
+units.1.hostRequirements.1.name=org.eclipse.equinox.common
+units.1.hostRequirements.1.range=[3.4.0,4.0.0)
+units.1.hostRequirements.1.greedy=false
+units.1.hostRequirements.2.namespace=org.eclipse.equinox.p2.eclipse.type
+units.1.hostRequirements.2.name=bundle
+units.1.hostRequirements.2.range=[1.0.0,2.0.0)
+units.1.hostRequirements.2.greedy=false
+units.1.requires.1.namespace=osgi.bundle 
+units.1.requires.1.name=org.eclipse.equinox.common
+units.1.requires.1.range=[3.4.0,4.0.0)
+units.1.requires.1.greedy=false
+units.1.requires.2.namespace=org.eclipse.equinox.p2.eclipse.type
+units.1.requires.2.name=bundle
+units.1.requires.2.range=[1.0.0,2.0.0)
+units.1.requires.2.greedy=false 
+units.1.instructions.install=installBundle(bundle:${artifact});
+units.1.instructions.uninstall=uninstallBundle(bundle:${artifact});
+units.1.instructions.configure=setStartLevel(startLevel:2); markStarted(started:true);
+units.1.instructions.unconfigure=setStartLevel(startLevel:-1); markStarted(started:false);
+
+#
+# Define the IUFragment for org.eclipse.equinox.common
+units.2.id = peu.bundle.iufragment
+units.2.version = 1.0.0
+units.2.provides.1.namespace = org.eclipse.equinox.p2.iu
+units.2.provides.1.name = peu.bundle.iufragment
+units.2.provides.1.version=1.0.0 
+units.2.hostRequirements.1.namespace=osgi.bundle
+units.2.hostRequirements.1.name=peu.bundle
+units.2.hostRequirements.1.range=[1.0.0,2.0.0)
+units.2.hostRequirements.1.greedy=false
+units.2.hostRequirements.2.namespace=org.eclipse.equinox.p2.eclipse.type
+units.2.hostRequirements.2.name=bundle
+units.2.hostRequirements.2.range=[1.0.0,2.0.0)
+units.2.hostRequirements.2.greedy=false
+units.2.requires.1.namespace=osgi.bundle 
+units.2.requires.1.name=peu.bundle
+units.2.requires.1.range=[1.0.0,2.0.0)
+units.2.requires.1.greedy=false
+units.2.requires.2.namespace=org.eclipse.equinox.p2.eclipse.type
+units.2.requires.2.name=bundle
+units.2.requires.2.range=[1.0.0,2.0.0)
+units.2.requires.2.greedy=false 
+units.2.instructions.install=installBundle(bundle:${artifact});
+units.2.instructions.uninstall=uninstallBundle(bundle:${artifact});
+units.2.instructions.configure=setStartLevel(startLevel:2); markStarted(started:true);
+units.2.instructions.unconfigure=setStartLevel(startLevel:-1); markStarted(started:false);
+

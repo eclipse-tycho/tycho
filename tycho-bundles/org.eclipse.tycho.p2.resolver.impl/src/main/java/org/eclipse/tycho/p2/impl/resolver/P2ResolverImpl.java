@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -168,11 +169,12 @@ public class P2ResolverImpl implements P2Resolver {
         String mavenClassidier = reactorArtifact != null ? reactorArtifact.getClassifier() : null;
 
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, file, mavenClassidier, iu);
+            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, true, file, mavenClassidier, iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, file, mavenClassidier, iu);
+                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, true, file, mavenClassidier,
+                        iu);
             }
         }
 
@@ -185,21 +187,26 @@ public class P2ResolverImpl implements P2Resolver {
         String id = iu.getId();
         String version = iu.getVersion().toString();
         File location = mavenArtifact.getLocation();
-        String mavenClassidier = mavenArtifact.getClassifier();
+        String mavenClassifier = mavenArtifact.getClassifier();
+        boolean primary = false;
 
-        if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
+        if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type)) {
+            primary = isBundleOrFragmentWithId(iu, id);
+        } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
                 // feature can have additional IUs injected via p2.inf
                 id = featureId;
+                primary = true;
             }
         } else if ("jar".equals(type)) {
             // this must be an OSGi bundle coming from a maven repository
             // TODO check if iu actually provides CAPABILITY_NS_OSGI_BUNDLE capability
             type = ArtifactKey.TYPE_ECLIPSE_PLUGIN;
+            primary = true;
         }
 
-        platform.addArtifact(type, id, version, location, mavenClassidier, iu);
+        platform.addArtifact(type, id, version, primary, location, mavenClassifier, iu);
     }
 
     private String getFeatureId(IInstallableUnit iu) {
@@ -209,6 +216,16 @@ public class P2ResolverImpl implements P2Resolver {
             }
         }
         return null;
+    }
+
+    private boolean isBundleOrFragmentWithId(IInstallableUnit iu, String id) {
+        for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
+            if (BundlesAction.CAPABILITY_NS_OSGI_BUNDLE.equals(provided.getNamespace())
+                    || BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(provided.getNamespace())) {
+                return id.equals(provided.getName());
+            }
+        }
+        return false;
     }
 
     public void setEnvironments(List<Map<String, String>> environments) {
