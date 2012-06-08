@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -49,14 +49,8 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
 
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
             URI uri = new URL(repository.getUrl()).toURI();
-
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
-                Authentication auth = repository.getAuthentication();
-                if (auth != null) {
-                    resolutionContext.setCredentials(uri, auth.getUsername(), auth.getPassword());
-                }
-
-                resolutionContext.addP2Repository(uri);
+                resolutionContext.addP2Repository(new MavenRepositoryLocation(repository.getId(), uri));
             }
         }
 
