@@ -145,7 +145,7 @@ public class TargetDefinitionResolver {
             logger.warn("De-selecting bundles in a target definition file is not supported. See http://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
         }
 
-        return new ResolvedDefinition(units, artifactRepositories);
+        return new TargetPlatformContent(units, artifactRepositories);
     }
 
     private AbstractResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments) {
