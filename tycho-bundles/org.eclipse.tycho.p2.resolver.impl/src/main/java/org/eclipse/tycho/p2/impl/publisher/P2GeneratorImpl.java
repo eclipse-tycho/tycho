@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,6 +46,7 @@ import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
@@ -69,12 +71,9 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         this(false);
     }
 
-    public Map<String, Set<Object>> generateMetadata(List<IArtifactFacade> artifacts,
-            Map<String, IArtifactFacade> attachedArtifacts, File targetDir) throws IOException {
-        Map<String, Set<Object>> result = new LinkedHashMap<String, Set<Object>>();
-
-        LinkedHashSet<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-        LinkedHashSet<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<IArtifactDescriptor>();
+    public Map<String, IP2Artifact> generateMetadata(List<IArtifactFacade> artifacts, File targetDir)
+            throws IOException {
+        Map<String, IP2Artifact> result = new LinkedHashMap<String, IP2Artifact>();
 
         for (IArtifactFacade artifact : artifacts) {
             PublisherInfo publisherInfo = new PublisherInfo();
@@ -91,7 +90,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
                 metadata = super.generateMetadata(artifact, null, publisherInfo, null);
 
-                attachedArtifacts.putAll(artifactsRepository.getPublishedArtifacts());
+                result.putAll(artifactsRepository.getPublishedArtifacts());
             } else {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_PUBLISH | IPublisherInfo.A_NO_MD5);
                 TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
@@ -99,21 +98,65 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 metadata = super.generateMetadata(artifact, null, publisherInfo, null);
             }
 
-            units.addAll(metadata.getInstallableUnits());
-            artifactDescriptors.addAll(metadata.getArtifactDescriptors());
-
             // secondary metadata is meant to represent installable units that are provided by this project
             // but do not affect dependencies of the project itself. generateMetadata is called at the end
-            // of project build lifecycle, and primary/secondary metadata separation is irrelevant at this point 
-            result.put(artifact.getClassifier(), new LinkedHashSet<Object>(metadata.getInstallableUnits()));
+            // of project build lifecycle, and primary/secondary metadata separation is irrelevant at this point
+            P2Artifact p2artifact = new P2Artifact(artifact.getLocation(), metadata.getInstallableUnits(),
+                    getCanonicalArtifact(artifact.getClassifier(), metadata.getArtifactDescriptors()));
+            result.put(artifact.getClassifier(), p2artifact);
+
+            IArtifactDescriptor packed = getPackedArtifactDescriptor(metadata.getArtifactDescriptors());
+            if (packed != null) {
+                File packedLocation = new File(artifact.getLocation().getAbsolutePath() + ".pack.gz");
+                if (!packedLocation.canRead()) {
+                    throw new IllegalArgumentException("Could not find packed artifact " + packed + " at "
+                            + packedLocation);
+                }
+                if (result.containsKey(RepositoryLayoutHelper.PACK200_CLASSIFIER)) {
+                    throw new IllegalArgumentException();
+                }
+                result.put(RepositoryLayoutHelper.PACK200_CLASSIFIER,
+                        new P2Artifact(packedLocation, Collections.<IInstallableUnit> emptySet(), packed));
+            }
         }
 
-        new MetadataIO().writeXML(units, attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_METADATA)
-                .getLocation());
-        new ArtifactsIO().writeXML(artifactDescriptors,
-                attachedArtifacts.get(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS).getLocation());
-
         return result;
+    }
+
+    private IArtifactDescriptor getPackedArtifactDescriptor(Set<IArtifactDescriptor> artifactDescriptors) {
+        for (IArtifactDescriptor descriptor : artifactDescriptors) {
+            if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
+                return descriptor;
+            }
+        }
+        return null;
+    }
+
+    private IArtifactDescriptor getCanonicalArtifact(String classifier, Set<IArtifactDescriptor> artifactDescriptors) {
+        for (IArtifactDescriptor descriptor : artifactDescriptors) {
+            String _classifier = descriptor.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+            if (eq(classifier, _classifier) && descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
+                return descriptor;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private static <T> boolean eq(T a, T b) {
+        return a != null ? a.equals(b) : b == null;
+    }
+
+    public void persistMetadata(Map<String, IP2Artifact> metadata, File unitsXml, File artifactsXml) throws IOException {
+        Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
+        Set<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<IArtifactDescriptor>();
+        for (IP2Artifact artifact : metadata.values()) {
+            for (Object unit : artifact.getInstallableUnits()) {
+                units.add((IInstallableUnit) unit);
+            }
+            artifactDescriptors.add((IArtifactDescriptor) artifact.getArtifactDescriptor());
+        }
+        new MetadataIO().writeXML(units, unitsXml);
+        new ArtifactsIO().writeXML(artifactDescriptors, artifactsXml);
     }
 
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments) {

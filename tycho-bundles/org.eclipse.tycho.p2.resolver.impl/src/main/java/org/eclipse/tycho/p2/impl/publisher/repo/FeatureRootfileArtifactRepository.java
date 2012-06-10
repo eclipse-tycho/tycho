@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,69 +25,29 @@ import java.util.Map;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
+import org.eclipse.tycho.p2.impl.publisher.P2Artifact;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 @SuppressWarnings("restriction")
 public class FeatureRootfileArtifactRepository extends TransientArtifactRepository {
+    private static final String ROOTFILE_CLASSIFIER = "root";
 
-    /**
-     * This class is used to transport the required information for installing the artifact into the
-     * local repository.
-     * 
-     * @see org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl
-     */
-    public static class RootfileArtifact implements IArtifactFacade {
-        static final String ROOTFILE_CLASSIFIER = "root";
-
-        private static final String ROOTFILE_EXTENSION = "zip";
-
-        private final File location;
-
-        private String classifier;
-
-        public RootfileArtifact(File location, String classifier) {
-            this.location = location;
-            this.classifier = classifier;
-        }
-
-        public String getPackagingType() {
-            return ROOTFILE_EXTENSION;
-        }
-
-        public String getClassifier() {
-            return this.classifier;
-        }
-
-        public File getLocation() {
-            return location;
-        }
-
-        public String getGroupId() {
-            throw new UnsupportedOperationException();
-        }
-
-        public String getArtifactId() {
-            throw new UnsupportedOperationException();
-        }
-
-        public String getVersion() {
-            throw new UnsupportedOperationException();
-        }
-    }
+    private static final String ROOTFILE_EXTENSION = "zip";
 
     private final File outputDirectory;
 
     private final PublisherInfo publisherInfo;
 
-    private Map<String, IArtifactFacade> publishedArtifacts = new HashMap<String, IArtifactFacade>();
+    private Map<String, IP2Artifact> publishedArtifacts = new HashMap<String, IP2Artifact>();
 
     public FeatureRootfileArtifactRepository(PublisherInfo publisherInfo, File outputDirectory) {
         this.publisherInfo = publisherInfo;
@@ -109,7 +70,7 @@ public class FeatureRootfileArtifactRepository extends TransientArtifactReposito
 
     private OutputStream createRootfileOutputStream(IArtifactKey artifactKey) throws ProvisionException, IOException {
         File outputFile = new File(this.outputDirectory, artifactKey.getId() + "-" + artifactKey.getVersion() + "-"
-                + RootfileArtifact.ROOTFILE_CLASSIFIER + "." + RootfileArtifact.ROOTFILE_EXTENSION);
+                + ROOTFILE_CLASSIFIER + "." + ROOTFILE_EXTENSION);
 
         OutputStream target = null;
         try {
@@ -135,13 +96,12 @@ public class FeatureRootfileArtifactRepository extends TransientArtifactReposito
             String mavenArtifactClassifier = getRootFileArtifactClassifier(simpleArtifactDescriptor.getArtifactKey()
                     .getId());
             simpleArtifactDescriptor.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, mavenArtifactClassifier);
-            simpleArtifactDescriptor.setProperty(RepositoryLayoutHelper.PROP_EXTENSION,
-                    RootfileArtifact.ROOTFILE_EXTENSION);
+            simpleArtifactDescriptor.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, ROOTFILE_EXTENSION);
 
             target = new BufferedOutputStream(new FileOutputStream(outputFile));
 
-            RootfileArtifact rootfileArtifact = new RootfileArtifact(outputFile, mavenArtifactClassifier);
-            this.publishedArtifacts.put(rootfileArtifact.getClassifier(), rootfileArtifact);
+            this.publishedArtifacts.put(mavenArtifactClassifier,
+                    new P2Artifact(outputFile, Collections.<IInstallableUnit> emptySet(), simpleArtifactDescriptor));
 
             descriptors.add(simpleArtifactDescriptor);
         } catch (FileNotFoundException e) {
@@ -160,16 +120,16 @@ public class FeatureRootfileArtifactRepository extends TransientArtifactReposito
 
                 for (String config : configurations) {
                     if (!"".equals(config) && artifactId.endsWith(config)) {
-                        return RootfileArtifact.ROOTFILE_CLASSIFIER + "." + config;
+                        return ROOTFILE_CLASSIFIER + "." + config;
                     }
                 }
             }
         }
 
-        return RootfileArtifact.ROOTFILE_CLASSIFIER;
+        return ROOTFILE_CLASSIFIER;
     }
 
-    public Map<String, IArtifactFacade> getPublishedArtifacts() {
+    public Map<String, IP2Artifact> getPublishedArtifacts() {
         return publishedArtifacts;
     }
 }
