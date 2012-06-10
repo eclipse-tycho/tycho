@@ -82,7 +82,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             DependencyMetadata metadata;
 
             // meta data handling for root files
-            if ("eclipse-feature".equals(artifact.getPackagingType())) {
+            if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(artifact.getPackagingType())) {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH
                         | IPublisherInfo.A_NO_MD5);
                 FeatureRootfileArtifactRepository artifactsRepository = new FeatureRootfileArtifactRepository(
