@@ -31,10 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -45,6 +43,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 
 /**
@@ -101,17 +100,7 @@ public class P2MetadataMojo extends AbstractMojo {
 
         File targetDir = new File(project.getBuild().getDirectory());
 
-        Map<String, IArtifactFacade> artifactsToBeAttached = new HashMap<String, IArtifactFacade>();
-
         ArtifactFacade projectDefaultArtifact = new ArtifactFacade(project.getArtifact());
-
-        Artifact p2contentArtifact = createP2Artifact(projectDefaultArtifact, EXTENSION_P2_METADATA,
-                CLASSIFIER_P2_METADATA, FILE_NAME_P2_METADATA, targetDir);
-        artifactsToBeAttached.put(CLASSIFIER_P2_METADATA, new ArtifactFacade(p2contentArtifact));
-
-        Artifact p2artifactsArtifact = createP2Artifact(projectDefaultArtifact, EXTENSION_P2_ARTIFACTS,
-                CLASSIFIER_P2_ARTIFACTS, FILE_NAME_P2_ARTIFACTS, targetDir);
-        artifactsToBeAttached.put(CLASSIFIER_P2_ARTIFACTS, new ArtifactFacade(p2artifactsArtifact));
 
         try {
             List<IArtifactFacade> artifacts = new ArrayList<IArtifactFacade>();
@@ -124,38 +113,43 @@ public class P2MetadataMojo extends AbstractMojo {
                 }
             }
 
-            Map<String, Set<Object>> generateMetadata = getP2Generator().generateMetadata(artifacts,
-                    artifactsToBeAttached, targetDir);
+            Map<String, IP2Artifact> generateMetadata = getP2Generator().generateMetadata(artifacts, targetDir);
+
+            File contentsXml = new File(targetDir, FILE_NAME_P2_METADATA);
+            File artifactsXml = new File(targetDir, FILE_NAME_P2_ARTIFACTS);
+            getP2Generator().persistMetadata(generateMetadata, contentsXml, artifactsXml);
+            projectHelper.attachArtifact(project, EXTENSION_P2_METADATA, CLASSIFIER_P2_METADATA, contentsXml);
+            projectHelper.attachArtifact(project, EXTENSION_P2_ARTIFACTS, CLASSIFIER_P2_ARTIFACTS, artifactsXml);
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
-            for (Map.Entry<String, Set<Object>> entry : generateMetadata.entrySet()) {
-                reactorProject.setDependencyMetadata(entry.getKey(), true, entry.getValue());
-                reactorProject.setDependencyMetadata(entry.getKey(), false, Collections.emptySet());
+            for (Map.Entry<String, IP2Artifact> entry : generateMetadata.entrySet()) {
+                String classifier = entry.getKey();
+                IP2Artifact p2artifact = entry.getValue();
+
+                reactorProject.setDependencyMetadata(classifier, true, p2artifact.getInstallableUnits());
+                reactorProject.setDependencyMetadata(classifier, false, Collections.emptySet());
+
+                // attach any new classified artifacts, like feature root files for example
+                if (classifier != null && !hasAttachedArtifact(project, classifier)) {
+                    projectHelper.attachArtifact(project, p2artifact.getLocation(), classifier);
+                }
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Could not generate P2 metadata", e);
-        }
-
-        for (Entry<String, IArtifactFacade> entry : artifactsToBeAttached.entrySet()) {
-            IArtifactFacade artifactFacade = entry.getValue();
-
-            projectHelper.attachArtifact(project, artifactFacade.getPackagingType(), artifactFacade.getClassifier(),
-                    artifactFacade.getLocation());
-
         }
 
         File localArtifactsFile = new File(project.getBuild().getDirectory(), FILE_NAME_LOCAL_ARTIFACTS);
         writeArtifactLocations(localArtifactsFile, getAllProjectArtifacts(project));
     }
 
-    private static DefaultArtifact createP2Artifact(ArtifactFacade projectDefaultArtifact, String extension,
-            String classifier, String p2ArtifactFileName, File targetDir) {
-        DefaultArtifact p2Artifact = new DefaultArtifact(projectDefaultArtifact.getGroupId(),
-                projectDefaultArtifact.getArtifactId(), projectDefaultArtifact.getVersion(), null, extension,
-                classifier, null);
-        p2Artifact.setFile(new File(targetDir, p2ArtifactFileName));
-        return p2Artifact;
+    private static boolean hasAttachedArtifact(MavenProject project, String classifier) {
+        for (Artifact artifact : project.getAttachedArtifacts()) {
+            if (classifier.equals(artifact.getClassifier())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -26,7 +26,7 @@ import org.eclipse.tycho.core.facade.BuildPropertiesImpl;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest;
-import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -95,7 +95,7 @@ public class FeatureRootfileArtifactRepositoryTest {
                 "org.eclipse.tycho.test.p2");
         subject.getOutputStream(artifactDescriptor).close();
 
-        Map<String, IArtifactFacade> attachedArtifacts = subject.getPublishedArtifacts();
+        Map<String, IP2Artifact> attachedArtifacts = subject.getPublishedArtifacts();
         Assert.assertEquals(0, attachedArtifacts.size());
     }
 
@@ -113,13 +113,12 @@ public class FeatureRootfileArtifactRepositoryTest {
         Assert.assertEquals(descriptor.getProperty("maven-extension"), "zip");
     }
 
-    private void assertAttachedArtifact(Map<String, IArtifactFacade> attachedArtifacts, int expectedSize,
+    private void assertAttachedArtifact(Map<String, IP2Artifact> attachedArtifacts, int expectedSize,
             String expectedClassifier, String expectedLocationFileName) {
         Assert.assertEquals(1, attachedArtifacts.size());
 
-        IArtifactFacade artifactFacade = attachedArtifacts.get(expectedClassifier);
+        IP2Artifact artifactFacade = attachedArtifacts.get(expectedClassifier);
 
-        Assert.assertEquals(artifactFacade.getClassifier(), expectedClassifier);
         Assert.assertEquals(artifactFacade.getLocation().getName(), expectedLocationFileName);
     }
 
