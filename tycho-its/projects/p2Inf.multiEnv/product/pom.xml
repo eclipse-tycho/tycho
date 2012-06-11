@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>multienv-p2-inf</groupId>
+    <groupId>tycho-its-project.p2Inf.multiEnv</groupId>
     <artifactId>multienv-p2-inf</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>product</artifactId>
+  <artifactId>pme.product</artifactId>
   <packaging>eclipse-repository</packaging>
 
 

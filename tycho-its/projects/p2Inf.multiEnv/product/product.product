@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="pme.product" id="product" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="pme.feature" version="1.0.0.qualifier"/>
+   </features>
+
+
+</product>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="feature"
+      id="pme.feature"
       version="1.0.0.qualifier">
 
    <plugin
-         id="bundle"
+         id="pme.bundle"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug366456_multienv_p2inf;
+package org.eclipse.tycho.test.p2Inf.multiEnv;
 
 import java.io.File;
 import java.io.InputStream;
@@ -32,12 +32,12 @@ public class MultienvP2infTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("/366456_multienv_p2inf", false);
-        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoals(Arrays.asList("clean", "install"));
+        Verifier verifier = getVerifier("/p2Inf.multiEnv", false);
+        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342);
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
 
-        // assert repository contains corss-platform IUs defined in p2.inf files
+        // assert repository contains cross-platform IUs defined in p2.inf files
         Document doc;
         ZipFile zip = new ZipFile(new File(verifier.getBasedir(), "product/target/repository/content.jar"));
         try {

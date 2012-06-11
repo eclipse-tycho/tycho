@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: bundle
+Bundle-SymbolicName: pme.bundle
 Bundle-Version: 1.0.0.qualifier
