@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: notigor
+Build-Jdk: 1.6.0_26
+Bundle-Version: 1.0.0.1
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: baseline.bundle01
+
