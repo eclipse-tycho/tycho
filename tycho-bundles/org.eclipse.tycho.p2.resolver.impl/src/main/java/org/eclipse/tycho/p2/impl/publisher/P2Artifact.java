@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.impl.publisher;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -25,7 +26,8 @@ public class P2Artifact implements IP2Artifact {
     private final Set<Object> installableUnits;
     private final Object artifactDescriptor;
 
-    public P2Artifact(File location, Set<IInstallableUnit> installableUnits, IArtifactDescriptor artifactDescriptor) {
+    public P2Artifact(File location, Collection<IInstallableUnit> installableUnits,
+            IArtifactDescriptor artifactDescriptor) {
         this.location = location;
         this.installableUnits = Collections.unmodifiableSet(toRawSet(installableUnits));
         this.artifactDescriptor = artifactDescriptor;
@@ -43,7 +45,7 @@ public class P2Artifact implements IP2Artifact {
         return artifactDescriptor;
     }
 
-    private static <T> Set<Object> toRawSet(Set<T> set) {
+    private static <T> Set<Object> toRawSet(Collection<T> set) {
         return new LinkedHashSet<Object>(set);
     }
 }

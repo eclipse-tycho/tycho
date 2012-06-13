@@ -53,8 +53,7 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
     public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException, OperationCanceledException {
-        // not needed for remote repositories
-        throw new UnsupportedOperationException();
+        return delegate.createRepository(translate(location), name, type, properties);
     }
 
     public IProvisioningAgent getAgent() {

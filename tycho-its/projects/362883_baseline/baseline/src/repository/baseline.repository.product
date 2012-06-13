@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="baseline.repository" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
+
+   <features>
+      <feature id="baseline.feature01" version="0.0.0"/>
+      <feature id="baseline.feature02" version="0.0.0"/>
+   </features>
+
+</product>

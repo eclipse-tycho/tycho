@@ -487,6 +487,7 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 
 		<!-- tycho-p2 -->
 		<module>tycho-p2</module>
+		<module>tycho-artifactcomparator</module>
 	</modules>
 
 	<profiles>

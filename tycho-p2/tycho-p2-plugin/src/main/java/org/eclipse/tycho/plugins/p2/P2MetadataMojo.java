@@ -70,21 +70,40 @@ public class P2MetadataMojo extends AbstractMojo {
     private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin",
             "eclipse-feature");
 
-    private P2Generator p2;
+    /**
+     * Baseline build repository(ies).
+     * <p/>
+     * P2 assumes that the same artifact type, id and version represent the same artifact. If
+     * baselineRepositories parameter is specified, this assumption is validated and optionally
+     * enforced.
+     * 
+     * @parameter
+     */
+    private List<Repository> baselineRepositories;
+
+    /**
+     * If true, the default, fail the build if reactor build produced artifacts with the same type,
+     * id and version but different contents than artifacts available from baseline repository(ies).
+     * 
+     * @parameter expression="${tycho.baseline.strict}" default-value="true"
+     */
+    private boolean strictBaseline;
+
+    /**
+     * @component
+     */
+    private BaselineValidator baselineValidator;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         attachP2Metadata();
     }
 
-    protected P2Generator getP2Generator() {
-        if (p2 == null) {
-            p2 = equinox.getService(P2Generator.class);
-
-            if (p2 == null) {
-                throw new IllegalStateException("Could not acquire P2 metadata service");
-            }
+    private <T> T getService(Class<T> type) {
+        T service = equinox.getService(type);
+        if (service == null) {
+            throw new IllegalStateException("Could not acquire service " + type);
         }
-        return p2;
+        return service;
     }
 
     protected void attachP2Metadata() throws MojoExecutionException {
@@ -113,17 +132,22 @@ public class P2MetadataMojo extends AbstractMojo {
                 }
             }
 
-            Map<String, IP2Artifact> generateMetadata = getP2Generator().generateMetadata(artifacts, targetDir);
+            P2Generator p2generator = getService(P2Generator.class);
+
+            Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts, targetDir);
+
+            generatedMetadata = baselineValidator.validateAndReplace(project, generatedMetadata, baselineRepositories,
+                    strictBaseline);
 
             File contentsXml = new File(targetDir, FILE_NAME_P2_METADATA);
             File artifactsXml = new File(targetDir, FILE_NAME_P2_ARTIFACTS);
-            getP2Generator().persistMetadata(generateMetadata, contentsXml, artifactsXml);
+            p2generator.persistMetadata(generatedMetadata, contentsXml, artifactsXml);
             projectHelper.attachArtifact(project, EXTENSION_P2_METADATA, CLASSIFIER_P2_METADATA, contentsXml);
             projectHelper.attachArtifact(project, EXTENSION_P2_ARTIFACTS, CLASSIFIER_P2_ARTIFACTS, artifactsXml);
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
-            for (Map.Entry<String, IP2Artifact> entry : generateMetadata.entrySet()) {
+            for (Map.Entry<String, IP2Artifact> entry : generatedMetadata.entrySet()) {
                 String classifier = entry.getKey();
                 IP2Artifact p2artifact = entry.getValue();
 
