@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0">
+   <implementation class="org.eclipse.tycho.p2.tools.baseline.BaselineServiceImpl"/>
+   <service>
+      <provide interface="org.eclipse.tycho.p2.tools.baseline.facade.BaselineService"/>
+   </service>
+   <reference bind="setRemoteAgentManager" cardinality="1..1" interface="org.eclipse.tycho.p2.remote.RemoteAgentManager" name="RemoteAgentManager" policy="static"/>
+</scr:component>

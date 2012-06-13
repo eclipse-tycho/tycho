@@ -23,7 +23,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ecf;bundle-version="3.1.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.tycho.p2.impl;x-friends:="org.eclipse.tycho.p2.impl.test",
+Export-Package: org.eclipse.tycho.artifacts.p2,
+ org.eclipse.tycho.p2.impl;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.publisher;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.publisher.model;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.publisher.repo;x-friends:="org.eclipse.tycho.p2.impl.test",
