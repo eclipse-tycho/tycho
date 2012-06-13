@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="baseline.feature02"
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="baseline.bundle01"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

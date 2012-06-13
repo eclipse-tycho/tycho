@@ -20,8 +20,14 @@ Require-Bundle: org.eclipse.equinox.p2.director.app;bundle-version="[1.0.200,2.0
  org.eclipse.equinox.p2.director;bundle-version="[2.2.0,3.0.0)"
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.core.facade,
+ org.eclipse.tycho.core.resolver.shared,
+ org.eclipse.tycho.p2.impl.publisher,
+ org.eclipse.tycho.p2.metadata,
+ org.eclipse.tycho.p2.remote,
  org.eclipse.tycho.p2.repository,
+ org.eclipse.tycho.p2.resolver.facade,
  org.eclipse.tycho.p2.tools,
+ org.eclipse.tycho.p2.tools.baseline.facade,
  org.eclipse.tycho.p2.tools.director.facade,
  org.eclipse.tycho.p2.tools.mirroring.facade,
  org.eclipse.tycho.p2.tools.publisher.facade,
@@ -32,7 +38,7 @@ Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.repository.registry.facade,
  org.osgi.framework;version="[1.5.0,2.0.0)"
 Service-Component: OSGI-INF/directorapp.xml, OSGI-INF/publisherfactory.xml, OSGI-INF/mirrorapp.xml,
- OSGI-INF/verifierservice.xml
+ OSGI-INF/verifierservice.xml, OSGI-INF/baseline.xml
 Bundle-Activator: org.eclipse.tycho.p2.tools.impl.Activator
 Bundle-Vendor: %providerName
 Bundle-ActivationPolicy: lazy
