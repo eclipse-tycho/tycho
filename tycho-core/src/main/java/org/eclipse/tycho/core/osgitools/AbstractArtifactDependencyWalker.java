@@ -189,7 +189,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         }
     }
 
-    private void traversePlugin(PluginRef ref, ArtifactDependencyVisitor visitor, WalkbackPath visited) {
+    protected void traversePlugin(PluginRef ref, ArtifactDependencyVisitor visitor, WalkbackPath visited) {
         if (!matchTargetEnvironment(ref)) {
             return;
         }

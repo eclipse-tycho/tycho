@@ -17,6 +17,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.Platform;
@@ -61,6 +62,11 @@ public class EclipseModelTest extends TestCase {
         UpdateSite updated = UpdateSite.read(updatedFile);
         assertEquals("3.0.0", updated.getFeatures().get(0).getVersion());
         assertTrue(updated.getArchives().isEmpty());
+    }
+
+    public void testCategory() throws Exception {
+        Category category = Category.read(new File("src/test/resources/modelio/category.xml"));
+        assertEquals(1, category.getBundles().size());
     }
 
     public void testFeature() throws Exception {

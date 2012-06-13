@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Red Hat Inc. - 381377 : Added "bundle" in category.xml
  *******************************************************************************/
 package org.eclipse.tycho.model;
 
@@ -53,6 +54,14 @@ public class Category {
             features.add(new FeatureRef(featureDom));
         }
         return Collections.unmodifiableList(features);
+    }
+
+    public List<PluginRef> getBundles() {
+        ArrayList<PluginRef> bundles = new ArrayList<PluginRef>();
+        for (Element bundleDom : dom.getChildren("bundle")) {
+            bundles.add(new PluginRef(bundleDom));
+        }
+        return Collections.unmodifiableList(bundles);
     }
 
     public static Category read(File file) throws IOException {

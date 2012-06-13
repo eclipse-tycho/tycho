@@ -432,4 +432,26 @@ public class P2ResolverTest extends P2ResolverTestBase {
         Assert.assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
         Assert.assertEquals(1, macosx.getNonReactorUnits().size());
     }
+
+    @Test
+    public void categoryWithBundle() throws Exception {
+        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+
+        File bundle = resourceFile("resolver/categoryWithBundle");
+        String artifactId = "categoryWithBundle";
+        addReactorProject(bundle, TYPE_ECLIPSE_REPOSITORY, artifactId);
+
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        // "self" IU + javax.xml
+        Assert.assertEquals(2, result.getArtifacts().size());
+        boolean found = false;
+        for (Entry artifact : result.getArtifacts()) {
+            found = found || artifact.getId().equals("javax.xml");
+        }
+        Assert.assertTrue(found);
+    }
 }

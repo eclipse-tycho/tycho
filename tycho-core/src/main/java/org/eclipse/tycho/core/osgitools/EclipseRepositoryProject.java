@@ -25,6 +25,7 @@ import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.FeatureRef;
+import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 
 /**
@@ -48,8 +49,8 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final List<ProductConfiguration> products = loadProducts(project);
         final List<Category> categories = loadCategories(project);
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(project,
-                environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
+                project, environment)) {
             public void walk(ArtifactDependencyVisitor visitor) {
                 WalkbackPath visited = new WalkbackPath();
                 for (ProductConfiguration product : products) {
@@ -58,6 +59,9 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
                 for (Category category : categories) {
                     for (FeatureRef feature : category.getFeatures()) {
                         traverseFeature(feature, visitor, visited);
+                    }
+                    for (PluginRef bundle : category.getBundles()) {
+                        traversePlugin(bundle, visitor, visited);
                     }
                 }
             }
