@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHn//9PU\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-14T17:21:29Z",
+      "side": 1,
+      "message": "This is not an issue, but normally we don\u0027t put a colon here",
+      "revId": "0a5438450d391a7f1d3a78f4834bbd03d3898bce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//9PM\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug381377_BundlesInCategoryXML/BundlesInCategoryXMLTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-14T17:21:29Z",
+      "side": 1,
+      "message": "For reasons explained here [1], the test project name (and package name) should not include the bug number, but rather be something like p2Repository.bundleInclusion\n\nIn fact, I don\u0027t believe we need a new test for this. Instead the new case could be well integrated into p2Repository.transitive\n\n[1] http://wiki.eclipse.org/Developing_Tycho#Writing_integration_tests",
+      "revId": "0a5438450d391a7f1d3a78f4834bbd03d3898bce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//9PQ\u003d",
+        "filename": "tycho-metadata-model/src/test/resources/modelio/category.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-14T17:21:29Z",
+      "side": 1,
+      "message": "Does anyone need the url attribute? If not (and there is no editor that by default generates them) I would omit them.",
+      "revId": "0a5438450d391a7f1d3a78f4834bbd03d3898bce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
