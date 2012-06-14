@@ -438,25 +438,21 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 			throw new MojoExecutionException("Fatal error compiling", e);
 		}
 
-		boolean compilationError = false;
+        boolean compilationError = false;
 
-		for (Iterator i = messages.iterator(); i.hasNext();) {
-			CompilerError message = (CompilerError) i.next();
+        for (Iterator i = messages.iterator(); i.hasNext();) {
+            CompilerError message = (CompilerError) i.next();
+            if (message.isError()) {
+                compilationError = true;
+            } else {
+                getLog().warn(message.toString());
+                i.remove();
+            }
+        }
 
-			if (message.isError()) {
-				compilationError = true;
-			}
-		}
-
-		if (compilationError) {
-			throw new CompilationFailureException(messages);
-		} else {
-			for (Iterator i = messages.iterator(); i.hasNext();) {
-				CompilerError message = (CompilerError) i.next();
-
-				getLog().warn(message.toString());
-			}
-		}
+        if (compilationError) {
+            throw new CompilationFailureException(messages);
+        }
 	}
 
 	protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots) throws MojoExecutionException {
