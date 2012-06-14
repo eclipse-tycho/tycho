@@ -10,14 +10,20 @@
  *******************************************************************************/
 package org.eclipse.tycho.osgicompiler.test;
 
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.classpath.SourcepathEntry;
@@ -313,21 +319,33 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        mojo.setLog(new SystemStreamLog() {
+
+            @Override
+            public void warn(CharSequence content) {
+                warnings.add(content);
+            }
+
+        });
         try {
             mojo.execute();
             fail("compilation failure expected");
         } catch (CompilationFailureException e) {
             String message = e.getLongMessage();
-            assertTrue(message.contains("3 problems (1 error, 2 warnings)"));
-            // warning
-            assertTrue(message.contains("Test.java:[19"));
-            assertTrue(message.contains("URLEncoder.encode(\"\")"));
-            // warning
-            assertTrue(message.contains("Test.java:[21"));
-            assertTrue(message.contains("new ArrayList();"));
-            // error
-            assertTrue(message.contains("Test.java:[23"));
-            assertTrue(message.contains("System.foo();"));
+            assertThat(message, containsString("3 problems (1 error, 2 warnings)"));
+            // 1 error
+            assertThat(message, containsString("Test.java:[23"));
+            assertThat(message, containsString("System.foo();"));
+        }
+        // 2 warnings
+        List<String> expectedWarnings = asList("Test.java:[19",//
+                "Test.java:[21");
+        assertEquals(expectedWarnings.size(), warnings.size());
+        for (int i = 0; i < warnings.size(); i++) {
+            String warning = (String) warnings.get(i);
+            String expectedWarning = expectedWarnings.get(i);
+            assertThat(warning, containsString(expectedWarning));
         }
     }
 
