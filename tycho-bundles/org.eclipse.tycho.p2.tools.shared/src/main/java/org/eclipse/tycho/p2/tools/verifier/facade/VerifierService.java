@@ -12,7 +12,7 @@ package org.eclipse.tycho.p2.tools.verifier.facade;
 
 import java.net.URI;
 
-import org.eclipse.tycho.core.facade.BuildOutputDirectory;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 
 public interface VerifierService {

@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.facade;
+package org.eclipse.tycho;
 
 import java.io.File;
 
@@ -39,6 +39,12 @@ public class BuildOutputDirectory {
         return location;
     }
 
+    /**
+     * Convenience method for obtaining an file/folder in the build output directory.
+     * 
+     * @return The file or folder at the given <code>path</code> relative to the build output
+     *         directory.
+     */
     public File getChild(String path) {
         return new File(location, path);
     }

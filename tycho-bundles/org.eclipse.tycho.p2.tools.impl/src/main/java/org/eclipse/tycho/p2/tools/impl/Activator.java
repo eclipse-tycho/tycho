@@ -13,7 +13,7 @@ package org.eclipse.tycho.p2.tools.impl;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.facade.BuildOutputDirectory;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

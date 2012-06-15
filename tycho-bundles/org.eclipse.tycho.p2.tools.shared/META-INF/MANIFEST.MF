@@ -10,7 +10,8 @@ Export-Package: org.eclipse.tycho.p2.tools,
  org.eclipse.tycho.p2.tools.mirroring.facade,
  org.eclipse.tycho.p2.tools.publisher.facade,
  org.eclipse.tycho.p2.tools.verifier.facade
-Import-Package: org.eclipse.tycho.core.facade,
+Import-Package: org.eclipse.tycho,
+ org.eclipse.tycho.core.facade,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.repository.registry.facade
 Bundle-Vendor: %providerName

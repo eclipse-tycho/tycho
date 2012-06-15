@@ -12,7 +12,7 @@ package org.eclipse.tycho.p2.tools;
 
 import java.util.List;
 
-import org.eclipse.tycho.core.facade.BuildOutputDirectory;
+import org.eclipse.tycho.BuildOutputDirectory;
 
 public class BuildContext {
     private final String qualifier;
