@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.osgi.framework.Version;
@@ -86,8 +87,8 @@ public class DefaultReactorProject implements ReactorProject {
         return new File(project.getBuild().getOutputDirectory());
     }
 
-    public File getBuildDirectory() {
-        return new File(project.getBuild().getDirectory());
+    public BuildOutputDirectory getBuildDirectory() {
+        return new BuildOutputDirectory(project.getBuild().getDirectory());
     }
 
     public File getTestOutputDirectory() {
