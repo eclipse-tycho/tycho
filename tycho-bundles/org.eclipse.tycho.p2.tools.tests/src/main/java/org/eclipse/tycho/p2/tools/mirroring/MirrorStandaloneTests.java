@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Collections;
 
-import org.eclipse.tycho.core.facade.BuildOutputDirectory;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;

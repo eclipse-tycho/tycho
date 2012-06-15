@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.tycho.core.facade.BuildOutputDirectory;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.BuildContext;

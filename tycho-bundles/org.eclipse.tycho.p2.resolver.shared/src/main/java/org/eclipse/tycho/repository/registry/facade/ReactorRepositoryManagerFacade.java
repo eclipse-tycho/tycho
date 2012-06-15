@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.registry.facade;
 
-import org.eclipse.tycho.core.facade.BuildOutputDirectory;
+import org.eclipse.tycho.BuildOutputDirectory;
 
 public interface ReactorRepositoryManagerFacade {
 

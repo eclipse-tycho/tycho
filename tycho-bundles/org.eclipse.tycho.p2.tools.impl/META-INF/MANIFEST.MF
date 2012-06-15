@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.equinox.p2.director.app;bundle-version="[1.0.200,2.0
  org.eclipse.equinox.p2.publisher.eclipse;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.equinox.p2.engine;bundle-version="[2.2.0,3.0.0)",
  org.eclipse.equinox.p2.director;bundle-version="[2.2.0,3.0.0)"
-Import-Package: org.eclipse.tycho.core.facade,
+Import-Package: org.eclipse.tycho,
+ org.eclipse.tycho.core.facade,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.p2.tools,
  org.eclipse.tycho.p2.tools.director.facade,

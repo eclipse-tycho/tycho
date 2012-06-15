@@ -19,6 +19,7 @@ Export-Package: org.eclipse.tycho.p2.maven.repository,
  org.eclipse.tycho.repository.publishing,
  org.eclipse.tycho.repository.registry
 Import-Package: org.eclipse.osgi.util,
+ org.eclipse.tycho,
  org.eclipse.tycho.core.facade,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.repository.registry.facade,

@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.tycho.core.facade.BuildOutputDirectory;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;

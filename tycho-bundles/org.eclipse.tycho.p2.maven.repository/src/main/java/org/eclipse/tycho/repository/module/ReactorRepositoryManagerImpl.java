@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.core.facade.BuildOutputDirectory;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
