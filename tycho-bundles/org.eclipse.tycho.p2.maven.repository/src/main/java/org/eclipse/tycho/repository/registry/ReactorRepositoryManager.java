@@ -34,6 +34,7 @@ public interface ReactorRepositoryManager extends ReactorRepositoryManagerFacade
      * @param buildDirectory
      *            the target folder of a module in the reactor.
      */
-    PublishingRepository getPublishingRepositoryForWriting(BuildOutputDirectory buildDirectory,
+    PublishingRepository getPublishingRepositoryForArtifactWriting(BuildOutputDirectory buildDirectory,
             WriteSessionContext writeSession);
+
 }

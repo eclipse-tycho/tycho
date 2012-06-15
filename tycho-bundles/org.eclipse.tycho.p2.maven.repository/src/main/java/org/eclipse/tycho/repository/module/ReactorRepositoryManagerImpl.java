@@ -65,7 +65,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
                 getBuildArtifactRepository(buildDirectory));
     }
 
-    public PublishingRepository getPublishingRepositoryForWriting(BuildOutputDirectory buildDirectory,
+    public PublishingRepository getPublishingRepositoryForArtifactWriting(BuildOutputDirectory buildDirectory,
             WriteSessionContext writeSession) {
         return new PublishingRepositoryViewForWriting(getBuildMetadataRepository(buildDirectory),
                 getBuildArtifactRepository(buildDirectory), writeSession);

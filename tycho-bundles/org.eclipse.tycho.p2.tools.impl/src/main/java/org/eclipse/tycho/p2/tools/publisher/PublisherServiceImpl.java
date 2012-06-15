@@ -79,7 +79,7 @@ class PublisherServiceImpl implements PublisherService {
             throw new IllegalArgumentException("Unable to load product file " + productDefinition.getAbsolutePath(), e); //$NON-NLS-1$
         }
 
-        PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepositoryForWriting(
+        PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepositoryForArtifactWriting(
                 context.getTargetDirectory(), new ProductBinariesWriteSession(productDescriptor.getId()));
         Collection<IInstallableUnit> allIUs = executePublisher(new ProductAction(null, productDescriptor, flavor,
                 launcherBinaries), publishingRepo);
