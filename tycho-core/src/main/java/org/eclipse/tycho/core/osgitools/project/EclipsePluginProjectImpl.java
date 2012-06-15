@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,7 +61,7 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
                 if (jarName.endsWith("/")) {
                     classesDir = jarName.substring(0, jarName.length() - 1);
                 }
-                outputDirectory = new File(project.getBuildDirectory(), classesDir + "-classes");
+                outputDirectory = project.getBuildDirectory().getChild(classesDir + "-classes");
             }
             List<File> sourceFolders = toFileList(project.getBasedir(), entry.getValue());
 
