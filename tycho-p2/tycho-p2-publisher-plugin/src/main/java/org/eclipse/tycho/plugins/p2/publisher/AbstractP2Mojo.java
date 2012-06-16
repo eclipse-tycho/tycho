@@ -19,9 +19,11 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.ReactorProjectCoordinates;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.osgi.adapters.MavenReactorProjectCoordinates;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
 
@@ -51,6 +53,10 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
         return project;
     }
 
+    protected ReactorProjectCoordinates getProjectCoordinates() {
+        return new MavenReactorProjectCoordinates(project);
+    }
+
     protected MavenSession getSession() {
         return session;
     }
@@ -60,7 +66,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     }
 
     protected BuildOutputDirectory getBuildDirectory() {
-        return new BuildOutputDirectory(getProject().getBuild().getDirectory());
+        return getProjectCoordinates().getBuildDirectory();
     }
 
     protected EclipseRepositoryProject getEclipseRepositoryProject() {
@@ -78,7 +84,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     }
 
     protected BuildContext getBuildContext() {
-        return new BuildContext(getQualifier(), getEnvironmentsForFacade(), getBuildDirectory());
+        return new BuildContext(getProjectCoordinates(), getQualifier(), getEnvironmentsForFacade());
     }
 
     /**

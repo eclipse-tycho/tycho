@@ -18,7 +18,8 @@ Require-Bundle: org.junit;bundle-version="[4.8.1,5.0.0)",
  org.eclipse.equinox.ds;bundle-version="1.4.0"
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.tycho.test.util
-Import-Package: org.eclipse.tycho.core.facade,
+Import-Package: org.eclipse.tycho,
+ org.eclipse.tycho.core.facade,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.p2.remote,

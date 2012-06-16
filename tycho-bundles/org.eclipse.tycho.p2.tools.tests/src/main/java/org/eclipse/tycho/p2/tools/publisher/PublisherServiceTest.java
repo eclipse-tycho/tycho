@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.BuildContext;
@@ -36,6 +35,7 @@ import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.ProjectCoordinatesStub;
 import org.eclipse.tycho.test.util.StubServiceRegistration;
 import org.junit.After;
 import org.junit.Before;
@@ -77,8 +77,8 @@ public class PublisherServiceTest {
             throw new IllegalStateException("PublisherServiceFactory did not show up");
 
         outputDirectory = tempFolder.newFolder("targetFolder");
-        buildContext = new BuildContext(DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS, new BuildOutputDirectory(
-                outputDirectory));
+        buildContext = new BuildContext(new ProjectCoordinatesStub(outputDirectory), DEFAULT_QUALIFIER,
+                DEFAULT_ENVIRONMENTS);
 
         // TODO use a "normal" feature (we don't need the patch here...)
         contextRepositories = MirrorApplicationServiceTest.sourceRepos("patch");

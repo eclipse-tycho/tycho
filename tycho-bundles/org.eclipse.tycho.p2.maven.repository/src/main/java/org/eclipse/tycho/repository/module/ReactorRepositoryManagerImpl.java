@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.ReactorProjectCoordinates;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
@@ -60,20 +60,19 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
         return agent;
     }
 
-    public PublishingRepository getPublishingRepository(BuildOutputDirectory buildDirectory) {
-        return new PublishingRepositoryView(getBuildMetadataRepository(buildDirectory),
-                getBuildArtifactRepository(buildDirectory));
+    public PublishingRepository getPublishingRepository(ReactorProjectCoordinates project) {
+        return new PublishingRepositoryView(getBuildMetadataRepository(project), getBuildArtifactRepository(project));
     }
 
-    public PublishingRepository getPublishingRepositoryForArtifactWriting(BuildOutputDirectory buildDirectory,
+    public PublishingRepository getPublishingRepositoryForArtifactWriting(ReactorProjectCoordinates project,
             WriteSessionContext writeSession) {
-        return new PublishingRepositoryViewForWriting(getBuildMetadataRepository(buildDirectory),
-                getBuildArtifactRepository(buildDirectory), writeSession);
+        return new PublishingRepositoryViewForWriting(getBuildMetadataRepository(project),
+                getBuildArtifactRepository(project), writeSession);
     }
 
-    private ModuleMetadataRepository getBuildMetadataRepository(BuildOutputDirectory buildDirectory) {
+    private ModuleMetadataRepository getBuildMetadataRepository(ReactorProjectCoordinates project) {
         // TODO use p2metadata.xml file instead of folder? Could prevent loading a content.xml from the folder
-        final URI location = buildDirectory.getLocation().toURI();
+        final URI location = project.getBuildDirectory().getLocation().toURI();
 
         IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent
                 .getService(IMetadataRepositoryManager.SERVICE_NAME);
@@ -94,6 +93,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     private ModuleMetadataRepository createBuildMetadataRepository(final URI location,
             IMetadataRepositoryManager repoManager) {
         try {
+            // TODO pass GAV as properties
             return (ModuleMetadataRepository) repoManager.createRepository(location, BUILD_REPOSITORY_NAME,
                     ModuleMetadataRepository.REPOSITORY_TYPE, EMPTY_MAP);
         } catch (ProvisionException e) {
@@ -101,9 +101,9 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
         }
     }
 
-    private ModuleArtifactRepository getBuildArtifactRepository(BuildOutputDirectory buildDirectory) {
+    private ModuleArtifactRepository getBuildArtifactRepository(ReactorProjectCoordinates project) {
         // TODO use p2artifacts.xml file instead of folder? Could prevent loading a artifacts.xml from the folder
-        final URI location = buildDirectory.getLocation().toURI();
+        final URI location = project.getBuildDirectory().getLocation().toURI();
 
         IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent
                 .getService(IArtifactRepositoryManager.SERVICE_NAME);
@@ -113,7 +113,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
         } catch (ProvisionException e) {
             if (e.getStatus() != null && e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
                 // repository doesn't exist yet; create it 
-                return createBuildArtifactRepository(location, repoManager, buildDirectory);
+                return createBuildArtifactRepository(location, repoManager, project);
 
             } else {
                 // TODO dedicated message?
@@ -123,8 +123,9 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     }
 
     private ModuleArtifactRepository createBuildArtifactRepository(URI location,
-            IArtifactRepositoryManager repoManager, BuildOutputDirectory buildDirectory) {
+            IArtifactRepositoryManager repoManager, ReactorProjectCoordinates project) {
         try {
+            // TODO pass GAV as properties
             return (ModuleArtifactRepository) repoManager.createRepository(location, BUILD_REPOSITORY_NAME,
                     ModuleArtifactRepository.REPOSITORY_TYPE, EMPTY_MAP);
         } catch (ProvisionException e) {

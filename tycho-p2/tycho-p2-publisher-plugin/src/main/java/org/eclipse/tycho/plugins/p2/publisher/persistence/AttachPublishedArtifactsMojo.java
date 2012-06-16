@@ -41,7 +41,7 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
 
         ReactorRepositoryManagerFacade reactorRepoManager = osgiServices
                 .getService(ReactorRepositoryManagerFacade.class);
-        PublishingRepositoryFacade publishingRepo = reactorRepoManager.getPublishingRepository(getBuildDirectory());
+        PublishingRepositoryFacade publishingRepo = reactorRepoManager.getPublishingRepository(getProjectCoordinates());
         Map<String, File> artifacts = publishingRepo.getArtifactLocations();
 
         for (Entry<String, File> entry : artifacts.entrySet()) {

@@ -59,7 +59,7 @@ class PublisherServiceImpl implements PublisherService {
          */
         CategoryXMLAction categoryXMLAction = new CategoryXMLAction(categoryDefinition.toURI(), context.getQualifier());
 
-        PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepository(context.getTargetDirectory());
+        PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepository(context.getProject());
 
         /*
          * TODO Fix in Eclipse: category publisher should produce root IUs; workaround: the category
@@ -80,7 +80,7 @@ class PublisherServiceImpl implements PublisherService {
         }
 
         PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepositoryForArtifactWriting(
-                context.getTargetDirectory(), new ProductBinariesWriteSession(productDescriptor.getId()));
+                context.getProject(), new ProductBinariesWriteSession(productDescriptor.getId()));
         Collection<IInstallableUnit> allIUs = executePublisher(new ProductAction(null, productDescriptor, flavor,
                 launcherBinaries), publishingRepo);
 

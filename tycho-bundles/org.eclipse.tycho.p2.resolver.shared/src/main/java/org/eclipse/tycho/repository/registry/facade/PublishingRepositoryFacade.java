@@ -14,9 +14,11 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * Representation of the p2 repository that receive the artifacts produced by the build. This
- * interface is a subset of {@link org.eclipse.tycho.repository.publishing.PublishingRepository},
- * limited to methods required from the Maven class loader.
+ * Representation of the p2 repository that receive the artifacts produced by the build.
+ * <p>
+ * This interface is a subset of
+ * {@link org.eclipse.tycho.repository.publishing.PublishingRepository}, limited to methods required
+ * from the Maven class loader.
  */
 public interface PublishingRepositoryFacade {
 

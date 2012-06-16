@@ -11,7 +11,7 @@
 package org.eclipse.tycho.repository.registry;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.ReactorProjectCoordinates;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
@@ -21,20 +21,20 @@ public interface ReactorRepositoryManager extends ReactorRepositoryManagerFacade
     IProvisioningAgent getAgent();
 
     /**
-     * Returns the module's publishing repository.
+     * Returns the project's publishing repository.
      * 
-     * @param buildDirectory
-     *            the target folder of a module in the reactor.
+     * @param project
+     *            a project in the reactor.
      */
-    PublishingRepository getPublishingRepository(BuildOutputDirectory buildDirectory);
+    PublishingRepository getPublishingRepository(ReactorProjectCoordinates project);
 
     /**
-     * Returns a view onto the module's publishing repository which allows writing new artifacts.
+     * Returns a view onto the project's publishing repository which allows writing new artifacts.
      * 
-     * @param buildDirectory
-     *            the target folder of a module in the reactor.
+     * @param project
+     *            a project in the reactor.
      */
-    PublishingRepository getPublishingRepositoryForArtifactWriting(BuildOutputDirectory buildDirectory,
+    PublishingRepository getPublishingRepositoryForArtifactWriting(ReactorProjectCoordinates project,
             WriteSessionContext writeSession);
 
 }

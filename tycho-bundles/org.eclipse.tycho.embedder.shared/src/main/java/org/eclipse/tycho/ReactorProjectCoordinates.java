@@ -8,18 +8,19 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.registry.facade;
+package org.eclipse.tycho;
 
-import org.eclipse.tycho.ReactorProjectCoordinates;
+/**
+ * Pointers by which a reactor project can be addressed, like the GAV or the target directory.
+ */
+public interface ReactorProjectCoordinates {
 
-public interface ReactorRepositoryManagerFacade {
+    public String getGroupId();
 
-    /**
-     * Returns the project's publishing repository.
-     * 
-     * @param project
-     *            a project in the reactor.
-     */
-    PublishingRepositoryFacade getPublishingRepository(ReactorProjectCoordinates project);
+    public String getArtifactId();
+
+    public String getVersion();
+
+    public BuildOutputDirectory getBuildDirectory();
 
 }
