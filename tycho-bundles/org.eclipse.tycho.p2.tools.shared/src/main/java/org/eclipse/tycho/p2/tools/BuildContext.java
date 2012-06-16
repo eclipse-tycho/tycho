@@ -13,35 +13,43 @@ package org.eclipse.tycho.p2.tools;
 import java.util.List;
 
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.ReactorProjectId;
 
 public class BuildContext {
+    private final ReactorProjectId project;
+
     private final String qualifier;
 
     private final List<TargetEnvironment> environments;
 
-    private final BuildOutputDirectory targetDirectory;
-
     /**
      * Creates a new <code>BuildContext</code> instance.
      * 
+     * @param project
+     *            Coordinates and build output directory of the current project
      * @param qualifier
      *            The build qualifier of the current project
      * @param environments
      *            The list of environments targeted by the build; must contain at least one entry
-     * @param targetDirectory
-     *            The build output directory of the current project
      * @throws IllegalArgumentException
      *             if no target environment has been specified
      */
-    public BuildContext(String qualifier, List<TargetEnvironment> environments, BuildOutputDirectory targetDirectory)
+    public BuildContext(ReactorProjectId project, String qualifier, List<TargetEnvironment> environments)
             throws IllegalArgumentException {
         if (environments.size() == 0) {
             throw new IllegalArgumentException("List of target environments must not be empty");
         }
 
+        this.project = project;
         this.qualifier = qualifier;
         this.environments = environments;
-        this.targetDirectory = targetDirectory;
+    }
+
+    /**
+     * @return a reference to the current project.
+     */
+    public ReactorProjectId getProject() {
+        return project;
     }
 
     /**
@@ -66,6 +74,6 @@ public class BuildContext {
      * @return the build output directory of the current project
      */
     public BuildOutputDirectory getTargetDirectory() {
-        return targetDirectory;
+        return project.getBuildDirectory();
     }
 }

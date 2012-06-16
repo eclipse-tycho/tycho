@@ -8,18 +8,16 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.registry.facade;
+package org.eclipse.tycho;
 
-import org.eclipse.tycho.ReactorProjectId;
+public interface ReactorProjectId {
 
-public interface ReactorRepositoryManagerFacade {
+    public String getGroupId();
 
-    /**
-     * Returns the project's publishing repository.
-     * 
-     * @param project
-     *            a project in the reactor.
-     */
-    PublishingRepositoryFacade getPublishingRepository(ReactorProjectId project);
+    public String getArtifactId();
+
+    public String getVersion();
+
+    public BuildOutputDirectory getBuildDirectory();
 
 }

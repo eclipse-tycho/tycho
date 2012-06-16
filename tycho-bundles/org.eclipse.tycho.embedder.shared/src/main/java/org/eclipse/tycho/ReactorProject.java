@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
-public interface ReactorProject {
+public interface ReactorProject extends ReactorProjectId {
     /**
      * Conventional key used to store ReactorProject in MavenProject.context
      */
