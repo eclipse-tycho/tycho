@@ -35,7 +35,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testProductBuild() throws Exception {
-        Verifier verifier = new Tycho465RootFilesTest().getVerifier("/TYCHO465RootFiles", false);
+        Verifier verifier = getVerifier("/TYCHO465RootFiles", false);
 
         verifier.getSystemProperties().setProperty("forceContextQualifier", Tycho465RootFilesTest.QUALIFIER.toString());
         verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());

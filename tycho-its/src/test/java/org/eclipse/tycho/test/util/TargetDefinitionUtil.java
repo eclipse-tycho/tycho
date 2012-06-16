@@ -22,19 +22,6 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 
 public class TargetDefinitionUtil {
 
-    public enum BaseLocation {
-        /** Use the target file location as base */
-        TARGET_FILE,
-        /**
-         * Use the location of the target file in the sources as base, i.e. the location before the
-         * test project was copied to the target folder by the verifier.
-         */
-        TARGET_FILE_IN_SOURCES
-    }
-
-    private static final String TEST_PROJECT_SOURCE_PATH = File.separator + "projects" + File.separator;
-    private static final String TEST_PROJECT_TARGET_PATH = File.separator + "target" + TEST_PROJECT_SOURCE_PATH;
-
     /**
      * Resolves relative URLs in the given target definition file, with the specified resource as
      * base URL.
@@ -44,42 +31,16 @@ public class TargetDefinitionUtil {
      * @param base
      * @throws IOException
      */
-    public static void makeURLsAbsolute(File targetDefinitionFile, BaseLocation base) throws IOException {
-        File logicalTargetFileLocation = getLogicalFileLocation(targetDefinitionFile,
-                base == BaseLocation.TARGET_FILE_IN_SOURCES);
-
+    public static void makeURLsAbsolute(File targetDefinitionFile, File relocationBasedir) throws IOException {
         TargetDefinitionFile platform = TargetDefinitionFile.read(targetDefinitionFile);
         List<? extends TargetDefinition.Location> locations = platform.getLocations();
         for (TargetDefinition.Location location : locations) {
             List<Repository> repositories = ((IULocation) location).getRepositoryImpls();
             for (Repository repository : repositories) {
-                makeRepositoryElementAbsolute(repository, logicalTargetFileLocation);
+                makeRepositoryElementAbsolute(repository, relocationBasedir);
             }
         }
         TargetDefinitionFile.write(platform, targetDefinitionFile);
-    }
-
-    private static File getLogicalFileLocation(File physicalLocation, boolean useSourceLocation) {
-        if (!useSourceLocation) {
-            return physicalLocation;
-        }
-        return getLocationInTestProjectSources(physicalLocation);
-    }
-
-    private static File getLocationInTestProjectSources(File targetLocation) {
-        if (!targetLocation.exists())
-            throw new IllegalArgumentException("Resource does not exist: " + targetLocation);
-
-        String path = targetLocation.getAbsolutePath();
-        if (!path.contains(TEST_PROJECT_TARGET_PATH))
-            throw new IllegalArgumentException("Cannot determine souce location of " + path);
-        File sourceLocation = new File(path.replace(TEST_PROJECT_TARGET_PATH, TEST_PROJECT_SOURCE_PATH));
-
-        if (!sourceLocation.exists()) {
-            throw new IllegalArgumentException("Source location " + sourceLocation + " of " + targetLocation
-                    + " does not exist.");
-        }
-        return sourceLocation;
     }
 
     private static void makeRepositoryElementAbsolute(Repository repositoryElement, File fileLocation) {

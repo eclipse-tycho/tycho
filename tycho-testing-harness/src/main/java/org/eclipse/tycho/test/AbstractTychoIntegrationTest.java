@@ -26,13 +26,19 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
 import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 import org.osgi.framework.Version;
 
 public abstract class AbstractTychoIntegrationTest {
 
+    @Rule
+    public TestName name = new TestName();
+
     protected File getBasedir(String test) throws IOException {
         File src = new File("projects", test).getCanonicalFile();
-        File dst = new File("target/projects", test).getCanonicalFile();
+        File dst = new File("target/projects", getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test)
+                .getCanonicalFile();
 
         if (dst.isDirectory()) {
             FileUtils.deleteDirectory(dst);

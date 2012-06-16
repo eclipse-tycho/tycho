@@ -28,8 +28,8 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
     @Test
     public void testVersionRestrictionWithPlanner() throws Exception {
         verifier = getVerifier("target.restriction.targetFile/testProject", false);
-        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "planner.target"),
-                TargetDefinitionUtil.BaseLocation.TARGET_FILE_IN_SOURCES);
+        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "planner.target"), new File(
+                "projects/target.restriction.targetFile/testProject/trt.targets"));
 
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
@@ -51,8 +51,8 @@ public class TargetRestrictionThroughTargetFilesTest extends AbstractTychoIntegr
     public void testContentAndVersionRestrictionWithSlicer() throws Exception {
         verifier = getVerifier("target.restriction.targetFile/testProject", false);
         verifier.getCliOptions().add("-Pwith-slicer-target");
-        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "slicer.target"),
-                TargetDefinitionUtil.BaseLocation.TARGET_FILE_IN_SOURCES);
+        TargetDefinitionUtil.makeURLsAbsolute(new File(getTargetsProject(), "slicer.target"), new File(
+                "projects/target.restriction.targetFile/testProject/trt.targets"));
 
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();

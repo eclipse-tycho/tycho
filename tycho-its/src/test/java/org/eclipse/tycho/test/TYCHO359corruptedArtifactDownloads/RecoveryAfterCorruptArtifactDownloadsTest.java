@@ -41,7 +41,7 @@ public class RecoveryAfterCorruptArtifactDownloadsTest extends AbstractTychoInte
         FileUtils.deleteDirectory(new File(new File(verifier.localRepo, "p2/osgi/bundle"), TESTED_BUNDLE_NAME));
 
         File targetFile = new File(verifier.getBasedir(), "invalidRepo.target");
-        TargetDefinitionUtil.makeURLsAbsolute(targetFile, TargetDefinitionUtil.BaseLocation.TARGET_FILE);
+        TargetDefinitionUtil.makeURLsAbsolute(targetFile, targetFile.getParentFile());
 
         // test execution
         try {
@@ -60,7 +60,7 @@ public class RecoveryAfterCorruptArtifactDownloadsTest extends AbstractTychoInte
         Verifier verifier2 = getVerifier("/TYCHO359corruptedArtifactDownloads", false);
 
         File targetFile2 = new File(verifier2.getBasedir(), "validRepo.target");
-        TargetDefinitionUtil.makeURLsAbsolute(targetFile2, TargetDefinitionUtil.BaseLocation.TARGET_FILE);
+        TargetDefinitionUtil.makeURLsAbsolute(targetFile2, targetFile.getParentFile());
 
         // test 2 execution
         verifier2.getCliOptions().add("-Pvalid-target-definition");
