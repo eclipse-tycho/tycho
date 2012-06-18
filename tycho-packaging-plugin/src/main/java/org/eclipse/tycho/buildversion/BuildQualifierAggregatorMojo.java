@@ -21,6 +21,7 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.osgi.framework.Version;
 
 /**
@@ -62,10 +63,12 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
             throw new IllegalStateException("Unknown or unsupported packaging type " + packaging);
         }
 
+        final ReactorProject thisProject = DefaultReactorProject.adapt(project);
+
         projectType.getDependencyWalker(project).walk(new ArtifactDependencyVisitor() {
             @Override
             public boolean visitFeature(FeatureDescription feature) {
-                if (feature.getFeatureRef() == null) {
+                if (feature.getFeatureRef() == null || thisProject.equals(feature.getMavenProject())) {
                     // 'this' feature
                     return true; // visit immediately included features
                 }
@@ -75,7 +78,7 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
             @Override
             public void visitPlugin(PluginDescription plugin) {
-                if (plugin.getPluginRef() == null) {
+                if (plugin.getPluginRef() == null || thisProject.equals(plugin.getMavenProject())) {
                     // 'this' bundle
                     return;
                 }

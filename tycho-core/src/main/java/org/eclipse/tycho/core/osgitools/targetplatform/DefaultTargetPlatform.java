@@ -296,8 +296,10 @@ public class DefaultTargetPlatform implements DependencyArtifacts {
     public void removeAll(String type, String id) {
         Iterator<Entry<ArtifactKey, ArtifactDescriptor>> iter = artifacts.entrySet().iterator();
         while (iter.hasNext()) {
-            ArtifactKey key = iter.next().getKey();
+            Entry<ArtifactKey, ArtifactDescriptor> entry = iter.next();
+            ArtifactKey key = entry.getKey();
             if (key.getType().equals(type) && key.getId().equals(id)) {
+                locations.remove(entry.getValue().getLocation());
                 iter.remove();
             }
         }
