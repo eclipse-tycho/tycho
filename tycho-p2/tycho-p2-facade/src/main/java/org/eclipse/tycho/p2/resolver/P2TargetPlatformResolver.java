@@ -193,10 +193,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         tpBuilder.setProjectLocation(project.getBasedir());
         tpBuilder.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
 
-        addThisReactorProjectToTargetPlatform(session, project, configuration, tpBuilder);
-
-        addOtherReactorProjectsToTargetPlatform(project, reactorProjects, tpBuilder);
-
         if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
             addPomDependenciesToTargetPlatform(project, tpBuilder, reactorProjects, session);
         }
@@ -209,13 +205,11 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             addTargetFileContentToTargetPlatform(configuration, tpBuilder);
         }
 
-        tpBuilder.addFilters(configuration.getFilters());
-
         return tpBuilder.buildTargetPlatform();
     }
 
-    private void addThisReactorProjectToTargetPlatform(MavenSession session, MavenProject project,
-            TargetPlatformConfiguration configuration, TargetPlatformBuilder tpBuilder) {
+    private void addThisReactorProjectToResolver(MavenSession session, MavenProject project,
+            TargetPlatformConfiguration configuration, P2Resolver resolver) {
         // 'this' project should obey optionalDependencnies configuration
 
         final List<Map<String, String>> environments = getEnvironments(configuration);
@@ -236,12 +230,12 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
         };
         for (String classifier : dependencyMetadata.keySet()) {
-            tpBuilder.addReactorArtifact(new ReactorArtifactFacade(reactorProjet, classifier));
+            resolver.addReactorArtifact(new ReactorArtifactFacade(reactorProjet, classifier));
         }
     }
 
-    private void addOtherReactorProjectsToTargetPlatform(MavenProject project, List<ReactorProject> reactorProjects,
-            TargetPlatformBuilder resolutionContext) {
+    private void addOtherReactorProjectsToResolver(MavenProject project, List<ReactorProject> reactorProjects,
+            P2Resolver resolver) {
 
         for (ReactorProject otherProject : reactorProjects) {
             if (otherProject.sameProject(project)) {
@@ -254,13 +248,13 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             Map<String, Set<Object>> dependencyMetadata = otherProject.getDependencyMetadata();
             if (dependencyMetadata != null) {
                 for (String classifier : dependencyMetadata.keySet()) {
-                    resolutionContext.addReactorArtifact(new ReactorArtifactFacade(otherProject, classifier));
+                    resolver.addReactorArtifact(new ReactorArtifactFacade(otherProject, classifier));
                 }
             }
         }
     }
 
-    private void addPomDependenciesToTargetPlatform(MavenProject project, TargetPlatformBuilder resolutionContext,
+    private void addPomDependenciesToTargetPlatform(MavenProject project, TargetPlatformBuilder tpBuilder,
             List<ReactorProject> reactorProjects, MavenSession session) {
         Set<String> projectIds = new HashSet<String>();
         for (ReactorProject p : reactorProjects) {
@@ -305,18 +299,18 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         List<Artifact> explicitArtifacts = MavenDependencyInjector.filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
         PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
                 equinox.getService(LocalRepositoryP2Indices.class), getLogger());
-        pomDependencyProcessor.addPomDependenciesToResolutionContext(project, explicitArtifacts, resolutionContext);
+        pomDependencyProcessor.addPomDependenciesToTargetPlatform(project, explicitArtifacts, tpBuilder);
     }
 
-    private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
-            TargetPlatformBuilder resolutionContext, MavenSession session) {
+    private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository, TargetPlatformBuilder tpBuilder,
+            MavenSession session) {
         try {
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
                 URI url = new URL(repository.getUrl()).toURI();
-                resolutionContext.addP2Repository(new MavenRepositoryLocation(repository.getId(), url));
+                tpBuilder.addP2Repository(new MavenRepositoryLocation(repository.getId(), url));
 
-                    getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
-                }
+                getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
+            }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
         } catch (URISyntaxException e) {
@@ -325,12 +319,12 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     private void addTargetFileContentToTargetPlatform(TargetPlatformConfiguration configuration,
-            TargetPlatformBuilder resolutionContext) {
+            TargetPlatformBuilder tpBuilder) {
         final TargetDefinitionFile target;
         try {
             target = TargetDefinitionFile.read(configuration.getTarget());
             getLogger().debug("Adding target definition file \"" + configuration.getTarget() + "\"");
-            resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
+            tpBuilder.addTargetDefinition(target, getEnvironments(configuration));
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (TargetDefinitionSyntaxException e) {
@@ -343,7 +337,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
-            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
+            TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
 
         // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
@@ -353,13 +347,13 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(new MavenLoggerAdapter(getLogger(), DebugUtils
                 .isDebugEnabled(session, project)));
 
-        return doResolvePlatform(session, project, reactorProjects, resolverConfiguration, resolutionContext,
+        return doResolvePlatform(session, project, reactorProjects, resolverConfiguration, targetPlatform,
                 osgiResolverImpl, configuration);
     }
 
     protected DependencyArtifacts doResolvePlatform(final MavenSession session, final MavenProject project,
             List<ReactorProject> reactorProjects, DependencyResolverConfiguration resolverConfiguration,
-            TargetPlatform resolutionContext, P2Resolver resolver, TargetPlatformConfiguration configuration) {
+            TargetPlatform targetPlatform, P2Resolver resolver, TargetPlatformConfiguration configuration) {
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
@@ -369,6 +363,11 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             projects.put(otherProject.getBasedir(), otherProject);
         }
 
+        addThisReactorProjectToResolver(session, project, configuration, resolver);
+        addOtherReactorProjectsToResolver(project, reactorProjects, resolver);
+
+        resolver.addFilters(configuration.getFilters());
+
         if (resolverConfiguration != null) {
             for (Dependency dependency : resolverConfiguration.getExtraRequirements()) {
                 resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
@@ -376,7 +375,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
 
         if (!isAllowConflictingDependencies(project, configuration)) {
-            List<P2ResolutionResult> results = resolver.resolveProject(resolutionContext, project.getBasedir());
+            List<P2ResolutionResult> results = resolver.resolveProject(targetPlatform, project.getBasedir());
 
             MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform(
                     DefaultReactorProject.adapt(project));
@@ -386,8 +385,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 TargetEnvironment environment = configuration.getEnvironments().get(i);
                 P2ResolutionResult result = results.get(i);
 
-                DefaultTargetPlatform platform = newDefaultTargetPlatform(session,
-                        DefaultReactorProject.adapt(project), projects, result);
+                DefaultTargetPlatform platform = newDefaultTargetPlatform(DefaultReactorProject.adapt(project),
+                        projects, result);
 
                 // addProjects( session, platform );
 
@@ -396,9 +395,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
             return multiPlatform;
         } else {
-            P2ResolutionResult result = resolver.collectProjectDependencies(resolutionContext, project.getBasedir());
+            P2ResolutionResult result = resolver.collectProjectDependencies(targetPlatform, project.getBasedir());
 
-            return newDefaultTargetPlatform(session, DefaultReactorProject.adapt(project), projects, result);
+            return newDefaultTargetPlatform(DefaultReactorProject.adapt(project), projects, result);
         }
     }
 
@@ -417,7 +416,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return false;
     }
 
-    protected DefaultTargetPlatform newDefaultTargetPlatform(MavenSession session, ReactorProject project,
+    protected DefaultTargetPlatform newDefaultTargetPlatform(ReactorProject project,
             Map<File, ReactorProject> projects, P2ResolutionResult result) {
         DefaultTargetPlatform platform = new DefaultTargetPlatform(project);
 

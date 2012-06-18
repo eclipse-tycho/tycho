@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,8 @@ import java.util.Map;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 public interface P2Resolver {
@@ -30,6 +32,19 @@ public interface P2Resolver {
 
     public void setEnvironments(List<Map<String, String>> properties);
 
+    /**
+     * Additional artifact available for resolution.
+     */
+    public void addReactorArtifact(IReactorArtifactFacade artifact);
+
+    /**
+     * Additional filter to be applied on the list of available units before resolution.
+     */
+    public void addFilters(List<TargetPlatformFilter> filters);
+
+    /**
+     * Additional requirement to be resolved.
+     */
     public void addDependency(String type, String id, String versionRange);
 
     /**
@@ -47,4 +62,5 @@ public interface P2Resolver {
      * Resolves specified installable unit identified by id and version.
      */
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String version);
+
 }

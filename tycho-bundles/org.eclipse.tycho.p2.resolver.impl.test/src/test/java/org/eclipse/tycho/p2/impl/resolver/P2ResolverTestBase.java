@@ -40,15 +40,15 @@ import org.junit.Before;
 
 public class P2ResolverTestBase {
 
-    private static final String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
+    static final String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
 
-    private static final String DEFAULT_GROUP_ID = "test.groupId";
+    static final String DEFAULT_GROUP_ID = "test.groupId";
 
     private P2GeneratorImpl fullGenerator;
-    private DefaultDependencyMetadataGenerator dependencyGenerator;
+    DefaultDependencyMetadataGenerator dependencyGenerator;
 
-    P2Resolver impl;
-    TargetPlatformBuilderImpl context;
+    TargetPlatformBuilderImpl tpBuilder;
+    P2Resolver resolver;
 
     @Before
     public void prepare() {
@@ -85,7 +85,7 @@ public class P2ResolverTestBase {
 
         DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments());
 
-        context.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
+        tpBuilder.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
     }
 
     void addReactorProject(File projectRoot, String packagingType, String artifactId) {
@@ -94,7 +94,7 @@ public class P2ResolverTestBase {
         IDependencyMetadata metadata = dependencyGenerator.generateMetadata(artifact, getEnvironments(),
                 OptionalResolutionAction.REQUIRE);
         artifact.setDependencyMetadata(metadata);
-        context.addReactorArtifact(artifact);
+        resolver.addReactorArtifact(artifact);
     }
 
     static File getLocalRepositoryLocation() throws IOException {
