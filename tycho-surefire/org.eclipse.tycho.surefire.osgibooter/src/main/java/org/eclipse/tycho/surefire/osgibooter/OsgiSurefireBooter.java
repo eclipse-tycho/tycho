@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -74,7 +75,7 @@ public class OsgiSurefireBooter {
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStacktrace);
         TestRequest testRequest = new TestRequest(null, testClassesDir, null);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams, failIfNoTests,
-                reporterConfig, null, testRequest, new Properties(), null);
+                reporterConfig, null, testRequest, extractProviderProperties(testProps), null);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
                 StartupReportConfiguration.PLAIN_REPORT_FORMAT, redirectTestOutputToFile, disableXmlReport, reportsDir,
                 trimStacktrace);
@@ -83,6 +84,20 @@ public class OsgiSurefireBooter {
 
         RunResult result = surefireStarter.runSuitesInProcess();
         return result.getForkedProcessCode();
+    }
+
+    /*
+     * See TestMojo#mergeProviderProperties
+     */
+    private static Properties extractProviderProperties(Properties surefireProps) {
+        Properties providerProps = new Properties();
+        for (Map.Entry entry : surefireProps.entrySet()) {
+            String key = (String) entry.getKey();
+            if (key.startsWith("__provider.")) {
+                providerProps.put(key.substring("__provider.".length()), entry.getValue());
+            }
+        }
+        return providerProps;
     }
 
     private static File getTestProperties(String[] args) throws CoreException {

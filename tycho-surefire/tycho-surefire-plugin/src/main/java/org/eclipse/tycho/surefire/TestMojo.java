@@ -19,11 +19,9 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -67,6 +65,8 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.surefire.provider.impl.ProviderSelector;
+import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 
 /**
@@ -352,8 +352,29 @@ public class TestMojo extends AbstractMojo {
      */
     private OsgiBundleProject osgiBundle;
 
+    /**
+     * Normally tycho will automatically determine the test framework provider based on the test
+     * project's classpath. Use this to force using a test framework provider implementation with
+     * the given role hint. Tycho comes with providers &quot;junit3&quot; and &quot;junit4&quot;.
+     * Note that when specifying a providerHint, you have to make sure the provider is actually
+     * available in the dependencies of tycho-surefire-plugin.
+     * 
+     * @parameter
+     */
+    private String providerHint;
+
+    /**
+     * Use this to specify surefire provider-specific properties.
+     * 
+     * @parameter
+     */
+    private Properties providerProperties = new Properties();
+
     /** @component */
     private ToolchainManager toolchainManager;
+
+    /** @component */
+    private ProviderSelector providerSelector;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip || skipExec || skipTests) {
@@ -435,13 +456,14 @@ public class TestMojo extends AbstractMojo {
         }
 
         BundleProject projectType = (BundleProject) projectTypes.get(project.getPackaging());
-        String testFramework = new TestFramework().getTestFramework(projectType.getClasspath(project));
-        if (testFramework == null) {
-            throw new MojoExecutionException("Could not determine test framework used by test bundle "
-                    + project.toString());
-        }
-        getLog().debug("Using test framework " + testFramework);
-
+        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+        String testBundleSymbolicName = projectType.getArtifactKey(reactorProject).getId();
+        Properties surefireProps = createSurefireProperties(testBundleSymbolicName);
+        TestFrameworkProvider provider = providerSelector.selectProvider(projectType.getClasspath(project),
+                providerProperties, providerHint);
+        surefireProps.setProperty("testprovider", provider.getSurefireProviderClassName());
+        getLog().debug("Using test framework provider " + provider.getClass().getName());
+        storeSurefireProperties(surefireProps);
         for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
             // note that this project is added as directory structure rooted at project basedir.
             // project classes and test-classes are added via dev.properties file (see #createDevProperties())
@@ -461,21 +483,17 @@ public class TestMojo extends AbstractMojo {
             testRuntime.addBundle(artifact);
         }
 
-        Set<File> surefireBundles = getSurefirePlugins(testFramework);
-        for (File file : surefireBundles) {
-            testRuntime.addBundle(getBundleArtifacyKey(file), file, true);
+        for (File file : providerSelector.filterTestFrameworkBundles(provider, pluginArtifacts)) {
+            testRuntime.addBundle(getBundleArtifactKey(file), file, true);
         }
 
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        String bundleSymbolicName = projectType.getArtifactKey(reactorProject).getId();
-        createDevProperties(reactorProject, bundleSymbolicName);
-        createSurefireProperties(bundleSymbolicName, testFramework);
+        createDevProperties(reactorProject, testBundleSymbolicName);
 
         reportsDirectory.mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
     }
 
-    private ArtifactKey getBundleArtifacyKey(File file) throws MojoExecutionException {
+    private ArtifactKey getBundleArtifactKey(File file) throws MojoExecutionException {
         ArtifactKey key = osgiBundle.readArtifactKey(file);
         if (key == null) {
             throw new MojoExecutionException("Not an OSGi bundle " + file.getAbsolutePath());
@@ -516,13 +534,11 @@ public class TestMojo extends AbstractMojo {
         return ideapp;
     }
 
-    private void createSurefireProperties(String symbolicName, String testFramework) throws MojoExecutionException {
+    private Properties createSurefireProperties(String testBundleSymbolicName) throws MojoExecutionException {
         Properties p = new Properties();
-
-        p.put("testpluginname", symbolicName);
+        p.put("testpluginname", testBundleSymbolicName);
         p.put("testclassesdirectory", testClassesDirectory.getAbsolutePath());
         p.put("reportsdirectory", reportsDirectory.getAbsolutePath());
-        p.put("testprovider", getTestProvider(testFramework));
         p.put("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
 
         if (test != null) {
@@ -542,6 +558,20 @@ public class TestMojo extends AbstractMojo {
             }
         }
         p.put("failifnotests", String.valueOf(failIfNoTests));
+        mergeProviderProperties(p);
+        return p;
+    }
+
+    /*
+     * See OsgiSurefireBooter#extractProviderProperties
+     */
+    private void mergeProviderProperties(Properties surefireProps) {
+        for (Map.Entry entry : providerProperties.entrySet()) {
+            surefireProps.put("__provider." + entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void storeSurefireProperties(Properties p) throws MojoExecutionException {
         try {
             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(surefireProperties));
             try {
@@ -552,15 +582,6 @@ public class TestMojo extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Can't write test launcher properties file", e);
         }
-    }
-
-    private String getTestProvider(String testFramework) {
-        if (TestFramework.TEST_JUNIT.equals(testFramework)) {
-            return "org.apache.maven.surefire.junit.JUnit3Provider";
-        } else if (TestFramework.TEST_JUNIT4.equals(testFramework)) {
-            return "org.apache.maven.surefire.junit4.JUnit4Provider";
-        }
-        throw new IllegalArgumentException(); // can't happen
     }
 
     private String getIncludesExcludes(List<String> patterns) {
@@ -706,46 +727,6 @@ public class TestMojo extends AbstractMojo {
         } else {
             return "org.eclipse.tycho.surefire.osgibooter.headlesstest";
         }
-    }
-
-    private Set<File> getSurefirePlugins(String testFramework) throws MojoExecutionException {
-        Set<File> result = new LinkedHashSet<File>();
-
-        String fragment;
-        if (TestFramework.TEST_JUNIT.equals(testFramework)) {
-            fragment = "org.eclipse.tycho.surefire.junit";
-        } else if (TestFramework.TEST_JUNIT4.equals(testFramework)) {
-            fragment = "org.eclipse.tycho.surefire.junit4";
-        } else {
-            throw new IllegalArgumentException("Unsupported test framework " + testFramework);
-        }
-
-        for (Artifact artifact : pluginArtifacts) {
-            if ("org.eclipse.tycho".equals(artifact.getGroupId())) {
-                if ("org.eclipse.tycho.surefire.osgibooter".equals(artifact.getArtifactId())
-                        || fragment.equals(artifact.getArtifactId())) {
-                    result.add(artifact.getFile());
-                }
-            }
-        }
-
-        if (result.size() != 2) {
-            StringBuilder sb = new StringBuilder(
-                    "Unable to locate org.eclipse.tycho:org.eclipse.tycho.surefire.osgibooter and/or its fragments\n");
-            sb.append("Test framework: " + testFramework);
-            sb.append("All plugin artifacts: ");
-            for (Artifact artifact : pluginArtifacts) {
-                sb.append("\n\t").append(artifact.toString());
-            }
-            sb.append("\nMatched OSGi test booter artifacts: ");
-            for (File file : result) {
-                sb.append("\n\t").append(file.getAbsolutePath());
-            }
-
-            throw new MojoExecutionException(sb.toString());
-        }
-
-        return result;
     }
 
     /**
