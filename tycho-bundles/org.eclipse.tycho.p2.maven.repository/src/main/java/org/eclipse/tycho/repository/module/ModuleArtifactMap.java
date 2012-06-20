@@ -91,9 +91,9 @@ class ModuleArtifactMap extends AbstractRepositoryReader {
         store();
     }
 
-    public File addToAutomaticLocation(String classifier) throws ProvisionException {
+    public File addToAutomaticLocation(String classifier, String fileExtension) throws ProvisionException {
         automaticArtifactFolder.mkdirs();
-        File newFileLocation = new File(automaticArtifactFolder, classifier + ".zip");
+        File newFileLocation = new File(automaticArtifactFolder, classifier + "." + fileExtension);
 
         add(classifier, newFileLocation);
 

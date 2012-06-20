@@ -18,9 +18,20 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  */
 public interface WriteSessionContext {
 
+    public class ClassifierAndExtension {
+        public final String classifier;
+        public final String fileExtension;
+
+        public ClassifierAndExtension(String classifier, String fileExtension) {
+            this.classifier = classifier;
+            this.fileExtension = fileExtension;
+        }
+    }
+
     /**
-     * Returns the Maven classifier for a p2 artifact key to be added to the artifact repository.
+     * Returns the Maven classifier and file extension for a p2 artifact key to be added to the
+     * artifact repository.
      */
-    String getClassifierForNewKey(IArtifactKey key);
+    ClassifierAndExtension getClassifierAndExtensionForNewKey(IArtifactKey key);
 
 }

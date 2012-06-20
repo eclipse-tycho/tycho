@@ -34,6 +34,7 @@ import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
+import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAndExtension;
 
 /**
  * A p2 artifact repository implementation for the build output directory. Instances are persisted
@@ -135,7 +136,10 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
         result.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, moduleGAV.getArtifactId());
         result.setProperty(RepositoryLayoutHelper.PROP_VERSION, moduleGAV.getVersion());
 
-        result.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, writeSession.getClassifierForNewKey(key));
+        ClassifierAndExtension additionalProperties = writeSession.getClassifierAndExtensionForNewKey(key);
+        result.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, additionalProperties.classifier);
+        // TODO replace "jar" with null (preferably in a consolidated location for handling the Maven properties)
+        result.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, additionalProperties.fileExtension);
 
         return result;
     }
@@ -153,10 +157,12 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
             throw new IllegalArgumentException("Descriptor must have been created by this repository");
         }
 
-        String classifier = descriptor.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+        Map<String, String> descriptorProperties = descriptor.getProperties();
+        String classifier = RepositoryLayoutHelper.getClassifier(descriptorProperties);
+        String extension = RepositoryLayoutHelper.getExtension(descriptorProperties);
 
         // look up storage location
-        File storageLocation = artifactsMap.addToAutomaticLocation(classifier);
+        File storageLocation = artifactsMap.addToAutomaticLocation(classifier, extension);
 
         // TODO download.size/artifact.size is not set in the descriptor for product binaries -> compute while streaming  
 

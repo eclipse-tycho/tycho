@@ -181,8 +181,8 @@ public class ModuleArtifactRepositoryTest {
 
     static class WriteSessionStub implements WriteSessionContext {
 
-        public String getClassifierForNewKey(IArtifactKey key) {
-            return key.getId();
+        public ClassifierAndExtension getClassifierAndExtensionForNewKey(IArtifactKey key) {
+            return new ClassifierAndExtension(key.getId(), "jar");
         }
     }
 }

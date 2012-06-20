@@ -27,13 +27,13 @@ public class ProductBinariesWriteSession implements WriteSessionContext {
         this.artifactPrefix = productId + '.';
     }
 
-    public String getClassifierForNewKey(IArtifactKey key) {
+    public ClassifierAndExtension getClassifierAndExtensionForNewKey(IArtifactKey key) {
         if (PublisherHelper.BINARY_ARTIFACT_CLASSIFIER.equals(key.getClassifier())) {
 
             String artifactId = key.getId();
             if (artifactId.startsWith(artifactPrefix)) {
                 // TODO strip product id from classifier (once we allow only one product per module)
-                return artifactId; //.substring(artifactPrefix.length());
+                return new ClassifierAndExtension(artifactId, "zip"); //.substring(artifactPrefix.length());
             } else {
                 throw new AssertionFailedException("Unexpected artifact: " + key);
             }
