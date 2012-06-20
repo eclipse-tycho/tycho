@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHn//8x0\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "To me, this implies that the artifacts are not replaced in strict mode. But from what I understood, that equivalient artifacts are also replaced in strict mode (so that the artifacts are not only equivalent but binary equal). Is this correct?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8yA\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem to be needed for this change.",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8yU\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/remote/RemoteMetadataRepositoryManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "Although this won\u0027t make a difference right now (because memory: URIs are not translated) this should be\n\nreturn delegate.createRepository(translate(location), name, type, properties);\n\nfor consistency.",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8x8\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "This line doesn\u0027t seem to be needed for this change.",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8yc\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "I\u0027d rather say that this is related to bug 375111 - we should have an IArtifactRepository wrapper around remote artifact repositories that transparantly caches in the local Maven repository.",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8yY\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "As far as I can see, this should be fatal. Wouldn\u0027t a failure to load a baseline repository lead to an empty baseline, and hence to the assumption that all artifact are newer?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8yE\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "Isn\u0027t this IArtifactDescriptor.equals()?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8yQ\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "This still needs to be implemented, right? We had something like this implemented for our propriatary build system. Should I see if I can still find it?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8yI\u003d",
+        "filename": "tycho-p2/tycho-p2-plugin/src/main/java/org/eclipse/tycho/plugins/p2/BaselineValidator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-20T15:17:35Z",
+      "side": 1,
+      "message": "Just for my understanding: Can this happen in strictBaseline mode?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
