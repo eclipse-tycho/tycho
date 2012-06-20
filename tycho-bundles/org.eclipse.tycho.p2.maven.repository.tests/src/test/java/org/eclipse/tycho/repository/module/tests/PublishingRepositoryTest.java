@@ -12,6 +12,7 @@ package org.eclipse.tycho.repository.module.tests;
 
 import static org.eclipse.tycho.repository.module.tests.ModuleArtifactRepositoryTest.writeAndClose;
 import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.allKeysIn;
+import static org.eclipse.tycho.test.util.TychoMatchers.endsWithString;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertSame;
@@ -85,6 +86,10 @@ public class PublishingRepositoryTest {
         for (File artifactFile : artifacts.values()) {
             assertThat(artifactFile, isFile());
         }
+
+        // file name extension is used when attaching the artifacts
+        assertThat(artifacts.get("p2metadata").toString(), endsWithString(".xml"));
+        assertThat(artifacts.get("p2artifacts").toString(), endsWithString(".xml"));
     }
 
     @Test

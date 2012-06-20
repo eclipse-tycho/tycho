@@ -50,9 +50,19 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
             if (classifier == null) {
                 getProject().getArtifact().setFile(artifactLocation);
             } else {
-                projectHelper.attachArtifact(getProject(), artifactLocation, classifier);
+                String type = getExtension(artifactLocation);
+                projectHelper.attachArtifact(getProject(), type, classifier, artifactLocation);
             }
         }
+    }
+
+    private static String getExtension(File file) {
+        String fileName = file.getName();
+        int separator = fileName.lastIndexOf('.');
+        if (separator < 0) {
+            throw new IllegalArgumentException("No file extension in \"" + fileName + "\"");
+        }
+        return fileName.substring(separator + 1);
     }
 
 }
