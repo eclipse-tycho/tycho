@@ -294,11 +294,13 @@
               <package>
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-products,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-categories,
+                org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:attach-artifacts,
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:assemble-repository,
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:archive-repository
               </package>
               <install>
-                org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install
+                org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install,
+                org.eclipse.tycho:tycho-p2-plugin:${project.version}:update-local-index
               </install>
               <deploy>
                 org.apache.maven.plugins:maven-deploy-plugin:${deploy-plugin.version}:deploy
