@@ -69,7 +69,6 @@ public final class MavenDependencyInjector {
         return filteredArtifacts;
     }
 
-    private static final List<String> DOT_CLASSPATH = Collections.singletonList(".");
     private static final List<Dependency> NO_DEPENDENCIES = Collections.emptyList();
 
     private final BundleReader bundleReader;
@@ -86,9 +85,7 @@ public final class MavenDependencyInjector {
     void addDependency(ArtifactDescriptor artifact) {
         List<Dependency> dependencyList = new ArrayList<Dependency>();
         if (artifact.getMavenProject() != null) {
-            if (!artifact.getMavenProject().sameProject(project)) {
-                dependencyList.addAll(newProjectDependencies(artifact));
-            }
+            dependencyList.addAll(newProjectDependencies(artifact));
         } else {
             dependencyList.addAll(newExternalDependencies(artifact));
         }
@@ -156,7 +153,9 @@ public final class MavenDependencyInjector {
     private List<Dependency> newProjectDependencies(ArtifactDescriptor artifact) {
         ReactorProject dependentMavenProjectProxy = artifact.getMavenProject();
         List<Dependency> result = new ArrayList<Dependency>();
-        result.add(createProvidedScopeDependency(dependentMavenProjectProxy));
+        if (!artifact.getMavenProject().sameProject(project)) {
+            result.add(createProvidedScopeDependency(dependentMavenProjectProxy));
+        }
         if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(dependentMavenProjectProxy.getPackaging())) {
             for (String classpathElement : getClasspathElements(dependentMavenProjectProxy.getBasedir())) {
                 if (".".equals(classpathElement)) {

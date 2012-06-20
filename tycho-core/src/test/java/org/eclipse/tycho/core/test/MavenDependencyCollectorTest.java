@@ -54,7 +54,15 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
                     "lib/lib.jar", expectedType, expectedScope, new File(getBasedir(), nestedJarPath));
         }
         {
-            // 2. project with dependency to bundle with nested jar within the same reactor
+            // 2. project with checked-in nested jar
+            MavenProject project = projects.get(2);
+            List<Dependency> mavenDependencies = project.getModel().getDependencies();
+            assertEquals(1, mavenDependencies.size());
+            assertDependenciesContains(mavenDependencies, "mavenDependencies", "p002", "1.0.0", "lib/lib.jar", "jar",
+                    Artifact.SCOPE_SYSTEM, new File(getBasedir("projects/mavendeps"), "p002/lib/lib.jar"));
+        }
+        {
+            // 3. project with dependency to bundle with nested jar within the same reactor
             MavenProject project = projects.get(3);
             List<Dependency> mavenDependencies = project.getModel().getDependencies();
             // assert that dependencies to both reactor module and checked-in nested jar are injected back into maven
