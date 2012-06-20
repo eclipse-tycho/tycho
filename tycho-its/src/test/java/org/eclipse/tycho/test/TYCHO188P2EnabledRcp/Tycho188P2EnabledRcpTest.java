@@ -76,10 +76,15 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
     @Test
     public void testContent() throws Exception {
         assertRepositoryArtifacts(verifier);
-        int materializedProducts = TEST_PRODUCTS.size() - 1;
         int environmentsPerProduct = TEST_ENVIRONMENTS.size();
+
+        int publishedArtifacts = TEST_PRODUCTS.size() * environmentsPerProduct; // the branded executables, produced by the ProductAction
+
+        int materializedProducts = TEST_PRODUCTS.size() - 1;
+        int distributionArtifacts = materializedProducts * environmentsPerProduct;
+
         int repositoryArtifacts = 1;
-        assertTotalZipArtifacts(verifier, materializedProducts * environmentsPerProduct + repositoryArtifacts);
+        assertTotalZipArtifacts(verifier, publishedArtifacts + distributionArtifacts + repositoryArtifacts);
     }
 
     private static void validatePublishedProducts(Verifier verifier, Document contentXml) throws IOException,
