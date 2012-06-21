@@ -19,6 +19,57 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8vQ\u003d",
+        "filename": "tycho-artifactcomparator/src/main/java/org/eclipse/tycho/zipcomparator/internal/PropertiesComparator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "stringPropertyNames() exists since JDK 1.6 only\nI was under the impression we require minimum JDK 1.5 for tycho.\n\ndo we want to pull up minimum JDK required for tycho up to 1.6?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8vM\u003d",
+        "filename": "tycho-artifactcomparator/src/main/java/org/eclipse/tycho/zipcomparator/internal/ZipComparatorImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "toLowerCase(Locale.ENGLISH)",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8vI\u003d",
+        "filename": "tycho-artifactcomparator/src/test/resources/manifest/MANIFEST3.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "missing newline? https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d377249",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8yA\u003d",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/META-INF/MANIFEST.MF",
         "patchSetId": 1
@@ -132,6 +183,125 @@
       "writtenOn": "2012-06-20T15:17:35Z",
       "side": 1,
       "message": "This still needs to be implemented, right? We had something like this implemented for our propriatary build system. Should I see if I can still find it?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8u0\u003d",
+        "filename": "tycho-its/projects/362883_baseline/baseline/src/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "tycho-extras?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8u8\u003d",
+        "filename": "tycho-its/projects/362883_baseline/baseline/src/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "hardcoded version?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8u4\u003d",
+        "filename": "tycho-its/projects/362883_baseline/changedattachedartifact/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "hardcoded version?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8uw\u003d",
+        "filename": "tycho-its/projects/362883_baseline/contentchanged/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "hardcoded versions?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8us\u003d",
+        "filename": "tycho-its/projects/362883_baseline/contentchanged/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "this should only be needed if the project was in tycho-extras.",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8uk\u003d",
+        "filename": "tycho-its/projects/362883_baseline/newattachedartifact/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "hardcoded version",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8uo\u003d",
+        "filename": "tycho-its/projects/362883_baseline/newattachedartifact/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-21T11:01:36Z",
+      "side": 1,
+      "message": "not needed I think",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
