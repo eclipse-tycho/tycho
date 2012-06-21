@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8uM\u003d",
+        "filename": "tycho-artifactcomparator/src/main/java/org/eclipse/tycho/zipcomparator/internal/PropertiesComparator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8vQ\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8vM\u003d",
         "filename": "tycho-artifactcomparator/src/main/java/org/eclipse/tycho/zipcomparator/internal/ZipComparatorImpl.java",
         "patchSetId": 1
@@ -47,6 +65,24 @@
       "writtenOn": "2012-06-21T11:01:36Z",
       "side": 1,
       "message": "toLowerCase(Locale.ENGLISH)",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8uI\u003d",
+        "filename": "tycho-artifactcomparator/src/main/java/org/eclipse/tycho/zipcomparator/internal/ZipComparatorImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8vM\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8uE\u003d",
+        "filename": "tycho-artifactcomparator/src/test/resources/manifest/MANIFEST3.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Not sure what\u0027s going on here, the file does have newline in my local repo.",
+      "parentUuid": "AABOHn//8vI\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8yA\u003d",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/META-INF/MANIFEST.MF",
         "patchSetId": 1
@@ -81,6 +135,24 @@
       "writtenOn": "2012-06-20T15:17:35Z",
       "side": 1,
       "message": "This doesn\u0027t seem to be needed for this change.",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8uA\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "AABOHn//8yA\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8t8\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/remote/RemoteMetadataRepositoryManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8yU\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8x8\u003d",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/META-INF/MANIFEST.MF",
         "patchSetId": 1
@@ -115,6 +205,24 @@
       "writtenOn": "2012-06-20T15:17:35Z",
       "side": 1,
       "message": "This line doesn\u0027t seem to be needed for this change.",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8to\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Removed unused imported packages introduced by this change",
+      "parentUuid": "AABOHn//8x8\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -138,6 +246,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8tc\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "This code does not download/cache artifacts in the local repository. It is not possible to store multiple artifacts with same id/version but different contents in the Tycho local repository format. We have to either store baseline artifacts under project target/ directory, as it is implemented, or develop more elaborate local repository format that allows per-source repository artifact copies.",
+      "parentUuid": "AABOHn//8yc\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8yY\u003d",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
         "patchSetId": 1
@@ -149,6 +275,24 @@
       "writtenOn": "2012-06-20T15:17:35Z",
       "side": 1,
       "message": "As far as I can see, this should be fatal. Wouldn\u0027t a failure to load a baseline repository lead to an empty baseline, and hence to the assumption that all artifact are newer?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8tY\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "The idea is to allow configuration of baseline repository URLs in advance, before they actually populated. For example, I expect eclipse platform build to start using http://download.eclipse.org/releases/kepler right after juno release. This way the build will enforce id/version/contents consistency with among kepler milestone builds too. There is an IT that makes sure repository URLs that do not exist are tolerated.",
+      "parentUuid": "AABOHn//8yY\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -172,6 +316,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8tU\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "There is more than one IArtifactDescriptor implementation and IArtifactDescriptor.equals does not support mixed matches. The actual combo is ArtifactDescriptor created by our publisher code and SimpleArtifactDescriptor used by SimpleArtifactRepository, if I remember correctly, and custom repository implementations are theoretically possible too.",
+      "parentUuid": "AABOHn//8yE\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8yQ\u003d",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
         "patchSetId": 1
@@ -183,6 +345,24 @@
       "writtenOn": "2012-06-20T15:17:35Z",
       "side": 1,
       "message": "This still needs to be implemented, right? We had something like this implemented for our propriatary build system. Should I see if I can still find it?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8tQ\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Yes, I think this needs to be implemented so Tycho catches different dependency greediness for example. If you can contribute this code this would be great, let me know if I should wait with the merge",
+      "parentUuid": "AABOHn//8yQ\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -206,6 +386,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8sk\u003d",
+        "filename": "tycho-its/projects/362883_baseline/baseline/src/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8u0\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8u8\u003d",
         "filename": "tycho-its/projects/362883_baseline/baseline/src/pom.xml",
         "patchSetId": 1
@@ -217,6 +415,24 @@
       "writtenOn": "2012-06-21T11:01:36Z",
       "side": 1,
       "message": "hardcoded version?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8tA\u003d",
+        "filename": "tycho-its/projects/362883_baseline/baseline/src/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8u8\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -240,6 +456,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8s8\u003d",
+        "filename": "tycho-its/projects/362883_baseline/changedattachedartifact/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8u4\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8uw\u003d",
         "filename": "tycho-its/projects/362883_baseline/contentchanged/pom.xml",
         "patchSetId": 1
@@ -251,6 +485,24 @@
       "writtenOn": "2012-06-21T11:01:36Z",
       "side": 1,
       "message": "hardcoded versions?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8so\u003d",
+        "filename": "tycho-its/projects/362883_baseline/contentchanged/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8uw\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -274,6 +526,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8s4\u003d",
+        "filename": "tycho-its/projects/362883_baseline/contentchanged/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8us\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8uk\u003d",
         "filename": "tycho-its/projects/362883_baseline/newattachedartifact/pom.xml",
         "patchSetId": 1
@@ -285,6 +555,24 @@
       "writtenOn": "2012-06-21T11:01:36Z",
       "side": 1,
       "message": "hardcoded version",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8sw\u003d",
+        "filename": "tycho-its/projects/362883_baseline/newattachedartifact/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8uk\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -308,6 +596,24 @@
     },
     {
       "key": {
+        "uuid": "AABOHn//8ss\u003d",
+        "filename": "tycho-its/projects/362883_baseline/newattachedartifact/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8uo\u003d",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8yI\u003d",
         "filename": "tycho-p2/tycho-p2-plugin/src/main/java/org/eclipse/tycho/plugins/p2/BaselineValidator.java",
         "patchSetId": 1
@@ -319,6 +625,24 @@
       "writtenOn": "2012-06-20T15:17:35Z",
       "side": 1,
       "message": "Just for my understanding: Can this happen in strictBaseline mode?",
+      "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8s0\u003d",
+        "filename": "tycho-p2/tycho-p2-plugin/src/main/java/org/eclipse/tycho/plugins/p2/BaselineValidator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T13:50:46Z",
+      "side": 1,
+      "message": "No. Un-attach is only needed with some not null deltas, and not-null deltas cause MojoExecutionException around line 81 above in strict mode.",
+      "parentUuid": "AABOHn//8yI\u003d",
       "revId": "2c5d12ba91094f41a5d609e6ef51493c5ab8eef5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
