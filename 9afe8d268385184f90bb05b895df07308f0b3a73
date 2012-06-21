@@ -34,6 +34,24 @@
       "revId": "9afe8d268385184f90bb05b895df07308f0b3a73",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8sA\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.embedder.shared/src/main/java/org/eclipse/tycho/ReactorProjectId.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T14:11:28Z",
+      "side": 1,
+      "message": "I think this interface encapsulates some basic properties of reactor project, so BasicReactorProject or SimpleReactorProject come to mind. But we can decide on the name later.",
+      "parentUuid": "AABOHn//8zs\u003d",
+      "revId": "9afe8d268385184f90bb05b895df07308f0b3a73",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
