@@ -16,6 +16,24 @@
       "revId": "f13f38d5f1e5ee56c1927f5baa3a615f4b7a5faa",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8rQ\u003d",
+        "filename": "tycho-artifactcomparator/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-21T15:22:29Z",
+      "side": 1,
+      "message": "scope\u003dtest is inherited from parent pom",
+      "parentUuid": "AABOHn//8rg\u003d",
+      "revId": "f13f38d5f1e5ee56c1927f5baa3a615f4b7a5faa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
