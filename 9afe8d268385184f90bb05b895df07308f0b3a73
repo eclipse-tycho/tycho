@@ -52,6 +52,24 @@
       "revId": "9afe8d268385184f90bb05b895df07308f0b3a73",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8pA\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.embedder.shared/src/main/java/org/eclipse/tycho/ReactorProjectId.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-22T08:33:36Z",
+      "side": 1,
+      "message": "I\u0027d like to make clear that the interface only contains pointers, and no actual content.\nAnother proposal that would fit this idea is ReactorProjectCoordinates. This name should be fine for now.",
+      "parentUuid": "AABOHn//8sA\u003d",
+      "revId": "9afe8d268385184f90bb05b895df07308f0b3a73",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
