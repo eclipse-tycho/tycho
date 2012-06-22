@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.6"?>
 
-<target name="Target platform for Tycho's bundles" sequenceNumber="2">
+<target name="Target platform for Tycho's bundles" sequenceNumber="7">
 <locations>
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20120426-1529-7P7OFvNFLWUl7UmDUz0O8_a2"/>
-<unit id="org.eclipse.sdk.ide" version="4.2.0.I20120503-1800"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20120522-1813-7P7OG2BFLWUl7UmbVUO9iCm"/>
+<unit id="org.eclipse.sdk.ide" version="4.2.0.I20120608-1400"/>
+<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20120522-1813-85FAcGbBFoYTldHrOJw3cF4q"/>
+<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20120524-0542-9N89H_mGMMn84Osz0TAoT279BRQD"/>
 <repository location="http://download.eclipse.org/eclipse/updates/4.2milestones/"/>
 </location>
 </locations>
