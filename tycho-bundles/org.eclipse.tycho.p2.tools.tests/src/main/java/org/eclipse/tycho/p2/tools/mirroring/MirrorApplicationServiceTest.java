@@ -35,7 +35,7 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.MemoryLog;
-import org.eclipse.tycho.test.util.ProjectCoordinatesStub;
+import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,7 +72,7 @@ public class MirrorApplicationServiceTest {
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
         File outputFolder = tempFolder.getRoot();
-        ReactorProjectCoordinates currentProject = new ProjectCoordinatesStub(outputFolder);
+        ReactorProjectCoordinates currentProject = new ReactorProjectCoordinatesStub(outputFolder);
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         subject = new MirrorApplicationServiceImpl();

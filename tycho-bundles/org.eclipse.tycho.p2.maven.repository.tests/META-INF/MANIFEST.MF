@@ -20,6 +20,8 @@ Import-Package: org.eclipse.tycho.core.facade,
  org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.repository.registry.facade,
+ org.eclipse.tycho.repository.test.util,
+ org.eclipse.tycho.test.util,
  org.osgi.framework;version="1.5.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.tycho.p2.maven.repository.tests.Activator

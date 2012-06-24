@@ -35,7 +35,7 @@ import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.test.util.MemoryLog;
-import org.eclipse.tycho.test.util.ProjectCoordinatesStub;
+import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
 import org.eclipse.tycho.test.util.StubServiceRegistration;
 import org.junit.After;
 import org.junit.Before;
@@ -77,7 +77,7 @@ public class PublisherServiceTest {
             throw new IllegalStateException("PublisherServiceFactory did not show up");
 
         outputDirectory = tempFolder.newFolder("targetFolder");
-        buildContext = new BuildContext(new ProjectCoordinatesStub(outputDirectory), DEFAULT_QUALIFIER,
+        buildContext = new BuildContext(new ReactorProjectCoordinatesStub(outputDirectory), DEFAULT_QUALIFIER,
                 DEFAULT_ENVIRONMENTS);
 
         // TODO use a "normal" feature (we don't need the patch here...)

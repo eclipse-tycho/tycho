@@ -11,9 +11,9 @@
 package org.eclipse.tycho.repository.module.tests;
 
 import static org.eclipse.tycho.repository.module.tests.ModuleArtifactRepositoryTest.writeAndClose;
+import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+@SuppressWarnings("restriction")
 public class PublishingRepositoryTest {
 
     @Rule
@@ -57,7 +58,7 @@ public class PublishingRepositoryTest {
         assertThat(artifacts.keySet(), hasItem("p2artifacts"));
 
         for (File artifactFile : artifacts.values()) {
-            assertTrue("File exists " + artifactFile, artifactFile.isFile());
+            assertThat(artifactFile, isFile());
         }
     }
 
@@ -76,4 +77,5 @@ public class PublishingRepositoryTest {
             };
         }
     }
+
 }

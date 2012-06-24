@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.module.tests;
 
+import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.allKeysIn;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -21,15 +22,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -136,12 +133,6 @@ public class ModuleArtifactRepositoryTest {
 
     private IArtifactDescriptor newDescriptor(ArtifactKey artifactKey) {
         return subject.createArtifactDescriptor(artifactKey, new WriteSessionStub());
-    }
-
-    private static Set<IArtifactKey> allKeysIn(IArtifactRepository subject) {
-        IQueryResult<IArtifactKey> queryResult = subject.query(new ExpressionMatchQuery<IArtifactKey>(
-                IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION), null);
-        return queryResult.toUnmodifiableSet();
     }
 
     private static int artifactSizeOf(IArtifactKey artifactKey, IArtifactRepository subject) {

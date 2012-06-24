@@ -15,7 +15,7 @@ import java.io.File;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProjectCoordinates;
 
-public class ProjectCoordinatesStub implements ReactorProjectCoordinates {
+public class ReactorProjectCoordinatesStub implements ReactorProjectCoordinates {
 
     private static final String DUMMY_GROUP_ID = "dummy-group";
     private static final String DUMMY_ARTIFACT_ID = "dummy-artifact";
@@ -23,7 +23,7 @@ public class ProjectCoordinatesStub implements ReactorProjectCoordinates {
 
     private BuildOutputDirectory targetFolder;
 
-    public ProjectCoordinatesStub(File outputFolder) {
+    public ReactorProjectCoordinatesStub(File outputFolder) {
         this.targetFolder = new BuildOutputDirectory(outputFolder);
     }
 
