@@ -18,13 +18,21 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 
 /**
- * Representation of the p2 repository that receive the artifacts produced by the build.
+ * Representation of the p2 repositories that receive the artifacts produced by a project.
  */
 public interface PublishingRepository extends PublishingRepositoryFacade {
 
     public IMetadataRepository getMetadataRepository();
 
     public IArtifactRepository getArtifactRepository();
+
+    /**
+     * Returns a view onto the project's artifact repository which allows writing new artifacts.
+     * 
+     * @param writeSession
+     *            a callback used to assign (Maven) classifiers to the new (p2) artifacts.
+     */
+    IArtifactRepository getArtifactRepositoryForWriting(WriteSessionContext writeSession);
 
     /**
      * Adds the location of an existing artifact. This method should be called for artifacts which

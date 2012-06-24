@@ -23,27 +23,28 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.util.StatusTool;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
-import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
 
 @SuppressWarnings("restriction")
 class PublisherServiceImpl implements PublisherService {
 
     private final BuildContext context;
     private final PublisherInfoTemplate configuration;
-    private final ReactorRepositoryManager reactorRepoManager;
+    private final PublishingRepository publishingRepository;
     private final MavenLogger logger;
 
     public PublisherServiceImpl(BuildContext context, PublisherInfoTemplate publisherConfiguration,
-            ReactorRepositoryManager reactorRepositoryManager, MavenLogger logger) {
+            PublishingRepository publishingRepository, MavenLogger logger) {
         this.context = context;
         this.configuration = publisherConfiguration;
-        this.reactorRepoManager = reactorRepositoryManager;
+        this.publishingRepository = publishingRepository;
         this.logger = logger;
     }
 
@@ -59,13 +60,12 @@ class PublisherServiceImpl implements PublisherService {
          */
         CategoryXMLAction categoryXMLAction = new CategoryXMLAction(categoryDefinition.toURI(), context.getQualifier());
 
-        PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepository(context.getProject());
-
         /*
          * TODO Fix in Eclipse: category publisher should produce root IUs; workaround: the category
          * publisher produces no "inner" IUs, so just return all IUs
          */
-        Collection<IInstallableUnit> allIUs = executePublisher(categoryXMLAction, publishingRepo);
+        Collection<IInstallableUnit> allIUs = executePublisher(categoryXMLAction,
+                publishingRepository.getMetadataRepository(), publishingRepository.getArtifactRepository());
         return allIUs;
     }
 
@@ -79,19 +79,20 @@ class PublisherServiceImpl implements PublisherService {
             throw new IllegalArgumentException("Unable to load product file " + productDefinition.getAbsolutePath(), e); //$NON-NLS-1$
         }
 
-        PublishingRepository publishingRepo = reactorRepoManager.getPublishingRepositoryForArtifactWriting(
-                context.getProject(), new ProductBinariesWriteSession(productDescriptor.getId()));
-        Collection<IInstallableUnit> allIUs = executePublisher(new ProductAction(null, productDescriptor, flavor,
-                launcherBinaries), publishingRepo);
+        ProductAction action = new ProductAction(null, productDescriptor, flavor, launcherBinaries);
+        IMetadataRepository metadataRepository = publishingRepository.getMetadataRepository();
+        IArtifactRepository artifactRepository = publishingRepository
+                .getArtifactRepositoryForWriting(new ProductBinariesWriteSession(productDescriptor.getId()));
+        Collection<IInstallableUnit> allIUs = executePublisher(action, metadataRepository, artifactRepository);
 
         return selectUnit(allIUs, productDescriptor.getId());
     }
 
-    private Collection<IInstallableUnit> executePublisher(IPublisherAction action, PublishingRepository publishingRepo)
-            throws FacadeException {
+    private Collection<IInstallableUnit> executePublisher(IPublisherAction action,
+            IMetadataRepository metadataRepository, IArtifactRepository artifactRepository) throws FacadeException {
         ResultSpyAction resultSpy = new ResultSpyAction();
         IPublisherAction[] actions = new IPublisherAction[] { action, resultSpy };
-        Publisher publisher = new Publisher(configuration.newPublisherInfo(publishingRepo));
+        Publisher publisher = new Publisher(configuration.newPublisherInfo(metadataRepository, artifactRepository));
 
         IStatus result = publisher.publish(actions, null);
         handlePublisherStatus(result);

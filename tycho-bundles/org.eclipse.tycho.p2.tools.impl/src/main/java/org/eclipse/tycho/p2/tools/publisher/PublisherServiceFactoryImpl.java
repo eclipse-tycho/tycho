@@ -27,8 +27,9 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
             throws FacadeException {
         checkCollaborators();
 
-        return new PublisherServiceImpl(context, new PublisherInfoTemplate(contextRepos, context, reactorRepoManager),
-                reactorRepoManager, mavenContext.getLogger());
+        return new PublisherServiceImpl(context, new PublisherInfoTemplate(contextRepos, context,
+                reactorRepoManager.getAgent()), reactorRepoManager.getPublishingRepository(context.getProject()),
+                mavenContext.getLogger());
     }
 
     public void setMavenContext(MavenContext mavenContext) {

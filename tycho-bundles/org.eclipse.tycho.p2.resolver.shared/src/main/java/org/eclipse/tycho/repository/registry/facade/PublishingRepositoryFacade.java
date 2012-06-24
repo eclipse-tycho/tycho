@@ -12,9 +12,10 @@ package org.eclipse.tycho.repository.registry.facade;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Representation of the p2 repository that receive the artifacts produced by the build.
+ * Representation of the p2 repositories that receive the artifacts produced by the build.
  * <p>
  * This interface is a subset of
  * {@link org.eclipse.tycho.repository.publishing.PublishingRepository}, limited to methods required
@@ -29,6 +30,11 @@ public interface PublishingRepositoryFacade {
      *         locations in the target directory
      */
     Map<String, File> getArtifactLocations();
+
+    /**
+     * Returns the <code>IInstallableUnit</code>s in the publishing repository.
+     */
+    Set<Object> getInstallableUnits();
 
     // TODO also store published seed IUs in the publishing repository?
     // currently in org.eclipse.tycho.plugins.p2.publisher.AbstractPublishMojo.postPublishedIUs(Collection<?>)
