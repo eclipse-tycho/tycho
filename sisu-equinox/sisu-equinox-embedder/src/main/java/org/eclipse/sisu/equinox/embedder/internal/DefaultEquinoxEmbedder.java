@@ -14,8 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +29,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator.EquinoxRuntimeDescription;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -69,51 +70,89 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
     }
 
     protected void doStart() throws Exception {
-        List<File> locations = equinoxLocator.getRuntimeLocations();
+        final List<File> installationLocations = new ArrayList<File>();
+        final List<File> bundleLocations = new ArrayList<File>();
+        final List<String> extraSystemPackages = new ArrayList<String>();
+        final Map<String, String> platformProperties = new LinkedHashMap<String, String>();
 
-        if (locations == null || locations.isEmpty() || !locations.get(0).isDirectory()) {
+        equinoxLocator.locateRuntime(new EquinoxRuntimeDescription() {
+            public void addExtraSystemPackage(String systemPackage) {
+                if (systemPackage == null || systemPackage.length() == 0) {
+                    throw new IllegalArgumentException();
+                }
+                extraSystemPackages.add(systemPackage);
+            }
+
+            public void addPlatformProperty(String property, String value) {
+                if (property == null || property.length() == 0) {
+                    throw new IllegalArgumentException();
+                }
+                platformProperties.put(property, value);
+            }
+
+            public void addInstallation(File location) {
+                if (location == null || !location.isDirectory() || !new File(location, "plugins").isDirectory()) {
+                    throw new IllegalArgumentException();
+                }
+                if (!installationLocations.isEmpty()) {
+                    // allow only one installation for now
+                    throw new IllegalStateException();
+                }
+                installationLocations.add(location);
+            }
+
+            public void addBundle(File location) {
+                if (location == null || !location.exists()) {
+                    throw new IllegalArgumentException();
+                }
+                bundleLocations.add(location);
+            }
+        });
+
+        if (installationLocations.isEmpty() && !platformProperties.containsKey("osgi.install.area")) {
             throw new RuntimeException("Equinox runtime location is missing or invalid");
         }
 
-        File frameworkDir = locations.get(0);
-        String frameworkLocation = frameworkDir.getAbsolutePath();
-
         System.setProperty("osgi.framework.useSystemProperties", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("osgi.install.area", frameworkLocation);
-        properties.put("osgi.syspath", frameworkLocation + "/plugins");
-        properties.put("osgi.configuration.area", copyToTempFolder(new File(frameworkDir, "configuration")));
+        final StringBuilder bundles = new StringBuilder();
 
-        StringBuilder bundles = new StringBuilder();
-        addBundlesDir(bundles, new File(frameworkDir, "plugins").listFiles(), false);
-        for (int i = 1; i < locations.size(); i++) {
-            File location = locations.get(i);
-            if (location.isDirectory()) {
-                addBundlesDir(bundles, location.listFiles(), true);
-            } else {
-                bundles.append(',').append(getReferenceUrl(location));
-            }
+        if (!installationLocations.isEmpty()) {
+            File frameworkDir = installationLocations.get(0);
+            String frameworkLocation = frameworkDir.getAbsolutePath();
+
+            platformProperties.put("osgi.install.area", frameworkLocation);
+            platformProperties.put("osgi.syspath", frameworkLocation + "/plugins");
+            platformProperties
+                    .put("osgi.configuration.area", copyToTempFolder(new File(frameworkDir, "configuration")));
+
+            // platformProperties.put( "eclipse.p2.data.area", dataArea.getAbsolutePath() );
+
+            addBundlesDir(bundles, new File(frameworkDir, "plugins").listFiles(), false);
         }
-        properties.put("osgi.bundles", bundles.toString());
+
+        for (File location : bundleLocations) {
+            if (bundles.length() > 0) {
+                bundles.append(',');
+            }
+            bundles.append(getReferenceUrl(location));
+        }
+        platformProperties.put("osgi.bundles", bundles.toString());
 
         // this tells framework to use our classloader as parent, so it can see classes that we see
-        properties.put("osgi.parentClassloader", "fwk");
+        platformProperties.put("osgi.parentClassloader", "fwk");
 
-        List<String> packagesExtra = equinoxLocator.getSystemPackagesExtra();
-        if (packagesExtra.size() > 0) {
+        if (extraSystemPackages.size() > 0) {
             StringBuilder sb = new StringBuilder();
-            for (String pkg : packagesExtra) {
+            for (String pkg : extraSystemPackages) {
                 if (sb.length() > 0) {
                     sb.append(',');
                 }
                 sb.append(pkg);
             }
             // make the system bundle export the given packages and load them from the parent class loader
-            properties.put("org.osgi.framework.system.packages.extra", sb.toString());
+            platformProperties.put("org.osgi.framework.system.packages.extra", sb.toString());
         }
-
-        // properties.put( "eclipse.p2.data.area", dataArea.getAbsolutePath() );
 
         // debug
         // properties.put( "osgi.console", "" );
@@ -123,7 +162,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         // TODO switch to org.eclipse.osgi.launch.Equinox
         // EclipseStarter is not helping here
 
-        EclipseStarter.setInitialProperties(properties);
+        EclipseStarter.setInitialProperties(platformProperties);
 
         EclipseStarter.startup(getNonFrameworkArgs(), null);
 
@@ -220,6 +259,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         return getService(clazz, null);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T> T getService(Class<T> clazz, String filter) {
         checkStarted();
 

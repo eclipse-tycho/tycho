@@ -21,6 +21,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
+import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator.EquinoxRuntimeDescription;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
@@ -85,19 +86,25 @@ public class P2ApplicationLauncher {
             File installationFolder = newTemporaryFolder();
 
             try {
-                EquinoxInstallationDescription description = new DefaultEquinoxInstallationDescription();
+                final EquinoxInstallationDescription description = new DefaultEquinoxInstallationDescription();
 
-                List<File> locations = runtimeLocator.getRuntimeLocations();
-
-                for (File location : locations) {
-                    if (location.isDirectory()) {
-                        for (File file : new File(location, "plugins").listFiles()) {
-                            addBundle(description, file);
-                        }
-                    } else {
-                        addBundle(description, location);
+                runtimeLocator.locateRuntime(new EquinoxRuntimeDescription() {
+                    public void addPlatformProperty(String property, String value) {
                     }
-                }
+
+                    public void addInstallation(File location) {
+                        for (File file : new File(location, "plugins").listFiles()) {
+                            P2ApplicationLauncher.this.addBundle(description, file);
+                        }
+                    }
+
+                    public void addExtraSystemPackage(String systemPackages) {
+                    }
+
+                    public void addBundle(File location) {
+                        P2ApplicationLauncher.this.addBundle(description, location);
+                    }
+                });
 
                 EquinoxInstallation installation = installationFactory.createInstallation(description,
                         installationFolder);

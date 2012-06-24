@@ -10,20 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.testing;
 
-import java.io.File;
-import java.util.List;
-
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 
 @Component(role = EquinoxRuntimeLocator.class, hint = "stub")
 public class StubEquinoxRuntimeLocator implements EquinoxRuntimeLocator {
-
-    public List<File> getRuntimeLocations() throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    public List<String> getSystemPackagesExtra() {
+    public void locateRuntime(EquinoxRuntimeDescription description) throws Exception {
         throw new UnsupportedOperationException();
     }
 }
