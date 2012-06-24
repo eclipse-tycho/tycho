@@ -13,7 +13,6 @@ package org.eclipse.tycho.osgi.runtime;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -81,41 +80,42 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
     @Requirement
     private Map<String, TychoP2RuntimeMetadata> runtimeMetadata;
 
-    public List<File> getRuntimeLocations() throws MavenExecutionException {
+    public void locateRuntime(EquinoxRuntimeDescription description) throws MavenExecutionException {
         MavenSession session = buildContext.getSession();
 
-        return getRuntimeLocations(session);
+        addRuntimeArtifacts(session, description);
+
+        for (String systemPackage : SYSTEM_PACKAGES_EXTRA) {
+            description.addExtraSystemPackage(systemPackage);
+        }
     }
 
-    public List<File> getRuntimeLocations(MavenSession session) throws MavenExecutionException {
-        List<File> locations = new ArrayList<File>();
-
+    public void addRuntimeArtifacts(MavenSession session, EquinoxRuntimeDescription description)
+            throws MavenExecutionException {
         TychoP2RuntimeMetadata framework = runtimeMetadata.get(TychoP2RuntimeMetadata.HINT_FRAMEWORK);
         if (framework != null) {
-            addRuntime(locations, session, framework);
+            addRuntimeArtifacts(description, session, framework);
         }
 
         for (Map.Entry<String, TychoP2RuntimeMetadata> entry : runtimeMetadata.entrySet()) {
             if (!TychoP2RuntimeMetadata.HINT_FRAMEWORK.equals(entry.getKey())) {
-                addRuntime(locations, session, entry.getValue());
+                addRuntimeArtifacts(description, session, entry.getValue());
             }
         }
-
-        return locations;
     }
 
-    private void addRuntime(List<File> locations, MavenSession session, TychoP2RuntimeMetadata framework)
-            throws MavenExecutionException {
+    private void addRuntimeArtifacts(EquinoxRuntimeDescription description, MavenSession session,
+            TychoP2RuntimeMetadata framework) throws MavenExecutionException {
         for (Dependency dependency : framework.getRuntimeArtifacts()) {
-            locations.add(resolveRuntimeArtifact(session, dependency));
+            addRuntimeArtifact(description, session, dependency);
         }
     }
 
-    private File resolveRuntimeArtifact(MavenSession session, Dependency d) throws MavenExecutionException {
-        Artifact artifact = repositorySystem.createArtifact(d.getGroupId(), d.getArtifactId(), d.getVersion(),
-                d.getType());
+    private void addRuntimeArtifact(EquinoxRuntimeDescription description, MavenSession session, Dependency dependency)
+            throws MavenExecutionException {
+        Artifact artifact = resolveDependency(session, dependency);
 
-        if ("zip".equals(d.getType())) {
+        if ("zip".equals(dependency.getType())) {
             File artifactFile = new File(session.getLocalRepository().getBasedir(), session.getLocalRepository()
                     .pathOf(artifact));
             File eclipseDir = new File(artifactFile.getParentFile(), "eclipse");
@@ -123,41 +123,40 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
             FileLocker locker = fileLockService.getFileLocker(artifactFile);
             locker.lock();
             try {
-                if (eclipseDir.exists() && !artifact.isSnapshot()) {
-                    return eclipseDir;
-                }
+                if (!eclipseDir.exists() || artifact.isSnapshot()) {
+                    logger.debug("Extracting P2 runtime");
 
-                logger.debug("Resolving P2 runtime");
+                    if (artifact.getFile().lastModified() > eclipseDir.lastModified()) {
+                        logger.debug("Unpacking P2 runtime to " + eclipseDir);
+                        try {
+                            FileUtils.deleteDirectory(eclipseDir);
+                        } catch (IOException e) {
+                            logger.warn("Failed to delete P2 runtime " + eclipseDir + ": " + e.getMessage());
+                        }
+                        unArchiver.setSourceFile(artifact.getFile());
+                        unArchiver.setDestDirectory(eclipseDir.getParentFile());
+                        try {
+                            unArchiver.extract();
+                        } catch (ArchiverException e) {
+                            throw new MavenExecutionException("Failed to unpack P2 runtime: " + e.getMessage(), e);
+                        }
 
-                resolveArtifact(session, artifact);
-
-                if (artifact.getFile().lastModified() > eclipseDir.lastModified()) {
-                    logger.debug("Unpacking P2 runtime to " + eclipseDir);
-                    try {
-                        FileUtils.deleteDirectory(eclipseDir);
-                    } catch (IOException e) {
-                        logger.warn("Failed to delete P2 runtime " + eclipseDir + ": " + e.getMessage());
+                        eclipseDir.setLastModified(artifact.getFile().lastModified());
                     }
-                    unArchiver.setSourceFile(artifact.getFile());
-                    unArchiver.setDestDirectory(eclipseDir.getParentFile());
-                    try {
-                        unArchiver.extract();
-                    } catch (ArchiverException e) {
-                        throw new MavenExecutionException("Failed to unpack P2 runtime: " + e.getMessage(), e);
-                    }
-
-                    eclipseDir.setLastModified(artifact.getFile().lastModified());
                 }
             } finally {
                 locker.release();
             }
-            return eclipseDir;
+            description.addInstallation(eclipseDir);
         } else {
-            return resolveArtifact(session, artifact);
+            description.addBundle(artifact.getFile());
         }
     }
 
-    private File resolveArtifact(MavenSession session, Artifact artifact) throws MavenExecutionException {
+    private Artifact resolveDependency(MavenSession session, Dependency d) throws MavenExecutionException {
+        Artifact artifact = repositorySystem.createArtifact(d.getGroupId(), d.getArtifactId(), d.getVersion(),
+                d.getType());
+
         List<ArtifactRepository> repositories = new ArrayList<ArtifactRepository>();
         for (MavenProject project : session.getProjects()) {
             repositories.addAll(project.getPluginArtifactRepositories());
@@ -181,10 +180,7 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
             throw new MavenExecutionException("Could not resolve tycho-p2-runtime", e);
         }
 
-        return artifact.getFile();
+        return artifact;
     }
 
-    public List<String> getSystemPackagesExtra() {
-        return Arrays.asList(SYSTEM_PACKAGES_EXTRA);
-    }
 }
