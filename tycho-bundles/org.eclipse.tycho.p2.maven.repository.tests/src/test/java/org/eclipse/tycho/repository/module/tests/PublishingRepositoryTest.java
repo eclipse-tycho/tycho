@@ -11,7 +11,9 @@
 package org.eclipse.tycho.repository.module.tests;
 
 import static org.eclipse.tycho.repository.module.tests.ModuleArtifactRepositoryTest.writeAndClose;
+import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.allKeysIn;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
@@ -25,8 +27,9 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
@@ -47,9 +50,12 @@ public class PublishingRepositoryTest {
 
     private PublishingRepository subject;
 
+    // project the publishing repository belongs to
+    private ReactorProjectCoordinatesStub project;
+
     @Before
     public void initSubject() throws Exception {
-        ReactorProjectCoordinates project = new ReactorProjectCoordinatesStub(tempManager.newFolder("targetDir"));
+        project = new ReactorProjectCoordinatesStub(tempManager.newFolder("targetDir"));
 
         subject = new PublishingRepositoryImpl(p2Context.getAgent(), project);
     }
@@ -79,6 +85,23 @@ public class PublishingRepositoryTest {
         for (File artifactFile : artifacts.values()) {
             assertThat(artifactFile, isFile());
         }
+    }
+
+    @Test
+    public void testArtifactDescriptor() throws Exception {
+        // simulate that AttachedTestArtifact is the build output
+        insertTestArtifact(subject);
+
+        IArtifactRepository artifactRepo = subject.getArtifactRepository();
+        assertThat(allKeysIn(artifactRepo), hasItem(AttachedTestArtifact.key));
+
+        IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(AttachedTestArtifact.key);
+        assertThat(descriptors.length, is(1));
+        Map<String, String> props = descriptors[0].getProperties();
+        assertThat(props.get(RepositoryLayoutHelper.PROP_GROUP_ID), is(project.getGroupId()));
+        assertThat(props.get(RepositoryLayoutHelper.PROP_ARTIFACT_ID), is(project.getArtifactId()));
+        assertThat(props.get(RepositoryLayoutHelper.PROP_VERSION), is(project.getVersion()));
+        assertThat(props.get(RepositoryLayoutHelper.PROP_CLASSIFIER), is(AttachedTestArtifact.classifier));
     }
 
     private static void insertTestArtifact(PublishingRepository publishingRepo) throws ProvisionException, IOException {
