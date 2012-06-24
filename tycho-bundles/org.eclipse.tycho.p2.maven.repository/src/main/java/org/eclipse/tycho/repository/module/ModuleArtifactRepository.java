@@ -67,6 +67,8 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
 
     private final ModuleArtifactMap artifactsMap;
 
+    private GAV moduleGAV;
+
     // BEGIN construction
 
     public static ModuleArtifactRepository restoreInstance(IProvisioningAgent agent, File repositoryDir)
@@ -100,8 +102,14 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
     private ModuleArtifactRepository(IProvisioningAgent agent, URI uri, ModuleArtifactMap artifactsMap) {
         super(agent, uri, artifactsMap);
         this.artifactsMap = artifactsMap;
-        this.p2DataFile = contentLocator.getLocalArtifactLocation(DUMMY_GAV,
+        this.p2DataFile = artifactsMap.getLocalArtifactLocation(DUMMY_GAV,
                 RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+    }
+
+    // TODO the GAV should not be mutable; it should be encoded in the GAV
+    public void setGAV(String groupId, String artifactId, String version) {
+        this.moduleGAV = new GAV(groupId, artifactId, version);
+
     }
 
     // END construction
@@ -123,10 +131,9 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
 
         ArtifactDescriptor result = new ModuleArtifactDescriptor(key);
 
-        // TODO 348586 use GAV from module
-        result.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, "");
-        result.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, "");
-        result.setProperty(RepositoryLayoutHelper.PROP_VERSION, "0.0.1");
+        result.setProperty(RepositoryLayoutHelper.PROP_GROUP_ID, moduleGAV.getGroupId());
+        result.setProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID, moduleGAV.getArtifactId());
+        result.setProperty(RepositoryLayoutHelper.PROP_VERSION, moduleGAV.getVersion());
 
         result.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, writeSession.getClassifierForNewKey(key));
 
@@ -219,4 +226,5 @@ public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
             setRepository(ModuleArtifactRepository.this);
         }
     }
+
 }

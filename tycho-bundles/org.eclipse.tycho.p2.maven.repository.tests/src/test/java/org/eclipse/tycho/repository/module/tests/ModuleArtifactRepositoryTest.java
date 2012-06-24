@@ -132,6 +132,9 @@ public class ModuleArtifactRepositoryTest {
     }
 
     private IArtifactDescriptor newDescriptor(ArtifactKey artifactKey) {
+        // TODO this is wrong
+        subject.setGAV("", "", "");
+
         return subject.createArtifactDescriptor(artifactKey, new WriteSessionStub());
     }
 

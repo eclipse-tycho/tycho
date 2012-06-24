@@ -65,7 +65,6 @@ class PublishingRepositoryLoader {
 
     private ModuleMetadataRepository createModuleMetadataRepository(IMetadataRepositoryManager repoManager, URI location) {
         try {
-            // TODO pass GAV as properties
             return (ModuleMetadataRepository) repoManager.createRepository(location, BUILD_REPOSITORY_NAME,
                     ModuleMetadataRepository.REPOSITORY_TYPE, EMPTY_MAP);
         } catch (ProvisionException e) {
@@ -79,7 +78,12 @@ class PublishingRepositoryLoader {
 
         // TODO use p2artifacts.xml file instead of folder? Could prevent loading a artifacts.xml from the folder
         final URI location = project.getBuildDirectory().getLocation().toURI();
-        return getModuleArtifactRepository(repoManager, location);
+        ModuleArtifactRepository moduleArtifactRepository = getModuleArtifactRepository(repoManager, location);
+
+        // TODO encode the GAV in the URI so that this is not necessary
+        moduleArtifactRepository.setGAV(project.getGroupId(), project.getArtifactId(), project.getVersion());
+
+        return moduleArtifactRepository;
     }
 
     private ModuleArtifactRepository getModuleArtifactRepository(IArtifactRepositoryManager repoManager,
@@ -100,7 +104,6 @@ class PublishingRepositoryLoader {
 
     private ModuleArtifactRepository createModuleArtifactRepository(IArtifactRepositoryManager repoManager, URI location) {
         try {
-            // TODO pass GAV as properties
             return (ModuleArtifactRepository) repoManager.createRepository(location, BUILD_REPOSITORY_NAME,
                     ModuleArtifactRepository.REPOSITORY_TYPE, EMPTY_MAP);
         } catch (ProvisionException e) {
