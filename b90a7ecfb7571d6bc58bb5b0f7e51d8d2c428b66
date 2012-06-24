@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHn//8kc\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-24T20:04:38Z",
+      "side": 1,
+      "message": "This is the main reason why this change is here.",
+      "revId": "b90a7ecfb7571d6bc58bb5b0f7e51d8d2c428b66",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
