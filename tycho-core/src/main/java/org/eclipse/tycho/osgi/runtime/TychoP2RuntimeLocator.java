@@ -39,7 +39,7 @@ import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
 @Component(role = EquinoxRuntimeLocator.class)
-public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
+public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator, DependencyResolver {
     /**
      * List of packages exported by org.eclipse.tycho.p2 artifact/bundle.
      */
@@ -81,32 +81,45 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
     private Map<String, TychoP2RuntimeMetadata> runtimeMetadata;
 
     public void locateRuntime(EquinoxRuntimeDescription description) throws MavenExecutionException {
+        WorkspaceDependencyResolver workspaceResolver = WorkspaceDependencyResolver.getResolver(this);
+
         MavenSession session = buildContext.getSession();
 
-        addRuntimeArtifacts(session, description);
+        addRuntimeArtifacts(workspaceResolver, session, description);
 
         for (String systemPackage : SYSTEM_PACKAGES_EXTRA) {
             description.addExtraSystemPackage(systemPackage);
         }
+
+        if (workspaceResolver != null) {
+            workspaceResolver.addPlatformProperties(description);
+        }
     }
 
-    public void addRuntimeArtifacts(MavenSession session, EquinoxRuntimeDescription description)
-            throws MavenExecutionException {
+    public void addRuntimeArtifacts(WorkspaceDependencyResolver workspaceResolver, MavenSession session,
+            EquinoxRuntimeDescription description) throws MavenExecutionException {
         TychoP2RuntimeMetadata framework = runtimeMetadata.get(TychoP2RuntimeMetadata.HINT_FRAMEWORK);
         if (framework != null) {
-            addRuntimeArtifacts(description, session, framework);
+            addRuntimeArtifacts(workspaceResolver, description, session, framework);
         }
 
         for (Map.Entry<String, TychoP2RuntimeMetadata> entry : runtimeMetadata.entrySet()) {
             if (!TychoP2RuntimeMetadata.HINT_FRAMEWORK.equals(entry.getKey())) {
-                addRuntimeArtifacts(description, session, entry.getValue());
+                addRuntimeArtifacts(workspaceResolver, description, session, entry.getValue());
             }
         }
     }
 
-    private void addRuntimeArtifacts(EquinoxRuntimeDescription description, MavenSession session,
-            TychoP2RuntimeMetadata framework) throws MavenExecutionException {
+    private void addRuntimeArtifacts(WorkspaceDependencyResolver workspaceResolver,
+            EquinoxRuntimeDescription description, MavenSession session, TychoP2RuntimeMetadata framework)
+            throws MavenExecutionException {
         for (Dependency dependency : framework.getRuntimeArtifacts()) {
+            if (workspaceResolver != null) {
+                if (workspaceResolver.addRuntimeArtifact(description, session, dependency)) {
+                    continue;
+                }
+                // fallback to regular resolution logic if requested dependency is not found in the workspace
+            }
             addRuntimeArtifact(description, session, dependency);
         }
     }
@@ -153,9 +166,9 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
         }
     }
 
-    private Artifact resolveDependency(MavenSession session, Dependency d) throws MavenExecutionException {
-        Artifact artifact = repositorySystem.createArtifact(d.getGroupId(), d.getArtifactId(), d.getVersion(),
-                d.getType());
+    public Artifact resolveDependency(MavenSession session, Dependency dependency) throws MavenExecutionException {
+        Artifact artifact = repositorySystem.createArtifact(dependency.getGroupId(), dependency.getArtifactId(),
+                dependency.getVersion(), dependency.getType());
 
         List<ArtifactRepository> repositories = new ArrayList<ArtifactRepository>();
         for (MavenProject project : session.getProjects()) {
