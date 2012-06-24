@@ -17,16 +17,22 @@ import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.tycho.repository.module.ModuleArtifactRepository;
-import org.eclipse.tycho.repository.module.ModuleMetadataRepository;
-import org.eclipse.tycho.repository.module.PublishingRepositoryView;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
+import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
+import org.eclipse.tycho.test.util.P2Context;
+import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,21 +42,22 @@ public class PublishingRepositoryTest {
 
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();
+    @Rule
+    public P2Context p2Context = new P2Context();
 
-    private PublishingRepositoryView subject;
+    private PublishingRepository subject;
+
+    @Before
+    public void initSubject() throws Exception {
+        ReactorProjectCoordinates project = new ReactorProjectCoordinatesStub(tempManager.newFolder("targetDir"));
+
+        subject = new PublishingRepositoryImpl(p2Context.getAgent(), project);
+    }
 
     @Test
-    public void testAttachedArtifactsMap() throws Exception {
-        File targetFolder = tempManager.newFolder("targetDir");
-        ModuleMetadataRepository metadataRepo = new ModuleMetadataRepository(null, targetFolder);
-        ModuleArtifactRepository artifactRepo = ModuleArtifactRepository.createInstance(null, targetFolder);
-
-        // write one artifact to the repo
-        OutputStream outputStream = artifactRepo.getOutputStream(artifactRepo.createArtifactDescriptor(
-                AttachedTestArtifact.key, AttachedTestArtifact.getWriteSessionForArtifact()));
-        writeAndClose(outputStream, AttachedTestArtifact.size);
-
-        subject = new PublishingRepositoryView(metadataRepo, artifactRepo);
+    public void testArtifactsMap() throws Exception {
+        // simulate that AttachedTestArtifact is the build output
+        insertTestArtifact(subject);
 
         Map<String, File> artifacts = subject.getArtifactLocations();
         assertThat(artifacts.keySet(), hasItem(AttachedTestArtifact.classifier));
@@ -62,12 +69,32 @@ public class PublishingRepositoryTest {
         }
     }
 
-    static class AttachedTestArtifact {
+    @Test
+    public void testArtifactsMapWithOnlyMetafiles() throws Exception {
+        // although there is no published content, the meta-files shall still be there
+        Map<String, File> artifacts = subject.getArtifactLocations();
+        assertThat(artifacts.keySet(), hasItem("p2metadata"));
+        assertThat(artifacts.keySet(), hasItem("p2artifacts"));
+
+        for (File artifactFile : artifacts.values()) {
+            assertThat(artifactFile, isFile());
+        }
+    }
+
+    private static void insertTestArtifact(PublishingRepository publishingRepo) throws ProvisionException, IOException {
+        IArtifactRepository writableArtifactRepo = publishingRepo.getArtifactRepositoryForWriting(AttachedTestArtifact
+                .getWriteSessionForArtifact());
+        OutputStream outputStream = writableArtifactRepo.getOutputStream(writableArtifactRepo
+                .createArtifactDescriptor(AttachedTestArtifact.key));
+        writeAndClose(outputStream, AttachedTestArtifact.size);
+    }
+
+    private static class AttachedTestArtifact {
         static final IArtifactKey key = new ArtifactKey("p2classifier", "id", Version.parseVersion("0.1.2"));
         static final String classifier = "mvnclassifier";
         static final int size = 6;
 
-        public static WriteSessionContext getWriteSessionForArtifact() {
+        static WriteSessionContext getWriteSessionForArtifact() {
             return new WriteSessionContext() {
 
                 public String getClassifierForNewKey(IArtifactKey newKey) {
