@@ -34,6 +34,23 @@
       "revId": "f13f38d5f1e5ee56c1927f5baa3a615f4b7a5faa",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8iE\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/baseline/BaselineServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-25T09:00:10Z",
+      "side": 1,
+      "message": "Yes, I found the code, and this was the biggest hurdle for a contribution ;-)\nI wouldn\u0027t say that this commit has to wait for the contribution - I\u0027ll anyway make a separate commit out of it.",
+      "revId": "f13f38d5f1e5ee56c1927f5baa3a615f4b7a5faa",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
