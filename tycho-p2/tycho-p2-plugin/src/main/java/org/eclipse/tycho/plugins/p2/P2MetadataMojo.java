@@ -132,7 +132,8 @@ public class P2MetadataMojo extends AbstractMojo {
 
                 // attach any new classified artifacts, like feature root files for example
                 if (classifier != null && !hasAttachedArtifact(project, classifier)) {
-                    projectHelper.attachArtifact(project, p2artifact.getLocation(), classifier);
+                    projectHelper.attachArtifact(project, getExtension(p2artifact.getLocation()), classifier,
+                            p2artifact.getLocation());
                 }
             }
         } catch (IOException e) {
@@ -150,6 +151,15 @@ public class P2MetadataMojo extends AbstractMojo {
             }
         }
         return false;
+    }
+
+    private static String getExtension(File file) {
+        String fileName = file.getName();
+        int separator = fileName.lastIndexOf('.');
+        if (separator < 0) {
+            throw new IllegalArgumentException("No file extension in \"" + fileName + "\"");
+        }
+        return fileName.substring(separator + 1);
     }
 
     /**
