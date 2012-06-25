@@ -16,6 +16,24 @@
       "revId": "c1c9c068868a2650e9c8bce1b5770b816f14c5b9",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8fI\u003d",
+        "filename": "sisu-equinox/sisu-equinox-embedder/src/main/java/org/eclipse/sisu/equinox/embedder/EquinoxRuntimeLocator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-06-25T15:09:26Z",
+      "side": 1,
+      "message": "Returning a configuration object implies the locator needs to know exact implementation. This limits our ability to introduce new configuration parameters in the future without breaking backwards compatibility or doing IConfiguration2,3,4,5,etc thing.",
+      "parentUuid": "AABOHn//8fY\u003d",
+      "revId": "c1c9c068868a2650e9c8bce1b5770b816f14c5b9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
