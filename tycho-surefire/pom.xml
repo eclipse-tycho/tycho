@@ -34,6 +34,7 @@
 		<module>org.eclipse.tycho.surefire.osgibooter</module>
 		<module>org.eclipse.tycho.surefire.junit</module>
 		<module>org.eclipse.tycho.surefire.junit4</module>
+		<module>org.eclipse.tycho.surefire.junit47</module>
 	</modules>
 
 	<repositories>

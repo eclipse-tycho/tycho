@@ -54,6 +54,14 @@ public class ProviderSelectorTest extends PlexusTestCase {
         assertEquals(JUnit4Provider.class, provider.getClass());
     }
 
+    public void testSelectJunit47() throws Exception {
+        Properties providerProperties = new Properties();
+        providerProperties.setProperty("parallel", "classes");
+        TestFrameworkProvider provider = selector.selectProvider(classPath("org.junit:3.8.2", "org.junit4:4.8.1"),
+                providerProperties, null);
+        assertEquals(JUnit47Provider.class, provider.getClass());
+    }
+
     public void testSelectJunit4WithJunit3Present() throws Exception {
         TestFrameworkProvider provider = selector.selectProvider(classPath("org.junit:3.8.1", "org.junit:4.8.1"),
                 new Properties(), null);
