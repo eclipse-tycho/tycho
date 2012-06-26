@@ -220,25 +220,16 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         return Status.OK_STATUS;
     }
 
-    public IArtifactDescriptor getCanonicalArtifactDescriptor(IArtifactKey key) {
+    public File getArtifactFile(IArtifactKey key) {
         Set<IArtifactDescriptor> descriptors = descriptorsMap.get(key);
         if (descriptors != null) {
             for (IArtifactDescriptor descriptor : descriptors) {
-                // TODO check for duplicates of this logic
-                // TODO make robust against future extensions?
                 if (descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
-                    return descriptor;
+                    return getArtifactFile(descriptor);
                 }
             }
         }
         return null;
-    }
-
-    public File getArtifactFile(IArtifactKey key) {
-        IArtifactDescriptor canonicalDescriptor = getCanonicalArtifactDescriptor(key);
-        if (canonicalDescriptor == null)
-            return null;
-        return getArtifactFile(canonicalDescriptor);
     }
 
     public File getArtifactFile(IArtifactDescriptor descriptor) {

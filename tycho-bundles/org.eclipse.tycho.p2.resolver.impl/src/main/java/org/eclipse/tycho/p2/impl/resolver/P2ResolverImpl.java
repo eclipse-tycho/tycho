@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2011 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,6 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
-import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -44,7 +43,7 @@ import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 @SuppressWarnings("restriction")
-class P2ResolverImpl implements P2Resolver {
+public class P2ResolverImpl implements P2Resolver {
     // BundlesAction.CAPABILITY_NS_OSGI_BUNDLE
     private static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle";
 
@@ -59,28 +58,17 @@ class P2ResolverImpl implements P2Resolver {
 
     private final List<IRequirement> additionalRequirements = new ArrayList<IRequirement>();
 
-    private P2TargetPlatform externalTP;
-    private ResolutionContext context;
+    private P2TargetPlatform context;
 
     private Set<IInstallableUnit> usedTargetPlatformUnits;
 
-    P2ResolverImpl(MavenLogger logger) {
+    public P2ResolverImpl(MavenLogger logger) {
         this.logger = logger;
-        this.context = new ResolutionContext(logger);
         this.monitor = new LoggingProgressMonitor(logger);
     }
 
-    public void addFilters(List<TargetPlatformFilter> filters) {
-        context.addFilters(filters);
-    }
-
-    public void addReactorArtifact(IReactorArtifactFacade artifact) {
-        context.addReactorArtifact(artifact);
-    }
-
     public List<P2ResolutionResult> resolveProject(TargetPlatform targetPlatform, File projectLocation) {
-        this.externalTP = (P2TargetPlatform) targetPlatform;
-        this.context.setExternalTargetPlatform(externalTP);
+        this.context = (P2TargetPlatform) targetPlatform;
 
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
         usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
@@ -89,15 +77,14 @@ class P2ResolverImpl implements P2Resolver {
             results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(logger), properties));
         }
 
-        externalTP.reportUsedIUs(usedTargetPlatformUnits);
+        context.reportUsedIUs(usedTargetPlatformUnits);
         usedTargetPlatformUnits = null;
 
         return results;
     }
 
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation) {
-        this.externalTP = (P2TargetPlatform) context;
-        this.context.setExternalTargetPlatform(externalTP);
+        this.context = (P2TargetPlatform) context;
         return resolveProject(projectLocation, new DependencyCollector(logger), Collections.<String, String> emptyMap());
     }
 
@@ -127,7 +114,7 @@ class P2ResolverImpl implements P2Resolver {
             availableUnits.addAll(projectSecondaryIUs);
         }
         strategy.setAvailableInstallableUnits(availableUnits);
-        strategy.setJREUIs(externalTP.getJREIUs());
+        strategy.setJREUIs(context.getJREIUs());
 
         Collection<IInstallableUnit> newState = strategy.resolve(properties, monitor);
 
@@ -135,7 +122,7 @@ class P2ResolverImpl implements P2Resolver {
             usedTargetPlatformUnits.addAll(newState);
         }
 
-        externalTP.downloadArtifacts(newState);
+        context.downloadArtifacts(newState);
         return toResolutionResult(newState);
     }
 
@@ -170,21 +157,23 @@ class P2ResolverImpl implements P2Resolver {
     }
 
     private void addArtifactFile(DefaultP2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key) {
-        File file = externalTP.getLocalArtifactFile(key);
+        File file = context.getLocalArtifactFile(key);
         if (file == null) {
             return;
         }
 
+        IArtifactFacade reactorArtifact = context.getMavenArtifact(iu);
+
         String id = iu.getId();
         String version = iu.getVersion().toString();
-        String mavenClassifier = externalTP.getArtifactClassifier(key);
+        String mavenClassidier = reactorArtifact != null ? reactorArtifact.getClassifier() : null;
 
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, true, file, mavenClassifier, iu);
+            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, true, file, mavenClassidier, iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, true, file, mavenClassifier,
+                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, true, file, mavenClassidier,
                         iu);
             }
         }
@@ -263,8 +252,7 @@ class P2ResolverImpl implements P2Resolver {
     }
 
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String version) {
-        this.externalTP = (P2TargetPlatform) context;
-        this.context.setExternalTargetPlatform(externalTP);
+        this.context = (P2TargetPlatform) context;
 
         QueryableCollection queriable = new QueryableCollection(((P2TargetPlatform) context).getInstallableUnits());
 
@@ -278,7 +266,7 @@ class P2ResolverImpl implements P2Resolver {
 
         Set<IInstallableUnit> newState = result.toUnmodifiableSet();
 
-        this.externalTP.downloadArtifacts(newState);
+        this.context.downloadArtifacts(newState);
 
         return toResolutionResult(newState);
     }

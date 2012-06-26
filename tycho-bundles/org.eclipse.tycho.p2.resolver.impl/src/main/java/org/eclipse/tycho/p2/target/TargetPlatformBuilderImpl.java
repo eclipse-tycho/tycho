@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,16 +45,19 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
+import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
+import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -88,16 +93,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
      */
     private final JREInstallableUnits jreIUs;
 
-    private List<TargetPlatformContent> content = new ArrayList<TargetPlatformContent>();
-    private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
-
     /** maven local repository as P2 IArtifactRepository */
     private final LocalArtifactRepository localArtifactRepository;
 
     /** maven local repository as P2 IMetadataRepository */
     private final LocalMetadataRepository localMetadataRepository;
-
-    // ------------------------------------------------------------------------------
 
     public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
             TargetDefinitionResolverService targetDefinitionResolverService, String executionEnvironment,
@@ -135,11 +135,24 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.localArtifactRepository = localArtifactRepo;
         this.localMetadataRepository = localMetadataRepo;
 
-        // TODO 378502 this may need to be handled specially, just like reactor units
         metadataRepositories.add(this.localMetadataRepository);
     }
 
     // ---------------------------------------------------------------------
+
+    private Map<ClassifiedLocation, IReactorArtifactFacade> reactorProjects = new LinkedHashMap<ClassifiedLocation, IReactorArtifactFacade>();
+
+    private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
+
+    public void addReactorArtifact(IReactorArtifactFacade artifact) {
+        ClassifiedLocation key = new ClassifiedLocation(artifact);
+
+//        if (reactorProjects.containsKey(key)) {
+//            throw new IllegalStateException();
+//        }
+
+        reactorProjects.put(key, artifact);
+    }
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile) {
         try {
@@ -264,6 +277,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         return p;
     }
 
+    // ------------------------------------------------------------------------------
+
+    // TODO have other target platform content contributors also add to this list
+    private List<TargetPlatformContent> content = new ArrayList<TargetPlatformContent>();
+
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
         TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
@@ -296,17 +314,16 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         ArtifactRepositoryBlackboard.putRepository(blackboardKey, resolutionContextArtifactRepo);
         logger.debug("Registered artifact repository " + blackboardKey);
 
-        // TODO reconsider this performance optimization
-//        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters,
-//                logger) : null;
-        TargetPlatformFilterEvaluator filter = null;
+        Set<IInstallableUnit> reactorProjectUIs = getReactorProjectUIs();
 
-        LinkedHashSet<IInstallableUnit> p2RepositoryUnits = gatherP2RepositoryInstallableUnits(monitor);
-        applyFilters(filter, p2RepositoryUnits);
+        TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters,
+                logger) : null;
 
-        // TODO mavenIUs is never read!?
-//        LinkedHashSet<IInstallableUnit> mavenIUs = gatherMavenInstallableUnits();
-//        applyFilters(filter, mavenIUs);
+        LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(monitor);
+        applyFilters(filter, externalUIs, reactorProjectUIs);
+
+        LinkedHashSet<IInstallableUnit> mavenIUs = gatherMavenInstallableUnits();
+        applyFilters(filter, mavenIUs, reactorProjectUIs);
 
         List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
         for (IArtifactRepository artifactRepository : artifactRepositories) {
@@ -316,9 +333,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
 
-        return new TargetPlatformImpl(p2RepositoryUnits, //
+        return new TargetPlatformImpl(reactorProjects.values(),//
+                externalUIs, //
                 mavenInstallableUnits, //
                 jreIUs.getJREIUs(), //
+                filter, //
                 localMetadataRepository, //
                 allRemoteArtifactRepositories, //
                 localArtifactRepository, //
@@ -330,10 +349,10 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     // -------------------------------------------------------------------------
 
     /**
-     * external installable units collected from p2 repositories, .target files and local maven
+     * external installable units collevted from p2 repositories, .target files and local maven
      * repository
      */
-    private LinkedHashSet<IInstallableUnit> gatherP2RepositoryInstallableUnits(IProgressMonitor monitor) {
+    private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(IProgressMonitor monitor) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetPlatformContent contentPart : content) {
@@ -384,19 +403,27 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     // -------------------------------------------------------------------------
 
-//    private List<TargetPlatformFilter> iuFilters = new ArrayList<TargetPlatformFilter>();
-//
-//    public void addFilters(List<TargetPlatformFilter> filters) {
-//        this.iuFilters.addAll(filters);
-//    }
+    private List<TargetPlatformFilter> iuFilters = new ArrayList<TargetPlatformFilter>();
 
-    private void applyFilters(TargetPlatformFilterEvaluator filter, LinkedHashSet<IInstallableUnit> units) {
+    public void addFilters(List<TargetPlatformFilter> filters) {
+        this.iuFilters.addAll(filters);
+    }
+
+    private void applyFilters(TargetPlatformFilterEvaluator filter, LinkedHashSet<IInstallableUnit> units,
+            Set<IInstallableUnit> reactorProjectUIs) {
+
+        Set<String> reactorIUIDs = new HashSet<String>();
+        for (IInstallableUnit unit : reactorProjectUIs) {
+            reactorIUIDs.add(unit.getId());
+        }
+
         // a.jre/config.a.jre installable units
         // partial installable units
+        // installable units shadowed by reactor projects
         Iterator<IInstallableUnit> iter = units.iterator();
         while (iter.hasNext()) {
             IInstallableUnit unit = iter.next();
-            if (jreIUs.isJREUI(unit) || isPartialIU(unit)) {
+            if (jreIUs.isJREUI(unit) || isPartialIU(unit) || reactorIUIDs.contains(unit.getId())) {
                 // TODO log
                 iter.remove();
                 continue;
@@ -410,6 +437,49 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     }
 
     // -------------------------------------------------------------------------------
+
+    private Set<IInstallableUnit> getReactorProjectUIs() throws DuplicateReactorIUsException {
+        Map<IInstallableUnit, Set<File>> reactorUIs = new HashMap<IInstallableUnit, Set<File>>();
+        Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<IInstallableUnit, Set<File>>();
+
+        for (IReactorArtifactFacade project : reactorProjects.values()) {
+            LinkedHashSet<IInstallableUnit> projectIUs = new LinkedHashSet<IInstallableUnit>();
+            projectIUs.addAll(toSet(project.getDependencyMetadata(true), IInstallableUnit.class));
+            projectIUs.addAll(toSet(project.getDependencyMetadata(false), IInstallableUnit.class));
+
+            for (IInstallableUnit iu : projectIUs) {
+                Set<File> locations = reactorUIs.get(iu);
+                if (locations == null) {
+                    locations = new LinkedHashSet<File>();
+                    reactorUIs.put(iu, locations);
+                }
+                locations.add(project.getLocation());
+                if (locations.size() > 1) {
+                    duplicateReactorUIs.put(iu, locations);
+                }
+            }
+        }
+
+        if (!duplicateReactorUIs.isEmpty()) {
+            throw new DuplicateReactorIUsException(duplicateReactorUIs);
+        }
+
+        return reactorUIs.keySet();
+    }
+
+    static <T> Set<T> toSet(Collection<Object> collection, Class<T> targetType) {
+        if (collection == null || collection.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        LinkedHashSet<T> set = new LinkedHashSet<T>();
+
+        for (Object o : collection) {
+            set.add(targetType.cast(o));
+        }
+
+        return set;
+    }
 
     public void setIncludePackedArtifacts(boolean include) {
         this.includePackedArtifacts = include;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,8 +41,8 @@ public class PomDependencyProcessor {
         this.localRepoIndices = localRepoIndices;
     }
 
-    void addPomDependenciesToTargetPlatform(MavenProject project, Collection<Artifact> transitivePomDependencies,
-            TargetPlatformBuilder tpBuilder) {
+    void addPomDependenciesToResolutionContext(MavenProject project, Collection<Artifact> transitivePomDependencies,
+            TargetPlatformBuilder resolutionContext) {
         final TychoRepositoryIndex p2ArtifactsInLocalRepo = localRepoIndices.getArtifactsIndex();
 
         for (Artifact artifact : transitivePomDependencies) {
@@ -60,7 +60,7 @@ public class PomDependencyProcessor {
                     logger.debug("P2TargetPlatformResolver: Using existing metadata of " + artifact.toString());
                 }
 
-                tpBuilder.addArtifactWithExistingMetadata(new ArtifactFacade(artifact), new ArtifactFacade(
+                resolutionContext.addArtifactWithExistingMetadata(new ArtifactFacade(artifact), new ArtifactFacade(
                         p2Data.p2MetadataXml.artifact));
 
                 /*
@@ -81,7 +81,7 @@ public class PomDependencyProcessor {
                     logger.debug("P2resolver.addMavenArtifact " + artifact.toString());
                 }
 
-                tpBuilder.publishAndAddArtifactIfBundleArtifact(new ArtifactFacade(artifact));
+                resolutionContext.publishAndAddArtifactIfBundleArtifact(new ArtifactFacade(artifact));
 
             } else {
                 failDueToPartialP2Data(artifact, p2Data);

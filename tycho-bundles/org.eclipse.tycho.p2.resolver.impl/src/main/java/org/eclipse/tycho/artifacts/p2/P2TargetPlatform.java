@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,8 +41,9 @@ public interface P2TargetPlatform extends TargetPlatform {
 
     File getLocalArtifactFile(IArtifactKey key);
 
-    String getArtifactClassifier(IArtifactKey key);
+    // TODO 364134 revise the relationship of target platform and dependency only IUs
+    Collection<IInstallableUnit> getReactorProjectIUs(File projectLocation, boolean primary);
 
-    IArtifactFacade getMavenArtifact(IInstallableUnit unit);
+    IArtifactFacade getMavenArtifact(IInstallableUnit iu);
 
 }

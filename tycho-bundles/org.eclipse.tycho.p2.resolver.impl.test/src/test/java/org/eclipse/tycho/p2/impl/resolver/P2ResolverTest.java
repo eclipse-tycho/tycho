@@ -46,20 +46,20 @@ public class P2ResolverTest extends P2ResolverTestBase {
         org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
         MavenLogger logger = new MavenLoggerStub();
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        tpBuilder = p2ResolverFactory.createTargetPlatformBuilder(null, false);
-        resolver = new P2ResolverImpl(logger);
-        resolver.setEnvironments(getEnvironments());
+        context = p2ResolverFactory.createTargetPlatformBuilder(null, false);
+        impl = new P2ResolverImpl(logger);
+        impl.setEnvironments(getEnvironments());
     }
 
     @Test
     public void basic() throws Exception {
-        tpBuilder.addP2Repository(resourceFile("repositories/e342").toURI());
+        context.addP2Repository(resourceFile("repositories/e342").toURI());
 
         File bundle = resourceFile("resolver/bundle01");
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -70,7 +70,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void siteConflictingDependenciesResolver() throws IOException {
-        tpBuilder.addP2Repository(resourceFile("repositories/e342").toURI());
+        context.addP2Repository(resourceFile("repositories/e342").toURI());
 
         File[] projects = new File[] { resourceFile("siteresolver/bundle342"), //
                 resourceFile("siteresolver/bundle352"), //
@@ -86,7 +86,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         File siteProject = projects[4];
         addReactorProject(siteProject, TYPE_ECLIPSE_UPDATE_SITE, "site");
 
-        P2ResolutionResult result = resolver.collectProjectDependencies(tpBuilder.buildTargetPlatform(), siteProject);
+        P2ResolutionResult result = impl.collectProjectDependencies(context.buildTargetPlatform(), siteProject);
 
         Assert.assertEquals(projects.length, result.getArtifacts().size());
         for (File project : projects) {
@@ -115,7 +115,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         addReactorProject(resourceFile("duplicate-iu/featureA2"), TYPE_ECLIPSE_FEATURE, "featureA2");
 
         try {
-            resolver.resolveProject(tpBuilder.buildTargetPlatform(), projectLocation);
+            impl.resolveProject(context.buildTargetPlatform(), projectLocation);
             fail();
         } catch (DuplicateReactorIUsException e) {
             // TODO proper assertion
@@ -128,7 +128,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
         addReactorProject(feature, TYPE_ECLIPSE_FEATURE, artifactId);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), feature);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), feature);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -153,9 +153,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
         DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb,
                 getEnvironments(), null);
         sb.setDependencyMetadata(metadata);
-        resolver.addReactorArtifact(sb);
+        context.addReactorArtifact(sb);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), feature);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), feature);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -178,9 +178,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void eclipseRepository() throws Exception {
-        tpBuilder.addP2Repository(resourceFile("repositories/e342").toURI());
+        context.addP2Repository(resourceFile("repositories/e342").toURI());
         // launchers currently cannot be disabled (see TYCHO-511/TYCHO-512)
-        tpBuilder.addP2Repository(resourceFile("repositories/launchers").toURI());
+        context.addP2Repository(resourceFile("repositories/launchers").toURI());
 
         File projectDir = resourceFile("resolver/repository");
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.repository";
@@ -188,7 +188,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         addContextProject(resourceFile("resolver/bundle01"), TYPE_ECLIPSE_PLUGIN);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), projectDir);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), projectDir);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -204,13 +204,13 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void bundleUsesSWT() throws Exception {
-        tpBuilder.addP2Repository(resourceFile("repositories/e361").toURI());
+        context.addP2Repository(resourceFile("repositories/e361").toURI());
 
         File bundle = resourceFile("resolver/bundleUsesSWT");
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -229,7 +229,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         File swtFragment = resourceFile("resolver/swt/swtFragment");
         addReactorProject(swtFragment, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.swtFragment");
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), swt);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), swt);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -245,7 +245,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         File swtFragment = resourceFile("resolver/swt/swtFragment");
         addReactorProject(swtFragment, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.swtFragment");
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), swtFragment);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), swtFragment);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -259,12 +259,12 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void swtFragmentWithRemoteSWT() throws Exception {
-        tpBuilder.addP2Repository(resourceFile("repositories/e361").toURI());
+        context.addP2Repository(resourceFile("repositories/e361").toURI());
 
         File swtFragment = resourceFile("resolver/swt/swtFragment");
         addReactorProject(swtFragment, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.swtFragment");
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), swtFragment);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), swtFragment);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -293,7 +293,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void reactorVsExternal() throws Exception {
-        tpBuilder.addP2Repository(resourceFile("reactor-vs-external/extrepo").toURI());
+        context.addP2Repository(resourceFile("reactor-vs-external/extrepo").toURI());
 
         addReactorProject(resourceFile("reactor-vs-external/bundle01"), TYPE_ECLIPSE_PLUGIN,
                 "org.sonatype.tycho.p2.impl.resolver.test.bundle01");
@@ -301,7 +301,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         File featureProject = resourceFile("reactor-vs-external/feature01");
         addReactorProject(featureProject, TYPE_ECLIPSE_FEATURE, "org.sonatype.tycho.p2.impl.resolver.test.feature01");
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), featureProject);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), featureProject);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -317,15 +317,15 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Test
     public void resolutionRestrictedEE() throws Exception {
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        tpBuilder = p2ResolverFactory.createTargetPlatformBuilder("CDC-1.0/Foundation-1.0", false);
+        context = p2ResolverFactory.createTargetPlatformBuilder("CDC-1.0/Foundation-1.0", false);
 
-        tpBuilder.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 
         File bundle = resourceFile("resolver/bundle.bree");
         String artifactId = "bundle.bree";
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -339,15 +339,15 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Test
     public void resolutionEE() throws Exception {
         P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        tpBuilder = p2ResolverFactory.createTargetPlatformBuilder("J2SE-1.5", false);
+        context = p2ResolverFactory.createTargetPlatformBuilder("J2SE-1.5", false);
 
-        tpBuilder.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 
         File bundle = resourceFile("resolver/bundle.bree");
         String artifactId = "bundle.bree";
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -359,13 +359,13 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void resolutionNoEE() throws Exception {
-        tpBuilder.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 
         File bundle = resourceFile("resolver/bundle.nobree");
         String artifactId = "bundle.nobree";
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
 
         Assert.assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
@@ -380,13 +380,13 @@ public class P2ResolverTest extends P2ResolverTestBase {
         List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
         environments.add(newEnvironment("linux", "gtk", "x86_64"));
         environments.add(newEnvironment("macosx", "cocoa", "x86_64"));
-        resolver.setEnvironments(environments);
+        impl.setEnvironments(environments);
 
         File bundle = resourceFile("resolver/feature.multienv.p2-inf");
         String artifactId = "feature.multienv.p2-inf";
         addReactorProject(bundle, TYPE_ECLIPSE_FEATURE, artifactId);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
 
         Assert.assertEquals(2, results.size());
 
@@ -405,18 +405,18 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void productMultienvP2Inf() throws Exception {
-        tpBuilder.addP2Repository(resourceFile("repositories/launchers").toURI());
+        context.addP2Repository(resourceFile("repositories/launchers").toURI());
 
         List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
         environments.add(newEnvironment("linux", "gtk", "x86_64"));
         environments.add(newEnvironment("macosx", "cocoa", "x86_64"));
-        resolver.setEnvironments(environments);
+        impl.setEnvironments(environments);
 
         File bundle = resourceFile("resolver/product.multienv.p2-inf");
         String artifactId = "product.multienv.p2-inf";
         addReactorProject(bundle, TYPE_ECLIPSE_REPOSITORY, artifactId);
 
-        List<P2ResolutionResult> results = resolver.resolveProject(tpBuilder.buildTargetPlatform(), bundle);
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
 
         Assert.assertEquals(2, results.size());
 
