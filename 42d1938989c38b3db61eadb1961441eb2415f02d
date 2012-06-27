@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOHn//8TE\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-27T11:37:09Z",
+      "side": 1,
+      "message": "TODO: add bug number 348586",
+      "revId": "42d1938989c38b3db61eadb1961441eb2415f02d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOHn//8S8\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-06-27T11:37:09Z",
+      "side": 1,
+      "message": "TODO: add \"Bug: xyz\" footers; I believe the Gerrit Web-UI would pick them up and show them as link.",
+      "revId": "42d1938989c38b3db61eadb1961441eb2415f02d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
