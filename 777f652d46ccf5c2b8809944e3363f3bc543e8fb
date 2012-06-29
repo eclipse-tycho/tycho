@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOH3///3E\u003d",
+        "filename": "tycho-surefire/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-29T14:14:38Z",
+      "side": 1,
+      "message": "this does not apply to tycho-surefire-plugin",
+      "revId": "777f652d46ccf5c2b8809944e3363f3bc543e8fb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
