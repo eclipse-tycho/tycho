@@ -1,0 +1,2 @@
+# ignore surefire jars downloaded in the build 
+jars/
