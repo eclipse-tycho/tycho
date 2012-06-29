@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AABOH3///3k\u003d",
+        "filename": "tycho-its/projects/surefire.junit47/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-29T13:07:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8Yo\u003d",
+      "revId": "86474f374f3decca376a8a1a72760fc7f7f4dc0c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//8Y0\u003d",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2012-06-26T11:44:17Z",
       "side": 1,
       "message": "I think we want to fail the build with a clear message when configured provider does not support selected parallel mode.",
+      "revId": "86474f374f3decca376a8a1a72760fc7f7f4dc0c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOH3///3g\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-06-29T13:07:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOHn//8Y0\u003d",
       "revId": "86474f374f3decca376a8a1a72760fc7f7f4dc0c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
