@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tycho Surefire OSGi JUnit4.7 Runner (Incubation)
+Bundle-SymbolicName: org.eclipse.tycho.surefire.junit47;singleton:=true
+Bundle-Version: 0.16.0.qualifier
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter;bundle-version="0.16.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: .,
+ jars/surefire-junit47-2.10.jar
+Import-Package: junit.framework;version="[4.7,5)",
+ org.junit;version="[4.7,5)",
+ org.junit.runner;version="[4.7,5)",
+ org.junit.runner.notification;version="[4.7,5)",
+ org.junit.runners;version="[4.7,5)",
+ org.junit.runners.model;version="[4.7,5)"
+Bundle-Vendor: %providerName

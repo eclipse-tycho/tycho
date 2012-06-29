@@ -54,6 +54,14 @@ public class ProviderSelectorTest extends PlexusTestCase {
         assertEquals(JUnit4Provider.class, provider.getClass());
     }
 
+    public void testSelectJunit47() throws Exception {
+        Properties providerProperties = new Properties();
+        providerProperties.setProperty("parallel", "classes");
+        TestFrameworkProvider provider = selector.selectProvider(classPath("org.junit:3.8.2", "org.junit4:4.8.1"),
+                providerProperties, null);
+        assertEquals(JUnit47Provider.class, provider.getClass());
+    }
+
     public void testSelectJunit4WithJunit3Present() throws Exception {
         TestFrameworkProvider provider = selector.selectProvider(classPath("org.junit:3.8.1", "org.junit:4.8.1"),
                 new Properties(), null);
@@ -68,7 +76,7 @@ public class ProviderSelectorTest extends PlexusTestCase {
 
     public void testSelectWithNonExistingHint() {
         try {
-            selector.selectProvider(AbstractJUnitProviderTest.classPath(), new Properties(), "NON_EXISTING");
+            selector.selectProvider(classPath(), new Properties(), "NON_EXISTING");
             fail();
         } catch (MojoExecutionException e) {
             // expected
@@ -78,6 +86,17 @@ public class ProviderSelectorTest extends PlexusTestCase {
     public void testNoProviderFound() {
         try {
             selector.selectProvider(classPath("foo:1.0", "test:2.0"), new Properties(), null);
+            fail();
+        } catch (MojoExecutionException e) {
+            // expected
+        }
+    }
+
+    public void testParallelModeNotSupported() {
+        try {
+            Properties providerProperties = new Properties();
+            providerProperties.setProperty("parallel", "methods");
+            selector.selectProvider(classPath("org.junit:4.6"), providerProperties, null);
             fail();
         } catch (MojoExecutionException e) {
             // expected

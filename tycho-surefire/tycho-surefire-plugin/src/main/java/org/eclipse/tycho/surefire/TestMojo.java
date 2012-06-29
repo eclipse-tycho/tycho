@@ -355,18 +355,58 @@ public class TestMojo extends AbstractMojo {
     /**
      * Normally tycho will automatically determine the test framework provider based on the test
      * project's classpath. Use this to force using a test framework provider implementation with
-     * the given role hint. Tycho comes with providers &quot;junit3&quot; and &quot;junit4&quot;.
-     * Note that when specifying a providerHint, you have to make sure the provider is actually
-     * available in the dependencies of tycho-surefire-plugin.
+     * the given role hint. Tycho comes with providers
+     * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;. Note that when specifying a
+     * providerHint, you have to make sure the provider is actually available in the dependencies of
+     * tycho-surefire-plugin.
      * 
      * @parameter
+     * @since 0.16.0
      */
     private String providerHint;
+
+    /**
+     * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads,
+     * as controlled by threadCount.
+     * 
+     * @parameter expression="${parallel}"
+     * @since 0.16.0
+     */
+    private ParallelMode parallel;
+
+    /**
+     * (JUnit 4.7 provider) Indicates that threadCount is per cpu core.
+     * 
+     * @parameter expression="${perCoreThreadCount}" default-value="true"
+     * @since 0.16.0
+     */
+    private boolean perCoreThreadCount;
+
+    /**
+     * (JUnit 4.7 provider) The attribute thread-count allows you to specify how many threads should
+     * be allocated for this execution. Only makes sense to use in conjunction with the parallel
+     * parameter.
+     * 
+     * @parameter expression="${threadCount}"
+     * @since 0.16.0
+     */
+    private int threadCount = -1;
+
+    /**
+     * (JUnit 4.7 provider) Indicates that the thread pool will be unlimited. The parallel parameter
+     * and the actual number of classes/methods will decide. Setting this to "true" effectively
+     * disables perCoreThreadCount and threadCount.
+     * 
+     * @parameter expression="${useUnlimitedThreads}" default-value="false"
+     * @since 0.16.0
+     */
+    private boolean useUnlimitedThreads;
 
     /**
      * Use this to specify surefire provider-specific properties.
      * 
      * @parameter
+     * @since 0.16.0
      */
     private Properties providerProperties = new Properties();
 
@@ -566,6 +606,14 @@ public class TestMojo extends AbstractMojo {
      * See OsgiSurefireBooter#extractProviderProperties
      */
     private void mergeProviderProperties(Properties surefireProps) {
+        if (parallel != null) {
+            providerProperties.put("parallel", parallel.name());
+            if (threadCount > 0) {
+                providerProperties.put("threadCount", String.valueOf(threadCount));
+            }
+            providerProperties.put("perCoreThreadCount", String.valueOf(perCoreThreadCount));
+            providerProperties.put("useUnlimitedThreads", String.valueOf(useUnlimitedThreads));
+        }
         for (Map.Entry entry : providerProperties.entrySet()) {
             surefireProps.put("__provider." + entry.getKey(), entry.getValue());
         }

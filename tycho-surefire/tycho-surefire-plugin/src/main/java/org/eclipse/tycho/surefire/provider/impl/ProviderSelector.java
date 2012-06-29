@@ -59,8 +59,20 @@ public class ProviderSelector {
                 candidates.add(provider);
             }
         }
-        validate(candidates);
-        return Collections.max(candidates, VERSION_COMPARATOR);
+        validateCandidates(candidates);
+        TestFrameworkProvider highestVersionProvider = Collections.max(candidates, VERSION_COMPARATOR);
+        validate(highestVersionProvider, providerProperties);
+        return highestVersionProvider;
+    }
+
+    private void validate(TestFrameworkProvider provider, Properties providerProperties) throws MojoExecutionException {
+        if ("junit".equals(provider.getType()) && providerProperties.getProperty("parallel") != null) {
+            if (!JUnit47Provider.class.equals(provider.getClass())) {
+                throw new MojoExecutionException("Provider " + provider.getClass().getName()
+                        + " does not support parallel mode. " + JUnit47Provider.class.getName()
+                        + " (i.e. JUnit >= 4.7) is required for this.");
+            }
+        }
     }
 
     public Set<File> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
@@ -102,7 +114,7 @@ public class ProviderSelector {
         return result;
     }
 
-    private void validate(List<TestFrameworkProvider> candidates) throws MojoExecutionException {
+    private void validateCandidates(List<TestFrameworkProvider> candidates) throws MojoExecutionException {
         if (candidates.size() == 0) {
             throw new MojoExecutionException("Could not determine test framework provider. Available providers: "
                     + providers.keySet());
