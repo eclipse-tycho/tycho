@@ -105,9 +105,9 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
     }
 
     private String getRelPath(Repository repository, MavenProject project) throws IOException {
-        String workTree = repository.getWorkTree().getAbsolutePath();
+        String workTree = repository.getWorkTree().getCanonicalPath();
 
-        String path = project.getBasedir().getAbsolutePath();
+        String path = project.getBasedir().getCanonicalPath();
 
         if (!path.startsWith(workTree)) {
             throw new IOException(project + " is not in git repository working tree " + repository.getWorkTree());
