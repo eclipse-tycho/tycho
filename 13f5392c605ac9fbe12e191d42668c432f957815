@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIX///1o\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-07-02T12:40:55Z",
+      "side": 1,
+      "message": "Does anyone see a problem with this? Will we need to add nl support to eclipse-repository/eclipse-product?",
+      "revId": "13f5392c605ac9fbe12e191d42668c432f957815",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
