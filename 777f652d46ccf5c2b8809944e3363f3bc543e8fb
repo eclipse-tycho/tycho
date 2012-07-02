@@ -16,6 +16,24 @@
       "revId": "777f652d46ccf5c2b8809944e3363f3bc543e8fb",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIX///3I\u003d",
+        "filename": "tycho-surefire/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-07-02T10:40:58Z",
+      "side": 1,
+      "message": "In fact, all the configuration here only applies to the three wrappers. But since this is the first common parent POM of the wrappers, and the configuration doesn\u0027t harm for the other modules, I don\u0027t belive that this is a problem.",
+      "parentUuid": "AABOH3///3E\u003d",
+      "revId": "777f652d46ccf5c2b8809944e3363f3bc543e8fb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
