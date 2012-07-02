@@ -11,7 +11,6 @@
 package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
@@ -19,10 +18,10 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectCoordinates;
 import org.eclipse.tycho.p2.tools.BuildContext;
-import org.eclipse.tycho.p2.tools.TargetEnvironment;
 
 public abstract class AbstractRepositoryMojo extends AbstractMojo {
     /**
@@ -61,25 +60,12 @@ public abstract class AbstractRepositoryMojo extends AbstractMojo {
     }
 
     protected BuildContext getBuildContext() {
-        return new BuildContext(getProjectCoordinates(), qualifier, getEnvironmentsForFacade());
+        List<TargetEnvironment> environments = TychoProjectUtils.getTargetPlatformConfiguration(project).getEnvironments();
+        return new BuildContext(getProjectCoordinates(), qualifier, environments);
     }
-
     protected File getAssemblyRepositoryLocation() {
         return getBuildDirectory().getChild("repository");
     }
 
-    /**
-     * Returns the configured environments in a format suitable for the p2 tools facade.
-     */
-    private List<TargetEnvironment> getEnvironmentsForFacade() {
-        // TODO use shared class everywhere?
 
-        List<org.eclipse.tycho.core.TargetEnvironment> original = TychoProjectUtils.getTargetPlatformConfiguration(
-                project).getEnvironments();
-        List<TargetEnvironment> converted = new ArrayList<TargetEnvironment>(original.size());
-        for (org.eclipse.tycho.core.TargetEnvironment env : original) {
-            converted.add(new TargetEnvironment(env.getWs(), env.getOs(), env.getArch()));
-        }
-        return converted;
-    }
 }

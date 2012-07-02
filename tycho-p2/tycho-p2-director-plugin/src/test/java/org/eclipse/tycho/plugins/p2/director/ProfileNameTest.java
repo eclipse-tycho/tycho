@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.tycho.core.TargetEnvironment;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.junit.Test;
 
 public class ProfileNameTest {
@@ -28,8 +28,8 @@ public class ProfileNameTest {
             "x86_64");
     private static final ProfileName GENERAL_LINUX_CONFIG = new ProfileName("linux-profile", "linux", null, null);
 
-    private static final TargetEnvironment LINUX_GTK_X86_64 = new TargetEnvironment("linux", "gtk", "x86_64", null);
-    private static final TargetEnvironment WIN32_WIN32_X86_64 = new TargetEnvironment("win32", "win32", "x86_64", null);
+    private static final TargetEnvironment LINUX_GTK_X86_64 = new TargetEnvironment("linux", "gtk", "x86_64");
+    private static final TargetEnvironment WIN32_WIN32_X86_64 = new TargetEnvironment("win32", "win32", "x86_64");
 
     @Test
     public void testNoEnvironmentSpecificNames() throws Exception {

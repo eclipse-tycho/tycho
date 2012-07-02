@@ -30,9 +30,9 @@ import java.util.Set;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
@@ -51,7 +51,7 @@ public class PublisherServiceTest {
     private static final String DEFAULT_QUALIFIER = "testqual";
     private static final String DEFAULT_FLAVOR = "tooling";
     private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
-            .singletonList(new TargetEnvironment("testws", "testos", "testarch"));
+            .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
 
     private MemoryLog mavenLogger = new MemoryLog(true);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TargetEnvironment;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -133,8 +133,8 @@ public class DefaultTargetPlatformTest {
 
         MultiEnvironmentTargetPlatform tp = new MultiEnvironmentTargetPlatform();
 
-        tp.addPlatform(new TargetEnvironment("a", "a", "a", "a"), tpA);
-        tp.addPlatform(new TargetEnvironment("b", "b", "b", "b"), tpB);
+        tp.addPlatform(new TargetEnvironment("a", "a", "a"), tpA);
+        tp.addPlatform(new TargetEnvironment("b", "b", "b"), tpB);
 
         List<ArtifactDescriptor> artifacts = tp.getArtifacts();
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,11 +26,11 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
-import org.eclipse.tycho.core.TargetEnvironment;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.UnknownEnvironmentException;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
@@ -116,7 +116,7 @@ public class DefaultTargetPlatformConfigurationReader {
             String ws = PlatformPropertiesUtils.getWS(properties);
             String arch = PlatformPropertiesUtils.getArch(properties);
 
-            result.addEnvironment(new TargetEnvironment(os, ws, arch, null /* nl */));
+            result.addEnvironment(new TargetEnvironment(os, ws, arch));
 
             result.setImplicitTargetEnvironment(true);
         } else {
@@ -335,7 +335,7 @@ public class DefaultTargetPlatformConfigurationReader {
             return null;
         }
 
-        return new TargetEnvironment(osDom.getValue(), wsDom.getValue(), archDom.getValue(), null /* nl */);
+        return new TargetEnvironment(osDom.getValue(), wsDom.getValue(), archDom.getValue());
     }
 
     private void readFilters(TargetPlatformConfiguration result, Xpp3Dom configuration) {

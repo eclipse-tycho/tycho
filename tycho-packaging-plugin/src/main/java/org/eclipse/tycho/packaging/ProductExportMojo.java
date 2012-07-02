@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
-import org.eclipse.tycho.core.TargetEnvironment;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -265,9 +265,9 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         StringBuilder sb = new StringBuilder();
         sb.append(environment.getOs()).append('.').append(environment.getWs()).append('.')
                 .append(environment.getArch());
-        if (environment.getNl() != null) {
-            sb.append('.').append(environment.getNl());
-        }
+//        if (environment.getNl() != null) {
+//            sb.append('.').append(environment.getNl());
+//        }
         return sb.toString();
     }
 

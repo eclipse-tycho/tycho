@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 
 public class BuildContext {
     private final ReactorProjectCoordinates project;
