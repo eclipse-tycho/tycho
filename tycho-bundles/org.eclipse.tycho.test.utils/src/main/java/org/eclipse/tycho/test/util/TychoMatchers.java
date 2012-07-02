@@ -11,6 +11,7 @@
 package org.eclipse.tycho.test.util;
 
 import java.io.File;
+import java.util.List;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
@@ -44,6 +45,42 @@ public class TychoMatchers {
             @Override
             protected boolean evalSubstringOf(String string) {
                 return string.endsWith(substring);
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher matching any list that contains the given sequence of elements.
+     * 
+     * @see JUnitMatchers#hasItem(Matcher)
+     */
+    public static <T> Matcher<List<T>> hasSequence(final T... sequence) {
+        if (sequence.length == 0) {
+            throw new IllegalArgumentException();
+        }
+
+        return new TypeSafeMatcher<List<T>>() {
+
+            public void describeTo(Description description) {
+                description.appendValueList("a list with the sequence ", ", ", "", sequence);
+            }
+
+            @Override
+            public boolean matchesSafely(List<T> actualList) {
+                for (int actualListIx = 0; actualListIx <= actualList.size() - sequence.length; ++actualListIx) {
+                    if (sequenceMatches(actualList, actualListIx, sequence)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            private boolean sequenceMatches(List<T> actualList, int actualListIx, final T[] sequence) {
+                for (int sequenceIx = 0; sequenceIx < sequence.length; ++sequenceIx) {
+                    if (!(sequence[sequenceIx].equals(actualList.get(actualListIx + sequenceIx))))
+                        return false;
+                }
+                return true;
             }
         };
     }
