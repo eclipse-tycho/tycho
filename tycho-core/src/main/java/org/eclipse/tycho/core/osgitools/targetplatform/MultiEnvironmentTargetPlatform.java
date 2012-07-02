@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.core.TargetEnvironment;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 
 // TODO 364134 revise this class
 public class MultiEnvironmentTargetPlatform extends DefaultTargetPlatform {

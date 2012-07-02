@@ -22,7 +22,7 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
-import org.eclipse.tycho.core.TargetEnvironment;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 
 /**
  * @goal archive-products
