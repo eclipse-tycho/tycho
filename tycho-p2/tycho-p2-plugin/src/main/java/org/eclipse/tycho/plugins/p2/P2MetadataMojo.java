@@ -82,12 +82,18 @@ public class P2MetadataMojo extends AbstractMojo {
     private List<Repository> baselineRepositories;
 
     /**
-     * If true, the default, fail the build if reactor build produced artifacts with the same type,
-     * id and version but different contents than artifacts available from baseline repository(ies).
+     * What happens when build artifact does not match baseline version.
      * 
-     * @parameter expression="${tycho.baseline.strict}" default-value="true"
+     * @parameter expression="${tycho.baseline}" default=value="fail"
      */
-    private boolean strictBaseline;
+    private BaselineMode baselineMode;
+
+    /**
+     * Whether to replace build artifacts with baseline version or use reactor version.
+     * 
+     * @parameter expression="${tycho.baseline.replace}" default-value="all"
+     */
+    private BaselineReplace baselineReplace;
 
     /**
      * @component
@@ -136,8 +142,10 @@ public class P2MetadataMojo extends AbstractMojo {
 
             Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts, targetDir);
 
-            generatedMetadata = baselineValidator.validateAndReplace(project, generatedMetadata, baselineRepositories,
-                    strictBaseline);
+            if (baselineMode != BaselineMode.disable) {
+                generatedMetadata = baselineValidator.validateAndReplace(project, generatedMetadata,
+                        baselineRepositories, baselineMode, baselineReplace);
+            }
 
             File contentsXml = new File(targetDir, FILE_NAME_P2_METADATA);
             File artifactsXml = new File(targetDir, FILE_NAME_P2_ARTIFACTS);
