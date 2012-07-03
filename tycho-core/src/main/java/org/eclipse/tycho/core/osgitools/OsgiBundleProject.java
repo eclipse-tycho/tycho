@@ -181,21 +181,29 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
         // dependencies
         for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
-            File location = new File(entry.desc.getLocation());
-            ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.desc.getSymbolicName());
-            ReactorProject otherProject = otherArtifact.getMavenProject();
-            List<File> locations;
-            if (otherProject != null) {
-                locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
+            if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(entry.desc.getSymbolicName())) {
+                ArtifactKey systemBundleKey = new DefaultArtifactKey(EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME,
+                        EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME, "1.0.0");
+                // access rules will be applied to boot classpath if requireJREPackageImports == true
+                classpath.add(new DefaultClasspathEntry(null, systemBundleKey, Collections.<File> emptyList(),
+                        entry.rules));
             } else {
-                locations = getBundleClasspath(otherArtifact);
-            }
+                File location = new File(entry.desc.getLocation());
+                ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.desc.getSymbolicName());
+                ReactorProject otherProject = otherArtifact.getMavenProject();
+                List<File> locations;
+                if (otherProject != null) {
+                    locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
+                } else {
+                    locations = getBundleClasspath(otherArtifact);
+                }
 
-            if (locations.isEmpty() && !entry.rules.isEmpty()) {
-                getLogger().warn("Empty classpath of required bundle " + otherArtifact);
-            }
+                if (locations.isEmpty() && !entry.rules.isEmpty()) {
+                    getLogger().warn("Empty classpath of required bundle " + otherArtifact);
+                }
 
-            classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
+                classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
+            }
         }
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
 

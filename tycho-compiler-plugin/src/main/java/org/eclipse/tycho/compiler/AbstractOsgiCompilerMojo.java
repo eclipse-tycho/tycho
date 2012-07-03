@@ -16,6 +16,8 @@
 
 package org.eclipse.tycho.compiler;
 
+import static java.util.Collections.emptyList;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,6 +55,7 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
@@ -161,6 +164,16 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * @parameter
      */
     private Set<String> excludeResources = new HashSet<String>();
+
+    /**
+     * Whether a bundle is required to explicitly import non-java.* packages from the JDK. This is
+     * the design-time equivalent to the equinox runtime option <a
+     * href="http://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
+     * >osgi.compatibility.bootdelegation</a>.
+     * 
+     * @parameter default-value="false"
+     */
+    private boolean requireJREPackageImports;
 
     /**
      * Current build output jar
@@ -358,22 +371,36 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration)
             throws MojoExecutionException {
-        ExecutionEnvironment environment = getTargetExecutionEnvironment();
-        if (environment != null) {
-            List<AccessRule> accessRules = new ArrayList<ClasspathEntry.AccessRule>();
+        List<AccessRule> accessRules = new ArrayList<ClasspathEntry.AccessRule>();
 
+        if (requireJREPackageImports) {
             accessRules.add(new DefaultAccessRule("java/**", false));
-
-            for (String pkg : environment.getSystemPackages()) {
-                accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
+            accessRules.addAll(getStrictSystemBundleAccessRules());
+        } else {
+            ExecutionEnvironment environment = getTargetExecutionEnvironment();
+            if (environment != null) {
+                accessRules.add(new DefaultAccessRule("java/**", false));
+                for (String pkg : environment.getSystemPackages()) {
+                    accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
+                }
+                // now add packages exported by framework extension bundles 
+                accessRules.addAll(((BundleProject) getBundleProject()).getBootClasspathExtraAccessRules(project));
             }
-
-            // now add packages exported by framework extension bundles 
-            accessRules.addAll(((BundleProject) getBundleProject()).getBootClasspathExtraAccessRules(project));
-
+        }
+        if (accessRules.size() > 0) {
             compilerConfiguration
                     .addCompilerCustomArgument("org.osgi.framework.system.packages", toString(accessRules));
         }
+    }
+
+    private List<AccessRule> getStrictSystemBundleAccessRules() throws MojoExecutionException {
+        for (ClasspathEntry entry : getClasspath()) {
+            String id = entry.getArtifactKey().getId();
+            if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(id)) {
+                return entry.getAccessRules();
+            }
+        }
+        return emptyList();
     }
 
     private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {

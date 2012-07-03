@@ -354,6 +354,7 @@ public class JDTCompiler extends AbstractCompiler {
             compiler.setJavaHome(new File(javaHome));
         }
         compiler.setBootclasspathAccessRules(bootclasspathAccessRules);
+        getLogger().debug("Boot classpath access rules: " + bootclasspathAccessRules);
         compiler.compile(args);
 
         try {

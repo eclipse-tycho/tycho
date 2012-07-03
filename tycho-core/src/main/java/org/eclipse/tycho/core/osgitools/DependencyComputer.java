@@ -206,9 +206,6 @@ public class DependencyComputer {
 
     private boolean addPlugin(BundleDescription desc, boolean useInclusions,
             Map<BundleDescription, ArrayList<AccessRule>> map, ArrayList<DependencyEntry> entries) {
-        if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(desc.getSymbolicName())) {
-            return false;
-        }
         List<AccessRule> rules = useInclusions ? getInclusions(map, desc) : null;
         DependencyEntry entry = new DependencyEntry(desc, rules);
         if (!entries.contains(entry))
