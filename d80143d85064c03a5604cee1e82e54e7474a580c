@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIX///rc\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.tests/src/main/java/org/eclipse/tycho/p2/tools/director/shared/AbstractDirectorApplicationCommandTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-07-03T11:50:27Z",
+      "side": 1,
+      "message": "I think Abstract* classes are ignored by tycho-surefire so this test won\u0027t be executed. Is this intentional?",
+      "revId": "d80143d85064c03a5604cee1e82e54e7474a580c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
