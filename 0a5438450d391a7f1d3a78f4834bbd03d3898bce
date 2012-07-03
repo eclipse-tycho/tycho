@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "AABOIX///p8\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-07-03T15:00:40Z",
+      "side": 1,
+      "message": "Please add a line \"Bug: 381377\" just above the Change-Id line -\u003e Gerrit will show this as a link",
+      "revId": "0a5438450d391a7f1d3a78f4834bbd03d3898bce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOHn//9PM\u003d",
         "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug381377_BundlesInCategoryXML/BundlesInCategoryXMLTest.java",
         "patchSetId": 1
