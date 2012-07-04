@@ -229,6 +229,17 @@ public class TestMojo extends AbstractMojo {
     private MavenSession session;
 
     /**
+     * Eclipse application to be run for running executing the tests. Typically this application is
+     * not specified but determined automatically by the Tycho Surefire plug-in. However, in some
+     * cases it might be necessary to use a custom application for executing tests which performs
+     * additional bootstrapping steps (such as starting a server environment). The application
+     * implementation must execute the tests using OsgiSurefireBooter class.
+     * 
+     * @parameter
+     */
+    private String surefireTestApplication;
+
+    /**
      * Run tests using UI (true) or headless (false) test harness.
      * 
      * @parameter default-value="false"
@@ -764,6 +775,9 @@ public class TestMojo extends AbstractMojo {
     }
 
     private String getTestApplication(EquinoxInstallationDescription testRuntime) {
+        if (surefireTestApplication != null && surefireTestApplication.trim().length() > 0)
+            return surefireTestApplication;
+
         if (useUIHarness) {
             ArtifactDescriptor systemBundle = testRuntime.getSystemBundle();
             Version osgiVersion = Version.parseVersion(systemBundle.getKey().getVersion());
