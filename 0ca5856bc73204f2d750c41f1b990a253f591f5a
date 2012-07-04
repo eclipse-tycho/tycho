@@ -16,6 +16,24 @@
       "revId": "0ca5856bc73204f2d750c41f1b990a253f591f5a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIX///iY\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 17
+      },
+      "writtenOn": "2012-07-04T20:41:02Z",
+      "side": 1,
+      "message": "Actually, I\u0027m not sure the \"trim\" is necessary at all. If someone specify a bogus application id then the launch should likely fail.",
+      "parentUuid": "AABOIX///io\u003d",
+      "revId": "0ca5856bc73204f2d750c41f1b990a253f591f5a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
