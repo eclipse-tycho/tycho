@@ -311,6 +311,11 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 				<type>maven-plugin</type>
 				<version>2.1</version>
 			</dependency>
+            <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-verifier</artifactId>
+                <version>1.2</version>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 
