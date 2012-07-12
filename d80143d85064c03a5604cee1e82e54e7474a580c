@@ -16,6 +16,24 @@
       "revId": "d80143d85064c03a5604cee1e82e54e7474a580c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///X4\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.tests/src/main/java/org/eclipse/tycho/p2/tools/director/shared/AbstractDirectorApplicationCommandTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-07-12T16:31:48Z",
+      "side": 1,
+      "message": "Yes, this test class was not executed in the build. Thanks for pointing this out. Fixed in change set 2.",
+      "parentUuid": "AABOIX///rc\u003d",
+      "revId": "d80143d85064c03a5604cee1e82e54e7474a580c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
