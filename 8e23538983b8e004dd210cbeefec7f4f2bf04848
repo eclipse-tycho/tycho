@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn///Lk\u003d",
+        "filename": "tycho-its/projects/target-platform/packagingKO/invoke.properties",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "what are  all of these invoke.properties files  actually needed for ?",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///MM\u003d",
+        "filename": "tycho-its/projects/target-platform/packagingKO/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "workaround not needed I think",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///MI\u003d",
+        "filename": "tycho-its/projects/target-platform/packagingOK/ok.target",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "ITs tend to be really slow if the contact remote repos\n\nTry to use a local stripped_down p2 repo checked in with the test  or if that does not work, at least use a small feature to test this\n\nI think this will download the whole EMF SDK which is really not necessary for the test",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///ME\u003d",
+        "filename": "tycho-its/projects/target-platform/packagingOK/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "not need I think",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///MA\u003d",
+        "filename": "tycho-its/projects/target-platform/validateKO/ko.target",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "see my previous comment on local vs remote repo",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///L8\u003d",
+        "filename": "tycho-its/projects/target-platform/validateKO/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "is this needed?",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///L4\u003d",
+        "filename": "tycho-its/projects/target-platform/validateOK/ok.target",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "remote repo needed?\nsmaller feature?",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///L0\u003d",
+        "filename": "tycho-its/projects/target-platform/validateOK/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "is this needed?",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///Lw\u003d",
+        "filename": "tycho-its/projects/target-platform/validate_OK_KO_OK_KO/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "workaround needed?",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///Ls\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/targetplatform/TargetPlatformPackagingTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "verifyErrorFreeLog() ?",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///Lo\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/targetplatform/TargetPlatformPackagingTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "verifyErrorFreeLog() ?",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///Ms\u003d",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "I would expect no tests in a target platform project \u003d\u003e no need to process test resources",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///Mo\u003d",
+        "filename": "tycho-target-platform/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "(c) Red Hat I guess",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///Mk\u003d",
+        "filename": "tycho-target-platform/src/it/packagingOK/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "workaround not needed I think",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///Mg\u003d",
+        "filename": "tycho-target-platform/src/main/java/org/eclipse/tycho/targetplatform/TPValidationMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "@read-only",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///Mc\u003d",
+        "filename": "tycho-target-platform/src/main/java/org/eclipse/tycho/targetplatform/TPValidationMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "error(\"Failed...",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///MY\u003d",
+        "filename": "tycho-target-platform/src/main/java/org/eclipse/tycho/targetplatform/TPValidationMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-13T15:47:00Z",
+      "side": 1,
+      "message": "I think this will print the error message twice (once logged and once as message of the exception)\n\nOnly log if not failOnError",
+      "revId": "8e23538983b8e004dd210cbeefec7f4f2bf04848",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
