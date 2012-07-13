@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>org.eclipse.tycho.extras.its</groupId>
+	<artifactId>ko</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Test for eclipse-target-platfom packaging (KO)</name>
+	<packaging>eclipse-target-platform</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+			        <groupId>org.eclipse.tycho</groupId>
+			        <artifactId>tycho-maven-plugin</artifactId>
+			        <version>${tycho-version}</version>
+			        <extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<!-- temporary workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=360628 -->
+			<id>tycho-snapshots</id>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+</project>
