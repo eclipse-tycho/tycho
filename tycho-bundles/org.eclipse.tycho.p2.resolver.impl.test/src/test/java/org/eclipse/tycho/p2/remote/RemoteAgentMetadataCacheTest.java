@@ -17,6 +17,7 @@ import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -124,11 +125,11 @@ public class RemoteAgentMetadataCacheTest {
     }
 
     private RemoteAgent newOnlineAgent() throws Exception {
-        return new RemoteAgent(new MavenContextImpl(localMavenRepository, false, logger));
+        return new RemoteAgent(new MavenContextImpl(localMavenRepository, false, logger, new Properties()));
     }
 
     private RemoteAgent newOfflineAgent() throws Exception {
-        return new RemoteAgent(new MavenContextImpl(localMavenRepository, true, logger));
+        return new RemoteAgent(new MavenContextImpl(localMavenRepository, true, logger, new Properties()));
     }
 
     private IMetadataRepository loadHttpRepository(RemoteAgent agent) throws ProvisionException {

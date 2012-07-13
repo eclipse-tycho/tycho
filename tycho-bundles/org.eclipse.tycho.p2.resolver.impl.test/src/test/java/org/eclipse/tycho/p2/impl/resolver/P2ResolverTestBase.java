@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
@@ -102,10 +103,8 @@ public class P2ResolverTestBase {
     }
 
     protected MavenContext createMavenContext(boolean offline, MavenLogger logger) throws IOException {
-        MavenContextImpl mavenContext = new MavenContextImpl();
-        mavenContext.setOffline(offline);
-        mavenContext.setLocalRepositoryRoot(getLocalRepositoryLocation());
-        mavenContext.setLogger(logger);
+        MavenContext mavenContext = new MavenContextImpl(getLocalRepositoryLocation(), offline, logger,
+                new Properties());
         return mavenContext;
     }
 

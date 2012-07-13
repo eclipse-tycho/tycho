@@ -12,7 +12,9 @@
 package org.eclipse.tycho.p2.maven.repository.tests;
 
 import java.io.File;
+import java.util.Properties;
 
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
@@ -21,6 +23,7 @@ import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
+import org.eclipse.tycho.test.util.MemoryLog;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -36,8 +39,7 @@ public abstract class BaseMavenRepositoryTest {
     @Before
     public void createLocalRepoIndices() {
         baseDir = tempFolder.newFolder("repository");
-        MavenContextImpl mavenContext = new MavenContextImpl();
-        mavenContext.setLocalRepositoryRoot(baseDir);
+        MavenContext mavenContext = new MavenContextImpl(baseDir, false, new MemoryLog(false), new Properties());
         LocalRepositoryP2IndicesImpl tempLocalRepoIndices = new LocalRepositoryP2IndicesImpl();
         tempLocalRepoIndices.setMavenContext(mavenContext);
         tempLocalRepoIndices.setFileLockService(new NoopFileLockService());

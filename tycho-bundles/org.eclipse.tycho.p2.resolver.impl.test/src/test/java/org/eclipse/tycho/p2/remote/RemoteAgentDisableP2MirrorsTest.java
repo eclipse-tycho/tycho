@@ -16,6 +16,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -57,7 +58,8 @@ public class RemoteAgentDisableP2MirrorsTest {
 
     private IProvisioningAgent createRemoteAgent(boolean disableMirrors) throws ProvisionException {
         File localRepo = tempManager.newFolder("localRepo");
-        return new RemoteAgent(new MavenContextImpl(localRepo, false, new MavenLoggerStub()), disableMirrors);
+        return new RemoteAgent(new MavenContextImpl(localRepo, false, new MavenLoggerStub(), new Properties()),
+                disableMirrors);
     }
 
     private static IArtifactRepository loadRepository(IProvisioningAgent agent, URI location) throws ProvisionException {

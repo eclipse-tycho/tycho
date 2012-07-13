@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Locale;
 
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -39,9 +40,8 @@ public class VerifierServiceImplTest {
     @Before
     public void setup() {
         subject = new VerifierServiceImpl();
-        MavenContextImpl mavenContext = new MavenContextImpl();
         logger = new MemoryLog(false);
-        mavenContext.setLogger(logger);
+        MavenContext mavenContext = new MavenContextImpl(null, false, logger, null);
         subject.setMavenContext(mavenContext);
     }
 

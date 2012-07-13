@@ -11,6 +11,7 @@
 package org.eclipse.tycho.core.facade;
 
 import java.io.File;
+import java.util.Properties;
 
 /**
  * Makes maven information which is constant for the whole maven session available as a service to
@@ -22,6 +23,14 @@ public interface MavenContext {
 
     public MavenLogger getLogger();
 
+    /**
+     * whether maven was started in offline mode (CLI option "-o")
+     */
     public boolean isOffline();
+
+    /**
+     * Properties specified by the user on the commandline via -Dkey=value
+     */
+    public Properties getUserProperties();
 
 }
