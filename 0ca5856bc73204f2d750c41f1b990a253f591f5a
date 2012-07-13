@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "AABOIn///OA\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-07-13T12:15:40Z",
+      "side": 1,
+      "message": "Please add the bug number as first word of the first line (see http://wiki.eclipse.org/Tycho/Contributor_Guide#Commit_Message_Guidelines)",
+      "revId": "0ca5856bc73204f2d750c41f1b990a253f591f5a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn///OE\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-07-13T12:15:40Z",
+      "side": 1,
+      "message": "Does this mean that the application specified here needs to have a dependency to a Tycho class? Then this is questionable how useful this switch is, because Tycho doesn\u0027t have any Java API (yet).\n\nMaybe we should take a step back again and discuss the use case and alternatives. What was the bug number for this enhancement again?",
+      "revId": "0ca5856bc73204f2d750c41f1b990a253f591f5a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOIX///io\u003d",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
         "patchSetId": 1
