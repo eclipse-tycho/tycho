@@ -470,12 +470,12 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 		<module>tycho-embedder-api</module>
 		<module>tycho-core</module>
 		<module>tycho-testing-harness</module>
-
 		<module>tycho-compiler-jdt</module>
 		<module>tycho-compiler-plugin</module>
 		<module>tycho-packaging-plugin</module>
 		<module>tycho-source-plugin</module>
 		<module>target-platform-configuration</module>
+		<module>tycho-target-platform</module>
 		<module>tycho-maven-plugin</module>
 		<module>tycho-pomgenerator-plugin</module>
 
@@ -487,6 +487,7 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 
 		<!-- tycho-p2 -->
 		<module>tycho-p2</module>
+		<module>tycho-artifactcomparator</module>
 	</modules>
 
 	<profiles>

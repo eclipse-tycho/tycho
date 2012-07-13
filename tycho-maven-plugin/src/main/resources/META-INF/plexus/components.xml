@@ -294,11 +294,13 @@
               <package>
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-products,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-categories,
+                org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:attach-artifacts,
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:assemble-repository,
                 org.eclipse.tycho:tycho-p2-repository-plugin:${project.version}:archive-repository
               </package>
               <install>
-                org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install
+                org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install,
+                org.eclipse.tycho:tycho-p2-plugin:${project.version}:update-local-index
               </install>
               <deploy>
                 org.apache.maven.plugins:maven-deploy-plugin:${deploy-plugin.version}:deploy
@@ -318,6 +320,62 @@
         <extension>zip</extension>
         <type>eclipse-repository</type>
         <packaging>eclipse-repository</packaging>
+        <language>java</language>
+        <addedToClasspath>false</addedToClasspath>
+        <includesDependencies>false</includesDependencies>
+      </configuration>
+    </component>
+    
+    <component>
+      <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+      <role-hint>eclipse-target-platform</role-hint>
+      <implementation>
+        org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+      </implementation>
+      <configuration>
+        <lifecycles>
+          <lifecycle>
+            <id>default</id>
+            <phases>
+              <validate>
+                org.eclipse.tycho:tycho-target-platform-plugin:${project.version}:validate-target-platform
+              </validate>
+              <process-resources>
+              </process-resources>
+              <compile>
+              </compile>
+              <process-test-resources>
+                org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:testResources
+              </process-test-resources>
+              <test-compile><!-- tests are always in a separate plugin -->
+              </test-compile>
+              <test><!-- tests are always in a separate plugin -->
+              </test>
+              <package>
+                 org.eclipse.tycho:tycho-target-platform-plugin:${project.version}:attach-target
+              </package>
+              <integration-test></integration-test>
+              <install>
+                org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install,
+              </install>
+              <deploy>
+                org.apache.maven.plugins:maven-deploy-plugin:${deploy-plugin.version}:deploy
+              </deploy>
+            </phases>
+          </lifecycle>
+        </lifecycles>
+      </configuration>
+    </component>
+    <component>
+      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+      <role-hint>eclipse-target-platform</role-hint>
+      <implementation>
+        org.apache.maven.artifact.handler.DefaultArtifactHandler
+      </implementation>
+      <configuration>
+        <extension>target</extension>
+        <type>eclipse-target-platform</type>
+        <packaging>eclipse-target-platform</packaging>
         <language>java</language>
         <addedToClasspath>false</addedToClasspath>
         <includesDependencies>false</includesDependencies>
