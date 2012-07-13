@@ -100,6 +100,9 @@
 					<systemPropertyVariables>
 						<it.cliOptions>${it.cliOptions}</it.cliOptions>
 					</systemPropertyVariables>
+					<includes>
+						<include>org/eclipse/tycho/test/targetplatform/*Test.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 		</plugins>
