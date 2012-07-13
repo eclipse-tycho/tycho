@@ -11,33 +11,21 @@
 package org.eclipse.tycho.core.facade;
 
 import java.io.File;
+import java.util.Properties;
 
 public class MavenContextImpl implements MavenContext {
 
     private File localRepositoryRoot;
     private MavenLogger mavenLogger;
     private boolean offline;
+    private Properties mergedProperties;
 
-    public MavenContextImpl(File localRepositoryRoot, boolean offline, MavenLogger mavenLogger) {
+    public MavenContextImpl(File localRepositoryRoot, boolean offline, MavenLogger mavenLogger,
+            Properties mergedProperties) {
         this.localRepositoryRoot = localRepositoryRoot;
         this.offline = offline;
         this.mavenLogger = mavenLogger;
-    }
-
-    // TODO this is not really needed any more
-    public MavenContextImpl() {
-    }
-
-    public void setOffline(boolean offline) {
-        this.offline = offline;
-    }
-
-    public void setLocalRepositoryRoot(File localRepositoryRoot) {
-        this.localRepositoryRoot = localRepositoryRoot;
-    }
-
-    public void setLogger(MavenLogger mavenLogger) {
-        this.mavenLogger = mavenLogger;
+        this.mergedProperties = mergedProperties;
     }
 
     public File getLocalRepositoryRoot() {
@@ -50,6 +38,10 @@ public class MavenContextImpl implements MavenContext {
 
     public boolean isOffline() {
         return offline;
+    }
+
+    public Properties getMergedProperties() {
+        return mergedProperties;
     }
 
 }

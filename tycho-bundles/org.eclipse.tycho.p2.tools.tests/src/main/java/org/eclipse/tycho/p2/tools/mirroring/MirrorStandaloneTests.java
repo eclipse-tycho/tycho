@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.Collections;
 
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -50,8 +51,7 @@ public class MirrorStandaloneTests {
         MavenLogger logger = new MemoryLog(true);
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
         subject = new MirrorApplicationServiceImpl();
-        MavenContextImpl mavenContext = new MavenContextImpl();
-        mavenContext.setLogger(logger);
+        MavenContext mavenContext = new MavenContextImpl(null, false, logger, null);
         subject.setMavenContext(mavenContext);
         targetFolder = new BuildOutputDirectory(tempFolder.getRoot());
     }

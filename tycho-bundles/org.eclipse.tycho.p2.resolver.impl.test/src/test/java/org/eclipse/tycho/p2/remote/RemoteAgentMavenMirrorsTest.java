@@ -18,6 +18,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -60,7 +61,7 @@ public class RemoteAgentMavenMirrorsTest {
     @Before
     public void initSubject() throws ProvisionException {
         File localRepository = tempManager.newFolder("localRepo");
-        MavenContext mavenContext = new MavenContextImpl(localRepository, OFFLINE, logger);
+        MavenContext mavenContext = new MavenContextImpl(localRepository, OFFLINE, logger, new Properties());
 
         mavenRepositorySettings = new MavenRepositorySettingsStub();
         subject = new RemoteAgent(mavenContext, mavenRepositorySettings, OFFLINE);

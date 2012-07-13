@@ -11,9 +11,13 @@
 package org.eclipse.tycho.osgi.configuration;
 
 import java.io.File;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.settings.Profile;
+import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -35,10 +39,25 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
-        MavenContextImpl mavenContext = new MavenContextImpl();
-        mavenContext.setLocalRepositoryRoot(new File(session.getLocalRepository().getBasedir()));
-        mavenContext.setOffline(session.isOffline());
-        mavenContext.setLogger(new MavenLoggerAdapter(logger, false));
+        File localRepoRoot = new File(session.getLocalRepository().getBasedir());
+        MavenLoggerAdapter mavenLogger = new MavenLoggerAdapter(logger, false);
+        Properties globalProps = getGlobalProperties(session);
+        MavenContext mavenContext = new MavenContextImpl(localRepoRoot, session.isOffline(), mavenLogger, globalProps);
         framework.registerService(MavenContext.class, mavenContext);
+    }
+
+    private Properties getGlobalProperties(MavenSession session) {
+        Properties globalProps = new Properties();
+        // 1. system
+        globalProps.putAll(session.getSystemProperties());
+        Settings settings = session.getSettings();
+        // 2. active profiles
+        Map<String, Profile> profileMap = settings.getProfilesAsMap();
+        for (String profileId : settings.getActiveProfiles()) {
+            globalProps.putAll(profileMap.get(profileId).getProperties());
+        }
+        // 3. user
+        globalProps.putAll(session.getUserProperties());
+        return globalProps;
     }
 }

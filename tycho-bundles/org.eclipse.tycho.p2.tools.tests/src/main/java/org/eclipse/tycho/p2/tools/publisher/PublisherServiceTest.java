@@ -125,9 +125,8 @@ public class PublisherServiceTest {
 //        openFolderAndSleep(outputDirectory);
     }
 
-    private static MavenContextImpl createMavenContext(MavenLogger mavenLogger) {
-        MavenContextImpl mavenContext = new MavenContextImpl();
-        mavenContext.setLogger(mavenLogger);
+    private static MavenContext createMavenContext(MavenLogger mavenLogger) {
+        MavenContext mavenContext = new MavenContextImpl(null, false, mavenLogger, null);
         return mavenContext;
     }
 

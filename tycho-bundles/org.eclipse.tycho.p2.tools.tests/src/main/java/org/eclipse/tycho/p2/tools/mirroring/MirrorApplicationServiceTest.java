@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
@@ -28,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.BuildContext;
@@ -76,8 +78,7 @@ public class MirrorApplicationServiceTest {
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         subject = new MirrorApplicationServiceImpl();
-        MavenContextImpl mavenContext = new MavenContextImpl();
-        mavenContext.setLogger(logger);
+        MavenContext mavenContext = new MavenContextImpl(null, false, logger, new Properties());
         subject.setMavenContext(mavenContext);
     }
 
