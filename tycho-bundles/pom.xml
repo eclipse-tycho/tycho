@@ -27,6 +27,7 @@
 
 	<modules>
 		<module>tycho-bundles-target</module>
+		<module>tycho-standalone-p2-director</module>
 
 		<!-- classes shared between Maven and OSGi class loaders -->
 		<module>org.eclipse.tycho.embedder.shared</module>

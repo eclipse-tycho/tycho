@@ -69,7 +69,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
      * Returns the command line arguments for the p2 director application (not including the
      * <code>-application</code> argument).
      */
-    protected String[] getDirectorApplicationArguments() {
+    protected List<String> getDirectorApplicationArguments() {
         CommandLineArguments args = new CommandLineArguments();
         args.addUnlessEmpty("-metadataRepository", metadataSources);
         args.addUnlessEmpty("-artifactRepository", artifactSources);
@@ -78,10 +78,14 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         args.add("-profile", profileName);
         args.add("-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures));
         args.add("-roaming");
-        args.add("-p2.os", environment.getOs());
-        args.add("-p2.ws", environment.getWs());
-        args.add("-p2.arch", environment.getArch());
-        return args.toArray();
+
+        if (environment != null) {
+            args.add("-p2.os", environment.getOs());
+            args.add("-p2.ws", environment.getWs());
+            args.add("-p2.arch", environment.getArch());
+        }
+
+        return args.asList();
     }
 
     private static class StringList {
@@ -123,8 +127,8 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
             }
         }
 
-        public String[] toArray() {
-            return arguments.toArray(new String[arguments.size()]);
+        public List<String> asList() {
+            return new ArrayList<String>(arguments);
         }
     }
 }

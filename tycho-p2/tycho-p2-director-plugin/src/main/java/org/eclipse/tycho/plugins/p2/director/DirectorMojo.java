@@ -21,14 +21,30 @@ import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFactory;
 
 /**
  * @phase package
  * @goal materialize-products
  */
 public final class DirectorMojo extends AbstractProductMojo {
+
+    public enum InstallationSource {
+        targetPlatform, repository
+    }
+
+    public enum DirectorRuntimeType {
+        internal, standalone
+    }
+
     /** @component */
-    private EquinoxServiceFactory p2;
+    private EquinoxServiceFactory osgiServices;
+
+    /** @component */
+    private RepositoryReferenceTool repositoryReferenceTool;
+
+    /** @component */
+    private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
 
     /** @parameter default-value="DefaultProfile" */
     private String profile;
@@ -39,8 +55,33 @@ public final class DirectorMojo extends AbstractProductMojo {
     /** @parameter default-value="true" */
     private boolean installFeatures;
 
-    /** @component */
-    private RepositoryReferenceTool repositoryReferenceTool;
+    /**
+     * Installation source to be used for the director calls. Can be
+     * <ul>
+     * <li><code>targetPlatform</code> - to use the target platform as source (default)</li>
+     * <li><code>repository</code> - to use the p2 repository in <tt>target/repository/</tt> as
+     * source. This ensures that it is possible to install the product from that repository using an
+     * (external) director application.
+     * </ul>
+     * 
+     * @parameter default-value="targetPlatform"
+     */
+    private InstallationSource source;
+
+    /**
+     * Runtime context in which the director application is executed. Can be
+     * <ul>
+     * <li><code>internal</code> - to use the director application from Tycho's embedded OSGi
+     * runtime (default)</li>
+     * <li><code>standalone</code> - to create and use a stand-alone installation of the director
+     * application. This option is needed if the product to be installed includes artifacts with
+     * meta-requirements (e.g. to a non-standard touchpoint action). Requires that the
+     * <code>source</code> parameter is set to <code>repository</code>.
+     * </ul>
+     * 
+     * @parameter default-value="internal"
+     */
+    private DirectorRuntimeType directorRuntime;
 
     // TODO extract methods
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -48,11 +89,9 @@ public final class DirectorMojo extends AbstractProductMojo {
         if (products.isEmpty()) {
             getLog().info("No product definitions found. Nothing to do.");
         }
-        DirectorRuntime director = p2.getService(DirectorRuntime.class);
+        DirectorRuntime director = getDirectorRuntime();
+        RepositoryReferences sources = getSourceRepositories();
         for (Product product : products) {
-            int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
-            RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(),
-                    flags);
             for (TargetEnvironment env : getEnvironments()) {
                 DirectorRuntime.Command command = director.newInstallCommand();
 
@@ -83,4 +122,48 @@ public final class DirectorMojo extends AbstractProductMojo {
         }
     }
 
+    private DirectorRuntime getDirectorRuntime() throws MojoFailureException, MojoExecutionException {
+        switch (directorRuntime) {
+        case internal:
+            // director from Tycho's OSGi runtime
+            return osgiServices.getService(DirectorRuntime.class);
+
+        case standalone:
+            // separate director installation in the target folder
+            return standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
+                    getSession().getLocalRepository());
+
+        default:
+            throw new MojoFailureException("Unsupported value for attribute 'directorRuntime': \"" + directorRuntime
+                    + "\"");
+        }
+    }
+
+    private RepositoryReferences getSourceRepositories() throws MojoExecutionException, MojoFailureException {
+        switch (source) {
+        case targetPlatform:
+            return getTargetPlatformRepositories();
+
+        case repository:
+            return getBuildOutputRepository();
+
+        default:
+            throw new MojoFailureException("Unsupported value for attribute 'source': \"" + source + "\"");
+        }
+    }
+
+    private RepositoryReferences getBuildOutputRepository() {
+        // TODO share "repository" constant?
+        File buildOutputRepository = getBuildDirectory().getChild("repository");
+
+        RepositoryReferences result = new RepositoryReferences();
+        result.addMetadataRepository(buildOutputRepository);
+        result.addArtifactRepository(buildOutputRepository);
+        return result;
+    }
+
+    private RepositoryReferences getTargetPlatformRepositories() throws MojoExecutionException, MojoFailureException {
+        int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
+        return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
+    }
 }

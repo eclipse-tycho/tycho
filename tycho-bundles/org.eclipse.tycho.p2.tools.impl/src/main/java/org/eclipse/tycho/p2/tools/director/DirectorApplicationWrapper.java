@@ -10,37 +10,47 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.director;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
+import org.eclipse.tycho.core.facade.MavenContext;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.director.shared.AbstractDirectorApplicationCommand;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
 @SuppressWarnings("restriction")
 public final class DirectorApplicationWrapper implements DirectorRuntime {
+    /**
+     * @see org.eclipse.equinox.app.IApplication#EXIT_OK
+     */
+    static final Integer EXIT_OK = Integer.valueOf(0);
+
+    MavenLogger logger;
 
     public Command newInstallCommand() {
         return new DirectorApplicationWrapperCommand();
     }
 
-    private static class DirectorApplicationWrapperCommand extends AbstractDirectorApplicationCommand {
-        /**
-         * @see org.eclipse.equinox.app.IApplication#EXIT_OK
-         */
-        private static final Integer EXIT_OK = Integer.valueOf(0);
+    private class DirectorApplicationWrapperCommand extends AbstractDirectorApplicationCommand {
 
         public void execute() {
-            String[] arguments = getDirectorApplicationArguments();
-            // TODO getLog().debug("Calling director with arguments: " + Arrays.toString(args));
+            List<String> arguments = getDirectorApplicationArguments();
+            if (logger.isDebugEnabled()) {
+                logger.debug("Calling director with arguments: " + arguments);
+            }
 
-            Object exitCode = new DirectorApplication().run(arguments);
+            Object exitCode = new DirectorApplication().run(arguments.toArray(new String[arguments.size()]));
 
             if (!(EXIT_OK.equals(exitCode))) {
                 throw new DirectorCommandException("Call to p2 director application failed with exit code " + exitCode
-                        + ". Command line arguments were: " + Arrays.toString(arguments) + ".");
+                        + ". Program arguments were: " + arguments + ".");
             }
         }
     }
 
+    // setters for DS
+    public void setMavenContext(MavenContext context) {
+        this.logger = context.getLogger();
+    }
 }

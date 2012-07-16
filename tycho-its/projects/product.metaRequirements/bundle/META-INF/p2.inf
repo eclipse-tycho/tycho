@@ -1,0 +1,4 @@
+metaRequirements.0.namespace = org.eclipse.equinox.p2.iu
+metaRequirements.0.name = pmr.touchpoint
+
+instructions.configure=pmr.touchpoint.customAction();
