@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -48,12 +49,12 @@ abstract class AbstractProductMojo extends AbstractMojo {
         return session;
     }
 
-    File getBuildDirectory() {
-        return new File(getProject().getBuild().getDirectory());
+    BuildOutputDirectory getBuildDirectory() {
+        return new BuildOutputDirectory(getProject().getBuild().getDirectory());
     }
 
     File getProductsBuildDirectory() {
-        return new File(getBuildDirectory(), "products");
+        return getBuildDirectory().getChild("products");
     }
 
     File getProductMaterializeDirectory(Product product, TargetEnvironment env) {

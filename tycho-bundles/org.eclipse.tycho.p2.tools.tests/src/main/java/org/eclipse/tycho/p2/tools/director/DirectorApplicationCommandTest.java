@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.tools.director;
 
 import static org.eclipse.tycho.test.util.TychoMatchers.hasSequence;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
@@ -26,6 +27,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DirectorApplicationCommandTest {
+
+    private static final String PARAM_OS = "-p2.os";
+    private static final String PARAM_WS = "-p2.ws";
+    private static final String PARAM_ARCH = "-p2.arch";
 
     private static final URI REPO_1 = URI.create("http://meta1/");
     private static final URI REPO_2 = URI.create("file:/meta2/");
@@ -45,7 +50,7 @@ public class DirectorApplicationCommandTest {
     }
 
     @Test
-    public void testDirectorApplicationArguments() {
+    public void testAllDirectorApplicationArguments() {
         subject.addMetadataSources(Arrays.asList(REPO_1, REPO_2));
         subject.addArtifactSources(Arrays.asList(REPO_3));
         subject.addUnitToInstall(UNIT_1);
@@ -57,7 +62,7 @@ public class DirectorApplicationCommandTest {
         File dest = new File(".").getAbsoluteFile();
         subject.setDestination(dest);
 
-        List<String> result = Arrays.asList(subject.getDirectorApplicationArguments());
+        List<String> result = subject.getDirectorApplicationArguments();
 
         assertThat(result, hasSequence("-metadataRepository", REPO_1 + "," + REPO_2));
         assertThat(result, hasSequence("-artifactRepository", REPO_3.toString()));
@@ -65,20 +70,35 @@ public class DirectorApplicationCommandTest {
         assertThat(result, hasSequence("-profile", PROFILE_NAME));
         assertThat(result, hasSequence("-profileProperties", "org.eclipse.update.install.features=true"));
 
-        assertThat(result, hasSequence("-p2.os", OS));
-        assertThat(result, hasSequence("-p2.ws", WS));
-        assertThat(result, hasSequence("-p2.arch", ARCH));
+        assertThat(result, hasSequence(PARAM_OS, OS));
+        assertThat(result, hasSequence(PARAM_WS, WS));
+        assertThat(result, hasSequence(PARAM_ARCH, ARCH));
 
         assertThat(result, hasSequence("-destination", dest.toString()));
 
-        // unconditional arguments;
         assertThat(result, hasItem("-roaming"));
+    }
+
+    @Test
+    public void testNoOsWsArchArguments() {
+        addRequiredArguments();
+
+        List<String> result = subject.getDirectorApplicationArguments();
+
+        assertThat(result, not(hasItem(PARAM_OS)));
+        assertThat(result, not(hasItem(PARAM_WS)));
+        assertThat(result, not(hasItem(PARAM_ARCH)));
+    }
+
+    private void addRequiredArguments() {
+        subject.setDestination(new File("."));
     }
 
     private static class AbstractDirectorApplicationCommandForTesting extends AbstractDirectorApplicationCommand {
 
+        // increase method visibility
         @Override
-        public String[] getDirectorApplicationArguments() {
+        public List<String> getDirectorApplicationArguments() {
             return super.getDirectorApplicationArguments();
         }
 
