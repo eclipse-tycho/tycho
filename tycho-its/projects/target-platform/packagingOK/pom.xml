@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>org.eclipse.tycho.its.targetplatform.packaging</groupId>
+	<artifactId>ok</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Test for eclipse-target-platfom packaging (OK)</name>
+	<packaging>eclipse-target-platform</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+			        <groupId>org.eclipse.tycho</groupId>
+			        <artifactId>tycho-maven-plugin</artifactId>
+			        <version>${tycho-version}</version>
+			        <extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -325,6 +325,57 @@
         <includesDependencies>false</includesDependencies>
       </configuration>
     </component>
+    
+    <component>
+      <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+      <role-hint>eclipse-target-platform</role-hint>
+      <implementation>
+        org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+      </implementation>
+      <configuration>
+        <lifecycles>
+          <lifecycle>
+            <id>default</id>
+            <phases>
+              <validate>
+                org.eclipse.tycho:tycho-target-platform-plugin:${project.version}:validate-target-platform
+              </validate>
+              <process-resources/>
+              <compile/>
+              <!-- No tests for TP -->
+              <process-test-resources/>
+              <test-compile/>
+              <test/>
+              <package>
+                 org.eclipse.tycho:tycho-target-platform-plugin:${project.version}:attach-target
+              </package>
+              <integration-test></integration-test>
+              <install>
+                org.apache.maven.plugins:maven-install-plugin:${install-plugin.version}:install,
+              </install>
+              <deploy>
+                org.apache.maven.plugins:maven-deploy-plugin:${deploy-plugin.version}:deploy
+              </deploy>
+            </phases>
+          </lifecycle>
+        </lifecycles>
+      </configuration>
+    </component>
+    <component>
+      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+      <role-hint>eclipse-target-platform</role-hint>
+      <implementation>
+        org.apache.maven.artifact.handler.DefaultArtifactHandler
+      </implementation>
+      <configuration>
+        <extension>target</extension>
+        <type>eclipse-target-platform</type>
+        <packaging>eclipse-target-platform</packaging>
+        <language>java</language>
+        <addedToClasspath>false</addedToClasspath>
+        <includesDependencies>false</includesDependencies>
+      </configuration>
+    </component>
 
 
   </components>
