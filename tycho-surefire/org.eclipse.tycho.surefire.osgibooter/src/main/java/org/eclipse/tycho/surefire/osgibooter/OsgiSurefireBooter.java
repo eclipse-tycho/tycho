@@ -48,6 +48,7 @@ public class OsgiSurefireBooter {
         boolean failIfNoTests = Boolean.parseBoolean(testProps.getProperty("failifnotests", "false"));
         boolean redirectTestOutputToFile = Boolean.parseBoolean(testProps.getProperty("redirectTestOutputToFile",
                 "false"));
+        boolean trimStacktrace = Boolean.parseBoolean(testProps.getProperty("trimstacktrace", Boolean.TRUE.toString()));
         String plugin = testProps.getProperty("testpluginname");
         File testClassesDir = new File(testProps.getProperty("testclassesdirectory"));
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
@@ -57,7 +58,6 @@ public class OsgiSurefireBooter {
 
         String forkMode = "never";
         boolean inForkedVM = true;
-        boolean trimStacktrace = true;
         boolean useSystemClassloader = false;
         boolean useManifestOnlyJar = false;
         boolean useFile = true;
