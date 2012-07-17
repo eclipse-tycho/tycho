@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//+14\u003d",
+        "filename": "tycho-its/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-17T08:04:48Z",
+      "side": 1,
+      "message": "we will need a 3rd party CQ for this. unless it\u0027s absolutely necessary to use a newer version I would try to avoid the CQ as this will slow us down a lot.",
+      "revId": "bda097657d05ebf06394b5d3c6b25abad3ab9a3e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
