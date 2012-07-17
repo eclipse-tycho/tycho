@@ -186,6 +186,14 @@ public class TestMojo extends AbstractMojo {
     private boolean redirectTestOutputToFile;
 
     /**
+     * Whether to trim the stack trace in the reports to just the lines within the test, or show the
+     * full trace.
+     * 
+     * @parameter expression="${trimStackTrace}" default-value="true"
+     */
+    private boolean trimStackTrace;
+
+    /**
      * Base directory where all reports are written to.
      * 
      * @parameter expression="${project.build.directory}/surefire-reports"
@@ -580,6 +588,7 @@ public class TestMojo extends AbstractMojo {
         p.put("testclassesdirectory", testClassesDirectory.getAbsolutePath());
         p.put("reportsdirectory", reportsDirectory.getAbsolutePath());
         p.put("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
+        p.put("trimstacktrace", String.valueOf(trimStackTrace));
 
         if (test != null) {
             String test = this.test;
