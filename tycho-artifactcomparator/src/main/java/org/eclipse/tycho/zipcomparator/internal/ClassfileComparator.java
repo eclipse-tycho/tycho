@@ -14,7 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.IOUtil;
@@ -22,6 +26,7 @@ import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 @Component(role = ContentsComparator.class, hint = ClassfileComparator.TYPE)
@@ -34,26 +39,40 @@ public class ClassfileComparator implements ContentsComparator {
     // which is not exported, so can't use this either.
 
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
-        byte[] bytes = IOUtil.toByteArray(baseline);
-        byte[] bytes2 = IOUtil.toByteArray(reactor);
+        byte[] baselineBytes = IOUtil.toByteArray(baseline);
+        byte[] reactorBytes = IOUtil.toByteArray(reactor);
+
+        String baselineDisassemble = null;
+        String reactorDisassemble = null;
 
         boolean equal;
         try {
-            String disassemble = disassemble(bytes);
-            String disassemble2 = disassemble(bytes2);
-            equal = disassemble.equals(disassemble2);
+            baselineDisassemble = disassemble(baselineBytes);
+            reactorDisassemble = disassemble(reactorBytes);
+            equal = baselineDisassemble.equals(reactorDisassemble);
         } catch (IllegalArgumentException e) {
             // asm could not disassemble one of the classes, fallback to byte-to-byte comparison
-            equal = Arrays.equals(bytes, bytes2);
+            equal = Arrays.equals(baselineBytes, reactorBytes);
         }
 
-        return !equal ? new SimpleArtifactDelta("different") : null;
+        return !equal ? new SimpleArtifactDelta("different", baselineDisassemble, reactorDisassemble) : null;
     }
 
     private String disassemble(byte[] bytes) {
         ClassReader reader = new ClassReader(bytes);
         ClassNode clazz = new ClassNode();
         reader.accept(clazz, Opcodes.ASM4 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+
+        // inner class list gets reordered during pack200 normalization
+        if (clazz.innerClasses != null) {
+            List<InnerClassNode> sorted = new ArrayList<InnerClassNode>(clazz.innerClasses);
+            Collections.sort(sorted, new Comparator<InnerClassNode>() {
+                public int compare(InnerClassNode o1, InnerClassNode o2) {
+                    return o1.name.compareTo(o2.name);
+                }
+            });
+            clazz.innerClasses = sorted;
+        }
 
         // rendering human-readable bytecode is an eyecandy, we can compare ClassNodes directly
 

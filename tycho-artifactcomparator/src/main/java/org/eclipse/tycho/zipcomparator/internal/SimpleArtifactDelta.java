@@ -15,8 +15,16 @@ import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 public class SimpleArtifactDelta implements ArtifactDelta {
 
     private final String message;
+    private final String baseline;
+    private final String reactor;
 
     public SimpleArtifactDelta(String message) {
+        this(message, null, null);
+    }
+
+    public SimpleArtifactDelta(String message, String baseline, String reactor) {
+        this.baseline = baseline;
+        this.reactor = reactor;
         if (message == null) {
             throw new IllegalArgumentException();
         }
@@ -29,5 +37,13 @@ public class SimpleArtifactDelta implements ArtifactDelta {
 
     public String getDetailedMessage() {
         return message;
+    }
+
+    public String getBaseline() {
+        return baseline;
+    }
+
+    public String getReactor() {
+        return reactor;
     }
 }

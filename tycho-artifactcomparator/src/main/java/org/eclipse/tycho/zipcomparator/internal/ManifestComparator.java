@@ -48,7 +48,7 @@ public class ManifestComparator implements ContentsComparator {
         // this is common attribute not supported by Tycho yet
         ignoredKeys.add(new Name("Eclipse-SourceReferences"));
 
-        // TODO make to possible to disable default ignores and add custom ignore
+        // TODO make it possible to disable default ignores and add custom ignore
 
         IGNORED_KEYS = Collections.unmodifiableCollection(ignoredKeys);
     }

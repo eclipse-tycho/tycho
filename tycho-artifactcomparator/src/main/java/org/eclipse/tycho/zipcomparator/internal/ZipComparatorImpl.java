@@ -27,6 +27,7 @@ import java.util.zip.ZipFile;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
@@ -46,6 +47,9 @@ public class ZipComparatorImpl implements ArtifactComparator {
 
         IGNORED_PATTERNS = Collections.unmodifiableList(ignoredPatterns);
     }
+
+    @Requirement
+    private Logger log;
 
     @Requirement
     private Map<String, ContentsComparator> comparators;
@@ -84,6 +88,12 @@ public class ZipComparatorImpl implements ArtifactComparator {
                             ArtifactDelta differences = comparator.getDelta(is, is2);
                             if (differences != null) {
                                 result.put(name, differences);
+
+                                if (name.equals(System.getProperty("tycho.debug.artifactcomparator"))
+                                        && differences instanceof SimpleArtifactDelta) {
+                                    display((SimpleArtifactDelta) differences);
+                                }
+
                                 continue;
                             }
                         } finally {
@@ -108,6 +118,14 @@ public class ZipComparatorImpl implements ArtifactComparator {
             }
         }
         return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
+    }
+
+    private void display(SimpleArtifactDelta differences) {
+        StringBuilder msg = new StringBuilder();
+        msg.append("=== baseline ===\n").append(differences.getBaseline()).append("\n");
+        msg.append("=== reactor  ===\n").append(differences.getReactor()).append("\n");
+        msg.append("================\n");
+        log.info(msg.toString());
     }
 
     private String getContentType(String name) {
