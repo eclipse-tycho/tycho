@@ -77,7 +77,7 @@ public abstract class AbstractTychoIntegrationTest {
         verifier.getCliOptions().add("-Dmaven.home=" + getMavenHome());
         verifier.getCliOptions().add("-Dtycho-version=" + getTychoVersion());
         if (setTargetPlatform) {
-            verifier.getCliOptions().add("-Dtycho.targetPlatform=" + getTargetPlatforn());
+            verifier.getCliOptions().add("-Dtycho.targetPlatform=" + getTargetPlatform());
         }
         verifier.getCliOptions().add("-X");
         verifier.getCliOptions().add("-s " + userSettings.getCanonicalPath());
@@ -104,8 +104,8 @@ public abstract class AbstractTychoIntegrationTest {
         return getVerifier(test, true);
     }
 
-    protected String getTargetPlatforn() {
-        return EnvironmentUtil.getTargetPlatforn();
+    protected String getTargetPlatform() {
+        return EnvironmentUtil.getTargetPlatform();
     }
 
     private static File getSettings() {
@@ -192,7 +192,7 @@ public abstract class AbstractTychoIntegrationTest {
      * Returns approximate target platform version.
      */
     public static Version getEclipseVersion() {
-        String location = EnvironmentUtil.getTargetPlatforn();
+        String location = EnvironmentUtil.getTargetPlatform();
 
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(new File(location, "plugins"));

@@ -72,10 +72,10 @@ public class EnvironmentUtil {
 
     // TODO find a more reliable way
     public static boolean isEclipse32Platform() {
-        return new File(getTargetPlatforn(), "startup.jar").exists();
+        return new File(getTargetPlatform(), "startup.jar").exists();
     }
 
-    public static String getTargetPlatforn() {
+    public static String getTargetPlatform() {
         return getProperty("its-target-platform");
     }
 

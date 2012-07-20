@@ -21,10 +21,10 @@ import org.osgi.framework.Version;
 public class DefaultEquinoxInstallation implements EquinoxInstallation {
     private final File location;
 
-    private final EquinoxInstallationDescription Description;
+    private final EquinoxInstallationDescription description;
 
     public DefaultEquinoxInstallation(EquinoxInstallationDescription installationDescription, File location) {
-        this.Description = installationDescription;
+        this.description = installationDescription;
         this.location = location;
     }
 
@@ -33,14 +33,14 @@ public class DefaultEquinoxInstallation implements EquinoxInstallation {
     }
 
     public File getLauncherJar() {
-        ArtifactDescriptor systemBundle = Description.getSystemBundle();
+        ArtifactDescriptor systemBundle = description.getSystemBundle();
         Version osgiVersion = Version.parseVersion(systemBundle.getKey().getVersion());
         if (osgiVersion.compareTo(EquinoxInstallationDescription.EQUINOX_VERSION_3_3_0) < 0) {
             throw new IllegalArgumentException("Eclipse 3.2 and earlier are not supported.");
             // return new File(state.getTargetPlaform(), "startup.jar").getCanonicalFile();
         } else {
             // assume eclipse 3.3 or 3.4
-            ArtifactDescriptor launcher = Description.getBundle(EquinoxInstallationDescription.EQUINOX_LAUNCHER, null);
+            ArtifactDescriptor launcher = description.getBundle(EquinoxInstallationDescription.EQUINOX_LAUNCHER, null);
             if (launcher == null) {
                 throw new IllegalArgumentException("Could not find " + EquinoxInstallationDescription.EQUINOX_LAUNCHER
                         + " bundle in the test runtime.");
@@ -54,7 +54,7 @@ public class DefaultEquinoxInstallation implements EquinoxInstallation {
     }
 
     public EquinoxInstallationDescription getInstallationDescription() {
-        return Description;
+        return description;
     }
 
 }
