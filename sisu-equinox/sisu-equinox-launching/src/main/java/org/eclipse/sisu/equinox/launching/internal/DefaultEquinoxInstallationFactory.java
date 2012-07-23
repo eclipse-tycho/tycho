@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.sisu.equinox.launching.internal;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -84,6 +86,8 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
             Properties p = new Properties();
 
+            p.putAll(description.getPlatformProperties());
+
             String newOsgiBundles = toOsgiBundles(effective, startLevel);
 
             p.setProperty("osgi.bundles", newOsgiBundles);
@@ -125,18 +129,44 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
                 p.setProperty("osgi.framework.extensions", StringUtils.join(bundleNames.iterator(), ","));
             }
 
-            new File(location, "configuration").mkdir();
-            FileOutputStream fos = new FileOutputStream(new File(location, TychoConstants.CONFIG_INI_PATH));
+            if (!description.getDevEntries().isEmpty()) {
+                p.put("osgi.dev", createDevProperties(location, description.getDevEntries()));
+            }
+
+            File configIni = new File(location, TychoConstants.CONFIG_INI_PATH);
+            File configurationLocation = configIni.getParentFile();
+            configurationLocation.mkdirs();
+            FileOutputStream fos = new FileOutputStream(configIni);
             try {
                 p.store(fos, null);
             } finally {
                 fos.close();
             }
 
-            return new DefaultEquinoxInstallation(description, location);
+            return new DefaultEquinoxInstallation(description, location, configurationLocation);
         } catch (IOException e) {
             throw new RuntimeException("Exception creating test eclipse runtime", e);
         }
+    }
+
+    /**
+     * See
+     * 
+     * <pre>
+     * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgidev
+     * </pre>
+     */
+    private String createDevProperties(File location, Map<String, String> devEntries) throws IOException {
+        File file = new File(location, "dev.properties");
+        Properties properties = new Properties();
+        properties.putAll(devEntries);
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
+        try {
+            properties.store(os, null);
+        } finally {
+            os.close();
+        }
+        return file.toURI().toURL().toExternalForm();
     }
 
     protected void unpack(File source, File destination) {

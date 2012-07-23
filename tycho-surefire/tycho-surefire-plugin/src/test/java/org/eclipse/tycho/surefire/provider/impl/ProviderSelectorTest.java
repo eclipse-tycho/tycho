@@ -149,12 +149,13 @@ public class ProviderSelectorTest extends PlexusTestCase {
     }
 
     public void testFilterTestFrameworkBundlesJUnit3() throws MojoExecutionException {
-        Set<File> junitSurefireBundles = selector.filterTestFrameworkBundles(new JUnit3Provider(),
+        Set<org.apache.maven.artifact.Artifact> junitSurefireBundles = selector.filterTestFrameworkBundles(
+                new JUnit3Provider(),
                 asList(booterArtifact(), junit3Artifact(), junit4Artifact(), createMockArtifact("foo", "bar")));
         assertEquals(2, junitSurefireBundles.size());
         Set<String> fileNames = new HashSet<String>();
-        for (File file : junitSurefireBundles) {
-            fileNames.add(file.getName());
+        for (org.apache.maven.artifact.Artifact artifact : junitSurefireBundles) {
+            fileNames.add(artifact.getFile().getName());
         }
         HashSet<String> expectedFileNames = new HashSet<String>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
                 TYCHO_GROUPID + "_" + JUNIT3_FRAGMENT));
@@ -162,12 +163,13 @@ public class ProviderSelectorTest extends PlexusTestCase {
     }
 
     public void testFilterTestFrameworkBundlesJUnit4() throws MojoExecutionException {
-        Set<File> junitSurefireBundles = selector.filterTestFrameworkBundles(new JUnit4Provider(),
+        Set<org.apache.maven.artifact.Artifact> junitSurefireBundles = selector.filterTestFrameworkBundles(
+                new JUnit4Provider(),
                 asList(booterArtifact(), junit3Artifact(), junit4Artifact(), createMockArtifact("foo", "bar")));
         assertEquals(2, junitSurefireBundles.size());
         Set<String> fileNames = new HashSet<String>();
-        for (File file : junitSurefireBundles) {
-            fileNames.add(file.getName());
+        for (org.apache.maven.artifact.Artifact artifact : junitSurefireBundles) {
+            fileNames.add(artifact.getFile().getName());
         }
         HashSet<String> expectedFileNames = new HashSet<String>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
                 TYCHO_GROUPID + "_" + JUNIT4_FRAGMENT));

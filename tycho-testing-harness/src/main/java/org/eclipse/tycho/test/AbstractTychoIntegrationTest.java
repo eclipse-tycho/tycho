@@ -32,6 +32,14 @@ import org.osgi.framework.Version;
 
 public abstract class AbstractTychoIntegrationTest {
 
+    /**
+     * Location of m2e.tycho workspace state location.
+     * <p/>
+     * Value must match among tycho-insitu, DevelopmentWorkspaceState and
+     * AbstractTychoIntegrationTest.
+     */
+    private static final String SYSPROP_STATELOCATION = "tychodev.workspace.state";
+
     @Rule
     public TestName name = new TestName();
 
@@ -89,11 +97,12 @@ public abstract class AbstractTychoIntegrationTest {
             verifier.getCliOptions().add(customOptions);
         }
 
-        String m2eState = System.getProperty("m2eclipse.workspace.state");
-        String m2eResolver = System.getProperty("m2eclipse.workspace.resolver");
-
-        if (m2eState != null && m2eResolver != null) {
-            verifier.getVerifierProperties().put("m2eclipse.workspace.state", m2eState);
+        if (System.getProperty(SYSPROP_STATELOCATION) != null) {
+            verifier.setForkJvm(false);
+            String m2eresolver = System.getProperty("tychodev-maven.ext.class.path"); // XXX
+            if (m2eresolver != null) {
+                verifier.addCliOption("-Dmaven.ext.class.path=" + m2eresolver);
+            }
         }
 
         return verifier;

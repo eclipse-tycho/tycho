@@ -38,6 +38,10 @@ public interface EquinoxInstallationDescription {
 
     public Map<String, BundleStartLevel> getBundleStartLevel();
 
+    public Map<String, String> getPlatformProperties();
+
+    public Map<String, String> getDevEntries();
+
     // mutators
 
     public void addBundle(ArtifactKey key, File basedir);
@@ -57,4 +61,7 @@ public interface EquinoxInstallationDescription {
 
     public void addBundleStartLevel(BundleStartLevel level);
 
+    public void addPlatformProperty(String property, String value);
+
+    public void addDevEntries(String id, String entries);
 }
