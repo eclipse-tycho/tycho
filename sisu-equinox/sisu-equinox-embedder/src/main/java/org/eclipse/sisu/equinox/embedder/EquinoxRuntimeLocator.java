@@ -29,6 +29,8 @@ public interface EquinoxRuntimeLocator {
         public void addExtraSystemPackage(String systemPackages);
 
         public void addPlatformProperty(String property, String value);
+
+        public void addBundleStartLevel(String id, int level, boolean autostart);
     }
 
     // TODO do we need more specific exception type here?

@@ -11,7 +11,6 @@
 
 package org.eclipse.tycho.surefire.provider.impl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -75,9 +74,9 @@ public class ProviderSelector {
         }
     }
 
-    public Set<File> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
+    public Set<Artifact> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
             throws MojoExecutionException {
-        Set<File> result = new LinkedHashSet<File>();
+        Set<Artifact> result = new LinkedHashSet<Artifact>();
         List<org.sonatype.aether.artifact.Artifact> requiredArtifacts = new ArrayList<org.sonatype.aether.artifact.Artifact>();
         requiredArtifacts.add(new DefaultArtifact("org.eclipse.tycho", "org.eclipse.tycho.surefire.osgibooter", null,
                 null));
@@ -90,12 +89,12 @@ public class ProviderSelector {
                         if (dependency.getVersion() != null && !"".equals(dependency.getVersion())) {
                             if (dependency.getVersion().equals(artifact.getVersion())) {
                                 found = true;
-                                result.add(artifact.getFile());
+                                result.add(artifact);
                                 break;
                             }
                         } else {
                             found = true;
-                            result.add(artifact.getFile());
+                            result.add(artifact);
                             break;
                         }
                     }

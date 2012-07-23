@@ -15,13 +15,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -64,6 +64,8 @@ import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.dev.DevBundleInfo;
+import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.surefire.provider.impl.ProviderSelector;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
@@ -194,9 +196,6 @@ public class TestMojo extends AbstractMojo {
 
     /** @parameter expression="${project.build.directory}/surefire.properties" */
     private File surefireProperties;
-
-    /** @parameter expression="${project.build.directory}/dev.properties" */
-    private File devProperties;
 
     /**
      * Additional test target platform dependencies.
@@ -416,6 +415,9 @@ public class TestMojo extends AbstractMojo {
     /** @component */
     private ProviderSelector providerSelector;
 
+    /** @component */
+    private DevWorkspaceResolver workspaceState;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip || skipExec || skipTests) {
             getLog().info("Skipping tests");
@@ -523,11 +525,21 @@ public class TestMojo extends AbstractMojo {
             testRuntime.addBundle(artifact);
         }
 
-        for (File file : providerSelector.filterTestFrameworkBundles(provider, pluginArtifacts)) {
-            testRuntime.addBundle(getBundleArtifactKey(file), file, true);
+        Set<Artifact> testFrameworkBundles = providerSelector.filterTestFrameworkBundles(provider, pluginArtifacts);
+        for (Artifact artifact : testFrameworkBundles) {
+            DevBundleInfo devInfo = workspaceState.getBundleInfo(session, artifact.getGroupId(),
+                    artifact.getArtifactId(), artifact.getVersion(), project.getPluginArtifactRepositories());
+            if (devInfo != null) {
+                testRuntime.addBundle(devInfo.getArtifactKey(), devInfo.getLocation(), true);
+                testRuntime.addDevEntries(devInfo.getSymbolicName(), devInfo.getDevEntries());
+            } else {
+                File bundleLocation = artifact.getFile();
+                ArtifactKey bundleArtifactKey = getBundleArtifactKey(bundleLocation);
+                testRuntime.addBundle(bundleArtifactKey, bundleLocation, true);
+            }
         }
 
-        createDevProperties(reactorProject, testBundleSymbolicName);
+        testRuntime.addDevEntries(testBundleSymbolicName, getBuildOutputDirectories(reactorProject));
 
         reportsDirectory.mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
@@ -726,7 +738,6 @@ public class TestMojo extends AbstractMojo {
         }
 
         addProgramArgs(true, cli, "-data", workspace.getAbsolutePath(), //
-                "-dev", devProperties.toURI().toURL().toExternalForm(), //
                 "-install", testRuntime.getLocation().getAbsolutePath(), //
                 "-configuration", new File(work, "configuration").getAbsolutePath(), //
                 "-application", getTestApplication(testRuntime.getInstallationDescription()), //
@@ -777,29 +788,6 @@ public class TestMojo extends AbstractMojo {
         }
     }
 
-    /**
-     * See
-     * 
-     * <pre>
-     * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgidev
-     * </pre>
-     */
-    private void createDevProperties(ReactorProject reactorProject, String bundleSymbolicName)
-            throws MojoExecutionException {
-        Properties dev = new Properties();
-        dev.put(bundleSymbolicName, getBuildOutputDirectories(reactorProject));
-        try {
-            OutputStream os = new BufferedOutputStream(new FileOutputStream(devProperties));
-            try {
-                dev.store(os, null);
-            } finally {
-                os.close();
-            }
-        } catch (IOException e) {
-            throw new MojoExecutionException("Can't create osgi dev properties file", e);
-        }
-    }
-
     private String getBuildOutputDirectories(ReactorProject reactorProject) {
         StringBuilder sb = new StringBuilder();
         sb.append(reactorProject.getOutputDirectory());
@@ -841,6 +829,7 @@ public class TestMojo extends AbstractMojo {
                 request.setArtifact(artifact);
                 request.setResolveRoot(true).setResolveTransitively(false);
                 request.setLocalRepository(session.getLocalRepository());
+                // XXX wrong repositories -- these are user artifacts, not plugin artifacts
                 request.setRemoteRepositories(project.getPluginArtifactRepositories());
                 request.setOffline(session.isOffline());
                 request.setForceUpdate(session.getRequest().isUpdateSnapshots());

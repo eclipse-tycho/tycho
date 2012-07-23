@@ -47,6 +47,10 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     private final Set<String> bundlesToExplode = new HashSet<String>();
 
+    private final Map<String, String> platformProperties = new HashMap<String, String>();
+
+    private final Map<String, String> devEntries = new HashMap<String, String>();
+
     public void addBundleStartLevel(BundleStartLevel level) {
         startLevel.put(level.getId(), level);
     }
@@ -98,5 +102,23 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     public List<File> getFrameworkExtensions() {
         return frameworkExtensions;
+    }
+
+    public void addPlatformProperty(String property, String value) {
+        platformProperties.put(property, value);
+    }
+
+    public Map<String, String> getPlatformProperties() {
+        return platformProperties;
+    }
+
+    public void addDevEntries(String id, String entries) {
+        if (entries != null) {
+            devEntries.put(id, entries);
+        }
+    }
+
+    public Map<String, String> getDevEntries() {
+        return devEntries;
     }
 }

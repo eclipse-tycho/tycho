@@ -21,15 +21,23 @@ import org.osgi.framework.Version;
 public class DefaultEquinoxInstallation implements EquinoxInstallation {
     private final File location;
 
+    private final File configurationLocation;
+
     private final EquinoxInstallationDescription description;
 
-    public DefaultEquinoxInstallation(EquinoxInstallationDescription installationDescription, File location) {
+    public DefaultEquinoxInstallation(EquinoxInstallationDescription installationDescription, File location,
+            File configurationLocation) {
         this.description = installationDescription;
         this.location = location;
+        this.configurationLocation = configurationLocation;
     }
 
     public File getLocation() {
         return location;
+    }
+
+    public File getConfigurationLocation() {
+        return configurationLocation;
     }
 
     public File getLauncherJar() {

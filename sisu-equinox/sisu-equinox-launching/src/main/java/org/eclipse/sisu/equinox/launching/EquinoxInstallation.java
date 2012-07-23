@@ -17,5 +17,8 @@ public interface EquinoxInstallation {
 
     public File getLocation();
 
+    public File getConfigurationLocation();
+
     public EquinoxInstallationDescription getInstallationDescription();
+
 }
