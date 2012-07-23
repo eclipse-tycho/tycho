@@ -35,11 +35,12 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
+import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
 @Component(role = EquinoxRuntimeLocator.class)
-public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator, DependencyResolver {
+public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
     /**
      * List of packages exported by org.eclipse.tycho.p2 artifact/bundle.
      */
@@ -81,44 +82,61 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator, DependencyR
     @Requirement
     private Map<String, TychoP2RuntimeMetadata> runtimeMetadata;
 
+    @Requirement
+    private DevWorkspaceResolver workspaceState;
+
     public void locateRuntime(EquinoxRuntimeDescription description) throws MavenExecutionException {
-        WorkspaceDependencyResolver workspaceResolver = WorkspaceDependencyResolver.getResolver(this);
+        WorkspaceP2RuntimeLocator workspaceLocator = WorkspaceP2RuntimeLocator.getResolver(this.workspaceState);
 
         MavenSession session = buildContext.getSession();
 
-        addRuntimeArtifacts(workspaceResolver, session, description);
+        addRuntimeArtifacts(workspaceLocator, session, description);
 
         for (String systemPackage : SYSTEM_PACKAGES_EXTRA) {
             description.addExtraSystemPackage(systemPackage);
         }
 
-        if (workspaceResolver != null) {
-            workspaceResolver.addPlatformProperties(description);
+        if (workspaceLocator != null) {
+            workspaceLocator.addPlatformProperties(description);
         }
     }
 
-    public void addRuntimeArtifacts(WorkspaceDependencyResolver workspaceResolver, MavenSession session,
+    public void addRuntimeArtifacts(WorkspaceP2RuntimeLocator workspaceLocator, MavenSession session,
             EquinoxRuntimeDescription description) throws MavenExecutionException {
         TychoP2RuntimeMetadata framework = runtimeMetadata.get(TychoP2RuntimeMetadata.HINT_FRAMEWORK);
         if (framework != null) {
-            addRuntimeArtifacts(workspaceResolver, description, session, framework);
+            addRuntimeArtifacts(workspaceLocator, description, session, framework);
         }
 
         for (Map.Entry<String, TychoP2RuntimeMetadata> entry : runtimeMetadata.entrySet()) {
             if (!TychoP2RuntimeMetadata.HINT_FRAMEWORK.equals(entry.getKey())) {
-                addRuntimeArtifacts(workspaceResolver, description, session, entry.getValue());
+                addRuntimeArtifacts(workspaceLocator, description, session, entry.getValue());
             }
         }
     }
 
-    private void addRuntimeArtifacts(WorkspaceDependencyResolver workspaceResolver,
-            EquinoxRuntimeDescription description, MavenSession session, TychoP2RuntimeMetadata framework)
-            throws MavenExecutionException {
+    private void addRuntimeArtifacts(WorkspaceP2RuntimeLocator workspaceLocator, EquinoxRuntimeDescription description,
+            MavenSession session, TychoP2RuntimeMetadata framework) throws MavenExecutionException {
         for (Dependency dependency : framework.getRuntimeArtifacts()) {
-            if (workspaceResolver != null) {
-                if (workspaceResolver.addRuntimeArtifact(description, session, dependency)) {
+            if (workspaceLocator != null) {
+                Dependency dependencyPom = new Dependency();
+                dependencyPom.setType("pom");
+                dependencyPom.setGroupId(dependency.getGroupId());
+                dependencyPom.setArtifactId(dependency.getArtifactId());
+                dependencyPom.setVersion(dependency.getVersion());
+                Artifact pom = resolveDependency(session, dependencyPom);
+
+                boolean resolved;
+                if ("zip".equals(dependency.getType())) {
+                    resolved = workspaceLocator.addProduct(description, pom);
+                } else {
+                    resolved = workspaceLocator.addBundle(description, pom);
+                }
+
+                if (resolved) {
                     continue;
                 }
+
                 // fallback to regular resolution logic if requested dependency is not found in the workspace
             }
             addRuntimeArtifact(description, session, dependency);
@@ -171,17 +189,11 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator, DependencyR
         Artifact artifact = repositorySystem.createArtifact(dependency.getGroupId(), dependency.getArtifactId(),
                 dependency.getVersion(), dependency.getType());
 
-        List<ArtifactRepository> repositories = new ArrayList<ArtifactRepository>();
-        for (MavenProject project : session.getProjects()) {
-            repositories.addAll(project.getPluginArtifactRepositories());
-        }
-        repositories = repositorySystem.getEffectiveRepositories(repositories);
-
         ArtifactResolutionRequest request = new ArtifactResolutionRequest();
         request.setArtifact(artifact);
         request.setResolveRoot(true).setResolveTransitively(false);
         request.setLocalRepository(session.getLocalRepository());
-        request.setRemoteRepositories(repositories);
+        request.setRemoteRepositories(getPluginRepositories(session));
         request.setCache(session.getRepositoryCache());
         request.setOffline(session.isOffline());
         request.setForceUpdate(session.getRequest().isUpdateSnapshots());
@@ -197,4 +209,11 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator, DependencyR
         return artifact;
     }
 
+    protected List<ArtifactRepository> getPluginRepositories(MavenSession session) {
+        List<ArtifactRepository> repositories = new ArrayList<ArtifactRepository>();
+        for (MavenProject project : session.getProjects()) {
+            repositories.addAll(project.getPluginArtifactRepositories());
+        }
+        return repositorySystem.getEffectiveRepositories(repositories);
+    }
 }

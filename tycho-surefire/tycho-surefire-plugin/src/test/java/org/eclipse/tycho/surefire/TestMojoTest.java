@@ -58,7 +58,7 @@ public class TestMojoTest extends TestCase {
 
     private EquinoxLaunchConfiguration createEquinoxConfiguration() {
         DefaultEquinoxInstallation testRuntime = new DefaultEquinoxInstallation(
-                new DefaultEquinoxInstallationDescription(), null);
+                new DefaultEquinoxInstallationDescription(), null, null);
         return new EquinoxLaunchConfiguration(testRuntime);
     }
 

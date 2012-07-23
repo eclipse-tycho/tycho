@@ -22,6 +22,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator.EquinoxRuntimeDescription;
+import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
@@ -90,6 +91,7 @@ public class P2ApplicationLauncher {
 
                 runtimeLocator.locateRuntime(new EquinoxRuntimeDescription() {
                     public void addPlatformProperty(String property, String value) {
+                        description.addPlatformProperty(property, value);
                     }
 
                     public void addInstallation(File location) {
@@ -104,6 +106,10 @@ public class P2ApplicationLauncher {
                     public void addBundle(File location) {
                         P2ApplicationLauncher.this.addBundle(description, location);
                     }
+
+                    public void addBundleStartLevel(String id, int level, boolean autostart) {
+                        description.addBundleStartLevel(new BundleStartLevel(id, level, autostart));
+                    }
                 });
 
                 EquinoxInstallation installation = installationFactory.createInstallation(description,
@@ -112,10 +118,14 @@ public class P2ApplicationLauncher {
                 EquinoxLaunchConfiguration launchConfiguration = new EquinoxLaunchConfiguration(installation);
                 launchConfiguration.setWorkingDirectory(workingDirectory);
 
+                launchConfiguration.addProgramArguments("-configuration "
+                        + installation.getConfigurationLocation().getAbsolutePath());
+
                 // logging
 
                 if (logger.isDebugEnabled()) {
                     launchConfiguration.addProgramArguments("-debug", "-consoleLog");
+                    launchConfiguration.addProgramArguments("-console");
                 }
 
                 // application and application arguments

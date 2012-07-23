@@ -107,6 +107,10 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 }
                 bundleLocations.add(location);
             }
+
+            public void addBundleStartLevel(String id, int level, boolean autostart) {
+                // TODO do we need to autostart?
+            }
         });
 
         if (installationLocations.isEmpty() && !platformProperties.containsKey("osgi.install.area")) {
@@ -308,10 +312,12 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 getLogger().error("Exception while shutting down equinox", e);
             }
             tempSecureStorage.delete();
-            try {
-                FileUtils.deleteDirectory(tempConfigDir);
-            } catch (IOException e) {
-                getLogger().warn("Exception while deleting temp folder " + tempConfigDir, e);
+            if (tempConfigDir != null) {
+                try {
+                    FileUtils.deleteDirectory(tempConfigDir);
+                } catch (IOException e) {
+                    getLogger().warn("Exception while deleting temp folder " + tempConfigDir, e);
+                }
             }
             frameworkContext = null;
         }

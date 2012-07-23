@@ -76,6 +76,10 @@ public class EnvironmentUtil {
     }
 
     public static String getTargetPlatform() {
+        String systemValue = System.getProperty("tychodev-testTargetPlatform");
+        if (systemValue != null) {
+            return systemValue;
+        }
         return getProperty("its-target-platform");
     }
 
@@ -87,6 +91,10 @@ public class EnvironmentUtil {
     }
 
     public static String getMavenHome() {
+        String systemValue = System.getProperty("tychodev-maven.home");
+        if (systemValue != null) {
+            return systemValue;
+        }
         return getProperty("maven-dir");
     }
 
