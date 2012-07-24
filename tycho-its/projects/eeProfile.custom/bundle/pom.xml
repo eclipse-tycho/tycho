@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>tycho-its-project.eeProfile.custom</groupId>
+	<artifactId>epc.bundle</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<packaging>eclipse-plugin</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<!-- <executionEnvironment>custom</executionEnvironment> -->
+					<!-- To be implemented. To simulate this, build profile-mock with mvn install
+						first. Effect: the profile IU is in the target platform and satisfies the
+						javax.activation/1.1.0 import of the bundle (for p2, currently not for Equinox) -->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<properties>
+		<!-- Simulate effect of executionEnvironment=custom on the Equinox resolver -->
+		<org.osgi.framework.system.packages>javax.activation;version="1.1.1"</org.osgi.framework.system.packages>
+	</properties>
+
+</project>
