@@ -1,0 +1,13 @@
+requires.0.namespace = org.eclipse.equinox.p2.iu
+requires.0.name = dontfilterme.a.jre.custom
+requires.0.range = [1.0.0,1.0.0]
+
+# simulate a custom profile from an external repository
+units.0.id = dontfilterme.a.jre.custom
+units.0.version = 1.0.0
+units.0.provides.0.namespace = org.eclipse.equinox.p2.iu
+units.0.provides.0.name = dontfilterme.a.jre.custom
+units.0.provides.0.version = 1.0.0
+units.0.provides.1.namespace = java.package
+units.0.provides.1.name = javax.activation
+units.0.provides.1.version = 1.1.0
