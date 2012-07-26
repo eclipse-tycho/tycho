@@ -62,6 +62,21 @@ public class VersionsEngine {
         }
     }
 
+    public void addVersionBump(String artifactId, VersionBump versionBump) throws IOException {
+        ProjectMetadata project = getProject(artifactId);
+
+        if (project == null) {
+            // totally inappropriate. yuck.
+            throw new IOException("Project with artifactId=" + artifactId + " cound not be found");
+        }
+
+        MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+        String newVersion = versionBump.applyTo(pom.getEffectiveVersion());
+        if (!newVersion.equals(pom.getEffectiveVersion())) {
+            addVersionChange(new VersionChange(pom, newVersion));
+        }
+    }
+
     public void addVersionChange(VersionChange change) {
         changes.add(change);
     }
