@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//9v0\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/versionsplugin/TychoVersionsPluginTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-07-26T22:05:22Z",
+      "side": 1,
+      "message": "Integration test is not justified here. AbstractMojoTestCase is both easier to debug and runs much faster compared to an IT.",
+      "revId": "74fa0af2ce64a7c0fa8b3833f15ac95de6250cde",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//9v4\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/versionsplugin/TychoVersionsPluginTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-07-26T22:05:22Z",
+      "side": 1,
+      "message": "Use assertPom, assertBundleManifest, etc methods used in other tests, they verify that extected changes do take place and no unexpected changes. And, as an added bonus, existing assert* methods do not leak open file handles.",
+      "revId": "74fa0af2ce64a7c0fa8b3833f15ac95de6250cde",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//9wI\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/manipulation/CategoryXmlManipulator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-07-26T22:05:22Z",
+      "side": 1,
+      "message": "This is not related to version bump. Submit as a separate change.",
+      "revId": "74fa0af2ce64a7c0fa8b3833f15ac95de6250cde",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
