@@ -54,7 +54,7 @@ public abstract class AbstractResolutionStrategy {
         modifiableData.setJreIUs(jreIUs);
     }
 
-    public Collection<IInstallableUnit> resolve(List<Map<String, String>> allproperties, IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> multiPlatformResolve(List<Map<String, String>> allproperties, IProgressMonitor monitor) {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (Map<String, String> properties : allproperties) {

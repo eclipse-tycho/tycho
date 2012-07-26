@@ -11,7 +11,9 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,17 +30,50 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 @SuppressWarnings("restriction")
 public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
-    public SlicerResolutionStrategy(MavenLogger logger) {
+    private boolean ignoreFilters;
+
+    /**
+     * @param ignoreFilters
+     *            treat all filters as if they weren't present. Equivalent to evaluating all filters
+     *            to true.
+     */
+    public SlicerResolutionStrategy(MavenLogger logger, boolean ignoreFilters) {
         super(logger);
+        this.ignoreFilters = ignoreFilters;
     }
 
     @Override
     protected Slicer newSlicer(IQueryable<IInstallableUnit> availableIUs, Map<String, String> properties) {
-        return new PermissiveSlicer(availableIUs, properties, true, false, ignoreFilters(), strictDependencies(), false);
+        final Map<String, String> context;
+        final boolean evalFilterTo;
+        if (ignoreFilters) {
+            context = Collections.emptyMap(); // to get PermissiveSlicer.considerFilter = false
+            evalFilterTo = true;
+        } else {
+            context = properties;
+
+            // this is needed so that the PermissiveSlicer evaluates filters
+            // TODO fix tests that fail if the following is activated
+//            if (properties.size() <= 1)
+//                throw new IllegalStateException();
+            evalFilterTo = false; // ... and then this value doesn't matter
+        }
+        return new PermissiveSlicer(availableIUs, context, true, false, evalFilterTo, true, false);
     }
 
+    @Override
     protected boolean isSlicerError(MultiStatus slicerStatus) {
         return slicerStatus.matches(IStatus.WARNING | IStatus.ERROR | IStatus.CANCEL);
+    }
+
+    @Override
+    public Collection<IInstallableUnit> multiPlatformResolve(List<Map<String, String>> allproperties,
+            IProgressMonitor monitor) {
+        if (ignoreFilters) {
+            // short cut: properties would ignored for each single resolution, so resolve just once 
+            return resolve(Collections.<String, String> emptyMap(), monitor);
+        }
+        return super.multiPlatformResolve(allproperties, monitor);
     }
 
     @Override
@@ -58,11 +93,4 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
         return result;
     }
 
-    protected boolean ignoreFilters() {
-        return true;
-    }
-
-    protected boolean strictDependencies() {
-        return true;
-    }
 }

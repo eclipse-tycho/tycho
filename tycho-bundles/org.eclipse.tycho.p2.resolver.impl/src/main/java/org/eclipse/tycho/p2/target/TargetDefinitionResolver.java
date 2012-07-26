@@ -135,7 +135,7 @@ public class TargetDefinitionResolver {
             strategy.setRootInstallableUnits(rootIUs);
             strategy.setAvailableInstallableUnits(availableUnits);
             strategy.setJREIUs(jreIUs.getJREIUs());
-            units = strategy.resolve(environments, monitor);
+            units = strategy.multiPlatformResolve(environments, monitor);
         } else {
             units = Collections.emptySet();
         }
@@ -160,20 +160,7 @@ public class TargetDefinitionResolver {
     }
 
     private AbstractResolutionStrategy getSlicerResolutionStrategy(final boolean ignoreFilters) {
-        return new SlicerResolutionStrategy(logger) {
-            @Override
-            public Collection<IInstallableUnit> resolve(List<Map<String, String>> allproperties,
-                    IProgressMonitor monitor) {
-                if (ignoreFilters) {
-                    return resolve(Collections.<String, String> emptyMap(), monitor);
-                }
-                return super.resolve(allproperties, monitor);
-            }
-
-            @Override
-            protected boolean ignoreFilters() {
-                return ignoreFilters;
-            }
+        return new SlicerResolutionStrategy(logger, ignoreFilters) {
 
             @Override
             protected RuntimeException newResolutionException(IStatus status) {

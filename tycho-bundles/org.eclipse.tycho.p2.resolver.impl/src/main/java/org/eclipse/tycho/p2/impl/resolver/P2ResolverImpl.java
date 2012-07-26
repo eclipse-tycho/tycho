@@ -101,7 +101,7 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setAdditionalRequirements(additionalRequirements);
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
-        for (IInstallableUnit iu : strategy.resolve(environments, monitor)) {
+        for (IInstallableUnit iu : strategy.multiPlatformResolve(environments, monitor)) {
             result.addArtifact(TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
         }
         return result;
