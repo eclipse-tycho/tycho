@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  *     Cloudsmith Inc. - query indexes
  *     Sonatype, Inc. - adapted for Tycho
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;

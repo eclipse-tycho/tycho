@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.resolver;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;

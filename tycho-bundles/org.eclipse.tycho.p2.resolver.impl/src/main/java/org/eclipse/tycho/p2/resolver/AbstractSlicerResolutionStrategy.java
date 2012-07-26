@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.resolver;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.facade.MavenLogger;
 
 @SuppressWarnings("restriction")
-public abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrategy {
+abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrategy {
 
     protected AbstractSlicerResolutionStrategy(MavenLogger logger) {
         super(logger);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.resolver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 
 @SuppressWarnings("restriction")
-public class ResolverDebugUtils {
+class ResolverDebugUtils {
     public static String toDebugString(IQueryable<IInstallableUnit> ius, boolean verbose, IProgressMonitor monitor) {
         IQueryResult<IInstallableUnit> collector = ius.query(QueryUtil.ALL_UNITS, monitor);
         return toDebugString(collector.toUnmodifiableSet(), verbose);
