@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2011 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,8 +63,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         IQueryable<IInstallableUnit> slice = slice(properties, monitor);
 
         // force JRE UIs to be part of resolved state
-        Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>(this.rootIUs);
-        rootIUs.addAll(jreIUs);
+        Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
+        rootIUs.addAll(data.getJreIUs());
 
         Projector projector = new Projector(slice, newSelectionContext, new HashSet<IInstallableUnit>(), false);
         projector.encode(createMetaIU(rootIUs), EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(
@@ -85,9 +85,9 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         Collection<IInstallableUnit> newState = projector.extractSolution();
 
         // remove JRE IUs from resolved state
-        newState.removeAll(jreIUs);
+        newState.removeAll(data.getJreIUs());
 
-        fixSWT(new QueryableCollection(this.availableIUs), newState, newSelectionContext, monitor);
+        fixSWT(new QueryableCollection(data.getAvailableIUs()), newState, newSelectionContext, monitor);
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Resolved IUs:\n" + ResolverDebugUtils.toDebugString(newState, false));
@@ -111,7 +111,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         }
 
         // 380934 one of rootIUs can be SWT or an SWT fragment
-        for (IInstallableUnit iu : rootIUs) {
+        for (IInstallableUnit iu : data.getRootIUs()) {
             if ("org.eclipse.swt".equals(iu.getId())) {
                 return;
             }
@@ -168,8 +168,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                             iu.getFilter(), 1 /* min */, iu.isSingleton() ? 1 : Integer.MAX_VALUE /* max */, true /* greedy */));
         }
 
-        if (additionalRequirements != null) {
-            requirements.addAll(additionalRequirements);
+        if (data.getAdditionalRequirements() != null) {
+            requirements.addAll(data.getAdditionalRequirements());
         }
 
         iud.setRequirements((IRequirement[]) requirements.toArray(new IRequirement[requirements.size()]));

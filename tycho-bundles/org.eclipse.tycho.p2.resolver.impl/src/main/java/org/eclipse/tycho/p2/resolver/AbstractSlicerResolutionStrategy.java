@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2011 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
+
+import static org.eclipse.tycho.p2.resolver.ResolverDebugUtils.toDebugString;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -33,36 +35,37 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         super(logger);
     }
 
-    protected IQueryable<IInstallableUnit> slice(Map<String, String> properties, IProgressMonitor monitor) {
+    protected final IQueryable<IInstallableUnit> slice(Map<String, String> properties, IProgressMonitor monitor) {
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Properties: " + properties.toString());
-            logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false));
-            logger.debug("JRE IUs:\n" + ResolverDebugUtils.toDebugString(jreIUs, false));
-            logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
+            logger.debug("Available IUs:\n" + toDebugString(data.getAvailableIUs(), false));
+            logger.debug("JRE IUs:\n" + toDebugString(data.getJreIUs(), false));
+            logger.debug("Root IUs:\n" + toDebugString(data.getRootIUs(), true));
 
-            if (additionalRequirements != null && !additionalRequirements.isEmpty()) {
+            if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-                for (IRequirement req : additionalRequirements) {
+                for (IRequirement req : data.getAdditionalRequirements()) {
                     sb.append("   ").append(req.toString()).append("\n");
                 }
                 logger.debug("Extra Requirements:\n" + sb.toString());
             }
         }
 
-        Set<IInstallableUnit> availableIUs = new LinkedHashSet<IInstallableUnit>(this.availableIUs);
-        availableIUs.addAll(this.jreIUs);
+        Set<IInstallableUnit> availableIUs = new LinkedHashSet<IInstallableUnit>(data.getAvailableIUs());
+        availableIUs.addAll(data.getJreIUs());
 
-        Set<IInstallableUnit> seedIUs = new LinkedHashSet<IInstallableUnit>(this.rootIUs);
-        if (additionalRequirements != null && !additionalRequirements.isEmpty()) {
+        Set<IInstallableUnit> seedIUs = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
+        if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
             InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
             String time = Long.toString(System.currentTimeMillis());
             iud.setId("tycho-extra-" + time);
             iud.setVersion(Version.createOSGi(0, 0, 0, time));
-            iud.setRequirements(additionalRequirements.toArray(new IRequiredCapability[additionalRequirements.size()]));
+            iud.setRequirements(data.getAdditionalRequirements().toArray(
+                    new IRequiredCapability[data.getAdditionalRequirements().size()]));
             seedIUs.add(MetadataFactory.createInstallableUnit(iud));
         }
-        seedIUs.addAll(this.jreIUs);
+        seedIUs.addAll(data.getJreIUs());
 
         Slicer slicer = newSlicer(new QueryableCollection(availableIUs), properties);
         IQueryable<IInstallableUnit> slice = slicer.slice(seedIUs.toArray(EMPTY_IU_ARRAY), monitor);

@@ -44,14 +44,14 @@ public class DependencyCollector extends AbstractResolutionStrategy {
         LinkedHashSet<IStatus> errors = new LinkedHashSet<IStatus>();
 
         if (logger.isExtendedDebugEnabled()) {
-            logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(availableIUs, false));
-            logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(rootIUs, true));
+            logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(data.getAvailableIUs(), false));
+            logger.debug("Root IUs:\n" + ResolverDebugUtils.toDebugString(data.getRootIUs(), true));
         }
 
-        result.addAll(rootIUs);
+        result.addAll(data.getRootIUs());
 
-        QueryableCollection availableUIsQueryable = new QueryableCollection(availableIUs);
-        for (IInstallableUnit iu : rootIUs) {
+        QueryableCollection availableUIsQueryable = new QueryableCollection(data.getAvailableIUs());
+        for (IInstallableUnit iu : data.getRootIUs()) {
             collectIncludedIUs(availableUIsQueryable, result, errors, iu, true, monitor);
         }
 

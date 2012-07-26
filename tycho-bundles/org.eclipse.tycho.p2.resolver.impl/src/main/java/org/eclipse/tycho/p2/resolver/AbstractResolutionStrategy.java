@@ -24,37 +24,34 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.util.StatusTool;
 
+// TODO make this package private
 public abstract class AbstractResolutionStrategy {
     protected static final IInstallableUnit[] EMPTY_IU_ARRAY = new IInstallableUnit[0];
 
     protected final MavenLogger logger;
 
-    protected Collection<IInstallableUnit> availableIUs;
-
-    protected Collection<IInstallableUnit> jreIUs;
-
-    protected Collection<IInstallableUnit> rootIUs;
-
-    protected List<IRequirement> additionalRequirements;
+    // TODO take ResolutionData as parameter to get rid of this construct
+    private final ResolutionDataImpl modifiableData = new ResolutionDataImpl();
+    protected final ResolutionData data = modifiableData;
 
     protected AbstractResolutionStrategy(MavenLogger logger) {
         this.logger = logger;
     }
 
-    public void setAvailableInstallableUnits(Collection<IInstallableUnit> availableIUs) {
-        this.availableIUs = availableIUs;
+    public final void setAvailableInstallableUnits(Collection<IInstallableUnit> availableIUs) {
+        modifiableData.setAvailableIUs(availableIUs);
     }
 
-    public void setRootInstallableUnits(Collection<IInstallableUnit> rootIUs) {
-        this.rootIUs = rootIUs;
+    public final void setRootInstallableUnits(Collection<IInstallableUnit> rootIUs) {
+        modifiableData.setRootIUs(rootIUs);
     }
 
-    public void setAdditionalRequirements(List<IRequirement> additionalRequirements) {
-        this.additionalRequirements = additionalRequirements;
+    public final void setAdditionalRequirements(List<IRequirement> additionalRequirements) {
+        modifiableData.setAdditionalRequirements(additionalRequirements);
     }
 
-    public void setJREUIs(Collection<IInstallableUnit> jreIUs) {
-        this.jreIUs = jreIUs;
+    public final void setJREIUs(Collection<IInstallableUnit> jreIUs) {
+        modifiableData.setJreIUs(jreIUs);
     }
 
     public Collection<IInstallableUnit> resolve(List<Map<String, String>> allproperties, IProgressMonitor monitor) {
@@ -69,7 +66,7 @@ public abstract class AbstractResolutionStrategy {
 
     public abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
 
-    protected Map<String, String> addFeatureJarFilter(Map<String, String> environment) {
+    protected static Map<String, String> addFeatureJarFilter(Map<String, String> environment) {
         final Map<String, String> selectionContext = new HashMap<String, String>(environment);
         selectionContext.put("org.eclipse.update.install.features", "true");
         return selectionContext;

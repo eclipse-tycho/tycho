@@ -134,7 +134,7 @@ public class TargetDefinitionResolver {
 
             strategy.setRootInstallableUnits(rootIUs);
             strategy.setAvailableInstallableUnits(availableUnits);
-            strategy.setJREUIs(jreIUs.getJREIUs());
+            strategy.setJREIUs(jreIUs.getJREIUs());
             units = strategy.resolve(environments, monitor);
         } else {
             units = Collections.emptySet();
