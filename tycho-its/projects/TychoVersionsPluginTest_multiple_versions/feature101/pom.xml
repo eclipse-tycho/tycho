@@ -1,0 +1,14 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>multimodule</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>feature101</artifactId>
+  <packaging>eclipse-feature</packaging>
+  <version>1.0.1-SNAPSHOT</version>
+
+</project>
