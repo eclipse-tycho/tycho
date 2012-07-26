@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AABOIn//96I\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/Versions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2012-07-26T13:03:04Z",
+      "side": 1,
+      "message": "Nope, it\u0027s a piece of code that was not cleaned. Will remove it in next patch set.",
+      "parentUuid": "AABOIn//96o\u003d",
+      "revId": "71077ce7cf80538a50dd553c4c1a1fed9db39cee",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOIn//96g\u003d",
         "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/Versions.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "AABOIn//96E\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/Versions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2012-07-26T13:03:04Z",
+      "side": 1,
+      "message": "Nope, it\u0027s a piece of code that was not cleaned. Will remove it in next patch set.",
+      "parentUuid": "AABOIn//96g\u003d",
+      "revId": "71077ce7cf80538a50dd553c4c1a1fed9db39cee",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOIn//96Y\u003d",
         "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/VersionsEngine.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2012-07-26T12:52:51Z",
       "side": 1,
       "message": "This code is specific to BumpMojo so move it there.",
+      "revId": "71077ce7cf80538a50dd553c4c1a1fed9db39cee",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//96M\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/VersionsEngine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2012-07-26T13:03:04Z",
+      "side": 1,
+      "message": "The issue is that the VersionEngine is a \"visitor\" and that the version must be computed for each artifact we visit (artifacts can have different versions, but have bump applied in the same way). So I don\u0027t know how to calculate new version for each artifact from inside the BumpMojo without copying most of VersionsEngine into it.\nPieces of advice are welcome on this topic.",
+      "parentUuid": "AABOIn//96Y\u003d",
       "revId": "71077ce7cf80538a50dd553c4c1a1fed9db39cee",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
