@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.eclipse.tycho.testing.TestUtil;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
+import org.eclipse.tycho.versions.engine.VersionBump;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 
@@ -35,6 +36,31 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
 
         VersionsEngine engine = newEngine(basedir);
         engine.addVersionChange("parent", "1.0.1.qualifier");
+        engine.apply();
+
+        assertPom(basedir);
+
+        assertPom(new File(basedir, "bundle"));
+        assertBundleManifest(new File(basedir, "bundle"));
+
+        assertPom(new File(basedir, "feature01"));
+        assertFeatureXml(new File(basedir, "feature01"));
+
+        assertPom(new File(basedir, "feature02"));
+        assertFeatureXml(new File(basedir, "feature02"));
+
+        assertPom(new File(basedir, "site"));
+        assertSiteXml(new File(basedir, "site"));
+
+        assertPom(new File(basedir, "product"));
+        assertProductFile(new File(basedir, "product"), "product.product");
+    }
+
+    public void testVersionBump() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/multimodule");
+
+        VersionsEngine engine = newEngine(basedir);
+        engine.addVersionBump("parent", new VersionBump("0.0.1"));
         engine.apply();
 
         assertPom(basedir);
