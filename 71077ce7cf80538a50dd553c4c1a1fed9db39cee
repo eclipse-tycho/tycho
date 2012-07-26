@@ -104,6 +104,24 @@
       "revId": "71077ce7cf80538a50dd553c4c1a1fed9db39cee",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//954\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/VersionsEngine.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-07-26T13:12:25Z",
+      "side": 1,
+      "message": "ProjectMetadata instances are created in BumpMojo with metadataReader.getProjects(). You can iterate over that list in BumpMojo and perform all this logic there.",
+      "parentUuid": "AABOIn//96M\u003d",
+      "revId": "71077ce7cf80538a50dd553c4c1a1fed9db39cee",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
