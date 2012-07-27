@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AABOIn//9uY\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/versionsplugin/TychoVersionsPluginTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2012-07-27T09:12:13Z",
+      "side": 1,
+      "message": "I\u0027m not sure AbstractMojoTestCase is suitable for mojo that are only intended to be run by command-line and that are not part of the pom.",
+      "parentUuid": "AABOIn//9v0\u003d",
+      "revId": "74fa0af2ce64a7c0fa8b3833f15ac95de6250cde",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOIn//9v4\u003d",
         "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/versionsplugin/TychoVersionsPluginTest.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "AABOIn//9uU\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/versionsplugin/TychoVersionsPluginTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2012-07-27T09:12:13Z",
+      "side": 1,
+      "message": "Thos assertPom, assertBundleManifest... and so on are only available when extension AbstractVersionChangeTest. So the test cannot be an AbstractVersionChangeTest and an AbstractMojoTestCase at the same time.",
+      "parentUuid": "AABOIn//9v4\u003d",
+      "revId": "74fa0af2ce64a7c0fa8b3833f15ac95de6250cde",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOIn//9wI\u003d",
         "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/manipulation/CategoryXmlManipulator.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2012-07-26T22:05:22Z",
       "side": 1,
       "message": "This is not related to version bump. Submit as a separate change.",
+      "revId": "74fa0af2ce64a7c0fa8b3833f15ac95de6250cde",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//9uc\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/manipulation/CategoryXmlManipulator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2012-07-27T09:12:13Z",
+      "side": 1,
+      "message": "Ok:\nhttps://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d386104\nhttps://git.eclipse.org/r/#/c/6995/",
+      "parentUuid": "AABOIn//9wI\u003d",
       "revId": "74fa0af2ce64a7c0fa8b3833f15ac95de6250cde",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
