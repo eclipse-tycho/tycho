@@ -1,0 +1,6 @@
+package org.eclipse.tycho.its;
+
+// excluded from compilation; otherwise the integration test would require running on a Java 7 VM
+public class JavaX7Dependent {
+    javax.xml.ws.spi.http.HttpHandler typeNewInJava7;
+}

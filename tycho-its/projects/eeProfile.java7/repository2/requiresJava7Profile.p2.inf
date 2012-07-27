@@ -1,0 +1,7 @@
+# these dependencies should be generated automatically; until then, the following should be a workaround: 
+requires.0.namespace=org.eclipse.equinox.p2.iu
+requires.0.name=a.jre.javase
+requires.0.range=[1.7.0,1.7.0]
+requires.1.namespace=org.eclipse.equinox.p2.iu
+requires.1.name=config.a.jre.javase
+requires.1.range=[1.7.0,1.7.0]
