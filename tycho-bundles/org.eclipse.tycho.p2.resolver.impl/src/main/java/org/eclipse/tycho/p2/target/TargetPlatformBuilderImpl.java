@@ -125,7 +125,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
         this.offline = mavenContext.isOffline();
 
-        // TODO 364134 make this a setter - this property is side-effect free (i.e. it has no effect before gatherAvailableUnits)
         this.jreIUs = new JREInstallableUnits(executionEnvironment);
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
@@ -336,7 +335,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         return new TargetPlatformImpl(reactorProjects.values(),//
                 externalUIs, //
                 mavenInstallableUnits, //
-                jreIUs.getJREIUs(), //
+                jreIUs, //
                 filter, //
                 localMetadataRepository, //
                 allRemoteArtifactRepositories, //
@@ -423,7 +422,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         Iterator<IInstallableUnit> iter = units.iterator();
         while (iter.hasNext()) {
             IInstallableUnit unit = iter.next();
-            if (jreIUs.isJREUI(unit) || isPartialIU(unit) || reactorIUIDs.contains(unit.getId())) {
+            if (jreIUs.isNonApplicableEEUnit(unit) || isPartialIU(unit) || reactorIUIDs.contains(unit.getId())) {
                 // TODO log
                 iter.remove();
                 continue;

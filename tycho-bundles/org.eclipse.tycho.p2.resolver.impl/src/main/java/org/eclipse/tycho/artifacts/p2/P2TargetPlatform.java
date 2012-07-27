@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 
 /**
  * Specialization of the {@link TargetPlatform} interface for a target platform which includes p2
@@ -27,9 +28,9 @@ public interface P2TargetPlatform extends TargetPlatform {
     Collection<IInstallableUnit> getInstallableUnits();
 
     /**
-     * Return IUs that represent packages provided by target JRE
+     * Returns additional information for resolving against the configured execution environment.
      */
-    Collection<IInstallableUnit> getJREIUs();
+    ExecutionEnvironmentResolutionHints getEEResolutionHints();
 
     /**
      * Notify the target platform implementation about which IUs are actually used. This for example

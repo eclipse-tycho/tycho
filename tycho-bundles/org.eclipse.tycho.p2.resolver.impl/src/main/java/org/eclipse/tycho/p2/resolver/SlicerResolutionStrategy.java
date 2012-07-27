@@ -84,7 +84,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>(slice.query(QueryUtil.ALL_UNITS, monitor)
                 .toUnmodifiableSet());
-        result.removeAll(data.getJreIUs());
+        result.removeAll(data.getEEResolutionHints().getTemporaryAdditions());
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Resolved IUs:\n" + ResolverDebugUtils.toDebugString(result, false));

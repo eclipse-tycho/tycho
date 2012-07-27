@@ -32,6 +32,7 @@ import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
+import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 
 public class TargetPlatformImpl implements P2TargetPlatform {
@@ -43,9 +44,10 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     private final Collection<IInstallableUnit> externalIUs;
 
     /**
-     * Installable unit(s) that represent capabilities of the target JRE.
+     * Additional information about the execution environment, e.g. the "a.jre" IU with the list of
+     * exported packages.
      */
-    private final Collection<IInstallableUnit> jreUIs;
+    private final ExecutionEnvironmentResolutionHints executionEnvironment;
 
     /**
      * IInstallableUnits that correspond to pom dependency artifacts.
@@ -74,13 +76,14 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     private final boolean includePackedArtifacts;
 
     public TargetPlatformImpl(Collection<IReactorArtifactFacade> reactorProjects, Collection<IInstallableUnit> ius,
-            Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs, Collection<IInstallableUnit> jreUIs,
-            TargetPlatformFilterEvaluator filter, LocalMetadataRepository localMetadataRepository,
-            List<URI> allRemoteArtifactRepositories, LocalArtifactRepository localMavenRepository,
-            IProvisioningAgent agent, boolean includePackedArtifacts, MavenLogger logger) {
+            Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
+            ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
+            LocalMetadataRepository localMetadataRepository, List<URI> allRemoteArtifactRepositories,
+            LocalArtifactRepository localMavenRepository, IProvisioningAgent agent, boolean includePackedArtifacts,
+            MavenLogger logger) {
         this.reactorProjects = reactorProjects;
         this.externalIUs = ius;
-        this.jreUIs = jreUIs;
+        this.executionEnvironment = executionEnvironment;
         this.mavenArtifactIUs = mavenArtifactIUs;
         this.filter = filter;
         this.localMetadataRepository = localMetadataRepository;
@@ -101,7 +104,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
         allius.addAll(mavenArtifactIUs.keySet());
 
-        allius.addAll(jreUIs);
+        allius.addAll(executionEnvironment.getAdditionalUnits());
 
         return Collections.unmodifiableCollection(allius);
     }
@@ -129,8 +132,8 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         }
     }
 
-    public Collection<IInstallableUnit> getJREIUs() {
-        return jreUIs;
+    public ExecutionEnvironmentResolutionHints getEEResolutionHints() {
+        return executionEnvironment;
     }
 
     public Collection<IInstallableUnit> getReactorProjectIUs(File projectRoot, boolean primary) {
