@@ -118,7 +118,7 @@ public class TargetDefinitionResolver {
                 Iterator<IInstallableUnit> iterator = locationUnits.query(QueryUtil.ALL_UNITS, monitor).iterator();
                 while (iterator.hasNext()) {
                     IInstallableUnit unit = iterator.next();
-                    if (!jreIUs.isJREUI(unit)) {
+                    if (!jreIUs.isNonApplicableEEUnit(unit)) {
                         availableUnits.add(unit);
                     }
                 }
@@ -134,7 +134,7 @@ public class TargetDefinitionResolver {
 
             strategy.setRootInstallableUnits(rootIUs);
             strategy.setAvailableInstallableUnits(availableUnits);
-            strategy.setJREIUs(jreIUs.getJREIUs());
+            strategy.setEEResolutionHints(jreIUs);
             units = strategy.multiPlatformResolve(environments, monitor);
         } else {
             units = Collections.emptySet();

@@ -50,11 +50,12 @@ public abstract class AbstractResolutionStrategy {
         modifiableData.setAdditionalRequirements(additionalRequirements);
     }
 
-    public final void setJREIUs(Collection<IInstallableUnit> jreIUs) {
-        modifiableData.setJreIUs(jreIUs);
+    public final void setEEResolutionHints(ExecutionEnvironmentResolutionHints eeResolutionHints) {
+        modifiableData.setEEResolutionHints(eeResolutionHints);
     }
 
-    public Collection<IInstallableUnit> multiPlatformResolve(List<Map<String, String>> allproperties, IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> multiPlatformResolve(List<Map<String, String>> allproperties,
+            IProgressMonitor monitor) {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (Map<String, String> properties : allproperties) {

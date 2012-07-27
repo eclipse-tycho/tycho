@@ -64,7 +64,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
         // force JRE UIs to be part of resolved state
         Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
-        rootIUs.addAll(data.getJreIUs());
+        rootIUs.addAll(data.getEEResolutionHints().getAdditionalRequires());
 
         Projector projector = new Projector(slice, newSelectionContext, new HashSet<IInstallableUnit>(), false);
         projector.encode(createMetaIU(rootIUs), EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(
@@ -85,7 +85,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         Collection<IInstallableUnit> newState = projector.extractSolution();
 
         // remove JRE IUs from resolved state
-        newState.removeAll(data.getJreIUs());
+        newState.removeAll(data.getEEResolutionHints().getTemporaryAdditions());
 
         fixSWT(new QueryableCollection(data.getAvailableIUs()), newState, newSelectionContext, monitor);
 

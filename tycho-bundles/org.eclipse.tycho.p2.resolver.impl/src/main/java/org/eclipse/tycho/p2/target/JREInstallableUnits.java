@@ -25,9 +25,14 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 
+/**
+ * Resolution hints for a standard execution environment, e.g. "CDC-1.0/Foundation-1.0" or
+ * "JavaSE-1.7"
+ */
 @SuppressWarnings("restriction")
-final class JREInstallableUnits {
+final class JREInstallableUnits implements ExecutionEnvironmentResolutionHints {
 
     private final String executionEnvironment;
 
@@ -39,7 +44,7 @@ final class JREInstallableUnits {
      * p2 repositories are polluted with useless a.jre/config.a.jre IUs. These IUs do not represent
      * current/desired JRE and can expose resolver to packages that are not actually available.
      */
-    public boolean isJREUI(IInstallableUnit iu) {
+    public boolean isNonApplicableEEUnit(IInstallableUnit iu) {
         // See JREAction
         return iu.getId().startsWith("a.jre") || iu.getId().startsWith("config.a.jre");
     }
@@ -49,7 +54,7 @@ final class JREInstallableUnits {
      * 
      * @param executionEnvironment
      */
-    public Collection<IInstallableUnit> getJREIUs() {
+    public Collection<IInstallableUnit> getAdditionalUnits() {
         Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<VersionedId, IInstallableUnit>();
 
         // Some notable installable units, like org.eclipse.sdk.ide, have hard dependency on the garbage JRE IUs.
@@ -71,6 +76,16 @@ final class JREInstallableUnits {
         }
 
         return units.values();
+        // TODO cache the result?
+    }
+
+    public Collection<IInstallableUnit> getAdditionalRequires() {
+        return getAdditionalUnits();
+    }
+
+    public Collection<IInstallableUnit> getTemporaryAdditions() {
+        // TODO 384494 only return the empty a.jre.javase/1.6.0 IUs here (if there is no real a.jre.javase/1.6.0 IU)
+        return getAdditionalUnits();
     }
 
     private static IInstallableUnit newIU(String id, Version version) {

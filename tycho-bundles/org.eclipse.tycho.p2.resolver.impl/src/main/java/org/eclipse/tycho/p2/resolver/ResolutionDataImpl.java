@@ -19,9 +19,9 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 public class ResolutionDataImpl implements ResolutionData {
 
     private Collection<IInstallableUnit> availableIUs;
-    private Collection<IInstallableUnit> jreIUs;
     private Collection<IInstallableUnit> rootIUs;
     private List<IRequirement> additionalRequirements;
+    private ExecutionEnvironmentResolutionHints eeResolutionHints;
 
     public Collection<IInstallableUnit> getAvailableIUs() {
         return availableIUs;
@@ -29,14 +29,6 @@ public class ResolutionDataImpl implements ResolutionData {
 
     public void setAvailableIUs(Collection<IInstallableUnit> availableIUs) {
         this.availableIUs = availableIUs;
-    }
-
-    public Collection<IInstallableUnit> getJreIUs() {
-        return jreIUs;
-    }
-
-    public void setJreIUs(Collection<IInstallableUnit> jreIUs) {
-        this.jreIUs = jreIUs;
     }
 
     public Collection<IInstallableUnit> getRootIUs() {
@@ -53,6 +45,14 @@ public class ResolutionDataImpl implements ResolutionData {
 
     public void setAdditionalRequirements(List<IRequirement> additionalRequirements) {
         this.additionalRequirements = additionalRequirements;
+    }
+
+    public ExecutionEnvironmentResolutionHints getEEResolutionHints() {
+        return eeResolutionHints;
+    }
+
+    public void setEEResolutionHints(ExecutionEnvironmentResolutionHints eeResolutionHints) {
+        this.eeResolutionHints = eeResolutionHints;
     }
 
 }

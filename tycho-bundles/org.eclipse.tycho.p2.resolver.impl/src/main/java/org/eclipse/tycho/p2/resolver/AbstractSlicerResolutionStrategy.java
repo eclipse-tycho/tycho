@@ -40,7 +40,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Properties: " + properties.toString());
             logger.debug("Available IUs:\n" + toDebugString(data.getAvailableIUs(), false));
-            logger.debug("JRE IUs:\n" + toDebugString(data.getJreIUs(), false));
+            logger.debug("JRE IUs:\n" + toDebugString(data.getEEResolutionHints().getAdditionalUnits(), false));
             logger.debug("Root IUs:\n" + toDebugString(data.getRootIUs(), true));
 
             if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
@@ -53,7 +53,8 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         }
 
         Set<IInstallableUnit> availableIUs = new LinkedHashSet<IInstallableUnit>(data.getAvailableIUs());
-        availableIUs.addAll(data.getJreIUs());
+        availableIUs.addAll(data.getEEResolutionHints().getTemporaryAdditions());
+        availableIUs.addAll(data.getEEResolutionHints().getAdditionalUnits());
 
         Set<IInstallableUnit> seedIUs = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
         if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
@@ -65,7 +66,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
                     new IRequiredCapability[data.getAdditionalRequirements().size()]));
             seedIUs.add(MetadataFactory.createInstallableUnit(iud));
         }
-        seedIUs.addAll(data.getJreIUs());
+        seedIUs.addAll(data.getEEResolutionHints().getAdditionalRequires());
 
         Slicer slicer = newSlicer(new QueryableCollection(availableIUs), properties);
         IQueryable<IInstallableUnit> slice = slicer.slice(seedIUs.toArray(EMPTY_IU_ARRAY), monitor);

@@ -20,10 +20,9 @@ public interface ResolutionData {
 
     Collection<IInstallableUnit> getAvailableIUs();
 
-    Collection<IInstallableUnit> getJreIUs();
-
     Collection<IInstallableUnit> getRootIUs();
 
     List<IRequirement> getAdditionalRequirements();
 
+    ExecutionEnvironmentResolutionHints getEEResolutionHints();
 }
