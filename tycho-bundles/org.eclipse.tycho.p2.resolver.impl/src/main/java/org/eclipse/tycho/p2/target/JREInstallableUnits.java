@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
@@ -35,9 +36,13 @@ import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 final class JREInstallableUnits implements ExecutionEnvironmentResolutionHints {
 
     private final String executionEnvironment;
+    private final Map<VersionedId, IInstallableUnit> additionalUnits;
+    private final Map<VersionedId, IInstallableUnit> temporaryUnits;
 
     public JREInstallableUnits(String executionEnvironment) {
         this.executionEnvironment = executionEnvironment;
+        this.additionalUnits = computeAdditionalUnits(executionEnvironment);
+        this.temporaryUnits = computeTemporaryAdditions(additionalUnits);
     }
 
     /**
@@ -54,17 +59,8 @@ final class JREInstallableUnits implements ExecutionEnvironmentResolutionHints {
      * 
      * @param executionEnvironment
      */
-    public Collection<IInstallableUnit> getAdditionalUnits() {
+    private static Map<VersionedId, IInstallableUnit> computeAdditionalUnits(String executionEnvironment) {
         Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<VersionedId, IInstallableUnit>();
-
-        // Some notable installable units, like org.eclipse.sdk.ide, have hard dependency on the garbage JRE IUs.
-        // We provide those IUs as empty shells, i.e. without any provided capabilities.
-        // This way these garbage IUs are present but are not interfering with dependency resolution.
-
-        // add garbage JRE IUs first, so that are replaced with real ones
-        put(units, newIU("a.jre", Version.create("1.6.0")));
-        put(units, newIU("a.jre.javase", Version.create("1.6.0")));
-        put(units, newIU("config.a.jre.javase", Version.create("1.6.0")));
 
         // generate real IUs that represent requested execution environment
         PublisherResult results = new PublisherResult();
@@ -75,17 +71,39 @@ final class JREInstallableUnits implements ExecutionEnvironmentResolutionHints {
             put(units, iterator.next());
         }
 
-        return units.values();
-        // TODO cache the result?
+        return units;
+    }
+
+    public Collection<IInstallableUnit> getAdditionalUnits() {
+        return additionalUnits.values();
     }
 
     public Collection<IInstallableUnit> getAdditionalRequires() {
         return getAdditionalUnits();
     }
 
+    private static Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(
+            Map<VersionedId, IInstallableUnit> additionalUnits) {
+        Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<VersionedId, IInstallableUnit>();
+
+        // Some notable installable units, like org.eclipse.sdk.ide, have hard dependency on the garbage JRE IUs.
+        // We provide those IUs as empty shells, i.e. without any provided capabilities.
+        // This way these garbage IUs are present but are not interfering with dependency resolution.
+
+        put(units, newIU("a.jre", Version.create("1.6.0")));
+        put(units, newIU("a.jre.javase", Version.create("1.6.0")));
+        put(units, newIU("config.a.jre.javase", Version.create("1.6.0")));
+
+        // don't override real units
+        for (Entry<VersionedId, IInstallableUnit> entry : additionalUnits.entrySet()) {
+            units.remove(entry.getKey());
+        }
+
+        return units;
+    }
+
     public Collection<IInstallableUnit> getTemporaryAdditions() {
-        // TODO 384494 only return the empty a.jre.javase/1.6.0 IUs here (if there is no real a.jre.javase/1.6.0 IU)
-        return getAdditionalUnits();
+        return temporaryUnits.values();
     }
 
     private static IInstallableUnit newIU(String id, Version version) {

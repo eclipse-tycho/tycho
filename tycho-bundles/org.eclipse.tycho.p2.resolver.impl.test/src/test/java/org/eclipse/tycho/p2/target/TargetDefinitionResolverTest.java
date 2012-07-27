@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
@@ -76,11 +77,13 @@ public class TargetDefinitionResolverTest {
 
     @Before
     public void initContext() throws Exception {
-        Map<String, String> emptyMap = new HashMap<String, String>();
-        List<Map<String, String>> environments = Collections.singletonList(emptyMap);
-
-        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
+        subject = new TargetDefinitionResolver(defaultEnvironments(), new NoopEEResolverHints(), p2Context.getAgent(),
                 logger);
+    }
+
+    static List<Map<String, String>> defaultEnvironments() {
+        Map<String, String> emptyMap = new HashMap<String, String>();
+        return Collections.singletonList(emptyMap);
     }
 
     @Test
@@ -190,37 +193,45 @@ public class TargetDefinitionResolverTest {
         subject.resolveContent(definition);
     }
 
+    // TODO move to TargetDefinitionResolverExecutionEnvironmentTest
     @Test
     public void testRestrictedExecutionEnvironment() throws Exception {
-        Map<String, String> emptyMap = new HashMap<String, String>();
-        List<Map<String, String>> environments = Collections.singletonList(emptyMap);
+        subject = new TargetDefinitionResolver(defaultEnvironments(),
+                new JREInstallableUnits("CDC-1.0/Foundation-1.0"), p2Context.getAgent(), logger);
 
-        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits("CDC-1.0/Foundation-1.0"),
-                p2Context.getAgent(), logger);
-
-        VersionedId seed = new VersionedId("dom-client", "0.0.1.SNAPSHOT");
+        // requires the package org.w3c.dom
+        IVersionedId seed = new VersionedId("dom-client", "0.0.1.SNAPSHOT");
         TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.JAVAXXML, seed));
         TargetPlatformContent units = subject.resolveContent(definition);
-        assertThat(versionedIdsOf(units),
-                bagEquals(versionedIdList(seed, new VersionedId("javax.xml", "0.0.1.SNAPSHOT"))));
 
+        // expect that resolver included a bundle providing org.w3c.dom (here javax.xml) and did not match this against the "a.jre" IU also in the repository 
+        assertThat(versionedIdsOf(units), hasItem((IVersionedId) new VersionedId("javax.xml", "0.0.1.SNAPSHOT")));
     }
 
+    // TODO move to TargetDefinitionResolverExecutionEnvironmentTest
     @Test
     public void test370502_requireJREIUs() throws Exception {
-        Map<String, String> emptyMap = new HashMap<String, String>();
-        List<Map<String, String>> environments = Collections.singletonList(emptyMap);
+        subject = new TargetDefinitionResolver(defaultEnvironments(), new JREInstallableUnits("J2SE-1.5"),
+                p2Context.getAgent(), logger);
 
-        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits("J2SE-1.5"), p2Context.getAgent(),
-                logger);
+        // requires the a.jre.javase and config.a.jre.javase units in version 1.6.0 (like most products)
+        IVersionedId seed = new VersionedId("sdk", "1.0.0");
 
-        VersionedId seed = new VersionedId("sdk", "1.0.0");
         TargetPlatformContent units = subject.resolveContent(definitionWith(new PlannerLocationStub(
                 TestRepositories.REQUIREJREIUS, seed)));
-        assertThat(versionedIdsOf(units), bagEquals(versionedIdList(seed)));
 
+        // expect that the resolutions succeeds, but that the non-applicable IUs are not in the resolution result
+        Collection<IVersionedId> result = versionedIdsOf(units);
+        assertThat(result, hasItem(seed));
+        assertThat(result, not(hasItem((IVersionedId) new VersionedId("a.jre.javase", "1.6.0"))));
+        assertThat(result, not(hasItem((IVersionedId) new VersionedId("config.a.jre.javase", "1.6.0"))));
+
+        // TODO split in two tests (planner/slicer)
         units = subject.resolveContent(definitionWith(new LocationStub(TestRepositories.REQUIREJREIUS, seed)));
-        assertThat(versionedIdsOf(units), bagEquals(versionedIdList(seed)));
+        result = versionedIdsOf(units);
+        assertThat(result, hasItem(seed));
+        assertThat(result, not(hasItem((IVersionedId) new VersionedId("a.jre.javase", "1.6.0"))));
+        assertThat(result, not(hasItem((IVersionedId) new VersionedId("config.a.jre.javase", "1.6.0"))));
     }
 
     @Test

@@ -330,8 +330,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         Assert.assertEquals(2, result.getArtifacts().size());
 
-        Assert.assertEquals(1, result.getNonReactorUnits().size());
+        Assert.assertEquals(3, result.getNonReactorUnits().size());
         assertContainsUnit("javax.xml", result.getNonReactorUnits());
+        assertContainsUnit("a.jre.cdc", result.getNonReactorUnits());
+        assertContainsUnit("config.a.jre.cdc", result.getNonReactorUnits());
     }
 
     @Test
@@ -351,7 +353,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         Assert.assertEquals(1, result.getArtifacts().size());
 
-        Assert.assertEquals(0, result.getNonReactorUnits().size());
+        Assert.assertEquals(2, result.getNonReactorUnits().size());
+        assertContainsUnit("a.jre.j2se", result.getNonReactorUnits());
+        assertContainsUnit("config.a.jre.j2se", result.getNonReactorUnits());
     }
 
     @Test
@@ -371,7 +375,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         Assert.assertEquals(1, result.getArtifacts().size());
 
-        Assert.assertEquals(0, result.getNonReactorUnits().size());
+        Assert.assertEquals(2, result.getNonReactorUnits().size());
+        assertContainsUnit("a.jre.javase", result.getNonReactorUnits());
+        assertContainsUnit("config.a.jre.javase", result.getNonReactorUnits());
     }
 
     @Test

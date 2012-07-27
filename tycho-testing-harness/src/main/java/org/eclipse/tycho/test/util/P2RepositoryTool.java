@@ -67,14 +67,14 @@ public class P2RepositoryTool {
 
     public List<String> getAllUnitIds() throws Exception {
         loadMetadata();
-        List<String> result = new ArrayList<String>();
 
-        List<Node> idAttributes = getChildrenOf(contentXml, "/repository/units/unit/@id");
-        for (Node id : idAttributes) {
-            result.add(id.getNodeValue());
-        }
+        return getValues(contentXml, "/repository/units/unit/@id");
+    }
 
-        return result;
+    public List<String> getUnitVersions(String unitId) throws Exception {
+        loadMetadata();
+
+        return getValues(contentXml, "/repository/units/unit[@id='" + unitId + "']/@version");
     }
 
     /**
@@ -87,7 +87,7 @@ public class P2RepositoryTool {
     public IU getUniqueIU(String unitId) throws Exception {
         loadMetadata();
 
-        List<Node> nodes = getChildrenOf(contentXml, "/repository/units/unit[@id='" + unitId + "']");
+        List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "']");
 
         if (nodes.size() == 0)
             Assert.fail("Could not find IU with id '" + unitId + "'");
@@ -98,6 +98,12 @@ public class P2RepositoryTool {
 
         // this point is never reached
         throw new RuntimeException();
+    }
+
+    public List<String> getAllProvidedPackages() throws Exception {
+        loadMetadata();
+
+        return getValues(contentXml, "/repository/units/unit/provides/provided[@namespace='java.package']/@name");
     }
 
     private void loadMetadata() throws Exception {
@@ -116,12 +122,22 @@ public class P2RepositoryTool {
         return xPathTool;
     }
 
-    List<Node> getChildrenOf(Object startingPoint, String expression) throws XPathExpressionException {
+    List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
         NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
 
         List<Node> result = new ArrayList<Node>(nodeList.getLength());
         for (int ix = 0; ix < nodeList.getLength(); ++ix) {
             result.add(nodeList.item(ix));
+        }
+        return result;
+    }
+
+    List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
+        NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
+
+        List<String> result = new ArrayList<String>(nodeList.getLength());
+        for (int ix = 0; ix < nodeList.getLength(); ++ix) {
+            result.add(nodeList.item(ix).getNodeValue());
         }
         return result;
     }
@@ -159,7 +175,7 @@ public class P2RepositoryTool {
          * Returns the properties of the IU as "key=value" strings.
          */
         public List<String> getProperties() throws Exception {
-            List<Node> propertyNodes = getChildrenOf(unitElement, "properties/property");
+            List<Node> propertyNodes = getNodes(unitElement, "properties/property");
 
             List<String> result = new ArrayList<String>(propertyNodes.size());
             for (Node node : propertyNodes) {
@@ -171,7 +187,7 @@ public class P2RepositoryTool {
         public List<String> getRequiredIds() throws Exception {
             List<String> result = new ArrayList<String>();
 
-            List<Node> requiredIds = getChildrenOf(unitElement, "requires/required/@name");
+            List<Node> requiredIds = getNodes(unitElement, "requires/required/@name");
             for (Node id : requiredIds) {
                 result.add(id.getNodeValue());
             }
@@ -185,7 +201,7 @@ public class P2RepositoryTool {
         public List<String> getInclusionIds() throws Exception {
             List<String> result = new ArrayList<String>();
 
-            List<Node> requires = getChildrenOf(unitElement, "requires/required");
+            List<Node> requires = getNodes(unitElement, "requires/required");
             for (Node require : requires) {
                 String range = getAttribute(require, "@range");
 
