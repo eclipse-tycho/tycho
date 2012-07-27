@@ -32,9 +32,11 @@ import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 // TODO move to org.eclipse.tycho.p2.target package
+@Ignore
 public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
     @Test
