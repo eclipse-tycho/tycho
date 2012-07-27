@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.buildtimestamp.jgit;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
@@ -115,9 +116,12 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 
         path = path.substring(workTree.length());
 
-        if (path.startsWith("/")) {
-            path = path.substring(1);
+        if (path.startsWith(File.separator)) {
+            path = path.substring(File.separator.length());
         }
+
+        // git stores paths unix-style
+        path = path.replace(File.separatorChar, '/');
 
         return path;
     }
