@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//9tg\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-07-27T13:37:44Z",
+      "side": 1,
+      "message": "Please add Bug: 386104 in the footer, e.g. above the Change-Id: line so that Gerrit shows this as a link to Bugzilla.\n\nQuote from http://wiki.eclipse.org/Tycho/Contributor_Guide:\n\"Add \"Bug: \u003cbug number\u003e\" in the footer. \"",
+      "revId": "e2e4119ccc440b7635ae12136e2b2555b33fe377",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
