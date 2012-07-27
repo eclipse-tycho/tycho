@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
@@ -62,8 +63,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     public void testResolutionWithGenericPlatform() throws Exception {
         Map<String, String> emptyMap = Collections.emptyMap();
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
-        subject = new TargetDefinitionResolver(Collections.singletonList(emptyMap), new JREInstallableUnits(null),
-                p2Context.getAgent(), logger);
+        subject = createResolver(Collections.singletonList(emptyMap));
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -75,8 +75,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     public void testPlannerResolutionWithOnePlatform() throws Exception {
         Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
-        subject = new TargetDefinitionResolver(Collections.singletonList(environment), new JREInstallableUnits(null),
-                p2Context.getAgent(), logger);
+        subject = createResolver(Collections.singletonList(environment));
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -92,8 +91,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         List<Map<String, String>> environments = Arrays.asList(createEnvironment("gtk", "linux", "x86_64"),
                 createEnvironment("win32", "win32", "x86"), createEnvironment("carbon", "macosx", "x86"));
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
-        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
-                logger);
+        subject = createResolver(environments);
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -107,8 +105,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     public void testSlicerResolutionWithOnePlatform() throws Exception {
         Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
-        subject = new TargetDefinitionResolver(Collections.singletonList(environment), new JREInstallableUnits(null),
-                p2Context.getAgent(), logger);
+        subject = createResolver(Collections.singletonList(environment));
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -124,8 +121,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         List<Map<String, String>> environments = Arrays.asList(createEnvironment("win32", "win32", "x86"),
                 createEnvironment("carbon", "macosx", "x86"));
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
-        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
-                logger);
+        subject = createResolver(environments);
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -139,8 +135,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     public void testSlicerResolutionWithIncludeAllEnvironments() throws Exception {
         Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true));
-        subject = new TargetDefinitionResolver(Collections.singletonList(environment), new JREInstallableUnits(null),
-                p2Context.getAgent(), logger);
+        subject = createResolver(Collections.singletonList(environment));
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -155,8 +150,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         Map<String, String> environment = Collections.emptyMap();
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true),
                 new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, false));
-        subject = new TargetDefinitionResolver(Collections.singletonList(environment), new JREInstallableUnits(null),
-                p2Context.getAgent(), logger);
+        subject = createResolver(Collections.singletonList(environment));
 
         subject.resolveContent(targetDefinition);
     }
@@ -167,6 +161,10 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         environment.put("osgi.os", os);
         environment.put("osgi.arch", arch);
         return environment;
+    }
+
+    private TargetDefinitionResolver createResolver(List<Map<String, String>> environments) throws ProvisionException {
+        return new TargetDefinitionResolver(environments, new NoopEEResolverHints(), p2Context.getAgent(), logger);
     }
 
     private static class FilterRepoLocationStubWithLauncherUnit implements TargetDefinition.InstallableUnitLocation {
