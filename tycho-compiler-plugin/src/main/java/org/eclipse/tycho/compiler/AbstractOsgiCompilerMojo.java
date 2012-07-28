@@ -186,6 +186,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private Map<String, TychoProject> projectTypes;
 
     public void execute() throws MojoExecutionException, CompilationFailureException {
+        String bree = getExecutionEnvironment();
+        getLog().debug("Effective BREE: " + (bree != null ? bree : "<null>"));
+        getLog().debug("Effective source/target: " + getSourceLevel() + "/" + getTargetLevel());
+
         for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
             this.outputJar = jar;
             this.outputJar.getOutputDirectory().mkdirs();
@@ -489,7 +493,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     public String getExecutionEnvironment() throws MojoExecutionException {
-        return getTargetExecutionEnvironment().getProfileName();
+        ExecutionEnvironment env = getTargetExecutionEnvironment();
+        return env != null ? env.getProfileName() : null;
     }
 
     public String getSourceLevel() throws MojoExecutionException {
