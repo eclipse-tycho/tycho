@@ -88,12 +88,6 @@ public class ZipComparatorImpl implements ArtifactComparator {
                             ArtifactDelta differences = comparator.getDelta(is, is2);
                             if (differences != null) {
                                 result.put(name, differences);
-
-                                if (name.equals(System.getProperty("tycho.debug.artifactcomparator"))
-                                        && differences instanceof SimpleArtifactDelta) {
-                                    display((SimpleArtifactDelta) differences);
-                                }
-
                                 continue;
                             }
                         } finally {
@@ -118,14 +112,6 @@ public class ZipComparatorImpl implements ArtifactComparator {
             }
         }
         return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
-    }
-
-    private void display(SimpleArtifactDelta differences) {
-        StringBuilder msg = new StringBuilder();
-        msg.append("=== baseline ===\n").append(differences.getBaseline()).append("\n");
-        msg.append("=== reactor  ===\n").append(differences.getReactor()).append("\n");
-        msg.append("================\n");
-        log.info(msg.toString());
     }
 
     private String getContentType(String name) {

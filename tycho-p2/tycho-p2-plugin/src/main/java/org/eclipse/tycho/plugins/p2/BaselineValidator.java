@@ -89,8 +89,18 @@ public class BaselineValidator {
                     reactorMetadata, baselineBasedir, configuration.isDisableP2Mirrors());
 
             if (baselineMetadata != null) {
-                ArtifactDelta delta = getDelta(baselineService, baselineMetadata, reactorMetadata);
+                CompoundArtifactDelta delta = getDelta(baselineService, baselineMetadata, reactorMetadata);
                 if (delta != null) {
+                    if (System.getProperties().containsKey("tycho.debug.artifactcomparator")) {
+                        File logdir = new File(project.getBuild().getDirectory(), "artifactcomparison");
+                        log.info("Artifact comparison detailed log directory " + logdir.getAbsolutePath());
+                        for (Map.Entry<String, ArtifactDelta> classifier : delta.getMembers().entrySet()) {
+                            if (classifier.getValue() instanceof CompoundArtifactDelta) {
+                                ((CompoundArtifactDelta) classifier.getValue()).writeDetails(new File(logdir,
+                                        classifier.getKey()));
+                            }
+                        }
+                    }
                     if (baselineMode == fail || (baselineMode == failCommon && !isMissingOnlyDelta(delta))) {
                         throw new MojoExecutionException(delta.getDetailedMessage());
                     } else {
@@ -183,7 +193,7 @@ public class BaselineValidator {
         return true;
     }
 
-    private ArtifactDelta getDelta(BaselineService baselineService, Map<String, IP2Artifact> baselineMetadata,
+    private CompoundArtifactDelta getDelta(BaselineService baselineService, Map<String, IP2Artifact> baselineMetadata,
             Map<String, IP2Artifact> generatedMetadata) throws IOException {
 
         Map<String, ArtifactDelta> result = new LinkedHashMap<String, ArtifactDelta>();
@@ -201,16 +211,18 @@ public class BaselineValidator {
                 continue;
             }
 
+            String deltaKey = classifier != null ? "classifier-" + classifier : "no-classifier";
+
             IP2Artifact baselineArtifact = baselineMetadata.get(classifier);
             IP2Artifact reactorArtifact = generatedMetadata.get(classifier);
 
             if (baselineArtifact == null) {
-                result.put(classifier, new MissingArtifactDelta());
+                result.put(deltaKey, new MissingArtifactDelta());
                 continue;
             }
 
             if (!baselineService.isMetadataEqual(baselineArtifact, reactorArtifact)) {
-                result.put(classifier, new SimpleArtifactDelta("p2 metadata different"));
+                result.put(deltaKey, new SimpleArtifactDelta("p2 metadata different"));
                 continue;
             }
 
@@ -218,12 +230,12 @@ public class BaselineValidator {
                 ArtifactDelta delta = zipComparator.getDelta(baselineArtifact.getLocation(),
                         reactorArtifact.getLocation());
                 if (delta != null) {
-                    result.put(classifier, delta);
+                    result.put(deltaKey, delta);
                 }
             } catch (IOException e) {
                 // do byte-to-byte comparison if jar comparison fails for whatever reason
                 if (!FileUtils.contentEquals(baselineArtifact.getLocation(), reactorArtifact.getLocation())) {
-                    result.put(classifier, new SimpleArtifactDelta("different"));
+                    result.put(deltaKey, new SimpleArtifactDelta("different"));
                 }
             }
         }
