@@ -8,7 +8,7 @@
 <unit id="org.eclipse.sdk.ide" version="4.2.0.I20120608-1400"/>
 <unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20120522-1813-85FAcGbBFoYTldHrOJw3cF4q"/>
 <unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20120524-0542-9N89H_mGMMn84Osz0TAoT279BRQD"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.2milestones/"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.2"/>
 </location>
 </locations>
 </target>
