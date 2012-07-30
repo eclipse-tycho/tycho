@@ -16,6 +16,24 @@
       "revId": "21b4274bf1211c9d42145289ee22e81c664ccaf5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//9iA\u003d",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/JDTCompiler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-07-30T11:36:10Z",
+      "side": 0,
+      "message": "(provided that the component itself is not cached somewhere else)",
+      "parentUuid": "AABOIn//9iI\u003d",
+      "revId": "21b4274bf1211c9d42145289ee22e81c664ccaf5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
