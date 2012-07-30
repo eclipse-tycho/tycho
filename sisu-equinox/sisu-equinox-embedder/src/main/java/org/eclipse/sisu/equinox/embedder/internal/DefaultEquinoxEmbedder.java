@@ -105,7 +105,9 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 if (location == null || !location.exists()) {
                     throw new IllegalArgumentException();
                 }
-                bundleLocations.add(location);
+                if (!isFrameworkBundle(location)) {
+                    bundleLocations.add(location);
+                }
             }
 
             public void addBundleStartLevel(String id, int level, boolean autostart) {
@@ -211,7 +213,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
     private void addBundlesDir(StringBuilder bundles, File[] files, boolean absolute) {
         if (files != null) {
             for (File file : files) {
-                if (file.getName().startsWith("org.eclipse.osgi_")) {
+                if (isFrameworkBundle(file)) {
                     continue;
                 }
 
@@ -232,6 +234,10 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 }
             }
         }
+    }
+
+    protected boolean isFrameworkBundle(File file) {
+        return file.getName().startsWith("org.eclipse.osgi_");
     }
 
     String getReferenceUrl(File file) {
