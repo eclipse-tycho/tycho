@@ -61,20 +61,6 @@ public class JDTCompiler extends AbstractCompiler {
     static final Pattern LINE_PATTERN = Pattern
             .compile("(?:(\\d*)\\. )?(ERROR|WARNING) in (.*?)( \\(at line (\\d+)\\))?\\s*");
 
-    String logFileName;
-
-//    Map customDefaultOptions;
-
-    private Map<String, String> fileEncodings = null;
-
-    private Map<String, String> dirEncodings = null;
-
-    private List<String> accessRules = null;
-
-    private String javaHome = null;
-
-    private String bootclasspathAccessRules = null;
-
     public JDTCompiler() {
         super(CompilerOutputStyle.ONE_OUTPUT_FILE_PER_INPUT_FILE, ".java", ".class", null);
     }
@@ -84,6 +70,8 @@ public class JDTCompiler extends AbstractCompiler {
     // ----------------------------------------------------------------------
 
     public List<CompilerError> compile(CompilerConfiguration config) throws CompilerException {
+        CustomCompilerConfiguration custom = new CustomCompilerConfiguration();
+
         File destinationDir = new File(config.getOutputLocation());
 
         if (!destinationDir.exists()) {
@@ -102,9 +90,9 @@ public class JDTCompiler extends AbstractCompiler {
 
         @SuppressWarnings("unchecked")
         Map<String, String> customCompilerArguments = config.getCustomCompilerArguments();
-        checkCompilerArgs(customCompilerArguments);
+        checkCompilerArgs(customCompilerArguments, custom);
 
-        String[] args = buildCompilerArguments(config, sourceFiles);
+        String[] args = buildCompilerArguments(config, custom, sourceFiles);
 
         List<CompilerError> messages;
 
@@ -117,17 +105,18 @@ public class JDTCompiler extends AbstractCompiler {
 
             messages = compileOutOfProcess(config.getWorkingDirectory(), executable, args);
         } else {
-            messages = compileInProcess(args);
+            messages = compileInProcess(args, custom);
         }
 
         return messages;
     }
 
     public String[] createCommandLine(CompilerConfiguration config) throws CompilerException {
-        return buildCompilerArguments(config, getSourceFiles(config));
+        return buildCompilerArguments(config, new CustomCompilerConfiguration(), getSourceFiles(config));
     }
 
-    public String[] buildCompilerArguments(CompilerConfiguration config, String[] sourceFiles) {
+    public String[] buildCompilerArguments(CompilerConfiguration config, CustomCompilerConfiguration custom,
+            String[] sourceFiles) {
         List<String> args = new ArrayList<String>();
 
         // ----------------------------------------------------------------------
@@ -165,7 +154,7 @@ public class JDTCompiler extends AbstractCompiler {
         if (classpathEntries != null && !classpathEntries.isEmpty()) {
             args.add("-classpath");
 
-            String cp = createClasspathArgument(classpathEntries);
+            String cp = createClasspathArgument(classpathEntries, custom);
 
             args.add(cp);
         }
@@ -248,12 +237,12 @@ public class JDTCompiler extends AbstractCompiler {
             }
 
             if ("use.java.home".equals(key)) {
-                this.javaHome = (String) entry.getValue();
+                custom.javaHome = (String) entry.getValue();
                 continue;
             }
 
             if ("org.osgi.framework.system.packages".equals(key)) {
-                this.bootclasspathAccessRules = entry.getValue();
+                custom.bootclasspathAccessRules = entry.getValue();
                 continue;
             }
 
@@ -341,7 +330,7 @@ public class JDTCompiler extends AbstractCompiler {
      * @return List of CompilerError objects with the errors encountered.
      * @throws CompilerException
      */
-    List<CompilerError> compileInProcess(String[] args) throws CompilerException {
+    List<CompilerError> compileInProcess(String[] args, CustomCompilerConfiguration custom) throws CompilerException {
 
         List<CompilerError> messages;
 
@@ -350,11 +339,11 @@ public class JDTCompiler extends AbstractCompiler {
 
         CompilerMain compiler = new CompilerMain(new PrintWriter(out), new PrintWriter(err), false, getLogger());
         compiler.options.put(CompilerOptions.OPTION_ReportForbiddenReference, CompilerOptions.ERROR);
-        if (javaHome != null) {
-            compiler.setJavaHome(new File(javaHome));
+        if (custom.javaHome != null) {
+            compiler.setJavaHome(new File(custom.javaHome));
         }
-        compiler.setBootclasspathAccessRules(bootclasspathAccessRules);
-        getLogger().debug("Boot classpath access rules: " + bootclasspathAccessRules);
+        compiler.setBootclasspathAccessRules(custom.bootclasspathAccessRules);
+        getLogger().debug("Boot classpath access rules: " + custom.bootclasspathAccessRules);
         compiler.compile(args);
 
         try {
@@ -423,7 +412,7 @@ public class JDTCompiler extends AbstractCompiler {
      * @param classpath
      *            the given classpath entry
      */
-    private String createClasspathArgument(List<String> classpath) {
+    private String createClasspathArgument(List<String> classpath, CustomCompilerConfiguration custom) {
         final String[] pathElements = (String[]) classpath.toArray(new String[classpath.size()]);
 
         // empty path return empty string
@@ -432,7 +421,7 @@ public class JDTCompiler extends AbstractCompiler {
         }
 
         // no access rules, can set the path directly
-        if (accessRules == null) {
+        if (custom.accessRules == null) {
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < pathElements.length; i++) {
                 result.append(pathElements[i]);
@@ -443,8 +432,8 @@ public class JDTCompiler extends AbstractCompiler {
             return result.toString();
         }
 
-        int rulesLength = accessRules.size();
-        String[] rules = (String[]) accessRules.toArray(new String[rulesLength]);
+        int rulesLength = custom.accessRules.size();
+        String[] rules = (String[]) custom.accessRules.toArray(new String[rulesLength]);
         int nextRule = 0;
         final StringBuffer result = new StringBuffer();
 
@@ -502,7 +491,7 @@ public class JDTCompiler extends AbstractCompiler {
      * @param args
      *            compiler arguments to process
      */
-    private void checkCompilerArgs(Map<String, String> args) {
+    private void checkCompilerArgs(Map<String, String> args, CustomCompilerConfiguration custom) {
         for (String arg : args.keySet()) {
             if (arg.charAt(0) == '@') {
                 try {
@@ -531,15 +520,15 @@ public class JDTCompiler extends AbstractCompiler {
                                 String str = String.valueOf(content, start, encodeStart - start);
                                 String enc = String.valueOf(content, encodeStart, end - encodeStart + 1);
                                 if (isFile) {
-                                    if (fileEncodings == null)
-                                        fileEncodings = new HashMap<String, String>();
+                                    if (custom.fileEncodings == null)
+                                        custom.fileEncodings = new HashMap<String, String>();
                                     // use File to translate the string into a
                                     // path with the correct File.seperator
-                                    fileEncodings.put(str, enc);
+                                    custom.fileEncodings.put(str, enc);
                                 } else {
-                                    if (dirEncodings == null)
-                                        dirEncodings = new HashMap<String, String>();
-                                    dirEncodings.put(str, enc);
+                                    if (custom.dirEncodings == null)
+                                        custom.dirEncodings = new HashMap<String, String>();
+                                    custom.dirEncodings.put(str, enc);
                                 }
                             }
                         } else if (CharOperation.equals(ADAPTER_ACCESS, content, start, start + ADAPTER_ACCESS.length)) {
@@ -551,10 +540,10 @@ public class JDTCompiler extends AbstractCompiler {
                             if (start < accessStart && accessStart < end) {
                                 String path = String.valueOf(content, start, accessStart - start);
                                 String access = String.valueOf(content, accessStart, end - accessStart + 1);
-                                if (accessRules == null)
-                                    accessRules = new ArrayList<String>();
-                                accessRules.add(path);
-                                accessRules.add(access);
+                                if (custom.accessRules == null)
+                                    custom.accessRules = new ArrayList<String>();
+                                custom.accessRules.add(path);
+                                custom.accessRules.add(access);
                             }
                         }
                         offset = end;
