@@ -34,6 +34,24 @@
       "revId": "21b4274bf1211c9d42145289ee22e81c664ccaf5",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//9fY\u003d",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/JDTCompiler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-07-30T17:16:55Z",
+      "side": 0,
+      "message": "istantiationStrategy\u003d\"per-lookup\" does not work as expected for injected component map used by compiler manager, which effectively makes all compilers singletons. I aslo do not believe istantiationStrategy\u003d\"per-lookup\" correctly reflects the indent of this change, i.e. make each compiler instance reusable for multiple invocations.",
+      "parentUuid": "AABOIn//9iA\u003d",
+      "revId": "21b4274bf1211c9d42145289ee22e81c664ccaf5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
