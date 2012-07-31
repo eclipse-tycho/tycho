@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
@@ -356,5 +357,21 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
+    }
+
+    public void test386278_breeCompilerTargetCompatibility() throws Exception {
+        File basedir = getBasedir("projects/bree-target-compatibility");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+
+        MavenProject project = projects.get(0);
+        try {
+            getMojo(projects, project).execute();
+            fail();
+        } catch (MojoExecutionException e) {
+            assertTrue(
+                    "Unexpected exception message " + e.getMessage(),
+                    e.getMessage().contains(
+                            "Effective compiler target 1.5 is incompatible with minimal BREE OSGi profile 'J2SE-1.2'"));
+        }
     }
 }

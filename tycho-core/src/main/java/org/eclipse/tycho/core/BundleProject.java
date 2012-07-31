@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
+import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 
 public interface BundleProject extends TychoProject {
     public List<ClasspathEntry> getClasspath(MavenProject project);
@@ -32,5 +33,7 @@ public interface BundleProject extends TychoProject {
      * @return the String value of the specified attribute key, or null if not found.
      */
     public String getManifestValue(String key, MavenProject project);
+
+    public ExecutionEnvironment getManifestMinimalEE(MavenProject project);
 
 }

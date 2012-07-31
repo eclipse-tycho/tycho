@@ -110,4 +110,32 @@ public class ExecutionEnvironment implements Comparable<ExecutionEnvironment> {
     public Properties getProfileProperties() {
         return profileProperties;
     }
+
+    /**
+     * Returns <code>true</code> if classes compiled for the specified target can be executed in
+     * this execution environment or if this environment's compiler target compatibility is unknown.
+     */
+    public boolean isCompatibleCompilerTargetLevel(String target) {
+        if (target == null) {
+            throw new IllegalArgumentException();
+        }
+        if (compilerTargetLevel == null) {
+            return true;
+        }
+
+        try {
+            Version thisTargetVersion = Version.parseVersion(compilerTargetLevel);
+
+            if ("jsr14".equalsIgnoreCase(target)) {
+                target = "1.4";
+            }
+
+            Version targetVersion = Version.parseVersion(target);
+
+            return thisTargetVersion.compareTo(targetVersion) >= 0;
+        } catch (IllegalArgumentException e) {
+            // we could not parse one or both of the provided target level, assume they are incompatible 
+            return false;
+        }
+    }
 }

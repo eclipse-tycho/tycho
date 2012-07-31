@@ -176,6 +176,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private boolean requireJREPackageImports;
 
     /**
+     * If set to <code>false</code> (the default) issue a warning if effective compiler target level
+     * is incompatible with bundle minimal execution environment. If set to <code>true</code> will
+     * fail the build if effective compiler target and minimal BREE are incompatible.
+     * 
+     * @parameter default-value="false"
+     */
+    private boolean strictCompilerTarget;
+
+    /**
      * Current build output jar
      */
     private BuildOutputJar outputJar;
@@ -186,9 +195,21 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private Map<String, TychoProject> projectTypes;
 
     public void execute() throws MojoExecutionException, CompilationFailureException {
+        ExecutionEnvironment minimalBREE = getBundleProject().getManifestMinimalEE(project);
         String bree = getExecutionEnvironment();
+        getLog().debug("Manifest minimal BREE: " + (minimalBREE != null ? minimalBREE.getProfileName() : "<null>"));
         getLog().debug("Effective BREE: " + (bree != null ? bree : "<null>"));
-        getLog().debug("Effective source/target: " + getSourceLevel() + "/" + getTargetLevel());
+        String effectiveTargetLevel = getTargetLevel();
+        getLog().debug("Effective source/target: " + getSourceLevel() + "/" + effectiveTargetLevel);
+
+        if (minimalBREE != null && !minimalBREE.isCompatibleCompilerTargetLevel(effectiveTargetLevel)) {
+            String message = "Effective compiler target " + effectiveTargetLevel + " is incompatible with "
+                    + minimalBREE + " @ " + project;
+            if (strictCompilerTarget) {
+                throw new MojoExecutionException(message);
+            }
+            getLog().warn(message);
+        }
 
         for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
             this.outputJar = jar;
