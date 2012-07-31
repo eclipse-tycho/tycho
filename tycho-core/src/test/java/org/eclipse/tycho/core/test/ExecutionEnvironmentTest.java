@@ -11,7 +11,9 @@
 package org.eclipse.tycho.core.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -118,6 +120,13 @@ public class ExecutionEnvironmentTest {
         assertEquals("1.5", j2SE5Enviroment.getCompilerTargetLevel());
         assertEquals("1.6", javaSE6Enviroment.getCompilerTargetLevel());
         assertEquals("1.7", javaSE7Enviroment.getCompilerTargetLevel());
+    }
+
+    @Test
+    public void testCompilerTargetCompatibility() throws Exception {
+        assertTrue(j2SE14Environment.isCompatibleCompilerTargetLevel("1.1"));
+        assertTrue(j2SE14Environment.isCompatibleCompilerTargetLevel("1.2"));
+        assertFalse(j2SE14Environment.isCompatibleCompilerTargetLevel("1.3"));
     }
 
     @Test

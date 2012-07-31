@@ -506,19 +506,26 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             buildMinimalEE = getExecutionEnvironment(project, profile.substring(1));
         }
 
-        List<ExecutionEnvironment> envs = new ArrayList<ExecutionEnvironment>(Arrays.asList(getManifest(project)
-                .getExecutionEnvironments()));
-        if (envs.isEmpty()) {
+        ExecutionEnvironment manifestMinimalEE = getManifestMinimalEE(project);
+
+        if (manifestMinimalEE == null) {
             return buildMinimalEE;
         }
-
-        ExecutionEnvironment manifestMinimalEE = Collections.min(envs);
 
         if (buildMinimalEE == null) {
             return manifestMinimalEE;
         }
 
         return manifestMinimalEE.compareTo(buildMinimalEE) < 0 ? buildMinimalEE : manifestMinimalEE;
+    }
+
+    public ExecutionEnvironment getManifestMinimalEE(MavenProject project) {
+        List<ExecutionEnvironment> envs = new ArrayList<ExecutionEnvironment>(Arrays.asList(getManifest(project)
+                .getExecutionEnvironments()));
+        if (envs.isEmpty()) {
+            return null;
+        }
+        return Collections.min(envs);
     }
 
     protected ExecutionEnvironment getExecutionEnvironment(MavenProject project, String profile) {
