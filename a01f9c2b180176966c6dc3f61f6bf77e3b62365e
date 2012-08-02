@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//9Ck\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/ExecutionEnvironment.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-08-02T09:43:17Z",
+      "side": 1,
+      "message": "AFAIK starting from 1.5, aliases \"5\" and \"5.0\", \"6\", \"6.0\" etc. are also allowed as source/target levels for the compiler.\nWe need to normalize these before comparing versions.\n\nSee http://help.eclipse.org/indigo/index.jsp?topic\u003d%2Forg.eclipse.jdt.doc.user%2Ftasks%2Ftask-using_batch_compiler.htm",
+      "revId": "a01f9c2b180176966c6dc3f61f6bf77e3b62365e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
