@@ -371,7 +371,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             assertTrue(
                     "Unexpected exception message " + e.getMessage(),
                     e.getMessage().contains(
-                            "Effective compiler target 1.5 is incompatible with minimal BREE OSGi profile 'J2SE-1.2'"));
+                            "Effective compiler target 1.5 is incompatible with OSGi profile 'J2SE-1.2'"));
         }
     }
 }
