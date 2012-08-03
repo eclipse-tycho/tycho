@@ -12,7 +12,9 @@ package org.eclipse.tycho.core.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.osgi.util.ManifestElement;
@@ -28,6 +30,22 @@ import org.osgi.framework.Version;
  * 
  */
 public class ExecutionEnvironment implements Comparable<ExecutionEnvironment> {
+
+    private static final Map<String, String> TARGET_ALIASES;
+
+    static {
+        // http://help.eclipse.org/juno/topic/org.eclipse.jdt.doc.user/tasks/task-using_batch_compiler.htm
+
+        Map<String, String> targetAliases = new HashMap<String, String>();
+        targetAliases.put("jsr14", "1.4");
+        targetAliases.put("5", "1.5");
+        targetAliases.put("5.0", "1.5");
+        targetAliases.put("6", "1.6");
+        targetAliases.put("6.0", "1.6");
+        targetAliases.put("7", "1.7");
+        targetAliases.put("7.0", "1.7");
+        TARGET_ALIASES = Collections.unmodifiableMap(targetAliases);
+    }
 
     private String profileName;
     private String compilerSourceLevel;
@@ -124,18 +142,20 @@ public class ExecutionEnvironment implements Comparable<ExecutionEnvironment> {
         }
 
         try {
-            Version thisTargetVersion = Version.parseVersion(compilerTargetLevel);
-
-            if ("jsr14".equalsIgnoreCase(target)) {
-                target = "1.4";
-            }
-
-            Version targetVersion = Version.parseVersion(target);
-
+            Version thisTargetVersion = toTargetVersion(compilerTargetLevel);
+            Version targetVersion = toTargetVersion(target);
             return thisTargetVersion.compareTo(targetVersion) >= 0;
         } catch (IllegalArgumentException e) {
             // we could not parse one or both of the provided target level, assume they are incompatible 
             return false;
         }
+    }
+
+    private static Version toTargetVersion(String target) {
+        String targetAlias = TARGET_ALIASES.get(target.trim().toLowerCase());
+        if (targetAlias != null) {
+            target = targetAlias;
+        }
+        return Version.parseVersion(target);
     }
 }

@@ -127,6 +127,14 @@ public class ExecutionEnvironmentTest {
         assertTrue(j2SE14Environment.isCompatibleCompilerTargetLevel("1.1"));
         assertTrue(j2SE14Environment.isCompatibleCompilerTargetLevel("1.2"));
         assertFalse(j2SE14Environment.isCompatibleCompilerTargetLevel("1.3"));
+
+        // version aliases
+        assertTrue(j2SE5Enviroment.isCompatibleCompilerTargetLevel("5"));
+        assertTrue(j2SE5Enviroment.isCompatibleCompilerTargetLevel("5.0"));
+        assertTrue(javaSE6Enviroment.isCompatibleCompilerTargetLevel("6"));
+        assertTrue(javaSE6Enviroment.isCompatibleCompilerTargetLevel("6.0"));
+        assertTrue(javaSE7Enviroment.isCompatibleCompilerTargetLevel("7"));
+        assertTrue(javaSE7Enviroment.isCompatibleCompilerTargetLevel("7.0"));
     }
 
     @Test
