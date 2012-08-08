@@ -11,8 +11,14 @@
 package org.eclipse.tycho.core.maven;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
@@ -21,12 +27,14 @@ import org.apache.maven.execution.AbstractExecutionListener;
 import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLifecycleException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -36,6 +44,13 @@ import org.eclipse.tycho.resolver.TychoDependencyResolver;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
+
+    private static final String TYCHO_GROUPID = "org.eclipse.tycho";
+    private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<String>(Arrays.asList("tycho-maven-plugin",
+            "tycho-p2-director-plugin", "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin",
+            "tycho-packaging-plugin", "tycho-pomgenerator-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
+            "tycho-versions-plugin"));
+
     @Requirement
     private BundleReader bundleReader;
 
@@ -45,13 +60,16 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     private PlexusContainer plexus;
 
+    @Requirement
+    private Logger log;
+
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
         if (disableLifecycleParticipation(session)) {
             return;
         }
         List<MavenProject> projects = session.getProjects();
-        validateUniqueBaseDirs(projects);
+        validate(projects);
         registerExecutionListener(session);
         configureComponents(session);
 
@@ -62,6 +80,43 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
         for (MavenProject project : projects) {
             resolver.resolveProject(session, project, reactorProjects);
+        }
+    }
+
+    private void validate(List<MavenProject> projects) throws MavenExecutionException {
+        validateConsistentTychoVersion(projects);
+        validateUniqueBaseDirs(projects);
+    }
+
+    private void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
+        Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<String, Set<MavenProject>>();
+        for (MavenProject project : projects) {
+            for (Plugin plugin : project.getBuild().getPlugins()) {
+                if (TYCHO_GROUPID.equals(plugin.getGroupId()) && TYCHO_PLUGIN_IDS.contains(plugin.getArtifactId())) {
+                    String version = plugin.getVersion();
+                    log.debug(TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in "
+                            + project);
+                    Set<MavenProject> projectSet = versionToProjectsMap.get(version);
+                    if (projectSet == null) {
+                        projectSet = new LinkedHashSet<MavenProject>();
+                        versionToProjectsMap.put(version, projectSet);
+                    }
+                    projectSet.add(project);
+                }
+            }
+        }
+        if (versionToProjectsMap.size() > 1) {
+            List<String> versions = new ArrayList<String>(versionToProjectsMap.keySet());
+            Collections.sort(versions);
+            log.error("Several versions of tycho plugins are configured " + versions + ":");
+            for (String version : versions) {
+                log.error(version + ":");
+                for (MavenProject project : versionToProjectsMap.get(version)) {
+                    log.error("\t" + project.toString());
+                }
+            }
+            throw new MavenExecutionException("All tycho plugins configured in one reactor must use the same version",
+                    projects.get(0).getFile());
         }
     }
 
