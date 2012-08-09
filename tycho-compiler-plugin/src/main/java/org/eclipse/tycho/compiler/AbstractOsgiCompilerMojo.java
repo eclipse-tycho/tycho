@@ -196,9 +196,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     public void execute() throws MojoExecutionException, CompilationFailureException {
         ExecutionEnvironment minimalBREE = getBundleProject().getManifestMinimalEE(project);
-        String bree = getExecutionEnvironment();
-        getLog().debug("Manifest minimal BREE: " + (minimalBREE != null ? minimalBREE.getProfileName() : "<null>"));
-        getLog().debug("Effective BREE: " + (bree != null ? bree : "<null>"));
+        ExecutionEnvironment bree = getTargetExecutionEnvironment();
+        getLog().debug("Manifest minimal BREE: " + (minimalBREE != null ? minimalBREE.toString() : "<null>"));
+        getLog().debug("Effective BREE: " + (bree != null ? bree.toString() : "<null>"));
         String effectiveTargetLevel = getTargetLevel();
         getLog().debug("Effective source/target: " + getSourceLevel() + "/" + effectiveTargetLevel);
 
