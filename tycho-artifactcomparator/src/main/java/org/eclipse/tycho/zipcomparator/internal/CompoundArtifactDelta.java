@@ -62,8 +62,11 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
 
     public void writeDetails(File basedir) throws IOException {
         for (Map.Entry<String, ArtifactDelta> member : members.entrySet()) {
-            if (member.getValue() instanceof SimpleArtifactDelta) {
-                SimpleArtifactDelta delta = (SimpleArtifactDelta) member.getValue();
+            ArtifactDelta memberDelta = member.getValue();
+            if (memberDelta instanceof CompoundArtifactDelta) {
+                ((CompoundArtifactDelta) memberDelta).writeDetails(new File(basedir, member.getKey()));
+            } else if (memberDelta instanceof SimpleArtifactDelta) {
+                SimpleArtifactDelta delta = (SimpleArtifactDelta) memberDelta;
                 if (delta.getBaseline() != null) {
                     writeFile(basedir, member.getKey() + "-baseline", delta.getBaseline());
                 }
