@@ -14,10 +14,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.CollectionResult;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -27,6 +32,7 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
 
     private Set<GAV> changedGAVs = new LinkedHashSet<GAV>();
+    private Boolean consider = null;
 
     /**
      * Create new repository
@@ -46,6 +52,15 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
      */
     public LocalMetadataRepository(URI location, TychoRepositoryIndex projectIndex, RepositoryReader contentLocator) {
         super(location, projectIndex, contentLocator);
+    }
+
+    @Override
+    public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+        if (Boolean.FALSE == consider) {
+            return new CollectionResult<IInstallableUnit>(Collections.<IInstallableUnit> emptyList());
+        } else {
+            return super.query(query, monitor);
+        }
     }
 
     @Override
@@ -109,6 +124,17 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
     @Override
     public boolean isModifiable() {
         return true;
+    }
+
+    public void setConsider(Boolean consider) {
+        this.consider = consider;
+    }
+
+    /**
+     * may be <code>null</code> to indicate the default value
+     */
+    public Boolean getConsider() {
+        return consider;
     }
 
 }
