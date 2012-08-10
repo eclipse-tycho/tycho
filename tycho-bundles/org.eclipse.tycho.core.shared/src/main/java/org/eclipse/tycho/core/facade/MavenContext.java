@@ -29,13 +29,13 @@ public interface MavenContext {
     public boolean isOffline();
 
     /**
-     * Global properties merged from (in order of precedence)
+     * Session-global properties merged from (in order of precedence)
      * <ol>
      * <li>user properties ("-Dkey=value" via CLI)</li>
      * <li>properties in active profiles of settings.xml</li>
      * <li>system properties</li>
      * </ol>
      */
-    public Properties getMergedProperties();
+    public Properties getSessionProperties();
 
 }

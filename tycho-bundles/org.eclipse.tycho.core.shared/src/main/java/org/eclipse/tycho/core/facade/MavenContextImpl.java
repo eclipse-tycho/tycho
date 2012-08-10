@@ -40,7 +40,7 @@ public class MavenContextImpl implements MavenContext {
         return offline;
     }
 
-    public Properties getMergedProperties() {
+    public Properties getSessionProperties() {
         return mergedProperties;
     }
 

@@ -171,18 +171,21 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     }
 
     public void reportUsedIUs(Collection<IInstallableUnit> usedUnits) {
-        warnAboutLocalIus(usedUnits);
+        final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
+        localIUs.retainAll(usedUnits);
+        if (!localIUs.isEmpty()) {
+            logLocalIUMessage("The following locally built units have been used to resolve project dependencies:");
+            for (IInstallableUnit localIu : localIUs) {
+                logLocalIUMessage("  " + localIu.getId() + "/" + localIu.getVersion());
+            }
+        }
     }
 
-    // FIXME this logic does not belong here
-    public void warnAboutLocalIus(Collection<IInstallableUnit> units) {
-        final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
-        localIUs.retainAll(units);
-        if (!localIUs.isEmpty()) {
-            logger.warn("The following locally built units have been used to resolve project dependencies:");
-            for (IInstallableUnit localIu : localIUs) {
-                logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
-            }
+    private void logLocalIUMessage(String message) {
+        if (localMetadataRepository.getConsider() == null) {
+            logger.warn(message);
+        } else {
+            logger.debug(message);
         }
     }
 
