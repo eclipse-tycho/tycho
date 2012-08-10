@@ -30,6 +30,7 @@ import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
+import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository.Consider;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
@@ -168,7 +169,9 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     }
 
     public void reportUsedIUs(Collection<IInstallableUnit> usedUnits) {
-        warnAboutLocalIus(usedUnits);
+        if (localMetadataRepository.getConsider() == Consider.DEFAULT) {
+            warnAboutLocalIus(usedUnits);
+        }
     }
 
     // FIXME this logic does not belong here

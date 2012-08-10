@@ -18,6 +18,7 @@ import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
+import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository.Consider;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
@@ -41,10 +42,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         IProvisioningAgent remoteAgent;
         try {
             remoteAgent = remoteAgentManager.getProvisioningAgent(disableP2Mirrors);
-            LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(
-                    mavenContext.getLocalRepositoryRoot(), localRepoIndices);
-            LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(
-                    mavenContext.getLocalRepositoryRoot(), localRepoIndices);
+            LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
+            LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
             return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, targetDefinitionResolverService, bree,
                     localArtifactRepo, localMetadataRepo);
         } catch (ProvisionException e) {
@@ -52,20 +51,22 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         }
     }
 
-    private static synchronized LocalMetadataRepository getLocalMetadataRepository(File localMavenRepoRoot,
+    private static synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
             LocalRepositoryP2Indices localRepoIndices) {
         if (localMetadataRepository == null) {
+            File localMavenRepoRoot = context.getLocalRepositoryRoot();
             RepositoryReader contentLocator = new LocalRepositoryReader(localMavenRepoRoot);
             localMetadataRepository = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
                     localRepoIndices.getMetadataIndex(), contentLocator);
+            localMetadataRepository.setConsider(Consider.getConsider(context.getUserProperties()));
         }
         return localMetadataRepository;
     }
 
-    private static synchronized LocalArtifactRepository getLocalArtifactRepository(File localMavenRepoRoot,
+    private static synchronized LocalArtifactRepository getLocalArtifactRepository(MavenContext mavenContext,
             LocalRepositoryP2Indices localRepoIndices) {
         if (localArtifactRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(localMavenRepoRoot);
+            RepositoryReader contentLocator = new LocalRepositoryReader(mavenContext.getLocalRepositoryRoot());
             localArtifactRepository = new LocalArtifactRepository(localRepoIndices, contentLocator);
         }
         return localArtifactRepository;
