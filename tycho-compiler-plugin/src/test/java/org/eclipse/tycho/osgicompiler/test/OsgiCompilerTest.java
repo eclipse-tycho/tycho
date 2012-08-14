@@ -374,4 +374,12 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
                             "Effective compiler target 1.5 is incompatible with OSGi profile 'J2SE-1.2'"));
         }
     }
+
+    public void test386210_compilerConfigurationCrosstalk() throws Exception {
+        File basedir = getBasedir("projects/crosstalk");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+
+        getMojo(projects, projects.get(1)).execute();
+        getMojo(projects, projects.get(2)).execute();
+    }
 }
