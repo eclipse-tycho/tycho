@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
+import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -41,7 +42,7 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
     @Test
     public void emptyRepository() throws CoreException {
         File location = new File("target/empty");
-        createRepository(location, "group", "artifact", "version");
+        createRepository(location);
 
         IMetadataRepository repository = loadRepository(location);
         Assert.assertNotNull(repository);
@@ -52,8 +53,7 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
                 location));
     }
 
-    protected LocalMetadataRepository createRepository(File location, String groupId, String artifactId, String version)
-            throws ProvisionException {
+    private LocalMetadataRepository createRepository(File location) throws ProvisionException {
         location.mkdirs();
         File metadataFile = new File(location, FileBasedTychoRepositoryIndex.METADATA_INDEX_RELPATH);
         metadataFile.delete();
@@ -63,9 +63,24 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
     }
 
     @Test
+    public void testConsiderFalse() throws Exception {
+        LocalMetadataRepository repository = createRepository(tempFolder.newFolder());
+        repository.setConsider(false);
+        InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+        iud.setId("test");
+        iud.setVersion(Version.parseVersion("1.0.0"));
+        IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
+        repository.addInstallableUnit(iu, new GAV("groupId", "artifactId", "version"));
+
+        IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.ALL_UNITS, monitor);
+        ArrayList<IInstallableUnit> allius = new ArrayList<IInstallableUnit>(result.toSet());
+        Assert.assertEquals(0, allius.size());
+    }
+
+    @Test
     public void addInstallableUnit() throws CoreException {
         File location = new File("target/metadataRepo");
-        LocalMetadataRepository repository = createRepository(location, "group", "artifact", "version");
+        LocalMetadataRepository repository = createRepository(location);
 
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         iud.setId("test");
@@ -105,7 +120,7 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
     public void testOutdatedIndex() throws CoreException {
         // create and fill repo
         File location = new File("target/indexmetadataRepo");
-        LocalMetadataRepository repository = createRepository(location, "group", "artifact", "version");
+        LocalMetadataRepository repository = createRepository(location);
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         iud.setId("test");
         iud.setVersion(Version.parseVersion("1.0.0"));

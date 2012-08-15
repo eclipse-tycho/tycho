@@ -48,6 +48,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private boolean includePackedArtifacts;
 
+    private Boolean considerLocalMetadata = null;
+
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -155,5 +157,16 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public boolean isIncludePackedArtifacts() {
         return includePackedArtifacts;
+    }
+
+    public void setConsiderLocalMetadata(Boolean consider) {
+        considerLocalMetadata = consider;
+    }
+
+    /**
+     * may be <code>null</code>
+     */
+    public Boolean getConsiderLocalMetadata() {
+        return considerLocalMetadata;
     }
 }

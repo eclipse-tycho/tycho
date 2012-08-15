@@ -188,8 +188,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         ExecutionEnvironment ee = projectTypes.get(project.getPackaging()).getExecutionEnvironment(project);
 
-        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(//
-                ee != null ? ee.getProfileName() : null, configuration.isDisableP2Mirrors());
+        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(
+                //
+                ee != null ? ee.getProfileName() : null, configuration.isDisableP2Mirrors(),
+                configuration.getConsiderLocalMetadata());
         tpBuilder.setProjectLocation(project.getBasedir());
         tpBuilder.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
 
@@ -315,8 +317,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 URI url = new URL(repository.getUrl()).toURI();
                 resolutionContext.addP2Repository(new MavenRepositoryLocation(repository.getId(), url));
 
-                    getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
-                }
+                getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
+            }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
         } catch (URISyntaxException e) {

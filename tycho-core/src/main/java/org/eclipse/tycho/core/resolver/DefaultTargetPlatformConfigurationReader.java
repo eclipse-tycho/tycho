@@ -54,10 +54,10 @@ public class DefaultTargetPlatformConfigurationReader {
 
     public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project) {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
+        setConsiderLocal(result, project);
 
         // Use org.eclipse.tycho:target-platform-configuration/configuration/environment, if provided
         Plugin plugin = project.getPlugin("org.eclipse.tycho:target-platform-configuration");
-
         if (plugin != null) {
             Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
             if (configuration != null) {
@@ -87,6 +87,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 setOptionalDependencies(result, configuration);
 
                 setIncludePackedArtifacts(result, configuration);
+
             }
         }
 
@@ -124,6 +125,14 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return result;
+    }
+
+    private void setConsiderLocal(TargetPlatformConfiguration result, MavenProject project) {
+        Properties props = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        String considerLocal = props.getProperty("tycho.considerLocal");
+        if (considerLocal != null) {
+            result.setConsiderLocalMetadata(Boolean.valueOf(considerLocal));
+        }
     }
 
     private void setIncludePackedArtifacts(TargetPlatformConfiguration result, Xpp3Dom configuration) {

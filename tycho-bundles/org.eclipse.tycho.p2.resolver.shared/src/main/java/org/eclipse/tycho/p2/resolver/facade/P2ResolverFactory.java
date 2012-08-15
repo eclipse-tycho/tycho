@@ -15,7 +15,8 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 public interface P2ResolverFactory {
 
-    public TargetPlatformBuilder createTargetPlatformBuilder(String bree, boolean disableP2Mirrors);
+    public TargetPlatformBuilder createTargetPlatformBuilder(String bree, boolean disableP2Mirrors,
+            Boolean considerLocalMetadata);
 
     public P2Resolver createResolver(MavenLogger logger);
 }

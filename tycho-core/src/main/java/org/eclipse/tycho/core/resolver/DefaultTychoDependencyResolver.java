@@ -95,6 +95,9 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
         DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
         logger.info("Resolving dependencies of " + project);
+        if (Boolean.FALSE == configuration.getConsiderLocalMetadata()) {
+            logger.debug("tycho.considerLocal=false");
+        }
         DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
                 reactorProjects, resolverConfiguration);
 
