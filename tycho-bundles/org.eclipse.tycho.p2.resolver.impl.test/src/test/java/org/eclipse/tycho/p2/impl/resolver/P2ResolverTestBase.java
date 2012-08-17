@@ -34,7 +34,9 @@ import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
+import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.target.NoopEEResolverHints;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
@@ -104,7 +106,14 @@ public class P2ResolverTestBase {
         return new File("target/localrepo").getCanonicalFile();
     }
 
-    protected final TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree) throws Exception {
+    /**
+     * Creates a target platform builder without any special handling for execution environments.
+     */
+    protected final TargetPlatformBuilderImpl createTargetPlatformBuilder() throws Exception {
+        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new NoopEEResolverHints());
+    }
+
+    protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithEE(String bree) throws Exception {
         return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(bree);
     }
 
@@ -127,6 +136,12 @@ public class P2ResolverTestBase {
             localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
                     localRepoIndices.getMetadataIndex(), localRepositoryReader);
             localArtifactRepo = new LocalArtifactRepository(localRepoIndices, localRepositoryReader);
+        }
+
+        public TargetPlatformBuilderImpl createTargetPlatformBuilder(
+                ExecutionEnvironmentResolutionHints executionEnvironment) throws Exception {
+            return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
+                    targetDefinitionResolverService, executionEnvironment, localArtifactRepo, localMetadataRepo);
         }
 
         TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree) throws Exception {

@@ -52,37 +52,28 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         Collection<IInstallableUnit> units;
 
         // classifier does not match available metadata
-        context = createTargetPlatformBuilder(null);
+        context = createTargetPlatformBuilder();
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(3, units.size());
-        assertContainsIU(units, "a.jre");
-        assertContainsIU(units, "a.jre.javase");
-        assertContainsIU(units, "config.a.jre.javase");
+        Assert.assertEquals(0, units.size());
 
         // classifier matches one of the two IUs
         artifact.setClassifier("sources");
-        context = createTargetPlatformBuilder(null);
+        context = createTargetPlatformBuilder();
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(4, units.size());
-        assertContainsIU(units, "a.jre");
-        assertContainsIU(units, "a.jre.javase");
-        assertContainsIU(units, "config.a.jre.javase");
+        Assert.assertEquals(1, units.size());
         assertContainsIU(units, "test.ui.source");
 
         // main (i.e. null) classifier matches one of the two IUs
         artifact.setClassifier(null);
-        context = createTargetPlatformBuilder(null);
+        context = createTargetPlatformBuilder();
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(4, units.size());
-        assertContainsIU(units, "a.jre");
-        assertContainsIU(units, "a.jre.javase");
-        assertContainsIU(units, "config.a.jre.javase");
+        Assert.assertEquals(1, units.size());
         assertContainsIU(units, "test.ui");
     }
 
@@ -103,18 +94,15 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
         artifact.setDependencyMetadata(metadata);
 
-        context = createTargetPlatformBuilder(null);
+        context = createTargetPlatformBuilder();
         context.addReactorArtifact(artifact);
 
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(4, units.size());
+        Assert.assertEquals(1, units.size());
         Assert.assertEquals("1.0.0.qualifier", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion()
                 .toString());
-        assertContainsIU(units, "a.jre");
-        assertContainsIU(units, "a.jre.javase");
-        assertContainsIU(units, "config.a.jre.javase");
 
         // publish "complete" metedata 
         metadata = impl.generateMetadata(new ArtifactMock(new File(
@@ -123,12 +111,9 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         artifact.setDependencyMetadata(metadata);
 
         units = platform.getInstallableUnits();
-        Assert.assertEquals(4, units.size());
+        Assert.assertEquals(1, units.size());
         Assert.assertEquals("1.0.0.123abc", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion()
                 .toString());
-        assertContainsIU(units, "a.jre");
-        assertContainsIU(units, "a.jre.javase");
-        assertContainsIU(units, "config.a.jre.javase");
 
     }
 
@@ -161,7 +146,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         IDependencyMetadata sourcesMetadata = sourcesGeneratorImpl.generateMetadata(sourceArtifact, environments, null);
         sourceArtifact.setDependencyMetadata(sourcesMetadata);
 
-        context = createTargetPlatformBuilder(null);
+        context = createTargetPlatformBuilder();
         context.addReactorArtifact(artifact);
         context.addReactorArtifact(secondaryArtifact);
         context.addReactorArtifact(sourceArtifact);
@@ -169,13 +154,10 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(6, units.size());
+        Assert.assertEquals(3, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle");
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.source");
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.secondary");
-        assertContainsIU(units, "a.jre");
-        assertContainsIU(units, "a.jre.javase");
-        assertContainsIU(units, "config.a.jre.javase");
 
         Collection<IInstallableUnit> projectPrimaryIUs = platform.getReactorProjectIUs(artifact.getLocation(), true);
 
@@ -190,7 +172,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
     @Test
     public void testReactorProjectFiltering() throws Exception {
-        context = createTargetPlatformBuilder(null);
+        context = createTargetPlatformBuilder();
 
         TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
                 CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
@@ -202,12 +184,9 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(units.toString(), 4, units.size());
+        Assert.assertEquals(units.toString(), 1, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group");
         // assertContainsIU(units, "iu.p2.inf"); removed by the filter
-        assertContainsIU(units, "a.jre");
-        assertContainsIU(units, "a.jre.javase");
-        assertContainsIU(units, "config.a.jre.javase");
 
         units = platform.getReactorProjectIUs(projectRoot, true);
         Assert.assertEquals(units.toString(), 1, units.size());
