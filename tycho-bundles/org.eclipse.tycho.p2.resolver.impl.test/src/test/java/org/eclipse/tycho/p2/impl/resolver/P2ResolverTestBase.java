@@ -28,9 +28,12 @@ import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
+import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.LocalMetadataRepository;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
-import org.eclipse.tycho.p2.remote.RemoteAgentManager;
+import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
+import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
@@ -51,7 +54,7 @@ public class P2ResolverTestBase {
     TargetPlatformBuilderImpl context;
 
     @Before
-    public void prepare() {
+    final public void prepare() {
         fullGenerator = new P2GeneratorImpl(true);
         BuildPropertiesParserForTesting buildPropertiesReader = new BuildPropertiesParserForTesting();
         fullGenerator.setBuildPropertiesParser(buildPropertiesReader);
@@ -79,7 +82,7 @@ public class P2ResolverTestBase {
         return properties;
     }
 
-    void addContextProject(File projectRoot, String packaging) throws IOException {
+    final void addContextProject(File projectRoot, String packaging) throws IOException {
         ArtifactMock artifact = new ArtifactMock(projectRoot.getCanonicalFile(), DEFAULT_GROUP_ID,
                 projectRoot.getName(), DEFAULT_VERSION, packaging);
 
@@ -88,7 +91,7 @@ public class P2ResolverTestBase {
         context.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
     }
 
-    void addReactorProject(File projectRoot, String packagingType, String artifactId) {
+    final void addReactorProject(File projectRoot, String packagingType, String artifactId) {
         ArtifactMock artifact = new ArtifactMock(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
                 packagingType);
         IDependencyMetadata metadata = dependencyGenerator.generateMetadata(artifact, getEnvironments(),
@@ -101,34 +104,49 @@ public class P2ResolverTestBase {
         return new File("target/localrepo").getCanonicalFile();
     }
 
-    protected MavenContext createMavenContext(boolean offline, MavenLogger logger) throws IOException {
-        MavenContextImpl mavenContext = new MavenContextImpl();
-        mavenContext.setOffline(offline);
-        mavenContext.setLocalRepositoryRoot(getLocalRepositoryLocation());
-        mavenContext.setLogger(logger);
-        return mavenContext;
+    protected final TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree) throws Exception {
+        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(bree);
     }
 
-    protected P2ResolverFactoryImpl createP2ResolverFactory(boolean offline) throws IOException {
-        P2ResolverFactoryImpl p2ResolverFactory = new P2ResolverFactoryImpl();
-        MavenContext mavenContext = createMavenContext(offline, new MavenLoggerStub());
-        p2ResolverFactory.setMavenContext(mavenContext);
-        p2ResolverFactory.setLocalRepositoryIndices(createLocalRepoIndices(mavenContext));
-        p2ResolverFactory.setRemoteAgentManager(createRemoteAgentManager(mavenContext));
-        p2ResolverFactory.setTargetDefinitionResolverService(new TargetDefinitionResolverService(mavenContext));
-        return p2ResolverFactory;
-    }
+    private static class TestTargetPlatformBuilderFactory {
 
-    protected LocalRepositoryP2Indices createLocalRepoIndices(MavenContext mavenContext) {
-        LocalRepositoryP2IndicesImpl localRepoIndices = new LocalRepositoryP2IndicesImpl();
-        localRepoIndices.setMavenContext(mavenContext);
-        localRepoIndices.setFileLockService(new NoopFileLockService());
-        return localRepoIndices;
-    }
+        private MavenContext mavenContext;
+        private TargetDefinitionResolverService targetDefinitionResolverService;
+        private LocalMetadataRepository localMetadataRepo;
+        private LocalArtifactRepository localArtifactRepo;
 
-    protected RemoteAgentManager createRemoteAgentManager(MavenContext mavenContext) {
-        RemoteAgentManager manager = new RemoteAgentManager();
-        manager.setMavenContext(mavenContext);
-        return manager;
+        TestTargetPlatformBuilderFactory() throws Exception {
+            boolean offline = false;
+            mavenContext = createMavenContext(offline, new MavenLoggerStub());
+
+            targetDefinitionResolverService = new TargetDefinitionResolverService(mavenContext);
+
+            File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
+            LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
+            LocalRepositoryReader localRepositoryReader = new LocalRepositoryReader(localMavenRepoRoot);
+            localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
+                    localRepoIndices.getMetadataIndex(), localRepositoryReader);
+            localArtifactRepo = new LocalArtifactRepository(localRepoIndices, localRepositoryReader);
+        }
+
+        TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree) throws Exception {
+            return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
+                    targetDefinitionResolverService, bree, localArtifactRepo, localMetadataRepo);
+        }
+
+        private MavenContext createMavenContext(boolean offline, MavenLogger logger) throws IOException {
+            MavenContextImpl mavenContext = new MavenContextImpl();
+            mavenContext.setOffline(offline);
+            mavenContext.setLocalRepositoryRoot(getLocalRepositoryLocation());
+            mavenContext.setLogger(logger);
+            return mavenContext;
+        }
+
+        private LocalRepositoryP2Indices createLocalRepoIndices(MavenContext mavenContext) {
+            LocalRepositoryP2IndicesImpl localRepoIndices = new LocalRepositoryP2IndicesImpl();
+            localRepoIndices.setMavenContext(mavenContext);
+            localRepoIndices.setFileLockService(new NoopFileLockService());
+            return localRepoIndices;
+        }
     }
 }

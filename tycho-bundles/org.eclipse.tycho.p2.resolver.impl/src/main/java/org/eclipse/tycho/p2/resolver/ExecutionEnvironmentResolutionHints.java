@@ -17,6 +17,9 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 /**
  * Settings for supporting resolution for a dedicated execution environment. Handles p2's "a.jre"
  * installable units representing the capabilities of the JRE or custom profiles.
+ * 
+ * Types implementing this interface shall be immutable and provide reasonable implementations for
+ * {@link #equals(Object)} and {@link #hashCode()}.
  */
 public interface ExecutionEnvironmentResolutionHints {
 
@@ -46,4 +49,9 @@ public interface ExecutionEnvironmentResolutionHints {
     // TODO for custom profiles, these need to be requirements, not units
     Collection<IInstallableUnit> getAdditionalRequires();
 
+    @Override
+    public boolean equals(Object obj);
+
+    @Override
+    public int hashCode();
 }

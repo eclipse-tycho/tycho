@@ -45,8 +45,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     public void initDefaultResolver() throws Exception {
         org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
         MavenLogger logger = new MavenLoggerStub();
-        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        context = p2ResolverFactory.createTargetPlatformBuilder(null, false);
+        context = createTargetPlatformBuilder(null);
         impl = new P2ResolverImpl(logger);
         impl.setEnvironments(getEnvironments());
     }
@@ -316,8 +315,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void resolutionRestrictedEE() throws Exception {
-        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        context = p2ResolverFactory.createTargetPlatformBuilder("CDC-1.0/Foundation-1.0", false);
+        context = createTargetPlatformBuilder("CDC-1.0/Foundation-1.0");
 
         context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 
@@ -338,8 +336,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void resolutionEE() throws Exception {
-        P2ResolverFactoryImpl p2ResolverFactory = createP2ResolverFactory(false);
-        context = p2ResolverFactory.createTargetPlatformBuilder("J2SE-1.5", false);
+        context = createTargetPlatformBuilder("J2SE-1.5");
 
         context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 

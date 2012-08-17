@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         Collection<IInstallableUnit> units;
 
         // classifier does not match available metadata
-        context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
+        context = createTargetPlatformBuilder(null);
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
@@ -63,7 +63,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
         // classifier matches one of the two IUs
         artifact.setClassifier("sources");
-        context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
+        context = createTargetPlatformBuilder(null);
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
@@ -75,7 +75,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
         // main (i.e. null) classifier matches one of the two IUs
         artifact.setClassifier(null);
-        context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
+        context = createTargetPlatformBuilder(null);
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
@@ -103,7 +103,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
         artifact.setDependencyMetadata(metadata);
 
-        context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
+        context = createTargetPlatformBuilder(null);
         context.addReactorArtifact(artifact);
 
         P2TargetPlatform platform = context.buildTargetPlatform();
@@ -161,7 +161,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         IDependencyMetadata sourcesMetadata = sourcesGeneratorImpl.generateMetadata(sourceArtifact, environments, null);
         sourceArtifact.setDependencyMetadata(sourcesMetadata);
 
-        context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
+        context = createTargetPlatformBuilder(null);
         context.addReactorArtifact(artifact);
         context.addReactorArtifact(secondaryArtifact);
         context.addReactorArtifact(sourceArtifact);
@@ -190,7 +190,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
     @Test
     public void testReactorProjectFiltering() throws Exception {
-        context = createP2ResolverFactory(false).createTargetPlatformBuilder(null, false);
+        context = createTargetPlatformBuilder(null);
 
         TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
                 CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));

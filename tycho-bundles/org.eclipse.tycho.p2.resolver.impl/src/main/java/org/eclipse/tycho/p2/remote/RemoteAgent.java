@@ -31,12 +31,13 @@ public class RemoteAgent implements IProvisioningAgent {
         this.delegate = createConfiguredProvisioningAgent(mavenContext, disableMirrors, mavenRepositorySettings);
     }
 
-    // test constructors
+    // constructor for tests
     RemoteAgent(MavenContext mavenContext, boolean disableP2Mirrors) throws ProvisionException {
         this(mavenContext, null, disableP2Mirrors);
     }
 
-    RemoteAgent(MavenContext mavenContext) throws ProvisionException {
+    // constructor for tests
+    public RemoteAgent(MavenContext mavenContext) throws ProvisionException {
         this(mavenContext, null, false);
     }
 

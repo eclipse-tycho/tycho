@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 
 public class TargetDefinitionResolverService {
@@ -39,7 +40,7 @@ public class TargetDefinitionResolverService {
     }
 
     public TargetPlatformContent getTargetDefinitionContent(TargetDefinition definition,
-            List<Map<String, String>> environments, JREInstallableUnits jreIUs, IProvisioningAgent agent) {
+            List<Map<String, String>> environments, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
 
         TargetPlatformContent resolution = resolutionCache.get(arguments);
@@ -95,11 +96,11 @@ public class TargetDefinitionResolverService {
 
         final TargetDefinition definition;
         final List<Map<String, String>> environments;
-        final JREInstallableUnits jreIUs;
+        final ExecutionEnvironmentResolutionHints jreIUs;
         final IProvisioningAgent agent;
 
         public ResolutionArguments(TargetDefinition definition, List<Map<String, String>> environments,
-                JREInstallableUnits jreIUs, IProvisioningAgent agent) {
+                ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
             this.definition = definition;
             this.environments = environments;
             this.jreIUs = jreIUs;

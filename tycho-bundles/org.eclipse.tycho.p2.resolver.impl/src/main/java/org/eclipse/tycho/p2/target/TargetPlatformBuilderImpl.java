@@ -61,6 +61,7 @@ import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
@@ -89,9 +90,9 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private boolean includePackedArtifacts;
 
     /**
-     * Target execution environment profile name or null to use system default profile name.
+     * Representation of the target execution environment profile
      */
-    private final JREInstallableUnits jreIUs;
+    private final ExecutionEnvironmentResolutionHints jreIUs;
 
     /** maven local repository as P2 IArtifactRepository */
     private final LocalArtifactRepository localArtifactRepository;
@@ -100,9 +101,17 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private final LocalMetadataRepository localMetadataRepository;
 
     public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
-            TargetDefinitionResolverService targetDefinitionResolverService, String executionEnvironment,
+            TargetDefinitionResolverService targetDefinitionResolverService, String bree,
             LocalArtifactRepository localArtifactRepo, LocalMetadataRepository localMetadataRepo)
             throws ProvisionException {
+        this(remoteAgent, mavenContext, targetDefinitionResolverService, new JREInstallableUnits(bree),
+                localArtifactRepo, localMetadataRepo);
+    }
+
+    public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
+            TargetDefinitionResolverService targetDefinitionResolverService,
+            ExecutionEnvironmentResolutionHints executionEnvironment, LocalArtifactRepository localArtifactRepo,
+            LocalMetadataRepository localMetadataRepo) throws ProvisionException {
         this.remoteAgent = remoteAgent;
         this.targetDefinitionResolverService = targetDefinitionResolverService;
         this.logger = mavenContext.getLogger();
@@ -125,7 +134,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
         this.offline = mavenContext.isOffline();
 
-        this.jreIUs = new JREInstallableUnits(executionEnvironment);
+        this.jreIUs = executionEnvironment;
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
         this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, logger);

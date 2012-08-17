@@ -39,6 +39,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.resolver.AbstractResolutionStrategy;
+import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.resolver.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.resolver.SlicerResolutionStrategy;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -60,14 +61,14 @@ public class TargetDefinitionResolver {
 
     private final List<Map<String, String>> environments;
 
-    private final JREInstallableUnits jreIUs;
+    private final ExecutionEnvironmentResolutionHints executionEnvironment;
 
     private final IProgressMonitor monitor = new NullProgressMonitor();
 
-    public TargetDefinitionResolver(List<Map<String, String>> environments, JREInstallableUnits jreIUs,
-            IProvisioningAgent agent, MavenLogger logger) {
+    public TargetDefinitionResolver(List<Map<String, String>> environments,
+            ExecutionEnvironmentResolutionHints executionEnvironment, IProvisioningAgent agent, MavenLogger logger) {
         this.environments = environments;
-        this.jreIUs = jreIUs;
+        this.executionEnvironment = executionEnvironment;
         this.logger = logger;
         this.metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
         this.repositoryIdManager = (IRepositoryIdManager) agent.getService(IRepositoryIdManager.SERVICE_NAME);
@@ -118,7 +119,7 @@ public class TargetDefinitionResolver {
                 Iterator<IInstallableUnit> iterator = locationUnits.query(QueryUtil.ALL_UNITS, monitor).iterator();
                 while (iterator.hasNext()) {
                     IInstallableUnit unit = iterator.next();
-                    if (!jreIUs.isNonApplicableEEUnit(unit)) {
+                    if (!executionEnvironment.isNonApplicableEEUnit(unit)) {
                         availableUnits.add(unit);
                     }
                 }
@@ -134,7 +135,7 @@ public class TargetDefinitionResolver {
 
             strategy.setRootInstallableUnits(rootIUs);
             strategy.setAvailableInstallableUnits(availableUnits);
-            strategy.setEEResolutionHints(jreIUs);
+            strategy.setEEResolutionHints(executionEnvironment);
             units = strategy.multiPlatformResolve(environments, monitor);
         } else {
             units = Collections.emptySet();
