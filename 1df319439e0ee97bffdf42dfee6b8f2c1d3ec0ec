@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//7cI\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/LocalMetadataRepository.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-17T15:10:34Z",
+      "side": 1,
+      "message": "I am wondering if this check shouldn\u0027t be on the caller side of this method.",
+      "revId": "1df319439e0ee97bffdf42dfee6b8f2c1d3ec0ec",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//7cE\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-17T15:10:34Z",
+      "side": 1,
+      "message": "In the else case, there should be debug output instead.",
+      "revId": "1df319439e0ee97bffdf42dfee6b8f2c1d3ec0ec",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
