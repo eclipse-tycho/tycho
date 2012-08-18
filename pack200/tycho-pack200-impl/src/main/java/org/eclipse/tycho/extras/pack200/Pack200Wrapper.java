@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.jar.JarInputStream;
+import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 import java.util.jar.Pack200.Packer;
@@ -42,7 +42,8 @@ public class Pack200Wrapper {
     }
 
     private void pack(File jar, File pack) throws IOException, FileNotFoundException {
-        JarInputStream is = new JarInputStream(new BufferedInputStream(new FileInputStream(jar)));
+        // 387541 apparently JarFile is required to preserve jar file signatures 
+        JarFile is = new JarFile(jar);
         try {
             OutputStream os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(pack)));
             try {
@@ -52,7 +53,11 @@ public class Pack200Wrapper {
                 close(os);
             }
         } finally {
-            close(is);
+            try {
+                is.close();
+            } catch (IOException e) {
+                // ignored
+            }
         }
     }
 
@@ -94,8 +99,7 @@ public class Pack200Wrapper {
 
     public static void main(String[] args) throws IOException {
         if (args.length != 3) {
-            System.err.println("Syntax: " + Pack200Wrapper.class.getSimpleName()
-                    + " pack|unpack fileFrom fileTo");
+            System.err.println("Syntax: " + Pack200Wrapper.class.getSimpleName() + " pack|unpack fileFrom fileTo");
             System.exit(-1);
         }
 
