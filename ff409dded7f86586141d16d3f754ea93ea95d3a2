@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//7Uk\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/JREInstallableUnits.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-08-18T15:37:35Z",
+      "side": 1,
+      "message": "This is a workaround for a bug elsewhere. Although I appreciate the need, I believe it should be an optional behaviour the user has to explicitly enable in target platform configuration or via -Dspecial-property.",
+      "revId": "ff409dded7f86586141d16d3f754ea93ea95d3a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
