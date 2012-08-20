@@ -16,6 +16,24 @@
       "revId": "ff409dded7f86586141d16d3f754ea93ea95d3a2",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//7RU\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/JREInstallableUnits.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-20T07:52:51Z",
+      "side": 1,
+      "message": "This logic is not introduced with this change - it existed before (see removals further up). I agree that this may/should be done differently, but this is not my concern here.",
+      "parentUuid": "AABOIn//7Uk\u003d",
+      "revId": "ff409dded7f86586141d16d3f754ea93ea95d3a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
