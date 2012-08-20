@@ -40,7 +40,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
  * 
  * @see RepositoryLayoutHelper#FILE_NAME_P2_METADATA
  */
-public class ModuleMetadataRepository extends AbstractMetadataRepository2 {
+class ModuleMetadataRepository extends AbstractMetadataRepository2 {
 
     /**
      * Type string for this repository type. This value needs to be passed to

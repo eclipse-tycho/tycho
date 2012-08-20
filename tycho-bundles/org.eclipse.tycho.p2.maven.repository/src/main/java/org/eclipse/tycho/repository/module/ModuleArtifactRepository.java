@@ -53,7 +53,7 @@ import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAnd
  * @see RepositoryLayoutHelper#FILE_NAME_P2_ARTIFACTS
  * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
  */
-public class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
+class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
     /**
      * Type string for this repository type. This value needs to be passed to
      * {@link IArtifactRepositoryManager#createRepository(URI, String, String, Map)} in order to

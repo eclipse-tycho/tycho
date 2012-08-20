@@ -36,7 +36,7 @@ import org.eclipse.tycho.repository.publishing.WriteSessionContext;
  * publishing operation.
  */
 @SuppressWarnings({ "rawtypes", "deprecation" })
-public class ModuleArtifactRepositoryDelegate implements IFileArtifactRepository {
+class ModuleArtifactRepositoryDelegate implements IFileArtifactRepository {
 
     private final ModuleArtifactRepository target;
     private final WriteSessionContext writeSession;

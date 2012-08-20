@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.module.tests;
+package org.eclipse.tycho.repository.module;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -29,7 +29,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.p2.maven.repository.tests.Activator;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.repository.module.ModuleMetadataRepository;
 import org.junit.BeforeClass;
 import org.junit.Rule;

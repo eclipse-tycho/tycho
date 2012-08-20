@@ -8,9 +8,9 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.module.tests;
+package org.eclipse.tycho.repository.module;
 
-import static org.eclipse.tycho.repository.module.tests.ModuleArtifactRepositoryTest.writeAndClose;
+import static org.eclipse.tycho.repository.module.ModuleArtifactRepositoryTest.writeAndClose;
 import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.allKeysIn;
 import static org.eclipse.tycho.test.util.TychoMatchers.endsWithString;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;

@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.module.tests;
+package org.eclipse.tycho.repository.module;
 
 import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.allKeysIn;
 import static org.hamcrest.CoreMatchers.is;
@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.tycho.p2.maven.repository.tests.Activator;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.repository.module.ModuleArtifactRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.junit.BeforeClass;

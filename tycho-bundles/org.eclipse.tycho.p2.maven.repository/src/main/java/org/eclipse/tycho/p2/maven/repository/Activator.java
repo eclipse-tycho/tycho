@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository;
 
+import java.net.URI;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -26,8 +29,9 @@ public class Activator implements BundleActivator {
     public void start(BundleContext context) throws Exception {
         Activator.context = context;
 
-        ServiceReference providerRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
-        IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(providerRef);
+        ServiceReference<IProvisioningAgentProvider> providerRef = context
+                .getServiceReference(IProvisioningAgentProvider.class);
+        IProvisioningAgentProvider provider = context.getService(providerRef);
         // TODO this doesn't return the running agent; is this intended?
         agent = provider.createAgent(null); // null == currently running system
         context.ungetService(providerRef);
@@ -44,5 +48,16 @@ public class Activator implements BundleActivator {
     // TODO repositories should not make assumptions on the agent they are loaded by (see callers)
     public static IProvisioningAgent getProvisioningAgent() {
         return agent;
+    }
+
+    public static IProvisioningAgent createProvisioningAgent(final URI targetLocation) throws ProvisionException {
+        ServiceReference<IProvisioningAgentProvider> serviceReference = context
+                .getServiceReference(IProvisioningAgentProvider.class);
+        IProvisioningAgentProvider agentFactory = context.getService(serviceReference);
+        try {
+            return agentFactory.createAgent(targetLocation);
+        } finally {
+            context.ungetService(serviceReference);
+        }
     }
 }
