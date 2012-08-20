@@ -8,15 +8,13 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.maven.repository.tests;
+package org.eclipse.tycho.repository.local;
 
 import java.net.URI;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepositoryFactory;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.junit.Assert;
 import org.junit.Before;

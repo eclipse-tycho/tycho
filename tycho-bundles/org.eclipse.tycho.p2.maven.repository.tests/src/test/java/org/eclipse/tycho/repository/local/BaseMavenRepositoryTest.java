@@ -9,7 +9,7 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.p2.maven.repository.tests;
+package org.eclipse.tycho.repository.local;
 
 import java.io.File;
 import java.util.Properties;

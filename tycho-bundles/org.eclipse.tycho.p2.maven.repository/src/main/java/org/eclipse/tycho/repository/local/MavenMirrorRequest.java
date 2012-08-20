@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.maven.repository;
+package org.eclipse.tycho.repository.local;
 
 import java.io.IOException;
 import java.io.OutputStream;

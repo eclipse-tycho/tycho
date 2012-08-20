@@ -15,7 +15,7 @@
          id="org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository"
          point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
       <factory
-            class="org.eclipse.tycho.p2.maven.repository.LocalArtifactRepositoryFactory">
+            class="org.eclipse.tycho.repository.local.LocalArtifactRepositoryFactory">
       </factory>
       <filter
             suffix=".meta/p2-artifacts.properties" />

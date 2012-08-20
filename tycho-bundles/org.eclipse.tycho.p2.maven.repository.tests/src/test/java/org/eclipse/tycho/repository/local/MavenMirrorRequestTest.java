@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.maven.repository.tests;
+package org.eclipse.tycho.repository.local;
 
 import java.io.File;
 import java.util.jar.JarFile;
@@ -26,8 +26,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.Activator;
-import org.eclipse.tycho.p2.maven.repository.LocalArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.MavenMirrorRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
