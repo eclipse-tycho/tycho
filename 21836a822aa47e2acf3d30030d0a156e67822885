@@ -16,6 +16,24 @@
       "revId": "21836a822aa47e2acf3d30030d0a156e67822885",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//7H8\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-08-21T11:35:10Z",
+      "side": 1,
+      "message": "it controls whether the LocalMetadataRepository (representing \n~/.m2/repository/.meta/p2-local-metadata.properties) is considered or ignored",
+      "parentUuid": "AABOIn//7I4\u003d",
+      "revId": "21836a822aa47e2acf3d30030d0a156e67822885",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
