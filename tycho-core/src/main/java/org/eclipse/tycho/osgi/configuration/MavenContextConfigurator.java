@@ -54,7 +54,10 @@ public class MavenContextConfigurator extends EquinoxLifecycleListener {
         // 2. active profiles
         Map<String, Profile> profileMap = settings.getProfilesAsMap();
         for (String profileId : settings.getActiveProfiles()) {
-            globalProps.putAll(profileMap.get(profileId).getProperties());
+            Profile profile = profileMap.get(profileId);
+            if (profile != null) {
+                globalProps.putAll(profile.getProperties());
+            }
         }
         // 3. user
         globalProps.putAll(session.getUserProperties());
