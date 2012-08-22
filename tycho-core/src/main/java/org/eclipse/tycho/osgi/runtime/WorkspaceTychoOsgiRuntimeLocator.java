@@ -30,7 +30,7 @@ import org.eclipse.tycho.model.BundleConfiguration;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 
-class WorkspaceP2RuntimeLocator {
+class WorkspaceTychoOsgiRuntimeLocator {
 
     private final DevWorkspaceResolver workspaceState;
 
@@ -41,7 +41,7 @@ class WorkspaceP2RuntimeLocator {
      */
     private Properties deventries = new Properties();
 
-    private WorkspaceP2RuntimeLocator(DevWorkspaceResolver workspaceState) {
+    private WorkspaceTychoOsgiRuntimeLocator(DevWorkspaceResolver workspaceState) {
         this.workspaceState = workspaceState;
         stateLocation = workspaceState.getStateLocation();
     }
@@ -84,12 +84,12 @@ class WorkspaceP2RuntimeLocator {
         return true;
     }
 
-    public static WorkspaceP2RuntimeLocator getResolver(DevWorkspaceResolver workspaceResolver) {
+    public static WorkspaceTychoOsgiRuntimeLocator getResolver(DevWorkspaceResolver workspaceResolver) {
         if (workspaceResolver.getStateLocation() == null) {
             return null;
         }
 
-        return new WorkspaceP2RuntimeLocator(workspaceResolver);
+        return new WorkspaceTychoOsgiRuntimeLocator(workspaceResolver);
     }
 
     public boolean addBundle(EquinoxRuntimeDescription result, Artifact pom) {

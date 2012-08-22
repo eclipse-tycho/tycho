@@ -39,10 +39,17 @@ import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 
+/**
+ * Implementation of {@link org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator} for Tycho's
+ * OSGi runtime.
+ */
 @Component(role = EquinoxRuntimeLocator.class)
-public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
+public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
     /**
-     * List of packages exported by org.eclipse.tycho.p2 artifact/bundle.
+     * List of packages exported by the shared bundles. The shared bundles are loaded by the Maven
+     * class loader (see transitive dependencies of <code>tycho-maven-plugin</code>) but their
+     * classes are also exposed to the implementation bundles in in Tycho's OSGi runtime (see
+     * {@link TychoOsgiRuntimeArtifacts#getRuntimeArtifacts()}) via the system packages extra option.
      */
     public static final String[] SYSTEM_PACKAGES_EXTRA = { "org.eclipse.tycho", // 
             "org.eclipse.tycho.artifacts", //
@@ -80,13 +87,14 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
     private FileLockService fileLockService;
 
     @Requirement
-    private Map<String, TychoP2RuntimeMetadata> runtimeMetadata;
+    private Map<String, TychoOsgiRuntimeArtifacts> runtimeArtifacts;
 
     @Requirement
     private DevWorkspaceResolver workspaceState;
 
     public void locateRuntime(EquinoxRuntimeDescription description) throws MavenExecutionException {
-        WorkspaceP2RuntimeLocator workspaceLocator = WorkspaceP2RuntimeLocator.getResolver(this.workspaceState);
+        WorkspaceTychoOsgiRuntimeLocator workspaceLocator = WorkspaceTychoOsgiRuntimeLocator
+                .getResolver(this.workspaceState);
 
         MavenSession session = buildContext.getSession();
 
@@ -101,22 +109,23 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
         }
     }
 
-    public void addRuntimeArtifacts(WorkspaceP2RuntimeLocator workspaceLocator, MavenSession session,
+    public void addRuntimeArtifacts(WorkspaceTychoOsgiRuntimeLocator workspaceLocator, MavenSession session,
             EquinoxRuntimeDescription description) throws MavenExecutionException {
-        TychoP2RuntimeMetadata framework = runtimeMetadata.get(TychoP2RuntimeMetadata.HINT_FRAMEWORK);
+        TychoOsgiRuntimeArtifacts framework = runtimeArtifacts.get(TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK);
         if (framework != null) {
             addRuntimeArtifacts(workspaceLocator, description, session, framework);
         }
 
-        for (Map.Entry<String, TychoP2RuntimeMetadata> entry : runtimeMetadata.entrySet()) {
-            if (!TychoP2RuntimeMetadata.HINT_FRAMEWORK.equals(entry.getKey())) {
+        for (Map.Entry<String, TychoOsgiRuntimeArtifacts> entry : runtimeArtifacts.entrySet()) {
+            if (!TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK.equals(entry.getKey())) {
                 addRuntimeArtifacts(workspaceLocator, description, session, entry.getValue());
             }
         }
     }
 
-    private void addRuntimeArtifacts(WorkspaceP2RuntimeLocator workspaceLocator, EquinoxRuntimeDescription description,
-            MavenSession session, TychoP2RuntimeMetadata framework) throws MavenExecutionException {
+    private void addRuntimeArtifacts(WorkspaceTychoOsgiRuntimeLocator workspaceLocator,
+            EquinoxRuntimeDescription description, MavenSession session, TychoOsgiRuntimeArtifacts framework)
+            throws MavenExecutionException {
         for (Dependency dependency : framework.getRuntimeArtifacts()) {
             if (workspaceLocator != null) {
                 Dependency dependencyPom = new Dependency();
@@ -156,21 +165,22 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
             locker.lock();
             try {
                 if (!eclipseDir.exists() || artifact.isSnapshot()) {
-                    logger.debug("Extracting P2 runtime");
+                    logger.debug("Extracting Tycho's OSGi runtime");
 
                     if (artifact.getFile().lastModified() > eclipseDir.lastModified()) {
-                        logger.debug("Unpacking P2 runtime to " + eclipseDir);
+                        logger.debug("Unpacking Tycho's OSGi runtime to " + eclipseDir);
                         try {
                             FileUtils.deleteDirectory(eclipseDir);
                         } catch (IOException e) {
-                            logger.warn("Failed to delete P2 runtime " + eclipseDir + ": " + e.getMessage());
+                            logger.warn("Failed to delete Tycho's OSGi runtime " + eclipseDir + ": " + e.getMessage());
                         }
                         unArchiver.setSourceFile(artifact.getFile());
                         unArchiver.setDestDirectory(eclipseDir.getParentFile());
                         try {
                             unArchiver.extract();
                         } catch (ArchiverException e) {
-                            throw new MavenExecutionException("Failed to unpack P2 runtime: " + e.getMessage(), e);
+                            throw new MavenExecutionException("Failed to unpack Tycho's OSGi runtime: "
+                                    + e.getMessage(), e);
                         }
 
                         eclipseDir.setLastModified(artifact.getFile().lastModified());
@@ -203,7 +213,7 @@ public class TychoP2RuntimeLocator implements EquinoxRuntimeLocator {
         try {
             resolutionErrorHandler.throwErrors(request, result);
         } catch (ArtifactResolutionException e) {
-            throw new MavenExecutionException("Could not resolve tycho-p2-runtime", e);
+            throw new MavenExecutionException("Could not resolve artifact for Tycho's OSGi runtime", e);
         }
 
         return artifact;
