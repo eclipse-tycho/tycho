@@ -16,6 +16,40 @@
       "revId": "23628135e37c26554cbf82e096936ce5c02b89b4",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//65g\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/core/facade/MavenContextImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-22T11:29:34Z",
+      "side": 1,
+      "message": "We may want to have other, shorter constructors for tests.",
+      "revId": "23628135e37c26554cbf82e096936ce5c02b89b4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//65o\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/core/facade/MavenContextImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-22T11:29:34Z",
+      "side": 1,
+      "message": "Wouldn\u0027t Map\u003cString, String\u003e be better?",
+      "revId": "23628135e37c26554cbf82e096936ce5c02b89b4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
