@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//66A\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/core/facade/MavenContext.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-08-22T11:17:59Z",
+      "side": 1,
+      "message": "Nitpicking here, these are maven session properties, so getSessionProperties may be more descriptive name.",
+      "revId": "23628135e37c26554cbf82e096936ce5c02b89b4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
