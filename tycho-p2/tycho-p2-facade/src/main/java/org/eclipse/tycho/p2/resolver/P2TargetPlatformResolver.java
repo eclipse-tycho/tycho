@@ -57,6 +57,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.ExecutionEnvironment;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.maven.utils.PluginRealmHelper;
@@ -72,7 +73,6 @@ import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPla
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
-import org.eclipse.tycho.core.utils.ExecutionEnvironment;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;

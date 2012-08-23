@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core;
+package org.eclipse.tycho.core.ee;
 
 /**
  * Indicates that an OSGi execution environment is unknown if thrown.

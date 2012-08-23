@@ -7,8 +7,8 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
-import org.eclipse.tycho.core.utils.ExecutionEnvironment;
-import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.junit.Test;
 
 public class OsgiManifestTest {

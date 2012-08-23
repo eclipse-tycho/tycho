@@ -29,10 +29,10 @@ import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurati
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.UnknownEnvironmentException;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
-import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)

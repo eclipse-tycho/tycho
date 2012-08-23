@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.test;
+package org.eclipse.tycho.core.ee;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,9 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.tycho.core.UnknownEnvironmentException;
-import org.eclipse.tycho.core.utils.ExecutionEnvironment;
-import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -8,9 +8,9 @@ import java.io.InputStream;
 
 import org.eclipse.osgi.framework.util.Headers;
 import org.eclipse.osgi.util.ManifestElement;
-import org.eclipse.tycho.core.UnknownEnvironmentException;
-import org.eclipse.tycho.core.utils.ExecutionEnvironment;
-import org.eclipse.tycho.core.utils.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.utils;
+package org.eclipse.tycho.core.ee;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -23,7 +23,6 @@ import java.util.StringTokenizer;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.framework.internal.core.FrameworkProperties;
 import org.eclipse.osgi.util.ManifestElement;
-import org.eclipse.tycho.core.UnknownEnvironmentException;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Version;
 
