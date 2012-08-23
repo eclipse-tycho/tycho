@@ -16,6 +16,24 @@
       "revId": "db6e556ae8bcba7a9c68b6cfbc0f5b950bc93231",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//6wE\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2012-08-23T12:15:00Z",
+      "side": 1,
+      "message": "Does the parent pom define tycho-version or individual projects can choose tycho version they use? I assume tycho-version is defined in the parent pom, in which case build failure is a better behaviour in my opinion because it will require immediate action instead of waiting until \"mysterious\" build failure due to the next eclipse mirror outage. \n\nAt the same time, I do not feel too strongly about this (and none of my projects use disableP2Mirrors anyways), so I can change the code to produce a warning if you still think this provides a better migration path.",
+      "parentUuid": "AABOIn//6ww\u003d",
+      "revId": "db6e556ae8bcba7a9c68b6cfbc0f5b950bc93231",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
