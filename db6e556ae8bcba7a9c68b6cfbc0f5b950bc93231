@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//6ww\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-08-23T08:27:56Z",
+      "side": 1,
+      "message": "can we make this a warning and ignore the pom configuration?\n\nwe a have parent pom used by several projects that uses \u003cdisableP2Mirrors\u003e.",
+      "revId": "db6e556ae8bcba7a9c68b6cfbc0f5b950bc93231",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
