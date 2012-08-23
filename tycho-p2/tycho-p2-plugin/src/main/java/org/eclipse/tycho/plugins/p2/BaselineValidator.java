@@ -34,9 +34,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.tools.baseline.facade.BaselineService;
@@ -72,8 +70,6 @@ public class BaselineValidator {
         Map<String, IP2Artifact> result = reactorMetadata;
 
         if (baselineMode != disable && baselineRepositories != null && !baselineRepositories.isEmpty()) {
-            TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-
             List<MavenRepositoryLocation> _repositories = new ArrayList<MavenRepositoryLocation>();
             for (Repository repository : baselineRepositories) {
                 if (repository.getUrl() != null) {
@@ -86,7 +82,7 @@ public class BaselineValidator {
             BaselineService baselineService = getService(BaselineService.class);
 
             Map<String, IP2Artifact> baselineMetadata = baselineService.getProjectBaseline(_repositories,
-                    reactorMetadata, baselineBasedir, configuration.isDisableP2Mirrors());
+                    reactorMetadata, baselineBasedir);
 
             if (baselineMetadata != null) {
                 CompoundArtifactDelta delta = getDelta(baselineService, baselineMetadata, reactorMetadata);
