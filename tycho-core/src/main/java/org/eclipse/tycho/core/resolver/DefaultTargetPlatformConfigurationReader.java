@@ -203,11 +203,9 @@ public class DefaultTargetPlatformConfigurationReader {
 
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom disableP2mirrorsDom = configuration.getChild("disableP2Mirrors");
-        if (disableP2mirrorsDom == null) {
-            return;
+        if (disableP2mirrorsDom != null) {
+            logger.warn("Unsupported target-platform-configuration <disableP2Mirrors>. Use tycho.disableP2Mirrors -D command line parameter or settings.xml property.");
         }
-
-        result.setDisableP2Mirrors(Boolean.parseBoolean(disableP2mirrorsDom.getValue()));
     }
 
     private void setAllowConflictingDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {

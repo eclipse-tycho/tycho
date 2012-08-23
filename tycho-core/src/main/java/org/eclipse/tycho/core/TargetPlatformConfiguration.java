@@ -36,8 +36,6 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private Boolean allowConflictingDependencies;
 
-    private boolean disableP2Mirrors;
-
     private String executionEnvironment;
 
     private List<TargetPlatformFilter> filters;
@@ -100,14 +98,6 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public Boolean getAllowConflictingDependencies() {
         return allowConflictingDependencies;
-    }
-
-    public void setDisableP2Mirrors(boolean disableP2Mirrors) {
-        this.disableP2Mirrors = disableP2Mirrors;
-    }
-
-    public boolean isDisableP2Mirrors() {
-        return disableP2Mirrors;
     }
 
     public String getExecutionEnvironment() {

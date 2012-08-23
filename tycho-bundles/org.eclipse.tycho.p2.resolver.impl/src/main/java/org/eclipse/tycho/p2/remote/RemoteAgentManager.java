@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenContext;
@@ -29,10 +26,10 @@ public class RemoteAgentManager {
     private MavenRepositorySettings mavenRepositorySettings;
 
     /**
-     * Cached provisioning agent instances, indexed by the disableMirrors parameter.
+     * Cached provisioning agent instance.
      */
     // TODO stop when this service is stopped?
-    private Map<Boolean, IProvisioningAgent> cachedAgents = new HashMap<Boolean, IProvisioningAgent>(2);
+    private IProvisioningAgent cachedAgent;
 
     public RemoteAgentManager(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
@@ -42,23 +39,13 @@ public class RemoteAgentManager {
     public RemoteAgentManager() {
     }
 
-    public synchronized IProvisioningAgent getProvisioningAgent(boolean disableP2Mirrors) throws ProvisionException {
-        Boolean key = Boolean.valueOf(disableP2Mirrors);
-
-        IProvisioningAgent agent = cachedAgents.get(key);
-        if (agent == null) {
-            agent = new RemoteAgent(mavenContext, mavenRepositorySettings, disableP2Mirrors);
-            cachedAgents.put(key, agent);
-
-            if (cachedAgents.size() > 1) {
-                String message = "The target platform configuration disableP2Mirrors=" + disableP2Mirrors
-                        + " in this project is different from the configuration in other projects"
-                        + " in the same reactor."
-                        + " This may lead to redundant loading of p2 repositories and hence a slower build.";
-                mavenContext.getLogger().warn(message);
-            }
+    public synchronized IProvisioningAgent getProvisioningAgent() throws ProvisionException {
+        if (cachedAgent == null) {
+            boolean disableP2Mirrors = Boolean.parseBoolean(mavenContext.getSessionProperties().getProperty(
+                    "tycho.disableP2Mirrors"));
+            cachedAgent = new RemoteAgent(mavenContext, mavenRepositorySettings, disableP2Mirrors);
         }
-        return agent;
+        return cachedAgent;
     }
 
     public void setMavenContext(MavenContext mavenContext) {

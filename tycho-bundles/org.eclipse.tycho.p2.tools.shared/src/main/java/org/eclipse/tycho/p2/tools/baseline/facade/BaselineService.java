@@ -20,7 +20,7 @@ import org.eclipse.tycho.p2.metadata.IP2Artifact;
 public interface BaselineService {
 
     public Map<String, IP2Artifact> getProjectBaseline(Collection<MavenRepositoryLocation> baselineLocations,
-            Map<String, IP2Artifact> reactor, File target, boolean disableP2Mirrors);
+            Map<String, IP2Artifact> reactor, File target);
 
     public boolean isMetadataEqual(IP2Artifact ip2Artifact, IP2Artifact ip2Artifact2);
 

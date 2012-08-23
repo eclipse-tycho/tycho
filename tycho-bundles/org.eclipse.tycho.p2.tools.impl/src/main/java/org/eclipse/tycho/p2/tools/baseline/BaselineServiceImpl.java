@@ -56,7 +56,7 @@ public class BaselineServiceImpl implements BaselineService {
     private RemoteAgentManager remoteAgentManager;
 
     public Map<String, IP2Artifact> getProjectBaseline(Collection<MavenRepositoryLocation> baselineLocations,
-            Map<String, IP2Artifact> reactor, File target, boolean disableP2Mirrors) {
+            Map<String, IP2Artifact> reactor, File target) {
 
         // baseline repository may contain artifacts with the same id/version but different contents
         // compared to what is installed (or cached) locally.
@@ -67,7 +67,7 @@ public class BaselineServiceImpl implements BaselineService {
         CompositeArtifactRepository baselineArtifacts;
 
         try {
-            IProvisioningAgent remoteAgent = remoteAgentManager.getProvisioningAgent(disableP2Mirrors);
+            IProvisioningAgent remoteAgent = remoteAgentManager.getProvisioningAgent();
             IRepositoryIdManager remoteRepositoryIdManager = (IRepositoryIdManager) remoteAgent
                     .getService(IRepositoryIdManager.SERVICE_NAME);
             IMetadataRepositoryManager remoteMetadataRepositoryManager = (IMetadataRepositoryManager) remoteAgent
