@@ -34,6 +34,24 @@
       "revId": "db6e556ae8bcba7a9c68b6cfbc0f5b950bc93231",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//6v8\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-23T12:40:06Z",
+      "side": 1,
+      "message": "I don\u0027t think there is much gained with the error: most of our uses will adopt the new Tycho version by switching to the version of the corporate parent POM and in that way - unless they read the release notes - also silently loose the disableP2Mirrors\u003dfalse setting.\n\nAlso, an error would make it harder to test 0.16.0(-SNAPSHOT) with an existing version of the corporate parent (which is possible because the Tycho version is stored in a property that may be overridden). So I\u0027d vote for a warning only.",
+      "parentUuid": "AABOIn//6wE\u003d",
+      "revId": "db6e556ae8bcba7a9c68b6cfbc0f5b950bc93231",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
