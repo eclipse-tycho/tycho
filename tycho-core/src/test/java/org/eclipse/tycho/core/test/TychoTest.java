@@ -317,6 +317,6 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("OSGi/Minimum-1.1", bundleProject.getExecutionEnvironment(projects.get(3)).getProfileName());
 
         assertEquals("executionenvironment.pom-soft-manifest", projects.get(4).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(4)).getProfileName());
+        assertEquals("OSGi/Minimum-1.0", bundleProject.getExecutionEnvironment(projects.get(4)).getProfileName());
     }
 }

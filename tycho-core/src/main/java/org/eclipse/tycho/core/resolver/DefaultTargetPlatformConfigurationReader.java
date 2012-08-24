@@ -79,6 +79,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 setDisableP2Mirrors(result, configuration);
 
                 setExecutionEnvironment(result, configuration);
+                setDefaultExecutionEnvironment(result, configuration);
 
                 readFilters(result, configuration);
 
@@ -186,14 +187,34 @@ public class DefaultTargetPlatformConfigurationReader {
         if (value == null) {
             return;
         }
+
+        if (value.startsWith("?")) {
+            throw new RuntimeException(
+                    "The target-platform-configuration parameter <executionEnvironment> must not start with a '?'. Use <defaultExecutionEnvironment> without a leading '?' instead.");
+        }
+
         try {
-            String profile = value.startsWith("?") ? value.substring(1) : value;
-            ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
+            ExecutionEnvironmentUtils.getExecutionEnvironment(value);
         } catch (UnknownEnvironmentException e) {
             throw new RuntimeException("Invalid execution environment profile name " + value);
         }
 
         result.setExecutionEnvironment(value);
+    }
+
+    private void setDefaultExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        String value = getStringValue(configuration.getChild("defaultExecutionEnvironment"));
+        if (value == null) {
+            return;
+        }
+
+        try {
+            ExecutionEnvironmentUtils.getExecutionEnvironment(value);
+        } catch (UnknownEnvironmentException e) {
+            throw new RuntimeException("Invalid default execution environment profile name " + value);
+        }
+
+        result.setDefaultExecutionEnvironment(value);
     }
 
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
@@ -353,4 +374,5 @@ public class DefaultTargetPlatformConfigurationReader {
             return value;
         }
     }
+
 }

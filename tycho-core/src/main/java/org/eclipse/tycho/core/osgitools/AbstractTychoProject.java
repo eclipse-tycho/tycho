@@ -22,7 +22,6 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
-import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
@@ -90,21 +89,19 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     }
 
     public ExecutionEnvironment getExecutionEnvironment(MavenProject project) {
-        String profile = TychoProjectUtils.getTargetPlatformConfiguration(project).getExecutionEnvironment();
+        TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        String profile = tpConfiguration.getExecutionEnvironment();
 
-        if (profile != null) {
-            if (profile.startsWith("?")) {
-                profile = profile.substring(1);
-            }
-
-            try {
-                return ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
-            } catch (UnknownEnvironmentException e) {
-                // can't happen, ee is validated during configuration parsing
-            }
+        if (profile == null) {
+            profile = tpConfiguration.getDefaultExecutionEnvironment();
         }
 
-        return null;
+        if (profile == null) {
+            // TODO 387796 set global default here?
+            return null;
+        }
+
+        return ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
     }
 
     public TargetPlatform getTargetPlatform(MavenProject project) {

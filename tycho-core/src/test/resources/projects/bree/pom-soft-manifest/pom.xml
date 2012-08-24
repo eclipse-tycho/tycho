@@ -19,7 +19,7 @@
         <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
         <configuration>
-          <executionEnvironment>?OSGi/Minimum-1.2</executionEnvironment>
+          <defaultExecutionEnvironment>OSGi/Minimum-1.2</defaultExecutionEnvironment>
         </configuration>
       </plugin>
     </plugins>
