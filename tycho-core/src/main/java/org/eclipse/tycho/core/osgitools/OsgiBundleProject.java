@@ -43,6 +43,7 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.PluginDescription;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironment;
@@ -486,37 +487,38 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public ExecutionEnvironment getExecutionEnvironment(MavenProject project) {
-        String profile = TychoProjectUtils.getTargetPlatformConfiguration(project).getExecutionEnvironment();
+        TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
-        if (profile != null && !profile.startsWith("?")) {
+        String profile = tpConfiguration.getExecutionEnvironment();
+        if (profile != null) {
             // hard profile name in pom.xml
-            return getExecutionEnvironment(project, profile);
-        } else {
-            // PDE compatibility (I really feel generous today)
-            String pdeProfile = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
-                    .getJreCompilationProfile();
-            if (pdeProfile != null) {
-                return getExecutionEnvironment(project, pdeProfile.trim());
+            return ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
+        }
+
+        // PDE compatibility
+        String pdeProfile = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
+                .getJreCompilationProfile();
+        if (pdeProfile != null) {
+            try {
+                return ExecutionEnvironmentUtils.getExecutionEnvironment(pdeProfile.trim());
+            } catch (UnknownEnvironmentException e) {
+                throw new RuntimeException("Unknown execution environment specified in build.properties of project "
+                        + project, e);
             }
         }
 
-        ExecutionEnvironment buildMinimalEE = null;
-
-        if (profile != null) {
-            buildMinimalEE = getExecutionEnvironment(project, profile.substring(1));
-        }
-
         ExecutionEnvironment manifestMinimalEE = getManifestMinimalEE(project);
-
-        if (manifestMinimalEE == null) {
-            return buildMinimalEE;
-        }
-
-        if (buildMinimalEE == null) {
+        if (manifestMinimalEE != null) {
             return manifestMinimalEE;
         }
 
-        return manifestMinimalEE.compareTo(buildMinimalEE) < 0 ? buildMinimalEE : manifestMinimalEE;
+        String configuredDefaultProfile = tpConfiguration.getExecutionEnvironmentDefault();
+        if (configuredDefaultProfile != null) {
+            return ExecutionEnvironmentUtils.getExecutionEnvironment(configuredDefaultProfile);
+        }
+
+        // TODO 387796 set global default here?
+        return null;
     }
 
     public ExecutionEnvironment getManifestMinimalEE(MavenProject project) {
@@ -528,12 +530,4 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return Collections.min(envs);
     }
 
-    protected ExecutionEnvironment getExecutionEnvironment(MavenProject project, String profile) {
-        try {
-            return ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
-        } catch (UnknownEnvironmentException e) {
-            throw new RuntimeException("Unknown execution environment specified in build.properties of project "
-                    + project, e);
-        }
-    }
 }

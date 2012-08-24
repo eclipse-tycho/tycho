@@ -313,10 +313,10 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("executionenvironment.pom-hard", projects.get(2).getArtifactId());
         assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(2)).getProfileName());
 
-        assertEquals("executionenvironment.pom-soft-buildproperties", projects.get(3).getArtifactId());
+        assertEquals("executionenvironment.buildproperties", projects.get(3).getArtifactId());
         assertEquals("OSGi/Minimum-1.1", bundleProject.getExecutionEnvironment(projects.get(3)).getProfileName());
 
-        assertEquals("executionenvironment.pom-soft-manifest", projects.get(4).getArtifactId());
+        assertEquals("executionenvironment.pom-default", projects.get(4).getArtifactId());
         assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(4)).getProfileName());
     }
 }

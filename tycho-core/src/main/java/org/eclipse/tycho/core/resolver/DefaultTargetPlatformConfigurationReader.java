@@ -79,6 +79,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 setDisableP2Mirrors(result, configuration);
 
                 setExecutionEnvironment(result, configuration);
+                setExecutionEnvironmentDefault(result, configuration);
 
                 readFilters(result, configuration);
 
@@ -186,14 +187,29 @@ public class DefaultTargetPlatformConfigurationReader {
         if (value == null) {
             return;
         }
+
         try {
-            String profile = value.startsWith("?") ? value.substring(1) : value;
-            ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
+            ExecutionEnvironmentUtils.getExecutionEnvironment(value);
         } catch (UnknownEnvironmentException e) {
             throw new RuntimeException("Invalid execution environment profile name " + value);
         }
 
         result.setExecutionEnvironment(value);
+    }
+
+    private void setExecutionEnvironmentDefault(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        String value = getStringValue(configuration.getChild("executionEnvironmentDefault"));
+        if (value == null) {
+            return;
+        }
+
+        try {
+            ExecutionEnvironmentUtils.getExecutionEnvironment(value);
+        } catch (UnknownEnvironmentException e) {
+            throw new RuntimeException("Invalid default execution environment profile name " + value);
+        }
+
+        result.setExecutionEnvironmentDefault(value);
     }
 
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
@@ -353,4 +369,5 @@ public class DefaultTargetPlatformConfigurationReader {
             return value;
         }
     }
+
 }
