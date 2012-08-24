@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//6fU\u003d",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-24T21:10:20Z",
+      "side": 1,
+      "message": "This is different with the new parameter compared to the old \u0027?\u0027 notation: Before, the higher one of \u0027?\u0027 POM config and BREE would win; now the BREE always wins over the defaultExecutionEnvironment.",
+      "revId": "88304200b381dc4f481eef81d84d618e7d055f68",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
