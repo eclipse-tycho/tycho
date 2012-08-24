@@ -127,12 +127,12 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setIncludePackedArtifacts(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom includePackedArtifactsDom = configuration.getChild("includePackedArtifacts");
-        if (includePackedArtifactsDom == null) {
+        String value = getStringValue(configuration.getChild("includePackedArtifacts"));
+
+        if (value == null) {
             return;
         }
-
-        result.setIncludePackedArtifacts(Boolean.parseBoolean(includePackedArtifactsDom.getValue()));
+        result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
     }
 
     private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
@@ -141,20 +141,17 @@ public class DefaultTargetPlatformConfigurationReader {
             return;
         }
 
-        Xpp3Dom optionalDependenciesDom = resolverDom.getChild("optionalDependencies");
-        if (optionalDependenciesDom == null) {
+        String value = getStringValue(resolverDom.getChild("optionalDependencies"));
+
+        if (value == null) {
             return;
-        }
-
-        String optionalDependencies = optionalDependenciesDom.getValue();
-
-        if (OPTIONAL_RESOLUTION_REQUIRE.equals(optionalDependencies)) {
+        } else if (OPTIONAL_RESOLUTION_REQUIRE.equals(value)) {
             result.setOptionalResolutionAction(OptionalResolutionAction.REQUIRE);
-        } else if (OPTIONAL_RESOLUTION_IGNORE.equals(optionalDependencies)) {
+        } else if (OPTIONAL_RESOLUTION_IGNORE.equals(value)) {
             result.setOptionalResolutionAction(OptionalResolutionAction.IGNORE);
         } else {
             throw new RuntimeException("Illegal value of <optionalDependencies> dependency resolution parameter: "
-                    + optionalDependencies);
+                    + value);
         }
     }
 
@@ -184,21 +181,19 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom eeDom = configuration.getChild("executionEnvironment");
-        if (eeDom == null) {
+        String value = getStringValue(configuration.getChild("executionEnvironment"));
+
+        if (value == null) {
             return;
         }
-        String ee = eeDom.getValue().trim();
-        if (!"".equals(ee)) {
-            try {
-                String profile = ee.startsWith("?") ? ee.substring(1) : ee;
-                ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
-            } catch (UnknownEnvironmentException e) {
-                throw new RuntimeException("Invalid execution environment profile name " + ee);
-            }
-
-            result.setExecutionEnvironment(ee);
+        try {
+            String profile = value.startsWith("?") ? value.substring(1) : value;
+            ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
+        } catch (UnknownEnvironmentException e) {
+            throw new RuntimeException("Invalid execution environment profile name " + value);
         }
+
+        result.setExecutionEnvironment(value);
     }
 
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
@@ -209,12 +204,12 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setAllowConflictingDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom allowConflictingDependenciesDom = configuration.getChild("allowConflictingDependencies");
-        if (allowConflictingDependenciesDom == null) {
+        String value = getStringValue(configuration.getChild("allowConflictingDependencies"));
+
+        if (value == null) {
             return;
         }
-
-        result.setAllowConflictingDependencies(Boolean.parseBoolean(allowConflictingDependenciesDom.getValue()));
+        result.setAllowConflictingDependencies(Boolean.parseBoolean(value));
     }
 
     private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project, Xpp3Dom configuration) {
@@ -246,12 +241,12 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setPomDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom pomDependenciesDom = configuration.getChild("pomDependencies");
-        if (pomDependenciesDom == null) {
+        String value = getStringValue(configuration.getChild("pomDependencies"));
+
+        if (value == null) {
             return;
         }
-
-        result.setPomDependencies(pomDependenciesDom.getValue());
+        result.setPomDependencies(value);
     }
 
     private void setTarget(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
@@ -308,16 +303,22 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void setTargetPlatformResolver(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom resolverDom = configuration.getChild("resolver");
+        String value = getStringValue(configuration.getChild("resolver"));
 
-        if (resolverDom == null) {
+        if (value == null) {
             return;
         }
-
-        result.setResolver(resolverDom.getValue());
+        result.setResolver(value);
     }
 
-    private TargetEnvironment newTargetEnvironment(Xpp3Dom environmentDom) {
+    private void readFilters(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom filtersDom = configuration.getChild("filters");
+        if (filtersDom != null) {
+            result.setFilters(filterReader.parseFilterConfiguration(filtersDom));
+        }
+    }
+
+    private static TargetEnvironment newTargetEnvironment(Xpp3Dom environmentDom) {
         Xpp3Dom osDom = environmentDom.getChild("os");
         if (osDom == null) {
             return null;
@@ -336,11 +337,20 @@ public class DefaultTargetPlatformConfigurationReader {
         return new TargetEnvironment(osDom.getValue(), wsDom.getValue(), archDom.getValue());
     }
 
-    private void readFilters(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom filtersElement = configuration.getChild("filters");
-        if (filtersElement != null) {
-            result.setFilters(filterReader.parseFilterConfiguration(filtersElement));
+    /**
+     * Returns the string value of the given node, with all "value not set" cases normalized to
+     * <code>null</code>.
+     */
+    private static String getStringValue(Xpp3Dom element) {
+        if (element == null) {
+            return null;
+        }
+
+        String value = element.getValue().trim();
+        if ("".equals(value)) {
+            return null;
+        } else {
+            return value;
         }
     }
-
 }
