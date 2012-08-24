@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: executionenvironment.pom-soft-manifest
+Bundle-SymbolicName: executionenvironment.pom-default
+Bundle-Version: 1.0.0
+

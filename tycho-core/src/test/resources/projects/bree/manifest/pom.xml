@@ -12,4 +12,18 @@
   <version>1.0.0</version>
   <packaging>eclipse-plugin</packaging>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <!-- BREE in manifest takes precedence over this configuration  -->
+          <executionEnvironmentDefault>OSGi/Minimum-1.2</executionEnvironmentDefault>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

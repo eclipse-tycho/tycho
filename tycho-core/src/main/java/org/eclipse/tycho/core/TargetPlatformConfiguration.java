@@ -38,6 +38,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private String executionEnvironment;
 
+    private String executionEnvironmentDefault;
+
     private List<TargetPlatformFilter> filters;
 
     private OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
@@ -108,6 +110,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         this.executionEnvironment = executionEnvironment;
     }
 
+    public String getExecutionEnvironmentDefault() {
+        return executionEnvironmentDefault;
+    }
+
+    public void setExecutionEnvironmentDefault(String executionEnvironment) {
+        this.executionEnvironmentDefault = executionEnvironment;
+    }
+
     public void setFilters(List<TargetPlatformFilter> filters) {
         this.filters = filters;
     }
@@ -146,4 +156,5 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     public boolean isIncludePackedArtifacts() {
         return includePackedArtifacts;
     }
+
 }

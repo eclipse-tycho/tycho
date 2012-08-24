@@ -11,7 +11,7 @@
   <modules>
     <module>manifest</module>
     <module>pom-hard</module>
-    <module>pom-soft-buildproperties</module>
-    <module>pom-soft-manifest</module>
+    <module>buildproperties</module>
+    <module>pom-default</module>
   </modules>
 </project>

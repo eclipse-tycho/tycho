@@ -13,7 +13,8 @@ package org.eclipse.tycho.core.ee;
 /**
  * Indicates that an OSGi execution environment is unknown if thrown.
  */
-public class UnknownEnvironmentException extends Exception {
+@SuppressWarnings("serial")
+public class UnknownEnvironmentException extends RuntimeException {
 
     private final String environmentName;
 
