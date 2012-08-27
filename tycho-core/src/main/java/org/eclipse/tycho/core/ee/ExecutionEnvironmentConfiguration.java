@@ -16,7 +16,16 @@ package org.eclipse.tycho.core.ee;
  */
 public interface ExecutionEnvironmentConfiguration {
 
-    public void setFullSpecification(ExecutionEnvironment executionEnvironment);
+    /**
+     * Sets the effective profile configuration.
+     */
+    public void overrideProfileConfiguration(String profileName, String configurationOrigin);
+
+    /**
+     * Sets the effective profile configuration, unless the method
+     * {@link #overrideProfileConfiguration(String, String)} has been called on this instance.
+     */
+    public void setProfileConfiguration(String profileName, String configurationOrigin);
 
     public String getProfileName();
 

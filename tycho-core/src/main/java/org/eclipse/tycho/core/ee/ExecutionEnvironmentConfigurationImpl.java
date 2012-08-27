@@ -10,22 +10,71 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
-public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
-    private ExecutionEnvironment executionEnvironment;
 
-    public void setFullSpecification(ExecutionEnvironment executionEnvironment) {
-        this.executionEnvironment = executionEnvironment;
+public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
+    private static final int PRIMARY = 0;
+    private static final int SECONDARY = 1;
+
+    /** Configurations, ordered by precedence */
+    private ProfileConfiguration[] configurations = new ProfileConfiguration[2];
+
+    public void overrideProfileConfiguration(String profileName, String configurationOrigin) {
+        if (profileName == null) {
+            throw new NullPointerException();
+        }
+
+        this.configurations[PRIMARY] = new ProfileConfiguration(profileName, configurationOrigin);
+    }
+
+    public void setProfileConfiguration(String profileName, String configurationOrigin) {
+        if (profileName == null) {
+            throw new NullPointerException();
+        }
+
+        this.configurations[SECONDARY] = new ProfileConfiguration(profileName, configurationOrigin);
+    }
+
+    private ProfileConfiguration getEffectiveConfiguration() {
+        for (ProfileConfiguration entry : configurations) {
+            if (entry != null) {
+                return entry;
+            }
+        }
+        return null;
     }
 
     public String getProfileName() {
-        if (executionEnvironment == null) {
-            // TODO 387796 return the global default instead
+        ProfileConfiguration configuration = getEffectiveConfiguration();
+        if (configuration == null) {
+            // TODO 387796 return explicit global default instead of null
             return null;
         }
-        return executionEnvironment.getProfileName();
+        return configuration.profileName;
     }
 
     public ExecutionEnvironment getFullSpecification() {
-        return executionEnvironment;
+        ProfileConfiguration configuration = getEffectiveConfiguration();
+        if (configuration == null) {
+            // TODO 387796 return explicit global default instead of null
+            return null;
+        }
+        try {
+            return ExecutionEnvironmentUtils.getExecutionEnvironment(configuration.profileName);
+        } catch (UnknownEnvironmentException e) {
+            throw new IllegalArgumentException("Invalid execution environment \"" + configuration.profileName
+                    + "\" specified in " + configuration.origin, e);
+        }
+    }
+
+    private static class ProfileConfiguration {
+
+        final String profileName;
+        final String origin;
+
+        ProfileConfiguration(String profileName, String origin) {
+            this.profileName = profileName;
+            this.origin = origin;
+        }
+
     }
 }

@@ -74,7 +74,7 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
         project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, configuration);
 
         ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl();
-        eeConfiguration.setFullSpecification(dr.getExecutionEnvironment(project));
+        dr.readExecutionEnvironmentConfiguration(project, eeConfiguration);
         project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
 
         TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
