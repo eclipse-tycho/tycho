@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle01
+Bundle-SymbolicName: TYCHO0214
+ versionChange.bundle01
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.eclipse.tycho;version="1.0.1",org.eclipse.tycho.te
+ st;version="1.0.1",org.eclipse.tycho.core;version="1.0.1"

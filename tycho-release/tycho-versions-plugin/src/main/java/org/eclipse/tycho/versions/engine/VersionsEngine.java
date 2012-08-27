@@ -47,7 +47,8 @@ public class VersionsEngine {
         this.projects = projects;
     }
 
-    public void addVersionChange(String artifactId, String newVersion) throws IOException {
+    public void addVersionChange(String artifactId, String newVersion, boolean updateExportedPackage)
+            throws IOException {
         ProjectMetadata project = getProject(artifactId);
 
         if (project == null) {
@@ -58,8 +59,12 @@ public class VersionsEngine {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
 
         if (!newVersion.equals(pom.getEffectiveVersion())) {
-            addVersionChange(new VersionChange(pom, newVersion));
+            addVersionChange(new VersionChange(pom, newVersion, updateExportedPackage));
         }
+    }
+
+    public void addVersionChange(String artifactId, String newVersion) throws IOException {
+        addVersionChange(artifactId, newVersion, false);
     }
 
     public void addVersionChange(VersionChange change) {

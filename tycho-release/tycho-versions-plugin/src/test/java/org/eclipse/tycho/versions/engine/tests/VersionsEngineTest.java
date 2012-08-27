@@ -30,6 +30,17 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertBundleManifest(basedir);
     }
 
+    public void testExportPackage() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/exportpackage");
+
+        VersionsEngine engine = newEngine(basedir);
+        engine.addVersionChange("exportpackage", "1.0.1.qualifier", true);
+        engine.apply();
+
+        assertPom(basedir);
+        assertBundleManifest(basedir);
+    }
+
     public void testMultimodule() throws Exception {
         File basedir = TestUtil.getBasedir("projects/multimodule");
 

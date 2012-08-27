@@ -45,6 +45,16 @@ public class SetMojo extends AbstractVersionsMojo {
      */
     private String artifacts;
 
+    /**
+     * If this parameter is true, then all exported packages will be set to the given ${newVersion}
+     * parameter.
+     * <p/>
+     * By default the export-package header will not be updated.
+     * 
+     * @parameter expression="{updateExportPacakge} default-value="false"
+     */
+    private boolean updateExportPackage;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (newVersion == null || newVersion.length() == 0) {
             throw new MojoExecutionException("Missing required parameter newVersion");
@@ -67,7 +77,7 @@ public class SetMojo extends AbstractVersionsMojo {
             StringTokenizer st = new StringTokenizer(artifacts, ",");
             while (st.hasMoreTokens()) {
                 String artifactId = st.nextToken().trim();
-                engine.addVersionChange(artifactId, newVersion);
+                engine.addVersionChange(artifactId, newVersion, updateExportPackage);
             }
 
             engine.apply();

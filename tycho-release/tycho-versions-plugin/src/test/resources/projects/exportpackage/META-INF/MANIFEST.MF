@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-Version: 1.0.0.qualifier
+Bundle-Name: exportpackage
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: exportpackage
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.eclipse.tycho;version="1.0.0",
+ org.eclipse.tycho.test;version="1.0.0",
+ org.eclipse.tycho.core;version="1.0.0"

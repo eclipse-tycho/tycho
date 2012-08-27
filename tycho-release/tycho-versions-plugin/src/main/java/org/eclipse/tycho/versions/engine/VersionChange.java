@@ -19,14 +19,25 @@ public class VersionChange {
 
     private final String version;
 
+    private final boolean updateExportedPackages;
+
     public VersionChange(MutablePomFile pom, String newVersion) {
         this(pom, pom.getEffectiveVersion(), newVersion);
     }
 
+    public VersionChange(MutablePomFile pom, String newVersion, boolean updateExportedPackages) {
+        this(pom, pom.getEffectiveVersion(), newVersion, updateExportedPackages);
+    }
+
     public VersionChange(MutablePomFile pom, String version, String newVersion) {
+        this(pom, version, newVersion, false);
+    }
+
+    public VersionChange(MutablePomFile pom, String version, String newVersion, boolean updateExportedPackages) {
         this.pom = pom;
         this.version = Versions.toCanonicalVersion(version);
         this.newVersion = Versions.toCanonicalVersion(newVersion);
+        this.updateExportedPackages = updateExportedPackages;
     }
 
     public String getGroupId() {
@@ -47,6 +58,10 @@ public class VersionChange {
 
     public String getNewVersion() {
         return newVersion;
+    }
+
+    public boolean isUpdateExportedPackages() {
+        return updateExportedPackages;
     }
 
     @Override
