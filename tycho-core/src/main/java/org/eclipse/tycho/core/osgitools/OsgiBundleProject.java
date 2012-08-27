@@ -43,13 +43,11 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.PluginDescription;
-import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironment;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
-import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
@@ -484,39 +482,25 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return null;
     }
 
-    public ExecutionEnvironment getExecutionEnvironment(MavenProject project) {
-        TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+    @Override
+    public void readExecutionEnvironmentConfiguration(MavenProject project, ExecutionEnvironmentConfiguration sink) {
+        // read packaging-type independent configuration
+        super.readExecutionEnvironmentConfiguration(project, sink);
 
-        String profile = tpConfiguration.getExecutionEnvironment();
-        if (profile != null) {
-            // hard profile name in pom.xml
-            return ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
-        }
-
-        // PDE compatibility
+        // only in plugin projects, the profile may also be ...
+        // ... specified in build.properties (for PDE compatibility)
         String pdeProfile = getEclipsePluginProject(DefaultReactorProject.adapt(project)).getBuildProperties()
                 .getJreCompilationProfile();
         if (pdeProfile != null) {
-            try {
-                return ExecutionEnvironmentUtils.getExecutionEnvironment(pdeProfile.trim());
-            } catch (UnknownEnvironmentException e) {
-                throw new RuntimeException("Unknown execution environment specified in build.properties of project "
-                        + project, e);
+            sink.setProfileConfiguration(pdeProfile.trim(), "build.properties");
+
+        } else {
+            // ... derived from BREE in bundle manifest
+            ExecutionEnvironment manifestMinimalEE = getManifestMinimalEE(project);
+            if (manifestMinimalEE != null) {
+                sink.setProfileConfiguration(manifestMinimalEE.getProfileName(), "Bundle-RequiredExecutionEnvironment");
             }
         }
-
-        ExecutionEnvironment manifestMinimalEE = getManifestMinimalEE(project);
-        if (manifestMinimalEE != null) {
-            return manifestMinimalEE;
-        }
-
-        String configuredDefaultProfile = tpConfiguration.getExecutionEnvironmentDefault();
-        if (configuredDefaultProfile != null) {
-            return ExecutionEnvironmentUtils.getExecutionEnvironment(configuredDefaultProfile);
-        }
-
-        // TODO 387796 set global default here?
-        return null;
     }
 
     public ExecutionEnvironment getManifestMinimalEE(MavenProject project) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,7 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.ee.ExecutionEnvironment;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
@@ -88,20 +87,20 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         return null;
     }
 
-    public ExecutionEnvironment getExecutionEnvironment(MavenProject project) {
+    public void readExecutionEnvironmentConfiguration(MavenProject project, ExecutionEnvironmentConfiguration sink) {
         TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-        String profile = tpConfiguration.getExecutionEnvironment();
 
-        if (profile == null) {
-            profile = tpConfiguration.getExecutionEnvironmentDefault();
+        String configuredForcedProfile = tpConfiguration.getExecutionEnvironment();
+        if (configuredForcedProfile != null) {
+            sink.overrideProfileConfiguration(configuredForcedProfile,
+                    "target-platform-configuration <executionEnvironment>");
         }
 
-        if (profile == null) {
-            // TODO 387796 set global default here?
-            return null;
+        String configuredDefaultProfile = tpConfiguration.getExecutionEnvironmentDefault();
+        if (configuredDefaultProfile != null) {
+            sink.setProfileConfiguration(configuredDefaultProfile,
+                    "target-platform-configuration <executionEnvironmentDefault>");
         }
-
-        return ExecutionEnvironmentUtils.getExecutionEnvironment(profile);
     }
 
     public TargetPlatform getTargetPlatform(MavenProject project) {
