@@ -35,6 +35,9 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
                     + change.getNewVersion());
 
             mf.setVersion(change.getNewVersion());
+            logger.info("  Setting export-package version: " + change.getVersion() + " => "
+                    + change.getNewVersion().replace(".qualifier", ""));
+            mf.setExportedPackageVersion(change.getNewVersion());
         }
     }
 
