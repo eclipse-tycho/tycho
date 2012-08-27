@@ -14,7 +14,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,20 +23,20 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExecutionEnvironmentTest {
+public class StandardExecutionEnvironmentTest {
 
-    private ExecutionEnvironment javaSE6Enviroment;
-    private ExecutionEnvironment javaSE7Enviroment;
-    private ExecutionEnvironment j2SE5Enviroment;
-    private ExecutionEnvironment j2SE14Environment;
-    private ExecutionEnvironment j2SE13Environment;
-    private ExecutionEnvironment j2SE12Environment;
-    private ExecutionEnvironment jre11Environment;
-    private ExecutionEnvironment cdc11Environment;
-    private ExecutionEnvironment cdc10Environment;
-    private ExecutionEnvironment osgiMin10Environment;
-    private ExecutionEnvironment osgiMin11Environment;
-    private ExecutionEnvironment osgiMin12Environment;
+    private StandardExecutionEnvironment javaSE6Enviroment;
+    private StandardExecutionEnvironment javaSE7Enviroment;
+    private StandardExecutionEnvironment j2SE5Enviroment;
+    private StandardExecutionEnvironment j2SE14Environment;
+    private StandardExecutionEnvironment j2SE13Environment;
+    private StandardExecutionEnvironment j2SE12Environment;
+    private StandardExecutionEnvironment jre11Environment;
+    private StandardExecutionEnvironment cdc11Environment;
+    private StandardExecutionEnvironment cdc10Environment;
+    private StandardExecutionEnvironment osgiMin10Environment;
+    private StandardExecutionEnvironment osgiMin11Environment;
+    private StandardExecutionEnvironment osgiMin12Environment;
 
     @Before
     public void setUp() throws Exception {
@@ -134,23 +133,18 @@ public class ExecutionEnvironmentTest {
         assertTrue(javaSE7Enviroment.isCompatibleCompilerTargetLevel("7.0"));
     }
 
-    @Test
-    public void testUnknownEnv() {
-        try {
-            ExecutionEnvironmentUtils.getExecutionEnvironment("foo");
-            fail();
-        } catch (UnknownEnvironmentException e) {
-            // expected
-        }
+    @Test(expected = UnknownEnvironmentException.class)
+    public void testUnknownEnv() throws Throwable {
+        ExecutionEnvironmentUtils.getExecutionEnvironment("foo");
     }
 
     @Test
     public void testCompare() throws Exception {
-        List<ExecutionEnvironment> expectedList = new ArrayList<ExecutionEnvironment>(Arrays.asList(
+        List<StandardExecutionEnvironment> expectedList = new ArrayList<StandardExecutionEnvironment>(Arrays.asList(
                 osgiMin10Environment, osgiMin11Environment, osgiMin12Environment, cdc10Environment, cdc11Environment,
                 jre11Environment, j2SE12Environment, j2SE13Environment, j2SE14Environment, j2SE5Enviroment,
                 javaSE6Enviroment, javaSE7Enviroment));
-        List<ExecutionEnvironment> actualList = new ArrayList<ExecutionEnvironment>(expectedList);
+        List<StandardExecutionEnvironment> actualList = new ArrayList<StandardExecutionEnvironment>(expectedList);
         Collections.shuffle(actualList);
         Collections.sort(actualList);
         assertEquals(expectedList, actualList);

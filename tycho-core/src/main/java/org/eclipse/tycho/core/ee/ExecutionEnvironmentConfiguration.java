@@ -10,24 +10,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
-import java.util.Properties;
+/**
+ * Instances of this type collect information on the configured execution environment, so that they
+ * are eventually able to compute the full specification of the effective configuration.
+ */
+public interface ExecutionEnvironmentConfiguration {
 
-public interface ExecutionEnvironment {
+    public void setFullSpecification(ExecutionEnvironment executionEnvironment);
 
-    String getProfileName();
+    public String getProfileName();
 
-    String getCompilerSourceLevel();
-
-    String getCompilerTargetLevel();
-
-    String[] getSystemPackages();
-
-    Properties getProfileProperties();
-
-    /**
-     * Returns <code>true</code> if classes compiled for the specified target can be executed in
-     * this execution environment or if this environment's compiler target compatibility is unknown.
-     */
-    boolean isCompatibleCompilerTargetLevel(String target);
+    public ExecutionEnvironment getFullSpecification();
 
 }

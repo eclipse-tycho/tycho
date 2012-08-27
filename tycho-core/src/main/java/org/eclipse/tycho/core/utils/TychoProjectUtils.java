@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfiguration;
 
 public class TychoProjectUtils {
     private static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
@@ -62,5 +63,14 @@ public class TychoProjectUtils {
             throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
         }
         return targetPlatform;
+    }
+
+    public static ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(MavenProject project) {
+        ExecutionEnvironmentConfiguration storedConfig = (ExecutionEnvironmentConfiguration) project
+                .getContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION);
+        if (storedConfig == null) {
+            throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
+        }
+        return storedConfig;
     }
 }

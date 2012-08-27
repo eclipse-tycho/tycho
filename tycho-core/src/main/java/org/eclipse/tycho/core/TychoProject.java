@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
-import org.eclipse.tycho.core.ee.ExecutionEnvironment;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 
 /**
@@ -53,11 +52,6 @@ public interface TychoProject {
      * Eclipse-PlatformFilter OSGi bundle manifest attribute.
      */
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project);
-
-    /**
-     * Project target execution environment used during the build or null.
-     */
-    public ExecutionEnvironment getExecutionEnvironment(MavenProject project);
 
     /**
      * Project target platform, i.e. set of artifacts and their corresponding metadata used during

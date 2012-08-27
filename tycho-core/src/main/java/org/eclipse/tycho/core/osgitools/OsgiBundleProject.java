@@ -48,6 +48,7 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -249,14 +250,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         }
     }
 
-    public State getResolverState(MavenProject project) {
-        DependencyArtifacts artifacts = getDependencyArtifacts(project);
-        return getResolverState(project, artifacts);
-    }
-
-    protected State getResolverState(MavenProject project, DependencyArtifacts artifacts) {
+    private State getResolverState(MavenProject project, DependencyArtifacts artifacts) {
         try {
-            return resolver.newResolvedState(project, getExecutionEnvironment(project), artifacts);
+            ExecutionEnvironment executionEnvironment = TychoProjectUtils.getExecutionEnvironmentConfiguration(project)
+                    .getFullSpecification();
+            return resolver.newResolvedState(project, executionEnvironment, artifacts);
         } catch (BundleException e) {
             throw new RuntimeException(e);
         }
@@ -522,8 +520,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     public ExecutionEnvironment getManifestMinimalEE(MavenProject project) {
-        List<ExecutionEnvironment> envs = new ArrayList<ExecutionEnvironment>(Arrays.asList(getManifest(project)
-                .getExecutionEnvironments()));
+        List<StandardExecutionEnvironment> envs = new ArrayList<StandardExecutionEnvironment>(
+                Arrays.asList(getManifest(project).getExecutionEnvironments()));
         if (envs.isEmpty()) {
             return null;
         }

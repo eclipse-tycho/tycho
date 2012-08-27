@@ -57,7 +57,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.ee.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.maven.utils.PluginRealmHelper;
@@ -185,11 +185,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects) {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+        ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
 
-        ExecutionEnvironment ee = projectTypes.get(project.getPackaging()).getExecutionEnvironment(project);
-
-        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(//
-                ee != null ? ee.getProfileName() : null);
+        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(ee.getProfileName());
         tpBuilder.setProjectLocation(project.getBasedir());
         tpBuilder.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
 
