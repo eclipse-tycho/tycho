@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AABOIn//6Xc\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-27T11:31:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOIn//6fE\u003d",
+      "revId": "88304200b381dc4f481eef81d84d618e7d055f68",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOIn//6fU\u003d",
         "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "executionenvironment.pom-soft* tests do not apply any more. replace them with executionenvironment.pom-default test(s) that validate that default configuration is considered after all other sources.",
       "parentUuid": "AABOIn//6fU\u003d",
+      "revId": "88304200b381dc4f481eef81d84d618e7d055f68",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//6Xg\u003d",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-27T11:31:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOIn//6fA\u003d",
       "revId": "88304200b381dc4f481eef81d84d618e7d055f68",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
