@@ -37,15 +37,15 @@ public class ExecutionEnvironmentUtils {
     private static String J2SE = "J2SE-"; //$NON-NLS-1$
     private static String JAVASE = "JavaSE-"; //$NON-NLS-1$
     private static String PROFILE_EXT = ".profile"; //$NON-NLS-1$
-    private static Map<String, ExecutionEnvironment> executionEnvironmentsMap = fillEnvironmentsMap();
+    private static Map<String, StandardExecutionEnvironment> executionEnvironmentsMap = fillEnvironmentsMap();
 
-    private static Map<String, ExecutionEnvironment> fillEnvironmentsMap() {
+    private static Map<String, StandardExecutionEnvironment> fillEnvironmentsMap() {
         Properties listProps = readProperties(findInSystemBundle("profile.list"));
         String[] profileFiles = listProps.getProperty("java.profiles").split(",");
-        Map<String, ExecutionEnvironment> envMap = new HashMap<String, ExecutionEnvironment>();
+        Map<String, StandardExecutionEnvironment> envMap = new HashMap<String, StandardExecutionEnvironment>();
         for (String profileFile : profileFiles) {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));
-            envMap.put(props.getProperty("osgi.java.profile.name").trim(), new ExecutionEnvironment(props));
+            envMap.put(props.getProperty("osgi.java.profile.name").trim(), new StandardExecutionEnvironment(props));
         }
         return envMap;
     }
@@ -80,8 +80,9 @@ public class ExecutionEnvironmentUtils {
      * @throws UnknownEnvironmentException
      *             if profileName is unknown.
      */
-    public static ExecutionEnvironment getExecutionEnvironment(String profileName) throws UnknownEnvironmentException {
-        ExecutionEnvironment executionEnvironment = executionEnvironmentsMap.get(profileName);
+    public static StandardExecutionEnvironment getExecutionEnvironment(String profileName)
+            throws UnknownEnvironmentException {
+        StandardExecutionEnvironment executionEnvironment = executionEnvironmentsMap.get(profileName);
         if (executionEnvironment == null) {
             throw new UnknownEnvironmentException(profileName);
         }

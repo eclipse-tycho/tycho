@@ -18,10 +18,9 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.osgi.framework.BundleException;
@@ -54,8 +53,6 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
     }
 
     public void test_bundleRuntimeExecutionEnvironment() throws Exception {
-        TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_PLUGIN);
-
         File basedir = getBasedir("projects/bree");
 
         Properties properties = new Properties();
@@ -65,7 +62,8 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         assertEquals(5, projects.size());
 
         assertEquals("executionenvironment.manifest", projects.get(1).getArtifactId());
-        ExecutionEnvironment ee = bundleProject.getExecutionEnvironment(projects.get(1));
+        ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(projects.get(1))
+                .getFullSpecification();
         assertEquals("CDC-1.0/Foundation-1.0", ee.getProfileName());
         Properties platformProperties = subject.getPlatformProperties(projects.get(1), ee);
         assertEquals("javax.microedition.io", platformProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES));

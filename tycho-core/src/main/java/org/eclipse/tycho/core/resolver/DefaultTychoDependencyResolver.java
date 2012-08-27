@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,8 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -71,8 +73,11 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
                 .getTargetPlatformConfiguration(session, project);
         project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, configuration);
 
-        TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
+        ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl();
+        eeConfiguration.setFullSpecification(dr.getExecutionEnvironment(project));
+        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
 
+        TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
         resolver.setupProjects(session, project, reactorProject);
     }
 

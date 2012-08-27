@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ public interface TychoConstants {
     static final String PLATFORM_XML_PATH = "configuration/org.eclipse.update/platform.xml";
 
     static final String CTX_BASENAME = TychoConstants.class.getName();
+
     static final String CTX_TARGET_PLATFORM = CTX_BASENAME + "/targetPlatform";
     static final String CTX_DEPENDENCY_ARTIFACTS = CTX_BASENAME + "/dependencyArtifacts";
     static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_BASENAME + "/eclipsePluginProject";
@@ -25,6 +26,8 @@ public interface TychoConstants {
     static final String CTX_EXPANDED_VERSION = CTX_BASENAME + "/expandedVersion";
     static final String CTX_MERGED_PROPERTIES = CTX_BASENAME + "/mergedProperties";
     static final String CTX_TARGET_PLATFORM_CONFIGURATION = CTX_BASENAME + "/targetPlatformConfiguration";
+    static final String CTX_EXECUTION_ENVIRONMENT_CONFIGURATION = CTX_BASENAME + "/executionEnvironmentConfiguration";
+
     static final String CTX_DEPENDENCY_WALKER = CTX_BASENAME + "/dependencyWalker";
     static final String CTX_PUBLISHED_ROOT_IUS = CTX_BASENAME + "/publishedRootIUs";
 }

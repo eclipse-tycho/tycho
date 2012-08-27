@@ -61,6 +61,7 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.utils.MavenArtifactRef;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
 import org.osgi.framework.Constants;
 
@@ -470,7 +471,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     private ExecutionEnvironment getTargetExecutionEnvironment() throws MojoExecutionException {
-        return getBundleProject().getExecutionEnvironment(project);
+        return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getFullSpecification();
     }
 
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {

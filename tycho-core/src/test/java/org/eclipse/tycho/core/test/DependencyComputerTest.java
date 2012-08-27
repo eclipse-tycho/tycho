@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,14 +19,14 @@ import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TychoConstants;
-import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.ExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.utils.MavenSessionUtils;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,9 +56,9 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         DependencyArtifacts platform = (DependencyArtifacts) project
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
 
-        TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_PLUGIN);
-
-        State state = resolver.newResolvedState(project, bundleProject.getExecutionEnvironment(project), platform);
+        ExecutionEnvironment executionEnvironment = TychoProjectUtils.getExecutionEnvironmentConfiguration(project)
+                .getFullSpecification();
+        State state = resolver.newResolvedState(project, executionEnvironment, platform);
         BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getCanonicalPath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);

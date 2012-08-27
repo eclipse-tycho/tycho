@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
@@ -305,18 +306,20 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, properties, null);
         assertEquals(5, projects.size());
 
-        TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_PLUGIN);
-
         assertEquals("executionenvironment.manifest", projects.get(1).getArtifactId());
-        assertEquals("CDC-1.0/Foundation-1.0", bundleProject.getExecutionEnvironment(projects.get(1)).getProfileName());
+        assertEquals("CDC-1.0/Foundation-1.0", getActiveEEProfile(projects.get(1)));
 
         assertEquals("executionenvironment.pom-hard", projects.get(2).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(2)).getProfileName());
+        assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(2)));
 
         assertEquals("executionenvironment.buildproperties", projects.get(3).getArtifactId());
-        assertEquals("OSGi/Minimum-1.1", bundleProject.getExecutionEnvironment(projects.get(3)).getProfileName());
+        assertEquals("OSGi/Minimum-1.1", getActiveEEProfile(projects.get(3)));
 
         assertEquals("executionenvironment.pom-default", projects.get(4).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", bundleProject.getExecutionEnvironment(projects.get(4)).getProfileName());
+        assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(4)));
+    }
+
+    private static String getActiveEEProfile(MavenProject project) {
+        return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getProfileName();
     }
 }
