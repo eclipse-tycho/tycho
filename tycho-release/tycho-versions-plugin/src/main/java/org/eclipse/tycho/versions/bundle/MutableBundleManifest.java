@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Nepomuk Seiler - set export-package attribute implementation
  *******************************************************************************/
 package org.eclipse.tycho.versions.bundle;
 
@@ -195,4 +196,13 @@ public class MutableBundleManifest {
         }
     }
 
+    public void setExportedPackageVersion(String version) {
+        ManifestAttribute attr = getAttribute(Constants.EXPORT_PACKAGE);
+        if (attr == null)
+            return;
+
+        String newExportedPackage = attr.getValue().replaceAll("(version=)\"(.*?)\"", "$1\"" + version + "\"") //Replacing all version fields
+                .replaceAll(".qualifier", ""); // Removing all .qualifier
+        attr.set(Constants.EXPORT_PACKAGE, newExportedPackage);
+    }
 }

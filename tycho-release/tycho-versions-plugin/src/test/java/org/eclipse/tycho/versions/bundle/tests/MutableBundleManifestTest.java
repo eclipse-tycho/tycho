@@ -51,6 +51,14 @@ public class MutableBundleManifestTest {
     }
 
     @Test
+    public void setExportedVersion() throws Exception {
+        MutableBundleManifest mf = getManifest("/manifests/setExportedPackage.mf");
+
+        mf.setExportedPackageVersion("1.0.1.qualifier");
+        assertContents(mf, "/manifests/setExportedPackage.mf_expected");
+    }
+
+    @Test
     public void addAttribute() throws Exception {
         MutableBundleManifest mf = getManifest("/manifests/addheader.mf");
         mf.add(new ManifestAttribute("header", "value"));
