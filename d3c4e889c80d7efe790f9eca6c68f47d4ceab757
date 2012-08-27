@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//6Xk\u003d",
+        "filename": "tycho-core/src/test/resources/projects/bree/pom-default/META-INF/MANIFEST.MF",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-27T11:31:23Z",
+      "side": 1,
+      "message": "This could also be \"pom-default\", but it doesn\u0027t really matter.",
+      "revId": "d3c4e889c80d7efe790f9eca6c68f47d4ceab757",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
