@@ -15,7 +15,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 
 public class TychoProjectUtils {
     private static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";

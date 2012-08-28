@@ -49,10 +49,12 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
      * List of packages exported by the shared bundles. The shared bundles are loaded by the Maven
      * class loader (see transitive dependencies of <code>tycho-maven-plugin</code>) but their
      * classes are also exposed to the implementation bundles in in Tycho's OSGi runtime (see
-     * {@link TychoOsgiRuntimeArtifacts#getRuntimeArtifacts()}) via the system packages extra option.
+     * {@link TychoOsgiRuntimeArtifacts#getRuntimeArtifacts()}) via the system packages extra
+     * option.
      */
     public static final String[] SYSTEM_PACKAGES_EXTRA = { "org.eclipse.tycho", // 
             "org.eclipse.tycho.artifacts", //
+            "org.eclipse.tycho.core.ee.shared", //
             "org.eclipse.tycho.core.facade", //
             "org.eclipse.tycho.core.resolver.shared", //
             "org.eclipse.tycho.locking.facade", //

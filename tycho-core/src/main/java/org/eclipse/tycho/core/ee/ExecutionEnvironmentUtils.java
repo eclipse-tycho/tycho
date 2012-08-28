@@ -23,6 +23,7 @@ import java.util.StringTokenizer;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.framework.internal.core.FrameworkProperties;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Version;
 

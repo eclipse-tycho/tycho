@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.core.ee.EEVersion.EEType;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 
