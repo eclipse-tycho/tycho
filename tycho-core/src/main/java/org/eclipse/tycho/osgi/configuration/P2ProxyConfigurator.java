@@ -12,6 +12,7 @@ package org.eclipse.tycho.osgi.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
@@ -37,7 +38,7 @@ public class P2ProxyConfigurator extends EquinoxLifecycleListener {
 
         final List<Proxy> activeProxies = new ArrayList<Proxy>();
         for (Proxy proxy : session.getSettings().getProxies()) {
-            if (proxy.isActive()) {
+            if (proxy.isActive() && isSupportedProtocol(proxy.getProtocol())) {
                 activeProxies.add(proxy);
             }
         }
@@ -52,6 +53,19 @@ public class P2ProxyConfigurator extends EquinoxLifecycleListener {
             proxyService.configureProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(),
                     proxy.getPassword(), proxy.getNonProxyHosts());
         }
+    }
+
+    private boolean isSupportedProtocol(String protocol) {
+        if (protocol == null) {
+            return false;
+        }
+        protocol = protocol.trim().toLowerCase(Locale.ENGLISH);
+        if ("http".equals(protocol) || "https".equals(protocol) || "socks4".equals(protocol)
+                || "socks_5".equals(protocol)) {
+            return true;
+        }
+        logger.warn("Ignoring unsupported proxy protocol: '" + protocol + "'");
+        return false;
     }
 
 }
