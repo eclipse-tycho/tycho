@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "AABOIn//6Qk\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 17
+      },
+      "writtenOn": "2012-08-28T06:40:22Z",
+      "side": 1,
+      "message": "I\u0027ve opend bug 388161 to discuss/track this. Our implementation references OsgiSurefireBooter but we are aware that it isn\u0027t API.",
+      "parentUuid": "AABOIn///OE\u003d",
+      "revId": "0ca5856bc73204f2d750c41f1b990a253f591f5a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOIX///io\u003d",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
         "patchSetId": 1
