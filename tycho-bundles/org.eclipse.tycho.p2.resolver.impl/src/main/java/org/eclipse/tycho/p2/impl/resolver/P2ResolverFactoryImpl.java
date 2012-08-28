@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
@@ -23,6 +24,7 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 
@@ -37,14 +39,16 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private RemoteAgentManager remoteAgentManager;
     private TargetDefinitionResolverService targetDefinitionResolverService;
 
-    public TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree) {
+    public TargetPlatformBuilderImpl createTargetPlatformBuilder(ExecutionEnvironmentConfiguration eeConfiguration) {
         IProvisioningAgent remoteAgent;
         try {
             remoteAgent = remoteAgentManager.getProvisioningAgent();
             LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
             LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
-            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, targetDefinitionResolverService, bree,
-                    localArtifactRepo, localMetadataRepo);
+            ExecutionEnvironmentResolutionHandler eeResolutionHandler = ExecutionEnvironmentResolutionHandler
+                    .adapt(eeConfiguration);
+            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, targetDefinitionResolverService,
+                    eeResolutionHandler, localArtifactRepo, localMetadataRepo);
         } catch (ProvisionException e) {
             throw new RuntimeException(e);
         }

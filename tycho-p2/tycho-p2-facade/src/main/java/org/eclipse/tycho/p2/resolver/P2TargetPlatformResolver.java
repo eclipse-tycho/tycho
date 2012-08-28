@@ -187,7 +187,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
 
-        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(ee.getProfileName());
+        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(ee);
         tpBuilder.setProjectLocation(project.getBasedir());
         tpBuilder.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
 

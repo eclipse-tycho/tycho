@@ -14,11 +14,13 @@ package org.eclipse.tycho.p2.impl.resolver;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -38,6 +40,8 @@ import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.NoopEEResolverHints;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
+import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
@@ -115,7 +119,7 @@ public class P2ResolverTestBase {
     }
 
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithEE(String bree) throws Exception {
-        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(bree);
+        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new StandardEEResolutionHints(bree));
     }
 
     private static class TestTargetPlatformBuilderFactory {
@@ -141,13 +145,17 @@ public class P2ResolverTestBase {
 
         public TargetPlatformBuilderImpl createTargetPlatformBuilder(
                 ExecutionEnvironmentResolutionHints executionEnvironment) throws Exception {
-            return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
-                    targetDefinitionResolverService, executionEnvironment, localArtifactRepo, localMetadataRepo);
-        }
+            ExecutionEnvironmentResolutionHandler eeHandler = new ExecutionEnvironmentResolutionHandler(
+                    executionEnvironment) {
 
-        TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree) throws Exception {
+                @Override
+                public void readFullSpecification(Collection<IInstallableUnit> targetPlatformContent) {
+                    // do nothing
+                }
+            };
+
             return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
-                    targetDefinitionResolverService, bree, localArtifactRepo, localMetadataRepo);
+                    targetDefinitionResolverService, eeHandler, localArtifactRepo, localMetadataRepo);
         }
 
         private MavenContext createMavenContext(boolean offline, MavenLogger logger) throws IOException {
