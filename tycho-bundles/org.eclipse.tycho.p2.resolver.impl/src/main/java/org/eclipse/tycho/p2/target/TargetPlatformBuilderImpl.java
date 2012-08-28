@@ -59,7 +59,7 @@ import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
+import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
@@ -90,9 +90,10 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private boolean includePackedArtifacts;
 
     /**
-     * Representation of the target execution environment profile
+     * Representation of the target execution environment profile. In case of a custom EE profile,
+     * the handler also reads the full specification from the target platform.
      */
-    private final ExecutionEnvironmentResolutionHints jreIUs;
+    private final ExecutionEnvironmentResolutionHandler eeResolutionHandler;
 
     /** maven local repository as P2 IArtifactRepository */
     private final LocalArtifactRepository localArtifactRepository;
@@ -101,16 +102,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private final LocalMetadataRepository localMetadataRepository;
 
     public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
-            TargetDefinitionResolverService targetDefinitionResolverService, String bree,
-            LocalArtifactRepository localArtifactRepo, LocalMetadataRepository localMetadataRepo)
-            throws ProvisionException {
-        this(remoteAgent, mavenContext, targetDefinitionResolverService, new JREInstallableUnits(bree),
-                localArtifactRepo, localMetadataRepo);
-    }
-
-    public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
             TargetDefinitionResolverService targetDefinitionResolverService,
-            ExecutionEnvironmentResolutionHints executionEnvironment, LocalArtifactRepository localArtifactRepo,
+            ExecutionEnvironmentResolutionHandler eeResolutionHandler, LocalArtifactRepository localArtifactRepo,
             LocalMetadataRepository localMetadataRepo) throws ProvisionException {
         this.remoteAgent = remoteAgent;
         this.targetDefinitionResolverService = targetDefinitionResolverService;
@@ -134,7 +127,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
         this.offline = mavenContext.isOffline();
 
-        this.jreIUs = executionEnvironment;
+        this.eeResolutionHandler = eeResolutionHandler;
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
         this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, logger);
@@ -293,7 +286,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
         TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
-                definition, environments, jreIUs, remoteAgent);
+                definition, environments, eeResolutionHandler.getResolutionHints(), remoteAgent);
         content.add(targetFileContent);
 
         if (logger.isDebugEnabled()) {
@@ -341,10 +334,10 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
 
-        return new TargetPlatformImpl(reactorProjects.values(),//
+        TargetPlatformImpl targetPlatform = new TargetPlatformImpl(reactorProjects.values(),//
                 externalUIs, //
                 mavenInstallableUnits, //
-                jreIUs, //
+                eeResolutionHandler.getResolutionHints(), //
                 filter, //
                 localMetadataRepository, //
                 allRemoteArtifactRepositories, //
@@ -352,6 +345,10 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 remoteAgent, //
                 includePackedArtifacts, //
                 logger);
+
+        eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
+
+        return targetPlatform;
     }
 
     // -------------------------------------------------------------------------
@@ -431,7 +428,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         Iterator<IInstallableUnit> iter = units.iterator();
         while (iter.hasNext()) {
             IInstallableUnit unit = iter.next();
-            if (jreIUs.isNonApplicableEEUnit(unit) || isPartialIU(unit) || reactorIUIDs.contains(unit.getId())) {
+            if (eeResolutionHandler.getResolutionHints().isNonApplicableEEUnit(unit) || isPartialIU(unit)
+                    || reactorIUIDs.contains(unit.getId())) {
                 // TODO log
                 iter.remove();
                 continue;
