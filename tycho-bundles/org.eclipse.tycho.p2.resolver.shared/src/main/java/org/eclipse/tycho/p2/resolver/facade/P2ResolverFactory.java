@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 public interface P2ResolverFactory {
 
-    public TargetPlatformBuilder createTargetPlatformBuilder(String bree);
+    public TargetPlatformBuilder createTargetPlatformBuilder(ExecutionEnvironmentConfiguration eeConfiguration);
 
     public P2Resolver createResolver(MavenLogger logger);
 }

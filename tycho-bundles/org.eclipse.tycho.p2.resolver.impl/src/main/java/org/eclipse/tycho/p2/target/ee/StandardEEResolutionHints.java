@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.target;
+package org.eclipse.tycho.p2.target.ee;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,13 +33,13 @@ import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
  * "JavaSE-1.7"
  */
 @SuppressWarnings("restriction")
-final class JREInstallableUnits implements ExecutionEnvironmentResolutionHints {
+public final class StandardEEResolutionHints implements ExecutionEnvironmentResolutionHints {
 
     private final String executionEnvironment;
     private final Map<VersionedId, IInstallableUnit> additionalUnits;
     private final Map<VersionedId, IInstallableUnit> temporaryUnits;
 
-    public JREInstallableUnits(String executionEnvironment) {
+    public StandardEEResolutionHints(String executionEnvironment) {
         this.executionEnvironment = executionEnvironment;
         this.additionalUnits = computeAdditionalUnits(executionEnvironment);
         this.temporaryUnits = computeTemporaryAdditions(additionalUnits);
@@ -131,9 +131,9 @@ final class JREInstallableUnits implements ExecutionEnvironmentResolutionHints {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (!(obj instanceof JREInstallableUnits))
+        if (!(obj instanceof StandardEEResolutionHints))
             return false;
-        JREInstallableUnits other = (JREInstallableUnits) obj;
+        StandardEEResolutionHints other = (StandardEEResolutionHints) obj;
         return eq(executionEnvironment, other.executionEnvironment);
     }
 

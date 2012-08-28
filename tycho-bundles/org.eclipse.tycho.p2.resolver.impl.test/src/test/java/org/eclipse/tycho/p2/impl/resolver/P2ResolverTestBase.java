@@ -40,6 +40,8 @@ import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.NoopEEResolverHints;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
+import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Before;
@@ -115,7 +117,7 @@ public class P2ResolverTestBase {
     }
 
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithEE(String bree) throws Exception {
-        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(bree);
+        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new StandardEEResolutionHints(bree));
     }
 
     private static class TestTargetPlatformBuilderFactory {
@@ -141,13 +143,11 @@ public class P2ResolverTestBase {
 
         public TargetPlatformBuilderImpl createTargetPlatformBuilder(
                 ExecutionEnvironmentResolutionHints executionEnvironment) throws Exception {
-            return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
-                    targetDefinitionResolverService, executionEnvironment, localArtifactRepo, localMetadataRepo);
-        }
+            ExecutionEnvironmentResolutionHandler eeHandler = ExecutionEnvironmentResolutionHandler
+                    .adapt(executionEnvironment);
 
-        TargetPlatformBuilderImpl createTargetPlatformBuilder(String bree) throws Exception {
             return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
-                    targetDefinitionResolverService, bree, localArtifactRepo, localMetadataRepo);
+                    targetDefinitionResolverService, eeHandler, localArtifactRepo, localMetadataRepo);
         }
 
         private MavenContext createMavenContext(boolean offline, MavenLogger logger) throws IOException {

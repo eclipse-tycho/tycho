@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeModeTests.PlannerLocationStub;
+import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
@@ -196,8 +197,8 @@ public class TargetDefinitionResolverTest {
     // TODO move to TargetDefinitionResolverExecutionEnvironmentTest
     @Test
     public void testRestrictedExecutionEnvironment() throws Exception {
-        subject = new TargetDefinitionResolver(defaultEnvironments(),
-                new JREInstallableUnits("CDC-1.0/Foundation-1.0"), p2Context.getAgent(), logger);
+        subject = new TargetDefinitionResolver(defaultEnvironments(), new StandardEEResolutionHints(
+                "CDC-1.0/Foundation-1.0"), p2Context.getAgent(), logger);
 
         // requires the package org.w3c.dom
         IVersionedId seed = new VersionedId("dom-client", "0.0.1.SNAPSHOT");
@@ -211,7 +212,7 @@ public class TargetDefinitionResolverTest {
     // TODO move to TargetDefinitionResolverExecutionEnvironmentTest
     @Test
     public void test370502_requireJREIUs() throws Exception {
-        subject = new TargetDefinitionResolver(defaultEnvironments(), new JREInstallableUnits("J2SE-1.5"),
+        subject = new TargetDefinitionResolver(defaultEnvironments(), new StandardEEResolutionHints("J2SE-1.5"),
                 p2Context.getAgent(), logger);
 
         // requires the a.jre.javase and config.a.jre.javase units in version 1.6.0 (like most products)

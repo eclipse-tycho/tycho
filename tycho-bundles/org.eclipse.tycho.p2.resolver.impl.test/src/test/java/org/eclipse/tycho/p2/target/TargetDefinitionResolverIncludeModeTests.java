@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
+import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
@@ -67,7 +68,7 @@ public class TargetDefinitionResolverIncludeModeTests {
         TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
         Map<String, String> emptyMap = new HashMap<String, String>();
         List<Map<String, String>> environments = Collections.singletonList(emptyMap);
-        subject = new TargetDefinitionResolver(environments, new JREInstallableUnits(null), p2Context.getAgent(),
+        subject = new TargetDefinitionResolver(environments, new StandardEEResolutionHints(null), p2Context.getAgent(),
                 new MavenLoggerStub(false, false));
         subject.resolveContent(definition);
     }
