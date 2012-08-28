@@ -5,6 +5,7 @@ Bundle-Version: 0.16.0.qualifier
 Bundle-Name: Tycho Core Maven/OSGi Shared Classes (Incubation)
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.tycho.artifacts,
+ org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.facade,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.locking.facade

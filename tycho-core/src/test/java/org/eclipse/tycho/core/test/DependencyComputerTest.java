@@ -21,7 +21,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TychoConstants;
-import org.eclipse.tycho.core.ee.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;

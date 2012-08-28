@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.ee;
+package org.eclipse.tycho.core.ee.shared;
 
 import java.util.Properties;
 

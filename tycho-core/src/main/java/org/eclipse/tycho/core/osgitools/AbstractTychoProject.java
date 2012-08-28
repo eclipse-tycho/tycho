@@ -20,7 +20,7 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;

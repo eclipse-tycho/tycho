@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 
 public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
     private static final int PRIMARY = 0;

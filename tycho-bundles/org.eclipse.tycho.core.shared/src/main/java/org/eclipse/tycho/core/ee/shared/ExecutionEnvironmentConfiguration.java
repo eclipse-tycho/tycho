@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.ee;
+package org.eclipse.tycho.core.ee.shared;
 
 /**
  * Instances of this type collect information on the configured execution environment, so that they
