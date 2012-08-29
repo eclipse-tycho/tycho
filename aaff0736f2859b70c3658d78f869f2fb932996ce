@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//6FU\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/osgi/configuration/P2ProxyConfigurator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-29T08:16:53Z",
+      "side": 1,
+      "message": "Why warn about a global setting that obviously doesn\u0027t apply? AFAIK, p2 only speaks http, https, and file, so we are not ignoring anything that could be relevant.",
+      "revId": "aaff0736f2859b70c3658d78f869f2fb932996ce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
