@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//5w0\u003d",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/DependencyComputerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-08-30T16:37:50Z",
+      "side": 1,
+      "message": "This line is needed, and this is a problem: The a.jre IUs currently don\u0027t include this information so we don\u0027t have it for custom profiles. Probably this means that I\u0027ll need to add this in the JREAction, so we\u0027ll need a p2 change to complete bug 385930.",
+      "revId": "a0b402be29377efa2e6ed803d1b249bf7291bc40",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
