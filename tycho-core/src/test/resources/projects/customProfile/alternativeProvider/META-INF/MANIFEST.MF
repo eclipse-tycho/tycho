@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Alternative provider of a package also available in the custom EE profile
+Bundle-SymbolicName: alternativeProvider
+Bundle-Version: 0.0.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.2
+Export-Package: package.historically.not.in.jdk;version="1.2.1"
