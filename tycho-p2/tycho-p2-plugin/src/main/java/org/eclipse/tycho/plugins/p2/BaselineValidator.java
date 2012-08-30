@@ -237,7 +237,7 @@ public class BaselineValidator {
         }
 
         return !result.isEmpty() ? new CompoundArtifactDelta(
-                "baseline and reactor have same version but different contents", result) : null;
+                "baseline and build artifacts have same version but different contents", result) : null;
     }
 
     private <T> T getService(Class<T> type) {
