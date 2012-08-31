@@ -57,9 +57,9 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
             RepositoryReader contentLocator = new LocalRepositoryReader(localMavenRepoRoot);
             localMetadataRepository = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
                     localRepoIndices.getMetadataIndex(), contentLocator);
-            String includeInTP = context.getSessionProperties().getProperty("tycho.considerLocal");
+            String includeInTP = context.getSessionProperties().getProperty("tycho.includeLocal");
             if (includeInTP != null && !(includeInTP.equalsIgnoreCase("warn"))) {
-                context.getLogger().debug("tycho.considerLocal=" + includeInTP);
+                context.getLogger().debug("tycho.includeLocal=" + includeInTP);
                 localMetadataRepository.setIncludeInTargetPlatform(Boolean.valueOf(includeInTP));
             }
         }
