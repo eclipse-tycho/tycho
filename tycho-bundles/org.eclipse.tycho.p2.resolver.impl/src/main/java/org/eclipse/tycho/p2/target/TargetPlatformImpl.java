@@ -182,7 +182,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     }
 
     private void logLocalIUMessage(String message) {
-        if (localMetadataRepository.getConsider() == null) {
+        if (localMetadataRepository.getIncludeInTargetPlatform() == null) {
             logger.warn(message);
         } else {
             logger.debug(message);

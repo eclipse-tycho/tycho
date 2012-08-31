@@ -32,7 +32,7 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
 
     private Set<GAV> changedGAVs = new LinkedHashSet<GAV>();
-    private Boolean consider = null;
+    private Boolean includeInTargetPlatform = null;
 
     /**
      * Create new repository
@@ -56,9 +56,9 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
 
     @Override
     public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-        if (Boolean.FALSE == consider) {
+        if (includeInTargetPlatform == Boolean.FALSE) {
             return new CollectionResult<IInstallableUnit>(Collections.<IInstallableUnit> emptyList());
-        } else {
+        } else { // if includeInTargetPlatform is true or null (=default)
             return super.query(query, monitor);
         }
     }
@@ -126,15 +126,15 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
         return true;
     }
 
-    public void setConsider(Boolean consider) {
-        this.consider = consider;
+    public void setIncludeInTargetPlatform(Boolean value) {
+        this.includeInTargetPlatform = value;
     }
 
     /**
      * may be <code>null</code> to indicate the default value
      */
-    public Boolean getConsider() {
-        return consider;
+    public Boolean getIncludeInTargetPlatform() {
+        return includeInTargetPlatform;
     }
 
 }
