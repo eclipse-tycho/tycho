@@ -40,40 +40,39 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- These dependencies are only listed here to make sure that all required 
-			Tycho artifacts are in the local Maven repository when the Mojo tests are 
-			executed. The Mojo tests trigger a full Maven build, but that build does 
-			not have access to a repository that contains Tycho (see bug 348394). -->
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
-			<version>${tycho-version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
-			<version>${tycho-version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
-			<version>${tycho-version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-bundles-external</artifactId>
-			<version>${tycho-version}</version>
-			<type>zip</type>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-equinox-launching</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+        <dependency>
+            <!--
+                Workaround 387848 and 348394.
+
+                Ideally, we want to be able to run unit/integration tests in three distinct environments
+                - on CI system, when tycho-core dependencies are resolved from remote repositories
+                - on dev machine, when tycho-core is installed in local repository or resolved from repositories
+                - from within m2e workspace, when tycho-core is resolved according to m2e workspace resolution rules
+
+                Due to a limitation in Maven core, it is not possible to force a Maven build to use
+                locally cached but not installed artifacts. This means that tests MUST be able to resolve tycho-core
+                artifacts remotely, although Maven will skip actual remote download if artifacts are already cached 
+                locally.
+
+                The workaround for this limitation is two step
+                - this dependency gives maven-invoker has access to all classes required to perform artifact resolution
+                  from remote repositories.
+                - new snapshots/releases <pluginRepository> in test pom.xml files gives test project access to
+                  tycho-core artifacts
+             -->
+            <groupId>org.apache.maven</groupId>
+            <artifactId>apache-maven</artifactId>
+            <version>${maven-version}</version>
+            <classifier>bin</classifier>
+            <type>tar.gz</type>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
