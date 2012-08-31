@@ -98,7 +98,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
         } catch (VerificationException expected) {
             //
         }
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
     }
 
     @Test
@@ -118,7 +118,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
         verifier.getCliOptions().add("-Dtycho.baseline=warn");
 
         verifier.executeGoals(Arrays.asList("clean", "package"));
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
     }
 
     @Test
@@ -128,7 +128,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
         verifier.getCliOptions().add("-Dtycho.baseline=warn");
 
         verifier.executeGoals(Arrays.asList("clean", "package"));
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
 
         File repository = new File(verifier.getBasedir(), "repository/target/repository");
         assertBaselineContents(repository, "plugins/baseline.bundle01.source_1.0.0.1.jar");
@@ -146,7 +146,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
             //
         }
 
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
     }
 
     @Test
@@ -157,7 +157,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
 
         verifier.executeGoals(Arrays.asList("clean", "package"));
 
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
     }
 
     @Test
@@ -172,7 +172,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
             //
         }
 
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
     }
 
     @Test
@@ -186,7 +186,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
         } catch (VerificationException expected) {
             //
         }
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
     }
 
     @Test
@@ -197,7 +197,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
         verifier.getCliOptions().add("-Dtycho.baseline.replace=none");
 
         verifier.executeGoals(Arrays.asList("clean", "package"));
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
 
         File repository = new File(verifier.getBasedir(), "repository/target/repository");
         assertReactorContents(repository, "plugins/baseline.bundle01_1.0.0.1.jar");
@@ -211,7 +211,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
         verifier.getCliOptions().add("-Dtycho.baseline.replace=common");
 
         verifier.executeGoals(Arrays.asList("clean", "package"));
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
 
         File repository = new File(verifier.getBasedir(), "repository/target/repository");
         assertBaselineContents(repository, "features/baseline.feature02_1.0.0.1.jar");
@@ -229,7 +229,7 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
         verifier.getCliOptions().add("-Dtycho.baseline.replace=all");
 
         verifier.executeGoals(Arrays.asList("clean", "package"));
-        verifier.verifyTextInLog("baseline and reactor have same version but different contents");
+        verifier.verifyTextInLog("baseline and build artifacts have same version but different contents");
 
         File repository = new File(verifier.getBasedir(), "repository/target/repository");
         assertBaselineContents(repository, "features/baseline.feature02_1.0.0.1.jar");
