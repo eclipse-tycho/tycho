@@ -63,9 +63,9 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
     }
 
     @Test
-    public void testConsiderFalse() throws Exception {
+    public void testIncludeInTargetPlatformFalse() throws Exception {
         LocalMetadataRepository repository = createRepository(tempFolder.newFolder());
-        repository.setConsider(Boolean.FALSE);
+        repository.setIncludeInTargetPlatform(Boolean.FALSE);
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         iud.setId("test");
         iud.setVersion(Version.parseVersion("1.0.0"));
