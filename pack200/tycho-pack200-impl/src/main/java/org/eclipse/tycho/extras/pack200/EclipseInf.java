@@ -22,8 +22,7 @@ import org.codehaus.plexus.util.IOUtil;
 /**
  * http://wiki.eclipse.org/JarProcessor_Options
  */
-public class EclipseInf
-{
+public class EclipseInf {
 
     public static final String PATH_ECLIPSEINF = "META-INF/eclipse.inf";
 
@@ -33,54 +32,42 @@ public class EclipseInf
 
     private final Properties properties;
 
-    private EclipseInf( Properties properties )
-    {
+    private EclipseInf(Properties properties) {
         this.properties = properties;
     }
 
-    public boolean shouldPack()
-    {
-        return !Boolean.parseBoolean( properties.getProperty( "jarprocessor.exclude" ) )
-            && !Boolean.parseBoolean( properties.getProperty( "jarprocessor.exclude.pack" ) );
+    public boolean shouldPack() {
+        return !Boolean.parseBoolean(properties.getProperty("jarprocessor.exclude"))
+                && !Boolean.parseBoolean(properties.getProperty("jarprocessor.exclude.pack"));
     }
 
-    public boolean isPackNormalized()
-    {
-        return Boolean.parseBoolean( properties.getProperty( PACK200_CONDITIONED ) );
+    public boolean isPackNormalized() {
+        return Boolean.parseBoolean(properties.getProperty(PACK200_CONDITIONED));
     }
 
-    public void setPackNormalized()
-    {
-        properties.put( PACK200_CONDITIONED, TRUE );
+    public void setPackNormalized() {
+        properties.put(PACK200_CONDITIONED, TRUE);
     }
 
-    public static EclipseInf readEclipseInf( JarFile jarFile )
-        throws IOException
-    {
+    public static EclipseInf readEclipseInf(JarFile jarFile) throws IOException {
         Properties properties = new Properties();
 
-        ZipEntry entry = jarFile.getEntry( PATH_ECLIPSEINF );
-        if ( entry != null )
-        {
-            InputStream is = jarFile.getInputStream( entry );
-            try
-            {
-                properties.load( is );
-            }
-            finally
-            {
-                IOUtil.close( is );
+        ZipEntry entry = jarFile.getEntry(PATH_ECLIPSEINF);
+        if (entry != null) {
+            InputStream is = jarFile.getInputStream(entry);
+            try {
+                properties.load(is);
+            } finally {
+                IOUtil.close(is);
             }
         }
 
-        return new EclipseInf( properties );
+        return new EclipseInf(properties);
     }
 
-    public byte[] toByteArray()
-        throws IOException
-    {
+    public byte[] toByteArray() throws IOException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        properties.store( buf, null );
+        properties.store(buf, null);
         return buf.toByteArray();
     }
 }
