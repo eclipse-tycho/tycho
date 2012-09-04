@@ -3,10 +3,12 @@ Require-Bundle: org.eclipse.osgi;bundle-version="3.2.2",
  org.eclipse.ui.workbench;bundle-version="3.2.2";resolution:=optional,
  org.eclipse.core.runtime;bundle-version="3.2.0"
 Eclipse-AutoStart: true
-Bundle-ClassPath: .,
- jars/surefire-booter-2.10.jar,
- jars/surefire-api-2.10.jar
 Bundle-Version: 0.21.0.qualifier
+Bundle-ClassPath: .,
+ jars/surefire-booter-2.17.jar,
+ jars/surefire-api-2.17.jar,
+ jars/maven-surefire-common-2.17.jar,
+ jars/plexus-utils-3.0.jar
 Bundle-Name: Tycho Surefire OSGi Booter Eclipse Application (Incubation)
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.tycho.surefire.osgibooter;singleton:=true
