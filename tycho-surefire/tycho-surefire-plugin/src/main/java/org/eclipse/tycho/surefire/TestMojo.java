@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -33,9 +34,10 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.surefire.util.DirectoryScanner;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.surefire.suite.RunResult;
+import org.apache.maven.surefire.util.DefaultScanResult;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
@@ -626,6 +628,27 @@ public class TestMojo extends AbstractMojo {
             providerProperties.put("perCoreThreadCount", String.valueOf(perCoreThreadCount));
             providerProperties.put("useUnlimitedThreads", String.valueOf(useUnlimitedThreads));
         }
+
+        List<String> defaultIncludes = Arrays.asList("**/Test*.class", "**/*Test.class", "**/*TestCase.class");
+        List<String> defaultExcludes = Arrays.asList("**/Abstract*Test.class", "**/Abstract*TestCase.class", "**/*$*");
+        List<String> includeList;
+        if (test != null) {
+            String test = this.test;
+            test = test.replace('.', '/');
+            test = test.endsWith(".class") ? test : test + ".class";
+            test = test.startsWith("**/") ? test : "**/" + test;
+            includeList = Collections.singletonList(test);
+        } else if (testClass != null) {
+            includeList = Collections.singletonList(testClass.replace('.', '/') + ".class");
+        } else if (includes != null) {
+            includeList = includes;
+        } else {
+            includeList = defaultIncludes;
+        }
+        DirectoryScanner scanner = new DirectoryScanner(testClassesDirectory, includeList, excludes != null ? excludes
+                : defaultExcludes, Collections.<String> emptyList());
+        DefaultScanResult scanResult = scanner.scan();
+        scanResult.writeTo(providerProperties);
         for (Map.Entry entry : providerProperties.entrySet()) {
             surefireProps.put("__provider." + entry.getKey(), entry.getValue());
         }
@@ -670,7 +693,7 @@ public class TestMojo extends AbstractMojo {
         case 0:
             getLog().info("All tests passed!");
             break;
-        case RunResult.NO_TESTS:
+        case 254/* RunResult.NO_TESTS */:
             String message = "No tests found.";
             if (failIfNoTests) {
                 throw new MojoFailureException(message);
@@ -678,7 +701,7 @@ public class TestMojo extends AbstractMojo {
                 getLog().warn(message);
             }
             break;
-        case RunResult.FAILURE:
+        case 255/* RunResult.FAILURE */:
             String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
                     + " for the individual test results.";
             if (testFailureIgnore) {

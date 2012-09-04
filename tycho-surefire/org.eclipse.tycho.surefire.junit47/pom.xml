@@ -44,6 +44,16 @@
 									<artifactId>surefire-junit47</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>common-junit48</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-grouper</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>

@@ -44,7 +44,7 @@ public class JUnit47Provider extends AbstractJUnitProvider {
     }
 
     public String getSurefireProviderClassName() {
-        return "org.apache.maven.surefire.junitcore.OsgiEnabledJUnitCoreProvider";
+        return "org.apache.maven.surefire.junitcore.JUnitCoreProvider";
     }
 
     public Version getVersion() {

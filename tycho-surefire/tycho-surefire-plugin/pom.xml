@@ -96,5 +96,10 @@
 			<artifactId>surefire-api</artifactId>
 			<version>${surefire-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.surefire</groupId>
+			<artifactId>maven-surefire-common</artifactId>
+			<version>${surefire-version}</version>
+		</dependency>
 	</dependencies>
 </project>

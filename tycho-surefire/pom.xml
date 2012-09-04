@@ -26,7 +26,7 @@
 	<name>Tycho Surefire Parent (Incubation)</name>
 
 	<properties>
-		<surefire-version>2.10</surefire-version>
+		<surefire-version>2.12.3</surefire-version>
 	</properties>
 
 	<modules>
