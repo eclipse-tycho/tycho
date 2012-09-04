@@ -26,7 +26,11 @@
 	<name>Tycho Surefire Parent (Incubation)</name>
 
 	<properties>
-		<surefire-version>2.10</surefire-version>
+		<surefire-version>2.17</surefire-version>
+		<!-- NOTE: when updating surefire version above, run BND manually to find Import-Package 
+		statements to JUnit packages required for org.eclipse.tycho.surefire.junit* OSGi wrappers.
+		Surefire jars are shaded but not fully self-contained (various package dependencies to org.apache.maven.* 
+		packages in classes we do not use) so we can't use BND (maven-bundle-plugin) for creating the wrappers -->
 	</properties>
 
 	<modules>

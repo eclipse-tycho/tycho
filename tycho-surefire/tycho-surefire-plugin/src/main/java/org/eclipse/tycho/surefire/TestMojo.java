@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.surefire.util.DirectoryScanner;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -42,7 +44,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.surefire.suite.RunResult;
+import org.apache.maven.surefire.booter.ProviderParameterNames;
+import org.apache.maven.surefire.util.DefaultScanResult;
+import org.apache.maven.surefire.util.ScanResult;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
@@ -61,9 +65,9 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -822,24 +826,12 @@ public class TestMojo extends AbstractMojo {
         p.put("reportsdirectory", reportsDirectory.getAbsolutePath());
         p.put("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
 
-        if (test != null) {
-            String test = this.test;
-            test = test.replace('.', '/');
-            test = test.endsWith(".class") ? test : test + ".class";
-            test = test.startsWith("**/") ? test : "**/" + test;
-            p.put("includes", test);
-        } else {
-            if (testClass != null) {
-                p.put("includes", testClass.replace('.', '/') + ".class");
-            } else {
-                p.put("includes", includes != null ? getIncludesExcludes(includes)
-                        : "**/Test*.class,**/*Test.class,**/*TestCase.class");
-                p.put("excludes", excludes != null ? getIncludesExcludes(excludes) : "**/*$*");
-            }
-        }
         p.put("failifnotests", String.valueOf(failIfNoTests));
         p.put("runOrder", runOrder);
-        for (Map.Entry entry : getMergedProviderProperties().entrySet()) {
+        Properties mergedProviderProperties = getMergedProviderProperties();
+        ScanResult scanResult = scanForTests();
+        scanResult.writeTo(mergedProviderProperties);
+        for (Map.Entry entry : mergedProviderProperties.entrySet()) {
             p.put("__provider." + entry.getKey(), entry.getValue());
         }
         p.setProperty("testprovider", provider.getSurefireProviderClassName());
@@ -851,14 +843,39 @@ public class TestMojo extends AbstractMojo {
         Properties result = new Properties();
         result.putAll(providerProperties);
         if (parallel != null) {
-            result.put("parallel", parallel.name());
+            result.put(ProviderParameterNames.PARALLEL_PROP, parallel.name());
             if (threadCount > 0) {
-                result.put("threadCount", String.valueOf(threadCount));
+                result.put(ProviderParameterNames.THREADCOUNT_PROP, String.valueOf(threadCount));
             }
-            result.put("perCoreThreadCount", String.valueOf(perCoreThreadCount));
-            result.put("useUnlimitedThreads", String.valueOf(useUnlimitedThreads));
+            result.put(/* JUnitCoreParameters.PERCORETHREADCOUNT_KEY */"perCoreThreadCount",
+                    String.valueOf(perCoreThreadCount));
+            result.put(/* JUnitCoreParameters.USEUNLIMITEDTHREADS_KEY */"useUnlimitedThreads",
+                    String.valueOf(useUnlimitedThreads));
         }
         return result;
+    }
+
+    private ScanResult scanForTests() {
+        List<String> defaultIncludes = Arrays.asList("**/Test*.class", "**/*Test.class", "**/*TestCase.class");
+        List<String> defaultExcludes = Arrays.asList("**/*$*");
+        List<String> includeList;
+        if (test != null) {
+            String test = this.test;
+            test = test.replace('.', '/');
+            test = test.endsWith(".class") ? test : test + ".class";
+            test = test.startsWith("**/") ? test : "**/" + test;
+            includeList = Collections.singletonList(test);
+        } else if (testClass != null) {
+            includeList = Collections.singletonList(testClass.replace('.', '/') + ".class");
+        } else if (includes != null) {
+            includeList = includes;
+        } else {
+            includeList = defaultIncludes;
+        }
+        DirectoryScanner scanner = new DirectoryScanner(testClassesDirectory, includeList, excludes != null ? excludes
+                : defaultExcludes, Collections.<String> emptyList());
+        DefaultScanResult scanResult = scanner.scan();
+        return scanResult;
     }
 
     private void storeProperties(Properties p, File file) throws MojoExecutionException {
@@ -902,7 +919,7 @@ public class TestMojo extends AbstractMojo {
         case 0:
             getLog().info("All tests passed!");
             break;
-        case RunResult.NO_TESTS:
+        case 254/* RunResult.NO_TESTS */:
             String message = "No tests found.";
             if (failIfNoTests) {
                 throw new MojoFailureException(message);
@@ -910,7 +927,7 @@ public class TestMojo extends AbstractMojo {
                 getLog().warn(message);
             }
             break;
-        case RunResult.FAILURE:
+        case 255/* RunResult.FAILURE */:
             String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
                     + " for the individual test results.";
             if (testFailureIgnore) {
