@@ -106,5 +106,10 @@
 			<artifactId>tycho-p2-facade</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.surefire</groupId>
+			<artifactId>maven-surefire-common</artifactId>
+			<version>${surefire-version}</version>
+		</dependency>
 	</dependencies>
 </project>

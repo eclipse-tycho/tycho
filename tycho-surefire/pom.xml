@@ -26,7 +26,11 @@
 	<name>Tycho Surefire Parent (Incubation)</name>
 
 	<properties>
-		<surefire-version>2.10</surefire-version>
+		<surefire-version>2.17</surefire-version>
+		<!-- NOTE: when updating surefire version above, run BND manually to find Import-Package 
+		statements to JUnit packages required for org.eclipse.tycho.surefire.junit* OSGi wrappers.
+		We can't use BND until surefire consumes fix for https://jira.codehaus.org/browse/MSHADE-105 which
+		leaves dependencies in the bytecode which should no longer be there -->
 	</properties>
 
 	<modules>
