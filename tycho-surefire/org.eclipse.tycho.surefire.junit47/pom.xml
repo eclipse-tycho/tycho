@@ -44,6 +44,17 @@
 									<artifactId>surefire-junit47</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
+								<!--  TODO find out which of these is really needed/ whether we can provide a shaded jar , stripped down to transitive hull of classes we need instead -->
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>common-junit48</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-grouper</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
