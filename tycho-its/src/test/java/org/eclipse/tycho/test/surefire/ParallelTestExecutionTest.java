@@ -43,7 +43,6 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
         verifier.getSystemProperties().setProperty("parallel", "classes");
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
-        verifier.verifyTextInLog("Concurrency config is parallel='classes', perCoreThreadCount=true, threadCount=3, useUnlimitedThreads=false");
         File surefireReportsDir = new File(verifier.getBasedir(), "target/surefire-reports");
         assertTrue(surefireReportsDir.isDirectory());
         File[] surefireXmlReports = surefireReportsDir.listFiles(new FilenameFilter() {
