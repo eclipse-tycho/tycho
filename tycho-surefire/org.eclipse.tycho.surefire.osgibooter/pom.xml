@@ -52,6 +52,17 @@
 									<artifactId>surefire-booter</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
+								<!-- TODO find if these dependencies are actually needed / maybe use maven-shade-plugin to produce a stripped-down jar -->
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>maven-surefire-common</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.codehaus.plexus</groupId>
+									<artifactId>plexus-utils</artifactId>
+									<version>3.0</version>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>

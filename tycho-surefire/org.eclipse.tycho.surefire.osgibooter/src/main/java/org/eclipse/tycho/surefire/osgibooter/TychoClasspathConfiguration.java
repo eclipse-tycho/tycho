@@ -24,19 +24,10 @@ public class TychoClasspathConfiguration extends ClasspathConfiguration {
         this.surefireClassLoader = surefireCLassLoader;
     }
 
+    // TODO check if this override is necessary
     @Override
-    public ClassLoader createSurefireClassLoader(ClassLoader parent) throws SurefireExecutionException {
-        return surefireClassLoader;
-    }
-
-    @Override
-    public ClassLoader createTestClassLoader() throws SurefireExecutionException {
-        return testClassLoader;
-    }
-
-    @Override
-    public ClassLoader createTestClassLoader(boolean childDelegation) throws SurefireExecutionException {
-        return testClassLoader;
+    public ClassLoader createMergedClassLoader() throws SurefireExecutionException {
+        return new CombinedClassLoader(surefireClassLoader, testClassLoader);
     }
 
 }
