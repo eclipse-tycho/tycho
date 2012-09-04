@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
 
+import static java.util.Collections.emptyList;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,16 +27,20 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.plugin.surefire.StartupReportConfiguration;
+import org.apache.maven.plugin.surefire.report.DefaultReporterFactory;
 import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
+import org.apache.maven.surefire.booter.ClasspathConfiguration;
+import org.apache.maven.surefire.booter.ForkedBooter;
 import org.apache.maven.surefire.booter.ProviderConfiguration;
+import org.apache.maven.surefire.booter.ProviderFactory;
 import org.apache.maven.surefire.booter.StartupConfiguration;
-import org.apache.maven.surefire.booter.StartupReportConfiguration;
-import org.apache.maven.surefire.booter.SurefireStarter;
 import org.apache.maven.surefire.report.ReporterConfiguration;
+import org.apache.maven.surefire.report.ReporterFactory;
 import org.apache.maven.surefire.suite.RunResult;
 import org.apache.maven.surefire.testset.DirectoryScannerParameters;
+import org.apache.maven.surefire.testset.RunOrderParameters;
 import org.apache.maven.surefire.testset.TestRequest;
-import org.apache.maven.surefire.util.RunOrder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -54,10 +60,8 @@ public class OsgiSurefireBooter {
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
         String provider = testProps.getProperty("testprovider");
         String runOrder = testProps.getProperty("runOrder");
-        List<String> includes = getIncludesExcludes(testProps.getProperty("includes"));
-        List<String> excludes = getIncludesExcludes(testProps.getProperty("excludes"));
 
-        String forkMode = "never";
+        boolean forkRequested = true;
         boolean inForkedVM = true;
         boolean trimStacktrace = true;
         boolean useSystemClassloader = false;
@@ -65,27 +69,32 @@ public class OsgiSurefireBooter {
         boolean useFile = true;
         boolean printSummary = true;
         boolean disableXmlReport = false;
-        ClassLoader testClassLoader = getBundleClassLoader(plugin);
-        ClassLoader surefireClassLoader = SurefireStarter.class.getClassLoader();
 
-        TychoClasspathConfiguration classPathConfig = new TychoClasspathConfiguration(testClassLoader,
-                surefireClassLoader);
+        ClassLoader testClassLoader = getBundleClassLoader(plugin);
+        ClassLoader surefireClassLoader = ForkedBooter.class.getClassLoader();
+        final ClassLoader combinedClassLoader = new CombinedClassLoader(testClassLoader, surefireClassLoader);
+        ClasspathConfiguration classPathConfig = new ClasspathConfiguration(false, false);
         StartupConfiguration startupConfiguration = new StartupConfiguration(provider, classPathConfig,
-                new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), forkMode, inForkedVM);
-        DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir, includes,
-                excludes, failIfNoTests, RunOrder.valueOf(runOrder));
+                new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), forkRequested, inForkedVM);
+        // TODO dir scanning with no includes done here (done in TestMojo already) 
+        // but without dirScannerParams we get an NPE accessing runOrder
+        DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir, emptyList(),
+                emptyList(), emptyList(), failIfNoTests, runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStacktrace);
         TestRequest testRequest = new TestRequest(null, testClassesDir, null);
-        ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams, failIfNoTests,
-                reporterConfig, null, testRequest, extractProviderProperties(testProps), null);
+        ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
+                new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
+                extractProviderProperties(testProps), null, false);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
                 StartupReportConfiguration.PLAIN_REPORT_FORMAT, redirectTestOutputToFile, disableXmlReport, reportsDir,
-                trimStacktrace);
-        SurefireStarter surefireStarter = new SurefireStarter(startupConfiguration, providerConfiguration,
-                startupReportConfig);
-
-        RunResult result = surefireStarter.runSuitesInProcess();
-        return result.getForkedProcessCode();
+                trimStacktrace, null, "TESTHASH", false);
+        ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig);
+        // TODO API indicates we should use testClassLoader below but in fact surefire tries 
+        // to load surefire classes using this classloader
+        RunResult result = ProviderFactory.invokeProvider(null, combinedClassLoader, reporterFactory,
+                providerConfiguration, false, startupConfiguration, true);
+        // counter-intuitive, but null indicates OK here
+        return result.getFailsafeCode() == null ? 0 : result.getFailsafeCode();
     }
 
     /*
