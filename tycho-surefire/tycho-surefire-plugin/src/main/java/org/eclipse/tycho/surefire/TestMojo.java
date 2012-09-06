@@ -725,6 +725,20 @@ public class TestMojo extends AbstractMojo {
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
 
+        // Bug 388084: set -XstartOnFirstThread on Mac
+        if (useUIHarness && System.getProperty("os.name").toLowerCase().startsWith("mac")) {
+            if (argLine == null) {
+                argLine = "-XstartOnFirstThread";
+            } else {
+                if (argLine.contains("-XstartOnFirstThread")) {
+                    getLog().info(
+                            "tycho-surefire-plugin automatically sets '-XstartOnFirstThread' on Mac. "
+                                    + "You can remove necessary customization from your pom");
+                } else {
+                    argLine += " -XstartOnFirstThread";
+                }
+            }
+        }
         addVMArgs(cli, argLine);
 
         if (systemProperties != null) {
