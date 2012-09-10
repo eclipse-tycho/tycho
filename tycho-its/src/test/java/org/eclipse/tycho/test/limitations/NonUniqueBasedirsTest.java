@@ -6,32 +6,30 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *    SAP AG - initial API and implementation
  *******************************************************************************/
-
-package org.eclipse.tycho.test.buildextension;
-
-import static org.junit.Assert.fail;
+package org.eclipse.tycho.test.limitations;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class MixedTychoVersionsTest extends AbstractTychoIntegrationTest {
+public class NonUniqueBasedirsTest extends AbstractTychoIntegrationTest {
 
     @Test
-    public void testSeveralTychoVersionsConfigured() throws Exception {
-        Verifier verifier = getVerifier("multipleVersions", false);
+    public void testNonUniqueBasedirFailure() throws Exception {
+        Verifier verifier = getVerifier("limitations.uniqueBaseDirs", false);
         try {
-            verifier.executeGoal("compile");
-            fail();
+            verifier.executeGoal("clean");
+            Assert.fail("build failure expected");
         } catch (VerificationException e) {
             // expected
-            verifier.verifyTextInLog("[ERROR] Several versions of tycho plugins are configured [0.13.0, 0.14.0, "
-                    + TychoVersion.getTychoVersion() + "]:");
         }
+
+        // expect a clear error message -> requested in bug 366967
+        verifier.verifyTextInLog("Multiple modules within the same basedir are not supported");
     }
 
 }
