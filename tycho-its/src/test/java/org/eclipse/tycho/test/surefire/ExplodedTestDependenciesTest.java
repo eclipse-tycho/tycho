@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO340explodedTestDependencies;
+package org.eclipse.tycho.test.surefire;
 
 import java.io.File;
 
@@ -22,11 +22,13 @@ public class ExplodedTestDependenciesTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testLocalMavenRepository() throws Exception {
-        Verifier v01 = getVerifier("TYCHO340explodedTestDependencies", false);
+        // project that marks org.apache.ant as "exploded" (unpacked) for the test runtime -> supported since TYCHO-340
+        Verifier v01 = getVerifier("surefire.bundleUnpack", false);
         v01.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
+        // TODO this is only an indirect test; it should test that the bundles nested jars are accessible as file URLs
         File antHome = new File(v01.getBasedir(),
                 "tycho340.test/target/work/plugins/org.apache.ant_1.7.1.v20090120-1145");
         Assert.assertTrue(antHome.isDirectory());

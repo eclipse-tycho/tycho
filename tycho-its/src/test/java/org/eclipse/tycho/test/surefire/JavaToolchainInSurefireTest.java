@@ -1,4 +1,4 @@
-package org.eclipse.tycho.test.toolchains;
+package org.eclipse.tycho.test.surefire;
 
 import java.io.File;
 
@@ -9,7 +9,7 @@ import org.junit.Test;
 public class JavaToolchainInSurefireTest extends AbstractTychoIntegrationTest {
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("/toolchains");
+        Verifier verifier = getVerifier("surefire.toolchains");
         File toolchains = new File(verifier.getBasedir() + "/toolchains.xml");
         verifier.getCliOptions().add("--toolchains " + toolchains.getCanonicalPath());
         verifier.executeGoal("integration-test");

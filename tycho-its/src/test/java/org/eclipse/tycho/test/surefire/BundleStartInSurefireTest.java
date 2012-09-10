@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,20 +8,21 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO0373autostartDSbundle;
+package org.eclipse.tycho.test.surefire;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 import org.osgi.framework.Version;
 
-public class AutostartBundleTest extends AbstractTychoIntegrationTest {
+public class BundleStartInSurefireTest extends AbstractTychoIntegrationTest {
     private static final Version MINIMUM_ECLIPSE_VERSION = new Version(3, 5, 0);
 
+    // requested in TYCHO-373
     @Test
     public void implicitDSAutostart() throws Exception {
         if (isApplicable()) {
-            Verifier verifier = getVerifier("/TYCHO0373autostartDSbundle/implicit/ds.test");
+            Verifier verifier = getVerifier("surefire.bundleStart/implicit/ds.test");
             verifier.executeGoal("integration-test");
             verifier.verifyErrorFreeLog();
         }
@@ -30,7 +31,7 @@ public class AutostartBundleTest extends AbstractTychoIntegrationTest {
     @Test
     public void explicitBundleStartLevel() throws Exception {
         if (isApplicable()) {
-            Verifier verifier = getVerifier("/TYCHO0373autostartDSbundle/explicit");
+            Verifier verifier = getVerifier("surefire.bundleStart/explicit");
             verifier.executeGoal("integration-test");
             verifier.verifyErrorFreeLog();
         }
