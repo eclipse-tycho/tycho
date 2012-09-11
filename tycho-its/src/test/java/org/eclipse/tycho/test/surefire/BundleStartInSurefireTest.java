@@ -31,6 +31,7 @@ public class BundleStartInSurefireTest extends AbstractTychoIntegrationTest {
     @Test
     public void explicitBundleStartLevel() throws Exception {
         if (isApplicable()) {
+            // bundle and test with .qualifier versions -> regression test for TYCHO-170
             Verifier verifier = getVerifier("surefire.bundleStart/explicit");
             verifier.executeGoal("integration-test");
             verifier.verifyErrorFreeLog();
