@@ -44,7 +44,8 @@ public interface P2Resolver {
     public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties);
 
     /**
-     * Resolves specified installable unit identified by id and version.
+     * Resolves specified installable unit identified by id and versionRange. The unit with latest
+     * version is return if id/versionRange match multiple units.
      */
-    public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String version);
+    public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange);
 }

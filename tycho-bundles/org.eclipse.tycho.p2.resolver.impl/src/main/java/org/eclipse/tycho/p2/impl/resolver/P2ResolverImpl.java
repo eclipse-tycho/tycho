@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -255,18 +254,17 @@ public class P2ResolverImpl implements P2Resolver {
         return additionalRequirements;
     }
 
-    public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String version) {
+    public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange) {
         this.context = (P2TargetPlatform) context;
 
         QueryableCollection queriable = new QueryableCollection(((P2TargetPlatform) context).getInstallableUnits());
 
-        Version v = Version.create(version);
-        VersionRange range = new VersionRange(v, true, v, true);
+        VersionRange range = new VersionRange(versionRange);
         IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null,
-                1 /* min */, 1 /* max */, false /* greedy */);
+                1 /* min */, Integer.MAX_VALUE /* max */, false /* greedy */);
 
-        IQueryResult<IInstallableUnit> result = queriable.query(QueryUtil.createMatchQuery(requirement.getMatches()),
-                monitor);
+        IQueryResult<IInstallableUnit> result = queriable.query(
+                QueryUtil.createLatestQuery(QueryUtil.createMatchQuery(requirement.getMatches())), monitor);
 
         Set<IInstallableUnit> newState = result.toUnmodifiableSet();
 
