@@ -9,14 +9,14 @@
 
 
   <properties>
-    <e342-repo>http://download.eclipse.org/releases/ganymede</e342-repo>
+    <e342-repo>http://download.eclipse.org/releases/helios</e342-repo>
     <tycho-extras-version>${tycho-version}</tycho-extras-version>
   </properties>
 
 
   <repositories>
     <repository>
-      <id>e342</id>
+      <id>eclipse</id>
       <layout>p2</layout>
       <url>${e342-repo}</url>
     </repository>
@@ -37,11 +37,9 @@
   </pluginRepositories>
 
   <modules>
-    <module>sourcefeature.bundle</module>
-    <module>sourcefeature.bundle.nosource</module>
     <module>sourcefeature.feature</module>
-    <module>sourcefeature.feature.indirect</module>
     <module>sourcefeature.repository</module>
+    <module>extra.sourcefeature.bundle</module>
   </modules>
 
   <build>
@@ -51,20 +49,6 @@
         <artifactId>tycho-maven-plugin</artifactId>
         <version>${tycho-version}</version>
         <extensions>true</extensions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-source-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <executions>
-          <execution>
-            <id>plugin-source</id>
-            <goals>
-              <goal>plugin-source</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>

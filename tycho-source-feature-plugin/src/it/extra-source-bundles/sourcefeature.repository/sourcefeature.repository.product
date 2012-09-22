@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="sourcefeature.repository" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
+
+   <features>
+      <feature id="sourcefeature.feature" version="1.0.0.qualifier"/>
+      <feature id="sourcefeature.feature.source" version="1.0.0.qualifier"/>
+   </features>
+
+</product>

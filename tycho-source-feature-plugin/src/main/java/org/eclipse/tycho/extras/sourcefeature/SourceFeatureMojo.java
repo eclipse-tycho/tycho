@@ -71,6 +71,20 @@ public class SourceFeatureMojo extends AbstractMojo {
     private PlexusConfiguration excludes;
 
     /**
+     * Additional plugins to include in the generated source feature. Beware that these additional
+     * plugins are not considered during build target platform calculation and ordering of reactor
+     * projects. Use &lt;extraRequirements&gt; dependency resolver configuration to guarantee proper
+     * reactor build order.
+     * <p>
+     * <strong>WARNING</strong> This experimental parameter may be removed from future
+     * source-feature mojo versions without prio notice.
+     * 
+     * @parameter
+     */
+    @SuppressWarnings("unused")
+    private PlexusConfiguration plugins;
+
+    /**
      * @parameter default-value="${session}"
      */
     private MavenSession session;
@@ -78,6 +92,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     private final Set<String> excludedPlugins = new HashSet<String>();
 
     private final Set<String> excludedFeatures = new HashSet<String>();
+
+    private final Set<PluginRef> extraPlugins = new HashSet<PluginRef>();
 
     /**
      * @parameter
@@ -181,6 +197,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
         List<PluginRef> missingSourcePlugins = new ArrayList<PluginRef>();
         List<FeatureRef> missingSourceFeatures = new ArrayList<FeatureRef>();
+        List<PluginRef> missingExtraPlugins = new ArrayList<PluginRef>();
 
         // include available source bundles
         for (PluginRef pluginRef : feature.getPlugins()) {
@@ -191,27 +208,9 @@ public class SourceFeatureMojo extends AbstractMojo {
 
             // version is expected to be fully expanded at this point
             P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, pluginRef.getId() + ".source",
-                    pluginRef.getVersion());
+                    toStrictVersionRange(pluginRef.getVersion()));
             if (result.getArtifacts().size() == 1) {
-                Entry sourceBundle = result.getArtifacts().iterator().next();
-
-                PluginRef sourceRef = new PluginRef("plugin");
-                sourceRef.setId(sourceBundle.getId());
-                sourceRef.setVersion(sourceBundle.getVersion());
-                sourceRef.setDownloadSide(0);
-                sourceRef.setInstallSize(0);
-                if (pluginRef.getOs() != null) {
-                    sourceRef.setOs(pluginRef.getOs());
-                }
-                if (pluginRef.getWs() != null) {
-                    sourceRef.setWs(pluginRef.getWs());
-                }
-                if (pluginRef.getArch() != null) {
-                    sourceRef.setArch(pluginRef.getArch());
-                }
-                sourceRef.setUnpack(false);
-
-                sourceFeature.addPlugin(sourceRef);
+                addPlugin(sourceFeature, result, pluginRef);
             } else {
                 missingSourcePlugins.add(pluginRef);
             }
@@ -227,7 +226,7 @@ public class SourceFeatureMojo extends AbstractMojo {
             String sourceId = featureRef.getId() + ".source";
 
             P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, sourceId + ".feature.group",
-                    featureRef.getVersion());
+                    toStrictVersionRange(featureRef.getVersion()));
             if (result.getArtifacts().size() == 1) {
                 Entry entry = result.getArtifacts().iterator().next();
 
@@ -240,7 +239,18 @@ public class SourceFeatureMojo extends AbstractMojo {
             }
         }
 
-        if (!missingSourceFeatures.isEmpty() || !missingSourcePlugins.isEmpty()) {
+        for (PluginRef pluginRef : extraPlugins) {
+            // version is expected to be fully expanded at this point
+            P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, pluginRef.getId(),
+                    pluginRef.getVersion());
+            if (result.getArtifacts().size() == 1) {
+                addPlugin(sourceFeature, result, pluginRef);
+            } else {
+                missingExtraPlugins.add(pluginRef);
+            }
+        }
+
+        if (!missingSourceFeatures.isEmpty() || !missingSourcePlugins.isEmpty() || !missingExtraPlugins.isEmpty()) {
             StringBuilder sb = new StringBuilder();
 
             sb.append("Could not generate source feature for project " + project.toString()).append("\n");
@@ -253,10 +263,40 @@ public class SourceFeatureMojo extends AbstractMojo {
                 sb.append("    Missing sources for features " + missingSourceFeatures.toString()).append("\n");
             }
 
+            if (!missingExtraPlugins.isEmpty()) {
+                sb.append("    Missing extra plugins " + missingExtraPlugins.toString()).append("\n");
+            }
+
             throw new MojoExecutionException(sb.toString());
         }
 
         return sourceFeature;
+    }
+
+    protected String toStrictVersionRange(String version) {
+        return "[" + version + "," + version + "]";
+    }
+
+    protected void addPlugin(Feature sourceFeature, P2ResolutionResult result, PluginRef pluginRef) {
+        Entry sourceBundle = result.getArtifacts().iterator().next();
+
+        PluginRef sourceRef = new PluginRef("plugin");
+        sourceRef.setId(sourceBundle.getId());
+        sourceRef.setVersion(sourceBundle.getVersion());
+        sourceRef.setDownloadSide(0);
+        sourceRef.setInstallSize(0);
+        if (pluginRef.getOs() != null) {
+            sourceRef.setOs(pluginRef.getOs());
+        }
+        if (pluginRef.getWs() != null) {
+            sourceRef.setWs(pluginRef.getWs());
+        }
+        if (pluginRef.getArch() != null) {
+            sourceRef.setArch(pluginRef.getArch());
+        }
+        sourceRef.setUnpack(false);
+
+        sourceFeature.addPlugin(sourceRef);
     }
 
     protected File getOutputJarFile() {
@@ -264,18 +304,40 @@ public class SourceFeatureMojo extends AbstractMojo {
         return new File(project.getBuild().getDirectory(), filename);
     }
 
+    // this is called by maven to inject value of <excludes> configuration element
     public void setExcludes(PlexusConfiguration excludes) {
         for (PlexusConfiguration plugin : excludes.getChildren("plugin")) {
             String id = getAttribute(plugin, "id");
             if (id != null) {
                 excludedPlugins.add(id);
             }
+            // TODO warn about elements with null id
         }
         for (PlexusConfiguration plugin : excludes.getChildren("feature")) {
             String id = getAttribute(plugin, "id");
             if (id != null) {
                 excludedFeatures.add(id);
             }
+            // TODO warn about elements with null id
+        }
+    }
+
+    // this is called by maven to inject value of <excludes> configuration element
+    public void setPlugins(PlexusConfiguration bundles) {
+        for (PlexusConfiguration plugin : bundles.getChildren("plugin")) {
+            String id = getAttribute(plugin, "id");
+            if (id != null) {
+                String version = getAttribute(plugin, "version");
+                if (version == null) {
+                    version = "0.0.0";
+                }
+                PluginRef ref = new PluginRef("plugin");
+                ref.setId(id);
+                ref.setVersion(version);
+                extraPlugins.add(ref);
+            }
+            // TODO fail if duplicate plugins
+            // TODO warn about elements with null id
         }
     }
 
