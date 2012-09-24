@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.Publisher;
+import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -86,6 +87,13 @@ class PublisherServiceImpl implements PublisherService {
         Collection<IInstallableUnit> allIUs = executePublisher(action, metadataRepository, artifactRepository);
 
         return selectUnit(allIUs, productDescriptor.getId());
+    }
+
+    public Collection<?> publishEEProfile(File profileFile) throws FacadeException {
+        IPublisherAction jreAction = new JREAction(profileFile);
+        Collection<IInstallableUnit> allIUs = executePublisher(jreAction, publishingRepository.getMetadataRepository(),
+                publishingRepository.getArtifactRepository());
+        return allIUs;
     }
 
     private Collection<IInstallableUnit> executePublisher(IPublisherAction action,
