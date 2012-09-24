@@ -69,7 +69,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     private final MavenLogger logger;
 
     /**
-     * Reactor project IU filter. Non-reactor IUs are prefiltered for performance reasons
+     * Reactor project IU filter. Non-reactor IUs are pre-filtered for performance reasons
      */
     private final TargetPlatformFilterEvaluator filter;
 
@@ -104,7 +104,8 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
         allius.addAll(mavenArtifactIUs.keySet());
 
-        allius.addAll(executionEnvironment.getAdditionalUnits());
+        // TODO this should be done by the builder
+        allius.addAll(executionEnvironment.getMandatoryUnits());
 
         return Collections.unmodifiableCollection(allius);
     }

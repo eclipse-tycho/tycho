@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.resolver;
 import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * Settings for supporting resolution for a dedicated execution environment. Handles p2's "a.jre"
@@ -30,10 +31,18 @@ public interface ExecutionEnvironmentResolutionHints {
     boolean isNonApplicableEEUnit(IInstallableUnit iu);
 
     /**
-     * Returns the list of installable units that shall be added to the list of available IUs. This
-     * ensures that all requirements for capabilities of the execution environment can be resolved.
+     * Returns the list of installable units that shall be used during resolution. These units are
+     * added to the available units so that requirements of the capabilities of the execution
+     * environment can be resolved, and their use during resolution is enforced so that other units
+     * providing the same capabilities are not used (unless they are needed for other reasons).
      */
-    Collection<IInstallableUnit> getAdditionalUnits();
+    Collection<IInstallableUnit> getMandatoryUnits();
+
+    /**
+     * Returns requirements to execution environment units to ensure that a) the execution
+     * environment units are available, and b) the units are used to the resolution result.
+     */
+    Collection<IRequirement> getMandatoryRequires();
 
     /**
      * Returns the list of installable units that shall be temporarily added to the list of
@@ -41,13 +50,6 @@ public interface ExecutionEnvironmentResolutionHints {
      * the resolution result.
      */
     Collection<IInstallableUnit> getTemporaryAdditions();
-
-    /**
-     * Returns additional requirements to execution environment units for the resolution, which
-     * ensure that these required units become part of the resolution result.
-     */
-    // TODO for custom profiles, these need to be requirements, not units
-    Collection<IInstallableUnit> getAdditionalRequires();
 
     @Override
     public boolean equals(Object obj);

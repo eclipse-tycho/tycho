@@ -42,7 +42,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Properties: " + properties.toString());
             logger.debug("Available IUs:\n" + toDebugString(data.getAvailableIUs(), false));
-            logger.debug("JRE IUs:\n" + toDebugString(data.getEEResolutionHints().getAdditionalUnits(), false));
+            logger.debug("JRE IUs:\n" + toDebugString(data.getEEResolutionHints().getMandatoryUnits(), false));
             logger.debug("Root IUs:\n" + toDebugString(data.getRootIUs(), true));
 
             if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
@@ -56,13 +56,18 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
 
         Set<IInstallableUnit> availableIUs = new LinkedHashSet<IInstallableUnit>(data.getAvailableIUs());
         availableIUs.addAll(data.getEEResolutionHints().getTemporaryAdditions());
-        availableIUs.addAll(data.getEEResolutionHints().getAdditionalUnits());
+        availableIUs.addAll(data.getEEResolutionHints().getMandatoryUnits());
 
         Set<IInstallableUnit> seedIUs = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
         if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
             seedIUs.add(createUnitRequiring("tycho-extra", null, data.getAdditionalRequirements()));
         }
-        seedIUs.addAll(data.getEEResolutionHints().getAdditionalRequires());
+
+        // make sure profile UIs are part of the slice
+        seedIUs.addAll(data.getEEResolutionHints().getMandatoryUnits());
+        if (!data.getEEResolutionHints().getMandatoryRequires().isEmpty()) {
+            seedIUs.add(createUnitRequiring("tycho-ee", null, data.getEEResolutionHints().getMandatoryRequires()));
+        }
 
         Slicer slicer = newSlicer(new QueryableCollection(availableIUs), properties);
         IQueryable<IInstallableUnit> slice = slicer.slice(seedIUs.toArray(EMPTY_IU_ARRAY), monitor);

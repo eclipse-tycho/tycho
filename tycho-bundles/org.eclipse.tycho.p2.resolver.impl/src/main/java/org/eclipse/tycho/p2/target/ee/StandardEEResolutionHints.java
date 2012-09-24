@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -74,12 +75,13 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return units;
     }
 
-    public Collection<IInstallableUnit> getAdditionalUnits() {
+    public Collection<IInstallableUnit> getMandatoryUnits() {
         return additionalUnits.values();
     }
 
-    public Collection<IInstallableUnit> getAdditionalRequires() {
-        return getAdditionalUnits();
+    public Collection<IRequirement> getMandatoryRequires() {
+        // not needed; getMandatoryUnits already enforces the use of the JRE IUs during resolution
+        return Collections.emptyList();
     }
 
     private static Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(

@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 
 public class NoopEEResolverHints implements ExecutionEnvironmentResolutionHints {
@@ -23,7 +24,7 @@ public class NoopEEResolverHints implements ExecutionEnvironmentResolutionHints 
         return false;
     }
 
-    public Collection<IInstallableUnit> getAdditionalUnits() {
+    public Collection<IInstallableUnit> getMandatoryUnits() {
         return Collections.emptyList();
     }
 
@@ -31,7 +32,7 @@ public class NoopEEResolverHints implements ExecutionEnvironmentResolutionHints 
         return Collections.emptyList();
     }
 
-    public Collection<IInstallableUnit> getAdditionalRequires() {
+    public Collection<IRequirement> getMandatoryRequires() {
         return Collections.emptyList();
     }
 
