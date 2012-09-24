@@ -42,4 +42,6 @@ public interface PublisherService {
      */
     Collection</* IInstallableUnit */?> publishProduct(File productDefinition, File launcherBinaries, String flavor)
             throws FacadeException;
+
+    Collection<?> publishEEProfile(File profileFile) throws FacadeException;
 }
