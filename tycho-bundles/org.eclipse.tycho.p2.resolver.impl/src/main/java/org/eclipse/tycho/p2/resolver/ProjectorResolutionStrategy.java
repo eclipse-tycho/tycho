@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +30,7 @@ import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -45,10 +48,12 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         return new Slicer(availableUnits, properties, false);
     }
 
+    @Override
     protected boolean isSlicerError(MultiStatus slicerStatus) {
         return slicerStatus.matches(IStatus.ERROR | IStatus.CANCEL);
     }
 
+    @Override
     public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
         properties = addFeatureJarFilter(properties);
 
@@ -56,14 +61,20 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
         IQueryable<IInstallableUnit> slice = slice(properties, monitor);
 
-        // force JRE UIs to be part of resolved state
-        Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
-        rootIUs.addAll(data.getEEResolutionHints().getAdditionalRequires());
+        Set<IInstallableUnit> seedUnits = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
+        List<IRequirement> seedRequires = new ArrayList<IRequirement>();
+        if (data.getAdditionalRequirements() != null) {
+            seedRequires.addAll(data.getAdditionalRequirements());
+        }
+
+        // force profile UIs to be used during resolution
+        seedUnits.addAll(data.getEEResolutionHints().getMandatoryUnits());
+        seedRequires.addAll(data.getEEResolutionHints().getMandatoryRequires());
 
         Projector projector = new Projector(slice, newSelectionContext, new HashSet<IInstallableUnit>(), false);
-        projector.encode(createUnitRequiring("tycho", rootIUs, data.getAdditionalRequirements()),
+        projector.encode(createUnitRequiring("tycho", seedUnits, seedRequires),
                 EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(EMPTY_IU_ARRAY) /* installedIUs */,
-                rootIUs /* newRoots */, monitor);
+                seedUnits /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
             Set<Explanation> explanation = projector.getExplanation(monitor);
@@ -79,7 +90,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         }
         Collection<IInstallableUnit> newState = projector.extractSolution();
 
-        // remove JRE IUs from resolved state
+        // remove fake IUs from resolved state
         newState.removeAll(data.getEEResolutionHints().getTemporaryAdditions());
 
         fixSWT(new QueryableCollection(data.getAvailableIUs()), newState, newSelectionContext, monitor);
