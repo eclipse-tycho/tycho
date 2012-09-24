@@ -42,4 +42,15 @@ public interface PublisherService {
      */
     Collection</* IInstallableUnit */?> publishProduct(File productDefinition, File launcherBinaries, String flavor)
             throws FacadeException;
+
+    /**
+     * Publishes the given OSGi execution environment profile file.
+     * 
+     * @param profileFile
+     *            the .profile file
+     * @throws FacadeException
+     *             if a checked exception occurs during publishing
+     * @return the root IUs in the publisher result
+     */
+    Collection<?> publishEEProfile(File profileFile) throws FacadeException;
 }

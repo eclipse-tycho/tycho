@@ -14,7 +14,10 @@ import static org.eclipse.tycho.p2.tools.test.util.ResourceUtil.resolveTestResou
 import static org.eclipse.tycho.test.util.TychoMatchers.endsWithString;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
@@ -24,10 +27,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -104,6 +112,37 @@ public class PublisherServiceTest {
         assertThat(publishedUnits, hasItem(rootUnit));
 
 //        openFolderAndSleep(outputDirectory);
+    }
+
+    @Test
+    public void testProfilePublishing() throws Exception {
+        File customProfile = resolveTestResource("resources/publishers/virgo-java6.profile");
+        Collection<?> rootUnits = subject.publishEEProfile(customProfile);
+        assertEquals(2, rootUnits.size());
+        Map<String, IInstallableUnit> resultMap = new HashMap<String, IInstallableUnit>();
+        for (Object object : rootUnits) {
+            IInstallableUnit unit = (IInstallableUnit) object;
+            resultMap.put(unit.getId(), unit);
+        }
+        IInstallableUnit virgoProfileIU = resultMap.get("a.jre.virgo");
+        assertNotNull(virgoProfileIU);
+        Collection<IProvidedCapability> provided = virgoProfileIU.getProvidedCapabilities();
+        boolean customJavaxActivationVersionFound = false;
+        Version version_1_1_1 = Version.create("1.1.1");
+        for (IProvidedCapability capability : provided) {
+            if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(capability.getNamespace())) {
+                if ("javax.activation".equals(capability.getName())) {
+                    if (version_1_1_1.equals(capability.getVersion())) {
+                        customJavaxActivationVersionFound = true;
+                        break;
+                    }
+                }
+            }
+        }
+        assertTrue("did not find capability for package javax.activation with custom version " + version_1_1_1,
+                customJavaxActivationVersionFound);
+        IInstallableUnit configVirgoProfileIU = resultMap.get("config.a.jre.virgo");
+        assertNotNull(configVirgoProfileIU);
     }
 
     @Test
