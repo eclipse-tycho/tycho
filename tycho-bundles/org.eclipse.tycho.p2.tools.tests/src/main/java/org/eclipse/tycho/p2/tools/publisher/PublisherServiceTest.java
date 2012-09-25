@@ -15,6 +15,7 @@ import static org.eclipse.tycho.test.util.TychoMatchers.endsWithString;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.BufferedReader;
@@ -44,6 +45,7 @@ import org.eclipse.tycho.test.util.StubServiceRegistration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 public class PublisherServiceTest {
@@ -63,6 +65,9 @@ public class PublisherServiceTest {
     @Rule
     public StubServiceRegistration<MavenContext> mavenContextRegistration = new StubServiceRegistration<MavenContext>(
             MavenContext.class, createMavenContext(mavenLogger));
+
+    @Rule
+    public ExpectedException thrownException = ExpectedException.none();
 
     private PublisherService subject;
 
@@ -123,6 +128,16 @@ public class PublisherServiceTest {
         assertThat(artifactLocations.get(executableClassifier).toString(), endsWithString(".zip"));
 
 //        openFolderAndSleep(outputDirectory);
+    }
+
+    @Test
+    public void testProductPublishingWithMissingFragments() throws Exception {
+        // product referencing a fragment that is not in the target platform -> publisher must fail because the dependency resolution no longer detects this (see bug 342890)
+        File productDefinition = resolveTestResource("resources/publishers/missingFragment.product");
+        File launcherBinaries = resolveTestResource("resources/launchers/");
+
+        thrownException.expectMessage(containsString("org.eclipse.core.filesystem.hpux.ppc"));
+        subject.publishProduct(productDefinition, launcherBinaries, DEFAULT_FLAVOR);
     }
 
     private static MavenContext createMavenContext(MavenLogger mavenLogger) {

@@ -65,11 +65,12 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
 
     protected static final String FEATURE_GROUP_IU_SUFFIX = ".feature.group";
 
-    protected void addRequiredCapability(Set<IRequirement> required, String id, Version version, String filter) {
+    protected void addRequiredCapability(Set<IRequirement> required, String id, Version version, String filter,
+            boolean optional) {
         VersionRange range = getVersionRange(version);
 
         required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range,
-                InstallableUnit.parseFilter(filter), false, false));
+                InstallableUnit.parseFilter(filter), optional, false));
     }
 
     @Override

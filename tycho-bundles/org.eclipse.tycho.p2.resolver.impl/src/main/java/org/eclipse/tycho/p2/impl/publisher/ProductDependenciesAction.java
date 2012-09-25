@@ -58,21 +58,20 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
                 String id = feature.getId() + FEATURE_GROUP_IU_SUFFIX; //$NON-NLS-1$
                 Version version = feature.getVersion();
 
-                addRequiredCapability(required, id, version, null);
+                addRequiredCapability(required, id, version, null, false);
             }
         } else {
             for (FeatureEntry plugin : ((ProductFile) product).getProductEntries()) {
-                addRequiredCapability(required, plugin.getId(), Version.parseVersion(plugin.getVersion()),
-                        getFilter(plugin));
+                addRequiredCapability(required, plugin.getId(), Version.parseVersion(plugin.getVersion()), null, true);
             }
         }
 
         // these are implicitly required, see
         // See also org.eclipse.tycho.osgitools.AbstractArtifactDependencyWalker.traverseProduct
-        addRequiredCapability(required, "org.eclipse.equinox.launcher", null, null);
+        addRequiredCapability(required, "org.eclipse.equinox.launcher", null, null, false);
 
         if (product.includeLaunchers()) {
-            addRequiredCapability(required, "org.eclipse.equinox.executable.feature.group", null, null);
+            addRequiredCapability(required, "org.eclipse.equinox.executable.feature.group", null, null, false);
 
             if (environments != null) {
                 for (Map<String, String> env : environments) {
@@ -83,26 +82,19 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
         return required;
     }
 
-    private String getFilter(FeatureEntry entry) {
-        if (entry.getOS() == null && entry.getWS() == null && entry.getArch() == null) {
-            return null;
-        }
-
-        return getFilter(entry.getOS(), entry.getWS(), entry.getArch());
-    }
-
     private void addNativeRequirements(Set<IRequirement> required, String os, String ws, String arch) {
         String filter = getFilter(os, ws, arch);
 
         if (Constants.OS_MACOSX.equals(os)) {
             // macosx is twisted
             if (Constants.ARCH_X86.equals(arch)) {
-                addRequiredCapability(required, "org.eclipse.equinox.launcher." + ws + "." + os, null, filter);
+                addRequiredCapability(required, "org.eclipse.equinox.launcher." + ws + "." + os, null, filter, false);
                 return;
             }
         }
 
-        addRequiredCapability(required, "org.eclipse.equinox.launcher." + ws + "." + os + "." + arch, null, filter);
+        addRequiredCapability(required, "org.eclipse.equinox.launcher." + ws + "." + os + "." + arch, null, filter,
+                false);
     }
 
     @Override
