@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//1m8\u003d",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-02T12:05:22Z",
+      "side": 1,
+      "message": "-1 on this name: This is too close to the \"target platform\" in Tycho, which is more than just the target file.\n\nInstead, I\u0027d propose \"eclipse-target-definition\", \"eclipse-target-file\", or possibly even just \"eclipse-target\".",
+      "revId": "1ca0ed8aabafc02ed6967c47a866e3ebb92e8bce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//1lE\u003d",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-02T12:05:22Z",
+      "side": 1,
+      "message": "When we get round to postponing the target platform computation and dependency resolution to the normal build (bug 353889), this needs to happen before the class path can be computed. This must be in \"compile\" at the latest.",
+      "revId": "1ca0ed8aabafc02ed6967c47a866e3ebb92e8bce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//1nA\u003d",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-02T12:05:22Z",
+      "side": 1,
+      "message": "Similarly, the goal name shouldn\u0027t include \"platform\" because the validation only covers the target file. How about \"validate-target-file\"?\n\nAlthough the name \"tycho-target-platform-plugin\" is okay (assuming that all the target-platform-configuration will be moved to it eventually), but I am unsure we should really introduce this plugin name already today - having both a tycho-target-platform-plugin and a target-platform-configuration seems confusing. Instead, I\u0027d move the new goal into target-platform-configuration for now.",
+      "revId": "1ca0ed8aabafc02ed6967c47a866e3ebb92e8bce",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
