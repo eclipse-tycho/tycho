@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//1QU\u003d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/target/packagingType/TargetDefinitionPackagingTypeTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-05T17:50:00Z",
+      "side": 1,
+      "message": "If you call prepare as a method with the sub-path, you wouldn\u0027t need profiles. This seems a little closer to the normal use case. But this is really just a matter of taste.",
+      "revId": "d6522adb9b68eb8fb01bd1f92b9d1abaa08db2c4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
