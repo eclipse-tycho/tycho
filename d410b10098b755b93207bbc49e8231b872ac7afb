@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//1Qc\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageTargetDefinitionMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-05T17:43:28Z",
+      "side": 1,
+      "message": "What is this check needed for? We might as well omit it to allow others to create a packaging type \"my-eclipse-target-definition\" that for example includes additional steps in the default lifecycle.",
+      "revId": "d410b10098b755b93207bbc49e8231b872ac7afb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
