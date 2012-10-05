@@ -40,6 +40,7 @@ import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.NoopEEResolverHints;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
@@ -120,6 +121,10 @@ public class P2ResolverTestBase {
 
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithEE(String bree) throws Exception {
         return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new StandardEEResolutionHints(bree));
+    }
+
+    protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithCustomEE(String bree) throws Exception {
+        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new CustomEEResolutionHints(bree));
     }
 
     private static class TestTargetPlatformBuilderFactory {
