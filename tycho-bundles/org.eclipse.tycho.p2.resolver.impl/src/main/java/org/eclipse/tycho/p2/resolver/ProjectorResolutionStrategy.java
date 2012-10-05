@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,11 +28,6 @@ import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -67,8 +61,9 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         rootIUs.addAll(data.getEEResolutionHints().getAdditionalRequires());
 
         Projector projector = new Projector(slice, newSelectionContext, new HashSet<IInstallableUnit>(), false);
-        projector.encode(createMetaIU(rootIUs), EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(
-                EMPTY_IU_ARRAY) /* installedIUs */, rootIUs /* newRoots */, monitor);
+        projector.encode(createUnitRequiring("tycho", rootIUs, data.getAdditionalRequirements()),
+                EMPTY_IU_ARRAY /* alreadyExistingRoots */, new QueryableArray(EMPTY_IU_ARRAY) /* installedIUs */,
+                rootIUs /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
             Set<Explanation> explanation = projector.getExplanation(monitor);
@@ -154,25 +149,4 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         return filter.isMatch(InstallableUnit.contextIU(selectionContext));
     }
 
-    private IInstallableUnit createMetaIU(Set<IInstallableUnit> rootIUs) {
-        InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-        String time = Long.toString(System.currentTimeMillis());
-        iud.setId("tycho-" + time);
-        iud.setVersion(Version.createOSGi(0, 0, 0, time));
-
-        ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
-        for (IInstallableUnit iu : rootIUs) {
-            VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-            requirements
-                    .add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range,
-                            iu.getFilter(), 1 /* min */, iu.isSingleton() ? 1 : Integer.MAX_VALUE /* max */, true /* greedy */));
-        }
-
-        if (data.getAdditionalRequirements() != null) {
-            requirements.addAll(data.getAdditionalRequirements());
-        }
-
-        iud.setRequirements((IRequirement[]) requirements.toArray(new IRequirement[requirements.size()]));
-        return MetadataFactory.createInstallableUnit(iud);
-    }
 }
