@@ -225,7 +225,7 @@
 						<projectsDirectory>src/it</projectsDirectory>
 						<cloneProjectsTo>target/it</cloneProjectsTo>
 						<localRepositoryPath>target/local-repo</localRepositoryPath>
-						<postBuildHookScript>verify.bsh</postBuildHookScript>
+						<postBuildHookScript>verify</postBuildHookScript>
 						<properties>
 							<tycho-version>${tycho-version}</tycho-version>
 							<tycho-snapshots-url>${tycho-snapshots-url}</tycho-snapshots-url>
