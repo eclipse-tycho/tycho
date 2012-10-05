@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
@@ -123,8 +124,14 @@ public class P2ResolverTestBase {
         return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new StandardEEResolutionHints(bree));
     }
 
-    protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithCustomEE(String bree) throws Exception {
-        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new CustomEEResolutionHints(bree));
+    protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithEE(
+            ExecutionEnvironmentResolutionHandler eeResolutionHandler) throws Exception {
+        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuider(eeResolutionHandler);
+    }
+
+    protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithCustomEE(String customEE) throws Exception {
+        return new TestTargetPlatformBuilderFactory()
+                .createTargetPlatformBuilder(new CustomEEResolutionHints(customEE));
     }
 
     private static class TestTargetPlatformBuilderFactory {
@@ -159,6 +166,11 @@ public class P2ResolverTestBase {
                 }
             };
 
+            return createTargetPlatformBuider(eeHandler);
+        }
+
+        public TargetPlatformBuilderImpl createTargetPlatformBuider(ExecutionEnvironmentResolutionHandler eeHandler)
+                throws ProvisionException {
             return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
                     targetDefinitionResolverService, eeHandler, localArtifactRepo, localMetadataRepo);
         }

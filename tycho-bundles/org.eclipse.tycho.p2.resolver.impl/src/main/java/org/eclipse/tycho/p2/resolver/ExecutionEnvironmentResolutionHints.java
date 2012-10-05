@@ -25,6 +25,13 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 public interface ExecutionEnvironmentResolutionHints {
 
     /**
+     * Returns <code>true</code> for the "a.jre" installable unit that contains the specification of
+     * the execution environment. This method is used for finding the specification unit of custom
+     * profiles.
+     */
+    boolean isEESpecificationUnit(IInstallableUnit unit);
+
+    /**
      * Returns <code>true</code> if an installable unit shall be removed from the available IUs.
      * This prevents that "a.jre" IUs for the wrong execution environment are used for resolution.
      */

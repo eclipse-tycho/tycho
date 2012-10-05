@@ -362,7 +362,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void resolutionNoEE() throws Exception {
-        context = createTargetPlatformBuilderWithEE(null);
+        // TODO 387796 is this the null meaning no explicit configuration? if yes, this may be dropped with bug 387796 
+        context = createTargetPlatformBuilderWithEE((String) null);
 
         context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 

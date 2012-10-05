@@ -55,6 +55,11 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return iu.getId().startsWith("a.jre") || iu.getId().startsWith("config.a.jre");
     }
 
+    public boolean isEESpecificationUnit(IInstallableUnit unit) {
+        // not needed
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Return IUs that represent packages provided by target JRE
      * 
