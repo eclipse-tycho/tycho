@@ -24,6 +24,10 @@ public class NoopEEResolverHints implements ExecutionEnvironmentResolutionHints 
         return false;
     }
 
+    public boolean isEESpecificationUnit(IInstallableUnit unit) {
+        return false;
+    }
+
     public Collection<IInstallableUnit> getMandatoryUnits() {
         return Collections.emptyList();
     }

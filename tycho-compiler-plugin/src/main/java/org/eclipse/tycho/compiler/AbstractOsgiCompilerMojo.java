@@ -555,8 +555,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             return javacTarget;
         }
         // then, BREE
+        // TODO 387796 never null?
         if (env != null) {
-            return env.getCompilerTargetLevel();
+            String eeTarget = env.getCompilerTargetLevel();
+            if (eeTarget != null) {
+                return eeTarget;
+            }
         }
         return DEFAULT_TARGET_VERSION;
     }

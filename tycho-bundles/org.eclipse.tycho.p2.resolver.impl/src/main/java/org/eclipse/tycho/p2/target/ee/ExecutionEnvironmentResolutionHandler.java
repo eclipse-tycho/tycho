@@ -19,12 +19,11 @@ import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 public abstract class ExecutionEnvironmentResolutionHandler {
 
     public static ExecutionEnvironmentResolutionHandler adapt(ExecutionEnvironmentConfiguration eeConfiguration) {
-        // TODO 385930 check if a custom profile is configured
-//        if (eeConfiguration.isCustomProfile()) {
-//            return new CustomEEResolutionHandler(eeConfiguration);
-//        } else {
-        return new StandardEEResolutionHandler(eeConfiguration.getProfileName());
-//        }
+        if (eeConfiguration.isCustomProfile()) {
+            return new CustomEEResolutionHandler(eeConfiguration);
+        } else {
+            return new StandardEEResolutionHandler(eeConfiguration.getProfileName());
+        }
     }
 
     // BEGIN abstract base class
