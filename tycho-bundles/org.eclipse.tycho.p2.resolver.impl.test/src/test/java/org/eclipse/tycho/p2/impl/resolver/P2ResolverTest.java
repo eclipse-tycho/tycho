@@ -16,6 +16,8 @@ import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN;
 import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_REPOSITORY;
 import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE;
 import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -378,6 +380,27 @@ public class P2ResolverTest extends P2ResolverTestBase {
         Assert.assertEquals(2, result.getNonReactorUnits().size());
         assertContainsUnit("a.jre.javase", result.getNonReactorUnits());
         assertContainsUnit("config.a.jre.javase", result.getNonReactorUnits());
+    }
+
+    @Test
+    public void resolutionCustomEE() throws Exception {
+        context = createTargetPlatformBuilderWithCustomEE("Custom_Profile-2");
+
+        // repository containing both a bundle and the custom profile providing javax.activation;version="1.1.1"
+        context.addP2Repository(resourceFile("repositories/custom-profile").toURI());
+
+        // bundle importing javax.activation;version="1.1.1"
+        File bundle = resourceFile("resolver/bundleRequiringVersionedJDKPackage");
+        addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, "bundleRequiringVersionedJDKPackage");
+
+        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
+
+        assertThat(results.size(), is(1));
+        P2ResolutionResult result = results.get(0); // huh?
+
+        assertThat(result.getNonReactorUnits().size(), is(1));
+        assertContainsUnit("a.jre.custom.profile", result.getNonReactorUnits());
+        // I don't know why we should expect a config.a.jre.custom.profile IU here
     }
 
     @Test

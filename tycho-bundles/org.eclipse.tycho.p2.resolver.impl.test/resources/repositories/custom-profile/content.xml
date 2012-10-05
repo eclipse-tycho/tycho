@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='Repository with custom profile' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1349442404595'/>
+    <property name='p2.compressed' value='true'/>
+  </properties>
+  <units size='4'>
+    <unit id='a.jre.custom.profile' version='2.0.0' singleton='false'>
+      <provides size='6'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre.custom.profile' version='2.0.0'/>
+        <provided namespace='java.package' name='javax.activation' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.activation' version='1.1.1'/>
+        <!-- ... -->
+        <provided namespace='osgi.ee' name='OSGi/Minimum' version='1.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.4.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.5.0'/>
+      </provides>
+      <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
+    </unit>
+    <unit id='a.jre.javase' version='1.6.0' singleton='false'>
+      <provides size='171'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre.javase' version='1.6.0'/>
+        <provided namespace='java.package' name='javax.activation' version='0.0.0'/>
+        <!-- ... -->
+        <provided namespace='osgi.ee' name='OSGi/Minimum' version='1.0.0'/>
+        <provided namespace='osgi.ee' name='OSGi/Minimum' version='1.1.0'/>
+        <provided namespace='osgi.ee' name='OSGi/Minimum' version='1.2.0'/>
+        <provided namespace='osgi.ee' name='JRE' version='1.0.0'/>
+        <provided namespace='osgi.ee' name='JRE' version='1.1.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.1.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.2.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.3.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.4.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.5.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.6.0'/>
+      </provides>
+      <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
+    </unit>
+    <unit id='com.springsource.javax.activation' version='1.1.1' singleton='false'>
+      <update id='com.springsource.javax.activation' range='[0.0.0,1.1.1)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='Java Activation API'/>
+        <property name='org.eclipse.equinox.p2.provider' value='SpringSource'/>
+        <property name='maven-groupId' value='javax.activation'/>
+        <property name='maven-artifactId' value='com.springsource.javax.activation'/>
+        <property name='maven-version' value='1.1.1'/>
+      </properties>
+      <provides size='4'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.springsource.javax.activation' version='1.1.1'/>
+        <provided namespace='osgi.bundle' name='com.springsource.javax.activation' version='1.1.1'/>
+        <provided namespace='java.package' name='javax.activation' version='1.1.1'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='0'>
+        <!-- removed -->
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-SymbolicName: com.springsource.javax.activation&#xA;Bundle-Version: 1.1.1
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>    
+  </units>
+</repository>

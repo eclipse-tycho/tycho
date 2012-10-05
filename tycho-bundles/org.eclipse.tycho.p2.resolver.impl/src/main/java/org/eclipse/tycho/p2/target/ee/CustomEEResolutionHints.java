@@ -11,11 +11,14 @@
 package org.eclipse.tycho.p2.target.ee;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 
@@ -59,18 +62,17 @@ public class CustomEEResolutionHints implements ExecutionEnvironmentResolutionHi
     }
 
     public Collection<IInstallableUnit> getMandatoryUnits() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     public Collection<IInstallableUnit> getTemporaryAdditions() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     public Collection<IRequirement> getMandatoryRequires() {
-        // TODO Auto-generated method stub
-        return null;
+        VersionRange strictUnitRange = new VersionRange(unitVersion, true, unitVersion, true);
+        return Collections.singleton(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unitName,
+                strictUnitRange, null, false, false));
     }
 
 }
