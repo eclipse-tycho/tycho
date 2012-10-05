@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee.shared;
 
+import java.util.List;
+
 /**
  * Instances of this type collect information on the configured execution environment, so that they
  * are eventually able to compute the full specification of the effective configuration.
@@ -28,6 +30,10 @@ public interface ExecutionEnvironmentConfiguration {
     public void setProfileConfiguration(String profileName, String configurationOrigin);
 
     public String getProfileName();
+
+    public boolean isCustomProfile();
+
+    public void setFullSpecificationForCustomProfile(List<SystemCapability> systemCapabilities);
 
     public ExecutionEnvironment getFullSpecification();
 
