@@ -279,7 +279,15 @@ public class DefaultTargetPlatformConfigurationReader {
         for (MavenProject otherProject : session.getProjects()) {
             if (groupId.equals(otherProject.getGroupId()) && artifactId.equals(otherProject.getArtifactId())
                     && version.equals(otherProject.getVersion())) {
-                targetFile = new File(otherProject.getBasedir(), classifier + ".target");
+                String fileName;
+                if (classifier == null) {
+                    // no classifier means target is provided using packaging type eclipse-target-definition
+                    fileName = artifactId;
+                } else {
+                    // backward compat for target files manually installed via build-helper-maven-plugin
+                    fileName = classifier;
+                }
+                targetFile = new File(otherProject.getBasedir(), fileName + ".target");
                 break;
             }
         }
