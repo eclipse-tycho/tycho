@@ -12,6 +12,8 @@ package org.eclipse.tycho.p2.resolver;
 
 import static org.eclipse.tycho.p2.resolver.ResolverDebugUtils.toDebugString;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -19,12 +21,12 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.director.Slicer;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.facade.MavenLogger;
 
@@ -58,13 +60,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
 
         Set<IInstallableUnit> seedIUs = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
         if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
-            InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-            String time = Long.toString(System.currentTimeMillis());
-            iud.setId("tycho-extra-" + time);
-            iud.setVersion(Version.createOSGi(0, 0, 0, time));
-            iud.setRequirements(data.getAdditionalRequirements().toArray(
-                    new IRequiredCapability[data.getAdditionalRequirements().size()]));
-            seedIUs.add(MetadataFactory.createInstallableUnit(iud));
+            seedIUs.add(createUnitRequiring("tycho-extra", null, data.getAdditionalRequirements()));
         }
         seedIUs.addAll(data.getEEResolutionHints().getAdditionalRequires());
 
@@ -85,4 +81,36 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
     protected abstract boolean isSlicerError(MultiStatus slicerStatus);
 
     protected abstract Slicer newSlicer(IQueryable<IInstallableUnit> availableIUs, Map<String, String> properties);
+
+    protected static IInstallableUnit createUnitRequiring(String name, Collection<IInstallableUnit> units,
+            Collection<IRequirement> additionalRequirements) {
+
+        InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
+        String time = Long.toString(System.currentTimeMillis());
+        result.setId(name + "-" + time);
+        result.setVersion(Version.createOSGi(0, 0, 0, time));
+
+        ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
+        if (units != null) {
+            for (IInstallableUnit unit : units) {
+                requirements.add(createStrictRequirementTo(unit));
+            }
+        }
+        if (additionalRequirements != null) {
+            requirements.addAll(additionalRequirements);
+        }
+
+        result.addRequirements(requirements);
+        return MetadataFactory.createInstallableUnit(result);
+    }
+
+    private static IRequirement createStrictRequirementTo(IInstallableUnit unit) {
+        VersionRange strictRange = new VersionRange(unit.getVersion(), true, unit.getVersion(), true);
+        int min = 1;
+        int max = Integer.MAX_VALUE;
+        boolean greedy = true;
+        IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(),
+                strictRange, unit.getFilter(), min, max, greedy);
+        return requirement;
+    }
 }
