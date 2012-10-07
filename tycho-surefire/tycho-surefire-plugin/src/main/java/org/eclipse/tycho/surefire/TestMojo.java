@@ -261,6 +261,17 @@ public class TestMojo extends AbstractMojo {
     private String appArgLine;
 
     /**
+     * If set to true, tychp-surefire-plugin will guess some additional properties that are
+     * necessary for your test to run with the current environment (such as '-XstartOnFirstThread'
+     * on Mac...) In case this causes trouble, ensure this parameter is set to false, and manage
+     * extras arguments using argLine or appArgLine (and report your use case in a bug against
+     * Tycho).
+     * 
+     * @parameter default-value="false"
+     */
+    private boolean enableEnvironmentSpecificSettings;
+
+    /**
      * Kill the forked test process after a certain number of seconds. If set to 0, wait forever for
      * the process, never timing out.
      * 
@@ -725,6 +736,10 @@ public class TestMojo extends AbstractMojo {
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
 
+        // Bug 388084: set -XstartOnFirstThread on Mac
+        if (this.enableEnvironmentSpecificSettings) {
+            processEnvironmentJVMParameters();
+        }
         addVMArgs(cli, argLine);
 
         if (systemProperties != null) {
@@ -756,6 +771,27 @@ public class TestMojo extends AbstractMojo {
             cli.addEnvironmentVariables(environmentVariables);
         }
         return cli;
+    }
+
+    private void processEnvironmentJVMParameters() {
+        if (useUIHarness && System.getProperty("os.name").toLowerCase().startsWith("mac")) {
+            addEnvironmentJVMParameter("-XstartOnFirstThread");
+        }
+    }
+
+    private void addEnvironmentJVMParameter(String parameter) {
+        if (argLine == null) {
+            argLine = parameter;
+        } else {
+            if (argLine.contains(parameter)) {
+                getLog().info(
+                        "tycho-surefire-plugin automatically sets '" + parameter + "' on your environment. "
+                                + "You can remove necessary customization from your pom");
+            } else {
+                argLine += " ";
+                argLine += parameter;
+            }
+        }
     }
 
     void addProgramArgs(boolean escape, EquinoxLaunchConfiguration cli, String... arguments) {
