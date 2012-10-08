@@ -111,8 +111,8 @@
             4. Close and release staged artifacts into repository 'Releases'
 
 # Version corresponds to the Eclipse 4.2
-EQUINOX_VERSION=3.8.0.v20120529-1548
-JDT_VERSION=3.8.1.v20120531-0637
+EQUINOX_VERSION=3.8.1.v20120830-144521
+JDT_VERSION=3.8.2.v20120814-155456
 JDT_APT_VERSION=1.0.500.v20120522-1651
 
 # Location of unpacked Eclipse SDK
@@ -140,8 +140,8 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
   -Dsources=$PLUGINS/org.eclipse.jdt.compiler.apt.source_$JDT_APT_VERSION.jar
 		 -->
 
-		<equinoxVersion>3.8.0.v20120529-1548</equinoxVersion>
-		<jdtVersion>3.8.1.v20120531-0637</jdtVersion>
+		<equinoxVersion>3.8.1.v20120830-144521</equinoxVersion>
+		<jdtVersion>3.8.2.v20120814-155456</jdtVersion>
 		<jdtAptVersion>1.0.500.v20120522-1651</jdtAptVersion>
 
 		<!-- version of tycho used by this build -->
