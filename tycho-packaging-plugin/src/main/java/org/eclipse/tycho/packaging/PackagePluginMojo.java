@@ -33,6 +33,8 @@ import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
+import org.eclipse.tycho.packaging.sourceref.SourceReferenceComputer;
+import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 
 /**
  * Creates a jar-based plugin and attaches it as an artifact
@@ -70,6 +72,39 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
      * @parameter
      */
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
+
+    /**
+     * Whether to generate an <a
+     * href="http://wiki.eclipse.org/PDE/UI/SourceReferences">Eclipse-SourceReferences</a> MANIFEST
+     * header. When using this parameter, property ${tycho.scmUrl} must be set and be a valid <a
+     * href="http://maven.apache.org/scm/scm-url-format.html">maven SCM URL</a>.
+     * 
+     * Example configuration:
+     * 
+     * <pre>
+     *         &lt;sourceReferences&gt;
+     *           &lt;generate&gt;true&lt;/generate&gt;
+     *         &lt;/sourceReferences&gt;
+     * </pre>
+     * 
+     * Note that a {@link SourceReferencesProvider} component must be registered for the SCM type
+     * being used. You may also override the generated value by configuring:
+     * 
+     * <pre>
+     *         &lt;sourceReferences&gt;
+     *           &lt;generate&gt;true&lt;/generate&gt;
+     *           &lt;customValue&gt;scm:myscm:customSourceReferenceValue&lt;/customValue&gt;
+     *         &lt;/sourceReferences&gt;
+     * </pre>
+     * 
+     * @parameter
+     */
+    private SourceReferences sourceReferences = new SourceReferences();
+
+    /**
+     * @component
+     */
+    private SourceReferenceComputer soureReferenceComputer;
 
     public void execute() throws MojoExecutionException {
         pdeProject = (EclipsePluginProject) project.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
@@ -170,7 +205,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
         attributes.putValue("Bundle-Version", reactorProject.getExpandedVersion());
-
+        soureReferenceComputer.addSourceReferenceHeader(mf, sourceReferences, project);
         mfile = new File(project.getBuild().getDirectory(), "MANIFEST.MF");
         mfile.getParentFile().mkdirs();
         BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(mfile));
@@ -182,4 +217,5 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
         return mfile;
     }
+
 }
