@@ -19,10 +19,6 @@
   </parent>
   <artifactId>tycho-buildtimestamp-jgit</artifactId>
 
-  <properties>
-    <jgit-version>2.0.0.201206130900-r</jgit-version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.eclipse.tycho</groupId>
@@ -32,7 +28,6 @@
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
       <artifactId>org.eclipse.jgit</artifactId>
-      <version>${jgit-version}</version>
     </dependency>
   </dependencies>
 

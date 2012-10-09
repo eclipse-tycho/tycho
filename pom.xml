@@ -73,6 +73,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven-version>3.0</maven-version>
+		<jgit-version>2.0.0.201206130900-r</jgit-version>
 		<tycho-version>0.16.0-SNAPSHOT</tycho-version>
 	</properties>
 
@@ -84,6 +85,7 @@
         <module>tycho-source-feature-plugin</module>
         <module>pack200</module>
         <module>tycho-buildtimestamp-jgit</module>
+        <module>tycho-sourceref-jgit</module>
 		<module>target-platform-validation-plugin</module>
 	</modules>
 
@@ -139,6 +141,17 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-testing-harness</artifactId>
 				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jgit</groupId>
+				<artifactId>org.eclipse.jgit</artifactId>
+				<version>${jgit-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.10</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
