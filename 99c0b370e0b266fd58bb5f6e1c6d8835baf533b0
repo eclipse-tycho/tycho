@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//0wA\u003d",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/plugin.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-10-10T10:46:56Z",
+      "side": 1,
+      "message": "found this example from PDE [1] which seems to indicate there is (or was) a usecase for both \"singleton-global\" and \"1\".\n\nI wonder if it\u0027s safe to change from \"singleton-global\" to \"1\", see docs [2].\n\n[1] http://git.eclipse.org/c/pde/eclipse.pde.ui.git/tree/ui/org.eclipse.pde.junit.runtime/plugin.xml\n\n[2] http://git.eclipse.org/c/equinox/rt.equinox.bundles.git/tree/bundles/org.eclipse.equinox.app/schema/applications.exsd",
+      "revId": "99c0b370e0b266fd58bb5f6e1c6d8835baf533b0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//0v8\u003d",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/plugin.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-10-10T10:46:56Z",
+      "side": 1,
+      "message": "for consistency, if we change to cardinality\u003d\"1\" above, should this be cardinality\u003d\"1\" too?",
+      "revId": "99c0b370e0b266fd58bb5f6e1c6d8835baf533b0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//0wM\u003d",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/plugin.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-10-10T10:46:56Z",
+      "side": 1,
+      "message": "for consistency, shouldn\u0027t we set cardinality\u003d\"1\" for uitest and uitest32 apps too?\n\nAccording to docs [1] changing from cardinality\u003d\"singleton-global\" to \"1\" should be safe.\n\n[1] http://git.eclipse.org/c/equinox/rt.equinox.bundles.git/tree/bundles/org.eclipse.equinox.app/schema/applications.exsd",
+      "revId": "99c0b370e0b266fd58bb5f6e1c6d8835baf533b0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//0v4\u003d",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/plugin.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-10-10T10:46:56Z",
+      "side": 1,
+      "message": "for consistency, if we change to cardinality\u003d\"1\" above, should this be cardinality\u003d\"1\" too?",
+      "revId": "99c0b370e0b266fd58bb5f6e1c6d8835baf533b0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
