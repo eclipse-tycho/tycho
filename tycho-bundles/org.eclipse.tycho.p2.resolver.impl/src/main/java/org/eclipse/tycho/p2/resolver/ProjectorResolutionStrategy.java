@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -128,7 +129,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             }
         }
 
-        IInstallableUnit swtFragment = null;
+        Map<String, IInstallableUnit> swtFragments = new HashMap<String, IInstallableUnit>();
 
         all_ius: for (Iterator<IInstallableUnit> iter = availableIUs.query(QueryUtil.ALL_UNITS, monitor).iterator(); iter
                 .hasNext();) {
@@ -136,8 +137,9 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             if (iu.getId().startsWith("org.eclipse.swt") && isApplicable(newSelectionContext, iu.getFilter())) {
                 for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
                     if ("osgi.fragment".equals(provided.getNamespace()) && "org.eclipse.swt".equals(provided.getName())) {
+                        IInstallableUnit swtFragment = swtFragments.get(iu.getId());
                         if (swtFragment == null || swtFragment.getVersion().compareTo(iu.getVersion()) < 0) {
-                            swtFragment = iu;
+                            swtFragments.put(iu.getId(), iu);
                         }
                         continue all_ius;
                     }
@@ -145,11 +147,13 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             }
         }
 
-        if (swtFragment == null) {
+        if (swtFragments.size() == 0) {
             throw new RuntimeException("Could not determine SWT implementation fragment bundle");
         }
 
-        ius.add(swtFragment);
+        for (IInstallableUnit swtFragment : swtFragments.values()) {
+            ius.add(swtFragment);
+        }
     }
 
     protected boolean isApplicable(Map<String, String> selectionContext, IMatchExpression<IInstallableUnit> filter) {
