@@ -11,8 +11,11 @@
 package org.eclipse.tycho.p2.tools.publisher;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
@@ -27,6 +30,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -90,10 +94,48 @@ class PublisherServiceImpl implements PublisherService {
     }
 
     public Collection<?> publishEEProfile(File profileFile) throws FacadeException {
+        validate(profileFile);
         IPublisherAction jreAction = new JREAction(profileFile);
         Collection<IInstallableUnit> allIUs = executePublisher(jreAction, publishingRepository.getMetadataRepository(),
                 publishingRepository.getArtifactRepository());
         return allIUs;
+    }
+
+    void validate(File profileFile) throws FacadeException {
+        Properties p = new Properties();
+        FileInputStream stream = null;
+        try {
+            stream = new FileInputStream(profileFile);
+            p.load(stream);
+            validateProfileProperties(p, profileFile);
+        } catch (IOException e) {
+            throw new FacadeException(e);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    throw new FacadeException(e);
+                }
+            }
+        }
+    }
+
+    private void validateProfileProperties(Properties props, File profileFile) throws FacadeException {
+        String profileNameKey = "osgi.java.profile.name";
+        String profileName = props.getProperty(profileNameKey);
+        if (profileName == null) {
+            throw new FacadeException("mandatory property '" + profileNameKey + "' missing in profile " + profileFile);
+        }
+        // parse the profile name
+        new CustomEEResolutionHints(profileName);
+        String profileLocationKey = "jre.action.profile.location";
+        String profileLocation = props.getProperty(profileLocationKey);
+        if (profileLocation != null) {
+            // JREAction would generate a different IU name 
+            throw new FacadeException("property '" + profileLocationKey + "' must not be used in profile "
+                    + profileFile);
+        }
     }
 
     private Collection<IInstallableUnit> executePublisher(IPublisherAction action,

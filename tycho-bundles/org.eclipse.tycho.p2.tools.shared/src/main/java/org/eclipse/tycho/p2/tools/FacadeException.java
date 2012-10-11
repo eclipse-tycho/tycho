@@ -23,4 +23,8 @@ public class FacadeException extends Exception {
     public FacadeException(String message, Throwable exception) {
         super(message, exception);
     }
+
+    public FacadeException(String message) {
+        super(message);
+    }
 }
