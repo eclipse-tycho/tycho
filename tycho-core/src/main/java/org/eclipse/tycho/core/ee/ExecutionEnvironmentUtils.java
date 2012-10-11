@@ -120,6 +120,11 @@ public class ExecutionEnvironmentUtils {
             if (ee != null)
                 properties.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, ee);
         }
+        if (properties.getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES) == null) {
+            String systemCapabilities = profileProps.getProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES);
+            if (systemCapabilities != null)
+                properties.put(Constants.FRAMEWORK_SYSTEMCAPABILITIES, systemCapabilities);
+        }
     }
 
     private static Properties findVMProfile(Properties properties) {

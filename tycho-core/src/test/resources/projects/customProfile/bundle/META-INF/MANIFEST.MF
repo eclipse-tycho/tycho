@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle Plug-in
+Bundle-SymbolicName: bundle
+Bundle-Version: 0.0.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.2
+Import-Package: package.historically.not.in.jdk;version="1.2.1"
