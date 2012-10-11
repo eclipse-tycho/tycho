@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//0i8\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/publisher/PublisherServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-11T21:07:21Z",
+      "side": 1,
+      "message": "Are you sure this is the primary source for the IU name for the JREAction? From playing with the test CustomEEResolutionHintsTest.testConsistencyWithJREAction, I got the impression that the file name is leading...",
+      "revId": "82bed18bd53608872eb87c797de0d2d6fcef7469",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
