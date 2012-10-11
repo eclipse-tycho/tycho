@@ -11,8 +11,12 @@
 package org.eclipse.tycho.p2.tools.publisher;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
@@ -27,6 +31,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -90,10 +95,56 @@ class PublisherServiceImpl implements PublisherService {
     }
 
     public Collection<?> publishEEProfile(File profileFile) throws FacadeException {
+        validateProfile(profileFile);
         IPublisherAction jreAction = new JREAction(profileFile);
         Collection<IInstallableUnit> allIUs = executePublisher(jreAction, publishingRepository.getMetadataRepository(),
                 publishingRepository.getArtifactRepository());
         return allIUs;
+    }
+
+    void validateProfile(File profileFile) throws FacadeException {
+        Properties profileProperties = new Properties();
+        try {
+            FileInputStream stream = new FileInputStream(profileFile);
+            try {
+                profileProperties.load(stream);
+                validateProfile(profileProperties, profileFile);
+            } finally {
+                stream.close();
+            }
+        } catch (IOException e) {
+            throw new FacadeException(e);
+        }
+    }
+
+    private void validateProfile(Properties props, File profileFile) throws FacadeException {
+        String simpleFileName = profileFile.getName();
+        if (!simpleFileName.endsWith(".profile")) {
+            // otherwise JREAction will construct incorrect profile name
+            throw new FacadeException("Profile file name must end with '.profile': " + profileFile);
+        }
+
+        String profileNameKey = "osgi.java.profile.name";
+        String profileName = props.getProperty(profileNameKey);
+        if (profileName == null) {
+            throw new FacadeException("Mandatory property '" + profileNameKey + "' is missing in profile file "
+                    + profileFile);
+        }
+
+        // make sure the profile name ends in a version
+        new CustomEEResolutionHints(profileName);
+
+        /*
+         * To avoid surprises from bug 391805 in the JREAction (which will always use the profile
+         * file name instead of the value specified as osgi.java.profile.name in the profile file),
+         * require that these are the same.
+         */
+        String fileNamePrefix = simpleFileName.substring(0, simpleFileName.length() - ".profile".length()).toLowerCase(
+                Locale.ENGLISH);
+        if (!fileNamePrefix.equals(profileName.toLowerCase(Locale.ENGLISH))) {
+            throw new FacadeException("Profile file with 'osgi.java.profile.name=" + profileName + "' must be named '"
+                    + profileName + ".profile', but found file name: '" + simpleFileName + "'");
+        }
     }
 
     private Collection<IInstallableUnit> executePublisher(IPublisherAction action,

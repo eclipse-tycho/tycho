@@ -41,6 +41,7 @@ import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -116,7 +117,7 @@ public class PublisherServiceTest {
 
     @Test
     public void testProfilePublishing() throws Exception {
-        File customProfile = resolveTestResource("resources/publishers/virgo-java6.profile");
+        File customProfile = resolveTestResource("resources/publishers/virgo-1.6.profile");
         Collection<?> rootUnits = subject.publishEEProfile(customProfile);
         assertEquals(2, rootUnits.size());
         Map<String, IInstallableUnit> resultMap = new HashMap<String, IInstallableUnit>();
@@ -143,6 +144,12 @@ public class PublisherServiceTest {
                 customJavaxActivationVersionFound);
         IInstallableUnit configVirgoProfileIU = resultMap.get("config.a.jre.virgo");
         assertNotNull(configVirgoProfileIU);
+    }
+
+    @Test(expected = FacadeException.class)
+    public void testValidateProfileFile() throws Exception {
+        ((PublisherServiceImpl) subject)
+                .validateProfile(resolveTestResource("resources/publishers/inconsistentname-1.0.profile"));
     }
 
     @Test

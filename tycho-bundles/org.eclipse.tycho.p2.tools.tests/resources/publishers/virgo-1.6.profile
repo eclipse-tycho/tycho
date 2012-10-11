@@ -210,4 +210,4 @@ org.osgi.framework.executionenvironment = \
  J2SE-1.4,\
  J2SE-1.5,\
  JavaSE-1.6
-osgi.java.profile.name = Virgo-Java6
+osgi.java.profile.name = Virgo-1.6
