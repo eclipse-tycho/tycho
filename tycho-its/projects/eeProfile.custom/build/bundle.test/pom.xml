@@ -8,7 +8,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>epc.bundle</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	<artifactId>epc.bundle.test</artifactId>
+	<packaging>eclipse-test-plugin</packaging>
 
 </project>

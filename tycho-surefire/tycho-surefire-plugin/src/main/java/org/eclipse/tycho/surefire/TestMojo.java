@@ -39,6 +39,7 @@ import org.apache.maven.surefire.suite.RunResult;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -57,6 +58,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -505,7 +507,7 @@ public class TestMojo extends AbstractMojo {
                 providerProperties, providerHint);
         surefireProps.setProperty("testprovider", provider.getSurefireProviderClassName());
         getLog().debug("Using test framework provider " + provider.getClass().getName());
-        storeSurefireProperties(surefireProps);
+        storeProperties(surefireProps, surefireProperties);
         for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
             // note that this project is added as directory structure rooted at project basedir.
             // project classes and test-classes are added via dev.properties file (see #createDevProperties())
@@ -631,9 +633,9 @@ public class TestMojo extends AbstractMojo {
         }
     }
 
-    private void storeSurefireProperties(Properties p) throws MojoExecutionException {
+    private void storeProperties(Properties p, File file) throws MojoExecutionException {
         try {
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(surefireProperties));
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
             try {
                 p.store(out, null);
             } finally {
@@ -701,7 +703,8 @@ public class TestMojo extends AbstractMojo {
         return tc;
     }
 
-    LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime, File workspace) throws MalformedURLException {
+    LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime, File workspace)
+            throws MalformedURLException, MojoExecutionException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(testRuntime);
 
         String executable = null;
@@ -724,7 +727,7 @@ public class TestMojo extends AbstractMojo {
         cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
-
+        addCustomProfileArg(cli);
         addVMArgs(cli, argLine);
 
         if (systemProperties != null) {
@@ -756,6 +759,21 @@ public class TestMojo extends AbstractMojo {
             cli.addEnvironmentVariables(environmentVariables);
         }
         return cli;
+    }
+
+    private void addCustomProfileArg(EquinoxLaunchConfiguration cli) throws MojoExecutionException {
+        ExecutionEnvironmentConfiguration eeConfig = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
+        if (eeConfig.isCustomProfile()) {
+            Properties customProfileProps = eeConfig.getFullSpecification().getProfileProperties();
+            File profileFile = new File(new File(project.getBuild().getDirectory()), "custom.profile");
+            storeProperties(customProfileProps, profileFile);
+            try {
+                cli.addVMArguments("-D" + Constants.OSGI_JAVA_PROFILE + "=" + profileFile.toURL());
+            } catch (MalformedURLException e) {
+                // should not happen
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     void addProgramArgs(boolean escape, EquinoxLaunchConfiguration cli, String... arguments) {

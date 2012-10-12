@@ -38,6 +38,9 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
         setSystemPackages(systemCapabilities);
         setExecutionEnvironmentProperties(systemCapabilities);
         setOsgiSystemCapabilities(systemCapabilities);
+
+        // osgi.java.profile.name is not needed at runtime AFAIK but let's make it explicit that this is a custom profile
+        properties.setProperty(org.eclipse.osgi.framework.internal.core.Constants.OSGI_JAVA_PROFILE_NAME, profileName);
     }
 
     private void setSystemPackages(List<SystemCapability> systemCapabilities) {
@@ -191,4 +194,11 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
     public boolean isCompatibleCompilerTargetLevel(String target) {
         return true;
     }
+
+    // for debug purposes
+    @Override
+    public String toString() {
+        return "custom OSGi profile '" + getProfileName() + "'";
+    }
+
 }

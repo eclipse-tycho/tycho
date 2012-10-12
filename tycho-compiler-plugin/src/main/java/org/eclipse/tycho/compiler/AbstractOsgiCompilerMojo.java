@@ -535,7 +535,11 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         }
         // then, BREE
         if (env != null) {
-            return env.getCompilerSourceLevel();
+            String compilerSourceLevel = env.getCompilerSourceLevel();
+            // TODO 387796 never null?
+            if (compilerSourceLevel != null) {
+                return compilerSourceLevel;
+            }
         }
         return DEFAULT_SOURCE_VERSION;
     }

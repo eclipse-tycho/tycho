@@ -1,7 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bundle
-Bundle-SymbolicName: epc.bundle
+Bundle-SymbolicName: epc.bundle.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.activation;version="1.1.0"
+Require-Bundle: org.junit

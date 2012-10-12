@@ -8,7 +8,8 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>bundle</module>
+		<module>bundle.test</module>
+		<module>product</module>
 	</modules>
 
 	<build>
@@ -25,6 +26,13 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<executionEnvironment>CustomProfile-1.6</executionEnvironment>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -34,6 +42,11 @@
 		<repository>
 			<id>repo-with-profile</id>
 			<url>${custom-profile-repo}</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>repo-with-test-runtime</id>
+			<url>${test-runtime-repo}</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
