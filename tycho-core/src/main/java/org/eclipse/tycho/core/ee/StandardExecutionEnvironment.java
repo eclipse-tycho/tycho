@@ -11,11 +11,14 @@
 package org.eclipse.tycho.core.ee;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.core.ee.EEVersion.EEType;
@@ -56,7 +59,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     private String profileName;
     private String compilerSourceLevel;
     private String compilerTargetLevel;
-    private String[] systemPackages;
+    private Set<String> systemPackages;
     private EEVersion eeVersion;
     private Properties profileProperties;
 
@@ -69,7 +72,8 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-        this.systemPackages = profileProperties.getProperty("org.osgi.framework.system.packages").split(",");
+        this.systemPackages = new LinkedHashSet<String>(Arrays.asList(profileProperties.getProperty(
+                "org.osgi.framework.system.packages").split(",")));
         this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
         this.profileProperties = new Properties();
         this.profileProperties.putAll(profileProperties);
@@ -123,7 +127,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                 + compilerTargetLevel + "}";
     }
 
-    public String[] getSystemPackages() {
+    public Set<String> getSystemPackages() {
         return systemPackages;
     }
 

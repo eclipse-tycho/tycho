@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +29,7 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
     private static final Pattern JAVA_SECOND_EDITION_VERSIONS_PATTERN = Pattern.compile("(1\\.[0-5])");
 
     private final String profileName;
-    private final List<String> systemPackages = new ArrayList<String>();
+    private final Set<String> systemPackages = new LinkedHashSet<String>();
     private final Properties properties = new Properties();
 
     // BEGIN construction
@@ -178,8 +179,8 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
         return properties;
     }
 
-    public String[] getSystemPackages() {
-        return systemPackages.toArray(new String[0]);
+    public Set<String> getSystemPackages() {
+        return systemPackages;
     }
 
     // not known for custom profiles

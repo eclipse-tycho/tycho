@@ -11,6 +11,7 @@
 package org.eclipse.tycho.core.ee.shared;
 
 import java.util.Properties;
+import java.util.Set;
 
 public interface ExecutionEnvironment {
 
@@ -20,7 +21,10 @@ public interface ExecutionEnvironment {
 
     String getCompilerTargetLevel();
 
-    String[] getSystemPackages();
+    /**
+     * Returns the list of packages (without versions) provided by the execution environment.
+     */
+    Set<String> getSystemPackages();
 
     Properties getProfileProperties();
 

@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
+import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +46,7 @@ public class CustomExecutionEnvironmentTest {
         assertThat(customExecutionEnvironment.getProfileName(), is("name"));
         assertThat(customExecutionEnvironment.getCompilerSourceLevel(), is(nullValue()));
         assertThat(customExecutionEnvironment.getCompilerTargetLevel(), is(nullValue()));
-        assertThat(customExecutionEnvironment.getSystemPackages(), is(new String[] {}));
+        assertThat(customExecutionEnvironment.getSystemPackages(), not(hasItem(any(String.class))));
         assertProperty(org.eclipse.osgi.framework.internal.core.Constants.OSGI_JAVA_PROFILE_NAME, "name");
     }
 
@@ -51,7 +54,7 @@ public class CustomExecutionEnvironmentTest {
     public void testProvidedSystemPackageNoVersion() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVA_LANG);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(), is(new String[] { "java.lang" }));
+        assertThat(customExecutionEnvironment.getSystemPackages(), hasItem("java.lang"));
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(2));
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "java.lang");
     }
@@ -60,7 +63,7 @@ public class CustomExecutionEnvironmentTest {
     public void testProvidedSystemPackageWithVersion() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVAX_ACTIVATION_1_1);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(), is(new String[] { "javax.activation" }));
+        assertThat(customExecutionEnvironment.getSystemPackages(), hasItem("javax.activation"));
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(2));
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "javax.activation;version=\"1.1\"");
     }
@@ -69,7 +72,8 @@ public class CustomExecutionEnvironmentTest {
     public void testTwoProvidedSystemPackages() throws Exception {
         createExecutionEnvironment(PACKAGE_JAVA_LANG, PACKAGE_JAVAX_ACTIVATION_1_1);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(), is(new String[] { "java.lang", "javax.activation" }));
+        assertThat(customExecutionEnvironment.getSystemPackages(), hasItem("java.lang"));
+        assertThat(customExecutionEnvironment.getSystemPackages(), hasItem("javax.activation"));
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(2));
         assertProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, "java.lang,javax.activation;version=\"1.1\"");
     }
@@ -78,7 +82,7 @@ public class CustomExecutionEnvironmentTest {
     public void testOsgiEeCapability() throws Exception {
         createExecutionEnvironment(OSGI_JAVASE_1_6);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(), is(new String[] {}));
+        assertThat(customExecutionEnvironment.getSystemPackages(), not(hasItem(any(String.class))));
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(3));
         assertProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES, "osgi.ee; osgi.ee=\"JavaSE\"; version:Version=\"1.6\"");
         assertProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "JavaSE-1.6");
