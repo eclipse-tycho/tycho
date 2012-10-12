@@ -22,12 +22,17 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 
-public class CustomEEResolutionHints implements ExecutionEnvironmentResolutionHints {
+public final class CustomEEResolutionHints implements ExecutionEnvironmentResolutionHints {
 
-    private String unitName;
-    private Version unitVersion;
+    // primary members
+    private final String eeName;
+
+    // derived members
+    private transient String unitName;
+    private transient Version unitVersion;
 
     public CustomEEResolutionHints(String eeName) throws InvalidEENameException {
+        this.eeName = eeName;
         parse(eeName);
     }
 
@@ -75,4 +80,32 @@ public class CustomEEResolutionHints implements ExecutionEnvironmentResolutionHi
                 strictUnitRange, null, false, false));
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 37;
+        int result = 1;
+        result = prime * result + ((eeName == null) ? 0 : eeName.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof CustomEEResolutionHints))
+            return false;
+
+        CustomEEResolutionHints other = (CustomEEResolutionHints) obj;
+        return eq(eeName, other.eeName);
+    }
+
+    private static <T> boolean eq(T left, T right) {
+        if (left == right) {
+            return true;
+        } else if (left == null) {
+            return false;
+        } else {
+            return left.equals(right);
+        }
+    }
 }
