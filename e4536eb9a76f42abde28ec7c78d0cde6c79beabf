@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//0g0\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/CustomEEResolutionHints.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-10-12T07:11:48Z",
+      "side": 1,
+      "message": "null or empty list?",
+      "revId": "e4536eb9a76f42abde28ec7c78d0cde6c79beabf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
