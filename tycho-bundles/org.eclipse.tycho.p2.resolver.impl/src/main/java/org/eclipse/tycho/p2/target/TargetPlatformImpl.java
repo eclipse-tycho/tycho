@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -174,6 +175,14 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     public void reportUsedIUs(Collection<IInstallableUnit> usedUnits) {
         final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
         localIUs.retainAll(usedUnits);
+
+        // workaround to avoid warnings for "a.jre.javase" IUs - TODO avoid this step?
+        for (Iterator<IInstallableUnit> iterator = localIUs.iterator(); iterator.hasNext();) {
+            if (executionEnvironment.isNonApplicableEEUnit(iterator.next())) {
+                iterator.remove();
+            }
+        }
+
         if (!localIUs.isEmpty()) {
             logLocalIUMessage("The following locally built units have been used to resolve project dependencies:");
             for (IInstallableUnit localIu : localIUs) {
