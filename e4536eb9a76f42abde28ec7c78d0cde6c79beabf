@@ -16,6 +16,24 @@
       "revId": "e4536eb9a76f42abde28ec7c78d0cde6c79beabf",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//0gU\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/CustomEEResolutionHints.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-12T08:12:04Z",
+      "side": 1,
+      "message": "I re-ordered the commits so that we don\u0027t get such a huge commit. With this commit, the CustomEEResolutionHints are not used by anything but your test. These methods are implemented with the next commit that tests on one level further up, i.e. dependency resolution.",
+      "parentUuid": "AABOIn//0g0\u003d",
+      "revId": "e4536eb9a76f42abde28ec7c78d0cde6c79beabf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
