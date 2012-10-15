@@ -15,7 +15,7 @@
   <parent>
     <artifactId>tycho-pack200</artifactId>
     <groupId>org.eclipse.tycho.extras</groupId>
-    <version>0.16.0</version>
+    <version>0.17.0-SNAPSHOT</version>
   </parent>
   <artifactId>tycho-pack200-impl</artifactId>
 
