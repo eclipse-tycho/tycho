@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,7 +56,8 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         }
 
         if ("Eclipse".equals(System.getProperty("org.osgi.framework.vendor"))) {
-            throw new IllegalStateException("Nested Equinox instance is not supported");
+            throw new IllegalStateException(
+                    "Cannot run multiple Equinox instances in one build. Consider configuring the Tycho build extension, so that all mojos using Tycho functionality share the same Equinox runtime.");
         }
 
         // https://bugs.eclipse.org/bugs/show_bug.cgi?id=308949
