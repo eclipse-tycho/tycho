@@ -74,7 +74,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven-version>3.0</maven-version>
 		<jgit-version>2.0.0.201206130900-r</jgit-version>
-		<tycho-version>0.16.0</tycho-version>
+		<tycho-version>0.17.0-SNAPSHOT</tycho-version>
 	</properties>
 
 	<modules>
