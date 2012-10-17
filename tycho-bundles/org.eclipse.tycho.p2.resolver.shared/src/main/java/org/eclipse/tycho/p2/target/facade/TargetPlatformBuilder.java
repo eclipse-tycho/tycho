@@ -45,4 +45,6 @@ public interface TargetPlatformBuilder {
 
     public void setIncludePackedArtifacts(boolean include);
 
+    public void setFailOnDuplicateIUs(boolean fail);
+
 }

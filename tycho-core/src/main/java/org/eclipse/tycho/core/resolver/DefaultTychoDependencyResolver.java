@@ -91,7 +91,7 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         // TODO 364134 cache target platform (e.g. by checking if there is already an attached target platform)
         logger.info("Computing target platform for " + project);
-        TargetPlatform targetPlatform = resolver.computeTargetPlatform(session, project, reactorProjects);
+        TargetPlatform targetPlatform = resolver.computeTargetPlatform(session, project, reactorProjects, true);
 
         dr.setTargetPlatform(project, targetPlatform);
 
