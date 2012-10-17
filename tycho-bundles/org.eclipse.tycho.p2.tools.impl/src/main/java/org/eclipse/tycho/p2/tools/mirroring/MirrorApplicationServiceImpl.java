@@ -55,7 +55,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
-            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, true);
+            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent,
+                    mirrorOptions.isIncludePacked());
             mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
             try {
                 // we want to see mirror progress as this is a possibly long-running operation
@@ -107,10 +108,14 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     private IQuery<IInstallableUnit> createQuery(IUDescription iu) {
         String id = iu.getId();
         String version = iu.getVersion();
-        if (version == null || version.length() == 0) {
-            return QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
+        if (iu.getQueryMatchExpression() != null) {
+            return QueryUtil.createMatchQuery(iu.getQueryMatchExpression(), iu.getQueryParameters());
         } else {
-            return QueryUtil.createIUQuery(id, Version.parseVersion(version));
+            if (version == null || version.length() == 0) {
+                return QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
+            } else {
+                return QueryUtil.createIUQuery(id, Version.parseVersion(version));
+            }
         }
     }
 

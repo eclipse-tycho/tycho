@@ -34,7 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class MirrorStandaloneTests {
+public class MirrorStandaloneTest {
     private static final String DEFAULT_NAME = "dummy";
 
     private DestinationRepositoryDescriptor destinationRepo;
@@ -89,6 +89,17 @@ public class MirrorStandaloneTests {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
                 Collections.singletonList(new IUDescription("org.eclipse.core.runtime", "3.4.0.v20080512")),
                 new MirrorOptions(), targetFolder);
+        assertEquals(1, getMirroredBundleFiles().length);
+        assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
+    }
+
+    @Test
+    public void testMirrorMatchExpression() throws Exception {
+        subject.mirrorStandalone(
+                e342PlusFragmentsRepo(),
+                destinationRepo,
+                Collections.singletonList(new IUDescription(null, null, "id == $0 && version == $1", new String[] {
+                        "org.eclipse.core.runtime", "3.4.0.v20080512" })), new MirrorOptions(), targetFolder);
         assertEquals(1, getMirroredBundleFiles().length);
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
     }

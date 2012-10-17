@@ -10,23 +10,33 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring.facade;
 
+import java.util.Arrays;
+
 public class IUDescription {
 
     private String id;
     private String version;
+    private String queryMatchExpression;
+    private String[] queryParameters;
 
     /**
      * @param id
-     *            id of the installable unit. Must not be <code>null</code>.
+     *            id of the installable unit.
      * @param version
      *            version of the installable unit. <code>null</code> means latest available version.
      */
     public IUDescription(String id, String version) {
-        if (id == null) {
-            throw new NullPointerException("id must not be null");
+        this(id, version, null, null);
+    }
+
+    public IUDescription(String id, String version, String queryMatchExpression, String[] queryParameters) {
+        if (id == null && queryMatchExpression == null) {
+            throw new NullPointerException("either id or query must be specified");
         }
         this.id = id;
         this.version = version;
+        this.queryMatchExpression = queryMatchExpression;
+        this.queryParameters = queryParameters;
     }
 
     public String getId() {
@@ -39,7 +49,20 @@ public class IUDescription {
 
     @Override
     public String toString() {
-        return "[" + id + ", " + (version != null ? version : "0.0.0") + "]";
+        if (queryMatchExpression != null) {
+            return "[query expression='" + queryMatchExpression + ", parameters=" + Arrays.asList(queryParameters)
+                    + "]";
+        } else {
+            return "[" + id + ", " + (version != null ? version : "0.0.0") + "]";
+        }
+    }
+
+    public String getQueryMatchExpression() {
+        return queryMatchExpression;
+    }
+
+    public String[] getQueryParameters() {
+        return queryParameters;
     }
 
 }

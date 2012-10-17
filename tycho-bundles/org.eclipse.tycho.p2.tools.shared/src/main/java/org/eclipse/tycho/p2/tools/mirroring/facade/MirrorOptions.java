@@ -24,6 +24,7 @@ public class MirrorOptions {
     private boolean followStrictOnly = false;
     private boolean includeOptional = true;
     private boolean includeNonGreedy = true;
+    private boolean includePacked = true;
     private boolean followOnlyFilteredRequirements = false;
     private boolean latestVersionOnly = false;
     private Map<String, String> filter = new HashMap<String, String>();
@@ -61,6 +62,10 @@ public class MirrorOptions {
 
     public boolean isIncludeNonGreedy() {
         return includeNonGreedy;
+    }
+
+    public boolean isIncludePacked() {
+        return includePacked;
     }
 
     /**
@@ -112,6 +117,10 @@ public class MirrorOptions {
         filter.put("osgi.os", os);
         filter.put("osgi.ws", ws);
         filter.put("osgi.arch", arch);
+    }
+
+    public void setIncludePacked(boolean includePacked) {
+        this.includePacked = includePacked;
     }
 
 }
