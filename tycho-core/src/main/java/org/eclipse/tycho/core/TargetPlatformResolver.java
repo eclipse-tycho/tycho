@@ -29,7 +29,7 @@ public interface TargetPlatformResolver {
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject);
 
     public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects);
+            List<ReactorProject> reactorProjects, boolean failOnDuplicateIUs);
 
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
