@@ -33,13 +33,35 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-p2-facade</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-testing-harness</artifactId>
 			<scope>test</scope>
+			</dependency>
+		<dependency>
+		<!-- workaround for 393663 -->
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-bundles-external</artifactId>
+			<type>zip</type>
+			<scope>test</scope>
 		</dependency>
-
+	         <!-- begin  workaround for 393663 -->
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- end workaround for 393663 -->
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-equinox-launching</artifactId>

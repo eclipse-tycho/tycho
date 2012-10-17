@@ -141,6 +141,27 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-testing-harness</artifactId>
 				<version>${tycho-version}</version>
+					</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>org.eclipse.tycho.p2.resolver.impl</artifactId>
+				<version>${tycho-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-bundles-external</artifactId>
+				<version>${tycho-version}</version>
+				<type>zip</type>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jgit</groupId>

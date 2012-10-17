@@ -19,8 +19,17 @@ public class Iu {
 
     String id;
     String version;
+    Query query;
 
     public IUDescription toIUDescription() {
-        return new IUDescription(id, version);
+        if (query == null) {
+            return new IUDescription(id, version, null, null);
+        } else {
+            return new IUDescription(id, version, query.getExpression(), query.getParsedParameters());
+        }
+    }
+
+    public void setQuery(Query query) {
+        this.query = query;
     }
 }
