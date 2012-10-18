@@ -98,7 +98,7 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
     }
 
     public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects) {
+            List<ReactorProject> reactorProjects, boolean failOnDuplicateIUs) {
         // everything is done in resolveDependencies
         return null;
     }

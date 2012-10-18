@@ -469,7 +469,8 @@ public class TestMojo extends AbstractMojo {
         dependencies.addAll(getTestDependencies());
 
         // TODO 364134 re-use target platform from dependency resolution
-        TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
+        TargetPlatform targetPlatform = platformResolver
+                .computeTargetPlatform(session, project, reactorProjects, false);
 
         final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
             public OptionalResolutionAction getOptionalResolutionAction() {
