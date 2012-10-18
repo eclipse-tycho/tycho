@@ -88,6 +88,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private final TargetDefinitionResolverService targetDefinitionResolverService;
 
     private boolean includePackedArtifacts;
+    private boolean failOnDuplicateIUs = true;
 
     /**
      * Representation of the target execution environment profile. In case of a custom EE profile,
@@ -466,7 +467,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             }
         }
 
-        if (!duplicateReactorUIs.isEmpty()) {
+        if (failOnDuplicateIUs && !duplicateReactorUIs.isEmpty()) {
+            // TODO 392320 we should only fail if IUs with same id and version but different content are found 
             throw new DuplicateReactorIUsException(duplicateReactorUIs);
         }
 
@@ -489,5 +491,9 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     public void setIncludePackedArtifacts(boolean include) {
         this.includePackedArtifacts = include;
+    }
+
+    public void setFailOnDuplicateIUs(boolean failOnDuplicateIUs) {
+        this.failOnDuplicateIUs = failOnDuplicateIUs;
     }
 }
