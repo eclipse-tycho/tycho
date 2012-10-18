@@ -1,0 +1,9 @@
+Verified+1: Hudson CI
+Code-Review+2: Tobias Oberlies <tobias.oberlies@sap.com>
+IP-Clean+1: Tobias Oberlies <tobias.oberlies@sap.com>
+Verified+1: Tobias Oberlies <tobias.oberlies@sap.com>
+Submitted-by: Jan Sievers <jan.sievers@sap.com>
+Submitted-at: Thu, 18 Oct 2012 11:16:52 -0400
+Reviewed-on: https://git.eclipse.org/r/8271
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
