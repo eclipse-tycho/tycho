@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOIn//z50\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-18T09:49:22Z",
+      "side": 1,
+      "message": "Interesting: I was convinced that both QueryUtil.createIUQuery(\"id\") and QueryUtil.createIUQuery(\"id\", \"0.0.0\") would both only return the latest version. But they don\u0027t, so this line is the minimal correct one...",
+      "revId": "dea7d2a155681b7dd48a0117588e7b718fb044a8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOIn//z5w\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.shared/src/main/java/org/eclipse/tycho/p2/tools/mirroring/facade/IUDescription.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2012-10-18T09:49:22Z",
+      "side": 1,
+      "message": "Does this name still match? We could generalize it to \"Seed\".",
+      "revId": "dea7d2a155681b7dd48a0117588e7b718fb044a8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
