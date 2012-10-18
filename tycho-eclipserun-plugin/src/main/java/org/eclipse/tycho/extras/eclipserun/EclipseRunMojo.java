@@ -147,7 +147,8 @@ public class EclipseRunMojo extends AbstractMojo {
             dependencies.addAll(Arrays.asList(this.dependencies));
         }
 
-        TargetPlatform targetPlatform = platformResolver.computeTargetPlatform(session, project, reactorProjects);
+        TargetPlatform targetPlatform = platformResolver
+                .computeTargetPlatform(session, project, reactorProjects, false);
 
         DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
             public OptionalResolutionAction getOptionalResolutionAction() {
