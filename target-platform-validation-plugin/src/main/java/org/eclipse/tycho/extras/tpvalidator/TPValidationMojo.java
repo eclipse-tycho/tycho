@@ -53,6 +53,9 @@ public class TPValidationMojo extends AbstractMojo {
      */
     private boolean failOnError;
 
+    /** @parameter default-value="J2SE-1.5" */
+    private String executionEnvironment;
+
     /** @component */
     protected EquinoxServiceFactory equinox;
 
@@ -112,7 +115,8 @@ public class TPValidationMojo extends AbstractMojo {
             // create resolver
             this.logger.info("Validating " + targetFile + "...");
             TargetPlatformBuilder resolutionContext;
-            resolutionContext = this.factory.createTargetPlatformBuilder(null);
+            resolutionContext = this.factory.createTargetPlatformBuilder(new ExecutionEnvironmentConfigurationStub(
+                    executionEnvironment));
 
             TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
             resolutionContext.addTargetDefinition(target, this.environment);
