@@ -68,6 +68,11 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
+import org.eclipse.tycho.repository.local.MirroringArtifactProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.RemoteArtifactTransferPolicy;
+import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
@@ -335,6 +340,19 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         for (TargetPlatformContent contentPart : content) {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
+        // TODO 393004 optionally cache packed artifacts
+//        if (includePackedArtifacts) {
+//            jointArtifacts = new CachingPack200ArtifactProvider(localArtifactRepository,
+//                    new RepositoryArtifactProvider(allRemoteArtifactRepositories, remoteAgent));
+//        } else
+
+        RepositoryArtifactProvider remoteArtifacts = new RepositoryArtifactProvider(allRemoteArtifactRepositories,
+                new RemoteArtifactTransferPolicy(), remoteAgent);
+        MirroringArtifactProvider remoteArtifactCache = new MirroringArtifactProvider(localArtifactRepository,
+                remoteArtifacts);
+        // TODO 393004 change type of resolutionContextArtifactRepo to get rid of cast
+        IRawArtifactFileProvider jointArtifacts = new CompositeArtifactProvider(
+                (IRawArtifactFileProvider) resolutionContextArtifactRepo, remoteArtifactCache);
 
         TargetPlatformImpl targetPlatform = new TargetPlatformImpl(reactorProjects.values(),//
                 externalUIs, //
@@ -342,14 +360,13 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 eeResolutionHandler.getResolutionHints(), //
                 filter, //
                 localMetadataRepository, //
-                allRemoteArtifactRepositories, //
+                jointArtifacts, //
                 localArtifactRepository, //
-                remoteAgent, //
-                includePackedArtifacts, //
                 logger);
 
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
+        // TODO 393004 make jointArtifacts accessible in repo manager and use instead of local artifact repository
         return targetPlatform;
     }
 
