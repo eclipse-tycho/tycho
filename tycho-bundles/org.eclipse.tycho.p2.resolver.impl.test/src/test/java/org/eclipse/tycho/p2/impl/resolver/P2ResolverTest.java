@@ -42,15 +42,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class P2ResolverTest extends P2ResolverTestBase {
 
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
+    @Rule
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void initDefaultResolver() throws Exception {
-        org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
+//        org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
         context = createTargetPlatformBuilder();
         impl = new P2ResolverImpl(logVerifier.getLogger());
         impl.setEnvironments(getEnvironments());
@@ -453,5 +456,17 @@ public class P2ResolverTest extends P2ResolverTestBase {
         P2ResolutionResult result = results.get(0);
 
         Assert.assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
+    }
+
+    @Test
+    public void testMissingArtifact() throws Exception {
+        // repository with the IU org.eclipse.osgi but not the corresponding artifact (-> this repository is inconsistent, more often you'd get this situation in offline mode)
+        context.addP2Repository(resourceFile("repositories/missing-artifact").toURI());
+        // module requiring org.eclipse.osgi
+        File bundle = resourceFile("resolver/bundle01");
+        addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.bundle01");
+
+        expectedException.expectMessage("could not be downloaded");
+        impl.resolveDependencies(context.buildTargetPlatform(), bundle);
     }
 }

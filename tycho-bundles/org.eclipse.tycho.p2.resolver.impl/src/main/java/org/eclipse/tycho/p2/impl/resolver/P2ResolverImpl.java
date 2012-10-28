@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -89,7 +90,8 @@ public class P2ResolverImpl implements P2Resolver {
 
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation) {
         this.context = (P2TargetPlatform) context;
-        return resolveDependencies(projectLocation, new DependencyCollector(logger), new TargetEnvironment(null, null, null));
+        return resolveDependencies(projectLocation, new DependencyCollector(logger), new TargetEnvironment(null, null,
+                null));
     }
 
     public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context) {
@@ -129,7 +131,6 @@ public class P2ResolverImpl implements P2Resolver {
             usedTargetPlatformUnits.addAll(newState);
         }
 
-        context.downloadArtifacts(newState);
         return toResolutionResult(newState);
     }
 
@@ -143,20 +144,45 @@ public class P2ResolverImpl implements P2Resolver {
 
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState) {
         DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
+        Set<String> missingArtifacts = new TreeSet<String>();
+
         for (IInstallableUnit iu : newState) {
             IArtifactFacade mavenArtifact = context.getMavenArtifact(iu);
             if (mavenArtifact != null) {
                 addMavenArtifact(result, mavenArtifact, iu);
             } else {
                 for (IArtifactKey key : iu.getArtifacts()) {
-                    addArtifactFile(result, iu, key);
+                    // this downloads artifacts if necessary; TODO parallelize download?
+                    File artifactLocation = context.getLocalArtifactFile(key);
+
+                    if (artifactLocation == null) {
+                        missingArtifacts.add(key.toString());
+                    } else {
+                        addArtifactFile(result, iu, key, artifactLocation);
+                    }
                 }
             }
         }
 
+        // local repository index needs to be saved manually
+        context.saveLocalMavenRepository();
+
+        failIfArtifactsMissing(missingArtifacts);
+
         // TODO instead of adding them to the TP, we could also register it in memory as metadata repo
         collectNonReactorIUs(result, newState);
         return result;
+    }
+
+    private void failIfArtifactsMissing(Set<String> missingArtifacts) {
+        if (!missingArtifacts.isEmpty()) {
+            logger.error("The following artifacts could not be downloaded: ");
+            for (String missingArtifact : missingArtifacts) {
+                logger.error("  " + missingArtifact);
+            }
+            // TODO throw a typed exception here, so that we can log more information depending on the offline mode further up in the call stack
+            throw new RuntimeException("Some required artifacts could not be downloaded. See log output for details.");
+        }
     }
 
     private void collectNonReactorIUs(DefaultP2ResolutionResult result, Collection<IInstallableUnit> newState) {
@@ -171,25 +197,22 @@ public class P2ResolverImpl implements P2Resolver {
         return context.getMavenArtifact(iu) instanceof IReactorArtifactFacade;
     }
 
-    private void addArtifactFile(DefaultP2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key) {
-        File file = context.getLocalArtifactFile(key);
-        if (file == null) {
-            return;
-        }
-
+    private void addArtifactFile(DefaultP2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key,
+            File artifactLocation) {
         IArtifactFacade reactorArtifact = context.getMavenArtifact(iu);
 
         String id = iu.getId();
         String version = iu.getVersion().toString();
-        String mavenClassidier = reactorArtifact != null ? reactorArtifact.getClassifier() : null;
+        String mavenClassifier = reactorArtifact != null ? reactorArtifact.getClassifier() : null;
 
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, true, file, mavenClassidier, iu);
+            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, true, artifactLocation, mavenClassifier,
+                    iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, true, file, mavenClassidier,
-                        iu);
+                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, true, artifactLocation,
+                        mavenClassifier, iu);
             }
         }
 
@@ -276,6 +299,7 @@ public class P2ResolverImpl implements P2Resolver {
         return additionalRequirements;
     }
 
+    // TODO this should be a method on the class TargetPlatform
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange) {
         this.context = (P2TargetPlatform) context;
 
@@ -289,8 +313,6 @@ public class P2ResolverImpl implements P2Resolver {
                 QueryUtil.createLatestQuery(QueryUtil.createMatchQuery(requirement.getMatches())), monitor);
 
         Set<IInstallableUnit> newState = result.toUnmodifiableSet();
-
-        this.context.downloadArtifacts(newState);
 
         return toResolutionResult(newState);
     }
