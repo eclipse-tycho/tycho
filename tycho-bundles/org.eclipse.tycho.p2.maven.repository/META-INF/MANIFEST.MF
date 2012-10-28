@@ -17,6 +17,8 @@ Export-Package: org.eclipse.tycho.p2.maven.repository,
  org.eclipse.tycho.p2.util,
  org.eclipse.tycho.repository.local,
  org.eclipse.tycho.repository.module;x-friends:="org.eclipse.tycho.p2.tools.tests",
+ org.eclipse.tycho.repository.p2base.artifact.provider,
+ org.eclipse.tycho.repository.p2base.artifact.repository,
  org.eclipse.tycho.repository.publishing,
  org.eclipse.tycho.repository.registry
 Import-Package: org.eclipse.osgi.util,
