@@ -17,8 +17,10 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -40,6 +42,7 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.util.StatusTool;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
@@ -192,8 +195,9 @@ public class TargetPlatformBundlePublisher {
         }
     }
 
+    // TODO 393004 use a different base class
     private static class PublishedBundlesArtifactRepository extends AbstractMavenArtifactRepository implements
-            IFileArtifactRepository {
+            IFileArtifactRepository, IRawArtifactFileProvider {
 
         PublishedBundlesArtifactRepository(File localMavenRepositoryRoot) {
             this(new LocalRepositoryReader(localMavenRepositoryRoot));
@@ -235,6 +239,11 @@ public class TargetPlatformBundlePublisher {
             }
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, null);
             return internalDescriptor;
+        }
+
+        // TODO 393004 this should come from the base
+        public IStatus getArtifact(IArtifactKey key, OutputStream destination, IProgressMonitor monitor) {
+            return getArtifact(getArtifactDescriptors(key)[0], destination, monitor);
         }
     }
 }
