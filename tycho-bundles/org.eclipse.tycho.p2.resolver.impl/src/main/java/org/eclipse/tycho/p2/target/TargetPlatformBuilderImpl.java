@@ -14,7 +14,6 @@ package org.eclipse.tycho.p2.target;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,9 +30,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
-import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -44,7 +40,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenContext;
@@ -69,8 +64,12 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
+import org.eclipse.tycho.repository.local.MirroringArtifactProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtifactRepository;
+import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
@@ -215,10 +214,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
      */
     private final Set<IMetadataRepository> metadataRepositories = new LinkedHashSet<IMetadataRepository>();
 
-    /**
-     * All known P2 artifact repositories, NOT including maven local repository.
-     */
-    private final List<IArtifactRepository> artifactRepositories = new ArrayList<IArtifactRepository>();
+    private final List<URI> artifactRepositories = new ArrayList<URI>();
 
     public void addP2Repository(MavenRepositoryLocation location) {
         IMetadataRepository metadataRepository = null;
@@ -235,10 +231,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
             // TODO the agent should return transparently return empty repositories in offline mode
             if (!offline || URIUtil.isFileURI(location.getURL())) {
-                artifactRepository = remoteArtifactRepositoryManager.loadRepository(location.getURL(), monitor);
-                artifactRepositories.add(artifactRepository);
-
-                forceSingleThreadedDownload(artifactRepository);
+                artifactRepositories.add(location.getURL());
             }
 
             // processPartialIUs( metadataRepository, artifactRepository );
@@ -252,32 +245,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     // convenience method for tests
     public void addP2Repository(URI location) {
         addP2Repository(new MavenRepositoryLocation(null, location));
-    }
-
-    protected void forceSingleThreadedDownload(IArtifactRepository artifactRepository) {
-        try {
-            if (artifactRepository instanceof SimpleArtifactRepository) {
-                OrderedProperties p = getProperties(artifactRepository);
-                p.put(org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.PROP_MAX_THREADS,
-                        "1");
-            } else if (artifactRepository instanceof CompositeArtifactRepository) {
-                List<URI> children = ((CompositeArtifactRepository) artifactRepository).getChildren();
-                for (URI child : children) {
-                    forceSingleThreadedDownload(remoteArtifactRepositoryManager.loadRepository(child, monitor));
-                }
-            }
-        } catch (Exception e) {
-            // we've tried
-        }
-    }
-
-    private OrderedProperties getProperties(IArtifactRepository artifactRepository) throws NoSuchFieldException,
-            IllegalAccessException {
-        // TODO there should be a better way to modify repository properties
-        Field field = AbstractRepository.class.getDeclaredField("properties");
-        field.setAccessible(true);
-        OrderedProperties p = (OrderedProperties) field.get((SimpleArtifactRepository) artifactRepository);
-        return p;
     }
 
     // ------------------------------------------------------------------------------
@@ -330,12 +297,21 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         applyFilters(filter, mavenIUs, reactorProjectUIs);
 
         List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
-        for (IArtifactRepository artifactRepository : artifactRepositories) {
-            allRemoteArtifactRepositories.add(artifactRepository.getLocation());
+        for (URI artifactRepository : artifactRepositories) {
+            allRemoteArtifactRepositories.add(artifactRepository);
         }
         for (TargetPlatformContent contentPart : content) {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
+
+        RepositoryArtifactProvider remoteArtifacts = new RepositoryArtifactProvider(allRemoteArtifactRepositories,
+                ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent);
+        // TODO 393004 optionally cache packed artifacts
+        MirroringArtifactProvider remoteArtifactCache = MirroringArtifactProvider.createInstance(
+                localArtifactRepository, remoteArtifacts, logger);
+
+        IRawArtifactFileProvider jointArtifacts = new CompositeArtifactProvider(pomDependencyArtifactRepo,
+                remoteArtifactCache);
 
         TargetPlatformImpl targetPlatform = new TargetPlatformImpl(reactorProjects.values(),//
                 externalUIs, //
@@ -343,15 +319,14 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 eeResolutionHandler.getResolutionHints(), //
                 filter, //
                 localMetadataRepository, //
-                allRemoteArtifactRepositories, //
+                jointArtifacts, //
                 localArtifactRepository, //
-                remoteAgent, //
-                includePackedArtifacts, //
                 includeLocalMavenRepo,//
                 logger);
 
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
+        // TODO 393004 make jointArtifacts accessible in repo manager and use instead of local artifact repository
         return targetPlatform;
     }
 

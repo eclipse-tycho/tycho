@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.TYCHO279HttpProxy;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -28,8 +30,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
-
-import junit.framework.Assert;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.jetty.server.Connector;
@@ -91,9 +91,9 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
         List<String> accessedUris = proxyServlet.getAccessedUris();
-        Assert.assertTrue("proxy was not accessed", accessedUris.size() > 0);
-        String expectedUri = getP2RepoUrl() + "artifacts.xml";
-        Assert.assertTrue("URL " + expectedUri + " was not accessed via proxy", accessedUris.contains(expectedUri));
+        assertTrue("proxy was not accessed", accessedUris.size() > 0);
+        String expectedUri = getP2RepoUrl() + "content.xml";
+        assertTrue("URL " + expectedUri + " was not accessed via proxy", accessedUris.contains(expectedUri));
     }
 
     @Test
@@ -111,9 +111,9 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
         List<String> accessedUris = proxyServlet.getAccessedUris();
-        Assert.assertTrue("proxy was not accessed", accessedUris.size() > 0);
-        String expectedUri = getP2RepoUrl() + "artifacts.xml";
-        Assert.assertTrue("URL " + expectedUri + " was not accessed via proxy", accessedUris.contains(expectedUri));
+        assertTrue("proxy was not accessed", accessedUris.size() > 0);
+        String expectedUri = getP2RepoUrl() + "content.xml";
+        assertTrue("URL " + expectedUri + " was not accessed via proxy", accessedUris.contains(expectedUri));
     }
 
     @Test
@@ -125,8 +125,7 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
         verifier.getSystemProperties().setProperty("p2.repo", getP2RepoUrl());
         verifier.executeGoal("package"); // build fails
         List<String> accessedUris = proxyServlet.getAccessedUris();
-        Assert.assertTrue("proxy was accessed although not active. Accessed URIs: " + accessedUris,
-                accessedUris.size() == 0);
+        assertTrue("proxy was accessed although not active. Accessed URIs: " + accessedUris, accessedUris.size() == 0);
     }
 
     private void startHttpProxyServer(boolean useAuthentication, String user, String password) throws Exception {
