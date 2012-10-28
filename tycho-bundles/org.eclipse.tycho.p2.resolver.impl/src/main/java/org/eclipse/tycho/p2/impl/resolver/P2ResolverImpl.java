@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -121,7 +121,6 @@ public class P2ResolverImpl implements P2Resolver {
             usedTargetPlatformUnits.addAll(newState);
         }
 
-        context.downloadArtifacts(newState);
         return toResolutionResult(newState);
     }
 
@@ -137,6 +136,8 @@ public class P2ResolverImpl implements P2Resolver {
                 }
             }
         }
+
+        context.saveLocalMavenRepository();
 
         // TODO instead of adding them to the TP, we could also register it in memory as metadata repo
         collectNonReactorIUs(result, newState);
@@ -156,8 +157,10 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     private void addArtifactFile(DefaultP2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key) {
+        // this downloads artifacts if necessary; TODO parallelize download?
         File file = context.getLocalArtifactFile(key);
         if (file == null) {
+            // TODO 393004 fail here -> implies that artifact is not available, e.g. in offline mode
             return;
         }
 
@@ -250,6 +253,7 @@ public class P2ResolverImpl implements P2Resolver {
         return additionalRequirements;
     }
 
+    // TODO this should be a method on the class TargetPlatform
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange) {
         this.context = (P2TargetPlatform) context;
 
@@ -263,8 +267,6 @@ public class P2ResolverImpl implements P2Resolver {
                 QueryUtil.createLatestQuery(QueryUtil.createMatchQuery(requirement.getMatches())), monitor);
 
         Set<IInstallableUnit> newState = result.toUnmodifiableSet();
-
-        this.context.downloadArtifacts(newState);
 
         return toResolutionResult(newState);
     }

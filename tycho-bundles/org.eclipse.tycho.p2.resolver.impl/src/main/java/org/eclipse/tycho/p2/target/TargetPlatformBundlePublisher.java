@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -40,6 +39,7 @@ import org.eclipse.tycho.p2.util.StatusTool;
 import org.eclipse.tycho.repository.gav.GAVArtifactLocator;
 import org.eclipse.tycho.repository.gav.GAVArtifactRepository;
 import org.eclipse.tycho.repository.gav.LocalRepositoryArtifactLocator;
+import org.eclipse.tycho.repository.general.IRawArtifactFileProvider;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
@@ -121,7 +121,7 @@ public class TargetPlatformBundlePublisher {
         return !artifact.getLocation().getName().endsWith(".jar");
     }
 
-    IArtifactRepository getArtifactRepoOfPublishedBundles() {
+    IFileArtifactRepository getArtifactRepoOfPublishedBundles() {
         return publishedArtifacts;
     }
 
@@ -193,7 +193,7 @@ public class TargetPlatformBundlePublisher {
     }
 
     private static class PublishedBundlesArtifactRepository extends GAVArtifactRepository implements
-            IFileArtifactRepository {
+            IFileArtifactRepository, IRawArtifactFileProvider {
 
         PublishedBundlesArtifactRepository(File localMavenRepositoryRoot) {
             this(new LocalRepositoryArtifactLocator(localMavenRepositoryRoot));
