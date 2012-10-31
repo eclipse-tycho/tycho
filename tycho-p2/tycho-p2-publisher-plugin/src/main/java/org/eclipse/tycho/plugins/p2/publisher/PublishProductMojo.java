@@ -50,7 +50,10 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
 /**
- * This goal invokes the product publisher for each product file found.
+ * <p>
+ * Publishes all product definitions files (<tt>*.product</tt>) that are present in the root of the
+ * project.
+ * </p>
  * 
  * @see http://wiki.eclipse.org/Equinox/p2/Publisher
  * @goal publish-products
@@ -58,18 +61,21 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 public final class PublishProductMojo extends AbstractPublishMojo {
 
     /**
+     * <p>
+     * The name of the p2 installation flavor to create. De facto, this parameter is set to
+     * "tooling" in all uses of p2.
+     * </p>
+     * 
+     * @deprecated This parameter has no useful effect and may be removed in a future version of
+     *             Tycho.
      * @parameter default-value="tooling"
      */
     private String flavor;
 
-    /**
-     * @component role="org.codehaus.plexus.archiver.UnArchiver" role-hint="zip"
-     */
+    /** @component role="org.codehaus.plexus.archiver.UnArchiver" role-hint="zip" */
     private UnArchiver deflater;
 
-    /**
-     * @component
-     */
+    /** @component */
     private FileLockService fileLockService;
 
     @Override

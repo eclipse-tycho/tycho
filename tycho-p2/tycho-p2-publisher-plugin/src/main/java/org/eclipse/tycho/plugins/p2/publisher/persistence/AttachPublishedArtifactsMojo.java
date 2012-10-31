@@ -26,9 +26,11 @@ import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
 /**
+ * <p>
  * Attaches p2 metadata and extra artifacts produced by the publishers to the project. In this way,
  * the full build results are available in the local Maven repository, e.g. for builds of parts of a
  * reactor.
+ * </p>
  * 
  * @goal attach-artifacts
  */
