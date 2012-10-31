@@ -37,9 +37,8 @@ public abstract class AbstractRepositoryMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * Build qualifier. Recommended way to set this parameter is using build-qualifier goal.
-     * 
      * @parameter expression="${buildQualifier}"
+     * @readonly
      */
     private String qualifier;
 
@@ -60,12 +59,13 @@ public abstract class AbstractRepositoryMojo extends AbstractMojo {
     }
 
     protected BuildContext getBuildContext() {
-        List<TargetEnvironment> environments = TychoProjectUtils.getTargetPlatformConfiguration(project).getEnvironments();
+        List<TargetEnvironment> environments = TychoProjectUtils.getTargetPlatformConfiguration(project)
+                .getEnvironments();
         return new BuildContext(getProjectCoordinates(), qualifier, environments);
     }
+
     protected File getAssemblyRepositoryLocation() {
         return getBuildDirectory().getChild("repository");
     }
-
 
 }

@@ -42,9 +42,8 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * Build qualifier. Recommended way to set this parameter is using build-qualifier goal.
-     * 
      * @parameter expression="${buildQualifier}"
+     * @readonly
      */
     private String qualifier;
 

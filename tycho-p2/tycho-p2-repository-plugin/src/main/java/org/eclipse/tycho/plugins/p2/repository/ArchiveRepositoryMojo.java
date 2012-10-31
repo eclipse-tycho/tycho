@@ -20,19 +20,21 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 
 /**
- * Just zip the repository.
+ * <p>
+ * Archives the aggregated p2 repository.
+ * </p>
  * 
  * @goal archive-repository
  */
 public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
 
-    /**
-     * @component role="org.codehaus.plexus.archiver.Archiver" role-hint="zip"
-     */
+    /** @component role="org.codehaus.plexus.archiver.Archiver" role-hint="zip" */
     private Archiver inflater;
 
     /**
+     * <p>
      * Name of the generated zip file (without extension).
+     * </p>
      * 
      * @parameter expression="${project.build.finalName}"
      */
