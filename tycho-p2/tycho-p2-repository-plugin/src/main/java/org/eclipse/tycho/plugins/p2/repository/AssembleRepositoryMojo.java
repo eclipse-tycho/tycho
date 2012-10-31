@@ -28,37 +28,47 @@ import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 
 /**
+ * <p>
+ * Aggregates content into a p2 repository.
+ * </p>
+ * <p>
+ * The aggregation runs recursively: it starts with the content published in the current module, and
+ * traverses all artifacts that are marked as <em>included</em> in already aggregated artifacts.
+ * (The following artifacts can <em>include</em> other artifacts: categories, products, and
+ * features.)
+ * </p>
+ * 
  * @goal assemble-repository
  */
+// TODO the goal should be called "aggregate-repository"
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements LogEnabled {
     /**
-     * Defines whether the artifacts of the included products, features, and bundles shall be
-     * assembled into a p2 artifact repository. If <code>false</code>, only a p2 metadata repository
-     * is created.
+     * By default, this goal creates both a p2 metadata repository (containing dependency
+     * information) and a p2 artifact repository (containing the artifacts). Set this to
+     * <code>false</code> if only a p2 metadata repository shall be created.
      * 
      * @parameter default-value="true"
      */
     private boolean createArtifactRepository;
 
     /**
-     * Defines whether all transitive dependencies shall be included in the resulting repository. By
-     * default, only features and bundles directly referenced in products and categories and their
-     * "include" dependencies will be included in the result. To build a completely self-contained
-     * repository, set this parameter to <code>true</code>.
+     * By default, only (transitive) <em>inclusions</em> of the published artifacts are aggregated.
+     * Set this parameter to <code>true</code> to aggregate <em>all transitive dependencies</em>,
+     * making the resulting p2 repository self-contained.
      * 
      * @parameter default-value="false"
      */
     private boolean includeAllDependencies;
 
     /**
-     * Defines whether the resulting p2 metadata should be compressed.
+     * Compress the repository index files <tt>content.xml</tt> and <tt>artifacts.xml</tt>.
      * 
      * @parameter default-value="true"
      */
     private boolean compress;
 
     /**
-     * Defines the name of the p2 repository. The default value is the project name.
+     * The name attribute stored in the created p2 repository.
      * 
      * @parameter default-value="${project.name}"
      */

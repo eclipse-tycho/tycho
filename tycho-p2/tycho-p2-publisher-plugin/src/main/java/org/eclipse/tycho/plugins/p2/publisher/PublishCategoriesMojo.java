@@ -26,7 +26,9 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
 /**
- * This goal invokes the category publisher and publishes category information.
+ * <p>
+ * Publishes the category definitions from the <tt>category.xml</tt> in the root of the project.
+ * </p>
  * 
  * @see http://wiki.eclipse.org/Equinox/p2/Publisher
  * @goal publish-categories

@@ -22,6 +22,10 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
 
 /**
+ * <p>
+ * Checks the consistency of the aggregated p2 repository.
+ * </p>
+ * 
  * @goal verify-repository
  * 
  * @phase verify

@@ -19,15 +19,20 @@ import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 
 /**
- * This goal publishes an execution environment profile
+ * <p>
+ * Publishes a custom execution environment profile.
+ * </p>
  * 
  * @goal publish-ee-profile
  * @phase prepare-package
+ * @since 0.16.0
  */
 public final class PublishEEProfileMojo extends AbstractPublishMojo {
 
     /**
+     * <p>
      * The profile file containing the execution environment definition.
+     * </p>
      * 
      * @parameter
      * @required
