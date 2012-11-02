@@ -17,10 +17,6 @@ public interface ExecutionEnvironment {
 
     String getProfileName();
 
-    String getCompilerSourceLevel();
-
-    String getCompilerTargetLevel();
-
     /**
      * Returns the list of packages (without versions) provided by the execution environment.
      */
@@ -29,9 +25,26 @@ public interface ExecutionEnvironment {
     Properties getProfileProperties();
 
     /**
-     * Returns <code>true</code> if classes compiled for the specified target can be executed in
-     * this execution environment or if this environment's compiler target compatibility is unknown.
+     * Returns a reasonable compiler source level default for this execution environment.
+     * 
+     * @return a compiler source level matching the execution environment, or <code>null</code> if
+     *         unknown.
      */
-    boolean isCompatibleCompilerTargetLevel(String target);
+    String getCompilerSourceLevelDefault();
+
+    /**
+     * Returns a reasonable compiler target level default for this execution environment.
+     * 
+     * @return a compiler target level matching the execution environment, or <code>null</code> if
+     *         unknown.
+     */
+    String getCompilerTargetLevelDefault();
+
+    /**
+     * Returns <code>false</code> if classes compiled with the given compiler target level can
+     * certainly not be executed on this execution environment. Used to detect inconsistent
+     * configuration.
+     */
+    boolean isCompatibleCompilerTargetLevel(String targetLevel);
 
 }

@@ -110,11 +110,11 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         return profileName;
     }
 
-    public String getCompilerSourceLevel() {
+    public String getCompilerSourceLevelDefault() {
         return compilerSourceLevel;
     }
 
-    public String getCompilerTargetLevel() {
+    public String getCompilerTargetLevelDefault() {
         return compilerTargetLevel;
     }
 

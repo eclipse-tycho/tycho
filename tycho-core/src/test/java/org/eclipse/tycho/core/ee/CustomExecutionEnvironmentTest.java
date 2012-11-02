@@ -44,8 +44,8 @@ public class CustomExecutionEnvironmentTest {
         createExecutionEnvironment();
 
         assertThat(customExecutionEnvironment.getProfileName(), is("name"));
-        assertThat(customExecutionEnvironment.getCompilerSourceLevel(), is(nullValue()));
-        assertThat(customExecutionEnvironment.getCompilerTargetLevel(), is(nullValue()));
+        assertThat(customExecutionEnvironment.getCompilerSourceLevelDefault(), is(nullValue()));
+        assertThat(customExecutionEnvironment.getCompilerTargetLevelDefault(), is(nullValue()));
         assertThat(customExecutionEnvironment.getSystemPackages(), not(hasItem(any(String.class))));
         assertProperty(org.eclipse.osgi.framework.internal.core.Constants.OSGI_JAVA_PROFILE_NAME, "name");
     }

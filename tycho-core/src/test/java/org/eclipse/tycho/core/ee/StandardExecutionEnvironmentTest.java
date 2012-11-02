@@ -88,34 +88,34 @@ public class StandardExecutionEnvironmentTest {
 
     @Test
     public void testCompilerSourceLevel() {
-        assertEquals("1.3", osgiMin10Environment.getCompilerSourceLevel());
-        assertEquals("1.3", osgiMin11Environment.getCompilerSourceLevel());
-        assertEquals("1.3", osgiMin12Environment.getCompilerSourceLevel());
-        assertEquals("1.3", cdc10Environment.getCompilerSourceLevel());
-        assertEquals("1.3", cdc11Environment.getCompilerSourceLevel());
-        assertEquals("1.3", jre11Environment.getCompilerSourceLevel());
-        assertEquals("1.3", j2SE12Environment.getCompilerSourceLevel());
-        assertEquals("1.3", j2SE13Environment.getCompilerSourceLevel());
-        assertEquals("1.3", j2SE14Environment.getCompilerSourceLevel());
-        assertEquals("1.5", j2SE5Enviroment.getCompilerSourceLevel());
-        assertEquals("1.6", javaSE6Enviroment.getCompilerSourceLevel());
-        assertEquals("1.7", javaSE7Enviroment.getCompilerSourceLevel());
+        assertEquals("1.3", osgiMin10Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.3", osgiMin11Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.3", osgiMin12Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.3", cdc10Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.3", cdc11Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.3", jre11Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.3", j2SE12Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.3", j2SE13Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.3", j2SE14Environment.getCompilerSourceLevelDefault());
+        assertEquals("1.5", j2SE5Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.6", javaSE6Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.7", javaSE7Enviroment.getCompilerSourceLevelDefault());
     }
 
     @Test
     public void testCompilerTargetLevel() {
-        assertEquals("1.1", osgiMin10Environment.getCompilerTargetLevel());
-        assertEquals("1.2", osgiMin11Environment.getCompilerTargetLevel());
-        assertEquals("1.2", osgiMin12Environment.getCompilerTargetLevel());
-        assertEquals("1.1", cdc10Environment.getCompilerTargetLevel());
-        assertEquals("1.2", cdc11Environment.getCompilerTargetLevel());
-        assertEquals("1.1", jre11Environment.getCompilerTargetLevel());
-        assertEquals("1.1", j2SE12Environment.getCompilerTargetLevel());
-        assertEquals("1.1", j2SE13Environment.getCompilerTargetLevel());
-        assertEquals("1.2", j2SE14Environment.getCompilerTargetLevel());
-        assertEquals("1.5", j2SE5Enviroment.getCompilerTargetLevel());
-        assertEquals("1.6", javaSE6Enviroment.getCompilerTargetLevel());
-        assertEquals("1.7", javaSE7Enviroment.getCompilerTargetLevel());
+        assertEquals("1.1", osgiMin10Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.2", osgiMin11Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.2", osgiMin12Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.1", cdc10Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.2", cdc11Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.1", jre11Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.1", j2SE12Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.1", j2SE13Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.2", j2SE14Environment.getCompilerTargetLevelDefault());
+        assertEquals("1.5", j2SE5Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.6", javaSE6Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.7", javaSE7Enviroment.getCompilerTargetLevelDefault());
     }
 
     @Test
