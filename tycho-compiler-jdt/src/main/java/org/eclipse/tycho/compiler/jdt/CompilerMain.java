@@ -36,6 +36,7 @@ class CompilerMain extends Main {
     private File javaHome;
     private org.codehaus.plexus.logging.Logger mavenLogger;
     private String bootclasspathAccessRules;
+    private boolean explicitBootClasspath = false;
 
     public CompilerMain(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished,
             org.codehaus.plexus.logging.Logger logger) {
@@ -63,6 +64,9 @@ class CompilerMain extends Main {
 
     @Override
     protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
+        if (explicitBootClasspath) {
+            return new ArrayList();
+        }
         if (javaHome == null) {
             return super.handleEndorseddirs(endorsedDirClasspaths);
         }
@@ -76,6 +80,9 @@ class CompilerMain extends Main {
 
     @Override
     protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
+        if (explicitBootClasspath) {
+            return new ArrayList();
+        }
         if (javaHome == null) {
             return super.handleExtdirs(extdirsClasspaths);
         }
@@ -91,7 +98,7 @@ class CompilerMain extends Main {
     protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customEncoding) {
         final int bootclasspathsSize;
         if ((bootclasspaths != null) && ((bootclasspathsSize = bootclasspaths.size()) != 0)) {
-            // TODO I don't think this branch will ever get executed
+            explicitBootClasspath = true;
             String[] paths = new String[bootclasspathsSize];
             bootclasspaths.toArray(paths);
             bootclasspaths.clear();
@@ -120,22 +127,22 @@ class CompilerMain extends Main {
                     return null;
                 }
             }
-            if (bootclasspathAccessRules != null) {
-                String[] paths = new String[bootclasspaths.size()];
-
-                for (int i = 0; i < bootclasspaths.size(); i++) {
-                    paths[i] = ((FileSystem.Classpath) bootclasspaths.get(i)).getPath() + bootclasspathAccessRules;
-                }
-
-                bootclasspaths.clear();
-
-                for (int i = 0; i < paths.length; i++) {
-                    processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, paths[i], customEncoding, false, true);
-                }
-            }
             // TODO do we need to processPathEntries here?
         }
 
+        if (bootclasspathAccessRules != null) {
+            String[] paths = new String[bootclasspaths.size()];
+
+            for (int i = 0; i < bootclasspaths.size(); i++) {
+                paths[i] = ((FileSystem.Classpath) bootclasspaths.get(i)).getPath() + bootclasspathAccessRules;
+            }
+
+            bootclasspaths.clear();
+
+            for (int i = 0; i < paths.length; i++) {
+                processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, paths[i], customEncoding, false, true);
+            }
+        }
         mavenLogger.debug("Using boot classpath: " + bootclasspaths);
         return bootclasspaths;
     }

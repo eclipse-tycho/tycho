@@ -45,7 +45,9 @@ import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
 import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
@@ -136,6 +138,30 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      *   &lt;/toolchain&gt;
      * &lt;/toolchains&gt;
      * </pre>
+     * 
+     * The default value of the bootclasspath used for compilation is
+     * <tt>&lt;jdkHome&gt;/lib/*;&lt;jdkHome&gt;/lib/ext/*;&lt;jdkHome&gt;/lib/endorsed/*</tt> .
+     * 
+     * For JDKs with different filesystem layouts, the bootclasspath can be specified explicitly in
+     * the configuration section.
+     * 
+     * Example:
+     * 
+     * <pre>
+     * &lt;configuration&gt;
+     *   &lt;jdkHome&gt;/path/to/jdk/1.5&lt;/jdkHome&gt;
+     *   &lt;bootClassPath&gt;
+     *     &lt;includes&gt;
+     *       &lt;include&gt;jre/lib/amd64/default/jclSC160/*.jar&lt;/include&gt;
+     *     &lt;/includes&gt;
+     *     &lt;excludes&gt;
+     *       &lt;exclude&gt;&#42;&#42;/alt-*.jar&lt;/exclude&gt;
+     *     &lt;/excludes&gt;
+     *   &lt;/bootClassPath&gt;
+     * &lt;/configuration&gt;
+     * </pre>
+     * 
+     * 
      * 
      * @parameter default-value="SYSTEM"
      */
@@ -439,9 +465,59 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     "useJDK = BREE configured, but bundle has no " + Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT
                             + " header. Compiling with current JDK.");
         } else {
-            String javaHome = findMatchingJavaToolChain(environment).getJavaHome();
-            compilerConfiguration.addCompilerCustomArgument("use.java.home", javaHome);
+            DefaultJavaToolChain toolChain = findMatchingJavaToolChain(environment);
+            compilerConfiguration.addCompilerCustomArgument("use.java.home", toolChain.getJavaHome());
+            configureBootClassPath(compilerConfiguration, toolChain);
         }
+    }
+
+    private void configureBootClassPath(CompilerConfiguration compilerConfiguration, DefaultJavaToolChain javaToolChain) {
+        Xpp3Dom config = (Xpp3Dom) javaToolChain.getModel().getConfiguration();
+        if (config != null) {
+            Xpp3Dom bootClassPath = config.getChild("bootClassPath");
+            if (bootClassPath != null) {
+                Xpp3Dom includeParent = bootClassPath.getChild("includes");
+                if (includeParent != null) {
+                    Xpp3Dom[] includes = includeParent.getChildren("include");
+                    if (includes.length > 0) {
+                        compilerConfiguration.addCompilerCustomArgument(
+                                "-bootclasspath",
+                                scanBootclasspath(javaToolChain.getJavaHome(), includes,
+                                        bootClassPath.getChild("excludes")));
+                    }
+                }
+            }
+        }
+    }
+
+    private String scanBootclasspath(String javaHome, Xpp3Dom[] includes, Xpp3Dom excludeParent) {
+        DirectoryScanner scanner = new DirectoryScanner();
+        scanner.setBasedir(javaHome);
+        scanner.setIncludes(getValues(includes));
+        if (excludeParent != null) {
+            Xpp3Dom[] excludes = excludeParent.getChildren("exclude");
+            if (excludes.length > 0) {
+                scanner.setExcludes(getValues(excludes));
+            }
+        }
+        scanner.scan();
+        StringBuilder bootClassPath = new StringBuilder();
+        String[] includedFiles = scanner.getIncludedFiles();
+        for (int i = 0; i < includedFiles.length; i++) {
+            if (i > 0) {
+                bootClassPath.append(File.pathSeparator);
+            }
+            bootClassPath.append(new File(javaHome, includedFiles[i]).getAbsolutePath());
+        }
+        return bootClassPath.toString();
+    }
+
+    private static String[] getValues(Xpp3Dom[] doms) {
+        String[] values = new String[doms.length];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = doms[i].getValue();
+        }
+        return values;
     }
 
     private DefaultJavaToolChain findMatchingJavaToolChain(final ExecutionEnvironment environment)
