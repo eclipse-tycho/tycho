@@ -17,6 +17,8 @@ import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.List;
 
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.junit.Before;
@@ -35,7 +37,7 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Before
     public void initSubject() {
-        subject = new ExecutionEnvironmentConfigurationImpl();
+        subject = new ExecutionEnvironmentConfigurationImpl(new ConsoleLogger(Logger.LEVEL_DISABLED, "no-op logger"));
     }
 
     @Test

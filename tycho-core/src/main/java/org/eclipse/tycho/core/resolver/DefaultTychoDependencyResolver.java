@@ -39,6 +39,7 @@ import org.eclipse.tycho.resolver.TychoDependencyResolver;
 
 @Component(role = TychoDependencyResolver.class)
 public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
+
     @Requirement
     private Logger logger;
 
@@ -73,7 +74,7 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
                 .getTargetPlatformConfiguration(session, project);
         project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, configuration);
 
-        ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl();
+        ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger);
         dr.readExecutionEnvironmentConfiguration(project, eeConfiguration);
         project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
 

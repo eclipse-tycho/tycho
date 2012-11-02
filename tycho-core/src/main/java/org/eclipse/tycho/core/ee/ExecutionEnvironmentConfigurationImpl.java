@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.ee;
 
 import java.util.List;
 
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
@@ -20,11 +21,17 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     private static final int PRIMARY = 0;
     private static final int SECONDARY = 1;
 
+    private Logger logger;
+
     /** Configurations, ordered by precedence */
     private final ProfileConfiguration[] configurations = new ProfileConfiguration[2];
     private boolean configurationFreeze = false;
 
-    private ExecutionEnvironment customExecutionEnvironment;
+    private CustomExecutionEnvironment customExecutionEnvironment;
+
+    public ExecutionEnvironmentConfigurationImpl(Logger logger) {
+        this.logger = logger;
+    }
 
     public void overrideProfileConfiguration(String profileName, String configurationOrigin)
             throws IllegalStateException {
@@ -53,11 +60,17 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
 
     private ProfileConfiguration getEffectiveConfiguration() {
         // disallow further configuration changes
-        // TODO debug log entry? configuration origin is effectively no longer shown
+        boolean freezeTriggered = !configurationFreeze;
         configurationFreeze = true;
 
         for (ProfileConfiguration entry : configurations) {
             if (entry != null) {
+
+                if (freezeTriggered) {
+                    logger.debug("Using execution environment '" + entry.profileName + "' configured in "
+                            + entry.origin);
+                }
+
                 return entry;
             }
         }
@@ -119,7 +132,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             return ExecutionEnvironmentUtils.getExecutionEnvironment(configuration.profileName);
         } catch (UnknownEnvironmentException e) {
             throw new IllegalArgumentException("Invalid execution environment '" + configuration.profileName
-                    + "' specified in " + configuration.origin, e);
+                    + "' configured in " + configuration.origin, e);
         }
     }
 
