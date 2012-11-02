@@ -17,15 +17,15 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class TargetPlatformContent {
 
-    private Collection<? extends IInstallableUnit> units;
+    private Collection<IInstallableUnit> units;
     private Collection<URI> artifactRepositories;
 
-    public TargetPlatformContent(Collection<? extends IInstallableUnit> units, Collection<URI> artifactRepositories) {
+    public TargetPlatformContent(Collection<IInstallableUnit> units, Collection<URI> artifactRepositories) {
         this.units = units;
         this.artifactRepositories = artifactRepositories;
     }
 
-    public Collection<? extends IInstallableUnit> getUnits() {
+    public Collection<IInstallableUnit> getUnits() {
         return units;
     }
 

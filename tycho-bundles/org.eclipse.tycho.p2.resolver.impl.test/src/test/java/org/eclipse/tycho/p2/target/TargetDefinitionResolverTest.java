@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
@@ -32,8 +31,6 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
-import org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeModeTests.PlannerLocationStub;
-import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
@@ -50,6 +47,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.matchers.TypeSafeMatcher;
 
+@SuppressWarnings("restriction")
 public class TargetDefinitionResolverTest {
     /** Feature including MAIN_BUNDLE and REFERENCED_BUNDLE_V1 */
     static final IVersionedId TARGET_FEATURE = new VersionedId("trt.targetFeature.feature.group", "1.0.0.201108051343");
@@ -194,47 +192,6 @@ public class TargetDefinitionResolverTest {
         subject.resolveContent(definition);
     }
 
-    // TODO move to TargetDefinitionResolverExecutionEnvironmentTest
-    @Test
-    public void testRestrictedExecutionEnvironment() throws Exception {
-        subject = new TargetDefinitionResolver(defaultEnvironments(), new StandardEEResolutionHints(
-                "CDC-1.0/Foundation-1.0"), p2Context.getAgent(), logger);
-
-        // requires the package org.w3c.dom
-        IVersionedId seed = new VersionedId("dom-client", "0.0.1.SNAPSHOT");
-        TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.JAVAXXML, seed));
-        TargetPlatformContent units = subject.resolveContent(definition);
-
-        // expect that resolver included a bundle providing org.w3c.dom (here javax.xml) and did not match this against the "a.jre" IU also in the repository 
-        assertThat(versionedIdsOf(units), hasItem((IVersionedId) new VersionedId("javax.xml", "0.0.1.SNAPSHOT")));
-    }
-
-    // TODO move to TargetDefinitionResolverExecutionEnvironmentTest
-    @Test
-    public void test370502_requireJREIUs() throws Exception {
-        subject = new TargetDefinitionResolver(defaultEnvironments(), new StandardEEResolutionHints("J2SE-1.5"),
-                p2Context.getAgent(), logger);
-
-        // requires the a.jre.javase and config.a.jre.javase units in version 1.6.0 (like most products)
-        IVersionedId seed = new VersionedId("sdk", "1.0.0");
-
-        TargetPlatformContent units = subject.resolveContent(definitionWith(new PlannerLocationStub(
-                TestRepositories.REQUIREJREIUS, seed)));
-
-        // expect that the resolutions succeeds, but that the non-applicable IUs are not in the resolution result
-        Collection<IVersionedId> result = versionedIdsOf(units);
-        assertThat(result, hasItem(seed));
-        assertThat(result, not(hasItem((IVersionedId) new VersionedId("a.jre.javase", "1.6.0"))));
-        assertThat(result, not(hasItem((IVersionedId) new VersionedId("config.a.jre.javase", "1.6.0"))));
-
-        // TODO split in two tests (planner/slicer)
-        units = subject.resolveContent(definitionWith(new LocationStub(TestRepositories.REQUIREJREIUS, seed)));
-        result = versionedIdsOf(units);
-        assertThat(result, hasItem(seed));
-        assertThat(result, not(hasItem((IVersionedId) new VersionedId("a.jre.javase", "1.6.0"))));
-        assertThat(result, not(hasItem((IVersionedId) new VersionedId("config.a.jre.javase", "1.6.0"))));
-    }
-
     @Test
     public void testResolveWithBundleInclusionListYieldsWarning() {
         List<Location> noLocations = Collections.emptyList();
@@ -300,7 +257,7 @@ public class TargetDefinitionResolverTest {
     }
 
     enum TestRepositories {
-        NONE, V1, V2, V1_AND_V2, UNSATISFIED, INVALID, JAVAXXML, REQUIREJREIUS
+        NONE, V1, V2, V1_AND_V2, UNSATISFIED, INVALID
     }
 
     static class LocationStub implements InstallableUnitLocation {
@@ -329,10 +286,6 @@ public class TargetDefinitionResolverTest {
                 return Collections.singletonList(new RepositoryStub("unsatisfied"));
             case INVALID:
                 return Collections.singletonList(new RepositoryStub(null));
-            case JAVAXXML:
-                return Collections.singletonList(new RepositoryStub("repositories/", "javax.xml"));
-            case REQUIREJREIUS:
-                return Collections.singletonList(new RepositoryStub("repositories/", "requirejreius"));
             case NONE:
                 return Collections.emptyList();
             }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import org.junit.internal.matchers.TypeSafeMatcher;
 public class InstallableUnitMatchers {
     private static final String TYPE = "IInstallableUnit";
 
-    public static Matcher<IInstallableUnit> hasId(final String id) {
+    public static Matcher<IInstallableUnit> unitWithId(final String id) {
         return new TypeSafeMatcher<IInstallableUnit>(IInstallableUnit.class) {
 
             public void describeTo(Description description) {
@@ -35,18 +35,18 @@ public class InstallableUnitMatchers {
         };
     }
 
-    public static Matcher<IInstallableUnit> hasVersion(final String version) {
+    public static Matcher<IInstallableUnit> unit(final String id, final String version) {
         final Version parsedVersion = Version.parseVersion(version);
 
         return new TypeSafeMatcher<IInstallableUnit>() {
 
             public void describeTo(Description description) {
-                description.appendText(TYPE + " with version " + parsedVersion);
+                description.appendText(TYPE + " with with ID " + id + " and version " + parsedVersion);
             }
 
             @Override
             public boolean matchesSafely(IInstallableUnit item) {
-                return parsedVersion.equals(item.getVersion());
+                return id.equals(item.getId()) && parsedVersion.equals(item.getVersion());
             }
         };
     }

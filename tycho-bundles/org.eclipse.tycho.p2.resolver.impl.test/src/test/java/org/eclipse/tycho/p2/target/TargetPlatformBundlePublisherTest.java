@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,7 @@ import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
 import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.containsEntry;
 import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.entry;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasGAV;
-import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasId;
-import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasVersion;
+import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.unit;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -58,8 +57,7 @@ public class TargetPlatformBundlePublisherTest {
 
         IInstallableUnit publishedUnit = subject.attemptToPublishBundle(bundleArtifact);
 
-        assertThat(publishedUnit, hasId(bundleId));
-        assertThat(publishedUnit, hasVersion(bundleVersion));
+        assertThat(publishedUnit, is(unit(bundleId, bundleVersion)));
         assertThat(publishedUnit, hasGAV(GROUP_ID, ARTIFACT_ID, VERSION));
         assertThat(publishedUnit.getArtifacts().size(), is(1));
 
