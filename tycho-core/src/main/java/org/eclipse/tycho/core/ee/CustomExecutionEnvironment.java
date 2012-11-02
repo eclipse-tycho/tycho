@@ -183,16 +183,18 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
         return systemPackages;
     }
 
-    // not known for custom profiles
-    public String getCompilerSourceLevel() {
+    public String getCompilerSourceLevelDefault() {
+        // unknown
         return null;
     }
 
-    public String getCompilerTargetLevel() {
+    public String getCompilerTargetLevelDefault() {
+        // unknown
         return null;
     }
 
     public boolean isCompatibleCompilerTargetLevel(String target) {
+        // unknown, so give safe answer
         return true;
     }
 
