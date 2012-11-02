@@ -48,6 +48,8 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
@@ -136,6 +138,12 @@ public class GeneratePomsMojo extends AbstractMojo {
      * @parameter expression="${rootProjects}"
      */
     private String rootProjects;
+
+    // TODO what is the effect of this parameter?
+    /**
+     * @parameter default-value="J2SE-1.5"
+     */
+    private String executionEnvironment;
 
     /**
      * @component role="org.eclipse.tycho.core.osgitools.BundleReader"
@@ -547,7 +555,9 @@ public class GeneratePomsMojo extends AbstractMojo {
     private void addPluginImpl(Set<File> result, File basedir) throws MojoExecutionException {
         if (result.add(basedir)) {
             try {
-                State state = resolver.newResolvedState(basedir, platform);
+                StandardExecutionEnvironment ee = ExecutionEnvironmentUtils
+                        .getExecutionEnvironment(executionEnvironment);
+                State state = resolver.newResolvedState(basedir, ee, platform);
                 BundleDescription bundle = state.getBundleByLocation(basedir.getCanonicalPath());
                 if (bundle != null) {
                     for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(

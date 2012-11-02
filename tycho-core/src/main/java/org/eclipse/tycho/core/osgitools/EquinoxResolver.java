@@ -73,8 +73,9 @@ public class EquinoxResolver {
         return state;
     }
 
-    public State newResolvedState(File basedir, DependencyArtifacts artifacts) throws BundleException {
-        Properties properties = getPlatformProperties(new Properties(), null, null);
+    public State newResolvedState(File basedir, ExecutionEnvironment ee, DependencyArtifacts artifacts)
+            throws BundleException {
+        Properties properties = getPlatformProperties(new Properties(), null, ee);
 
         State state = newState(artifacts, properties);
 
@@ -135,11 +136,7 @@ public class EquinoxResolver {
             properties.put(PlatformPropertiesUtils.OSGI_ARCH, environment.getArch());
         }
 
-        if (ee != null) {
-            ExecutionEnvironmentUtils.applyProfileProperties(properties, ee.getProfileProperties());
-        } else {
-            ExecutionEnvironmentUtils.loadVMProfile(properties);
-        }
+        ExecutionEnvironmentUtils.applyProfileProperties(properties, ee.getProfileProperties());
 
         // Put Equinox OSGi resolver into development mode.
         // See http://www.nabble.com/Re:-resolving-partially-p18449054.html
