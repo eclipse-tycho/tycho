@@ -26,7 +26,8 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
 
     private ExecutionEnvironment customExecutionEnvironment;
 
-    public void overrideProfileConfiguration(String profileName, String configurationOrigin) {
+    public void overrideProfileConfiguration(String profileName, String configurationOrigin)
+            throws IllegalStateException {
         checkConfigurationMutable();
         if (profileName == null) {
             throw new NullPointerException();
@@ -35,7 +36,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         this.configurations[PRIMARY] = new ProfileConfiguration(profileName, configurationOrigin);
     }
 
-    public void setProfileConfiguration(String profileName, String configurationOrigin) {
+    public void setProfileConfiguration(String profileName, String configurationOrigin) throws IllegalStateException {
         checkConfigurationMutable();
         if (profileName == null) {
             throw new NullPointerException();
@@ -44,7 +45,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         this.configurations[SECONDARY] = new ProfileConfiguration(profileName, configurationOrigin);
     }
 
-    private void checkConfigurationMutable() {
+    private void checkConfigurationMutable() throws IllegalStateException {
         if (configurationFreeze) {
             throw new IllegalStateException("Cannot change execution environment configuration after it has been used");
         }
@@ -87,7 +88,8 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         }
     }
 
-    public void setFullSpecificationForCustomProfile(List<SystemCapability> systemCapabilities) {
+    public void setFullSpecificationForCustomProfile(List<SystemCapability> systemCapabilities)
+            throws IllegalStateException {
         if (!isCustomProfile()) {
             throw new IllegalStateException(
                     "Cannot set full specification when a standard execution environment is configured");
@@ -100,7 +102,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         this.customExecutionEnvironment = new CustomExecutionEnvironment(getProfileName(), systemCapabilities);
     }
 
-    public ExecutionEnvironment getFullSpecification() {
+    public ExecutionEnvironment getFullSpecification() throws IllegalStateException {
         if (isCustomProfile()) {
             if (customExecutionEnvironment == null) {
                 throw new IllegalStateException("Full specification of custom profile is not (yet) determined");
