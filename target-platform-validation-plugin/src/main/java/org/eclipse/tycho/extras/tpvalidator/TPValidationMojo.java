@@ -12,9 +12,8 @@ package org.eclipse.tycho.extras.tpvalidator;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -22,7 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
@@ -69,12 +68,12 @@ public class TPValidationMojo extends AbstractMojo {
 
     private P2ResolverFactory factory;
     protected P2Resolver p2;
-    protected List<Map<String, String>> environment;
+    protected List<TargetEnvironment> environment;
 
     public void execute() throws MojoExecutionException {
         this.factory = this.equinox.getService(P2ResolverFactory.class);
         this.p2 = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));
-        initializeEnvironments();
+        environment = Collections.singletonList(getRunningEnvironment());
         p2.setEnvironments(environment);
 
         List<TPError> errors = new ArrayList<TPError>();
@@ -120,7 +119,7 @@ public class TPValidationMojo extends AbstractMojo {
 
             TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
             resolutionContext.addTargetDefinition(target, this.environment);
-            P2ResolutionResult result = this.p2.resolveMetadata(resolutionContext, this.environment.get(0));
+            P2ResolutionResult result = this.p2.resolveMetadata(resolutionContext);
         } catch (Exception ex) {
             throw new TPError(targetFile, ex);
         }
@@ -129,24 +128,14 @@ public class TPValidationMojo extends AbstractMojo {
     /*
      * Copied from version-bump-plugin
      */
-    protected void initializeEnvironments() {
+    TargetEnvironment getRunningEnvironment() {
         Properties properties = new Properties();
         properties.put(PlatformPropertiesUtils.OSGI_OS, PlatformPropertiesUtils.getOS(properties));
         properties.put(PlatformPropertiesUtils.OSGI_WS, PlatformPropertiesUtils.getWS(properties));
         properties.put(PlatformPropertiesUtils.OSGI_ARCH, PlatformPropertiesUtils.getArch(properties));
 
-        // TODO this does not honour project <executionEnvironment> configuration
-        ExecutionEnvironmentUtils.loadVMProfile(properties);
-
-        // TODO does not belong here
-        properties.put("org.eclipse.update.install.features", "true");
-
-        Map<String, String> map = new LinkedHashMap<String, String>();
-        for (Object key : properties.keySet()) {
-            map.put(key.toString(), properties.getProperty(key.toString()));
-        }
-
-        this.environment = new ArrayList<Map<String, String>>();
-        this.environment.add(map);
+        return new TargetEnvironment(properties.getProperty(PlatformPropertiesUtils.OSGI_OS),
+                properties.getProperty(PlatformPropertiesUtils.OSGI_WS),
+                properties.getProperty(PlatformPropertiesUtils.OSGI_ARCH));
     }
 }

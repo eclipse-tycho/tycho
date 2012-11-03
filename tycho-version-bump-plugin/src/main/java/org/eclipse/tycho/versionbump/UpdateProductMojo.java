@@ -60,7 +60,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
             p2.addDependency(ArtifactKey.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
         }
 
-        P2ResolutionResult result = p2.resolveMetadata(resolutionContext, getEnvironments().get(0));
+        P2ResolutionResult result = p2.resolveMetadata(resolutionContext);
 
         Map<String, String> ius = new HashMap<String, String>();
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {

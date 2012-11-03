@@ -13,10 +13,7 @@ package org.eclipse.tycho.versionbump;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -24,7 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -59,30 +56,18 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     private void createResolver() {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
         p2 = factory.createResolver(new MavenLoggerAdapter(logger, false));
-        p2.setEnvironments(getEnvironments());
+        p2.setEnvironments(Collections.singletonList(getRunningEnvironment())); // intended?
         resolutionContext = factory.createTargetPlatformBuilder(null);
     }
 
-    protected List<Map<String, String>> getEnvironments() {
+    TargetEnvironment getRunningEnvironment() {
         Properties properties = new Properties();
         properties.put(PlatformPropertiesUtils.OSGI_OS, PlatformPropertiesUtils.getOS(properties));
         properties.put(PlatformPropertiesUtils.OSGI_WS, PlatformPropertiesUtils.getWS(properties));
         properties.put(PlatformPropertiesUtils.OSGI_ARCH, PlatformPropertiesUtils.getArch(properties));
 
-        // TODO this does not honour project <executionEnvironment> configuration
-        ExecutionEnvironmentUtils.loadVMProfile(properties);
-
-        // TODO does not belong here
-        properties.put("org.eclipse.update.install.features", "true");
-
-        Map<String, String> map = new LinkedHashMap<String, String>();
-        for (Object key : properties.keySet()) {
-            map.put(key.toString(), properties.getProperty(key.toString()));
-        }
-
-        ArrayList<Map<String, String>> result = new ArrayList<Map<String, String>>();
-        result.add(map);
-        return result;
+        return new TargetEnvironment(properties.getProperty(PlatformPropertiesUtils.OSGI_OS),
+                properties.getProperty(PlatformPropertiesUtils.OSGI_WS),
+                properties.getProperty(PlatformPropertiesUtils.OSGI_ARCH));
     }
-
 }

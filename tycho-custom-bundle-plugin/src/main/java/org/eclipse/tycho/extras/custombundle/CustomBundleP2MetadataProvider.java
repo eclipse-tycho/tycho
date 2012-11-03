@@ -27,6 +27,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -46,7 +47,7 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
     private DependencyMetadataGenerator generator;
 
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
-            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
+            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
         Map<String, IDependencyMetadata> metadata = new LinkedHashMap<String, IDependencyMetadata>();
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-custom-bundle-plugin");
         if (plugin != null) {

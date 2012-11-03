@@ -13,6 +13,7 @@ package org.eclipse.tycho.versionbump;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,8 +50,8 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                 }
             }
         }
-        resolutionContext.addTargetDefinition(target, getEnvironments());
-        P2ResolutionResult result = p2.resolveMetadata(resolutionContext, getEnvironments().get(0));
+        resolutionContext.addTargetDefinition(target, Collections.singletonList(getRunningEnvironment()));
+        P2ResolutionResult result = p2.resolveMetadata(resolutionContext);
 
         Map<String, String> ius = new HashMap<String, String>();
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
