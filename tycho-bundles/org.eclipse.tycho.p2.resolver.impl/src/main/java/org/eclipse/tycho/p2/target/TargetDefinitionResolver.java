@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
@@ -37,6 +36,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.resolver.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
@@ -59,13 +59,13 @@ public class TargetDefinitionResolver {
 
     private final MavenLogger logger;
 
-    private final List<Map<String, String>> environments;
+    private final List<TargetEnvironment> environments;
 
     private final ExecutionEnvironmentResolutionHints executionEnvironment;
 
     private final IProgressMonitor monitor = new NullProgressMonitor();
 
-    public TargetDefinitionResolver(List<Map<String, String>> environments,
+    public TargetDefinitionResolver(List<TargetEnvironment> environments,
             ExecutionEnvironmentResolutionHints executionEnvironment, IProvisioningAgent agent, MavenLogger logger) {
         this.environments = environments;
         this.executionEnvironment = executionEnvironment;

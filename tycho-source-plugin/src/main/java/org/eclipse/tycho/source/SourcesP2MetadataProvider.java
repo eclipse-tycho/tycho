@@ -22,6 +22,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
@@ -41,7 +42,7 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
     private DependencyMetadataGenerator sourcesGenerator;
 
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
-            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
+            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
         if (OsgiSourceMojo.isRelevantProjectImpl(project, buildPropertiesParser)) {
             IArtifactFacade sourcesArtifact = new AttachedArtifact(project, project.getBasedir(), "sources");
             return Collections.singletonMap(sourcesArtifact.getClassifier(),

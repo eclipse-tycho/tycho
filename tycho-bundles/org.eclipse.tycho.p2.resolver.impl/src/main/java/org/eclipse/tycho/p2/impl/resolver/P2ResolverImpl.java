@@ -13,11 +13,9 @@ package org.eclipse.tycho.p2.impl.resolver;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -35,6 +33,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.resolver.AbstractResolutionStrategy;
@@ -54,10 +53,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     private final IProgressMonitor monitor;
 
-    /**
-     * Target runtime environment properties
-     */
-    private List<Map<String, String>> environments;
+    private List<TargetEnvironment> environments;
 
     private final List<IRequirement> additionalRequirements = new ArrayList<IRequirement>();
 
@@ -76,8 +72,8 @@ public class P2ResolverImpl implements P2Resolver {
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
         usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
 
-        for (Map<String, String> properties : environments) {
-            results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(logger), properties));
+        for (TargetEnvironment environment : environments) {
+            results.add(resolveProject(projectLocation, new ProjectorResolutionStrategy(logger), environment));
         }
 
         context.reportUsedIUs(usedTargetPlatformUnits);
@@ -88,10 +84,10 @@ public class P2ResolverImpl implements P2Resolver {
 
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation) {
         this.context = (P2TargetPlatform) context;
-        return resolveProject(projectLocation, new DependencyCollector(logger), Collections.<String, String> emptyMap());
+        return resolveProject(projectLocation, new DependencyCollector(logger), new TargetEnvironment(null, null, null));
     }
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties) {
+    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context) {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
         P2TargetPlatform contextImpl = (P2TargetPlatform) context.buildTargetPlatform();
         strategy.setEEResolutionHints(contextImpl.getEEResolutionHints());
@@ -107,7 +103,7 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     protected P2ResolutionResult resolveProject(File projectLocation, AbstractResolutionStrategy strategy,
-            Map<String, String> properties) {
+            TargetEnvironment environment) {
         strategy.setRootInstallableUnits(context.getReactorProjectIUs(projectLocation, true));
         strategy.setAdditionalRequirements(additionalRequirements);
         Collection<IInstallableUnit> availableUnits = context.getInstallableUnits();
@@ -119,7 +115,7 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setAvailableInstallableUnits(availableUnits);
         strategy.setEEResolutionHints(context.getEEResolutionHints());
 
-        Collection<IInstallableUnit> newState = strategy.resolve(properties, monitor);
+        Collection<IInstallableUnit> newState = strategy.resolve(environment, monitor);
 
         if (usedTargetPlatformUnits != null) {
             usedTargetPlatformUnits.addAll(newState);
@@ -231,7 +227,7 @@ public class P2ResolverImpl implements P2Resolver {
         return false;
     }
 
-    public void setEnvironments(List<Map<String, String>> environments) {
+    public void setEnvironments(List<TargetEnvironment> environments) {
         this.environments = environments;
     }
 

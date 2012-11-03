@@ -49,6 +49,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
@@ -284,7 +285,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     // TODO have other target platform content contributors also add to this list
     private List<TargetPlatformContent> content = new ArrayList<TargetPlatformContent>();
 
-    public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
+    public void addTargetDefinition(TargetDefinition definition, List<TargetEnvironment> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
         TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
                 definition, environments, eeResolutionHandler.getResolutionHints(), remoteAgent);

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
@@ -22,6 +21,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -35,14 +35,14 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
 
     private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
-    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction) {
         return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction);
     }
 
     @Override
     protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
+            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
         ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 
         String id = artifact.getArtifactId();

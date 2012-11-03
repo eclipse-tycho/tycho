@@ -13,10 +13,10 @@ package org.eclipse.tycho.p2.target.facade;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
@@ -36,7 +36,7 @@ public interface TargetPlatformBuilder {
     public void addP2Repository(MavenRepositoryLocation location);
 
     // TODO document
-    public void addTargetDefinition(TargetDefinition definition, List<Map<String, String>> environments)
+    public void addTargetDefinition(TargetDefinition definition, List<TargetEnvironment> environments)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException;
 
     public void addFilters(List<TargetPlatformFilter> filters);

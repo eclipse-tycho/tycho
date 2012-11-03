@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 
 @SuppressWarnings("restriction")
 public class FeatureDependenciesAction extends AbstractDependenciesAction {
@@ -116,7 +117,7 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
             // TODO 391283 without enhancement 391283, additional filters will always evaluate to false -> ignore for now
             // TODO 392357 warn that osgi.nl filters don't work in the build
 //            String filter = getFilter(entry.getFilter(), entry.getOS(), entry.getWS(), entry.getArch(), entry.getNL());
-            String filter = getFilter(null, entry.getOS(), entry.getWS(), entry.getArch(), null);
+            String filter = new TargetEnvironment(entry.getOS(), entry.getWS(), entry.getArch()).toFilterExpression();
             boolean optional = entry.isOptional();
             required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range,
                     InstallableUnit.parseFilter(filter), optional, false));

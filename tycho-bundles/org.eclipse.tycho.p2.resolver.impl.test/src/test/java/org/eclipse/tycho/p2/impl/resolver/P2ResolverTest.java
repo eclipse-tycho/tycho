@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
@@ -406,9 +406,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void featureMultienvP2Inf() throws Exception {
-        List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
-        environments.add(newEnvironment("linux", "gtk", "x86_64"));
-        environments.add(newEnvironment("macosx", "cocoa", "x86_64"));
+        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+        environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
+        environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
         impl.setEnvironments(environments);
 
         File bundle = resourceFile("resolver/feature.multienv.p2-inf");
@@ -436,9 +436,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
     public void productMultienvP2Inf() throws Exception {
         context.addP2Repository(resourceFile("repositories/launchers").toURI());
 
-        List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
-        environments.add(newEnvironment("linux", "gtk", "x86_64"));
-        environments.add(newEnvironment("macosx", "cocoa", "x86_64"));
+        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+        environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
+        environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
         impl.setEnvironments(environments);
 
         File bundle = resourceFile("resolver/product.multienv.p2-inf");

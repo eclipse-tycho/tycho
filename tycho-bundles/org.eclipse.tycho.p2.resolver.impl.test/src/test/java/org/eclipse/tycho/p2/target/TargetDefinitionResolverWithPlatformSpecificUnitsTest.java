@@ -18,13 +18,12 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.UnitStub;
@@ -61,9 +60,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
     @Test
     public void testResolutionWithGenericPlatform() throws Exception {
-        Map<String, String> emptyMap = Collections.emptyMap();
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
-        subject = createResolver(Collections.singletonList(emptyMap));
+        subject = createResolver(Collections.singletonList(new TargetEnvironment(null, null, null)));
 
         TargetPlatformContent units = subject.resolveContent(targetDefinition);
 
@@ -73,7 +71,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
     @Test
     public void testPlannerResolutionWithOnePlatform() throws Exception {
-        Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
+        TargetEnvironment environment = new TargetEnvironment("linux", "gtk", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(Collections.singletonList(environment));
 
@@ -87,9 +85,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
     @Test
     public void testPlannerResolutionWithMultiplePlatforms() throws Exception {
-        @SuppressWarnings("unchecked")
-        List<Map<String, String>> environments = Arrays.asList(createEnvironment("gtk", "linux", "x86_64"),
-                createEnvironment("win32", "win32", "x86"), createEnvironment("carbon", "macosx", "x86"));
+        List<TargetEnvironment> environments = Arrays.asList(new TargetEnvironment("linux", "gtk", "x86_64"),
+                new TargetEnvironment("win32", "win32", "x86"), new TargetEnvironment("macosx", "carbon", "x86"));
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(environments);
 
@@ -103,7 +100,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
     @Test
     public void testSlicerResolutionWithOnePlatform() throws Exception {
-        Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
+        TargetEnvironment environment = new TargetEnvironment("linux", "gtk", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
         subject = createResolver(Collections.singletonList(environment));
 
@@ -117,9 +114,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
     @Test
     public void testSlicerResolutionWithMultiplePlatforms() throws Exception {
-        @SuppressWarnings("unchecked")
-        List<Map<String, String>> environments = Arrays.asList(createEnvironment("win32", "win32", "x86"),
-                createEnvironment("carbon", "macosx", "x86"));
+        List<TargetEnvironment> environments = Arrays.asList(new TargetEnvironment("win32", "win32", "x86"),
+                new TargetEnvironment("macosx", "carbon", "x86"));
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
         subject = createResolver(environments);
 
@@ -133,7 +129,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
     @Test
     public void testSlicerResolutionWithIncludeAllEnvironments() throws Exception {
-        Map<String, String> environment = createEnvironment("gtk", "linux", "x86_64");
+        TargetEnvironment environment = new TargetEnvironment("gtk", "linux", "x86_64");
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true));
         subject = createResolver(Collections.singletonList(environment));
 
@@ -147,23 +143,14 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testConflictingIncludeAllEnvironments() throws Exception {
-        Map<String, String> environment = Collections.emptyMap();
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true),
                 new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, false));
-        subject = createResolver(Collections.singletonList(environment));
+        subject = createResolver(Collections.singletonList(new TargetEnvironment(null, null, null)));
 
         subject.resolveContent(targetDefinition);
     }
 
-    private static Map<String, String> createEnvironment(String ws, String os, String arch) {
-        Map<String, String> environment = new HashMap<String, String>();
-        environment.put("osgi.ws", ws);
-        environment.put("osgi.os", os);
-        environment.put("osgi.arch", arch);
-        return environment;
-    }
-
-    private TargetDefinitionResolver createResolver(List<Map<String, String>> environments) throws ProvisionException {
+    private TargetDefinitionResolver createResolver(List<TargetEnvironment> environments) throws ProvisionException {
         return new TargetDefinitionResolver(environments, new NoopEEResolverHints(), p2Context.getAgent(), logger);
     }
 

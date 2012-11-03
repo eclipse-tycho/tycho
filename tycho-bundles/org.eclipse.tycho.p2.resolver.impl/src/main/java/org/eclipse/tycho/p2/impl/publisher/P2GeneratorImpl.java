@@ -38,6 +38,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
@@ -159,7 +160,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         new ArtifactsIO().writeXML(artifactDescriptors, artifactsXml);
     }
 
-    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments) {
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments) {
         PublisherInfo publisherInfo = new PublisherInfo();
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
         publisherInfo.setArtifactRepository(new TransientArtifactRepository());
@@ -169,7 +170,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     @Override
     protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<Map<String, String>> environments, OptionalResolutionAction optionalAction) {
+            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
 
         if (!dependenciesOnly && optionalAction != null) {
             throw new IllegalArgumentException();

@@ -13,7 +13,6 @@ package org.eclipse.tycho.p2.impl.publisher;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +36,7 @@ import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -48,7 +48,7 @@ public abstract class AbstractMetadataGenerator {
     private IProgressMonitor monitor = new NullProgressMonitor();
     private BuildPropertiesParser buildPropertiesParser;
 
-    protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
+    protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             PublisherInfo publisherInfo, OptionalResolutionAction optionalAction) {
         for (IPublisherAdvice advice : getPublisherAdvice(artifact)) {
             publisherInfo.addAdvice(advice);
@@ -59,7 +59,7 @@ public abstract class AbstractMetadataGenerator {
     }
 
     protected abstract List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<Map<String, String>> environments, OptionalResolutionAction optionalAction);
+            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction);
 
     protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact);
 

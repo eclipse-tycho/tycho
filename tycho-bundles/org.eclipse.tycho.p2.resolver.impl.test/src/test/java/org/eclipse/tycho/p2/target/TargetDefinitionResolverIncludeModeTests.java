@@ -15,21 +15,16 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.OPTIONAL_
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V1;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TARGET_FEATURE;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.bagEquals;
+import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.defaultEnvironments;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitionWith;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdList;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdsOf;
 import static org.junit.Assert.assertThat;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
-import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
@@ -47,11 +42,8 @@ public class TargetDefinitionResolverIncludeModeTests {
     private TargetDefinitionResolver subject;
 
     @Before
-    public void initContext() throws Exception {
-        Map<String, String> emptyMap = new HashMap<String, String>();
-        List<Map<String, String>> environments = Collections.singletonList(emptyMap);
-
-        subject = new TargetDefinitionResolver(environments, new NoopEEResolverHints(), p2Context.getAgent(),
+    public void initSubject() throws Exception {
+        subject = new TargetDefinitionResolver(defaultEnvironments(), new NoopEEResolverHints(), p2Context.getAgent(),
                 new MavenLoggerStub());
     }
 
@@ -66,9 +58,7 @@ public class TargetDefinitionResolverIncludeModeTests {
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testUnsatisfiedDependencyWithPlanner() throws Exception {
         TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
-        Map<String, String> emptyMap = new HashMap<String, String>();
-        List<Map<String, String>> environments = Collections.singletonList(emptyMap);
-        subject = new TargetDefinitionResolver(environments, new StandardEEResolutionHints(null), p2Context.getAgent(),
+        subject = new TargetDefinitionResolver(defaultEnvironments(), new NoopEEResolverHints(), p2Context.getAgent(),
                 new MavenLoggerStub(false, false));
         subject.resolveContent(definition);
     }

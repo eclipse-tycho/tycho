@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 // TODO make this package private
@@ -54,18 +55,28 @@ public abstract class AbstractResolutionStrategy {
         modifiableData.setEEResolutionHints(eeResolutionHints);
     }
 
-    public Collection<IInstallableUnit> multiPlatformResolve(List<Map<String, String>> allproperties,
+    public Collection<IInstallableUnit> resolve(TargetEnvironment environment, IProgressMonitor monitor) {
+        return resolve(getFilterProperties(environment), monitor);
+    }
+
+    public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
             IProgressMonitor monitor) {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
-        for (Map<String, String> properties : allproperties) {
-            result.addAll(resolve(properties, monitor));
+        for (TargetEnvironment environment : environments) {
+            result.addAll(resolve(getFilterProperties(environment), monitor));
         }
 
         return result;
     }
 
-    public abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
+    protected abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
+
+    private Map<String, String> getFilterProperties(TargetEnvironment environment) {
+        Map<String, String> filterProperties = environment.toFilterProperties();
+        addFeatureJarFilter(filterProperties);
+        return filterProperties;
+    }
 
     protected static Map<String, String> addFeatureJarFilter(Map<String, String> environment) {
         final Map<String, String> selectionContext = new HashMap<String, String>(environment);

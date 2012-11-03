@@ -21,14 +21,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -80,9 +79,8 @@ public class TargetDefinitionResolverTest {
                 logger);
     }
 
-    static List<Map<String, String>> defaultEnvironments() {
-        Map<String, String> emptyMap = new HashMap<String, String>();
-        return Collections.singletonList(emptyMap);
+    static List<TargetEnvironment> defaultEnvironments() {
+        return Collections.singletonList(new TargetEnvironment(null, null, null));
     }
 
     @Test

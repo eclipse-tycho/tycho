@@ -12,10 +12,10 @@ package org.eclipse.tycho.p2.resolver.facade;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 public interface P2Resolver {
@@ -28,7 +28,7 @@ public interface P2Resolver {
 
     public static final String ANY_QUALIFIER = "qualifier";
 
-    public void setEnvironments(List<Map<String, String>> properties);
+    public void setEnvironments(List<TargetEnvironment> environments);
 
     public void addDependency(String type, String id, String versionRange);
 
@@ -41,7 +41,7 @@ public interface P2Resolver {
 
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation);
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, Map<String, String> properties);
+    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context);
 
     /**
      * Resolves specified installable unit identified by id and versionRange. The unit with latest
