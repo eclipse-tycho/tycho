@@ -113,7 +113,10 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
                 range = getVersionRange(createVersion(entry.getVersion()));
             }
             String id = getInstallableUnitId(entry);
-            String filter = getFilter(entry.getFilter(), entry.getOS(), entry.getWS(), entry.getArch(), entry.getNL());
+            // TODO 391283 without enhancement 391283, additional filters will always evaluate to false -> ignore for now
+            // TODO 392357 warn that osgi.nl filters don't work in the build
+//            String filter = getFilter(entry.getFilter(), entry.getOS(), entry.getWS(), entry.getArch(), entry.getNL());
+            String filter = getFilter(null, entry.getOS(), entry.getWS(), entry.getArch(), null);
             boolean optional = entry.isOptional();
             required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range,
                     InstallableUnit.parseFilter(filter), optional, false));
