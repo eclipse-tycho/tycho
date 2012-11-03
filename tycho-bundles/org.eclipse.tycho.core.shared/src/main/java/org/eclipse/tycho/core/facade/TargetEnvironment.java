@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.facade;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class TargetEnvironment {
+public final class TargetEnvironment {
+    private static final String OSGI_OS = "osgi.os";
+    private static final String OSGI_WS = "osgi.ws";
+    private static final String OSGI_ARCH = "osgi.arch";
+
     private String os;
-
     private String ws;
-
     private String arch;
 
     // no-args constructor for Mojo configuration
@@ -61,6 +64,7 @@ public class TargetEnvironment {
      * used by the p2 publishers and in that context called "configuration" or "config spec".
      */
     public String toConfigSpec() {
+        // TODO 344095 this is where we may need to return ANY
         return ws + '.' + os + '.' + arch;
     }
 
@@ -70,12 +74,48 @@ public class TargetEnvironment {
      * 
      * @return a new instance of {@link HashMap} with the target environment set
      */
-    public HashMap<String, String> toFilter() {
+    public HashMap<String, String> toFilterProperties() {
         HashMap<String, String> result = new HashMap<String, String>();
-        result.put("osgi.os", os);
-        result.put("osgi.ws", ws);
-        result.put("osgi.arch", arch);
+
+        if (os != null)
+            result.put(OSGI_OS, os);
+        if (ws != null)
+            result.put(OSGI_WS, ws);
+        if (arch != null)
+            result.put(OSGI_ARCH, arch);
         return result;
+    }
+
+    /**
+     * Returns the target environment as LDAP filter expression. This format is used in p2 metadata.
+     * 
+     * @return the LDAP that evaluates to <code>true</code> when installing for this target
+     *         environment.
+     */
+    public String toFilterExpression() {
+        ArrayList<String> conditions = new ArrayList<String>();
+
+        if (os != null)
+            conditions.add(OSGI_OS + "=" + os);
+        if (ws != null)
+            conditions.add(OSGI_WS + "=" + ws);
+        if (arch != null)
+            conditions.add(OSGI_ARCH + "=" + arch);
+
+        if (conditions.isEmpty()) {
+            return null;
+
+        } else if (conditions.size() == 1) {
+            return "(" + conditions.get(0) + ")";
+
+        } else {
+            StringBuilder result = new StringBuilder("(&");
+            for (String condition : conditions) {
+                result.append(" (").append(condition).append(")");
+            }
+            result.append(" )");
+            return result.toString();
+        }
     }
 
     @Override

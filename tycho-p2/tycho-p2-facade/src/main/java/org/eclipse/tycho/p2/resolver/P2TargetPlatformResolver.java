@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.MavenExecutionException;
@@ -73,7 +72,6 @@ import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPla
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
-import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
@@ -124,7 +122,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             final ReactorProject reactorProject) {
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
-        List<Map<String, String>> environments = getEnvironments(configuration);
+        List<TargetEnvironment> environments = configuration.getEnvironments();
         Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, environments,
                 OptionalResolutionAction.OPTIONAL);
         for (Map.Entry<String, IDependencyMetadata> entry : metadata.entrySet()) {
@@ -134,7 +132,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
-            final MavenProject project, final List<Map<String, String>> environments,
+            final MavenProject project, final List<TargetEnvironment> environments,
             final OptionalResolutionAction optionalAction) {
 
         final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<String, IDependencyMetadata>();
@@ -216,7 +214,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             TargetPlatformConfiguration configuration, TargetPlatformBuilder tpBuilder) {
         // 'this' project should obey optionalDependencnies configuration
 
-        final List<Map<String, String>> environments = getEnvironments(configuration);
+        final List<TargetEnvironment> environments = configuration.getEnvironments();
         final OptionalResolutionAction optionalAction = configuration.getDependencyResolverConfiguration()
                 .getOptionalResolutionAction();
         Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
@@ -328,7 +326,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         try {
             target = TargetDefinitionFile.read(configuration.getTarget());
             getLogger().debug("Adding target definition file \"" + configuration.getTarget() + "\"");
-            resolutionContext.addTargetDefinition(target, getEnvironments(configuration));
+            resolutionContext.addTargetDefinition(target, configuration.getEnvironments());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (TargetDefinitionSyntaxException e) {
@@ -361,7 +359,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
-        resolver.setEnvironments(getEnvironments(configuration));
+        resolver.setEnvironments(configuration.getEnvironments());
 
         for (ReactorProject otherProject : reactorProjects) {
             projects.put(otherProject.getBasedir(), otherProject);
@@ -431,25 +429,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
         }
         return platform;
-    }
-
-    private List<Map<String, String>> getEnvironments(TargetPlatformConfiguration configuration) {
-        ArrayList<Map<String, String>> environments = new ArrayList<Map<String, String>>();
-
-        for (TargetEnvironment environment : configuration.getEnvironments()) {
-            Properties properties = new Properties();
-            properties.put(PlatformPropertiesUtils.OSGI_OS, environment.getOs());
-            properties.put(PlatformPropertiesUtils.OSGI_WS, environment.getWs());
-            properties.put(PlatformPropertiesUtils.OSGI_ARCH, environment.getArch());
-
-            Map<String, String> map = new LinkedHashMap<String, String>();
-            for (Object key : properties.keySet()) {
-                map.put(key.toString(), properties.getProperty(key.toString()));
-            }
-            environments.add(map);
-        }
-
-        return environments;
     }
 
     public void initialize() throws InitializationException {

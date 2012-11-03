@@ -11,7 +11,6 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +21,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.util.StatusTool;
 
 // TODO make this package private
@@ -54,23 +54,27 @@ public abstract class AbstractResolutionStrategy {
         modifiableData.setEEResolutionHints(eeResolutionHints);
     }
 
-    public Collection<IInstallableUnit> multiPlatformResolve(List<Map<String, String>> allproperties,
+    public Collection<IInstallableUnit> resolve(TargetEnvironment environment, IProgressMonitor monitor) {
+        return resolve(getFilterProperties(environment), monitor);
+    }
+
+    public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
             IProgressMonitor monitor) {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
-        for (Map<String, String> properties : allproperties) {
-            result.addAll(resolve(properties, monitor));
+        for (TargetEnvironment environment : environments) {
+            result.addAll(resolve(getFilterProperties(environment), monitor));
         }
 
         return result;
     }
 
-    public abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
+    protected abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
 
-    protected static Map<String, String> addFeatureJarFilter(Map<String, String> environment) {
-        final Map<String, String> selectionContext = new HashMap<String, String>(environment);
-        selectionContext.put("org.eclipse.update.install.features", "true");
-        return selectionContext;
+    private Map<String, String> getFilterProperties(TargetEnvironment environment) {
+        Map<String, String> filterProperties = environment.toFilterProperties();
+        filterProperties.put("org.eclipse.update.install.features", "true");
+        return filterProperties;
     }
 
     protected RuntimeException newResolutionException(IStatus status) {

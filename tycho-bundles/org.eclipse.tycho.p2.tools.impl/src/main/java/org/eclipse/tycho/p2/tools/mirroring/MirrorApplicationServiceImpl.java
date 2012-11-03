@@ -135,7 +135,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                 options.considerStrictDependencyOnly(!includeAllDependencies);
                 Map<String, String> filter = options.getFilter();
                 addFilterForFeatureJARs(filter);
-                filter.putAll(environment.toFilter());
+                filter.putAll(environment.toFilterProperties());
                 mirrorApp.setSlicingOptions(options);
 
                 try {

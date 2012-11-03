@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
@@ -24,6 +23,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
@@ -88,7 +88,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
         P2GeneratorImpl impl = new P2GeneratorImpl(false);
         impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
-        List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
+        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
 
         DependencyMetadata metadata = impl.generateMetadata(artifact, environments);
 
@@ -124,7 +124,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
                 ArtifactKey.TYPE_ECLIPSE_PLUGIN, null);
         P2GeneratorImpl generatorImpl = new P2GeneratorImpl(false);
         generatorImpl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
-        List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
+        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
         DependencyMetadata metadata = generatorImpl.generateMetadata(artifact, environments);
         artifact.setDependencyMetadata(metadata);
 

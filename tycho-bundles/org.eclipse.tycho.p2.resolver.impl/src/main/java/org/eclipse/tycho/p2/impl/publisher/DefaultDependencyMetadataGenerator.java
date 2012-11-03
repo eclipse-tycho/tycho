@@ -11,9 +11,9 @@
 package org.eclipse.tycho.p2.impl.publisher;
 
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -25,7 +25,7 @@ public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implemen
         super(true);
     }
 
-    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
+    public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction) {
         return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction);
     }

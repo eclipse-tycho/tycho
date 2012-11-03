@@ -13,13 +13,13 @@ package org.eclipse.tycho.p2.impl.test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -35,7 +35,7 @@ public class P2MetadataGeneratorImplTest {
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";
         String version = "1.0.0-SNAPSHOT";
-        List<Map<String, String>> environments = new ArrayList<Map<String, String>>();
+        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
         DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(location, groupId, artifactId, version,
                 ArtifactKey.TYPE_ECLIPSE_PLUGIN), environments);
 

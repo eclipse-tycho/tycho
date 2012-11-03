@@ -15,9 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -25,6 +23,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
@@ -71,24 +70,10 @@ public class P2ResolverTestBase {
         dependencyGenerator.setBuildPropertiesParser(buildPropertiesReader);
     }
 
-    static List<Map<String, String>> getEnvironments() {
-        ArrayList<Map<String, String>> environments = new ArrayList<Map<String, String>>();
-
-        environments.add(newEnvironment("linux", "gtk", "x86_64"));
-
+    static List<TargetEnvironment> getEnvironments() {
+        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+        environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         return environments;
-    }
-
-    static Map<String, String> newEnvironment(String os, String ws, String arch) {
-        Map<String, String> properties = new LinkedHashMap<String, String>();
-        properties.put("osgi.os", os);
-        properties.put("osgi.ws", ws);
-        properties.put("osgi.arch", arch);
-
-        // TODO does not belong here
-        properties.put("org.eclipse.update.install.features", "true");
-
-        return properties;
     }
 
     final void addContextProject(File projectRoot, String packaging) throws IOException {

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -154,47 +153,6 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
         }
 
         return new VersionRange(version, true, version, true);
-    }
-
-    protected String getFilter(String os, String ws, String arch) {
-        return getFilter(null, os, ws, arch, null);
-    }
-
-    protected String getFilter(String filter, String os, String ws, String arch, String nl) {
-        ArrayList<String> conditions = new ArrayList<String>();
-
-        if (filter != null) {
-            conditions.add(filter);
-        }
-
-        if (os != null) {
-            conditions.add(OSGI_OS + "=" + os);
-        }
-        if (ws != null) {
-            conditions.add(OSGI_WS + "=" + ws);
-        }
-        if (arch != null) {
-            conditions.add(OSGI_ARCH + "=" + arch);
-        }
-        if (nl != null) {
-            conditions.add(OSGI_NL + "=" + arch);
-        }
-
-        if (conditions.isEmpty()) {
-            return null;
-        }
-
-        if (conditions.size() == 1) {
-            return "(" + conditions.get(0) + ")";
-        }
-
-        StringBuilder result = new StringBuilder("(&");
-        for (String condition : conditions) {
-            result.append(" (").append(condition).append(")");
-        }
-        result.append(" )");
-
-        return result.toString();
     }
 
     protected Version createVersion(String version) {

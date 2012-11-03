@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -26,6 +25,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
@@ -52,7 +52,7 @@ public class P2DependencyGeneratorImplTest {
         ArtifactMock reactorProject = new ArtifactMock(reactorProjectRoot, DEFAULT_GROUP_ID, testProjectId,
                 DEFAULT_VERSION, packagingType, DEFAULT_CLASSIFIER);
 
-        ArrayList<Map<String, String>> emptyEnvironments = new ArrayList<Map<String, String>>();
+        ArrayList<TargetEnvironment> emptyEnvironments = new ArrayList<TargetEnvironment>();
 
         DependencyMetadata metadata = subject.generateMetadata(reactorProject, emptyEnvironments);
 

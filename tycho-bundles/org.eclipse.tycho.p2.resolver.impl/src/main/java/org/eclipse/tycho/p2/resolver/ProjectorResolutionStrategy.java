@@ -55,7 +55,6 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
     @Override
     public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
-        properties = addFeatureJarFilter(properties);
 
         Map<String, String> newSelectionContext = SimplePlanner.createSelectionContext(properties);
 

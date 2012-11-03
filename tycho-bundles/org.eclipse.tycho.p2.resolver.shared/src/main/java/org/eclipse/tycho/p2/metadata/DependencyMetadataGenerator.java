@@ -11,8 +11,8 @@
 package org.eclipse.tycho.p2.metadata;
 
 import java.util.List;
-import java.util.Map;
 
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 
 public interface DependencyMetadataGenerator {
@@ -20,6 +20,6 @@ public interface DependencyMetadataGenerator {
     /**
      * Generates dependency-only artifact metadata
      */
-    public IDependencyMetadata generateMetadata(IArtifactFacade artifact, List<Map<String, String>> environments,
+    public IDependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction);
 }

@@ -20,9 +20,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -34,6 +33,7 @@ import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
@@ -89,17 +89,8 @@ public class P2GeneratorImplTest {
         return null;
     }
 
-    private List<Map<String, String>> getEnvironments() {
-        ArrayList<Map<String, String>> environments = new ArrayList<Map<String, String>>();
-
-        Map<String, String> properties = new LinkedHashMap<String, String>();
-        properties.put("osgi.os", "linux");
-        properties.put("osgi.ws", "gtk");
-        properties.put("osgi.arch", "x86_64");
-
-        environments.add(properties);
-
-        return environments;
+    private List<TargetEnvironment> getEnvironments() {
+        return Collections.singletonList(new TargetEnvironment("linux", "gtk", "x86_64"));
     }
 
     @Test
