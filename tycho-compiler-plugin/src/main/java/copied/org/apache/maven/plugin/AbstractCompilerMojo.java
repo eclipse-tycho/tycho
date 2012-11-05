@@ -499,7 +499,11 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 					if (!key.startsWith("-")) {
 						key = "-" + key;
 					}
-					cplrArgsCopy.put(key, value);
+					if (key.startsWith("-A") && StringUtils.isNotEmpty(value)) {
+						cplrArgsCopy.put(key + "=" + value, null);
+					} else {
+						cplrArgsCopy.put(key, value);
+					}	
 				}
 			}
 			if (!StringUtils.isEmpty(compilerArgument)) {
