@@ -75,6 +75,9 @@
 		<maven-version>3.0</maven-version>
 		<jgit-version>2.0.0.201206130900-r</jgit-version>
 		<tycho-version>0.17.0-SNAPSHOT</tycho-version>
+
+		<!-- workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=360628 -->
+		<tycho-snapshots-url>https://oss.sonatype.org/content/groups/public/</tycho-snapshots-url>
 	</properties>
 
 	<modules>
@@ -92,7 +95,7 @@
 	<repositories>
 		<repository>
 			<id>tycho-snapshots</id>
-			<url>https://oss.sonatype.org/content/groups/public</url>
+			<url>${tycho-snapshots-url}</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -102,7 +105,7 @@
 	<pluginRepositories>
 		<pluginRepository>
 			<id>tycho-snapshots</id>
-			<url>https://oss.sonatype.org/content/groups/public</url>
+			<url>${tycho-snapshots-url}</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -225,6 +228,7 @@
 						<postBuildHookScript>verify.bsh</postBuildHookScript>
 						<properties>
 							<tycho-version>${tycho-version}</tycho-version>
+							<tycho-snapshots-url>${tycho-snapshots-url}</tycho-snapshots-url>
 							<tycho-extras-version>${project.version}</tycho-extras-version>
 						</properties>
 					</configuration>

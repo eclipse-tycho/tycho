@@ -23,9 +23,8 @@
 
 	<pluginRepositories>
 		<pluginRepository>
-			<!-- temporary workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=360628 -->
 			<id>tycho-snapshots</id>
-			<url>https://oss.sonatype.org/content/groups/public/</url>
+			<url>${tycho-snapshots-url}</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
