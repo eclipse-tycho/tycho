@@ -22,21 +22,28 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.DefaultMavenExecutionResult;
 import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionRequestPopulator;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.settings.MavenSettingsBuilder;
+import org.apache.maven.settings.Settings;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
 public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
     protected Maven maven;
+    private MavenSettingsBuilder settingsBuilder;
+    private MavenExecutionRequestPopulator requestPopulator;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         maven = lookup(Maven.class);
+        settingsBuilder = lookup(MavenSettingsBuilder.class);
+        requestPopulator = lookup(MavenExecutionRequestPopulator.class);
     }
 
     @Override
@@ -78,9 +85,9 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         if (settingsFile.isFile()) {
             request.setUserSettingsFile(settingsFile);
         }
-
+        Settings settings = settingsBuilder.buildSettings(request);
+        requestPopulator.populateFromSettings(request, settings);
         request.setGoals(Arrays.asList("validate"));
-
         return request;
     }
 
