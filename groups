@@ -1,4 +1,4 @@
 # UUID                                  	Group Name
 #
 e667efa4d7e88410dd42728155ab14051e894019	Administrators
-w5kpxhrot9q2gclik2f3mfumz4du8hzntuhgxhaj	technology.tycho
+ldap:cn=technology.tycho,ou=group,dc=eclipse,dc=org	ldap/technology.tycho
