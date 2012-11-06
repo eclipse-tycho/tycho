@@ -208,6 +208,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
         request.setRemoteRepositories(getPluginRepositories(session));
         request.setCache(session.getRepositoryCache());
         request.setOffline(session.isOffline());
+        request.setProxies(session.getSettings().getProxies());
         request.setForceUpdate(session.getRequest().isUpdateSnapshots());
 
         ArtifactResolutionResult result = repositorySystem.resolve(request);
