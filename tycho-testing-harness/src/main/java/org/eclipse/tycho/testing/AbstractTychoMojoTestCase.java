@@ -85,6 +85,10 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     }
 
     private File getUserSettingsFile() throws IOException {
+        String systemValue = System.getProperty("tycho.testSettings");
+        if (systemValue != null) {
+            return new File(systemValue);
+        }
         Properties props = new Properties();
         InputStream stream = AbstractTychoMojoTestCase.class.getResourceAsStream("settings.properties");
         try {
