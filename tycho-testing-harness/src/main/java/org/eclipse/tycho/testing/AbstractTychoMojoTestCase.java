@@ -12,6 +12,7 @@ package org.eclipse.tycho.testing;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -73,10 +74,26 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         request.setSystemProperties(systemProps);
         request.setUserProperties(userProps);
         request.setLocalRepository(getLocalRepository());
+        File settingsFile = getUserSettingsFile();
+        if (settingsFile.isFile()) {
+            request.setUserSettingsFile(settingsFile);
+        }
 
         request.setGoals(Arrays.asList("validate"));
 
         return request;
+    }
+
+    private File getUserSettingsFile() throws IOException {
+        Properties props = new Properties();
+        InputStream stream = AbstractTychoMojoTestCase.class.getResourceAsStream("settings.properties");
+        try {
+            props.load(stream);
+        } finally {
+            stream.close();
+        }
+        String settingsFilePath = props.getProperty("settings.file");
+        return new File(settingsFilePath);
     }
 
     protected List<MavenProject> getSortedProjects(File basedir, File platform) throws Exception {
