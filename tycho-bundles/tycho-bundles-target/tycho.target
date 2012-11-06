@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="8">
+<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="12">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20120913-142258-7P7OG2BFLWUl7Unz-8OO8IEVz-8"/>
-<unit id="org.eclipse.sdk.ide" version="4.3.0.I20121002-0800"/>
-<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20120913-170722-84FAgGhRFnbPjaFro9s2VXtitW"/>
-<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20120524-0542-9N8BHpPGMMn84SxoTtoj_mfujQDR"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.3-I-builds/I20121002-0800"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20121022-131541-7P7OG2BFLWUl7V5qAyO8JBAAB"/>
+<unit id="org.eclipse.sdk.ide" version="4.3.0.I20121031-2000"/>
+<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20121023-201113-85FAoGhVFoYTldJxIGz03Z_tix_"/>
+<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20120524-0542-9N8BHsXGMMn84T0z-RCofdu_khQD"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.3milestones/S-4.3M3-201210312000/"/>
 </location>
 </locations>
 </target>
