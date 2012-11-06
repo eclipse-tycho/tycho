@@ -22,28 +22,28 @@
 	<inceptionYear>2010</inceptionYear>
 	<url>http://www.eclipse.org/tycho/</url>
 	<ciManagement>
-	  <system>hudson</system>
-	  <url>https://hudson.eclipse.org/hudson</url>
+		<system>hudson</system>
+		<url>https://hudson.eclipse.org/hudson</url>
 	</ciManagement>
 	<licenses>
-	  <license>
-	    <name>Eclipse Public License</name>
-	    <url>http://www.eclipse.org/legal/epl-v10.html</url>
-	    <distribution>repo</distribution>
-	  </license>
+		<license>
+			<name>Eclipse Public License</name>
+			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+			<distribution>repo</distribution>
+		</license>
 	</licenses>
 	<organization>
-	  <name>Eclipse Foundation</name>
-	  <url>http://www.eclipse.org/</url>
+		<name>Eclipse Foundation</name>
+		<url>http://www.eclipse.org/</url>
 	</organization>
 	<issueManagement>
-	  <system>Bugzilla</system>
-	  <url>https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho</url>
+		<system>Bugzilla</system>
+		<url>https://bugs.eclipse.org/bugs/buglist.cgi?product=Tycho</url>
 	</issueManagement>
 	<scm>
-	  <connection>scm:git:http://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.extras.git</connection>
-	  <developerConnection>scm:git:ssh://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.extras.git</developerConnection>
-	  <url>http://git.eclipse.org/c/tycho/org.eclipse.tycho.extras.git</url>
+		<connection>scm:git:http://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.extras.git</connection>
+		<developerConnection>scm:git:ssh://git.eclipse.org/gitroot/tycho/org.eclipse.tycho.extras.git</developerConnection>
+		<url>http://git.eclipse.org/c/tycho/org.eclipse.tycho.extras.git</url>
 	</scm>
 	<developers>
 		<developer>
@@ -62,14 +62,14 @@
 			<organizationUrl>http://www.sap.com</organizationUrl>
 		</developer>
 	</developers>
-	
+
 	<name>Tycho Extras (Incubation)</name>
 	<description>Additional tools for Tycho</description>
 
 	<prerequisites>
 		<maven>3.0</maven>
-    </prerequisites>
-    
+	</prerequisites>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven-version>3.0</maven-version>
@@ -80,12 +80,12 @@
 	<modules>
 		<module>tycho-version-bump-plugin</module>
 		<module>tycho-p2-extras-plugin</module>
-        <module>tycho-custom-bundle-plugin</module>
-        <module>tycho-eclipserun-plugin</module>
-        <module>tycho-source-feature-plugin</module>
-        <module>pack200</module>
-        <module>tycho-buildtimestamp-jgit</module>
-        <module>tycho-sourceref-jgit</module>
+		<module>tycho-custom-bundle-plugin</module>
+		<module>tycho-eclipserun-plugin</module>
+		<module>tycho-source-feature-plugin</module>
+		<module>pack200</module>
+		<module>tycho-buildtimestamp-jgit</module>
+		<module>tycho-sourceref-jgit</module>
 		<module>target-platform-validation-plugin</module>
 	</modules>
 
@@ -102,28 +102,28 @@
 	<pluginRepositories>
 		<pluginRepository>
 			<id>tycho-snapshots</id>
-            <url>https://oss.sonatype.org/content/groups/public</url>
+			<url>https://oss.sonatype.org/content/groups/public</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 
-    <dependencies>
-        <dependency>
-            <!--
-              tycho-testing-harness depends on maven-plugin-testing-harness, which as of version 2.0-alpha-1
-              depends on maven 3.0-alpha-1, which is incompatible with tycho.
+	<dependencies>
+		<dependency>
+			<!--
+			  tycho-testing-harness depends on maven-plugin-testing-harness, which as of version 2.0-alpha-1
+			  depends on maven 3.0-alpha-1, which is incompatible with tycho.
 
-              The proper solution is to update maven-plugin-testing-harness to depend on maven 3.0, but in the
-              mean time we need to force maven 3.0 here.
-             -->
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-compat</artifactId>
-            <version>${maven-version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+			  The proper solution is to update maven-plugin-testing-harness to depend on maven 3.0, but in the
+			  mean time we need to force maven 3.0 here.
+			 -->
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-compat</artifactId>
+			<version>${maven-version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
@@ -158,18 +158,18 @@
 
 	<build>
 		<plugins>
-		  <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-source-plugin</artifactId>
-			<executions>
-			  <execution>
-				<goals>
-				  <goal>jar-no-fork</goal>
-				</goals>
-			  </execution>
-			</executions>
-		  </plugin>		
-	    </plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 
 		<pluginManagement>
 			<plugins>
@@ -181,42 +181,42 @@
 						<source>1.5</source>
 						<target>1.5</target>
 					</configuration>
-			    </plugin>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
 					<version>2.4.1</version>
-			    </plugin>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
 					<version>2.1</version>
-			    </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-invoker-plugin</artifactId>
-                    <version>1.6</version>
-                    <configuration>
-                        <debug>true</debug>
-                        <projectsDirectory>src/it</projectsDirectory>
-                        <cloneProjectsTo>target/it</cloneProjectsTo>
-                        <localRepositoryPath>target/local-repo</localRepositoryPath>
-                        <postBuildHookScript>verify.bsh</postBuildHookScript>
-                        <properties>
-                            <tycho-version>${tycho-version}</tycho-version>
-                            <tycho-extras-version>${project.version}</tycho-extras-version>
-                        </properties>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>integration-test</id>
-                            <goals>
-                                <goal>install</goal>
-                                <goal>run</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-invoker-plugin</artifactId>
+					<version>1.6</version>
+					<configuration>
+						<debug>true</debug>
+						<projectsDirectory>src/it</projectsDirectory>
+						<cloneProjectsTo>target/it</cloneProjectsTo>
+						<localRepositoryPath>target/local-repo</localRepositoryPath>
+						<postBuildHookScript>verify.bsh</postBuildHookScript>
+						<properties>
+							<tycho-version>${tycho-version}</tycho-version>
+							<tycho-extras-version>${project.version}</tycho-extras-version>
+						</properties>
+					</configuration>
+					<executions>
+						<execution>
+							<id>integration-test</id>
+							<goals>
+								<goal>install</goal>
+								<goal>run</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 				<!-- m2eclipse lifecycle mapping -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
@@ -283,21 +283,21 @@
 			</build>
 		</profile>
 	</profiles>
-    <!--need this to make site:stage happy -->
-    <distributionManagement>
-        <site>
-            <id>tycho-extras.site</id>
-            <name>Tycho Extras Site</name>
-            <url>staging</url>
-        </site>
-        <repository>
-            <id>${forgeReleaseId}</id>
-            <url>${forgeReleaseUrl}</url>
-        </repository>
-        <snapshotRepository>
-            <id>${forgeSnapshotId}</id>
-            <url>${forgeSnapshotUrl}</url>
-        </snapshotRepository>
-    </distributionManagement>
+	<!--need this to make site:stage happy -->
+	<distributionManagement>
+		<site>
+			<id>tycho-extras.site</id>
+			<name>Tycho Extras Site</name>
+			<url>staging</url>
+		</site>
+		<repository>
+			<id>${forgeReleaseId}</id>
+			<url>${forgeReleaseUrl}</url>
+		</repository>
+		<snapshotRepository>
+			<id>${forgeSnapshotId}</id>
+			<url>${forgeSnapshotUrl}</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 </project>
