@@ -24,7 +24,6 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.tycho.packaging.sourceref.ScmUrl;
 import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
@@ -55,7 +54,7 @@ public class JGitSourceReferencesProvider
 
         StringBuilder result = new StringBuilder( scmUrl.getUrl() );
         result.append( ";path=\"" );
-        result.append( getRelativePath( basedir, repo.getDirectory().getParentFile() ) );
+        result.append( getRelativePath( basedir, repo.getWorkTree()) );
         result.append( "\"" );
 
         String tag = findTagForHead( git, head );
@@ -128,7 +127,7 @@ public class JGitSourceReferencesProvider
         URI relativeUri = parentDir.toURI().relativize( subDirUri );
         if ( relativeUri.equals( subDirUri ) )
         {
-            throw new MojoExecutionException( "Could not find a common basedir of " + subDir + " and " + parentDir );
+            throw new MojoExecutionException( subDir + " is not a subdir of " + parentDir );
         }
         String relative = relativeUri.getPath();
         // remove surrounding slashes
