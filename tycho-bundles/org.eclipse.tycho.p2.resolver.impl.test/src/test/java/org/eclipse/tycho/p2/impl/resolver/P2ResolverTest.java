@@ -361,29 +361,6 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void resolutionNoEE() throws Exception {
-        // TODO 387796 is this the null meaning no explicit configuration? if yes, this may be dropped with bug 387796 
-        context = createTargetPlatformBuilderWithEE((String) null);
-
-        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
-
-        File bundle = resourceFile("resolver/bundle.nobree");
-        String artifactId = "bundle.nobree";
-        addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
-
-        List<P2ResolutionResult> results = impl.resolveProject(context.buildTargetPlatform(), bundle);
-
-        Assert.assertEquals(1, results.size());
-        P2ResolutionResult result = results.get(0);
-
-        Assert.assertEquals(1, result.getArtifacts().size());
-
-        Assert.assertEquals(2, result.getNonReactorUnits().size());
-        assertContainsUnit("a.jre.javase", result.getNonReactorUnits());
-        assertContainsUnit("config.a.jre.javase", result.getNonReactorUnits());
-    }
-
-    @Test
     public void resolutionCustomEE() throws Exception {
         context = createTargetPlatformBuilderWithCustomEE("Custom_Profile-2");
 

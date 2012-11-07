@@ -41,6 +41,11 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
     private final Map<VersionedId, IInstallableUnit> temporaryUnits;
 
     public StandardEEResolutionHints(String executionEnvironment) {
+        if (executionEnvironment == null) {
+            // don't specify a default here; ExecutionEnvironmentConfiguration does the defaulting 
+            throw new NullPointerException();
+        }
+
         this.executionEnvironment = executionEnvironment;
         this.additionalUnits = computeAdditionalUnits(executionEnvironment);
         this.temporaryUnits = computeTemporaryAdditions(additionalUnits);

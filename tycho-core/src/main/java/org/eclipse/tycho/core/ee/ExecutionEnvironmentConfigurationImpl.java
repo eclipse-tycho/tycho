@@ -18,6 +18,8 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 
 public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
+    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "J2SE-1.5";
+
     private static final int PRIMARY = 0;
     private static final int SECONDARY = 1;
 
@@ -25,8 +27,8 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
 
     /** Configurations, ordered by precedence */
     private final ProfileConfiguration[] configurations = new ProfileConfiguration[2];
-    private boolean configurationFreeze = false;
 
+    private String effectiveProfileName = null;
     private CustomExecutionEnvironment customExecutionEnvironment;
 
     public ExecutionEnvironmentConfigurationImpl(Logger logger) {
@@ -53,44 +55,33 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     }
 
     private void checkConfigurationMutable() throws IllegalStateException {
-        if (configurationFreeze) {
+        if (effectiveProfileName != null) {
             throw new IllegalStateException("Cannot change execution environment configuration after it has been used");
         }
     }
 
-    private ProfileConfiguration getEffectiveConfiguration() {
-        // disallow further configuration changes
-        boolean freezeTriggered = !configurationFreeze;
-        configurationFreeze = true;
-
-        for (ProfileConfiguration entry : configurations) {
-            if (entry != null) {
-
-                if (freezeTriggered) {
-                    logger.debug("Using execution environment '" + entry.profileName + "' configured in "
-                            + entry.origin);
-                }
-
-                return entry;
-            }
+    public String getProfileName() {
+        if (effectiveProfileName == null) {
+            // this also disallows further configuration changes
+            effectiveProfileName = computeEffectiveProfileName();
         }
-        return null;
+        return effectiveProfileName;
     }
 
-    public String getProfileName() {
-        ProfileConfiguration configuration = getEffectiveConfiguration();
-        if (configuration == null) {
-            // TODO 387796 return explicit global default instead of null
-            return null;
+    private String computeEffectiveProfileName() {
+        for (ProfileConfiguration entry : configurations) {
+            if (entry != null) {
+                logger.debug("Using execution environment '" + entry.profileName + "' configured in " + entry.origin);
+                return entry.profileName;
+            }
         }
-        return configuration.profileName;
+
+        logger.debug("Using default execution environment '" + DEFAULT_EXECUTION_ENVIRONMENT + "'");
+        return DEFAULT_EXECUTION_ENVIRONMENT;
     }
 
     public boolean isCustomProfile() {
         String profileName = getProfileName();
-        if (profileName == null) {
-            return false;
-        }
 
         // TODO 385930 add explicit method for this in ExecutionEnvironmentUtils
         try {
@@ -123,17 +114,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             return customExecutionEnvironment;
         }
 
-        ProfileConfiguration configuration = getEffectiveConfiguration();
-        if (configuration == null) {
-            // TODO 387796 return explicit global default instead of null
-            return null;
-        }
-        try {
-            return ExecutionEnvironmentUtils.getExecutionEnvironment(configuration.profileName);
-        } catch (UnknownEnvironmentException e) {
-            throw new IllegalArgumentException("Invalid execution environment '" + configuration.profileName
-                    + "' configured in " + configuration.origin, e);
-        }
+        return ExecutionEnvironmentUtils.getExecutionEnvironment(getProfileName());
     }
 
     private static class ProfileConfiguration {

@@ -11,7 +11,6 @@
 package org.eclipse.tycho.core.ee;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
@@ -42,10 +41,9 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Test
     public void testDefaults() {
-        // TODO 387796 use explicit defaults instead of null?
-        assertThat(subject.getProfileName(), is(nullValue()));
+        assertThat(subject.getProfileName(), is("J2SE-1.5"));
         assertThat(subject.isCustomProfile(), is(false));
-        assertThat(subject.getFullSpecification(), is(nullValue()));
+        assertThat(subject.getFullSpecification().getProfileName(), is("J2SE-1.5"));
     }
 
     @Test
