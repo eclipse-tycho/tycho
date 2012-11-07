@@ -40,8 +40,8 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
     }
 
     private void generate(File baseDir, File[] extraDirs, Map<String, Object> params) throws Exception {
-        Mojo generateMojo = lookupMojo("org.eclipse.tycho", "tycho-pomgenerator-plugin", TychoVersion.getTychoVersion(),
-                "generate-poms", null);
+        Mojo generateMojo = lookupMojo("org.eclipse.tycho", "tycho-pomgenerator-plugin",
+                TychoVersion.getTychoVersion(), "generate-poms", null);
         setVariableValueToObject(generateMojo, "baseDir", baseDir);
         if (extraDirs != null) {
             StringBuilder sb = new StringBuilder();
@@ -52,6 +52,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
             }
             setVariableValueToObject(generateMojo, "extraDirs", sb.toString());
         }
+        setVariableValueToObject(generateMojo, "executionEnvironment", "J2SE-1.5"); // the default value
         if (params != null) {
             for (Map.Entry<String, Object> param : params.entrySet()) {
                 setVariableValueToObject(generateMojo, param.getKey(), param.getValue());

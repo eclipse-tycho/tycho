@@ -18,6 +18,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -26,6 +27,7 @@ import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.osgi.framework.BundleException;
 
 public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
+    private static final ExecutionEnvironment DUMMY_EE = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5");
 
     private EquinoxResolver subject;
 
@@ -44,7 +46,7 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
     }
 
     public void test_noSystemBundle() throws BundleException {
-        Properties properties = subject.getPlatformProperties(new Properties(), null, null);
+        Properties properties = subject.getPlatformProperties(new Properties(), null, DUMMY_EE);
         State state = subject.newState(new DefaultTargetPlatform(), properties);
 
         BundleDescription[] bundles = state.getBundles("system.bundle");

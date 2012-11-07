@@ -65,7 +65,6 @@ import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.utils.MavenArtifactRef;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
-import org.osgi.framework.Constants;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
 import copied.org.apache.maven.plugin.CompilationFailureException;
@@ -223,9 +222,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     public void execute() throws MojoExecutionException, CompilationFailureException {
         ExecutionEnvironment minimalBREE = getBundleProject().getManifestMinimalEE(project);
-        ExecutionEnvironment bree = getTargetExecutionEnvironment();
         getLog().debug("Manifest minimal BREE: " + (minimalBREE != null ? minimalBREE.toString() : "<null>"));
-        getLog().debug("Effective BREE: " + (bree != null ? bree.toString() : "<null>"));
+        getLog().debug("Effective EE: " + getTargetExecutionEnvironment());
         String effectiveTargetLevel = getTargetLevel();
         getLog().debug("Effective source/target: " + getSourceLevel() + "/" + effectiveTargetLevel);
 
@@ -429,15 +427,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             accessRules.add(new DefaultAccessRule("java/**", false));
             accessRules.addAll(getStrictSystemBundleAccessRules());
         } else {
-            ExecutionEnvironment environment = getTargetExecutionEnvironment();
-            if (environment != null) {
-                accessRules.add(new DefaultAccessRule("java/**", false));
-                for (String pkg : environment.getSystemPackages()) {
-                    accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
-                }
-                // now add packages exported by framework extension bundles 
-                accessRules.addAll(((BundleProject) getBundleProject()).getBootClasspathExtraAccessRules(project));
+            accessRules.add(new DefaultAccessRule("java/**", false));
+            for (String pkg : getTargetExecutionEnvironment().getSystemPackages()) {
+                accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
             }
+            // now add packages exported by framework extension bundles
+            accessRules.addAll(((BundleProject) getBundleProject()).getBootClasspathExtraAccessRules(project));
         }
         if (accessRules.size() > 0) {
             compilerConfiguration
@@ -459,16 +454,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (useJDK != JDKUsage.BREE) {
             return;
         }
-        ExecutionEnvironment environment = getTargetExecutionEnvironment();
-        if (environment == null) {
-            getLog().warn(
-                    "useJDK = BREE configured, but bundle has no " + Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT
-                            + " header. Compiling with current JDK.");
-        } else {
-            DefaultJavaToolChain toolChain = findMatchingJavaToolChain(environment);
-            compilerConfiguration.addCompilerCustomArgument("use.java.home", toolChain.getJavaHome());
-            configureBootClassPath(compilerConfiguration, toolChain);
-        }
+        DefaultJavaToolChain toolChain = findMatchingJavaToolChain(getTargetExecutionEnvironment());
+        compilerConfiguration.addCompilerCustomArgument("use.java.home", toolChain.getJavaHome());
+        configureBootClassPath(compilerConfiguration, toolChain);
     }
 
     private void configureBootClassPath(CompilerConfiguration compilerConfiguration, DefaultJavaToolChain javaToolChain) {
@@ -547,6 +535,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     private ExecutionEnvironment getTargetExecutionEnvironment() throws MojoExecutionException {
+        // never null
         return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getFullSpecification();
     }
 
@@ -591,16 +580,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     }
 
     public String getExecutionEnvironment() throws MojoExecutionException {
-        ExecutionEnvironment env = getTargetExecutionEnvironment();
-        return env != null ? env.getProfileName() : null;
+        return getTargetExecutionEnvironment().getProfileName();
     }
 
     public String getSourceLevel() throws MojoExecutionException {
         return getSourceLevel(getTargetExecutionEnvironment());
     }
 
-    private String getSourceLevel(ExecutionEnvironment env) throws MojoExecutionException {
-        // first, explicit pom configuration 
+    private String getSourceLevel(ExecutionEnvironment ee) throws MojoExecutionException {
+        // first, explicit POM configuration
         if (source != null) {
             return source;
         }
@@ -609,14 +597,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (javacSource != null) {
             return javacSource;
         }
-        // then, BREE
-        if (env != null) {
-            String compilerSourceLevel = env.getCompilerSourceLevelDefault();
-            // TODO 387796 never null?
-            if (compilerSourceLevel != null) {
-                return compilerSourceLevel;
-            }
+        // then, execution environment
+        String eeSource = ee.getCompilerSourceLevelDefault();
+        if (eeSource != null) {
+            return eeSource;
         }
+
         return DEFAULT_SOURCE_VERSION;
     }
 
@@ -624,8 +610,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return getTargetLevel(getTargetExecutionEnvironment());
     }
 
-    public String getTargetLevel(ExecutionEnvironment env) throws MojoExecutionException {
-        // first, explicit pom configuration
+    public String getTargetLevel(ExecutionEnvironment ee) throws MojoExecutionException {
+        // first, explicit POM configuration
         if (target != null) {
             return target;
         }
@@ -634,14 +620,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (javacTarget != null) {
             return javacTarget;
         }
-        // then, BREE
-        // TODO 387796 never null?
-        if (env != null) {
-            String eeTarget = env.getCompilerTargetLevelDefault();
-            if (eeTarget != null) {
-                return eeTarget;
-            }
+        // then, execution environment
+        String eeTarget = ee.getCompilerTargetLevelDefault();
+        if (eeTarget != null) {
+            return eeTarget;
         }
+
         return DEFAULT_TARGET_VERSION;
     }
 
