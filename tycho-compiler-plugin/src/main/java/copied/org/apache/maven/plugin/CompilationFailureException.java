@@ -22,29 +22,24 @@ import java.util.List;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.compiler.CompilerError;
 
-public class CompilationFailureException
-    extends MojoFailureException
-{
+public class CompilationFailureException extends MojoFailureException {
     /**
 	 * 
 	 */
-	private static final long serialVersionUID = 6116801730028853785L;
-	private static final String LS = System.getProperty( "line.separator" );
+    private static final long serialVersionUID = 6116801730028853785L;
+    private static final String LS = System.getProperty("line.separator");
 
-    public CompilationFailureException( List messages )
-    {
-        super( null, "Compilation failure", longMessage( messages ) );
+    public CompilationFailureException(List messages) {
+        super(null, "Compilation failure", longMessage(messages));
     }
 
-    public static String longMessage( List messages )
-    {
+    public static String longMessage(List messages) {
         StringBuffer sb = new StringBuffer();
 
-        for ( Iterator it = messages.iterator(); it.hasNext() ; )
-        {
+        for (Iterator it = messages.iterator(); it.hasNext();) {
             CompilerError compilerError = (CompilerError) it.next();
 
-            sb.append( compilerError ).append( LS );
+            sb.append(compilerError).append(LS);
         }
         return sb.toString();
     }

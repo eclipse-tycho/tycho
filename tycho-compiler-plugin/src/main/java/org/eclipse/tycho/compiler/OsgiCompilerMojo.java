@@ -16,7 +16,6 @@
 
 package org.eclipse.tycho.compiler;
 
-
 /**
  * @goal compile
  * @phase compile
