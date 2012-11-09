@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -32,6 +33,10 @@ public class FileToPathMap {
 
     public void put(File key, IPath value) {
         map.put(canonify(key), value);
+    }
+
+    public Collection<IPath> values() {
+        return map.values();
     }
 
     public IPath get(File key) {

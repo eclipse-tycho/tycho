@@ -180,7 +180,9 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
 
     private void addPermissions(RootFilesProperties rootProperties, FileSetDescriptor rootFilesDescriptor) {
         for (RootFilesProperties.Permission permission : rootProperties.getPermissions()) {
-            rootFilesDescriptor.addPermissions(permission.toP2Format());
+            for (String[] p2Format : permission.toP2Formats()) {
+                rootFilesDescriptor.addPermissions(p2Format);
+            }
         }
     }
 

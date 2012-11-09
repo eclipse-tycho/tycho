@@ -12,28 +12,52 @@ package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.eclipse.core.runtime.IPath;
 
 public class RootFilesProperties {
 
     public class Permission {
-        private final String path;
+        private final String pathPattern;
+        private Set<String> resolvedPaths;
 
-        private final String chmodPermissionPattern;
+        // 3-digit octal file permission mask 
+        private final String chmodPermissions;
+        private boolean isResolved = false;
 
-        public Permission(String path, String chmodPermissionPattern) {
-            this.path = path;
-            this.chmodPermissionPattern = chmodPermissionPattern;
+        public Permission(String pathPattern, String chmodPermissions) {
+            this.pathPattern = pathPattern;
+            this.chmodPermissions = chmodPermissions;
         }
 
-        public String[] toP2Format() {
-            return new String[] { chmodPermissionPattern, path };
+        void resolveWildcards(Collection<IPath> virtualFiles, boolean useDefaultExcludes) {
+            resolvedPaths = new HashSet<String>();
+            VirtualFileSet virtualFileSet = new VirtualFileSet(pathPattern, virtualFiles, useDefaultExcludes);
+            for (IPath path : virtualFileSet.getMatchingPaths()) {
+                resolvedPaths.add(path.toString());
+            }
+            isResolved = true;
+        }
+
+        public List<String[]> toP2Formats() {
+            if (!isResolved) {
+                throw new IllegalStateException("must call resolveWildcards() first");
+            }
+            List<String[]> p2Formats = new ArrayList<String[]>(resolvedPaths.size());
+            for (String resolvedPath : resolvedPaths) {
+                String[] p2Format = new String[] { chmodPermissions, resolvedPath };
+                p2Formats.add(p2Format);
+            }
+            return p2Formats;
         }
     }
 
     /**
-     * Absolute source location of a root file to the relative path that describes the location of
-     * the root file in the installed product.
+     * Absolute source location of a root file to the relative pathPattern that describes the
+     * location of the root file in the installed product.
      */
     private FileToPathMap fileSourceToDestinationMap = new FileToPathMap();
 
@@ -67,6 +91,13 @@ public class RootFilesProperties {
         verifySpecifiedInPairs(linkValueSegments);
         for (String segment : linkValueSegments) {
             addLinkSegment(segment);
+        }
+    }
+
+    public void resolvePermissionWildcards(boolean useDefaultExcludes) {
+        Collection<IPath> allFilePaths = fileSourceToDestinationMap.values();
+        for (Permission permission : permissions) {
+            permission.resolveWildcards(allFilePaths, useDefaultExcludes);
         }
     }
 

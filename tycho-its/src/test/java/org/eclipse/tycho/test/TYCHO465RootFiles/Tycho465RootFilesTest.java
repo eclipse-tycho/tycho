@@ -239,6 +239,13 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
         assertTrue(
                 "Expected chmod touchpointData instruction '" + expectedTouchpointDataInstruction + "' not found.",
                 Util.iuHasTouchpointDataInstruction(featureRootIus.iterator().next(), expectedTouchpointDataInstruction));
+        // permission defined in build.properties: root.linux.gtk.x86_64.permissions.555 = **/*.so
+        Element linuxRootIu = Util.findIU(contentXml, "tycho465.feature_root.gtk.linux.x86_64").iterator().next();
+
+        String chmod555Instruction = "chmod(targetDir:${installFolder}, targetFile:dir/test.so, permissions:555);";
+
+        assertTrue("Expected chmod touchpointData instruction '" + chmod555Instruction + "' not found.",
+                Util.iuHasTouchpointDataInstruction(linuxRootIu, chmod555Instruction));
     }
 
     static void assertRootIuLinksMetaData(Document contentXml) {

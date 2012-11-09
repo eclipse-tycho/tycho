@@ -11,9 +11,6 @@
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -23,52 +20,9 @@ import org.eclipse.core.runtime.Path;
  * {@link http://en.wikibooks.org/wiki/Apache_Ant/Fileset }. This is not a complete equivalent
  * implementation of the ant fileset. Only the subset needed for PDE root files is supported.
  */
-public class FileSet {
-
-    private static final String ZERO_OR_MORE_DIRS = "([^/]+/)*";
-    private static final String ZERO_OR_MORE_FILE_CHARACTERS = "[^/]*";
-    private static final String ONE_CHARACTER = ".";
-    private static final String QUOTE_BEGIN = "\\Q";
-    private static final String QUOTE_END = "\\E";
-
-    private static final String[] DEFAULTEXCLUDES = {
-            // Miscellaneous typical temporary files
-            "**/*~", "**/#*#", "**/.#*", "**/%*%", "**/._*",
-            // CVS
-            "**/CVS", "**/CVS/**", "**/.cvsignore",
-            // RCS
-            "**/RCS", "**/RCS/**",
-            // SCCS
-            "**/SCCS", "**/SCCS/**",
-            // Visual SourceSafe
-            "**/vssver.scc",
-            // Subversion
-            "**/.svn", "**/.svn/**",
-            // Arch
-            "**/.arch-ids", "**/.arch-ids/**",
-            //Bazaar
-            "**/.bzr", "**/.bzr/**",
-            //SurroundSCM
-            "**/.MySCMServerInfo",
-            // Mac
-            "**/.DS_Store",
-            // Serena Dimensions Version 10
-            "**/.metadata", "**/.metadata/**",
-            // Mercurial
-            "**/.hg", "**/.hg/**",
-            // git
-            "**/.git", "**/.git/**",
-            // BitKeeper
-            "**/BitKeeper", "**/BitKeeper/**", "**/ChangeSet", "**/ChangeSet/**",
-            // darcs
-            "**/_darcs", "**/_darcs/**", "**/.darcsrepo", "**/.darcsrepo/**", "**/-darcs-backup*",
-            "**/.darcs-temp-mail" };
+public class FileSet extends AbstractFileSet {
 
     private File baseDir;
-
-    private Pattern includePattern;
-    private List<Pattern> defaultExcludePatterns;
-    private boolean useDefaultExcludes;
 
     /**
      * Equivalent to {@link #FileSet(File, String, boolean)} with useDefaultExludes == true.
@@ -89,34 +43,8 @@ public class FileSet {
      *            whether to use default file excludes for typical SCM metadata files.
      */
     public FileSet(File baseDir, String pattern, boolean useDefaultExcludes) {
+        super(pattern, useDefaultExcludes);
         this.baseDir = baseDir;
-        this.useDefaultExcludes = useDefaultExcludes;
-        this.includePattern = convertToRegexPattern(pattern);
-        this.defaultExcludePatterns = createDefaultExcludePatterns();
-    }
-
-    private List<Pattern> createDefaultExcludePatterns() {
-        List<Pattern> defaultExcludePatterns = new ArrayList<Pattern>();
-        for (String exclude : DEFAULTEXCLUDES) {
-            defaultExcludePatterns.add(convertToRegexPattern(exclude));
-        }
-        return defaultExcludePatterns;
-    }
-
-    /**
-     * @return <code>true</code> if the specified path matches the include pattern of this fileset
-     *         and not one of the default exclude patterns.
-     */
-    boolean matches(IPath path) {
-        String slashifiedPath = path.toPortableString();
-        if (useDefaultExcludes) {
-            for (Pattern excludePattern : defaultExcludePatterns) {
-                if (excludePattern.matcher(slashifiedPath).matches()) {
-                    return false;
-                }
-            }
-        }
-        return includePattern.matcher(slashifiedPath).matches();
     }
 
     public File getBaseDir() {
@@ -132,46 +60,6 @@ public class FileSet {
         FileToPathMap result = new FileToPathMap();
         recursiveScan(baseDir, result, Path.fromOSString(baseDir.getAbsolutePath()));
         return result;
-    }
-
-    private Pattern convertToRegexPattern(String antFilePattern) {
-        StringBuilder sb = new StringBuilder();
-        // always quote to make sure we don't interpret normal file 
-        // characters as special regexp characters
-        sb.append(QUOTE_BEGIN);
-        char[] chars = antFilePattern.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            switch (chars[i]) {
-            case '?':
-                sb.append(QUOTE_END + ONE_CHARACTER + QUOTE_BEGIN);
-                break;
-            case '*':
-                sb.append(QUOTE_END);
-                if ((i + 1 < chars.length) && chars[i + 1] == '*') {
-                    // "**"
-                    sb.append(ZERO_OR_MORE_DIRS);
-                    i++;
-                    if ((i + 1 < chars.length) && chars[i + 1] == '/') {
-                        // "**/"
-                        // eat up slash since it is matched by ZERO_OR_MORE_DIRS
-                        i++;
-                    }
-                    if (i == chars.length - 1) {
-                        // "**" at end means we also match files
-                        sb.append(ZERO_OR_MORE_FILE_CHARACTERS);
-                    }
-                } else {
-                    // "*"
-                    sb.append(ZERO_OR_MORE_FILE_CHARACTERS);
-                }
-                sb.append(QUOTE_BEGIN);
-                break;
-            default:
-                sb.append(chars[i]);
-            }
-        }
-        sb.append(QUOTE_END);
-        return Pattern.compile(sb.toString());
     }
 
     private void recursiveScan(File file, FileToPathMap result, IPath baseDirPath) {

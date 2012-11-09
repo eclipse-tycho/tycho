@@ -94,6 +94,13 @@ public class RootPropertiesParser {
             valueSegments = splitAndTrimValue(entry.getValue());
             parseBuildPropertiesLine();
         }
+        resolvePermissionWildcards();
+    }
+
+    private void resolvePermissionWildcards() {
+        for (RootFilesProperties rootProperty : parsingResult.getPropertiesPerConfigMap().values()) {
+            rootProperty.resolvePermissionWildcards(useDefaultExcludes);
+        }
     }
 
     private static String[] splitKey(String string) {
