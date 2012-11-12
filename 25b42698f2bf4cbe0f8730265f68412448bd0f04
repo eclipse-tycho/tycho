@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AABOJH///pg\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/osgi/configuration/RepositorySettingsConfigurator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-12T09:33:11Z",
+      "side": 1,
+      "message": "problems.size() \u003e 0 of course",
+      "parentUuid": "AABOJH///qI\u003d",
+      "revId": "25b42698f2bf4cbe0f8730265f68412448bd0f04",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOJH///qE\u003d",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/osgi/configuration/RepositorySettingsConfigurator.java",
         "patchSetId": 1
