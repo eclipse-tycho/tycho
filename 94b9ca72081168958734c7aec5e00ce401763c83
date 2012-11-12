@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOJH///p0\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/osgi/configuration/OSGiProxyConfigurator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-12T09:19:52Z",
+      "side": 1,
+      "message": "never null as far as I can see",
+      "revId": "94b9ca72081168958734c7aec5e00ce401763c83",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJH///ps\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/osgi/configuration/OSGiProxyConfigurator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-12T09:19:52Z",
+      "side": 1,
+      "message": "never null as far as I can see",
+      "revId": "94b9ca72081168958734c7aec5e00ce401763c83",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJH///pw\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/osgi/configuration/OSGiProxyConfigurator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-12T09:19:52Z",
+      "side": 1,
+      "message": "this is an error. log as error and fail-fast.",
+      "revId": "94b9ca72081168958734c7aec5e00ce401763c83",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
