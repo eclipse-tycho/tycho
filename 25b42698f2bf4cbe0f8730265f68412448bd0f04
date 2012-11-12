@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOJH///qI\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/osgi/configuration/RepositorySettingsConfigurator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-12T09:13:27Z",
+      "side": 1,
+      "message": "never null as far as I can see in the impl.\n\nwe should rather check if problems.size() \u003e \u003d 0 and the throw a RuntimeException",
+      "revId": "25b42698f2bf4cbe0f8730265f68412448bd0f04",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJH///qE\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/osgi/configuration/RepositorySettingsConfigurator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-12T09:13:27Z",
+      "side": 1,
+      "message": "this is an error. log as error and fail rather than provoking NPE later on",
+      "revId": "25b42698f2bf4cbe0f8730265f68412448bd0f04",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
