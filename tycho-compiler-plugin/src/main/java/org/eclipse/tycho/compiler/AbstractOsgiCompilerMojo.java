@@ -47,6 +47,7 @@ import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.StaleSourceScanner;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
@@ -210,6 +211,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * @parameter default-value="false"
      */
     private boolean strictCompilerTarget;
+
+    /**
+     * @parameter
+     * @since 0.16.0
+     */
+    private String extraBootclasspath;
 
     /**
      * Current build output jar
@@ -508,6 +515,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                 bootClassPath.append(File.pathSeparator);
             }
             bootClassPath.append(new File(javaHome, includedFiles[i]).getAbsolutePath());
+        }
+        if (!StringUtils.isEmpty(extraBootclasspath)) {
+            bootClassPath.append(File.pathSeparator);
+            bootClassPath.append(extraBootclasspath);
         }
         return bootClassPath.toString();
     }
