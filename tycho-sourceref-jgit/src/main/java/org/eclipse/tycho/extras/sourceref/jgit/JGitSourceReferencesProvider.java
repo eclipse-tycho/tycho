@@ -123,8 +123,18 @@ public class JGitSourceReferencesProvider
     String getRelativePath( File subDir, File parentDir )
         throws MojoExecutionException
     {
-        URI subDirUri = subDir.toURI();
-        URI relativeUri = parentDir.toURI().relativize( subDirUri );
+        URI subDirUri;
+        URI relativeUri;
+        try
+        {
+            // have to canonicalize before comparing on case-insensitive filesystems
+            subDirUri = subDir.getCanonicalFile().toURI();
+            relativeUri = parentDir.getCanonicalFile().toURI().relativize( subDirUri );
+        }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException(e.getMessage(),e);
+        }
         if ( relativeUri.equals( subDirUri ) )
         {
             throw new MojoExecutionException( subDir + " is not a subdir of " + parentDir );

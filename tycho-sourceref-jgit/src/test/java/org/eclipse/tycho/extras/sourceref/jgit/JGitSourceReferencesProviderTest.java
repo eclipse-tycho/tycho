@@ -11,9 +11,11 @@
 
 package org.eclipse.tycho.extras.sourceref.jgit;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 
 import java.io.File;
 import java.util.Properties;
@@ -23,6 +25,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.packaging.sourceref.ScmUrl;
 import org.hamcrest.CoreMatchers;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.matchers.JUnitMatchers;
 
@@ -42,10 +45,21 @@ public class JGitSourceReferencesProviderTest
     public void testGetRelativePathWithSpaces() throws MojoExecutionException
     {
         JGitSourceReferencesProvider provider = new JGitSourceReferencesProvider();
-        File projectBasedir = new File("/foo/test me/bar/baz" );
+        File projectBasedir = new File("/foo/test me/bar/baz boo" );
         File repoRoot = new File("/foo/test me/");
-        assertEquals( "bar/baz", provider.getRelativePath( projectBasedir, repoRoot));
+        assertEquals( "bar/baz boo", provider.getRelativePath( projectBasedir, repoRoot));
     }
+    
+    @Test
+    public void testGetRelativePathMixedCaseOnWindows() throws MojoExecutionException
+    {
+        assumeThat( File.separator, is( "\\" ) );
+        JGitSourceReferencesProvider provider = new JGitSourceReferencesProvider();
+        File projectBasedir =new File("C:/bar/baz/test/me");
+        File repoRoot =  new File("c:/bar/baz" );
+        assertEquals( "test/me", provider.getRelativePath( projectBasedir, repoRoot));
+    }
+
 
     @Test(expected = MojoExecutionException.class)
     public void testGetRelativePathNoCommonBasedir() throws MojoExecutionException
