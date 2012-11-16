@@ -344,7 +344,7 @@ public class JDTCompiler extends AbstractCompiler {
         }
         compiler.setBootclasspathAccessRules(custom.bootclasspathAccessRules);
         getLogger().debug("Boot classpath access rules: " + custom.bootclasspathAccessRules);
-        compiler.compile(args);
+        boolean success = compiler.compile(args);
 
         try {
             String output = err.toString();
@@ -352,6 +352,10 @@ public class JDTCompiler extends AbstractCompiler {
             messages = parseModernStream(new BufferedReader(new StringReader(output)));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+        if (!success && messages.isEmpty()) {
+            // low-level, e.g. configuration error
+            throw new CompilerException(err.toString());
         }
         return messages;
     }
