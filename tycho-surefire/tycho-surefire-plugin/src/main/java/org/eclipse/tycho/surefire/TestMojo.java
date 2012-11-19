@@ -59,6 +59,7 @@ import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -421,6 +422,7 @@ public class TestMojo extends AbstractMojo {
     private DevWorkspaceResolver workspaceState;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        getLog().info("HERE");
         if (skip || skipExec || skipTests) {
             getLog().info("Skipping tests");
             return;
@@ -480,10 +482,24 @@ public class TestMojo extends AbstractMojo {
             public List<Dependency> getExtraRequirements() {
                 return dependencies;
             }
+
+            public List<TargetEnvironment> getEnvironments() {
+                List<TargetEnvironment> envs = new ArrayList<TargetEnvironment>(1);
+
+                Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+                String os = PlatformPropertiesUtils.getOS(properties);
+                String ws = PlatformPropertiesUtils.getWS(properties);
+                String arch = PlatformPropertiesUtils.getArch(properties);
+
+                envs.add(new TargetEnvironment(os, ws, arch));
+                return envs;
+            }
         };
 
+        getLog().debug("before platformResolver.resolveDependencies: " + platformResolver);
         DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project,
                 targetPlatform, reactorProjects, resolverConfiguration);
+        getLog().debug("after platformResolver.resolveDependencies");
 
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");
