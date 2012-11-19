@@ -383,7 +383,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             // FIXME this is just wrong
             for (int i = 0; i < environments.size(); i++) {
                 TargetEnvironment environment = environments.get(i);
-                getLogger().debug("- env: " + environment);
                 P2ResolutionResult result = results.get(i);
 
                 DefaultTargetPlatform platform = newDefaultTargetPlatform(session,
