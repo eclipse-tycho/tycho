@@ -422,7 +422,6 @@ public class TestMojo extends AbstractMojo {
     private DevWorkspaceResolver workspaceState;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        getLog().info("HERE");
         if (skip || skipExec || skipTests) {
             getLog().info("Skipping tests");
             return;
@@ -496,10 +495,8 @@ public class TestMojo extends AbstractMojo {
             }
         };
 
-        getLog().debug("before platformResolver.resolveDependencies: " + platformResolver);
         DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project,
                 targetPlatform, reactorProjects, resolverConfiguration);
-        getLog().debug("after platformResolver.resolveDependencies");
 
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");

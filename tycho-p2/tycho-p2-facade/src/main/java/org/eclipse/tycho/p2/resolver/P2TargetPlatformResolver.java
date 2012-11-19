@@ -396,7 +396,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
             return multiPlatform;
         } else {
-            getLogger().debug("resolver.collectProjectDependencies()");
             P2ResolutionResult result = resolver.collectProjectDependencies(resolutionContext, project.getBasedir());
 
             return newDefaultTargetPlatform(session, DefaultReactorProject.adapt(project), projects, result);
