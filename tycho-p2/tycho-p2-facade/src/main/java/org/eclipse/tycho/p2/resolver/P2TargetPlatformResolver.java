@@ -359,7 +359,10 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
-        resolver.setEnvironments(configuration.getEnvironments());
+        List<TargetEnvironment> environments = resolverConfiguration.getEnvironments();
+        if (environments == null)
+            environments = configuration.getEnvironments();
+        resolver.setEnvironments(environments);
 
         for (ReactorProject otherProject : reactorProjects) {
             projects.put(otherProject.getBasedir(), otherProject);
@@ -378,8 +381,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                     DefaultReactorProject.adapt(project));
 
             // FIXME this is just wrong
-            for (int i = 0; i < configuration.getEnvironments().size(); i++) {
-                TargetEnvironment environment = configuration.getEnvironments().get(i);
+            for (int i = 0; i < environments.size(); i++) {
+                TargetEnvironment environment = environments.get(i);
                 P2ResolutionResult result = results.get(i);
 
                 DefaultTargetPlatform platform = newDefaultTargetPlatform(session,
