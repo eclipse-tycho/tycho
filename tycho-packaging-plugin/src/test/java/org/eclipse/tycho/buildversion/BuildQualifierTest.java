@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -183,14 +183,18 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         executeMojo(session, getProject(projects, "bundle02"));
         executeMojo(session, getProject(projects, "feature02"), "build-qualifier-aggregator");
         executeMojo(session, getProject(projects, "feature"), "build-qualifier-aggregator");
+        executeMojo(session, getProject(projects, "product"), "build-qualifier-aggregator");
 
         assertQualifier("201205192000", projects, "bundle02");
         // feature02 includes bundle02, but its qualifier is hard-coded via the manifest
         assertQualifier("201205191300", projects, "feature02");
+        // product includes feature02, and hence transitively also bundle02, but qualifier is only the max. of direct inclusions
+        assertQualifier("201205191300", projects, "product");
 
         assertQualifier("201205191500", projects, "bundle01");
-        // feature includes both bundle01 and feature02, and hence transitively also bundle01, but qualifier is only the max. of direct inclusions
+        // feature has direct inclusions bundle01 and feature02 -> bundle01's 1500 time-stamp is the max.
         assertQualifier("201205191500", projects, "feature");
+
     }
 
     public void testUnparsableIncludedArtifactQualifier() throws Exception {

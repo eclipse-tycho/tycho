@@ -24,6 +24,7 @@
     <module>bundle02</module>
     <module>feature02</module>
     <module>feature</module>
+    <module>product</module>
   </modules>
 
   <build>
