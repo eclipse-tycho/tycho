@@ -284,7 +284,7 @@
             <id>default</id>
             <phases>
               <validate>
-                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier
+                org.eclipse.tycho:tycho-packaging-plugin:${project.version}:build-qualifier-aggregator
               </validate>
               <initialize>
                 <!-- P2 publisher application will accumulate the published content in resulting repositories.
