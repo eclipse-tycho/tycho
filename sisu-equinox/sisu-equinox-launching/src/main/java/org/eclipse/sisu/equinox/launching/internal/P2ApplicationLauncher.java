@@ -118,8 +118,8 @@ public class P2ApplicationLauncher {
                 EquinoxLaunchConfiguration launchConfiguration = new EquinoxLaunchConfiguration(installation);
                 launchConfiguration.setWorkingDirectory(workingDirectory);
 
-                launchConfiguration.addProgramArguments("-configuration "
-                        + installation.getConfigurationLocation().getAbsolutePath());
+                launchConfiguration.addProgramArguments(true, "-configuration", installation.getConfigurationLocation()
+                        .getAbsolutePath());
 
                 // logging
 
