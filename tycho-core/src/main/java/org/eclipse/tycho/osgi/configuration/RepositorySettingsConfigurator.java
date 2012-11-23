@@ -19,6 +19,10 @@ import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
+import org.apache.maven.settings.building.SettingsProblem;
+import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
+import org.apache.maven.settings.crypto.SettingsDecrypter;
+import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -44,6 +48,9 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
 
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
+
+    @Requirement
+    private SettingsDecrypter decrypter;
 
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
@@ -77,12 +84,36 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
             Server serverSettings = context.getSession().getSettings().getServer(location.getId());
 
             if (serverSettings != null) {
-                return new MavenRepositorySettings.Credentials(serverSettings.getUsername(),
-                        serverSettings.getPassword());
+                DefaultSettingsDecryptionRequest decryptRequest = new DefaultSettingsDecryptionRequest(serverSettings);
+                SettingsDecryptionResult result = decrypter.decrypt(decryptRequest);
+                logProblems(result);
+                Server decryptedServer = result.getServer();
+                return new MavenRepositorySettings.Credentials(decryptedServer.getUsername(),
+                        decryptedServer.getPassword());
             }
             return null;
         }
 
+        private void logProblems(SettingsDecryptionResult decryptionResult) {
+            boolean hasErrors = false;
+            for (SettingsProblem problem : decryptionResult.getProblems()) {
+                switch (problem.getSeverity()) {
+                case FATAL:
+                case ERROR:
+                    logger.error(problem.toString());
+                    hasErrors = true;
+                    break;
+                case WARNING:
+                    logger.warn(problem.toString());
+                    break;
+                default:
+                    throw new IllegalStateException("unknown problem severity: " + problem.getSeverity());
+                }
+            }
+            if (hasErrors) {
+                throw new RuntimeException("Error(s) while decrypting. See details above.");
+            }
+        }
     }
 
 }
