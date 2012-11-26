@@ -560,12 +560,10 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
         </snapshotRepository>
   	</distributionManagement>
 
-<!--
     <repositories>
         <repository>
             <id>staging</id>
             <url>https://oss.sonatype.org/content/groups/staging</url>
         </repository>
     </repositories>
--->
 </project>

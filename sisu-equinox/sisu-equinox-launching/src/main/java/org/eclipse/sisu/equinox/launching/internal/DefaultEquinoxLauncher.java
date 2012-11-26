@@ -69,7 +69,11 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
             }
         };
         try {
-            return CommandLineUtils.executeCommandLine(cli, out, err, forkedProcessTimeoutInSeconds);
+            StreamConsumer sc = (StreamConsumer) System.getProperties().get("pascal.hack.outputStream");
+            if (sc == null)
+                return CommandLineUtils.executeCommandLine(cli, out, err, forkedProcessTimeoutInSeconds);
+            else
+                return CommandLineUtils.executeCommandLine(cli, sc, sc, forkedProcessTimeoutInSeconds);
         } catch (CommandLineException e) {
             throw new EquinoxLaunchingException(e);
         }

@@ -11,13 +11,16 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -33,8 +36,12 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.surefire.report.FileReporterFactory;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.surefire.booter.StartupReportConfiguration;
+import org.apache.maven.surefire.report.ReporterFactory;
+import org.apache.maven.surefire.report.RunStatistics;
 import org.apache.maven.surefire.suite.RunResult;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
@@ -195,6 +202,11 @@ public class TestMojo extends AbstractMojo {
      * @parameter expression="${project.build.directory}/surefire-reports"
      */
     private File reportsDirectory;
+
+    /**
+     * @parameter expression="${project.build.directory}/allTestsToExecute.properties"
+     */
+    private String testListDumpFile;
 
     /** @parameter expression="${project.build.directory}/surefire.properties" */
     private File surefireProperties;
@@ -404,6 +416,14 @@ public class TestMojo extends AbstractMojo {
     private boolean useUnlimitedThreads;
 
     /**
+     * Allow to start a new instance of the OSGi runtime for each test class. The only supported
+     * values are "always" and "none".
+     * 
+     * @parameter default-value="none"
+     * @since 0.16.1
+     */
+    private String forkMode = "none";
+    /**
      * Use this to specify surefire provider-specific properties.
      * 
      * @parameter
@@ -448,8 +468,79 @@ public class TestMojo extends AbstractMojo {
             }
         }
 
+//        public StartupReportConfiguration( boolean useFile, boolean printSummary, String reportFormat,
+//                boolean redirectTestOutputToFile, boolean disableXmlReport,
+//                File reportsDirectory, boolean trimStackTrace )
+
+        if (forkMode.equals("none")) { //PASCAL
+            EquinoxInstallation testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
+            runTest(testRuntime, true);
+        } else if (forkMode.equals("always")) { //PASCAL
+            final boolean trimStacktrace = true;
+            final boolean useFile = true;
+            final boolean printSummary = true;
+            final boolean disableXmlReport = false;
+
+            ReporterFactory factory = new FileReporterFactory(new StartupReportConfiguration(useFile, printSummary,
+                    StartupReportConfiguration.PLAIN_REPORT_FORMAT, redirectTestOutputToFile, disableXmlReport,
+                    reportsDirectory, trimStacktrace));
+
+            EquinoxInstallation testCollectionRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
+            collectTests(testCollectionRuntime);
+            //PASCAL deal with other types of parameters (no tests to execute flag, etc.);
+            try {
+                Properties testsToExecute = loadProperties(new File(testListDumpFile));
+                Collection<Object> classes = testsToExecute.values();
+                RunResult globalResult = new RunResult(0, 0, 0, 0);
+
+                for (Object object : classes) {
+                    testClass = object.toString();
+                    RunResult runResult = fork(factory);
+                    globalResult = globalResult.aggregate(runResult);
+                }
+                factory.close();
+                if (globalResult.isErrrorFree())
+                    return;
+                throw new MojoFailureException("Something bad happened");
+//                return globalResult;
+            } catch (IOException e) {
+                e.printStackTrace();
+                //PASCAL Deal with the error case for this
+            }
+        }
+    }
+
+    private RunResult fork(ReporterFactory testSetReporterFactory) throws MojoExecutionException, MojoFailureException {
+        //PASCAL Need to see what is up with the SurefireBooterForkException
+        ForkClient out = new ForkClient(testSetReporterFactory, new Properties());
+        ThreadedStreamConsumer threadedStreamConsumer2 = new ThreadedStreamConsumer(out);
+        System.getProperties().put("pascal.hack.outputStream", threadedStreamConsumer2);
+
+        RunResult runResult;
+
+        System.out.println("EXECUTING");
         EquinoxInstallation testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
-        runTest(testRuntime);
+        runTest(testRuntime, false);
+
+        threadedStreamConsumer2.close();
+        out.close();
+
+        final RunStatistics globalRunStatistics = testSetReporterFactory.getGlobalRunStatistics();
+
+        runResult = globalRunStatistics.getRunResult();
+
+        return runResult;
+    }
+
+    private static Properties loadProperties(File file) throws IOException {
+        Properties p = new Properties();
+        BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+        try {
+            p.load(in);
+        } finally {
+            in.close();
+        }
+        return p;
     }
 
     private EquinoxInstallation createEclipseInstallation(List<ReactorProject> reactorProjects)
@@ -595,7 +686,7 @@ public class TestMojo extends AbstractMojo {
         p.put("testclassesdirectory", testClassesDirectory.getAbsolutePath());
         p.put("reportsdirectory", reportsDirectory.getAbsolutePath());
         p.put("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
-
+        p.put("testlistdumpfile", testListDumpFile);
         if (test != null) {
             String test = this.test;
             test = test.replace('.', '/');
@@ -613,6 +704,7 @@ public class TestMojo extends AbstractMojo {
             }
         }
         p.put("failifnotests", String.valueOf(failIfNoTests));
+        p.put("forkMode", forkMode);
         mergeProviderProperties(p);
         return p;
     }
@@ -658,41 +750,58 @@ public class TestMojo extends AbstractMojo {
         return sb.toString();
     }
 
-    private void runTest(EquinoxInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
+    private void collectTests(EquinoxInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
+        int result;
+        try {
+            File workspace = new File(work, "data").getAbsoluteFile();
+            FileUtils.deleteDirectory(workspace);
+            LaunchConfiguration cli = createCommandLineToGetTestsToExecutes(testRuntime, workspace);
+            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
+            result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error while executing platform", e);
+        }
+    }
+
+    private void runTest(EquinoxInstallation testRuntime, boolean raiseException) throws MojoExecutionException,
+            MojoFailureException {
         int result;
         try {
             File workspace = new File(work, "data").getAbsoluteFile();
             FileUtils.deleteDirectory(workspace);
             LaunchConfiguration cli = createCommandLine(testRuntime, workspace);
             getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
+
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);
         }
-        switch (result) {
-        case 0:
-            getLog().info("All tests passed!");
-            break;
-        case RunResult.NO_TESTS:
-            String message = "No tests found.";
-            if (failIfNoTests) {
-                throw new MojoFailureException(message);
-            } else {
-                getLog().warn(message);
+        if (raiseException) {
+            switch (result) {
+            case 0:
+                getLog().info("All tests passed!");
+                break;
+            case RunResult.NO_TESTS:
+                String message = "No tests found.";
+                if (failIfNoTests) {
+                    throw new MojoFailureException(message);
+                } else {
+                    getLog().warn(message);
+                }
+                break;
+            case RunResult.FAILURE:
+                String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
+                        + " for the individual test results.";
+                if (testFailureIgnore) {
+                    getLog().error(errorMessage);
+                } else {
+                    throw new MojoFailureException(errorMessage);
+                }
+                break;
+            default:
+                throw new MojoFailureException("An unexpected error occured (return code " + result
+                        + "). See log for details.");
             }
-            break;
-        case RunResult.FAILURE:
-            String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
-                    + " for the individual test results.";
-            if (testFailureIgnore) {
-                getLog().error(errorMessage);
-            } else {
-                throw new MojoFailureException(errorMessage);
-            }
-            break;
-        default:
-            throw new MojoFailureException("An unexpected error occured (return code " + result
-                    + "). See log for details.");
         }
     }
 
@@ -702,6 +811,65 @@ public class TestMojo extends AbstractMojo {
             tc = toolchainManager.getToolchainFromBuildContext("jdk", session);
         }
         return tc;
+    }
+
+    LaunchConfiguration createCommandLineToGetTestsToExecutes(EquinoxInstallation testRuntime, File workspace)
+            throws MalformedURLException, MojoExecutionException {
+        EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(testRuntime);
+
+        String executable = null;
+        Toolchain tc = getToolchain();
+        if (tc != null) {
+            getLog().info("Toolchain in tycho-surefire-plugin: " + tc);
+            executable = tc.findTool("java");
+        }
+        cli.setJvmExecutable(executable);
+
+        cli.setWorkingDirectory(project.getBasedir());
+
+        if (debugPort > 0) {
+            cli.addVMArguments("-Xdebug", "-Xrunjdwp:transport=dt_socket,address=" + debugPort + ",server=y,suspend=y");
+        }
+
+        cli.addVMArguments("-Dosgi.noShutdown=false");
+
+        Properties properties = (Properties) project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES);
+        cli.addVMArguments("-Dosgi.os=" + PlatformPropertiesUtils.getOS(properties), //
+                "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
+                "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
+        addCustomProfileArg(cli);
+        addVMArgs(cli, argLine);
+
+        if (systemProperties != null) {
+            for (Map.Entry<String, String> entry : systemProperties.entrySet()) {
+                cli.addVMArguments(true, "-D" + entry.getKey() + "=" + entry.getValue());
+            }
+        }
+
+        if (getLog().isDebugEnabled() || showEclipseLog) {
+            cli.addProgramArguments("-debug", "-consolelog");
+        }
+
+        addProgramArgs(true, cli, "-data", workspace.getAbsolutePath(), //
+                "-install", testRuntime.getLocation().getAbsolutePath(), //
+                "-configuration", new File(work, "configuration").getAbsolutePath(), //
+                "-application", "org.eclipse.tycho.surefire.osgibooter.headlesstest", // PASCAL This is the major change from the other case
+                "-testproperties", surefireProperties.getAbsolutePath(), //
+                "-dumpTests");
+        if (application != null) {
+            cli.addProgramArguments("-testApplication", application);
+        }
+        if (product != null) {
+            cli.addProgramArguments("-product", product);
+        }
+//        if (useUIHarness && !useUIThread) {   //PASCAL other change
+        cli.addProgramArguments("-nouithread");
+//        }
+        addProgramArgs(false, cli, appArgLine);
+        if (environmentVariables != null) {
+            cli.addEnvironmentVariables(environmentVariables);
+        }
+        return cli;
     }
 
     LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime, File workspace)
