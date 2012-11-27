@@ -86,17 +86,33 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
             if (serverSettings != null) {
                 DefaultSettingsDecryptionRequest decryptRequest = new DefaultSettingsDecryptionRequest(serverSettings);
                 SettingsDecryptionResult result = decrypter.decrypt(decryptRequest);
-                Server decryptedServerSettings = result.getServer();
-                if (decryptedServerSettings == null) {
-                    for (SettingsProblem problem : result.getProblems()) {
-                        logger.info(problem.toString());
-                    }
-                    return null;
-                }
-                return new MavenRepositorySettings.Credentials(decryptedServerSettings.getUsername(),
-                        decryptedServerSettings.getPassword());
+                logProblems(result);
+                Server decryptedServer = result.getServer();
+                return new MavenRepositorySettings.Credentials(decryptedServer.getUsername(),
+                        decryptedServer.getPassword());
             }
             return null;
+        }
+
+        private void logProblems(SettingsDecryptionResult decryptionResult) {
+            boolean hasErrors = false;
+            for (SettingsProblem problem : decryptionResult.getProblems()) {
+                switch (problem.getSeverity()) {
+                case FATAL:
+                case ERROR:
+                    logger.error(problem.toString());
+                    hasErrors = true;
+                    break;
+                case WARNING:
+                    logger.warn(problem.toString());
+                    break;
+                default:
+                    throw new IllegalStateException("unknown problem severity: " + problem.getSeverity());
+                }
+            }
+            if (hasErrors) {
+                throw new RuntimeException("Error(s) while decrypting. See details above.");
+            }
         }
     }
 
