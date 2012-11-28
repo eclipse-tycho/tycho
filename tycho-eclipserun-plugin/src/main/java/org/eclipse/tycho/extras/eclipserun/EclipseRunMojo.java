@@ -170,7 +170,25 @@ public class EclipseRunMojo extends AbstractMojo {
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
 
         for (ArtifactDescriptor artifact : runtimeArtifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
-            installationDesc.addBundle(artifact);
+
+            ReactorProject reactorProject = artifact.getMavenProject();
+            if (reactorProject != null) {
+                // while reactor projects may be in the runtime, we need this special handling here
+                if (reactorProject.sameProject(project)) {
+                    // never add this project to the runtime
+                    continue;
+                }
+
+                File reactorArtifactFile = reactorProject.getArtifact(artifact.getClassifier());
+                if (reactorArtifactFile == null || !reactorArtifactFile.isFile()) {
+                    throw new MojoExecutionException(
+                            "Eclipse runtime includes artifact from the reactor which has not yet been built: "
+                                    + artifact);
+                }
+                installationDesc.addBundle(artifact.getKey(), reactorArtifactFile);
+            } else {
+                installationDesc.addBundle(artifact);
+            }
         }
 
         return installationFactory.createInstallation(installationDesc, work);
