@@ -15,42 +15,29 @@ import java.net.URI;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
-import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
-import org.apache.maven.settings.building.SettingsProblem;
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
-import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "RepositorySettingsConfigurator")
-public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
+public class RepositorySettingsConfigurator extends AbstractSettingsConfigurator {
 
     private static final ArtifactRepositoryPolicy P2_REPOSITORY_POLICY = new ArtifactRepositoryPolicy(true,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
-
-    @Requirement
-    private Logger logger;
-
-    @Requirement
-    private LegacySupport context;
 
     @Requirement
     private RepositorySystem repositorySystem;
 
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
-
-    @Requirement
-    private SettingsDecrypter decrypter;
 
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
@@ -93,27 +80,5 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
             }
             return null;
         }
-
-        private void logProblems(SettingsDecryptionResult decryptionResult) {
-            boolean hasErrors = false;
-            for (SettingsProblem problem : decryptionResult.getProblems()) {
-                switch (problem.getSeverity()) {
-                case FATAL:
-                case ERROR:
-                    logger.error(problem.toString());
-                    hasErrors = true;
-                    break;
-                case WARNING:
-                    logger.warn(problem.toString());
-                    break;
-                default:
-                    throw new IllegalStateException("unknown problem severity: " + problem.getSeverity());
-                }
-            }
-            if (hasErrors) {
-                throw new RuntimeException("Error(s) while decrypting. See details above.");
-            }
-        }
     }
-
 }

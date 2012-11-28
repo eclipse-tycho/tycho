@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -96,14 +97,17 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
     }
 
     @Test
-    public void testProxyWithAuthentication() throws Exception {
+    public void testProxyWithAuthenticationEncryptedPassword() throws Exception {
         final String proxyUser = "foo";
         final String proxyPassword = "bar";
+        final String proxyPasswordEncrypted = "{kw/hJWrJhk0H93GVJNM/IbE7RQot5UfTKlAVLDfyDG8=}";
         startHttpProxyServer(true, proxyUser, proxyPassword);
         Verifier verifier = getVerifier(TEST_BASEDIR, false);
-        configureProxyInSettingsXml(true, proxyUser, proxyPassword);
+        configureProxyInSettingsXml(true, proxyUser, proxyPasswordEncrypted);
         replaceSettingsArg(verifier);
-        verifier.getSystemProperties().setProperty("p2.repo", getP2RepoUrl());
+        Properties systemProperties = verifier.getSystemProperties();
+        systemProperties.setProperty("p2.repo", getP2RepoUrl());
+        systemProperties.setProperty("settings.security", new File(baseDir, "settings-security.xml").getAbsolutePath());
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
         List<String> accessedUris = proxyServlet.getAccessedUris();
