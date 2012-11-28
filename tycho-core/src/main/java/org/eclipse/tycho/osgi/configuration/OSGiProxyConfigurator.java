@@ -13,30 +13,16 @@ package org.eclipse.tycho.osgi.configuration;
 import java.util.Locale;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.settings.Proxy;
-import org.apache.maven.settings.building.SettingsProblem;
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
-import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.facade.ProxyServiceFacade;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "P2ProxyConfigurator")
-public class OSGiProxyConfigurator extends EquinoxLifecycleListener {
-    @Requirement
-    private Logger logger;
-
-    @Requirement
-    private LegacySupport context;
-
-    @Requirement
-    private SettingsDecrypter decrypter;
-
+public class OSGiProxyConfigurator extends AbstractSettingsConfigurator {
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
@@ -62,18 +48,13 @@ public class OSGiProxyConfigurator extends EquinoxLifecycleListener {
         String protocol = proxy.getProtocol();
 
         if (isSupportedProtocol(protocol)) {
-            logger.debug("Configuring proxy for protocol " + protocol + ": host=" + proxy.getHost() + ", port="
-                    + proxy.getPort() + ", nonProxyHosts=" + proxy.getNonProxyHosts() + "");
 
             DefaultSettingsDecryptionRequest decryptRequest = new DefaultSettingsDecryptionRequest(proxy);
             SettingsDecryptionResult result = decrypter.decrypt(decryptRequest);
-            proxy = result.getProxy() != null ? result.getProxy() : proxy;
-            if (result.getProxy() == null) {
-                for (SettingsProblem problem : result.getProblems()) {
-                    logger.info(problem.toString());
-                }
-            }
-
+            logProblems(result);
+            proxy = result.getProxy();
+            logger.debug("Configuring proxy for protocol " + protocol + ": host=" + proxy.getHost() + ", port="
+                    + proxy.getPort() + ", nonProxyHosts=" + proxy.getNonProxyHosts());
             proxyService.configureProxy(protocol, proxy.getHost(), proxy.getPort(), proxy.getUsername(),
                     proxy.getPassword(), proxy.getNonProxyHosts());
 
