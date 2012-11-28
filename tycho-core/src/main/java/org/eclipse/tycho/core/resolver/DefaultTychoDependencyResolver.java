@@ -58,6 +58,11 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
             return;
         }
 
+        // skip if setup was already done
+        if (project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES) != null) {
+            return;
+        }
+
         // generic Eclipse/OSGi metadata
 
         dr.setupProject(session, project);
