@@ -184,10 +184,13 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         executeMojo(session, getProject(projects, "feature02"), "build-qualifier-aggregator");
         executeMojo(session, getProject(projects, "feature"), "build-qualifier-aggregator");
 
-        assertQualifier("201205191500", projects, "feature");
-        assertQualifier("201205191500", projects, "bundle01");
-        assertQualifier("201205191300", projects, "feature02");
         assertQualifier("201205192000", projects, "bundle02");
+        // feature02 includes bundle02, but its qualifier is hard-coded via the manifest
+        assertQualifier("201205191300", projects, "feature02");
+
+        assertQualifier("201205191500", projects, "bundle01");
+        // feature includes both bundle01 and feature02, and hence transitively also bundle01, but qualifier is only the max. of direct inclusions
+        assertQualifier("201205191500", projects, "feature");
     }
 
     public void testUnparsableIncludedArtifactQualifier() throws Exception {
