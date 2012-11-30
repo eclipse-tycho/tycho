@@ -11,11 +11,13 @@
 package org.eclipse.tycho.extras.sourcefeature;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
@@ -30,11 +32,12 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
@@ -110,11 +113,6 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     private MavenProjectHelper projectHelper;
 
-    /**
-     * @component role="org.eclipse.tycho.core.TychoProject"
-     */
-    private Map<String, TychoProject> projectTypes;
-
     /** @component */
     private EquinoxServiceFactory equinox;
 
@@ -130,33 +128,23 @@ public class SourceFeatureMojo extends AbstractMojo {
 
         File outputJarFile = getOutputJarFile();
 
-        TychoProject tychoProject = projectTypes.get(project.getPackaging());
-
-        if (tychoProject == null) {
-            throw new MojoExecutionException("Is not a supported tycho project " + project);
-        }
-
-        MavenArchiver archiver = new MavenArchiver();
-        archiver.setArchiver(jarArchiver);
-        archiver.setOutputFile(outputJarFile);
-
         try {
-            File sourceFeatireDir = getSourcesFeatureDir(project);
-            File featureXml = new File(sourceFeatireDir, Feature.FEATURE_XML);
+            File sourceFeatureDir = getSourcesFeatureDir(project);
+            File featureXml = new File(sourceFeatureDir, Feature.FEATURE_XML);
+            Feature feature = Feature.read(new File(this.project.getBuild().getDirectory(), "feature.xml"));
 
-            TargetPlatform targetPlatform = tychoProject.getTargetPlatform(project);
-
-            final Feature sourceFeature = getSourceFeature(project, targetPlatform);
+            final Feature sourceFeature = createSourceFeatureSkeleton(feature, readSourceFeatureProperties());
+            fillReferences(sourceFeature, feature, TychoProjectUtils.getTargetPlatform(project));
 
             Feature.write(sourceFeature, featureXml);
 
-            DefaultFileSet mainFileSet = new DefaultFileSet();
-            mainFileSet.setDirectory(template);
-
-            archiver.getArchiver().addFileSet(mainFileSet);
-
+            MavenArchiver archiver = new MavenArchiver();
+            archiver.setArchiver(jarArchiver);
+            archiver.setOutputFile(outputJarFile);
+            DefaultFileSet templateFileSet = new DefaultFileSet();
+            templateFileSet.setDirectory(template);
+            archiver.getArchiver().addFileSet(templateFileSet);
             archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
-
             archiver.createArchive(project, archive);
 
             projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
@@ -174,14 +162,30 @@ public class SourceFeatureMojo extends AbstractMojo {
         return dir;
     }
 
-    private Feature getSourceFeature(MavenProject project, TargetPlatform targetPlatform) throws IOException,
-            MojoExecutionException {
-        P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
-        P2Resolver p2 = factory.createResolver(new MavenLoggerAdapter(logger, DebugUtils.isDebugEnabled(session,
-                project)));
+    private Properties readSourceFeatureProperties() throws IOException {
+        String sourceFeaturePropertiesPath = FEATURE_TEMPLATE_DIR + "/feature.properties";
+        File sourceFeaturePropertiesFile = new File(project.getBasedir(), sourceFeaturePropertiesPath);
+        Properties sourceFeatureProperties = new Properties();
+        if (sourceFeaturePropertiesFile.isFile()) {
+            FileInputStream propertiesStream = null;
+            try {
+                propertiesStream = new FileInputStream(sourceFeaturePropertiesFile);
+                sourceFeatureProperties.load(propertiesStream);
+            } finally {
+                IOUtil.close(propertiesStream);
+            }
+        } else {
+            logger.debug("No '" + sourceFeaturePropertiesPath + "' available.");
+        }
+        return sourceFeatureProperties;
+    }
 
-        Feature feature = Feature.read(new File(project.getBuild().getDirectory(), "feature.xml"));
-
+    /**
+     * This only create the new feature skeleton by setting labels and other not-structural values
+     * that don't require platform resolution.
+     */
+    Feature createSourceFeatureSkeleton(Feature feature, Properties sourceFeatureProperties)
+            throws FileNotFoundException, IOException, MojoExecutionException {
         Document document = new Document();
         document.setRootNode(new Element("feature"));
         document.setXmlDeclaration(new XMLDeclaration("1.0", "UTF-8"));
@@ -194,6 +198,67 @@ public class SourceFeatureMojo extends AbstractMojo {
         binaryRef.setId(feature.getId());
         binaryRef.setVersion(feature.getVersion());
         sourceFeature.addFeatureRef(binaryRef);
+
+        if (feature.getLabel() != null) {
+            sourceFeature.setLabel(validateValue(feature.getLabel(), sourceFeatureProperties));
+        }
+        if (feature.getProvider() != null) {
+            sourceFeature.setProvider(validateValue(feature.getProvider(), sourceFeatureProperties));
+        }
+        if (feature.getDescription() != null) {
+            sourceFeature.setDescription(validateValue(feature.getDescription(), sourceFeatureProperties));
+        }
+        if (feature.getDescriptionURL() != null) {
+            sourceFeature.setDescriptionURL(validateValue(feature.getDescriptionURL(), sourceFeatureProperties));
+        }
+        if (feature.getCopyright() != null) {
+            sourceFeature.setCopyright(validateValue(feature.getCopyright(), sourceFeatureProperties));
+        }
+        if (feature.getCopyrightURL() != null) {
+            sourceFeature.setCopyrightURL(validateValue(feature.getCopyrightURL(), sourceFeatureProperties));
+        }
+        if (feature.getLicense() != null) {
+            sourceFeature.setLicense(validateValue(feature.getLicense(), sourceFeatureProperties));
+        }
+        if (feature.getLicenseURL() != null) {
+            sourceFeature.setLicenseURL(validateValue(feature.getLicenseURL(), sourceFeatureProperties));
+        }
+        return sourceFeature;
+    }
+
+    /**
+     * Returns the value for a field. In case the value is a reference to feature.properties, verify
+     * that the entry exist in the feature.properties file for source
+     * 
+     * @param fieldValue
+     * @param sourceFeatureProperties
+     * @return
+     */
+    private static String validateValue(String fieldValue, Properties sourceFeatureProperties)
+            throws MojoExecutionException {
+        if (fieldValue.charAt(0) == '%') {
+            String key = fieldValue.substring(1);
+            if (!sourceFeatureProperties.containsKey(key)) {
+                throw new MojoExecutionException("Source feature depends on '" + FEATURE_TEMPLATE_DIR
+                        + "/feature.properties', entry '" + key + "'. However, this key could not be found");
+            }
+        }
+        return fieldValue;
+    }
+
+    /**
+     * Added all references to sourceFeature, as deduced by feature and resolved by targetPlatform
+     * 
+     * @param sourceFeature
+     * @param feature
+     * @param targetPlatform
+     * @throws MojoExecutionException
+     */
+    private void fillReferences(Feature sourceFeature, Feature feature, TargetPlatform targetPlatform)
+            throws MojoExecutionException {
+        P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
+        P2Resolver p2 = factory.createResolver(new MavenLoggerAdapter(this.logger, DebugUtils.isDebugEnabled(
+                this.session, this.project)));
 
         List<PluginRef> missingSourcePlugins = new ArrayList<PluginRef>();
         List<FeatureRef> missingSourceFeatures = new ArrayList<FeatureRef>();
@@ -270,7 +335,6 @@ public class SourceFeatureMojo extends AbstractMojo {
             throw new MojoExecutionException(sb.toString());
         }
 
-        return sourceFeature;
     }
 
     protected String toStrictVersionRange(String version) {
@@ -352,4 +416,5 @@ public class SourceFeatureMojo extends AbstractMojo {
         }
         return attr;
     }
+
 }

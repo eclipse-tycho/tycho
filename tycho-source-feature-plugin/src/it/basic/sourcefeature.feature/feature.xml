@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="sourcefeature.feature"
-      label="sourcefeature.feature"
-      version="1.0.0.qualifier">
+      label="%label"
+      version="1.0.0.qualifier"
+      provider-name="Eclipse.org">
 
    <includes
          id="sourcefeature.feature.indirect"
