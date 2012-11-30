@@ -36,6 +36,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
      */
     private File targetFile;
 
+    @Override
     protected void doUpdate() throws IOException, URISyntaxException {
 
         TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);

@@ -15,25 +15,25 @@ import java.io.File;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 
 public class TPError extends Exception {
-	
-	private File file;
 
-	public TPError(File file, Exception cause) {
-		super(cause);
-		this.file = file;
-	}
-	
-	@Override
-	public String getMessage() {
-		StringBuilder res = new StringBuilder();
-		res.append("Could not resolve content of ");
-		res.append(this.file.getName());
-		res.append('\n');
-		if (getCause() instanceof TargetDefinitionResolutionException) {
-			TargetDefinitionResolutionException cause = (TargetDefinitionResolutionException)getCause();
-			res.append(cause.getMessage());
-		}
-		return res.toString();
-	}
+    private File file;
+
+    public TPError(File file, Exception cause) {
+        super(cause);
+        this.file = file;
+    }
+
+    @Override
+    public String getMessage() {
+        StringBuilder res = new StringBuilder();
+        res.append("Could not resolve content of ");
+        res.append(this.file.getName());
+        res.append('\n');
+        if (getCause() instanceof TargetDefinitionResolutionException) {
+            TargetDefinitionResolutionException cause = (TargetDefinitionResolutionException) getCause();
+            res.append(cause.getMessage());
+        }
+        return res.toString();
+    }
 
 }
