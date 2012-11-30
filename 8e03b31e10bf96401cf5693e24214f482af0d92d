@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOJ3///lg\u003d",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "why is this needed for this change?",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///lc\u003d",
+        "filename": "tycho-its/projects/surefire.junit47/fork/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "don\u0027t depend on remote repos in ITs for speed and reliability reasons. Rather use one of the the checked-in repos in tycho-its/repositories",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///lY\u003d",
+        "filename": "tycho-its/projects/surefire.junit47/fork/src/org/eclipse/tychoits/Test1.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "There must be better and more explicit ways to check if two tests have been run in the same VM.\nE.g. in each test, first check if a shared static boolean was not changed from its default value.\nFail the test if the value was changed (by the other test) and then always change it (so we don\u0027t depend on test execution order).\n\nOr, register a VM a shutdown hook which writes a unique marker temp file  in a folder. If you find two files in the folder, there were two VM starts.",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///lI\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "do we really want to expose this as API?",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///lU\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "0.16.1 ? not exactly the kind of change that would qualify for a patch release.",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///lQ\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "use an enum to get value validation for free.",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///lM\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "error handling",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///lE\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "may want to keep these separate as \"workspace-\u003cn\u003e\" as they can contain data needed for analysing test failures",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///k8\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "?",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJ3///k4\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/ThreadedStreamConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T10:32:30Z",
+      "side": 1,
+      "message": "copying code means file a CQ with \"modified\" flag. I.e. we fork the original project. technical debt.",
+      "revId": "8e03b31e10bf96401cf5693e24214f482af0d92d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
