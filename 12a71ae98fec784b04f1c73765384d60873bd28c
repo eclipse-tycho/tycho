@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOJ3///mY\u003d",
+        "filename": "tycho-maven-plugin/src/main/resources/META-INF/plexus/components.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2012-11-30T07:58:11Z",
+      "side": 1,
+      "message": "not sure why validate-id and validate-version are needed for this fix or if they make sense at all for eclipse-repository",
+      "revId": "12a71ae98fec784b04f1c73765384d60873bd28c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
