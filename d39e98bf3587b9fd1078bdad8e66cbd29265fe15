@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "AABOJX//+4E\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/MutableBundleManifest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2012-12-06T20:37:21Z",
+      "side": 1,
+      "message": "As far as I remember, this would lead to the same problem as you get a a string for the given header entry, which must be treated with regex, too, However I will take a look at this",
+      "parentUuid": "AABOJX//+4w\u003d",
+      "revId": "d39e98bf3587b9fd1078bdad8e66cbd29265fe15",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOJX//+4o\u003d",
         "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/MutableBundleManifest.java",
         "patchSetId": 1
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "AABOJX//+4I\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/MutableBundleManifest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2012-12-06T20:37:21Z",
+      "side": 1,
+      "message": "You need this as the version from the bundle can contain .qualifier. Otherwise the exported package version could be \"1.2.3.qualifier\", which isn\u0027t allowed.",
+      "parentUuid": "AABOJX//+4o\u003d",
+      "revId": "d39e98bf3587b9fd1078bdad8e66cbd29265fe15",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOJX//+4s\u003d",
         "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/VersionChange.java",
         "patchSetId": 1
@@ -64,6 +100,24 @@
       "writtenOn": "2012-11-21T09:36:20Z",
       "side": 1,
       "message": "is the new boolean field updateExportedPackages equals/hashCode relevant?",
+      "revId": "d39e98bf3587b9fd1078bdad8e66cbd29265fe15",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOJX//+4A\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/VersionChange.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2012-12-06T20:37:21Z",
+      "side": 1,
+      "message": "Actually I don\u0027t know where this is every used, but I think it isn\u0027t relevant",
+      "parentUuid": "AABOJX//+4s\u003d",
       "revId": "d39e98bf3587b9fd1078bdad8e66cbd29265fe15",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
