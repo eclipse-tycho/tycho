@@ -60,7 +60,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-source-feature-plugin");
         if (plugin != null) {
             try {
-                File sourceFeatureBasedir = SourceFeatureMojo.getSourcesFeatureDir(project);
+                File sourceFeatureBasedir = SourceFeatureMojo.getSourcesFeatureOutputDir(project);
 
                 /*
                  * There is no easy way to determine what *exact* source bundles/features will be

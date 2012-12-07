@@ -12,7 +12,7 @@ package org.eclipse.tycho.extras.sourcefeature;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,6 +60,9 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     public static final String SOURCES_FEATURE_CLASSIFIER = "sources-feature";
 
+    private static final String FEATURE_PROPERTIES = "feature.properties";
+
+    private static final String GEN_DIR = "sources-feature";
     /**
      * @parameter default-value="${project}"
      */
@@ -129,22 +132,19 @@ public class SourceFeatureMojo extends AbstractMojo {
         File outputJarFile = getOutputJarFile();
 
         try {
-            File sourceFeatureDir = getSourcesFeatureDir(project);
-            File featureXml = new File(sourceFeatureDir, Feature.FEATURE_XML);
-            Feature feature = Feature.read(new File(this.project.getBuild().getDirectory(), "feature.xml"));
-
-            final Feature sourceFeature = createSourceFeatureSkeleton(feature, readSourceFeatureProperties());
-            fillReferences(sourceFeature, feature, TychoProjectUtils.getTargetPlatform(project));
-
-            Feature.write(sourceFeature, featureXml);
+            Properties mergedSourceFeatureProps = generateMergedSourceFeatureProperties();
+            File sourceFeatureXml = generateSourceFeatureXml(mergedSourceFeatureProps);
 
             MavenArchiver archiver = new MavenArchiver();
             archiver.setArchiver(jarArchiver);
             archiver.setOutputFile(outputJarFile);
             DefaultFileSet templateFileSet = new DefaultFileSet();
             templateFileSet.setDirectory(template);
+            // make sure we use generated feature.xml and feature.properties 
+            templateFileSet.setExcludes(new String[] { Feature.FEATURE_XML, FEATURE_PROPERTIES });
             archiver.getArchiver().addFileSet(templateFileSet);
-            archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
+            archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);
+            archiver.getArchiver().addFile(getMergedSourceFeaturePropertiesFile(), FEATURE_PROPERTIES);
             archiver.createArchive(project, archive);
 
             projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);
@@ -155,37 +155,71 @@ public class SourceFeatureMojo extends AbstractMojo {
         }
     }
 
-    static File getSourcesFeatureDir(MavenProject project) {
-        File dir = new File(project.getBuild().getDirectory(), SOURCES_FEATURE_CLASSIFIER);
+    static File getSourcesFeatureOutputDir(MavenProject project) {
+        File dir = new File(project.getBuild().getDirectory(), GEN_DIR);
         dir.mkdirs();
         new File(dir, "p2.inf").delete();
         return dir;
     }
 
-    private Properties readSourceFeatureProperties() throws IOException {
-        String sourceFeaturePropertiesPath = FEATURE_TEMPLATE_DIR + "/feature.properties";
-        File sourceFeaturePropertiesFile = new File(project.getBasedir(), sourceFeaturePropertiesPath);
-        Properties sourceFeatureProperties = new Properties();
-        if (sourceFeaturePropertiesFile.isFile()) {
+    private Properties generateMergedSourceFeatureProperties() throws IOException {
+        Properties generatedOriginalFeatureProps = readPropertiesIfExists(new File(project.getBuild().getDirectory(),
+                FEATURE_PROPERTIES));
+        Properties sourceFeatureTemplateProps = readPropertiesIfExists(new File(project.getBasedir(),
+                FEATURE_TEMPLATE_DIR + "/" + FEATURE_PROPERTIES));
+        Properties mergedProperties = new Properties();
+        mergedProperties.putAll(generatedOriginalFeatureProps);
+        mergedProperties.putAll(sourceFeatureTemplateProps);
+        writeProperties(mergedProperties, getMergedSourceFeaturePropertiesFile());
+        return mergedProperties;
+    }
+
+    private File generateSourceFeatureXml(Properties mergedSourceFeatureProps) throws IOException,
+            MojoExecutionException {
+        File sourceFeatureXml = new File(getSourcesFeatureOutputDir(project), Feature.FEATURE_XML);
+        Feature feature = Feature.read(new File(this.project.getBuild().getDirectory(), "feature.xml"));
+
+        final Feature sourceFeature = createSourceFeatureSkeleton(feature, mergedSourceFeatureProps);
+        fillReferences(sourceFeature, feature, TychoProjectUtils.getTargetPlatform(project));
+
+        Feature.write(sourceFeature, sourceFeatureXml);
+        return sourceFeatureXml;
+    }
+
+    private File getMergedSourceFeaturePropertiesFile() {
+        return new File(getSourcesFeatureOutputDir(project), FEATURE_PROPERTIES);
+    }
+
+    private static Properties readPropertiesIfExists(File propertiesFile) throws IOException {
+        Properties properties = new Properties();
+        if (propertiesFile.isFile()) {
             FileInputStream propertiesStream = null;
             try {
-                propertiesStream = new FileInputStream(sourceFeaturePropertiesFile);
-                sourceFeatureProperties.load(propertiesStream);
+                propertiesStream = new FileInputStream(propertiesFile);
+                properties.load(propertiesStream);
             } finally {
                 IOUtil.close(propertiesStream);
             }
-        } else {
-            logger.debug("No '" + sourceFeaturePropertiesPath + "' available.");
         }
-        return sourceFeatureProperties;
+        return properties;
+    }
+
+    private static void writeProperties(Properties props, File propertiesFile) throws IOException {
+        propertiesFile.getParentFile().mkdirs();
+        FileOutputStream out = new FileOutputStream(propertiesFile);
+        try {
+            props.save(out, "");
+        } finally {
+            IOUtil.close(out);
+        }
     }
 
     /**
      * This only create the new feature skeleton by setting labels and other not-structural values
      * that don't require platform resolution.
      */
-    Feature createSourceFeatureSkeleton(Feature feature, Properties sourceFeatureProperties)
-            throws FileNotFoundException, IOException, MojoExecutionException {
+    Feature createSourceFeatureSkeleton(Feature feature, Properties sourceFeatureProperties) throws IOException,
+            MojoExecutionException {
         Document document = new Document();
         document.setRootNode(new Element("feature"));
         document.setXmlDeclaration(new XMLDeclaration("1.0", "UTF-8"));
