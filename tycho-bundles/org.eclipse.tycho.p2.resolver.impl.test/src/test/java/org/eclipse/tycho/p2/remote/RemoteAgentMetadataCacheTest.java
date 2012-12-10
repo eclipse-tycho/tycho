@@ -44,7 +44,7 @@ public class RemoteAgentMetadataCacheTest {
 
     private File localMavenRepository;
 
-    private MavenLogger logger = new MemoryLog(false);
+    private MavenLogger logger = new MemoryLog();
 
     @Before
     public void startHttpServer() throws Exception {

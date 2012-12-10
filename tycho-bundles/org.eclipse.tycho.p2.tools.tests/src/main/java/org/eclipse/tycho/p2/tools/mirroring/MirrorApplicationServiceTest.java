@@ -70,7 +70,7 @@ public class MirrorApplicationServiceTest {
 
     @Before
     public void initTestContext() {
-        logger = new MemoryLog(true);
+        logger = new MemoryLog();
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
         File outputFolder = tempFolder.getRoot();

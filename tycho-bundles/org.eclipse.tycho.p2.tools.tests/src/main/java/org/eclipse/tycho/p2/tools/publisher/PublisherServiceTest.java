@@ -64,7 +64,7 @@ public class PublisherServiceTest {
     private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
             .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
 
-    private MemoryLog mavenLogger = new MemoryLog(true);
+    private MemoryLog mavenLogger = new MemoryLog();
 
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();

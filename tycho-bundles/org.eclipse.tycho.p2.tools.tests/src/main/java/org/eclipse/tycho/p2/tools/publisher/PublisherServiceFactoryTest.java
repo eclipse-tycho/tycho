@@ -51,7 +51,7 @@ public class PublisherServiceFactoryTest {
     }
 
     private static MavenContext createMavenContext() {
-        MavenContext mavenContext = new MavenContextImpl(null, false, new MemoryLog(true), null);
+        MavenContext mavenContext = new MavenContextImpl(null, false, new MemoryLog(), null);
         return mavenContext;
     }
 

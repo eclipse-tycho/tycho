@@ -48,7 +48,7 @@ public class MirrorStandaloneTest {
 
     @Before
     public void initTestContext() {
-        MavenLogger logger = new MemoryLog(true);
+        MavenLogger logger = new MemoryLog();
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
         subject = new MirrorApplicationServiceImpl();
         MavenContext mavenContext = new MavenContextImpl(null, false, logger, null);

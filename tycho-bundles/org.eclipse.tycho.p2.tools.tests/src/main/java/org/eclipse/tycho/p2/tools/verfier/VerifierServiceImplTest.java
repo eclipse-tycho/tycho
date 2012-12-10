@@ -14,6 +14,8 @@ import static org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest.
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.tycho.BuildOutputDirectory;
@@ -31,7 +33,7 @@ import org.junit.rules.TemporaryFolder;
 @SuppressWarnings("boxing")
 public class VerifierServiceImplTest {
 
-    private MemoryLog logger;
+    private ErrorStoreMemoryLog logger;
     private VerifierServiceImpl subject;
 
     @Rule
@@ -40,7 +42,7 @@ public class VerifierServiceImplTest {
     @Before
     public void setup() {
         subject = new VerifierServiceImpl();
-        logger = new MemoryLog(false);
+        logger = new ErrorStoreMemoryLog();
         MavenContext mavenContext = new MavenContextImpl(null, false, logger, null);
         subject.setMavenContext(mavenContext);
     }
@@ -97,6 +99,15 @@ public class VerifierServiceImplTest {
     private boolean verify(final RepositoryReferences repositories) throws FacadeException {
         return subject.verify(repositories.getMetadataRepositories().get(0), repositories.getArtifactRepositories()
                 .get(0), new BuildOutputDirectory(tempFolder.getRoot()));
+    }
+
+    class ErrorStoreMemoryLog extends MemoryLog {
+        List<String> errors = new ArrayList<String>();
+
+        @Override
+        public void error(String message) {
+            errors.add(message);
+        }
     }
 
 }

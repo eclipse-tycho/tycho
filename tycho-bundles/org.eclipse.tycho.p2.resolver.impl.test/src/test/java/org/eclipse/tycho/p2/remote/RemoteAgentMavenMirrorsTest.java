@@ -46,7 +46,7 @@ public class RemoteAgentMavenMirrorsTest {
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();
 
-    private MavenLogger logger = new MemoryLog(true);
+    private MavenLogger logger = new MemoryLog();
 
     private HttpServer localServer;
 

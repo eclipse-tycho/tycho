@@ -66,7 +66,7 @@ public class TargetPlatformFilterEvaluatorTest {
         baselineUnits = loadTestUnits(); // TODO do this in beforeClass -> requires @ClassRule from junit >= 4.9
         workUnits = new LinkedHashSet<IInstallableUnit>(baselineUnits);
 
-        logger = new MemoryLog(true);
+        logger = new MemoryLog();
     }
 
     private Set<IInstallableUnit> loadTestUnits() throws Exception {

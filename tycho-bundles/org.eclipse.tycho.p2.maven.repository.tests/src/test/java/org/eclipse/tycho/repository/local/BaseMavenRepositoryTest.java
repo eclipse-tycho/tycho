@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,14 +16,12 @@ import java.util.Properties;
 
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
-import org.eclipse.tycho.locking.facade.FileLockService;
-import org.eclipse.tycho.locking.facade.FileLocker;
-import org.eclipse.tycho.locking.facade.LockTimeoutException;
 import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -39,7 +37,7 @@ public abstract class BaseMavenRepositoryTest {
     @Before
     public void createLocalRepoIndices() {
         baseDir = tempFolder.newFolder("repository");
-        MavenContext mavenContext = new MavenContextImpl(baseDir, false, new MemoryLog(false), new Properties());
+        MavenContext mavenContext = new MavenContextImpl(baseDir, false, new MemoryLog(), new Properties());
         LocalRepositoryP2IndicesImpl tempLocalRepoIndices = new LocalRepositoryP2IndicesImpl();
         tempLocalRepoIndices.setMavenContext(mavenContext);
         tempLocalRepoIndices.setFileLockService(new NoopFileLockService());
@@ -54,30 +52,4 @@ public abstract class BaseMavenRepositoryTest {
         return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService());
     }
 
-    private static class NoopFileLockService implements FileLockService {
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.eclipse.tycho.locking.facade.FileLockService#getFileLocker(java.io.File)
-         */
-        public FileLocker getFileLocker(File file) {
-            return new FileLocker() {
-
-                public void release() {
-                }
-
-                public void lock(long timeout) throws LockTimeoutException {
-                }
-
-                public void lock() throws LockTimeoutException {
-                }
-
-                public boolean isLocked() {
-                    return false;
-                }
-            };
-        }
-
-    }
 }

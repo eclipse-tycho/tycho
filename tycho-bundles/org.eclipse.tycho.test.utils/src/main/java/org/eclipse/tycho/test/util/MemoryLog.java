@@ -16,20 +16,14 @@ import java.util.List;
 import org.eclipse.tycho.core.facade.MavenLogger;
 
 public class MemoryLog implements MavenLogger {
-    private final boolean failOnError;
 
     public final List<String> warnings = new ArrayList<String>();
-    public final List<String> errors = new ArrayList<String>();
 
-    public MemoryLog(boolean failOnError) {
-        this.failOnError = failOnError;
+    public MemoryLog() {
     }
 
     public void error(String message) {
-        if (failOnError)
-            throw new RuntimeException(message);
-        else
-            errors.add(message);
+        throw new RuntimeException(message);
     }
 
     public void warn(String message) {
