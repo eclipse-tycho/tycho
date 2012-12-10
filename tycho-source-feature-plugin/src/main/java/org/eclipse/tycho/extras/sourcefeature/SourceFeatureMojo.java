@@ -69,6 +69,13 @@ public class SourceFeatureMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
+     * Whether to skip source feature generation.
+     * 
+     * @parameter default-value="false"
+     */
+    private boolean skip;
+
+    /**
      * Bundles and features that do not have corresponding sources.
      * 
      * @parameter
@@ -123,9 +130,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     private Logger logger;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File template = new File(project.getBasedir(), FEATURE_TEMPLATE_DIR);
-
-        if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || !template.isDirectory()) {
+        if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
             return;
         }
 
@@ -138,11 +143,14 @@ public class SourceFeatureMojo extends AbstractMojo {
             MavenArchiver archiver = new MavenArchiver();
             archiver.setArchiver(jarArchiver);
             archiver.setOutputFile(outputJarFile);
-            DefaultFileSet templateFileSet = new DefaultFileSet();
-            templateFileSet.setDirectory(template);
-            // make sure we use generated feature.xml and feature.properties 
-            templateFileSet.setExcludes(new String[] { Feature.FEATURE_XML, FEATURE_PROPERTIES });
-            archiver.getArchiver().addFileSet(templateFileSet);
+            File template = new File(project.getBasedir(), FEATURE_TEMPLATE_DIR);
+            if (template.isDirectory()) {
+                DefaultFileSet templateFileSet = new DefaultFileSet();
+                templateFileSet.setDirectory(template);
+                // make sure we use generated feature.xml and feature.properties 
+                templateFileSet.setExcludes(new String[] { Feature.FEATURE_XML, FEATURE_PROPERTIES });
+                archiver.getArchiver().addFileSet(templateFileSet);
+            }
             archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);
             archiver.getArchiver().addFile(getMergedSourceFeaturePropertiesFile(), FEATURE_PROPERTIES);
             archiver.createArchive(project, archive);

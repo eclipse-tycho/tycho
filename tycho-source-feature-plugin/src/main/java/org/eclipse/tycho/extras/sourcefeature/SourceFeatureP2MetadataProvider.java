@@ -24,6 +24,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -51,14 +52,16 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
 
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
-        File template = new File(project.getBasedir(), SourceFeatureMojo.FEATURE_TEMPLATE_DIR);
-
-        if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || !template.isDirectory()) {
+        if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
             return null;
         }
-
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-source-feature-plugin");
         if (plugin != null) {
+            if (plugin.getConfiguration() != null && ((Xpp3Dom) plugin.getConfiguration()).getChild("skip") != null) {
+                if (Boolean.valueOf(((Xpp3Dom) plugin.getConfiguration()).getChild("skip").getValue())) {
+                    return null;
+                }
+            }
             try {
                 File sourceFeatureBasedir = SourceFeatureMojo.getSourcesFeatureOutputDir(project);
 
