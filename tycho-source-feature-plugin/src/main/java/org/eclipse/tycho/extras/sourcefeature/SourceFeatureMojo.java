@@ -52,7 +52,28 @@ import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLDeclaration;
 
 /**
+ * Generates a source feature for projects of packaging type <code>eclipse-feature</code>. By
+ * default, the generated source feature
+ * <ul>
+ * <li>Declares feature id <code>&lt;originalFeatureId&gt;.source</code></li>
+ * <li>Declares feature label <code>"&lt;originalFeatureLabel&gt; Developer Resources"</code></li>
+ * <li>If present, reuses feature provider, description, copyright and license as well as respective
+ * URLs from &lt;originalFeature&gt;</li>
+ * <li>Includes all plugins included by &lt;originalFeature&gt;, but each with <code>.source</code>
+ * appended to each plugin id</li>
+ * <li>Includes all features included by &lt;originalFeature&gt;, but each with <code>.source</code>
+ * appended to each feature id</li>
+ * <li>Includes the original feature. This ensures that binaries and corresponding sources match.</li>
+ * </ul>
+ * 
+ * Source feature generation can be customized by adding files under path
+ * <code>sourceTemplateFeature/</code>. Files added here will be added to the root of the source
+ * feature jar. Especially, if file <code>sourceTemplateFeature/feature.properties</code> is found,
+ * values in this file override values of respective keys in
+ * <code>&lt;originalFeature&gt;/feature.properties</code>.
+ * 
  * @goal source-feature
+ * @phase package
  */
 public class SourceFeatureMojo extends AbstractMojo {
 
@@ -63,8 +84,10 @@ public class SourceFeatureMojo extends AbstractMojo {
     private static final String FEATURE_PROPERTIES = "feature.properties";
 
     private static final String GEN_DIR = "sources-feature";
+
     /**
      * @parameter default-value="${project}"
+     * @readonly
      */
     private MavenProject project;
 
@@ -85,7 +108,14 @@ public class SourceFeatureMojo extends AbstractMojo {
     private String labelSuffix;
 
     /**
-     * Bundles and features that do not have corresponding sources.
+     * Bundles and features that do not have corresponding sources. Example:
+     * 
+     * <pre>
+     * &lt;excludes&gt;
+     *   &lt;plugin id="plugin.nosource"/&gt;
+     *   &lt;feature id="feature.nosource"/&gt;
+     * &lt;/excludes&gt;
+     * </pre>
      * 
      * @parameter
      */
@@ -99,7 +129,7 @@ public class SourceFeatureMojo extends AbstractMojo {
      * reactor build order.
      * <p>
      * <strong>WARNING</strong> This experimental parameter may be removed from future
-     * source-feature mojo versions without prio notice.
+     * source-feature mojo versions without prior notice.
      * 
      * @parameter
      */
@@ -108,6 +138,7 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     /**
      * @parameter default-value="${session}"
+     * @readonly
      */
     private MavenSession session;
 
