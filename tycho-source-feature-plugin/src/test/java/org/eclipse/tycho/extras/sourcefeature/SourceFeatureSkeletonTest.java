@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.sourcefeature;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -24,59 +25,69 @@ import org.junit.Test;
 
 public class SourceFeatureSkeletonTest extends AbstractMojoTestCase {
 
+    private SourceFeatureMojo mojo;
+
     @Before
     @Override
-    public void setUp() {
-        // Do nothing, we don't use lookup
+    public void setUp() throws Exception {
+        mojo = new SourceFeatureMojo();
+        setVariableValueToObject(mojo, "logger", new SilentLog());
+        setVariableValueToObject(mojo, "labelSuffix", " Developer Resources");
     }
 
     @Test
-    public void testFeatureWithLabelInProperties_OK() throws Exception {
-        SourceFeatureMojo mojo = new SourceFeatureMojo();
-        setVariableValueToObject(mojo, "logger", new SilentLog());
-        InputStream featureStream = null;
-        Feature originalFeature = null;
-        try {
-            featureStream = getClass().getResourceAsStream("/featureWithLabelInProperties.xml");
-            originalFeature = Feature.read(featureStream);
-        } finally {
-            IOUtil.close(featureStream);
-        }
+    public void testFeatureWithLabelInPropertiesDefaultSuffix() throws Exception {
+        Feature originalFeature = createFeature("/featureWithLabelInProperties.xml");
         Assert.assertEquals("%label", originalFeature.getLabel());
         Properties sourceFeatureProperties = new Properties();
-        InputStream propertiesStream = null;
-        try {
-            propertiesStream = getClass().getResourceAsStream("/labelInProperties.properties");
-            sourceFeatureProperties.load(propertiesStream);
-        } finally {
-            IOUtil.close(propertiesStream);
-        }
-
-        Feature sourceFeature = mojo.createSourceFeatureSkeleton(originalFeature, sourceFeatureProperties);
-        Assert.assertEquals("%label", sourceFeature.getLabel());
+        Properties mergedProps = new Properties();
+        mergedProps.setProperty("label", "feature label");
+        Feature sourceFeature = mojo.createSourceFeatureSkeleton(originalFeature, mergedProps, sourceFeatureProperties);
+        assertEquals("%label", sourceFeature.getLabel());
+        assertEquals("feature label Developer Resources", mergedProps.getProperty("label"));
     }
 
     @Test
-    public void testFeatureWithLabelInProperties_KO() throws Exception {
-        SourceFeatureMojo mojo = new SourceFeatureMojo();
-        setVariableValueToObject(mojo, "logger", new SilentLog());
-        InputStream featureStream = null;
-        Feature originalFeature = null;
-        try {
-            featureStream = getClass().getResourceAsStream("/featureWithLabelInProperties.xml");
-            originalFeature = Feature.read(featureStream);
-        } finally {
-            IOUtil.close(featureStream);
-        }
-        Assert.assertEquals("%label", originalFeature.getLabel());
+    public void testLabelOverriddenInSourceTemplate() throws Exception {
+        Feature originalFeature = createFeature("/featureWithLabelInProperties.xml");
         Properties sourceFeatureProperties = new Properties();
-        // Don't load properties
+        sourceFeatureProperties.setProperty("label", "source feature label");
+        Properties mergedProps = new Properties();
+        mergedProps.putAll(sourceFeatureProperties);
+        Feature sourceFeature = mojo.createSourceFeatureSkeleton(originalFeature, mergedProps, sourceFeatureProperties);
+        assertEquals("%label", sourceFeature.getLabel());
+        assertEquals("source feature label", mergedProps.getProperty("label"));
+    }
 
+    @Test
+    public void testFeatureLabelDefault() throws Exception {
+        Feature originalFeature = createFeature("/featureWithHardcodedLabel.xml");
+        assertEquals("a hardcoded label", originalFeature.getLabel());
+        Properties emptyProps = new Properties();
+        Feature sourceFeature = mojo.createSourceFeatureSkeleton(originalFeature, emptyProps, emptyProps);
+        assertEquals("a hardcoded label Developer Resources", sourceFeature.getLabel());
+    }
+
+    @Test
+    public void testFeatureLabelMissingInProperties() throws Exception {
+        Feature originalFeature = createFeature("/featureWithLabelInProperties.xml");
+        Assert.assertEquals("%label", originalFeature.getLabel());
+        Properties emptyProperties = new Properties();
         try {
-            Feature sourceFeature = mojo.createSourceFeatureSkeleton(originalFeature, sourceFeatureProperties);
+            Feature sourceFeature = mojo.createSourceFeatureSkeleton(originalFeature, emptyProperties, emptyProperties);
             fail("Expected Exception for label not found");
         } catch (MojoExecutionException ex) {
             // Success
+        }
+    }
+
+    private Feature createFeature(String fileName) throws IOException {
+        InputStream featureStream = null;
+        try {
+            featureStream = getClass().getResourceAsStream(fileName);
+            return Feature.read(featureStream);
+        } finally {
+            IOUtil.close(featureStream);
         }
     }
 

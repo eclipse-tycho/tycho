@@ -76,6 +76,15 @@ public class SourceFeatureMojo extends AbstractMojo {
     private boolean skip;
 
     /**
+     * Source feature label suffix. Unless explicitly provided in
+     * <code>sourceTemplateFeature/feature.properties</code>, this suffix will be appended to the
+     * original feature label to construct the source feature label.
+     * 
+     * @parameter default-value=" Developer Resources"
+     */
+    private String labelSuffix;
+
+    /**
      * Bundles and features that do not have corresponding sources.
      * 
      * @parameter
@@ -133,15 +142,14 @@ public class SourceFeatureMojo extends AbstractMojo {
         if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
             return;
         }
-
-        File outputJarFile = getOutputJarFile();
-
         try {
-            Properties mergedSourceFeatureProps = generateMergedSourceFeatureProperties();
-            File sourceFeatureXml = generateSourceFeatureXml(mergedSourceFeatureProps);
-
+            Properties sourceFeatureTemplateProps = readSourceTemplateFeatureProperties();
+            Properties mergedSourceFeatureProps = mergeFeatureProperties(sourceFeatureTemplateProps);
+            File sourceFeatureXml = generateSourceFeatureXml(mergedSourceFeatureProps, sourceFeatureTemplateProps);
+            writeProperties(mergedSourceFeatureProps, getMergedSourceFeaturePropertiesFile());
             MavenArchiver archiver = new MavenArchiver();
             archiver.setArchiver(jarArchiver);
+            File outputJarFile = getOutputJarFile();
             archiver.setOutputFile(outputJarFile);
             File template = new File(project.getBasedir(), FEATURE_TEMPLATE_DIR);
             if (template.isDirectory()) {
@@ -166,28 +174,31 @@ public class SourceFeatureMojo extends AbstractMojo {
     static File getSourcesFeatureOutputDir(MavenProject project) {
         File dir = new File(project.getBuild().getDirectory(), GEN_DIR);
         dir.mkdirs();
+        // TODO why is this needed?
         new File(dir, "p2.inf").delete();
         return dir;
     }
 
-    private Properties generateMergedSourceFeatureProperties() throws IOException {
+    private Properties mergeFeatureProperties(Properties sourceFeatureTemplateProps) throws IOException {
         Properties generatedOriginalFeatureProps = readPropertiesIfExists(new File(project.getBuild().getDirectory(),
                 FEATURE_PROPERTIES));
-        Properties sourceFeatureTemplateProps = readPropertiesIfExists(new File(project.getBasedir(),
-                FEATURE_TEMPLATE_DIR + "/" + FEATURE_PROPERTIES));
         Properties mergedProperties = new Properties();
         mergedProperties.putAll(generatedOriginalFeatureProps);
         mergedProperties.putAll(sourceFeatureTemplateProps);
-        writeProperties(mergedProperties, getMergedSourceFeaturePropertiesFile());
         return mergedProperties;
     }
 
-    private File generateSourceFeatureXml(Properties mergedSourceFeatureProps) throws IOException,
-            MojoExecutionException {
+    private Properties readSourceTemplateFeatureProperties() throws IOException {
+        return readPropertiesIfExists(new File(project.getBasedir(), FEATURE_TEMPLATE_DIR + "/" + FEATURE_PROPERTIES));
+    }
+
+    private File generateSourceFeatureXml(Properties mergedSourceFeatureProps, Properties sourceTemplateProps)
+            throws IOException, MojoExecutionException {
         File sourceFeatureXml = new File(getSourcesFeatureOutputDir(project), Feature.FEATURE_XML);
         Feature feature = Feature.read(new File(this.project.getBuild().getDirectory(), "feature.xml"));
 
-        final Feature sourceFeature = createSourceFeatureSkeleton(feature, mergedSourceFeatureProps);
+        final Feature sourceFeature = createSourceFeatureSkeleton(feature, mergedSourceFeatureProps,
+                sourceTemplateProps);
         fillReferences(sourceFeature, feature, TychoProjectUtils.getTargetPlatform(project));
 
         Feature.write(sourceFeature, sourceFeatureXml);
@@ -226,8 +237,8 @@ public class SourceFeatureMojo extends AbstractMojo {
      * This only create the new feature skeleton by setting labels and other not-structural values
      * that don't require platform resolution.
      */
-    Feature createSourceFeatureSkeleton(Feature feature, Properties sourceFeatureProperties) throws IOException,
-            MojoExecutionException {
+    Feature createSourceFeatureSkeleton(Feature feature, Properties mergedFeatureProperties,
+            Properties sourceTemplateProperties) throws IOException, MojoExecutionException {
         Document document = new Document();
         document.setRootNode(new Element("feature"));
         document.setXmlDeclaration(new XMLDeclaration("1.0", "UTF-8"));
@@ -242,28 +253,40 @@ public class SourceFeatureMojo extends AbstractMojo {
         sourceFeature.addFeatureRef(binaryRef);
 
         if (feature.getLabel() != null) {
-            sourceFeature.setLabel(validateValue(feature.getLabel(), sourceFeatureProperties));
+            String originalLabel = feature.getLabel();
+            if (originalLabel.startsWith("%")) {
+                sourceFeature.setLabel(validateValue(originalLabel, mergedFeatureProperties));
+                String labelKey = originalLabel.substring(1);
+                if (sourceTemplateProperties.getProperty(labelKey) == null) {
+                    mergedFeatureProperties.setProperty(labelKey, mergedFeatureProperties.getProperty(labelKey)
+                            + labelSuffix);
+                } else {
+                    // keep source template value 
+                }
+            } else {
+                sourceFeature.setLabel(originalLabel + labelSuffix);
+            }
         }
         if (feature.getProvider() != null) {
-            sourceFeature.setProvider(validateValue(feature.getProvider(), sourceFeatureProperties));
+            sourceFeature.setProvider(validateValue(feature.getProvider(), mergedFeatureProperties));
         }
         if (feature.getDescription() != null) {
-            sourceFeature.setDescription(validateValue(feature.getDescription(), sourceFeatureProperties));
+            sourceFeature.setDescription(validateValue(feature.getDescription(), mergedFeatureProperties));
         }
         if (feature.getDescriptionURL() != null) {
-            sourceFeature.setDescriptionURL(validateValue(feature.getDescriptionURL(), sourceFeatureProperties));
+            sourceFeature.setDescriptionURL(validateValue(feature.getDescriptionURL(), mergedFeatureProperties));
         }
         if (feature.getCopyright() != null) {
-            sourceFeature.setCopyright(validateValue(feature.getCopyright(), sourceFeatureProperties));
+            sourceFeature.setCopyright(validateValue(feature.getCopyright(), mergedFeatureProperties));
         }
         if (feature.getCopyrightURL() != null) {
-            sourceFeature.setCopyrightURL(validateValue(feature.getCopyrightURL(), sourceFeatureProperties));
+            sourceFeature.setCopyrightURL(validateValue(feature.getCopyrightURL(), mergedFeatureProperties));
         }
         if (feature.getLicense() != null) {
-            sourceFeature.setLicense(validateValue(feature.getLicense(), sourceFeatureProperties));
+            sourceFeature.setLicense(validateValue(feature.getLicense(), mergedFeatureProperties));
         }
         if (feature.getLicenseURL() != null) {
-            sourceFeature.setLicenseURL(validateValue(feature.getLicenseURL(), sourceFeatureProperties));
+            sourceFeature.setLicenseURL(validateValue(feature.getLicenseURL(), mergedFeatureProperties));
         }
         return sourceFeature;
     }

@@ -15,7 +15,7 @@ Properties actual = new Properties();
 actual.load(featureZip.getInputStream(featureZip.getEntry("feature.properties")));
 
 // content must be merged from 1. license feature, 2. feature, 3. sourceTemplate
-def expected = [label:"source feature label", description:"feature description", copyright:"license feature copyright", licenseURL:"license.html", license:"license feature license"]
+def expected = [label:"feature label Developer Resources", description:"source feature description", copyright:"license feature copyright", licenseURL:"license.html", license:"license feature license"]
 
 Assert.assertEquals(expected, actual);
 
