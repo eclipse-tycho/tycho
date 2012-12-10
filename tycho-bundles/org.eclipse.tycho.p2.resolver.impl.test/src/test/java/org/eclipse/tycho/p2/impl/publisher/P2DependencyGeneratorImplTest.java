@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -181,9 +181,8 @@ public class P2DependencyGeneratorImplTest {
 
         List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
 
-        assertEquals(3, requirements.size());
+        assertEquals(2, requirements.size());
         assertNotNull(getRequiredCapability("included.bundle", requirements));
-        assertNotNull(getRequiredCapability("org.eclipse.equinox.launcher", requirements));
 
         // implicit dependencies because includeLaunchers="true"
         assertNotNull(getRequiredCapability("org.eclipse.equinox.executable.feature.group", requirements));
@@ -203,9 +202,7 @@ public class P2DependencyGeneratorImplTest {
 
         List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
 
-        assertEquals(2, requirements.size());
-        IRequiredCapability launcherCapability = getRequiredCapability("org.eclipse.equinox.launcher", requirements);
-        assertNotNull(launcherCapability);
+        assertEquals(1, requirements.size());
         IRequiredCapability p2InfCapability = getRequiredCapability("required.p2.inf", requirements);
         assertNotNull(p2InfCapability);
 
@@ -236,7 +233,7 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("org.eclipse.tycho.p2.impl.test.rcp-feature", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
-        assertEquals(3, unit.getRequirements().size());
+        assertEquals(2, unit.getRequirements().size());
 
         assertEquals(0, artifacts.size());
     }
@@ -253,9 +250,7 @@ public class P2DependencyGeneratorImplTest {
 
         List<IRequirement> requirement = new ArrayList<IRequirement>(unit.getRequirements());
 
-        assertEquals(1, requirement.size());
-
-        assertEquals("org.eclipse.equinox.launcher", ((IRequiredCapability) requirement.get(0)).getName());
+        assertEquals(0, requirement.size());
 
         assertEquals(0, artifacts.size());
     }

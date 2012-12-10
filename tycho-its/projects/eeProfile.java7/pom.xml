@@ -15,15 +15,6 @@
 		<module>repository2</module>
 	</modules>
 
-	<repositories>
-		<repository>
-			<!-- this repository should not be needed -> see bug 385835 -->
-			<id>launchers</id>
-			<layout>p2</layout>
-			<url>${launchers-repo}</url>
-		</repository>
-	</repositories>
-
 	<build>
 		<plugins>
 			<plugin>

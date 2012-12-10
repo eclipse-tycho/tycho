@@ -180,7 +180,6 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Test
     public void eclipseRepository() throws Exception {
         context.addP2Repository(resourceFile("repositories/e342").toURI());
-        // launchers currently cannot be disabled (see TYCHO-511/TYCHO-512)
         context.addP2Repository(resourceFile("repositories/launchers").toURI());
 
         File projectDir = resourceFile("resolver/repository");
@@ -195,11 +194,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
         P2ResolutionResult result = results.get(0);
 
         Assert.assertEquals(3, result.getArtifacts().size()); // the product, bundle01, and the one dependency of bundle01
-        Assert.assertEquals(4, result.getNonReactorUnits().size());
+        Assert.assertEquals(2, result.getNonReactorUnits().size());
 
         assertContainsUnit("org.eclipse.osgi", result.getNonReactorUnits());
-        assertContainsUnit("org.eclipse.equinox.launcher", result.getNonReactorUnits());
-        assertContainsUnit("org.eclipse.equinox.launcher.gtk.linux.x86_64", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.equinox.executable.feature.group", result.getNonReactorUnits());
     }
 
@@ -411,8 +408,6 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void productMultienvP2Inf() throws Exception {
-        context.addP2Repository(resourceFile("repositories/launchers").toURI());
-
         List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
@@ -430,12 +425,12 @@ public class P2ResolverTest extends P2ResolverTestBase {
         List<Entry> linuxEntries = new ArrayList<Entry>(linux.getArtifacts());
         Assert.assertEquals(1, linuxEntries.size());
         Assert.assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
-        Assert.assertEquals(1, linux.getNonReactorUnits().size()); // equinox launcher
+        Assert.assertEquals(0, linux.getNonReactorUnits().size());
 
         P2ResolutionResult macosx = results.get(1);
         List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
         Assert.assertEquals(1, macosxEntries.size());
         Assert.assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
-        Assert.assertEquals(1, macosx.getNonReactorUnits().size());
+        Assert.assertEquals(0, macosx.getNonReactorUnits().size());
     }
 }

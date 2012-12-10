@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,11 +44,9 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
 
         assertEquals(0, features.size());
 
-        assertEquals(2, plugins.size());
+        assertEquals(1, plugins.size());
         assertEquals("bundle01", plugins.get(0).getKey().getId());
         assertEquals("0.0.1", plugins.get(0).getKey().getVersion());
-
-        assertEquals(AbstractArtifactDependencyWalker.EQUINOX_LAUNCHER, plugins.get(1).getKey().getId());
 
         plugins.clear();
         features.clear();
@@ -58,11 +56,9 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
         assertEquals("feature01", features.get(0).getKey().getId());
         assertEquals("1.0.0", features.get(0).getKey().getVersion());
 
-        assertEquals(2, plugins.size());
+        assertEquals(1, plugins.size());
         assertEquals("bundle01", plugins.get(0).getKey().getId());
         assertEquals("0.0.1", plugins.get(0).getKey().getVersion());
-
-        assertEquals(AbstractArtifactDependencyWalker.EQUINOX_LAUNCHER, plugins.get(1).getKey().getId());
     }
 
     protected void walkProduct(String productFile, final ArrayList<PluginDescription> plugins,
@@ -81,13 +77,13 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
             @Override
             public void visitPlugin(PluginDescription plugin) {
                 plugins.add(plugin);
-            };
+            }
 
             @Override
             public boolean visitFeature(FeatureDescription feature) {
                 features.add(feature);
                 return true;
-            };
+            }
         });
     }
 

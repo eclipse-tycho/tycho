@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,6 @@ import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.UpdateSite;
 
 public abstract class AbstractArtifactDependencyWalker implements ArtifactDependencyWalker {
-    public static final String EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher";
 
     private final DependencyArtifacts artifacts;
 
@@ -125,15 +124,6 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             if (org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(key.getType())) {
                 bundles.add(key.getId());
             }
-        }
-
-        // RCP apparently implicitly includes equinox.launcher and corresponding native fragments
-        // See also org.eclipse.tycho.p2.ProductDependenciesAction.perform
-
-        if (!bundles.contains(EQUINOX_LAUNCHER)) {
-            PluginRef ref = new PluginRef("plugin");
-            ref.setId(EQUINOX_LAUNCHER);
-            traversePlugin(ref, visitor, visited);
         }
 
         if (environments != null && product.includeLaunchers()) {

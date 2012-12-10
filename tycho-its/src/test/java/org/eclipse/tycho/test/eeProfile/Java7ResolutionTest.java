@@ -19,7 +19,6 @@ import java.util.List;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
-import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -34,9 +33,6 @@ public class Java7ResolutionTest extends AbstractTychoIntegrationTest {
 
     public File runBuild() throws Exception {
         Verifier verifier = getVerifier("eeProfile.java7", false);
-
-        // workaround for bug 385835
-        verifier.getSystemProperties().setProperty("launchers-repo", P2Repositories.ECLIPSE_342.toString());
 
         verifier.executeGoal("verify");
 

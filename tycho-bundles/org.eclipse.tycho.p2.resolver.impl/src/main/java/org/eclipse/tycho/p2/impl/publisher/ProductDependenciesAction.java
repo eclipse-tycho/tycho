@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
-import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 
 @SuppressWarnings("restriction")
@@ -66,34 +65,10 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
             }
         }
 
-        // these are implicitly required, see
-        // See also org.eclipse.tycho.osgitools.AbstractArtifactDependencyWalker.traverseProduct
-        addRequiredCapability(required, "org.eclipse.equinox.launcher", null, null, false);
-
         if (product.includeLaunchers()) {
             addRequiredCapability(required, "org.eclipse.equinox.executable.feature.group", null, null, false);
-
-            if (environments != null) {
-                for (TargetEnvironment env : environments) {
-                    addNativeRequirements(required, env);
-                }
-            }
         }
         return required;
-    }
-
-    private void addNativeRequirements(Set<IRequirement> required, TargetEnvironment env) {
-        if (Constants.OS_MACOSX.equals(env.getOs())) {
-            // macosx is twisted
-            if (Constants.ARCH_X86.equals(env.getArch())) {
-                addRequiredCapability(required, "org.eclipse.equinox.launcher." + env.getWs() + "." + env.getOs(),
-                        null, env.toFilterExpression(), false);
-                return;
-            }
-        }
-
-        addRequiredCapability(required, "org.eclipse.equinox.launcher." + env.toConfigSpec(), null,
-                env.toFilterExpression(), false);
     }
 
     @Override
