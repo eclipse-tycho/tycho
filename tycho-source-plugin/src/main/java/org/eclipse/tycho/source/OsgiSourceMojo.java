@@ -105,7 +105,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     /**
      * Whether source folders are required or not. If not required (the default), projects without
-     * source folders will be silently ignored.
+     * source folders/source includes will be silently ignored.
      * 
      * @parameter default-value="false"
      * @readonly
@@ -129,7 +129,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     /**
      * @component
      */
-    private BuildPropertiesParser buildPropertiesParser;
+    BuildPropertiesParser buildPropertiesParser;
 
     /**
      * @component
@@ -143,14 +143,13 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     /** {@inheritDoc} */
     protected List<String> getSources(MavenProject p) throws MojoExecutionException {
-        return getSources(project, requireSourceRoots, buildPropertiesParser);
+        return getSources(project, requireSourceRoots, buildPropertiesParser.parse(p.getBasedir()));
     }
 
-    protected static List<String> getSources(MavenProject p, boolean requireSourceRoots,
-            BuildPropertiesParser buildPropertiesParser) throws MojoExecutionException {
+    protected static List<String> getSources(MavenProject p, boolean requireSourceRoots, BuildProperties buildProperties)
+            throws MojoExecutionException {
         List<String> sources = new ArrayList<String>();
-        for (List<String> sourceFolderList : buildPropertiesParser.parse(p.getBasedir()).getJarToSourceFolderMap()
-                .values()) {
+        for (List<String> sourceFolderList : buildProperties.getJarToSourceFolderMap().values()) {
             for (String sourceFolder : sourceFolderList) {
                 sources.add(new File(p.getBasedir(), sourceFolder).getAbsolutePath());
             }
@@ -338,12 +337,10 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
                 if (requireSourceRoots) {
                     return true;
                 }
-                try {
-                    if (!getSources(project, requireSourceRoots, buildPropertiesParser).isEmpty()) {
-                        return true;
-                    }
-                } catch (MojoExecutionException e) {
-                    // can't happen because requireSourceRoots==false 
+                BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+                if (buildProperties.getJarToSourceFolderMap().size() > 0
+                        || buildProperties.getSourceIncludes().size() > 0) {
+                    return true;
                 }
             }
         }
