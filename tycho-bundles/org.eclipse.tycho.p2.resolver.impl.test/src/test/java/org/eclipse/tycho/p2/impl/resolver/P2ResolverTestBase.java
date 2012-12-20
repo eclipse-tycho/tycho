@@ -34,7 +34,6 @@ import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.NoopEEResolverHints;
@@ -43,6 +42,7 @@ import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
+import org.eclipse.tycho.repository.gav.LocalRepositoryArtifactLocator;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
@@ -134,7 +134,8 @@ public class P2ResolverTestBase {
 
             File localMavenRepoRoot = mavenContext.getLocalRepositoryRoot();
             LocalRepositoryP2Indices localRepoIndices = createLocalRepoIndices(mavenContext);
-            LocalRepositoryReader localRepositoryReader = new LocalRepositoryReader(localMavenRepoRoot);
+            LocalRepositoryArtifactLocator localRepositoryReader = new LocalRepositoryArtifactLocator(
+                    localMavenRepoRoot);
             localMetadataRepo = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
                     localRepoIndices.getMetadataIndex(), localRepositoryReader);
             localArtifactRepo = new LocalArtifactRepository(localRepoIndices, localRepositoryReader);

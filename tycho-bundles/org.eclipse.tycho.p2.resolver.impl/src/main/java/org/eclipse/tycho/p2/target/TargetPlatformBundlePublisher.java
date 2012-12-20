@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,13 +33,13 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.AbstractMavenArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.util.StatusTool;
+import org.eclipse.tycho.repository.gav.GAVArtifactLocator;
+import org.eclipse.tycho.repository.gav.GAVArtifactRepository;
+import org.eclipse.tycho.repository.gav.LocalRepositoryArtifactLocator;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
@@ -53,7 +53,7 @@ public class TargetPlatformBundlePublisher {
     }
 
     // for testing
-    TargetPlatformBundlePublisher(RepositoryReader localMavenRepoProvider, MavenLogger logger) {
+    TargetPlatformBundlePublisher(GAVArtifactLocator localMavenRepoProvider, MavenLogger logger) {
         this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepoProvider);
         this.logger = logger;
     }
@@ -192,14 +192,14 @@ public class TargetPlatformBundlePublisher {
         }
     }
 
-    private static class PublishedBundlesArtifactRepository extends AbstractMavenArtifactRepository implements
+    private static class PublishedBundlesArtifactRepository extends GAVArtifactRepository implements
             IFileArtifactRepository {
 
         PublishedBundlesArtifactRepository(File localMavenRepositoryRoot) {
-            this(new LocalRepositoryReader(localMavenRepositoryRoot));
+            this(new LocalRepositoryArtifactLocator(localMavenRepositoryRoot));
         }
 
-        PublishedBundlesArtifactRepository(RepositoryReader artifactProvider) {
+        PublishedBundlesArtifactRepository(GAVArtifactLocator artifactProvider) {
             super(Activator.getProvisioningAgent(), null, artifactProvider);
             super.setLocation(URI.create("memory:" + getClass().getName() + "@"
                     + Integer.toHexString(System.identityHashCode(this))));

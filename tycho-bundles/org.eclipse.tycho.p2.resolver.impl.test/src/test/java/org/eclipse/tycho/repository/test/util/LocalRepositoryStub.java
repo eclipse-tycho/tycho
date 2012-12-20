@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
+import org.eclipse.tycho.repository.gav.GAVArtifactLocator;
 
 public class LocalRepositoryStub {
     Map<MavenCoordinates, File> artifacts = new HashMap<MavenCoordinates, File>();
@@ -33,11 +33,11 @@ public class LocalRepositoryStub {
      * linked to the repository, and hence is affected by subsequent modifications to the repository
      * (see {@link #addArtifact(IArtifactFacade)}).
      */
-    public RepositoryReader getArtifactProvider() {
+    public GAVArtifactLocator getArtifactProvider() {
         return new ArtifactProviderStub();
     }
 
-    private class ArtifactProviderStub implements RepositoryReader {
+    private class ArtifactProviderStub implements GAVArtifactLocator {
 
         public File getLocalArtifactLocation(GAV gav, String classifier, String extension) {
             MavenCoordinates coordinates = new MavenCoordinates(gav, classifier, extension);

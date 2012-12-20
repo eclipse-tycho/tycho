@@ -28,11 +28,11 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.p2.maven.repository.AbstractMavenArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.repository.gav.GAVArtifactRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAndExtension;
 
@@ -53,7 +53,7 @@ import org.eclipse.tycho.repository.publishing.WriteSessionContext.ClassifierAnd
  * @see RepositoryLayoutHelper#FILE_NAME_P2_ARTIFACTS
  * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
  */
-class ModuleArtifactRepository extends AbstractMavenArtifactRepository {
+class ModuleArtifactRepository extends GAVArtifactRepository {
     /**
      * Type string for this repository type. This value needs to be passed to
      * {@link IArtifactRepositoryManager#createRepository(URI, String, String, Map)} in order to
