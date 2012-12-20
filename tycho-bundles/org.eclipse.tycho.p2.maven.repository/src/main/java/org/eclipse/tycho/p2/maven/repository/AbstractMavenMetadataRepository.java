@@ -32,26 +32,26 @@ import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
+import org.eclipse.tycho.repository.gav.GAVArtifactLocator;
 
 public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRepository {
 
     protected final TychoRepositoryIndex metadataIndex;
 
-    protected final RepositoryReader contentLocator;
+    protected final GAVArtifactLocator contentLocator;
 
     protected Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
 
     protected Map<GAV, Set<IInstallableUnit>> unitsMap = new LinkedHashMap<GAV, Set<IInstallableUnit>>();
 
     public AbstractMavenMetadataRepository(URI location, TychoRepositoryIndex metadataIndex,
-            RepositoryReader contentLocator) {
+            GAVArtifactLocator contentLocator) {
         this(Activator.getProvisioningAgent(), location, metadataIndex, contentLocator);
     }
 
     public AbstractMavenMetadataRepository(IProvisioningAgent agent, URI location, TychoRepositoryIndex metadataIndex,
-            RepositoryReader contentLocator) {
+            GAVArtifactLocator contentLocator) {
         super(agent);
 
         setLocation(location);

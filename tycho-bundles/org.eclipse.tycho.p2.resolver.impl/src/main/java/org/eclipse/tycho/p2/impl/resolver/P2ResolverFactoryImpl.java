@@ -19,12 +19,12 @@ import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
 import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
+import org.eclipse.tycho.repository.gav.GAVArtifactLocator;
+import org.eclipse.tycho.repository.gav.LocalRepositoryArtifactLocator;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 
@@ -58,7 +58,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
             LocalRepositoryP2Indices localRepoIndices) {
         if (localMetadataRepository == null) {
             File localMavenRepoRoot = context.getLocalRepositoryRoot();
-            RepositoryReader contentLocator = new LocalRepositoryReader(localMavenRepoRoot);
+            GAVArtifactLocator contentLocator = new LocalRepositoryArtifactLocator(localMavenRepoRoot);
             localMetadataRepository = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
                     localRepoIndices.getMetadataIndex(), contentLocator);
 
@@ -76,7 +76,8 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private static synchronized LocalArtifactRepository getLocalArtifactRepository(MavenContext mavenContext,
             LocalRepositoryP2Indices localRepoIndices) {
         if (localArtifactRepository == null) {
-            RepositoryReader contentLocator = new LocalRepositoryReader(mavenContext.getLocalRepositoryRoot());
+            GAVArtifactLocator contentLocator = new LocalRepositoryArtifactLocator(
+                    mavenContext.getLocalRepositoryRoot());
             localArtifactRepository = new LocalArtifactRepository(localRepoIndices, contentLocator);
         }
         return localArtifactRepository;

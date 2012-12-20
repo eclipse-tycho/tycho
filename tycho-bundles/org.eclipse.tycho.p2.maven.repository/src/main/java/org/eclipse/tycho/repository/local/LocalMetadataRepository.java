@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,8 +27,8 @@ import org.eclipse.tycho.p2.maven.repository.AbstractMavenMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
+import org.eclipse.tycho.repository.gav.GAVArtifactLocator;
 
 public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
 
@@ -52,7 +52,7 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
     /**
      * Local existing repository
      */
-    public LocalMetadataRepository(URI location, TychoRepositoryIndex projectIndex, RepositoryReader contentLocator) {
+    public LocalMetadataRepository(URI location, TychoRepositoryIndex projectIndex, GAVArtifactLocator contentLocator) {
         super(location, projectIndex, contentLocator);
     }
 

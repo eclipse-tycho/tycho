@@ -10,7 +10,7 @@
  *    SAP AG - make readable as p2 artifact repository; implement IFileArtifactRepository
  *******************************************************************************/
 
-package org.eclipse.tycho.p2.maven.repository;
+package org.eclipse.tycho.repository.gav;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,16 +39,14 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 
 /**
  * Base class for p2 artifact repositories with GAV-based artifact storage.
  */
-public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRepository implements
-        IFileArtifactRepository {
-    public static final String VERSION = "1.0.0";
+public abstract class GAVArtifactRepository extends AbstractArtifactRepository implements IFileArtifactRepository {
 
     private static final IArtifactDescriptor[] ARTIFACT_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
 
@@ -57,11 +55,10 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
 
     protected Set<IArtifactDescriptor> descriptors = new HashSet<IArtifactDescriptor>();
 
-    protected final RepositoryReader contentLocator;
+    protected final GAVArtifactLocator contentLocator;
 
-    protected AbstractMavenArtifactRepository(IProvisioningAgent agent, URI uri, RepositoryReader contentLocator) {
-        super(agent, "Maven Local Repository", AbstractMavenArtifactRepository.class.getName(), VERSION, uri, null,
-                null, null);
+    protected GAVArtifactRepository(IProvisioningAgent agent, URI uri, GAVArtifactLocator contentLocator) {
+        super(agent, null, GAVArtifactRepository.class.getCanonicalName(), "1.0", uri, null, null, null);
         this.contentLocator = contentLocator;
     }
 

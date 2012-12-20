@@ -27,17 +27,17 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.p2.maven.repository.AbstractMavenArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
+import org.eclipse.tycho.repository.gav.GAVArtifactRepository;
+import org.eclipse.tycho.repository.gav.LocalRepositoryArtifactLocator;
+import org.eclipse.tycho.repository.gav.GAVArtifactLocator;
 
-public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
+public class LocalArtifactRepository extends GAVArtifactRepository {
 
     private final Set<IArtifactKey> changedDescriptors = new HashSet<IArtifactKey>();
     private final LocalRepositoryP2Indices localRepoIndices;
@@ -47,16 +47,16 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         this(Activator.getProvisioningAgent(), localRepoIndices);
     }
 
-    public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices, RepositoryReader contentLocator) {
+    public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices, GAVArtifactLocator contentLocator) {
         this(Activator.getProvisioningAgent(), localRepoIndices, contentLocator);
     }
 
     public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices) {
-        this(agent, localRepoIndices, new LocalRepositoryReader(localRepoIndices.getBasedir()));
+        this(agent, localRepoIndices, new LocalRepositoryArtifactLocator(localRepoIndices.getBasedir()));
     }
 
     public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices,
-            RepositoryReader contentLocator) {
+            GAVArtifactLocator contentLocator) {
         super(agent, localRepoIndices.getBasedir().toURI(), contentLocator);
         this.localRepoIndices = localRepoIndices;
         loadMaven();

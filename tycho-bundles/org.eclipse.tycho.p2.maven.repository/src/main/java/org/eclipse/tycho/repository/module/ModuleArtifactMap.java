@@ -29,15 +29,15 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.repository.RepositoryReader;
+import org.eclipse.tycho.repository.gav.GAVArtifactLocator;
 
 /**
- * {@link RepositoryReader} that reads the artifact file locations from the
+ * {@link GAVArtifactLocator} that reads the artifact file locations from the
  * "local-artifacts.properties" file.
  * 
  * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
  */
-class ModuleArtifactMap implements RepositoryReader {
+class ModuleArtifactMap implements GAVArtifactLocator {
 
     private File mapFile;
     private final Map<String, File> artifacts = new LinkedHashMap<String, File>();

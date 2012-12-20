@@ -8,15 +8,18 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.repository;
+package org.eclipse.tycho.repository.gav;
 
 import java.io.File;
 
-public class LocalRepositoryReader implements RepositoryReader {
+import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+
+public class LocalRepositoryArtifactLocator implements GAVArtifactLocator {
 
     private final File localMavenRepositoryRoot;
 
-    public LocalRepositoryReader(File localMavenRepositoryRoot) {
+    public LocalRepositoryArtifactLocator(File localMavenRepositoryRoot) {
         this.localMavenRepositoryRoot = localMavenRepositoryRoot;
     }
 

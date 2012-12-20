@@ -9,14 +9,16 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - provide local artifact location; added documentation
  *******************************************************************************/
-package org.eclipse.tycho.p2.repository;
+package org.eclipse.tycho.repository.gav;
 
 import java.io.File;
+
+import org.eclipse.tycho.p2.repository.GAV;
 
 /**
  * Interface to obtain artifacts from GAV-indexed repositories.
  */
-public interface RepositoryReader {
+public interface GAVArtifactLocator {
 
     /**
      * Returns the permanent, local file system location of the identified artifact. This may
