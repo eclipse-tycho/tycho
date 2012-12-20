@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.p2.maven.repository.Activator;
-import org.eclipse.tycho.p2.repository.AbstractRepositoryReader;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
@@ -38,7 +37,7 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
  * 
  * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
  */
-class ModuleArtifactMap extends AbstractRepositoryReader {
+class ModuleArtifactMap implements RepositoryReader {
 
     private File mapFile;
     private final Map<String, File> artifacts = new LinkedHashMap<String, File>();

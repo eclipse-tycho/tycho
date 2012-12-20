@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -74,8 +75,7 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     metadataIndex.removeGav(gav);
                 } else {
-                    InputStream is = contentLocator.getContents(gav, RepositoryLayoutHelper.CLASSIFIER_P2_METADATA,
-                            RepositoryLayoutHelper.EXTENSION_P2_METADATA);
+                    InputStream is = new FileInputStream(localArtifactFileLocation);
                     try {
                         Set<IInstallableUnit> gavUnits = io.readXML(is);
 

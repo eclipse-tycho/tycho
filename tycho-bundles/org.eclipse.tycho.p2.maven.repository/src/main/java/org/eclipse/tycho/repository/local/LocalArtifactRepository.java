@@ -12,6 +12,7 @@ package org.eclipse.tycho.repository.local;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -73,9 +74,9 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     index.removeGav(gav);
                 } else {
-                    final InputStream is = contentLocator.getContents(gav,
+                    final InputStream is = new FileInputStream(contentLocator.getLocalArtifactLocation(gav,
                             RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS,
-                            RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS);
+                            RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS));
                     try {
                         final Set<IArtifactDescriptor> gavDescriptors = io.readXML(is);
                         for (IArtifactDescriptor descriptor : gavDescriptors) {

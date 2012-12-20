@@ -12,7 +12,7 @@ package org.eclipse.tycho.p2.repository;
 
 import java.io.File;
 
-public class LocalRepositoryReader extends AbstractRepositoryReader {
+public class LocalRepositoryReader implements RepositoryReader {
 
     private final File localMavenRepositoryRoot;
 

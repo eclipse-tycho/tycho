@@ -13,6 +13,7 @@
 package org.eclipse.tycho.p2.maven.repository;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -92,10 +93,6 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         StringBuffer version = new StringBuffer();
         key.getVersion().toString(version);
         return RepositoryLayoutHelper.getP2Gav(key.getClassifier(), key.getId(), version.toString());
-    }
-
-    protected RepositoryReader getContentLocator() {
-        return contentLocator;
     }
 
     public IStatus resolve(IArtifactDescriptor descriptor) {
@@ -209,7 +206,8 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
         }
 
         try {
-            InputStream source = contentLocator.getContents(gav, classifier, extension);
+            InputStream source = new FileInputStream(
+                    contentLocator.getLocalArtifactLocation(gav, classifier, extension));
 
             // copy to destination and close source 
             FileUtils.copyStream(source, true, destination, false);
