@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2012 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,18 +12,14 @@
 package org.eclipse.tycho.p2.target;
 
 import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -33,6 +29,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
+import org.eclipse.tycho.repository.general.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 
@@ -63,10 +60,10 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     // FIXME only used to warn about locally installed artifacts, this logic does not belong here
     private final LocalMetadataRepository localMetadataRepository;
 
-    private final List<URI> remoteArtifactRepositories;
-    private final LocalArtifactRepository localMavenRepository;
+    private final IRawArtifactFileProvider jointArtifacts;
+    @Deprecated
+    private LocalArtifactRepository localArtifactRepository;
 
-    private final IProvisioningAgent agent;
     private final MavenLogger logger;
 
     /**
@@ -74,25 +71,20 @@ public class TargetPlatformImpl implements P2TargetPlatform {
      */
     private final TargetPlatformFilterEvaluator filter;
 
-    private final boolean includePackedArtifacts;
-
     public TargetPlatformImpl(Collection<IReactorArtifactFacade> reactorProjects, Collection<IInstallableUnit> ius,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
-            LocalMetadataRepository localMetadataRepository, List<URI> allRemoteArtifactRepositories,
-            LocalArtifactRepository localMavenRepository, IProvisioningAgent agent, boolean includePackedArtifacts,
-            MavenLogger logger) {
+            LocalMetadataRepository localMetadataRepository, IRawArtifactFileProvider jointArtifacts,
+            LocalArtifactRepository localArtifactRepository, MavenLogger logger) {
         this.reactorProjects = reactorProjects;
         this.externalIUs = ius;
         this.executionEnvironment = executionEnvironment;
         this.mavenArtifactIUs = mavenArtifactIUs;
         this.filter = filter;
         this.localMetadataRepository = localMetadataRepository;
-        this.remoteArtifactRepositories = allRemoteArtifactRepositories;
-        this.localMavenRepository = localMavenRepository;
+        this.jointArtifacts = jointArtifacts;
+        this.localArtifactRepository = localArtifactRepository;
 
-        this.agent = agent;
-        this.includePackedArtifacts = includePackedArtifacts;
         this.logger = logger;
     }
 
@@ -155,6 +147,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return Collections.unmodifiableSet(result);
     }
 
+    // TODO rename: this method doesn't include POM dependency Maven artifacts
     public IArtifactFacade getMavenArtifact(IInstallableUnit iu) {
         // number of reactor projects is not huge, so this should not be a performance problem
         Map<IInstallableUnit, IReactorArtifactFacade> reactorProjectIUs = getReactorProjectIUs();
@@ -169,7 +162,11 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     }
 
     public File getLocalArtifactFile(IArtifactKey key) {
-        return localMavenRepository.getArtifactFile(key);
+        return jointArtifacts.getArtifactFile(key);
+    }
+
+    public void saveLocalMavenRepository() {
+        localArtifactRepository.save();
     }
 
     public void reportUsedIUs(Collection<IInstallableUnit> usedUnits) {
@@ -195,25 +192,5 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         if (localMetadataRepository.getIncludeInTargetPlatform()) {
             logger.warn(message);
         }
-    }
-
-    // TODO this method should not be necessary; instead download should happen on access
-    public void downloadArtifacts(Collection<IInstallableUnit> usedUnits) {
-        P2ArtifactDownloadTool downloadTool = new P2ArtifactDownloadTool(agent, logger);
-
-        List<IArtifactKey> remoteArtifacts = new ArrayList<IArtifactKey>();
-        for (IInstallableUnit iu : usedUnits) {
-            // maven IUs either come from reactor or local maven repository, no need to download them from p2 repos
-            if (getMavenArtifact(iu) == null) {
-                Collection<IArtifactKey> artifactKeys = iu.getArtifacts();
-                remoteArtifacts.addAll(artifactKeys);
-            }
-        }
-
-        downloadTool.downloadArtifactsToLocalMavenRepository(remoteArtifacts, remoteArtifactRepositories,
-                localMavenRepository, includePackedArtifacts);
-
-        // TODO is this needed?
-        localMetadataRepository.save();
     }
 }

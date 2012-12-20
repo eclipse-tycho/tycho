@@ -42,6 +42,8 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.repository.general.ArtifactTransferPolicy;
+import org.eclipse.tycho.repository.general.LocalArtifactTransferPolicy;
 
 /**
  * Base class for p2 artifact repositories with GAV-based artifact storage.
@@ -56,6 +58,8 @@ public abstract class GAVArtifactRepository extends AbstractArtifactRepository i
     protected Set<IArtifactDescriptor> descriptors = new HashSet<IArtifactDescriptor>();
 
     protected final GAVArtifactLocator contentLocator;
+
+    private ArtifactTransferPolicy transferPolicy = new LocalArtifactTransferPolicy();
 
     protected GAVArtifactRepository(IProvisioningAgent agent, URI uri, GAVArtifactLocator contentLocator) {
         super(agent, uri.toString(), GAVArtifactRepository.class.getCanonicalName(), "1.0", uri, null, null, null);
@@ -184,9 +188,15 @@ public abstract class GAVArtifactRepository extends AbstractArtifactRepository i
         }
     }
 
+    public IStatus getArtifact(IArtifactKey key, OutputStream destination, IProgressMonitor monitor) {
+        // TODO 393004 check that getArtifactDescriptors returns non-empty list -> don't cause an IllegalArgumentException here
+        return getArtifact(transferPolicy.pickFormat(getArtifactDescriptors(key)), destination, monitor);
+    }
+
     @Override
     public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
         // default: the artifacts are stored raw and don't need further processing
+        // TODO 393004 this is wrong: pack200 artifacts would need to be unpacked
         return getRawArtifact(descriptor, destination, monitor);
     }
 
@@ -219,7 +229,7 @@ public abstract class GAVArtifactRepository extends AbstractArtifactRepository i
         Set<IArtifactDescriptor> descriptors = descriptorsMap.get(key);
         if (descriptors != null) {
             for (IArtifactDescriptor descriptor : descriptors) {
-                if (descriptor.getProperty(IArtifactDescriptor.FORMAT) == null) {
+                if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)) {
                     return getArtifactFile(descriptor);
                 }
             }

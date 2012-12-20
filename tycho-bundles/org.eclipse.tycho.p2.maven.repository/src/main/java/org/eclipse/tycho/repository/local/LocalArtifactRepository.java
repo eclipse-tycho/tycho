@@ -184,6 +184,7 @@ public class LocalArtifactRepository extends GAVArtifactRepository {
         changedDescriptors.add(key);
 
         try {
+            // TODO 393004 Only once the file is written completely, the descriptor may be added
             return new FileOutputStream(file);
         } catch (FileNotFoundException e) {
             throw new ProvisionException("Could not create artifact file", e);
@@ -234,4 +235,5 @@ public class LocalArtifactRepository extends GAVArtifactRepository {
         // TODO this doesn't work if the descriptor is not in changedDescriptors
         // TODO who needs this method?
     }
+
 }
