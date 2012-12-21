@@ -31,6 +31,19 @@
               <artifactId>extra</artifactId>
               <version>${project.version}</version>
             </extraClasspathElement>
+            <extraClasspathElement>
+              <groupId>TYCHO0404pomDependencyConsiderExtraClasspath</groupId>
+              <artifactId>extra</artifactId>
+              <version>${project.version}</version>
+              <classifier>tests</classifier>
+            </extraClasspathElement>
+            <extraClasspathElement>
+              <groupId>textExtra</groupId>
+              <artifactId>jdk</artifactId>
+              <version>1.0.0</version>
+              <scope>system</scope>
+              <systemPath>${project.basedir}/lib/extra3.jar</systemPath>
+            </extraClasspathElement>
           </extraClasspathElements>
         </configuration>
       </plugin>
