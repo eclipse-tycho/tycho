@@ -32,6 +32,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
@@ -62,7 +63,6 @@ import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
-import org.eclipse.tycho.core.utils.MavenArtifactRef;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
 
@@ -100,12 +100,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * mechanisms. For example, when Eclipse Equinox is started from application server with
      * -Dosgi.parentClassloader=fwk parameter.
      * 
-     * DO NOT USE. This is a stopgap solution to allow refactoring of tycho-p2 code to a separate
-     * set of components.
-     * 
      * @parameter
      */
-    private MavenArtifactRef[] extraClasspathElements;
+    private Dependency[] extraClasspathElements;
 
     /**
      * @parameter expression="${session}"
@@ -547,9 +544,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (extraClasspathElements != null) {
             ArtifactRepository localRepository = session.getLocalRepository();
             List<ArtifactRepository> remoteRepositories = project.getRemoteArtifactRepositories();
-            for (MavenArtifactRef a : extraClasspathElements) {
-                Artifact artifact = repositorySystem.createArtifact(a.getGroupId(), a.getArtifactId(), a.getVersion(),
-                        "jar");
+            for (Dependency extraDependency : extraClasspathElements) {
+                Artifact artifact = repositorySystem.createDependencyArtifact(extraDependency);
 
                 ArtifactResolutionRequest request = new ArtifactResolutionRequest();
                 request.setArtifact(artifact);

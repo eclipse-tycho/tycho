@@ -1,20 +1,16 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Sonatype Inc. - initial API and implementation
+ *    SAP AG  - initial API and implementation
  *******************************************************************************/
-package bundle;
+package extra;
 
-import extra.*;
-
-public class Activator
+public class ExtraTest
 {
-    public Extra extra;
-    public ExtraTest extraTestWithClassifier;
-    public Extra3 extra3FromSystemPath;
+
 }
