@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.p2.maven.repository.Activator;
-import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 
@@ -37,7 +37,7 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
  * 
  * @see RepositoryLayoutHelper#FILE_NAME_LOCAL_ARTIFACTS
  */
-class ModuleArtifactMap implements RepositoryReader {
+class ModuleArtifactMap {
 
     private File mapFile;
     private final Map<String, File> artifacts = new LinkedHashMap<String, File>();
@@ -61,12 +61,13 @@ class ModuleArtifactMap implements RepositoryReader {
         this.automaticArtifactFolder = new File(repositoryRoot, "extraArtifacts");
     }
 
-    public File getLocalArtifactLocation(GAV gav, String classifier, String extension) {
+    public File getLocalArtifactLocation(MavenArtifactCoordinates coordinates) {
         // GAV parameter may only refer to current module; TODO verify this?
 
-        File artifactFile = artifacts.get(classifier);
+        File artifactFile = artifacts.get(coordinates.getClassifier());
         if (artifactFile == null) {
-            throw new IllegalStateException("Classifier " + classifier + " is missing in " + mapFile.getAbsolutePath());
+            throw new IllegalStateException("Classifier " + coordinates.getClassifier() + " is missing in "
+                    + mapFile.getAbsolutePath());
         }
         return artifactFile;
     }
