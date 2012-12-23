@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,11 @@ class ModuleArtifactRepositoryDelegate implements IFileArtifactRepository {
     private final WriteSessionContext writeSession;
 
     public ModuleArtifactRepositoryDelegate(ModuleArtifactRepository target, WriteSessionContext writeSession) {
+        if (target == null)
+            throw new NullPointerException();
+        if (writeSession == null)
+            throw new NullPointerException();
+
         this.target = target;
         this.writeSession = writeSession;
     }

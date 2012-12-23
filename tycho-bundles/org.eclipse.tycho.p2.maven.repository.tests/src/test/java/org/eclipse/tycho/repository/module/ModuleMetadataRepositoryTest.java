@@ -52,7 +52,7 @@ public class ModuleMetadataRepositoryTest {
 
     @BeforeClass
     public static void init() throws Exception {
-        moduleDir = ResourceUtil.resourceFile("repositories/module/target");
+        moduleDir = ResourceUtil.resourceFile("repositories/module/basic/target");
     }
 
     @Test

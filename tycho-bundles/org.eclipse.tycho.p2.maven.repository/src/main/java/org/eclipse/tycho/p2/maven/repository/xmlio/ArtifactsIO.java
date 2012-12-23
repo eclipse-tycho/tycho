@@ -38,8 +38,8 @@ public class ArtifactsIO {
             super(output);
         }
 
-        public void write(Set<IArtifactDescriptor> artifactDescriptors) {
-            writeArtifacts(artifactDescriptors);
+        public void write(Set<? extends IArtifactDescriptor> descriptors) {
+            writeArtifacts(descriptors);
             flush();
         }
 
@@ -117,11 +117,11 @@ public class ArtifactsIO {
         return parser.getArtifacts();
     }
 
-    public void writeXML(Set<IArtifactDescriptor> descriptors, OutputStream os) throws IOException {
+    public void writeXML(Set<? extends IArtifactDescriptor> descriptors, OutputStream os) throws IOException {
         new Writer35M7(os).write(descriptors);
     }
 
-    public void writeXML(Set<IArtifactDescriptor> descriptors, File file) throws IOException {
+    public void writeXML(Set<? extends IArtifactDescriptor> descriptors, File file) throws IOException {
         OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
         try {
             writeXML(descriptors, os);

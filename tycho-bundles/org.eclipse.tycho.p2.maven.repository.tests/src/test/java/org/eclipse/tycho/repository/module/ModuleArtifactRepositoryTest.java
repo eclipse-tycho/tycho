@@ -14,6 +14,7 @@ import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.all
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,6 +31,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.test.util.P2Context;
@@ -66,13 +68,12 @@ public class ModuleArtifactRepositoryTest {
     private ModuleArtifactRepository subject;
 
     @BeforeClass
-    public static void initExistingRepository() throws Exception {
+    public static void initBasicRepository() throws Exception {
         // this folder contains a ModuleArtifactRepository with BUNDLE_ARTIFACT_KEY and SOURCE_ARTIFACT_KEY ...
-        existingModuleDir = ResourceUtil.resourceFile("repositories/module/target");
+        existingModuleDir = ResourceUtil.resourceFile("repositories/module/basic/target");
 
         // ... except for the binary files
-        generateBinaryTestFile(new File(existingModuleDir, "the-bundle.jar"), BUNDLE_ARTIFACT_SIZE);
-        generateBinaryTestFile(new File(existingModuleDir, "the-sources.jar"), SOURCE_ARTIFACT_SIZE);
+        generateDefaultRepositoryArtifacts(existingModuleDir);
     }
 
     @Test
@@ -88,6 +89,22 @@ public class ModuleArtifactRepositoryTest {
         subject = (ModuleArtifactRepository) loadRepositoryViaAgent(existingModuleDir);
 
         assertThat(subject.getArtifactDescriptors(SOURCE_ARTIFACT_KEY).length, is(1));
+    }
+
+    @Test(expected = ProvisionException.class)
+    public void testLoadRepositoryWithMissingGAVProperties() throws Exception {
+        // repository with a missing groupId in one of the descriptors -> loading should fail
+        File corruptRepository = ResourceUtil.resourceFile("repositories/module/missingGAV/target");
+        generateDefaultRepositoryArtifacts(corruptRepository);
+
+        try {
+            subject = (ModuleArtifactRepository) loadRepositoryViaAgent(corruptRepository);
+        } catch (ProvisionException e) {
+            assertThat(e.getStatus().getCode(), is(ProvisionException.REPOSITORY_FAILED_READ));
+            assertThat(e.getStatus().getMessage(), containsString("Error while reading repository"));
+            assertThat(e.getStatus().getMessage(), containsString("Maven coordinate properties are missing"));
+            throw e;
+        }
     }
 
     @Test
@@ -128,6 +145,40 @@ public class ModuleArtifactRepositoryTest {
         assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, result), is(BINARY_ARTIFACT_SIZE));
     }
 
+    @Test
+    public void testReadingWithOtherDescriptorType() throws Exception {
+        subject = ModuleArtifactRepository.restoreInstance(null, existingModuleDir);
+
+        IArtifactDescriptor originalDescriptor = subject.getArtifactDescriptors(BUNDLE_ARTIFACT_KEY)[0];
+        IArtifactDescriptor equivalentDescriptor = new ArtifactDescriptor(originalDescriptor);
+
+        assertThat(subject.contains(BUNDLE_ARTIFACT_KEY), is(true));
+        assertThat(subject.contains(originalDescriptor), is(true));
+        assertThat(subject.contains(equivalentDescriptor), is(true));
+    }
+
+    @Test
+    public void testRemovingWithOtherDescriptorType() throws Exception {
+        // existingModuleDir points to the original source files -> use temporary repository instead so that we don't edit source files
+        subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+        OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
+        writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
+
+        IArtifactDescriptor originalDescriptor = subject.getArtifactDescriptors(BINARY_ARTIFACT_KEY)[0];
+        IArtifactDescriptor equivalentDescriptor = new ArtifactDescriptor(originalDescriptor);
+
+        // self-test: now the key/descriptor should be contained
+        assertThat(subject.contains(BINARY_ARTIFACT_KEY), is(true));
+        assertThat(subject.contains(originalDescriptor), is(true));
+        assertThat(subject.contains(equivalentDescriptor), is(true));
+
+        subject.removeDescriptor(equivalentDescriptor);
+
+        assertThat(subject.contains(equivalentDescriptor), is(false));
+        assertThat(subject.contains(originalDescriptor), is(false));
+        assertThat(subject.contains(BUNDLE_ARTIFACT_KEY), is(false));
+    }
+
     private IArtifactDescriptor newDescriptor(ArtifactKey artifactKey) {
         // TODO this is wrong
         subject.setGAV("", "", "");
@@ -155,6 +206,11 @@ public class ModuleArtifactRepositoryTest {
         out.write(content);
         out.flush();
         out.close();
+    }
+
+    private static void generateDefaultRepositoryArtifacts(File location) throws IOException {
+        generateBinaryTestFile(new File(location, "the-bundle.jar"), BUNDLE_ARTIFACT_SIZE);
+        generateBinaryTestFile(new File(location, "the-sources.jar"), SOURCE_ARTIFACT_SIZE);
     }
 
     private static void generateBinaryTestFile(File file, int size) throws IOException {
