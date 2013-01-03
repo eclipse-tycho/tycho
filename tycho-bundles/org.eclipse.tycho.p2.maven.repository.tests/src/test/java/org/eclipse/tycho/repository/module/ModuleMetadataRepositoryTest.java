@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
@@ -29,8 +29,8 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.p2.maven.repository.Activator;
-import org.eclipse.tycho.repository.module.ModuleMetadataRepository;
+import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
+import org.eclipse.tycho.test.util.P2Context;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,12 +45,14 @@ public class ModuleMetadataRepositoryTest {
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
+    @Rule
+    public P2Context p2Context = new P2Context();
 
     private IMetadataRepository subject;
 
     @BeforeClass
     public static void init() throws Exception {
-        moduleDir = new File("resources/repositories/module/target").getAbsoluteFile();
+        moduleDir = ResourceUtil.resourceFile("repositories/module/target");
     }
 
     @Test
@@ -63,11 +65,7 @@ public class ModuleMetadataRepositoryTest {
 
     @Test
     public void testLoadRepositoryWithFactory() throws Exception {
-        IProvisioningAgent agent = Activator.createProvisioningAgent(tempFolder.newFolder("agent").toURI());
-        IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
-
-        subject = repoManager.loadRepository(moduleDir.toURI(), null);
+        subject = loadRepositoryViaAgent(moduleDir);
 
         assertThat(unitsIn(subject), hasItem(BUNDLE_UNIT));
         assertThat(unitsIn(subject), hasItem(SOURCE_UNIT));
@@ -98,7 +96,7 @@ public class ModuleMetadataRepositoryTest {
 
         subject = new ModuleMetadataRepository(null, targetFolder);
 
-        IMetadataRepository result = reloadRepository(targetFolder);
+        IMetadataRepository result = loadRepositoryViaAgent(targetFolder);
         assertThat(unitsIn(result).size(), is(0));
     }
 
@@ -109,7 +107,7 @@ public class ModuleMetadataRepositoryTest {
         subject = new ModuleMetadataRepository(null, targetFolder);
         subject.addInstallableUnits(createIUs(SOURCE_UNIT));
 
-        IMetadataRepository result = reloadRepository(targetFolder);
+        IMetadataRepository result = loadRepositoryViaAgent(targetFolder);
         assertThat(unitsIn(result), hasItem(SOURCE_UNIT));
     }
 
@@ -135,12 +133,8 @@ public class ModuleMetadataRepositoryTest {
         return result;
     }
 
-    private IMetadataRepository reloadRepository(File location) throws Exception {
-        // load through factory, to ensure that end-to-end process works
-        IProvisioningAgent agent = Activator.createProvisioningAgent(tempFolder.newFolder("agent").toURI());
-        IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent
-                .getService(IMetadataRepositoryManager.SERVICE_NAME);
-
+    private IMetadataRepository loadRepositoryViaAgent(File location) throws ProvisionException {
+        IMetadataRepositoryManager repoManager = p2Context.getService(IMetadataRepositoryManager.class);
         return repoManager.loadRepository(location.toURI(), null);
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,15 +24,15 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.tycho.p2.maven.repository.Activator;
-import org.eclipse.tycho.repository.module.ModuleArtifactRepository;
+import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
+import org.eclipse.tycho.test.util.P2Context;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,13 +60,15 @@ public class ModuleArtifactRepositoryTest {
 
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();
+    @Rule
+    public P2Context p2Context = new P2Context();
 
     private ModuleArtifactRepository subject;
 
     @BeforeClass
     public static void initExistingRepository() throws Exception {
         // this folder contains a ModuleArtifactRepository with BUNDLE_ARTIFACT_KEY and SOURCE_ARTIFACT_KEY ...
-        existingModuleDir = new File("resources/repositories/module/target").getAbsoluteFile();
+        existingModuleDir = ResourceUtil.resourceFile("repositories/module/target");
 
         // ... except for the binary files
         generateBinaryTestFile(new File(existingModuleDir, "the-bundle.jar"), BUNDLE_ARTIFACT_SIZE);
@@ -83,12 +85,7 @@ public class ModuleArtifactRepositoryTest {
 
     @Test
     public void testLoadRepositoryWithFactory() throws Exception {
-        File agentDir = tempManager.newFolder("agent");
-        IProvisioningAgent agent = Activator.createProvisioningAgent(agentDir.toURI());
-        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
-
-        subject = (ModuleArtifactRepository) repoManager.loadRepository(existingModuleDir.toURI(), null);
+        subject = (ModuleArtifactRepository) loadRepositoryViaAgent(existingModuleDir);
 
         assertThat(subject.getArtifactDescriptors(SOURCE_ARTIFACT_KEY).length, is(1));
     }
@@ -115,7 +112,7 @@ public class ModuleArtifactRepositoryTest {
         File repoDir = tempManager.newFolder("targetDir");
         subject = ModuleArtifactRepository.createInstance(null, repoDir);
 
-        IArtifactRepository result = reloadRepository(repoDir);
+        IArtifactRepository result = loadRepositoryViaAgent(repoDir);
         assertThat(allKeysIn(result).size(), is(0));
     }
 
@@ -127,7 +124,7 @@ public class ModuleArtifactRepositoryTest {
         OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
 
-        IArtifactRepository result = reloadRepository(repoDir);
+        IArtifactRepository result = loadRepositoryViaAgent(repoDir);
         assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, result), is(BINARY_ARTIFACT_SIZE));
     }
 
@@ -147,12 +144,8 @@ public class ModuleArtifactRepositoryTest {
         return artifactContent.size();
     }
 
-    private IArtifactRepository reloadRepository(File location) throws Exception {
-        // load through factory, to ensure that end-to-end process works
-        IProvisioningAgent agent = Activator.createProvisioningAgent(tempManager.newFolder("agent").toURI());
-        IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent
-                .getService(IArtifactRepositoryManager.SERVICE_NAME);
-
+    private IArtifactRepository loadRepositoryViaAgent(File location) throws ProvisionException {
+        IArtifactRepositoryManager repoManager = p2Context.getService(IArtifactRepositoryManager.class);
         return repoManager.loadRepository(location.toURI(), null);
     }
 
