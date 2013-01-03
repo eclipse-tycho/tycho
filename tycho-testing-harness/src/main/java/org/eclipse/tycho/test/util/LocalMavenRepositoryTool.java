@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG.
+ * Copyright (c) 2011, 2013 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,15 +13,15 @@ package org.eclipse.tycho.test.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.ArrayList;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -56,6 +56,23 @@ public class LocalMavenRepositoryTool {
         return new File(localRepo, artifactPath + '/' + artifactName);
     }
 
+    public Set<String> getArtifactIndexLines() throws IOException {
+        File indexFile = getArtifactIndexFile();
+        FileLocker locker = fileLockService.getFileLocker(indexFile);
+        locker.lock();
+        try {
+            return readLines(indexFile);
+        } finally {
+            locker.release();
+        }
+    }
+
+    public void removeLinesFromArtifactsIndex(String... linesToBeRemoved) throws IOException {
+        Set<String> toBeRemoved = new HashSet<String>(Arrays.asList(linesToBeRemoved));
+        File indexFile = getArtifactIndexFile();
+        filterLinesFromIndex(indexFile, toBeRemoved);
+    }
+
     /**
      * Hides specified artifacts built and installed by Tycho from future Tycho builds by removing
      * the corresponding lines with GAV coordinates format "g:a:v" from the local metadata index
@@ -73,30 +90,49 @@ public class LocalMavenRepositoryTool {
     public void removeLinesFromMetadataIndex(String... linesToBeRemoved) throws IOException {
         Set<String> toBeRemoved = new HashSet<String>(Arrays.asList(linesToBeRemoved));
         File indexFile = new File(localRepo, ".meta/p2-local-metadata.properties");
+        filterLinesFromIndex(indexFile, toBeRemoved);
+    }
+
+    private void filterLinesFromIndex(File indexFile, Set<String> toBeRemoved) throws UnsupportedEncodingException,
+            FileNotFoundException, IOException {
         FileLocker locker = fileLockService.getFileLocker(indexFile);
         locker.lock();
         try {
-            List<String> lines = new ArrayList<String>();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile), "UTF-8"));
-            try {
-                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                    if (!toBeRemoved.contains(line)) {
-                        lines.add(line);
-                    }
-                }
-            } finally {
-                reader.close();
-            }
-            Writer writer = new OutputStreamWriter(new FileOutputStream(indexFile), "UTF-8");
-            try {
-                for (String line : lines) {
-                    writer.write(line + "\n");
-                }
-            } finally {
-                writer.close();
-            }
+            Set<String> currentLines = readLines(indexFile);
+            currentLines.removeAll(toBeRemoved);
+            writeLines(indexFile, currentLines);
         } finally {
             locker.release();
+        }
+    }
+
+    private File getArtifactIndexFile() {
+        return new File(localRepo, ".meta/p2-artifacts.properties");
+    }
+
+    private Set<String> readLines(File indexFile) throws UnsupportedEncodingException, FileNotFoundException,
+            IOException {
+        Set<String> lines = new LinkedHashSet<String>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile), "UTF-8"));
+        try {
+            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+                lines.add(line);
+            }
+        } finally {
+            reader.close();
+        }
+        return lines;
+    }
+
+    private void writeLines(File indexFile, Collection<String> lines) throws UnsupportedEncodingException,
+            FileNotFoundException, IOException {
+        PrintStream writer = new PrintStream(indexFile);
+        try {
+            for (String line : lines) {
+                writer.println(line);
+            }
+        } finally {
+            writer.close();
         }
     }
 

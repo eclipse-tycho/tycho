@@ -24,7 +24,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -171,7 +170,7 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
         repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
         descriptors = localRepository.getArtifactDescriptors(key);
         Assert.assertEquals(1, descriptors.length);
-        Assert.assertTrue(descriptors[0].getClass() == ArtifactDescriptor.class);
+        Assert.assertTrue(descriptors[0].getClass() == GAVArtifactDescriptor.class);
 
         // force reload
         localRepository.save();
@@ -180,7 +179,7 @@ public class MavenMirrorRequestTest extends BaseMavenRepositoryTest {
         localRepository = new LocalArtifactRepository(localRepoIndices);
         descriptors = localRepository.getArtifactDescriptors(key);
         Assert.assertEquals(1, descriptors.length);
-        Assert.assertTrue(descriptors[0].getClass() == ArtifactDescriptor.class);
+        Assert.assertTrue(descriptors[0].getClass() == GAVArtifactDescriptor.class);
     }
 
     private IArtifactDescriptor getDescriptor(IArtifactDescriptor[] descriptors, String format) {

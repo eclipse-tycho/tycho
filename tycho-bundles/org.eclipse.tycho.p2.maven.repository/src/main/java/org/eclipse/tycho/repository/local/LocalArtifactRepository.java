@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@ package org.eclipse.tycho.repository.local;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,26 +20,26 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.p2.maven.repository.AbstractMavenArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
+import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
+import org.eclipse.tycho.repository.p2base.artifact.provider.LocalArtifactTransferPolicy;
+import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 
-public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
+public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtifactDescriptor> {
 
-    private final Set<IArtifactKey> changedDescriptors = new HashSet<IArtifactKey>();
+    private Set<IArtifactDescriptor> descriptorsOnLastSave;
     private final LocalRepositoryP2Indices localRepoIndices;
+    private final RepositoryReader contentLocator;
 
     // TODO what is the agent needed for? does using the default agent harm?
     public LocalArtifactRepository(LocalRepositoryP2Indices localRepoIndices) {
@@ -57,8 +56,9 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
 
     public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices,
             RepositoryReader contentLocator) {
-        super(agent, localRepoIndices.getBasedir().toURI(), contentLocator);
+        super(agent, localRepoIndices.getBasedir().toURI(), new LocalArtifactTransferPolicy());
         this.localRepoIndices = localRepoIndices;
+        this.contentLocator = contentLocator;
         loadMaven();
     }
 
@@ -91,6 +91,8 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
                 e.printStackTrace();
             }
         }
+
+        descriptorsOnLastSave = new HashSet<IArtifactDescriptor>(descriptors);
     }
 
     private void saveMaven() {
@@ -100,16 +102,20 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
 
         ArtifactsIO io = new ArtifactsIO();
 
-        for (IArtifactKey key : changedDescriptors) {
-            Set<IArtifactDescriptor> keyDescriptors = descriptorsMap.get(key);
+        Set<IArtifactDescriptor> changedDescriptors = new HashSet<IArtifactDescriptor>(descriptors);
+        changedDescriptors.removeAll(descriptorsOnLastSave);
+
+        Set<IArtifactKey> changedKeys = new HashSet<IArtifactKey>();
+        for (IArtifactDescriptor changedDescriptor : changedDescriptors) {
+            changedKeys.add(changedDescriptor.getArtifactKey());
+        }
+
+        for (IArtifactKey key : changedKeys) {
+            Set<GAVArtifactDescriptor> keyDescriptors = descriptorsMap.get(key);
             if (keyDescriptors != null && !keyDescriptors.isEmpty()) {
-                IArtifactDescriptor random = keyDescriptors.iterator().next();
-                GAV gav = RepositoryLayoutHelper.getGAV(random.getProperties());
-
-                if (gav == null) {
-                    gav = getP2GAV(random);
-                }
-
+                // all descriptors should have the same GAV
+                GAVArtifactDescriptor anyDescriptorOfKey = keyDescriptors.iterator().next();
+                GAV gav = anyDescriptorOfKey.getMavenCoordinates().getGav();
                 index.addGav(gav);
 
                 String relpath = getMetadataRelpath(gav);
@@ -136,7 +142,7 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
             throw new RuntimeException(e);
         }
 
-        changedDescriptors.clear();
+        descriptorsOnLastSave = new HashSet<IArtifactDescriptor>(descriptors);
     }
 
     private String getMetadataRelpath(GAV gav) {
@@ -145,48 +151,46 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         return relpath;
     }
 
+    // TODO 393004 store index on every write operation
+//    @Override
+//    protected void internalStore(IProgressMonitor monitor) {
+//        // ...
+//    }
+
     public void save() {
         saveMaven();
     }
 
     @Override
-    public synchronized OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
-        GAV gav = RepositoryLayoutHelper.getGAV(descriptor.getProperties());
-
-        if (gav == null) {
-            gav = getP2GAV(descriptor);
-        }
+    public File getArtifactFile(IArtifactDescriptor descriptor) {
+        MavenArtifactCoordinates mavenCoordinates = getInternalDescriptorForAdding(descriptor).getMavenCoordinates();
+        GAV gav = mavenCoordinates.getGav();
 
         File basedir = getBasedir();
-        String classifier = null;
-        String extension = null;
-        if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT))) {
-            classifier = RepositoryLayoutHelper.PACK200_CLASSIFIER;
-            extension = RepositoryLayoutHelper.PACK200_EXTENSION;
-        }
+        String classifier = mavenCoordinates.getClassifier();
+        String extension = mavenCoordinates.getExtension();
         File file = new File(basedir, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
-        file.getParentFile().mkdirs();
+        return file;
+    }
 
-        // TODO ideally, repository index should be updated after artifact has been written to the file
+    @Override
+    protected IArtifactDescriptor getComparableDescriptor(IArtifactDescriptor descriptor) {
+        // any descriptor can be converted to our internal type GAVArtifactDescriptor
+        return toInternalDescriptor(descriptor);
+    }
 
-        ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
-        newDescriptor.setRepository(this);
-        descriptors.add(newDescriptor);
+    @Override
+    protected GAVArtifactDescriptor getInternalDescriptorForAdding(IArtifactDescriptor descriptor) {
+        return toInternalDescriptor(descriptor);
+    }
 
-        IArtifactKey key = newDescriptor.getArtifactKey();
-        Set<IArtifactDescriptor> keyDescriptors = descriptorsMap.get(key);
-        if (keyDescriptors == null) {
-            keyDescriptors = new HashSet<IArtifactDescriptor>();
-            descriptorsMap.put(key, keyDescriptors);
-        }
-        keyDescriptors.add(newDescriptor);
-
-        changedDescriptors.add(key);
-
-        try {
-            return new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new ProvisionException("Could not create artifact file", e);
+    private GAVArtifactDescriptor toInternalDescriptor(IArtifactDescriptor descriptor) {
+        if (descriptor instanceof GAVArtifactDescriptor && descriptor.getRepository() == this) {
+            return (GAVArtifactDescriptor) descriptor;
+        } else {
+            GAVArtifactDescriptor internalDescriptor = new GAVArtifactDescriptor(descriptor);
+            internalDescriptor.setRepository(this);
+            return internalDescriptor;
         }
     }
 
@@ -199,39 +203,4 @@ public class LocalArtifactRepository extends AbstractMavenArtifactRepository {
         return true;
     }
 
-    @Override
-    public boolean contains(IArtifactDescriptor descriptor) {
-        // TODO there should not be a descriptor if the file doesn't exist!
-        return super.contains(descriptor) && getArtifactFile(descriptor).canRead();
-    }
-
-    @Override
-    public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
-        super.addDescriptor(descriptor, monitor);
-
-        changedDescriptors.add(descriptor.getArtifactKey());
-    }
-
-    @Override
-    public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
-        super.removeDescriptor(descriptor, monitor);
-
-        IArtifactKey key = descriptor.getArtifactKey();
-
-        Set<IArtifactDescriptor> keyDescriptors = descriptorsMap.get(key);
-
-        if (keyDescriptors != null) {
-            keyDescriptors.remove(descriptor);
-            if (keyDescriptors.isEmpty()) {
-                descriptorsMap.remove(key);
-            }
-        }
-
-        descriptors.remove(descriptor);
-        getArtifactFile(descriptor).delete();
-
-        changedDescriptors.remove(descriptor.getArtifactKey());
-        // TODO this doesn't work if the descriptor is not in changedDescriptors
-        // TODO who needs this method?
-    }
 }

@@ -46,6 +46,7 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
 /**
  * Base class for p2 artifact repositories with GAV-based artifact storage.
  */
+// TODO 393004 obsolete; delete class
 public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRepository implements
         IFileArtifactRepository {
     public static final String VERSION = "1.0.0";
