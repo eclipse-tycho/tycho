@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Uwe Stieber (Wind River) - [397160] Feature.ImportRef misses API to access all import references attributes
  *******************************************************************************/
 package org.eclipse.tycho.model;
 
@@ -127,6 +128,27 @@ public class Feature {
             return dom.getAttributeValue("feature");
         }
 
+        public String getVersion() {
+            return dom.getAttributeValue("version");
+        }
+
+        public String getMatch() {
+            String match = dom.getAttributeValue("match");
+            if (match == null) {
+                return "compatible";
+            } else {
+                return match;
+            }
+        }
+
+        public String getPatch() {
+            String patch = dom.getAttributeValue("patch");
+            if (patch == null) {
+                return "false";
+            } else {
+                return patch;
+            }
+        }
     }
 
     public String getVersion() {
