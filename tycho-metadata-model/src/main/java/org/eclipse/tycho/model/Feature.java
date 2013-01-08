@@ -163,6 +163,14 @@ public class Feature {
         dom.setAttribute("id", id);
     }
 
+    public String getBrandingPluginId() {
+        return dom.getAttributeValue("plugin");
+    }
+
+    public void setBrandingPluginId(String id) {
+        dom.setAttribute("plugin", id);
+    }
+
     public String getLicenseFeature() {
         return dom.getAttributeValue("license-feature");
     }
