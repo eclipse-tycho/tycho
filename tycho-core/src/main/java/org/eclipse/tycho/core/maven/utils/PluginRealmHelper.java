@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.maven.utils;
 
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.lifecycle.internal.LifecyclePluginResolver;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.InvalidPluginDescriptorException;
@@ -21,6 +22,7 @@ import org.apache.maven.plugin.PluginDescriptorParsingException;
 import org.apache.maven.plugin.PluginManagerException;
 import org.apache.maven.plugin.PluginResolutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugin.version.PluginVersionResolutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
@@ -72,6 +74,9 @@ public class PluginRealmHelper {
     @Requirement
     private PluginDescriptorCache pluginDescriptorCache;
 
+    @Requirement
+    private LifecyclePluginResolver lifecyclePluginResolver;
+
     public void execute(MavenSession session, MavenProject project, Runnable runnable, PluginFilter filter)
             throws MavenExecutionException {
         for (Plugin plugin : project.getBuildPlugins()) {
@@ -83,6 +88,7 @@ public class PluginRealmHelper {
                 continue;
             }
             try {
+                lifecyclePluginResolver.resolveMissingPluginVersions(project, session);
                 PluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptor(plugin,
                         project.getRemotePluginRepositories(), session.getRepositorySession());
 
@@ -120,6 +126,8 @@ public class PluginRealmHelper {
             } catch (PluginManagerException e) {
                 throw newMavenExecutionException(e);
             } catch (PluginResolutionException e) {
+                throw newMavenExecutionException(e);
+            } catch (PluginVersionResolutionException e) {
                 throw newMavenExecutionException(e);
             } catch (PluginDescriptorParsingException e) {
                 throw newMavenExecutionException(e);
