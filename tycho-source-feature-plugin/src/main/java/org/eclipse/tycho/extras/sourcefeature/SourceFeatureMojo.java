@@ -276,6 +276,9 @@ public class SourceFeatureMojo extends AbstractMojo {
         Feature sourceFeature = new Feature(document);
         sourceFeature.setId(feature.getId() + ".source");
         sourceFeature.setVersion(feature.getVersion());
+        if (feature.getBrandingPluginId() != null) {
+            sourceFeature.setBrandingPluginId(feature.getBrandingPluginId());
+        }
 
         // make sure versions of sources and binary features match
         FeatureRef binaryRef = new FeatureRef(new Element("includes"));
