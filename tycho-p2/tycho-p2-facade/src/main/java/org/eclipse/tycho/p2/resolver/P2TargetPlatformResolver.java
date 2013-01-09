@@ -201,8 +201,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             addEntireP2RepositoryToTargetPlatform(repository, tpBuilder, session);
         }
 
-        if (configuration.getTarget() != null) {
-            addTargetFileContentToTargetPlatform(configuration, tpBuilder);
+        for (File file : configuration.getTargets()) {
+            addTargetFileContentToTargetPlatform(file, configuration.getEnvironments(), tpBuilder);
         }
 
         tpBuilder.addFilters(configuration.getFilters());
@@ -320,22 +320,20 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
     }
 
-    private void addTargetFileContentToTargetPlatform(TargetPlatformConfiguration configuration,
+    private void addTargetFileContentToTargetPlatform(File targetFile, List<TargetEnvironment> environments,
             TargetPlatformBuilder resolutionContext) {
         final TargetDefinitionFile target;
         try {
-            target = TargetDefinitionFile.read(configuration.getTarget());
-            getLogger().debug("Adding target definition file \"" + configuration.getTarget() + "\"");
-            resolutionContext.addTargetDefinition(target, configuration.getEnvironments());
+            target = TargetDefinitionFile.read(targetFile);
+            getLogger().debug("Adding target definition file \"" + targetFile + "\"");
+            resolutionContext.addTargetDefinition(target, environments);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (TargetDefinitionSyntaxException e) {
-            throw new RuntimeException("Invalid syntax in target definition " + configuration.getTarget() + ": "
-                    + e.getMessage(), e);
+            throw new RuntimeException("Invalid syntax in target definition " + targetFile + ": " + e.getMessage(), e);
         } catch (TargetDefinitionResolutionException e) {
-            throw new RuntimeException("Failed to resolve target definition " + configuration.getTarget(), e);
+            throw new RuntimeException("Failed to resolve target definition " + targetFile, e);
         }
-
     }
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,

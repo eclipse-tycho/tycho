@@ -257,11 +257,18 @@ public class DefaultTargetPlatformConfigurationReader {
             return;
         }
 
-        Xpp3Dom artifactDom = targetDom.getChild("artifact");
-        if (artifactDom == null) {
+        Xpp3Dom[] artifactDomArray = targetDom.getChildren("artifact");
+        if (artifactDomArray == null || artifactDomArray.length == 0) {
             return;
         }
 
+        for (Xpp3Dom artifactDom : artifactDomArray) {
+            addTargetArtifact(result, session, project, artifactDom);
+        }
+    }
+
+    private void addTargetArtifact(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
+            Xpp3Dom artifactDom) {
         Xpp3Dom groupIdDom = artifactDom.getChild("groupId");
         Xpp3Dom artifactIdDom = artifactDom.getChild("artifactId");
         Xpp3Dom versionDom = artifactDom.getChild("version");
@@ -308,7 +315,7 @@ public class DefaultTargetPlatformConfigurationReader {
             targetFile = artifact.getFile();
         }
 
-        result.setTarget(targetFile);
+        result.addTarget(targetFile);
     }
 
     private void setTargetPlatformResolver(TargetPlatformConfiguration result, Xpp3Dom configuration) {
