@@ -30,7 +30,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private boolean implicitTargetEnvironment = true;
 
-    private File target;
+    private final List<File> targets = new ArrayList<File>();
 
     private String pomDependencies;
 
@@ -62,8 +62,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         return resolver;
     }
 
-    public File getTarget() {
-        return target;
+    public List<File> getTargets() {
+        return Collections.unmodifiableList(targets);
     }
 
     public void addEnvironment(TargetEnvironment environment) {
@@ -74,8 +74,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         this.resolver = resolver;
     }
 
-    public void setTarget(File target) {
-        this.target = target;
+    public void addTarget(File target) {
+        this.targets.add(target);
     }
 
     public void setPomDependencies(String pomDependencies) {
