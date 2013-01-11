@@ -12,12 +12,15 @@
 package org.eclipse.tycho.repository.local;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
+import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.test.util.LogVerifier;
@@ -26,6 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
+@SuppressWarnings("restriction")
 public abstract class BaseMavenRepositoryTest {
 
     @Rule
@@ -46,12 +50,16 @@ public abstract class BaseMavenRepositoryTest {
         this.localRepoIndices = tempLocalRepoIndices;
     }
 
-    protected TychoRepositoryIndex createArtifactsIndex(File location) {
+    final TychoRepositoryIndex createArtifactsIndex(File location) {
         return FileBasedTychoRepositoryIndex.createArtifactsIndex(location, new NoopFileLockService());
     }
 
-    protected TychoRepositoryIndex createMetadataIndex(File location) {
+    final TychoRepositoryIndex createMetadataIndex(File location) {
         return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService());
+    }
+
+    final void initLocalRepositoryFromTestResource(String path) throws IOException {
+        FileUtils.copy(ResourceUtil.resourceFile(path), localRepoIndices.getBasedir(), new File("."), true);
     }
 
 }

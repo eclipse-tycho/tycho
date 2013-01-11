@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<artifacts size='1'>
+  <artifact classifier='osgi.bundle' id='org.eclipse.ecf' version='3.1.300.v20120319-0616'>
+    <processing size='1'>
+      <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
+    </processing>
+    <properties size='3'>
+      <property name='artifact.size' value='971'/>
+      <property name='download.size' value='703'/>
+      <property name='format' value='packed'/>
+    </properties>
+  </artifact>
+</artifacts>
