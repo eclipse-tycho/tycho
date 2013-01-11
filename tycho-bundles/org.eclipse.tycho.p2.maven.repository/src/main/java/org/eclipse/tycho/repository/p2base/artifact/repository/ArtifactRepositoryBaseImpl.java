@@ -174,9 +174,14 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         IArtifactDescriptor comparableDescriptor = getComparableDescriptor(descriptor);
         descriptors.remove(comparableDescriptor);
 
-        Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.get(comparableDescriptor.getArtifactKey());
+        IArtifactKey artifactKey = comparableDescriptor.getArtifactKey();
+        Set<ArtifactDescriptorT> descriptorsForKey = descriptorsMap.get(artifactKey);
         if (descriptorsForKey != null) {
             descriptorsForKey.remove(comparableDescriptor);
+
+            if (descriptorsForKey.isEmpty()) {
+                descriptorsMap.remove(artifactKey);
+            }
         }
     }
 
