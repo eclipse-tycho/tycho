@@ -64,7 +64,7 @@ import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
-import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;

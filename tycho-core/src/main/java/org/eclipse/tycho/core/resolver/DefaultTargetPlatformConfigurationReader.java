@@ -31,7 +31,7 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
-import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 
 @Component(role = DefaultTargetPlatformConfigurationReader.class)
 public class DefaultTargetPlatformConfigurationReader {

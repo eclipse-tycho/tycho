@@ -54,7 +54,7 @@ import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;

@@ -28,7 +28,7 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;

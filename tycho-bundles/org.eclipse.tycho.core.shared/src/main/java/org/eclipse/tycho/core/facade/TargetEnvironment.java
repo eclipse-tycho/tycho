@@ -12,6 +12,9 @@ package org.eclipse.tycho.core.facade;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
+
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 
 public final class TargetEnvironment {
     private static final String OSGI_OS = "osgi.os";
@@ -146,6 +149,17 @@ public final class TargetEnvironment {
 
     private static boolean eq(String a, String b) {
         return a != null ? a.equals(b) : b == null;
+    }
+
+    public static TargetEnvironment getRunningEnvironment() {
+        Properties properties = new Properties();
+        properties.put(PlatformPropertiesUtils.OSGI_OS, PlatformPropertiesUtils.getOS(properties));
+        properties.put(PlatformPropertiesUtils.OSGI_WS, PlatformPropertiesUtils.getWS(properties));
+        properties.put(PlatformPropertiesUtils.OSGI_ARCH, PlatformPropertiesUtils.getArch(properties));
+
+        return new TargetEnvironment(properties.getProperty(PlatformPropertiesUtils.OSGI_OS),
+                properties.getProperty(PlatformPropertiesUtils.OSGI_WS),
+                properties.getProperty(PlatformPropertiesUtils.OSGI_ARCH));
     }
 
 }

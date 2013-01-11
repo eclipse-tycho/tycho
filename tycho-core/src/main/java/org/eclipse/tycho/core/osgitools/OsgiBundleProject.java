@@ -54,7 +54,7 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
-import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;

@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.impl.resolver;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -64,6 +65,7 @@ public class P2ResolverImpl implements P2Resolver {
     public P2ResolverImpl(MavenLogger logger) {
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
+        this.environments = Collections.singletonList(TargetEnvironment.getRunningEnvironment());
     }
 
     public List<P2ResolutionResult> resolveProject(TargetPlatform targetPlatform, File projectLocation) {

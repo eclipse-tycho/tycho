@@ -41,7 +41,7 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
