@@ -26,9 +26,9 @@
     </artifact>
     <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
       <properties size='4'>
-        <property name='artifact.size' value='11034'/>
-        <property name='download.size' value='11034'/>
-        <property name='download.md5' value='58057045158895009b845b9a93f3eb6e'/>
+        <property name='artifact.size' value='10855'/>
+        <property name='download.size' value='10855'/>
+        <property name='download.md5' value='cdc528b62f2eeea0ffbbc4d0bdcd8f83'/>
         <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
@@ -37,8 +37,8 @@
         <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
       </processing>
       <properties size='3'>
-        <property name='artifact.size' value='11034'/>
-        <property name='download.size' value='0'/>
+        <property name='artifact.size' value='10855'/>
+        <property name='download.size' value='1723'/>
         <property name='format' value='packed'/>
       </properties>
     </artifact>

@@ -93,6 +93,8 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
     @Override
     public final void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
         internalRemoveDescriptor(descriptor);
+
+        // TODO only store if something was removed?
         internalStore(monitor);
     }
 
@@ -107,11 +109,13 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
         internalStore(monitor);
     }
 
+    // should be called removeDescriptors
     @Override
     public final void removeDescriptor(IArtifactKey key) {
         removeDescriptor(key, null);
     }
 
+    // should be called removeDescriptors
     @Override
     public final void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
         internalRemoveDescriptors(key);
