@@ -102,6 +102,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     /** maven local repository as P2 IMetadataRepository */
     private final LocalMetadataRepository localMetadataRepository;
+    private boolean includeLocalMavenRepo;
 
     public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
             TargetDefinitionResolverService targetDefinitionResolverService,
@@ -111,6 +112,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.targetDefinitionResolverService = targetDefinitionResolverService;
         this.logger = mavenContext.getLogger();
         this.monitor = new LoggingProgressMonitor(logger);
+        this.includeLocalMavenRepo = shouldIncludeLocalMavenRepo(mavenContext);
 
         this.remoteMetadataRepositoryManager = (IMetadataRepositoryManager) remoteAgent
                 .getService(IMetadataRepositoryManager.SERVICE_NAME);
@@ -138,7 +140,9 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.localArtifactRepository = localArtifactRepo;
         this.localMetadataRepository = localMetadataRepo;
 
-        metadataRepositories.add(this.localMetadataRepository);
+        if (includeLocalMavenRepo) {
+            metadataRepositories.add(this.localMetadataRepository);
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -215,7 +219,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     /**
      * All known P2 metadata repositories, including maven local repository
      */
-    private final List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
+    private final Set<IMetadataRepository> metadataRepositories = new LinkedHashSet<IMetadataRepository>();
 
     /**
      * All known P2 artifact repositories, NOT including maven local repository.
@@ -346,6 +350,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 localArtifactRepository, //
                 remoteAgent, //
                 includePackedArtifacts, //
+                includeLocalMavenRepo,//
                 logger);
 
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
@@ -373,17 +378,11 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         }
         sub.done();
 
-        if (logger.isDebugEnabled()) {
+        if (includeLocalMavenRepo && logger.isDebugEnabled()) {
             IQueryResult<IInstallableUnit> locallyInstalledIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS,
                     null);
             logger.debug("Added " + countElements(locallyInstalledIUs.iterator())
                     + " locally built units to the target platform");
-
-            // TODO it is questionable if the following is useful at all; instead, the full metadata should be written to a file for target platform debugging 
-//            logger.debug("The following locally built units are added to the target platform:");
-//            for (IInstallableUnit unit : locallyInstalledIUs.toSet()) {
-//                logger.debug("  " + unit.getId() + "/" + unit.getVersion());
-//            }
         }
 
         return result;
@@ -497,4 +496,25 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     public void setFailOnDuplicateIUs(boolean failOnDuplicateIUs) {
         this.failOnDuplicateIUs = failOnDuplicateIUs;
     }
+
+    public void setIncludeLocalMavenRepo(boolean includeLocalMavenRepo) {
+        this.includeLocalMavenRepo = includeLocalMavenRepo;
+        if (includeLocalMavenRepo) {
+            metadataRepositories.add(localMetadataRepository);
+        } else {
+            metadataRepositories.remove(localMetadataRepository);
+        }
+    }
+
+    static boolean shouldIncludeLocalMavenRepo(MavenContext context) {
+        boolean ignoreLocal = "ignore".equalsIgnoreCase(context.getSessionProperties().getProperty(
+                "tycho.localArtifacts"));
+        if (ignoreLocal) {
+            context.getLogger().debug(
+                    "tycho.localArtifacts=" + context.getSessionProperties().getProperty("tycho.localArtifacts")
+                            + " -> ignoring locally built artifacts");
+        }
+        return !ignoreLocal;
+    }
+
 }

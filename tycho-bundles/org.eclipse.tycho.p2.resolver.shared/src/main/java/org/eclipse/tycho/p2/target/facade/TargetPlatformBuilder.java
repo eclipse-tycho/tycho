@@ -45,6 +45,8 @@ public interface TargetPlatformBuilder {
 
     public void setIncludePackedArtifacts(boolean include);
 
+    public void setIncludeLocalMavenRepo(boolean includeLocalMavenRepo);
+
     public void setFailOnDuplicateIUs(boolean fail);
 
 }

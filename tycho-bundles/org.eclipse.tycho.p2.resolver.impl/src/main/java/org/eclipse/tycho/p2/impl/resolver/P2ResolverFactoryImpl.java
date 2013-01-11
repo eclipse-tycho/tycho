@@ -62,13 +62,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
             localMetadataRepository = new LocalMetadataRepository(localMavenRepoRoot.toURI(),
                     localRepoIndices.getMetadataIndex(), contentLocator);
 
-            // TODO this logic shouldn't be here
-            String localArtifactHandling = context.getSessionProperties().getProperty("tycho.localArtifacts");
-            if ("ignore".equalsIgnoreCase(localArtifactHandling)) {
-                context.getLogger().debug(
-                        "tycho.localArtifacts=" + localArtifactHandling + " -> ignoring locally built artifacts");
-                localMetadataRepository.setIncludeInTargetPlatform(false);
-            }
         }
         return localMetadataRepository;
     }

@@ -111,7 +111,7 @@ public class P2ResolverTestBase {
 
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithEE(
             ExecutionEnvironmentResolutionHandler eeResolutionHandler) throws Exception {
-        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuider(eeResolutionHandler);
+        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(eeResolutionHandler);
     }
 
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithCustomEE(String customEE) throws Exception {
@@ -119,7 +119,7 @@ public class P2ResolverTestBase {
                 .createTargetPlatformBuilder(new CustomEEResolutionHints(customEE));
     }
 
-    private static class TestTargetPlatformBuilderFactory {
+    static class TestTargetPlatformBuilderFactory {
 
         private MavenContext mavenContext;
         private TargetDefinitionResolverService targetDefinitionResolverService;
@@ -140,6 +140,14 @@ public class P2ResolverTestBase {
             localArtifactRepo = new LocalArtifactRepository(localRepoIndices, localRepositoryReader);
         }
 
+        public LocalMetadataRepository getLocalMetadataRepository() {
+            return localMetadataRepo;
+        }
+
+        public TargetPlatformBuilderImpl createTargetPlatformBuilder() throws Exception {
+            return createTargetPlatformBuilder(new NoopEEResolverHints());
+        }
+
         public TargetPlatformBuilderImpl createTargetPlatformBuilder(
                 ExecutionEnvironmentResolutionHints executionEnvironment) throws Exception {
             ExecutionEnvironmentResolutionHandler eeHandler = new ExecutionEnvironmentResolutionHandler(
@@ -151,10 +159,10 @@ public class P2ResolverTestBase {
                 }
             };
 
-            return createTargetPlatformBuider(eeHandler);
+            return createTargetPlatformBuilder(eeHandler);
         }
 
-        public TargetPlatformBuilderImpl createTargetPlatformBuider(ExecutionEnvironmentResolutionHandler eeHandler)
+        public TargetPlatformBuilderImpl createTargetPlatformBuilder(ExecutionEnvironmentResolutionHandler eeHandler)
                 throws ProvisionException {
             return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
                     targetDefinitionResolverService, eeHandler, localArtifactRepo, localMetadataRepo);

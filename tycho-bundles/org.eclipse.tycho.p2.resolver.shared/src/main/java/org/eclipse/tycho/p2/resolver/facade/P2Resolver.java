@@ -35,10 +35,13 @@ public interface P2Resolver {
     /**
      * Returns list ordered of resolution result, one per requested TargetEnvironment.
      * 
+     * @param reactorProjectLocation
+     *            may be <code>null</code>
      * @TODO this should return Map<TargetEnvironment,P2ResolutionResult>
      */
-    public List<P2ResolutionResult> resolveProject(TargetPlatform context, File location);
+    public List<P2ResolutionResult> resolveDependencies(TargetPlatform context, File reactorProjectLocation);
 
+    @Deprecated
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation);
 
     public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context);
