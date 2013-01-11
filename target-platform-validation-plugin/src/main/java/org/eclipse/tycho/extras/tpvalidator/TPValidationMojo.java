@@ -12,9 +12,7 @@ package org.eclipse.tycho.extras.tpvalidator;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -23,7 +21,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -74,8 +71,6 @@ public class TPValidationMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         this.factory = this.equinox.getService(P2ResolverFactory.class);
         this.p2 = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));
-        environment = Collections.singletonList(getRunningEnvironment());
-        p2.setEnvironments(environment);
 
         List<TPError> errors = new ArrayList<TPError>();
         for (File targetFile : this.targetFiles) {
@@ -126,17 +121,4 @@ public class TPValidationMojo extends AbstractMojo {
         }
     }
 
-    /*
-     * Copied from version-bump-plugin
-     */
-    TargetEnvironment getRunningEnvironment() {
-        Properties properties = new Properties();
-        properties.put(PlatformPropertiesUtils.OSGI_OS, PlatformPropertiesUtils.getOS(properties));
-        properties.put(PlatformPropertiesUtils.OSGI_WS, PlatformPropertiesUtils.getWS(properties));
-        properties.put(PlatformPropertiesUtils.OSGI_ARCH, PlatformPropertiesUtils.getArch(properties));
-
-        return new TargetEnvironment(properties.getProperty(PlatformPropertiesUtils.OSGI_OS),
-                properties.getProperty(PlatformPropertiesUtils.OSGI_WS),
-                properties.getProperty(PlatformPropertiesUtils.OSGI_ARCH));
-    }
 }

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile.IULocation;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile.Unit;
@@ -51,7 +52,8 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                 }
             }
         }
-        resolutionContext.addTargetDefinition(target, Collections.singletonList(getRunningEnvironment()));
+        resolutionContext.addTargetDefinition(target,
+                Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
         P2ResolutionResult result = p2.resolveMetadata(resolutionContext);
 
         Map<String, String> ius = new HashMap<String, String>();

@@ -13,16 +13,12 @@ package org.eclipse.tycho.versionbump;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
@@ -56,18 +52,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     private void createResolver() {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
         p2 = factory.createResolver(new MavenLoggerAdapter(logger, false));
-        p2.setEnvironments(Collections.singletonList(getRunningEnvironment())); // intended?
         resolutionContext = factory.createTargetPlatformBuilder(null);
     }
 
-    TargetEnvironment getRunningEnvironment() {
-        Properties properties = new Properties();
-        properties.put(PlatformPropertiesUtils.OSGI_OS, PlatformPropertiesUtils.getOS(properties));
-        properties.put(PlatformPropertiesUtils.OSGI_WS, PlatformPropertiesUtils.getWS(properties));
-        properties.put(PlatformPropertiesUtils.OSGI_ARCH, PlatformPropertiesUtils.getArch(properties));
-
-        return new TargetEnvironment(properties.getProperty(PlatformPropertiesUtils.OSGI_OS),
-                properties.getProperty(PlatformPropertiesUtils.OSGI_WS),
-                properties.getProperty(PlatformPropertiesUtils.OSGI_ARCH));
-    }
 }
