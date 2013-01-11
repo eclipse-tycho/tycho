@@ -372,7 +372,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
 
         if (!isAllowConflictingDependencies(project, configuration)) {
-            List<P2ResolutionResult> results = resolver.resolveProject(resolutionContext, project.getBasedir());
+            List<P2ResolutionResult> results = resolver.resolveDependencies(resolutionContext, project.getBasedir());
 
             MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform(
                     DefaultReactorProject.adapt(project));
