@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,18 +38,7 @@ import org.junit.Test;
 @SuppressWarnings("restriction")
 public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
-    private void deleteDir(File dir) {
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDir(file);
-
-                }
-                file.delete();
-            }
-        }
-    }
+    // TODO test creation in empty folder
 
     @Test
     public void testOutdatedIndex() {
@@ -260,6 +249,19 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
         ByteArrayOutputStream destination = new ByteArrayOutputStream();
         repo.getRawArtifact(p2Artifact, destination, new NullProgressMonitor());
         Assert.assertArrayEquals(content, destination.toByteArray());
+    }
+
+    private static void deleteDir(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDir(file);
+
+                }
+                file.delete();
+            }
+        }
     }
 
 }

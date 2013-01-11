@@ -37,8 +37,8 @@
         <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
       </processing>
       <properties size='3'>
-        <property name='artifact.size' value='11034'/>
-        <property name='download.size' value='0'/>
+        <property name='artifact.size' value='10855'/>
+        <property name='download.size' value='1723'/>
         <property name='format' value='packed'/>
       </properties>
     </artifact>
