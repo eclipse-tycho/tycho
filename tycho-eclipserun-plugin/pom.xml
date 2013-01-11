@@ -34,5 +34,18 @@
 			<groupId>org.eclipse.tycho.extras</groupId>
 			<artifactId>tycho-p2-extras-plugin</artifactId>
 		</dependency>
-      </dependencies>
+	</dependencies>
+	<profiles>
+		<profile>
+			<id>its</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-invoker-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
