@@ -29,7 +29,6 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
-import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -59,21 +58,6 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
         metadataFile.getParentFile().mkdirs();
         TychoRepositoryIndex metadataIndex = createMetadataIndex(location);
         return new LocalMetadataRepository(location.toURI(), metadataIndex);
-    }
-
-    @Test
-    public void testIncludeInTargetPlatformFalse() throws Exception {
-        LocalMetadataRepository repository = createRepository(tempFolder.newFolder());
-        repository.setIncludeInTargetPlatform(false);
-        InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-        iud.setId("test");
-        iud.setVersion(Version.parseVersion("1.0.0"));
-        IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
-        repository.addInstallableUnit(iu, new GAV("groupId", "artifactId", "version"));
-
-        IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.ALL_UNITS, monitor);
-        ArrayList<IInstallableUnit> allius = new ArrayList<IInstallableUnit>(result.toSet());
-        Assert.assertEquals(0, allius.size());
     }
 
     @Test

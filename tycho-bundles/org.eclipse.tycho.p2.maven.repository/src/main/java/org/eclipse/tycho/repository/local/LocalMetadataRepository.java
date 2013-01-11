@@ -14,15 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.CollectionResult;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.tycho.p2.maven.repository.AbstractMavenMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -33,8 +28,6 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
 
     private Set<GAV> changedGAVs = new LinkedHashSet<GAV>();
-    // TODO this shouldn't be handled here
-    private boolean includeInTargetPlatform = true;
 
     /**
      * Create new repository
@@ -54,15 +47,6 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
      */
     public LocalMetadataRepository(URI location, TychoRepositoryIndex projectIndex, RepositoryReader contentLocator) {
         super(location, projectIndex, contentLocator);
-    }
-
-    @Override
-    public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-        if (includeInTargetPlatform) {
-            return super.query(query, monitor);
-        } else {
-            return new CollectionResult<IInstallableUnit>(Collections.<IInstallableUnit> emptyList());
-        }
     }
 
     @Override
@@ -126,14 +110,6 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
     @Override
     public boolean isModifiable() {
         return true;
-    }
-
-    public void setIncludeInTargetPlatform(boolean value) {
-        this.includeInTargetPlatform = value;
-    }
-
-    public boolean getIncludeInTargetPlatform() {
-        return includeInTargetPlatform;
     }
 
 }

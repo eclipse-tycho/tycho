@@ -76,21 +76,23 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
     private final boolean includePackedArtifacts;
 
+    private boolean includeLocalRepo;
+
     public TargetPlatformImpl(Collection<IReactorArtifactFacade> reactorProjects, Collection<IInstallableUnit> ius,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
             LocalMetadataRepository localMetadataRepository, List<URI> allRemoteArtifactRepositories,
             LocalArtifactRepository localMavenRepository, IProvisioningAgent agent, boolean includePackedArtifacts,
-            MavenLogger logger) {
+            boolean includeLocalRepo, MavenLogger logger) {
         this.reactorProjects = reactorProjects;
         this.externalIUs = ius;
         this.executionEnvironment = executionEnvironment;
         this.mavenArtifactIUs = mavenArtifactIUs;
         this.filter = filter;
         this.localMetadataRepository = localMetadataRepository;
+        this.includeLocalRepo = includeLocalRepo;
         this.remoteArtifactRepositories = allRemoteArtifactRepositories;
         this.localMavenRepository = localMavenRepository;
-
         this.agent = agent;
         this.includePackedArtifacts = includePackedArtifacts;
         this.logger = logger;
@@ -172,7 +174,10 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return localMavenRepository.getArtifactFile(key);
     }
 
-    public void reportUsedIUs(Collection<IInstallableUnit> usedUnits) {
+    public void reportUsedLocalIUs(Collection<IInstallableUnit> usedUnits) {
+        if (!includeLocalRepo) {
+            return;
+        }
         final Set<IInstallableUnit> localIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS, null).toSet();
         localIUs.retainAll(usedUnits);
 
@@ -184,16 +189,10 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         }
 
         if (!localIUs.isEmpty()) {
-            logLocalIUMessage("The following locally built units have been used to resolve project dependencies:");
+            logger.warn("The following locally built units have been used to resolve project dependencies:");
             for (IInstallableUnit localIu : localIUs) {
-                logLocalIUMessage("  " + localIu.getId() + "/" + localIu.getVersion());
+                logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
             }
-        }
-    }
-
-    private void logLocalIUMessage(String message) {
-        if (localMetadataRepository.getIncludeInTargetPlatform()) {
-            logger.warn(message);
         }
     }
 

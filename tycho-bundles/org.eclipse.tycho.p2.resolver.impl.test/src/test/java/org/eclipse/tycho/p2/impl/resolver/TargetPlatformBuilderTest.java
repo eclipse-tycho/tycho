@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.resolver;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
@@ -30,7 +34,11 @@ import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenera
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.repository.GAV;
+import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.InstallableUnitUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -191,6 +199,23 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         units = platform.getReactorProjectIUs(projectRoot, true);
         Assert.assertEquals(units.toString(), 1, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group");
+    }
+
+    @Test
+    public void testIncludeLocalMavenRepo() throws Exception {
+        TestTargetPlatformBuilderFactory factory = new TestTargetPlatformBuilderFactory();
+        LocalMetadataRepository localMetadataRepo = factory.getLocalMetadataRepository();
+        // add one IU to local repo 
+        localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"), new GAV(
+                "test", "foo", "1.0.0"));
+        TargetPlatformBuilderImpl tpBuilder = factory.createTargetPlatformBuilder();
+        Collection<IInstallableUnit> iusIncludingLocalRepo = tpBuilder.buildTargetPlatform().getInstallableUnits();
+        tpBuilder.setIncludeLocalMavenRepo(false);
+        Collection<IInstallableUnit> iusWithoutLocalRepo = tpBuilder.buildTargetPlatform().getInstallableUnits();
+        Set<IInstallableUnit> retainedIUs = new HashSet<IInstallableUnit>(iusIncludingLocalRepo);
+        retainedIUs.removeAll(iusWithoutLocalRepo);
+        assertEquals(1, retainedIUs.size());
+        assertEquals("locallyInstalledIU", retainedIUs.iterator().next().getId());
     }
 
     private void assertContainsIU(Collection<IInstallableUnit> units, String id) {

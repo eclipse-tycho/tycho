@@ -32,11 +32,7 @@ public interface P2TargetPlatform extends TargetPlatform {
      */
     ExecutionEnvironmentResolutionHints getEEResolutionHints();
 
-    /**
-     * Notify the target platform implementation about which IUs are actually used. This for example
-     * allows debug output.
-     */
-    void reportUsedIUs(Collection<IInstallableUnit> usedUnits);
+    void reportUsedLocalIUs(Collection<IInstallableUnit> usedUnits);
 
     void downloadArtifacts(Collection<IInstallableUnit> usedUnits);
 
