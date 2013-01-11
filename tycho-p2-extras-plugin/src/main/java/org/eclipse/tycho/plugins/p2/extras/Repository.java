@@ -71,6 +71,13 @@ public final class Repository {
         return layout;
     }
 
+    /**
+     * @return may be <code>null</code>
+     */
+    public String getId() {
+        return id;
+    }
+
     public void setLayout(String value) {
         for (Layout layout : Layout.values()) {
             if (layout.matches(value)) {
@@ -91,4 +98,5 @@ public final class Repository {
         }
         return result.substring(0, result.length() - separator.length());
     }
+
 }

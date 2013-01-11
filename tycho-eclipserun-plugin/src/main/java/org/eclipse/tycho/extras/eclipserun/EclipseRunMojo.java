@@ -14,7 +14,6 @@ package org.eclipse.tycho.extras.eclipserun;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,26 +25,33 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
-import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
-import org.eclipse.tycho.core.DependencyResolverConfiguration;
-import org.eclipse.tycho.core.TargetPlatformResolver;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
-import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
+import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
+import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
+import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.plugins.p2.extras.Repository;
 
 /**
+ * Launch an eclipse process with arbitrary commandline arguments. The eclipse installation is
+ * defined by the dependencies to bundles specified.
+ * 
  * @goal eclipse-run
  */
 public class EclipseRunMojo extends AbstractMojo {
@@ -61,11 +67,53 @@ public class EclipseRunMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * Additional target platform dependencies.
+     * Dependencies which will be resolved transitively to make up the eclipse runtime. Example:
+     * 
+     * <pre>
+     * &lt;dependencies&gt;
+     *  &lt;dependency&gt;
+     *   &lt;artifactId&gt;org.eclipse.ant.core&lt;/artifactId&gt;
+     *   &lt;type&gt;eclipse-plugin&lt;/type&gt;
+     *  &lt;/dependency&gt;
+     * &lt;/dependencies&gt;
+     * </pre>
      * 
      * @parameter
      */
-    private Dependency[] dependencies;
+    private List<Dependency> dependencies = new ArrayList<Dependency>();
+
+    /**
+     * Whether to add default dependencies to bundles org.eclipse.equinox.launcher, org.eclipse.osgi
+     * and org.eclipse.core.runtime.
+     * 
+     * @parameter default-value="true"
+     */
+    private boolean addDefaultDependencies;
+
+    /**
+     * Execution environment profile name used to resolve dependencies.
+     * 
+     * @parameter default-value="JavaSE-1.6"
+     */
+    private String executionEnvironment;
+
+    /**
+     * p2 repositories which will be used to resolve dependencies. Example:
+     * 
+     * <pre>
+     * &lt;repositories&gt;
+     *  &lt;repository&gt;
+     *   &lt;id&gt;juno&lt;/id&gt;
+     *   &lt;layout&gt;p2&lt;/layout&gt;
+     *   &lt;url&gt;http://download.eclipse.org/releases/juno&lt;/url&gt;
+     *  &lt;/repository&gt;
+     * &lt;/repositories&gt;
+     * </pre>
+     * 
+     * @parameter
+     * @required
+     */
+    private List<Repository> repositories;
 
     /**
      * @parameter expression="${session}"
@@ -82,6 +130,13 @@ public class EclipseRunMojo extends AbstractMojo {
     private String argLine;
 
     /**
+     * Whether to skip mojo execution.
+     * 
+     * @parameter expression="${eclipserun.skip}" default-value="false"
+     */
+    private boolean skip;
+
+    /**
      * Arbitrary applications arguments to set on the command line.
      * 
      * @parameter
@@ -92,7 +147,7 @@ public class EclipseRunMojo extends AbstractMojo {
      * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the
      * process, never timing out.
      * 
-     * @parameter expression="${surefire.timeout}"
+     * @parameter expression="${eclipserun.timeout}"
      */
     private int forkedProcessTimeoutInSeconds;
 
@@ -104,9 +159,6 @@ public class EclipseRunMojo extends AbstractMojo {
     private Map<String, String> environmentVariables;
 
     /** @component */
-    private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
-
-    /** @component */
     private EquinoxInstallationFactory installationFactory;
 
     /** @component */
@@ -115,82 +167,63 @@ public class EclipseRunMojo extends AbstractMojo {
     /** @component */
     private ToolchainManager toolchainManager;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    /** @component */
+    private EquinoxServiceFactory equinox;
 
-        EquinoxInstallation installation = createEclipseInstallation(false, DefaultReactorProject.adapt(session));
+    /** @component */
+    private Logger logger;
+
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
+            getLog().debug("skipping mojo execution");
+            return;
+        }
+        EquinoxInstallation installation = createEclipseInstallation();
         runEclipse(installation);
     }
 
     private Dependency newBundleDependency(String bundleId) {
-        Dependency ideapp = new Dependency();
-        ideapp.setArtifactId(bundleId);
-        ideapp.setType(ArtifactKey.TYPE_ECLIPSE_PLUGIN);
-        return ideapp;
+        Dependency dependency = new Dependency();
+        dependency.setArtifactId(bundleId);
+        dependency.setType(ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+        return dependency;
     }
 
-    private List<Dependency> getBasicDependencies() {
+    private List<Dependency> getDefaultDependencies() {
         ArrayList<Dependency> result = new ArrayList<Dependency>();
-
         result.add(newBundleDependency("org.eclipse.osgi"));
         result.add(newBundleDependency(EquinoxInstallationDescription.EQUINOX_LAUNCHER));
         result.add(newBundleDependency("org.eclipse.core.runtime"));
-
         return result;
     }
 
-    private EquinoxInstallation createEclipseInstallation(boolean includeReactorProjects,
-            List<ReactorProject> reactorProjects) throws MojoExecutionException {
-        TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
-
-        final List<Dependency> dependencies = getBasicDependencies();
-        if (this.dependencies != null) {
-            dependencies.addAll(Arrays.asList(this.dependencies));
+    private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
+        P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
+        TargetPlatformBuilder tpBuilder = resolverFactory
+                .createTargetPlatformBuilder(new ExecutionEnvironmentConfigurationStub(executionEnvironment));
+        // we want to resolve from remote repos only
+        tpBuilder.setIncludeLocalMavenRepo(false);
+        for (Repository repository : repositories) {
+            tpBuilder.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
         }
-
-        TargetPlatform targetPlatform = platformResolver
-                .computeTargetPlatform(session, project, reactorProjects, false);
-
-        DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
-            public OptionalResolutionAction getOptionalResolutionAction() {
-                return OptionalResolutionAction.REQUIRE;
+        TargetPlatform targetPlatform = tpBuilder.buildTargetPlatform();
+        P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
+        for (Dependency dependency : dependencies) {
+            resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
+        }
+        if (addDefaultDependencies) {
+            for (Dependency dependency : getDefaultDependencies()) {
+                resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
             }
-
-            public List<Dependency> getExtraRequirements() {
-                return dependencies;
-            }
-        };
-
-        // igorf: I am not convinced that using project dependencies is expected/desired here. Original usecase
-        // for eclipse-run mojo was to build documentation index, which most likely does not require project
-        // dependencies, but some other unrelated set of bundles.  
-
-        DependencyArtifacts runtimeArtifacts = platformResolver.resolveDependencies(session, project, targetPlatform,
-                reactorProjects, resolverConfiguration);
-
+        }
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
-
-        for (ArtifactDescriptor artifact : runtimeArtifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
-
-            ReactorProject reactorProject = artifact.getMavenProject();
-            if (reactorProject != null) {
-                // while reactor projects may be in the runtime, we need this special handling here
-                if (reactorProject.sameProject(project)) {
-                    // never add this project to the runtime
-                    continue;
-                }
-
-                File reactorArtifactFile = reactorProject.getArtifact(artifact.getClassifier());
-                if (reactorArtifactFile == null || !reactorArtifactFile.isFile()) {
-                    throw new MojoExecutionException(
-                            "Eclipse runtime includes artifact from the reactor which has not yet been built: "
-                                    + artifact);
-                }
-                installationDesc.addBundle(artifact.getKey(), reactorArtifactFile);
-            } else {
-                installationDesc.addBundle(artifact);
+        for (P2ResolutionResult result : resolver.resolveDependencies(targetPlatform, null)) {
+            for (Entry entry : result.getArtifacts()) {
+                installationDesc.addBundle(
+                        new DefaultArtifactKey(ArtifactKey.TYPE_ECLIPSE_PLUGIN, entry.getId(), entry.getVersion()),
+                        entry.getLocation());
             }
         }
-
         return installationFactory.createInstallation(installationDesc, work);
     }
 
@@ -200,7 +233,10 @@ public class EclipseRunMojo extends AbstractMojo {
             FileUtils.deleteDirectory(workspace);
             LaunchConfiguration cli = createCommandLine(runtime);
             getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
-            launcher.execute(cli, forkedProcessTimeoutInSeconds);
+            int returnCode = launcher.execute(cli, forkedProcessTimeoutInSeconds);
+            if (returnCode != 0) {
+                throw new MojoExecutionException("Error while executing platform (return code: " + returnCode + ")");
+            }
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);
         }
