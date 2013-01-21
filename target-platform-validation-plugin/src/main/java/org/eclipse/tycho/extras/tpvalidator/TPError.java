@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.tpvalidator;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 
@@ -25,6 +28,10 @@ public class TPError extends Exception {
 
     @Override
     public String getMessage() {
+        return this.getMessage(false);
+    }
+
+    public String getMessage(boolean debug) {
         StringBuilder res = new StringBuilder();
         res.append("Could not resolve content of ");
         res.append(this.file.getName());
@@ -32,6 +39,15 @@ public class TPError extends Exception {
         if (getCause() instanceof TargetDefinitionResolutionException) {
             TargetDefinitionResolutionException cause = (TargetDefinitionResolutionException) getCause();
             res.append(cause.getMessage());
+        } else if (debug) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            getCause().printStackTrace(new PrintStream(out));
+            res.append(out.toString());
+            try {
+                out.close();
+            } catch (IOException ex) {
+                // Nothing
+            }
         }
         return res.toString();
     }

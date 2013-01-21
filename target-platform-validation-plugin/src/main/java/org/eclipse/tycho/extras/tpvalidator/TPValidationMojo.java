@@ -99,7 +99,7 @@ public class TPValidationMojo extends AbstractMojo {
         res.append(" .target files:");
         res.append("\n");
         for (TPError error : errors) {
-            res.append(error.getMessage());
+            res.append(error.getMessage(this.logger.isDebugEnabled()));
             res.append("\n");
         }
         return res.toString();
