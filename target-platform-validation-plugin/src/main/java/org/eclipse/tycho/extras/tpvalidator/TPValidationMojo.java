@@ -12,6 +12,7 @@ package org.eclipse.tycho.extras.tpvalidator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -66,7 +67,6 @@ public class TPValidationMojo extends AbstractMojo {
 
     private P2ResolverFactory factory;
     protected P2Resolver p2;
-    protected List<TargetEnvironment> environment;
 
     public void execute() throws MojoExecutionException {
         this.factory = this.equinox.getService(P2ResolverFactory.class);
@@ -114,7 +114,9 @@ public class TPValidationMojo extends AbstractMojo {
                     executionEnvironment));
 
             TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
-            resolutionContext.addTargetDefinition(target, this.environment);
+
+            resolutionContext.addTargetDefinition(target,
+                    Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
             P2ResolutionResult result = this.p2.resolveMetadata(resolutionContext);
         } catch (Exception ex) {
             throw new TPError(targetFile, ex);
