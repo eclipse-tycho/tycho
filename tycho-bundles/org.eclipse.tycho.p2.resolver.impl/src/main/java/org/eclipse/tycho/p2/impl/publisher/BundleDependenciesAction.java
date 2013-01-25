@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.AdviceFileParser;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
@@ -38,7 +39,7 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 
 @SuppressWarnings("restriction")
-public class BundleDependenciesAction extends TychoBundleAction {
+public class BundleDependenciesAction extends BundlesAction {
 
     /**
      * If true, treat optional Import-Package and Require-Bundle as required. If false, optional
@@ -47,7 +48,7 @@ public class BundleDependenciesAction extends TychoBundleAction {
     private final OptionalResolutionAction optionalAction;
 
     public BundleDependenciesAction(File location, OptionalResolutionAction optionalAction) {
-        super(location);
+        super(new File[] { location });
         this.optionalAction = optionalAction;
     }
 
