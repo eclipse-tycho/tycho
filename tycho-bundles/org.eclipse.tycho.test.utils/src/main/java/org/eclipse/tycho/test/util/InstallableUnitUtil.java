@@ -11,6 +11,7 @@
 package org.eclipse.tycho.test.util;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
@@ -37,6 +38,14 @@ public class InstallableUnitUtil {
         InstallableUnitDescription description = createIuDescription(id, version);
         description.addProvidedCapabilities(Arrays.<IProvidedCapability> asList(new ProvidedCapability(
                 IInstallableUnit.NAMESPACE_IU_ID, capabilityId, Version.create(capabilityVersion))));
+        return MetadataFactory.createInstallableUnit(description);
+    }
+
+    public static IInstallableUnit createIUWithCapabilitiesAndFilter(String id, String version,
+            Collection<IProvidedCapability> capabilities, String filter) {
+        InstallableUnitDescription description = createIuDescription(id, version);
+        description.addProvidedCapabilities(capabilities);
+        description.setFilter(filter);
         return MetadataFactory.createInstallableUnit(description);
     }
 

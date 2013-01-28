@@ -101,7 +101,13 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         return newState;
     }
 
-    private void fixSWT(IQueryable<IInstallableUnit> availableIUs, Collection<IInstallableUnit> ius,
+    /*
+     * workaround for SWT bug 361901: bundles generally require org.eclipse.swt, but this is an
+     * empty shell and only native fragments of org.eclipse.swt provide classes to compile against.
+     * There is no dependency from the host to the fragments, so we need to add the matching SWT
+     * fragment manually.
+     */
+    void fixSWT(IQueryable<IInstallableUnit> availableIUs, Collection<IInstallableUnit> ius,
             Map<String, String> newSelectionContext, IProgressMonitor monitor) {
         boolean swt = false;
         for (IInstallableUnit iu : ius) {
@@ -132,7 +138,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         all_ius: for (Iterator<IInstallableUnit> iter = availableIUs.query(QueryUtil.ALL_UNITS, monitor).iterator(); iter
                 .hasNext();) {
             IInstallableUnit iu = iter.next();
-            if (iu.getId().startsWith("org.eclipse.swt") && isApplicable(newSelectionContext, iu.getFilter())) {
+            if (iu.getId().startsWith("org.eclipse.swt") && isApplicable(newSelectionContext, iu.getFilter())
+                    && providesJavaPackages(iu)) {
                 for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
                     if ("osgi.fragment".equals(provided.getNamespace()) && "org.eclipse.swt".equals(provided.getName())) {
                         if (swtFragment == null || swtFragment.getVersion().compareTo(iu.getVersion()) < 0) {
@@ -145,10 +152,20 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         }
 
         if (swtFragment == null) {
-            throw new RuntimeException("Could not determine SWT implementation fragment bundle");
+            throw new RuntimeException("Could not determine SWT implementation fragment bundle for environment "
+                    + newSelectionContext);
         }
 
         ius.add(swtFragment);
+    }
+
+    private boolean providesJavaPackages(IInstallableUnit iu) {
+        for (IProvidedCapability capability : iu.getProvidedCapabilities()) {
+            if ("java.package".equals(capability.getNamespace())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected boolean isApplicable(Map<String, String> selectionContext, IMatchExpression<IInstallableUnit> filter) {
