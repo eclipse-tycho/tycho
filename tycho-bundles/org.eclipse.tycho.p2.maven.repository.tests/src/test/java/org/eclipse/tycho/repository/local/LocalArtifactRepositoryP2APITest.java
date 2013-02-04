@@ -12,11 +12,13 @@ package org.eclipse.tycho.repository.local;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -58,11 +60,14 @@ public class LocalArtifactRepositoryP2APITest extends BaseMavenRepositoryTest {
             Arrays.asList(ARTIFACT_A_CANONICAL, ARTIFACT_A_PACKED, ARTIFACT_B_PACKED));
 
     private LocalArtifactRepository subject;
+    private File repositoryRoot;
 
     @Before
     public void initSubject() throws Exception {
+        // TODO the super members are very opaque...
         initLocalRepositoryFromTestResource("repositories/local");
         subject = new LocalArtifactRepository(null, localRepoIndices);
+        repositoryRoot = baseDir;
     }
 
     @Test
@@ -201,6 +206,43 @@ public class LocalArtifactRepositoryP2APITest extends BaseMavenRepositoryTest {
         assertTotal(-2, -3);
     }
 
+    @Test
+    public void testGetArtifactFile() {
+        File result = subject.getArtifactFile(ARTIFACT_A_KEY);
+
+        assertThat(result, is(artifactLocationOf(ARTIFACT_A_KEY, ".jar")));
+    }
+
+    @Test
+    public void testGetArtifactFileOfNonContainedKey() {
+        File result = subject.getArtifactFile(OTHER_KEY);
+
+        assertThat(result, is(nullValue()));
+    }
+
+    @Test
+    public void testGetArtifactFileOfKeyWithoutCanonicalFormat() {
+        assertFalse(subject.contains(ARTIFACT_B_CANONICAL)); // self-test
+
+        File result = subject.getArtifactFile(ARTIFACT_B_KEY);
+
+        assertThat(result, is(nullValue()));
+    }
+
+    @Test
+    public void testGetRawArtifactFile() {
+        File result = subject.getArtifactFile(ARTIFACT_B_PACKED);
+
+        assertThat(result, is(artifactLocationOf(ARTIFACT_B_KEY, "-pack200.jar.pack.gz")));
+    }
+
+    @Test
+    public void testGetRawArtifactFileOfNonContainedFormat() {
+        File result = subject.getArtifactFile(ARTIFACT_B_CANONICAL);
+
+        assertThat(result, is(nullValue()));
+    }
+
     /**
      * Returns a descriptor of the internally used {@link IArtifactDescriptor} type for the
      * canonical format of the given key.
@@ -248,5 +290,10 @@ public class LocalArtifactRepositoryP2APITest extends BaseMavenRepositoryTest {
     private static Set<IArtifactDescriptor> allDescriptorsIn(LocalArtifactRepository repository) {
         return repository.descriptorQueryable()
                 .query(QueryUtil.createMatchQuery(IArtifactDescriptor.class, "true"), null).toUnmodifiableSet();
+    }
+
+    private File artifactLocationOf(IArtifactKey key, String classifierAndExtension) {
+        return new File(repositoryRoot, "p2/" + key.getClassifier().replace('.', '/') + "/" + key.getId() + "/"
+                + key.getVersion() + "/" + key.getId() + "-" + key.getVersion() + classifierAndExtension);
     }
 }

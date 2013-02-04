@@ -81,7 +81,7 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         Assert.assertEquals(new File(baseDir,
                 "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar"), repo
-                .getArtifactFile(desc));
+                .internalGetArtifactStorageLocation(desc));
 
         ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] { new ProcessingStepDescriptor(
                 "org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) };
@@ -90,7 +90,7 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         Assert.assertEquals(new File(baseDir,
                 "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0-pack200.jar.pack.gz"),
-                repo.getArtifactFile(desc));
+                repo.internalGetArtifactStorageLocation(desc));
     }
 
     private ArtifactDescriptor newBundleArtifactDescriptor(boolean maven) {
@@ -115,7 +115,7 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo
-                .getArtifactFile(desc));
+                .internalGetArtifactStorageLocation(desc));
     }
 
     @Test
@@ -126,22 +126,22 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo
-                .getArtifactFile(desc));
+                .internalGetArtifactStorageLocation(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, "classifier.value");
         Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.jar"),
-                repo.getArtifactFile(desc));
+                repo.internalGetArtifactStorageLocation(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, "zip");
         Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0-classifier.value.zip"),
-                repo.getArtifactFile(desc));
+                repo.internalGetArtifactStorageLocation(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, null);
         Assert.assertEquals(new File(baseDir,
                 "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.zip"), repo
-                .getArtifactFile(desc));
+                .internalGetArtifactStorageLocation(desc));
     }
 
     @Test

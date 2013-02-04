@@ -131,7 +131,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
     }
 
     @Override
-    public File getArtifactFile(IArtifactDescriptor descriptor) throws IllegalArgumentException {
+    protected File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor) {
         return artifactsMap.getLocalArtifactLocation(readMavenCoordinates(descriptor));
     }
 

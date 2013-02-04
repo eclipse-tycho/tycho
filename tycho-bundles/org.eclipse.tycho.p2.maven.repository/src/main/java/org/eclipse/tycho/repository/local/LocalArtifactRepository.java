@@ -162,7 +162,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     }
 
     @Override
-    public File getArtifactFile(IArtifactDescriptor descriptor) {
+    protected File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor) {
         MavenArtifactCoordinates mavenCoordinates = getInternalDescriptorForAdding(descriptor).getMavenCoordinates();
         GAV gav = mavenCoordinates.getGav();
 

@@ -71,7 +71,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     /**
      * Returns an {@link IArtifactDescriptor} instance which is comparable to the artifact
-     * descriptor instances stored in the index (i.e. the {@link #descriptors} member). A valid
+     * descriptors stored in the index (i.e. the {@link #descriptors} member). A valid
      * implementation is to convert the argument to the internal descriptor type
      * <code>ArtifactDescriptorT</code>, but this is not a requirement. This method should be
      * implemented in a way so that calling
@@ -82,9 +82,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
      * repository.
      * 
      * <p>
-     * This method is called for looking up entries from the index based on an
-     * {@link IArtifactDescriptor} argument. This is for example the case in
-     * {@link #contains(IArtifactDescriptor)} and {@link #removeDescriptor(IArtifactDescriptor)}.
+     * This method may be called by any API method with an {@link IArtifactDescriptor} argument.
      * </p>
      * 
      * @param descriptor
@@ -116,6 +114,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         return query.perform(descriptorsMap.keySet().iterator());
     }
 
+    @SuppressWarnings("unchecked")
     public final IQueryable<IArtifactDescriptor> descriptorQueryable() {
         // TODO 397355 copy collection for thread-safety
         return new IQueryable<IArtifactDescriptor>() {
@@ -229,8 +228,23 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     // artifact access
 
-    // TODO 393004 return null if contains(descriptor) == false
-    public abstract File getArtifactFile(IArtifactDescriptor descriptor);
+    /**
+     * Returns the file system location where the given artifact is or would be stored. Unlike
+     * {@link #getArtifactFile(IArtifactDescriptor)}, this method does not check if the given
+     * artifact exists in the repository and never returns <code>null</code>.
+     * 
+     * <p>
+     * This method may be called by any API method for reading or writing artifacts.
+     * </p>
+     */
+    protected abstract File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor);
+
+    public final File getArtifactFile(IArtifactDescriptor descriptor) {
+        if (contains(descriptor)) {
+            return internalGetArtifactStorageLocation(descriptor);
+        }
+        return null;
+    }
 
     public final File getArtifactFile(IArtifactKey key) {
         Set<ArtifactDescriptorT> descriptors = descriptorsMap.get(key);
@@ -239,7 +253,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         if (descriptors != null) {
             for (ArtifactDescriptorT descriptor : descriptors) {
                 if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)) {
-                    return getArtifactFile(descriptor);
+                    return internalGetArtifactStorageLocation(descriptor);
                 }
             }
         }
@@ -258,7 +272,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     public final IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination,
             IProgressMonitor monitor) {
         try {
-            InputStream source = new FileInputStream(getArtifactFile(descriptor));
+            // TODO 393004 explicitly check contains?
+            InputStream source = new FileInputStream(internalGetArtifactStorageLocation(descriptor));
 
             // copy to destination and close source
             FileUtils.copyStream(source, true, destination, false);
@@ -272,7 +287,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     @Override
     public final OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
         ArtifactDescriptorT internalDescriptor = getInternalDescriptorForAdding(descriptor);
-        File file = getArtifactFile(internalDescriptor);
+        File file = internalGetArtifactStorageLocation(internalDescriptor);
         file.getParentFile().mkdirs();
 
         // TODO 393004 Only once the file is written completely, the descriptor may be added
