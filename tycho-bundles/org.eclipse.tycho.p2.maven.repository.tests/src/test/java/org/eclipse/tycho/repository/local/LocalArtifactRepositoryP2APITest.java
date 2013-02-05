@@ -32,9 +32,10 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-public class LocalArtifactRepositoryP2APITest extends BaseMavenRepositoryTest {
+public class LocalArtifactRepositoryP2APITest {
 
     // bundle already in local repository
     // TODO revise TestRepositoryContent class
@@ -59,15 +60,15 @@ public class LocalArtifactRepositoryP2APITest extends BaseMavenRepositoryTest {
     private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = new HashSet<IArtifactDescriptor>(
             Arrays.asList(ARTIFACT_A_CANONICAL, ARTIFACT_A_PACKED, ARTIFACT_B_PACKED));
 
+    @Rule
+    public TemporaryLocalMavenRepository temporaryLocalMavenRepo = new TemporaryLocalMavenRepository();
+
     private LocalArtifactRepository subject;
-    private File repositoryRoot;
 
     @Before
     public void initSubject() throws Exception {
-        // TODO the super members are very opaque...
-        initLocalRepositoryFromTestResource("repositories/local");
-        subject = new LocalArtifactRepository(null, localRepoIndices);
-        repositoryRoot = baseDir;
+        temporaryLocalMavenRepo.initContentFromTestResource("repositories/local");
+        subject = new LocalArtifactRepository(null, temporaryLocalMavenRepo.getLocalRepositoryIndex());
     }
 
     @Test
@@ -293,7 +294,8 @@ public class LocalArtifactRepositoryP2APITest extends BaseMavenRepositoryTest {
     }
 
     private File artifactLocationOf(IArtifactKey key, String classifierAndExtension) {
-        return new File(repositoryRoot, "p2/" + key.getClassifier().replace('.', '/') + "/" + key.getId() + "/"
-                + key.getVersion() + "/" + key.getId() + "-" + key.getVersion() + classifierAndExtension);
+        return new File(temporaryLocalMavenRepo.getLocalRepositoryRoot(), "p2/" + key.getClassifier().replace('.', '/')
+                + "/" + key.getId() + "/" + key.getVersion() + "/" + key.getId() + "-" + key.getVersion()
+                + classifierAndExtension);
     }
 }
