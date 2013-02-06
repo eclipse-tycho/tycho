@@ -16,6 +16,24 @@
       "revId": "32699bee4836f11a0e563b96aad792cf17c93a7e",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPH//9Hs\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.test.utils/src/main/java/org/eclipse/tycho/repository/test/util/Md5DigestOutputStream.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-02-06T10:12:03Z",
+      "side": 1,
+      "message": "Thanks for the feedback. This has been fixed in the test helper that supersedes this class: tycho-bundles/org.eclipse.tycho.test.utils/src/main/java/org/eclipse/tycho/repository/test/util/ProbeOutputStream.java",
+      "parentUuid": "AABOJ3//7pc\u003d",
+      "revId": "32699bee4836f11a0e563b96aad792cf17c93a7e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
