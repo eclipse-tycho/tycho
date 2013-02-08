@@ -222,9 +222,18 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      * compiler version.
      * </p>
      * 
+     * @deprecated use {@link #compilerArgs} instead.
      * @parameter
      */
     private Map compilerArguments;
+
+    /**
+     * Arguments to be passed to the compiler.
+     * 
+     * @parameter
+     * @since 0.17.0
+     */
+    private List<String> compilerArgs;
 
     /**
      * <p>
@@ -467,7 +476,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
         compilerConfiguration.setSourceEncoding(getEncoding());
 
-        if ((compilerArguments != null) || (compilerArgument != null)) {
+        if ((compilerArguments != null) || (compilerArgument != null) || compilerArgs != null) {
             LinkedHashMap cplrArgsCopy = new LinkedHashMap();
             if (compilerArguments != null) {
                 for (Iterator i = compilerArguments.entrySet().iterator(); i.hasNext();) {
@@ -486,6 +495,11 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
             }
             if (!StringUtils.isEmpty(compilerArgument)) {
                 cplrArgsCopy.put(compilerArgument, null);
+            }
+            if (compilerArgs != null) {
+                for (String arg : compilerArgs) {
+                    cplrArgsCopy.put(arg, null);
+                }
             }
             compilerConfiguration.setCustomCompilerArguments(cplrArgsCopy);
         }

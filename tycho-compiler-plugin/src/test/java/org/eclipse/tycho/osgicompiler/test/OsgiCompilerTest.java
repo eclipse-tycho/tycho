@@ -350,6 +350,33 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         }
     }
 
+    public void testCompilerArgs() throws Exception {
+        File basedir = getBasedir("projects/compiler-args");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        mojo.setLog(new SystemStreamLog() {
+
+            @Override
+            public void warn(CharSequence content) {
+                warnings.add(content);
+            }
+
+        });
+        try {
+            mojo.execute();
+            fail("compilation failure expected");
+        } catch (CompilationFailureException e) {
+            String message = e.getLongMessage();
+            assertThat(message, containsString("2 problems (1 error, 1 warning)"));
+            // 1 error
+            assertThat(message, containsString("unused"));
+        }
+        // 1 warning
+        assertThat((String) warnings.iterator().next(), containsString("is boxed"));
+    }
+
     public void test367431_frameworkExtensionCompileAccessRules() throws Exception {
         File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
         List<MavenProject> projects = getSortedProjects(basedir, new File(
