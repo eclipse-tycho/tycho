@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
+import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
+import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
@@ -24,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -31,6 +35,7 @@ import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
+import org.eclipse.tycho.repository.test.util.ProbeOutputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,11 +47,17 @@ public class LocalArtifactRepositoryP2APITest {
     private static final IArtifactKey ARTIFACT_A_KEY = TestRepositoryContent.BUNDLE_A_KEY;
     private static final IArtifactKey ARTIFACT_B_KEY = TestRepositoryContent.BUNDLE_B_KEY;
 
+    private static final Set<String> ARTIFACT_A_CONTENT = TestRepositoryContent.BUNDLE_A_FILES;
+    private static final Set<String> ARTIFACT_B_CONTENT = TestRepositoryContent.BUNDLE_B_FILES;
+
     private static final IArtifactDescriptor ARTIFACT_A_CANONICAL = localDescriptorFor(ARTIFACT_A_KEY);
     private static final IArtifactDescriptor ARTIFACT_A_PACKED = localPackedDescriptorFor(ARTIFACT_A_KEY);
     private static final IArtifactDescriptor ARTIFACT_B_PACKED = localPackedDescriptorFor(ARTIFACT_B_KEY);
     // not in the repository!
     private static final IArtifactDescriptor ARTIFACT_B_CANONICAL = localDescriptorFor(ARTIFACT_B_KEY);
+
+    private static final String ARTIFACT_A_CANONICAL_MD5 = TestRepositoryContent.BUNDLE_A_CONTENT_MD5;
+    private static final String ARTIFACT_A_PACKED_MD5 = TestRepositoryContent.BUNDLE_A_PACKED_CONTENT_MD5;
 
     private static final IArtifactDescriptor ARTIFACT_A_DESCRIPTOR_1 = ARTIFACT_A_CANONICAL;
     private static final IArtifactDescriptor ARTIFACT_A_DESCRIPTOR_2 = ARTIFACT_A_PACKED;
@@ -62,6 +73,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Rule
     public TemporaryLocalMavenRepository temporaryLocalMavenRepo = new TemporaryLocalMavenRepository();
+    private ProbeOutputStream testSink = new ProbeOutputStream();
 
     private LocalArtifactRepository subject;
 
@@ -242,6 +254,64 @@ public class LocalArtifactRepositoryP2APITest {
         File result = subject.getArtifactFile(ARTIFACT_B_CANONICAL);
 
         assertThat(result, is(nullValue()));
+    }
+
+    @Test
+    public void testGetArtifact() throws Exception {
+        IStatus status = subject.getArtifact(ARTIFACT_A_KEY, testSink, null);
+
+        assertThat(status, is(okStatus()));
+        assertThat(testSink.isClosed(), is(false));
+        assertThat(testSink.getFilesInZip(), is(ARTIFACT_A_CONTENT));
+    }
+
+    @Test
+    public void testGetNonContainedArtifact() {
+        IStatus status = subject.getArtifact(OTHER_KEY, testSink, null);
+
+        assertThat(testSink.isClosed(), is(false));
+        assertThat(testSink.writtenBytes(), is(0));
+        assertThat(status, is(errorStatus()));
+    }
+
+    @Test
+    public void testGetArtifactOnlyAvailableInPackedFormat() throws Exception {
+        // this method must return the original artifact, regardless of how the artifact is stored internally
+        IStatus status = subject.getArtifact(ARTIFACT_B_KEY, testSink, null);
+
+        assertThat(status, is(okStatus()));
+        assertThat(testSink.isClosed(), is(false));
+        assertThat(testSink.writtenBytes(), not(is(0)));
+        assertThat(testSink.getFilesInZip(), is(ARTIFACT_B_CONTENT));
+    }
+
+    @Test
+    public void testGetRawArtifact() throws Exception {
+        IStatus status = subject.getRawArtifact(ARTIFACT_A_PACKED, testSink, null);
+
+        assertThat(status, is(okStatus()));
+        assertThat(testSink.isClosed(), is(false));
+        assertThat(testSink.md5AsHex(), is(ARTIFACT_A_PACKED_MD5));
+    }
+
+    @Test
+    public void testGetRawArtifactForCanonicalFormat() throws Exception {
+        IStatus status = subject.getRawArtifact(ARTIFACT_A_CANONICAL, testSink, null);
+
+        assertThat(status, is(okStatus()));
+        assertThat(testSink.isClosed(), is(false));
+        assertThat(testSink.md5AsHex(), is(ARTIFACT_A_CANONICAL_MD5));
+    }
+
+    @Test
+    public void testGetRawArtifactOfNonContainedFormat() {
+        assertFalse(subject.contains(ARTIFACT_B_CANONICAL)); // self-test
+
+        IStatus status = subject.getRawArtifact(ARTIFACT_B_CANONICAL, testSink, null);
+
+        assertThat(testSink.writtenBytes(), is(0));
+        assertThat(testSink.isClosed(), is(false));
+        assertThat(status, is(errorStatus()));
     }
 
     /**

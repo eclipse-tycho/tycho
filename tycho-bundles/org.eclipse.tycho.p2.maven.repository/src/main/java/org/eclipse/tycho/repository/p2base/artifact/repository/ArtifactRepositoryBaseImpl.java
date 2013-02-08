@@ -28,6 +28,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -260,19 +262,53 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         return null;
     }
 
+    // TODO handle error cases via exceptions; the IStatus return value makes it hard to extract methods
     public final IStatus getArtifact(IArtifactKey key, OutputStream destination, IProgressMonitor monitor) {
         IArtifactDescriptor[] availableFormats = getArtifactDescriptors(key);
-        // TODO 393004 check for null/empty
+        if (availableFormats.length == 0) {
+            return new Status(IStatus.ERROR, Activator.ID, "Artifact " + key + " is not available in the repository "
+                    + getLocation());
+        }
         IArtifactDescriptor preferredFormat = transferPolicy.pickFormat(availableFormats);
 
-        // TODO 393004 this is wrong; we must perform the mandatory processing steps here
-        return getRawArtifact(preferredFormat, destination, monitor);
+        OutputStream destinationWithProcessing = new ProcessingStepHandler().createAndLink(getProvisioningAgent(),
+                preferredFormat.getProcessingSteps(), preferredFormat, destination, monitor);
+        IStatus initStatus = ProcessingStepHandler.getStatus(destinationWithProcessing, true);
+        if (isFatal(initStatus)) {
+            return initStatus;
+        }
+
+        IStatus rawReadingStatus = getRawArtifact(preferredFormat, destinationWithProcessing, monitor);
+        if (isFatal(rawReadingStatus)) {
+            return rawReadingStatus;
+        }
+
+        try {
+            closeProcessingSteps(destinationWithProcessing);
+        } catch (IOException e) {
+            return new Status(IStatus.ERROR, Activator.ID, "I/O exception while processing raw artifact "
+                    + preferredFormat);
+        }
+
+        IStatus processingStatus = ProcessingStepHandler.getStatus(destinationWithProcessing, true);
+        return processingStatus;
+    }
+
+    private void closeProcessingSteps(OutputStream destinationWithProcessing) throws IOException {
+        if (destinationWithProcessing instanceof ProcessingStep) {
+            // close to flush content through processing steps and to trigger processing
+            destinationWithProcessing.close();
+        }
     }
 
     public final IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination,
             IProgressMonitor monitor) {
+        if (!contains(descriptor)) {
+            return new Status(IStatus.ERROR, Activator.ID, "Artifact " + descriptor
+                    + " is not available in the repository " + getLocation());
+        }
+
         try {
-            // TODO 393004 explicitly check contains?
             InputStream source = new FileInputStream(internalGetArtifactStorageLocation(descriptor));
 
             // copy to destination and close source
@@ -300,6 +336,10 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             // TODO revise message?
             throw new ProvisionException("Could not create artifact file", e);
         }
+    }
+
+    private static boolean isFatal(IStatus status) {
+        return status.matches(IStatus.ERROR | IStatus.CANCEL);
     }
 
 }
