@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,16 +19,17 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.defaultEn
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitionWith;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdList;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdsOf;
+import static org.hamcrest.CoreMatchers.any;
 import static org.junit.Assert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,14 +38,16 @@ import org.junit.Test;
 public class TargetDefinitionResolverIncludeModeTests {
 
     @Rule
-    public P2Context p2Context = new P2Context();
+    public final P2Context p2Context = new P2Context();
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     private TargetDefinitionResolver subject;
 
     @Before
     public void initSubject() throws Exception {
         subject = new TargetDefinitionResolver(defaultEnvironments(), new NoopEEResolverHints(), p2Context.getAgent(),
-                new MavenLoggerStub());
+                logVerifier.getLogger());
     }
 
     @Test
@@ -57,9 +60,10 @@ public class TargetDefinitionResolverIncludeModeTests {
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testUnsatisfiedDependencyWithPlanner() throws Exception {
+        // ignore logged errors
+        logVerifier.expectError(any(String.class));
+
         TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
-        subject = new TargetDefinitionResolver(defaultEnvironments(), new NoopEEResolverHints(), p2Context.getAgent(),
-                new MavenLoggerStub(false, false));
         subject.resolveContent(definition);
     }
 

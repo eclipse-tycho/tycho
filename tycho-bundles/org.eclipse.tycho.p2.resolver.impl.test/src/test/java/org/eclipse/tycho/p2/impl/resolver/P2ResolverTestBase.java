@@ -30,7 +30,6 @@ import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
@@ -46,6 +45,7 @@ import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.MemoryLog;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Before;
 
@@ -128,7 +128,7 @@ public class P2ResolverTestBase {
 
         TestTargetPlatformBuilderFactory() throws Exception {
             boolean offline = false;
-            mavenContext = createMavenContext(offline, new MavenLoggerStub());
+            mavenContext = createMavenContext(offline, new MemoryLog());
 
             targetDefinitionResolverService = new TargetDefinitionResolverService(mavenContext);
 

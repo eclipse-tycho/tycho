@@ -28,12 +28,11 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.test.util.HttpServer;
-import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,9 +43,9 @@ public class RemoteAgentMavenMirrorsTest {
     private static final boolean OFFLINE = false;
 
     @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
-
-    private MavenLogger logger = new MemoryLog();
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     private HttpServer localServer;
 
@@ -61,7 +60,8 @@ public class RemoteAgentMavenMirrorsTest {
     @Before
     public void initSubject() throws ProvisionException {
         File localRepository = tempManager.newFolder("localRepo");
-        MavenContext mavenContext = new MavenContextImpl(localRepository, OFFLINE, logger, new Properties());
+        MavenContext mavenContext = new MavenContextImpl(localRepository, OFFLINE, logVerifier.getLogger(),
+                new Properties());
 
         mavenRepositorySettings = new MavenRepositorySettingsStub();
         subject = new RemoteAgent(mavenContext, mavenRepositorySettings, OFFLINE);

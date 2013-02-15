@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,10 +25,11 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.repository.test.util.LocalRepositoryStub;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TargetPlatformBundlePublisherTest {
@@ -37,13 +38,17 @@ public class TargetPlatformBundlePublisherTest {
     private static final String ARTIFACT_ID = "dummy-artifact";
     private static final String VERSION = "0.8.15-SNAPSHOT";
 
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
+
     private TargetPlatformBundlePublisher subject;
     private LocalRepositoryStub localRepo;
 
     @Before
     public void initSubject() {
         localRepo = new LocalRepositoryStub();
-        subject = new TargetPlatformBundlePublisher(localRepo.getArtifactProvider(), new MavenLoggerStub(true, true));
+        logVerifier.expectNoWarnings();
+        subject = new TargetPlatformBundlePublisher(localRepo.getArtifactProvider(), logVerifier.getLogger());
     }
 
     @Test

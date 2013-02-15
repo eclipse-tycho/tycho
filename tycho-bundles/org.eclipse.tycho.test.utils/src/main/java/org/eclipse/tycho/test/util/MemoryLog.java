@@ -41,10 +41,11 @@ public class MemoryLog implements MavenLogger {
     }
 
     public boolean isDebugEnabled() {
-        return false;
+        return true;
     }
 
     public boolean isExtendedDebugEnabled() {
-        return false;
+        // run through message preparation code in tests
+        return true;
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -36,7 +37,7 @@ import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.test.util.ResourceUtil;
-import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
 import org.junit.Before;
 import org.junit.Rule;
@@ -59,18 +60,18 @@ public class MirrorApplicationServiceTest {
     private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
             .singletonList(new TargetEnvironment("a", "b", "c"));
 
-    private MemoryLog logger;
     private BuildContext context;
     private DestinationRepositoryDescriptor destinationRepo;
 
     private MirrorApplicationServiceImpl subject;
 
     @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    public final TemporaryFolder tempFolder = new TemporaryFolder();
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     @Before
     public void initTestContext() {
-        logger = new MemoryLog();
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
         File outputFolder = tempFolder.getRoot();
@@ -78,7 +79,7 @@ public class MirrorApplicationServiceTest {
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         subject = new MirrorApplicationServiceImpl();
-        MavenContext mavenContext = new MavenContextImpl(null, false, logger, new Properties());
+        MavenContext mavenContext = new MavenContextImpl(null, false, logVerifier.getLogger(), new Properties());
         subject.setMavenContext(mavenContext);
     }
 
@@ -87,7 +88,7 @@ public class MirrorApplicationServiceTest {
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context,
                 false, false);
 
-        assertEquals(Collections.emptyList(), logger.warnings);
+        logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
         assertTrue(repoFile(destinationRepo, "features/" + SIMPLE_FEATURE + "_1.0.0.jar").exists());
     }
@@ -97,7 +98,7 @@ public class MirrorApplicationServiceTest {
         subject.mirrorReactor(sourceRepos("patch", "e352"), destinationRepo, seedFor(FEATURE_PATCH_IU), context, false,
                 false);
 
-        assertEquals(Collections.emptyList(), logger.warnings);
+        logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.5.0.v20090525.jar").exists());
         assertTrue(repoFile(destinationRepo, "features/" + FEATURE_PATCH + "_1.0.0.jar").exists());
     }
@@ -125,7 +126,7 @@ public class MirrorApplicationServiceTest {
          */
         subject.mirrorReactor(sourceRepos("patch"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false, false);
 
-        assertTrue(logger.warnings.size() > 0);
+        logVerifier.expectWarning(not(is("")));
     }
 
     public static RepositoryReferences sourceRepos(String... repoIds) {

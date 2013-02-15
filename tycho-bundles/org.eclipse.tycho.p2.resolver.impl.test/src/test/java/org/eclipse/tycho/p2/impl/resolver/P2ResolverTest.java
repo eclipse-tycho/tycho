@@ -29,26 +29,28 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class P2ResolverTest extends P2ResolverTestBase {
 
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
+
     @Before
     public void initDefaultResolver() throws Exception {
         org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
-        MavenLogger logger = new MavenLoggerStub();
         context = createTargetPlatformBuilder();
-        impl = new P2ResolverImpl(logger);
+        impl = new P2ResolverImpl(logVerifier.getLogger());
         impl.setEnvironments(getEnvironments());
     }
 

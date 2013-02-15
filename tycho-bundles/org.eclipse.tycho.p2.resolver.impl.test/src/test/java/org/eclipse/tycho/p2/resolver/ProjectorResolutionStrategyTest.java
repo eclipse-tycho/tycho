@@ -33,9 +33,10 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.test.util.InstallableUnitUtil;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")
@@ -54,11 +55,14 @@ public class ProjectorResolutionStrategyTest {
         }
     }
 
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
+
     private ProjectorResolutionStrategy strategy;
 
     @Before
     public void setup() {
-        strategy = new ProjectorResolutionStrategy(new MavenLoggerStub());
+        strategy = new ProjectorResolutionStrategy(logVerifier.getLogger());
         strategy.setRootInstallableUnits(Collections.<IInstallableUnit> emptyList());
     }
 

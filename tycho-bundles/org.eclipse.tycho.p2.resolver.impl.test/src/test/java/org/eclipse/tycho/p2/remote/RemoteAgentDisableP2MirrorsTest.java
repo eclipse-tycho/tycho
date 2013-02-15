@@ -24,8 +24,8 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +34,9 @@ import org.junit.rules.TemporaryFolder;
 public class RemoteAgentDisableP2MirrorsTest {
 
     @Rule
-    public TemporaryFolder tempManager = new TemporaryFolder();
+    public final TemporaryFolder tempManager = new TemporaryFolder();
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     @Before
     public void setUp() throws Exception {
@@ -58,7 +60,7 @@ public class RemoteAgentDisableP2MirrorsTest {
 
     private IProvisioningAgent createRemoteAgent(boolean disableMirrors) throws ProvisionException {
         File localRepo = tempManager.newFolder("localRepo");
-        return new RemoteAgent(new MavenContextImpl(localRepo, false, new MavenLoggerStub(), new Properties()),
+        return new RemoteAgent(new MavenContextImpl(localRepo, false, logVerifier.getLogger(), new Properties()),
                 disableMirrors);
     }
 

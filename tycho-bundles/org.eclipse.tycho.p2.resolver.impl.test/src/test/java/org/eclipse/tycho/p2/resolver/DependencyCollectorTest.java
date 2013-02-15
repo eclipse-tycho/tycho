@@ -23,15 +23,19 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class DependencyCollectorTest {
 
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
+
     @Test
     public void missingDependencies() {
-        DependencyCollector dc = new DependencyCollector(new MavenLoggerStub());
+        DependencyCollector dc = new DependencyCollector(logVerifier.getLogger());
 
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         String time = Long.toString(System.currentTimeMillis());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
-import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -52,21 +52,19 @@ public class TargetPlatformFilterEvaluatorTest {
             "trf.bundle.multiversion", null);
 
     @Rule
-    public P2Context p2Context = new P2Context();
+    public final P2Context p2Context = new P2Context();
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     private Set<IInstallableUnit> baselineUnits;
     private LinkedHashSet<IInstallableUnit> workUnits;
 
     private TargetPlatformFilterEvaluator subject;
 
-    private MemoryLog logger;
-
     @Before
     public void setUp() throws Exception {
         baselineUnits = loadTestUnits(); // TODO do this in beforeClass -> requires @ClassRule from junit >= 4.9
         workUnits = new LinkedHashSet<IInstallableUnit>(baselineUnits);
-
-        logger = new MemoryLog();
     }
 
     private Set<IInstallableUnit> loadTestUnits() throws Exception {
@@ -79,11 +77,11 @@ public class TargetPlatformFilterEvaluatorTest {
     }
 
     private TargetPlatformFilterEvaluator newEvaluator(List<TargetPlatformFilter> filters) {
-        return new TargetPlatformFilterEvaluator(filters, logger);
+        return new TargetPlatformFilterEvaluator(filters, logVerifier.getLogger());
     }
 
     private TargetPlatformFilterEvaluator newEvaluator(TargetPlatformFilter filter) {
-        return new TargetPlatformFilterEvaluator(Collections.singletonList(filter), logger);
+        return new TargetPlatformFilterEvaluator(Collections.singletonList(filter), logVerifier.getLogger());
     }
 
     @Test
@@ -196,8 +194,8 @@ public class TargetPlatformFilterEvaluatorTest {
         assertThat(removedUnits(), hasSize(2));
 
         // ... but this yields a warning
-        assertThat(logger.warnings,
-                hasItem(allOf(containsString("Removed all units"), containsString("trf.bundle.multiversion"))));
+        logVerifier
+                .expectWarning(allOf(containsString("Removed all units"), containsString("trf.bundle.multiversion")));
     }
 
     @Test(expected = TargetPlatformFilterSyntaxException.class)

@@ -19,29 +19,29 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class P2ResolverAdditionalRequirementsTest {
 
     private static final String BUNDLE_NAMESPACE = "osgi.bundle";
-
     private static final String IU_NAMESPACE = IInstallableUnit.NAMESPACE_IU_ID;
-
     private static final String BUNDLE_TYPE = "eclipse-plugin";
-
     private static final String IU_TYPE = P2Resolver.TYPE_INSTALLABLE_UNIT;
-
     private static final String TARGET_UNIT_ID = "testbundleName";
+
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     private P2ResolverImpl impl;
 
     @Before
     public void initBlankResolver() {
-        impl = new P2ResolverImpl(new MavenLoggerStub());
+        impl = new P2ResolverImpl(logVerifier.getLogger());
     }
 
     @Test

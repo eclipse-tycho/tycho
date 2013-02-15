@@ -24,7 +24,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.UnitStub;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -32,6 +31,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,9 +53,10 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     private static TargetDefinition targetDefinition;
 
     @Rule
-    public P2Context p2Context = new P2Context();
+    public final P2Context p2Context = new P2Context();
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
-    private MavenLoggerStub logger = new MavenLoggerStub();
     private TargetDefinitionResolver subject;
 
     @Test
@@ -151,7 +152,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     }
 
     private TargetDefinitionResolver createResolver(List<TargetEnvironment> environments) throws ProvisionException {
-        return new TargetDefinitionResolver(environments, new NoopEEResolverHints(), p2Context.getAgent(), logger);
+        return new TargetDefinitionResolver(environments, new NoopEEResolverHints(), p2Context.getAgent(),
+                logVerifier.getLogger());
     }
 
     private static class FilterRepoLocationStubWithLauncherUnit implements TargetDefinition.InstallableUnitLocation {

@@ -23,9 +23,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.test.util.HttpServer;
-import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,7 +43,7 @@ public class RemoteAgentMetadataCacheTest {
 
     private File localMavenRepository;
 
-    private MavenLogger logger = new MemoryLog();
+    private LogVerifier logVerifier = new LogVerifier();
 
     @Before
     public void startHttpServer() throws Exception {
@@ -125,11 +124,13 @@ public class RemoteAgentMetadataCacheTest {
     }
 
     private RemoteAgent newOnlineAgent() throws Exception {
-        return new RemoteAgent(new MavenContextImpl(localMavenRepository, false, logger, new Properties()));
+        return new RemoteAgent(new MavenContextImpl(localMavenRepository, false, logVerifier.getLogger(),
+                new Properties()));
     }
 
     private RemoteAgent newOfflineAgent() throws Exception {
-        return new RemoteAgent(new MavenContextImpl(localMavenRepository, true, logger, new Properties()));
+        return new RemoteAgent(new MavenContextImpl(localMavenRepository, true, logVerifier.getLogger(),
+                new Properties()));
     }
 
     private IMetadataRepository loadHttpRepository(RemoteAgent agent) throws ProvisionException {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.tycho.p2.target;
 
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
@@ -28,7 +27,6 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.p2.impl.test.MavenLoggerStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
@@ -38,6 +36,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -68,15 +67,16 @@ public class TargetDefinitionResolverTest {
             INVALID_VERSION_MARKER);
 
     @Rule
-    public P2Context p2Context = new P2Context();
+    public final P2Context p2Context = new P2Context();
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
-    private MavenLoggerStub logger = new MavenLoggerStub();
     private TargetDefinitionResolver subject;
 
     @Before
     public void initContext() throws Exception {
         subject = new TargetDefinitionResolver(defaultEnvironments(), new NoopEEResolverHints(), p2Context.getAgent(),
-                logger);
+                logVerifier.getLogger());
     }
 
     static List<TargetEnvironment> defaultEnvironments() {
@@ -95,7 +95,7 @@ public class TargetDefinitionResolverTest {
         TargetDefinition definition = definitionWith(new OtherLocationStub(), new LocationStub(TARGET_FEATURE));
         TargetPlatformContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
-        assertThat(logger.getWarnings(), hasItem("Target location type: Directory is not supported"));
+        logVerifier.expectWarning("Target location type: Directory is not supported");
     }
 
     @Test
@@ -197,8 +197,7 @@ public class TargetDefinitionResolverTest {
         subject.resolveContent(definition);
 
         // this was bug 373776: the includeBundles tag (which is the selection on the Content tab) was silently ignored
-        assertThat(logger.getWarnings(),
-                hasItem(containsString("De-selecting bundles in a target definition file is not supported")));
+        logVerifier.expectWarning("De-selecting bundles in a target definition file is not supported");
 
     }
 

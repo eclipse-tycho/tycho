@@ -22,13 +22,12 @@ import java.util.Collections;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
-import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,16 +41,17 @@ public class MirrorStandaloneTest {
     private MirrorApplicationServiceImpl subject;
 
     @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    public final TemporaryFolder tempFolder = new TemporaryFolder();
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     private BuildOutputDirectory targetFolder;
 
     @Before
     public void initTestContext() {
-        MavenLogger logger = new MemoryLog();
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
         subject = new MirrorApplicationServiceImpl();
-        MavenContext mavenContext = new MavenContextImpl(null, false, logger, null);
+        MavenContext mavenContext = new MavenContextImpl(null, false, logVerifier.getLogger(), null);
         subject.setMavenContext(mavenContext);
         targetFolder = new BuildOutputDirectory(tempFolder.getRoot());
     }
