@@ -42,6 +42,7 @@ public class BuildPropertiesImpl implements BuildProperties {
     private Map<String, List<String>> jarToExtraClasspathMap;
     private Map<String, String> jarToJavacDefaultEncodingMap;
     private Map<String, String> jarToOutputFolderMap;
+    private Map<String, String> jarToManifestMap;
     private Map<String, String> rootEntries;
 
     public BuildPropertiesImpl(File propsFile) {
@@ -68,6 +69,7 @@ public class BuildPropertiesImpl implements BuildProperties {
         HashMap<String, List<String>> jarToExtraClasspathTmp = new HashMap<String, List<String>>();
         HashMap<String, String> jarToJavacDefaultEncodingTmp = new HashMap<String, String>();
         HashMap<String, String> jarToOutputFolderMapTmp = new HashMap<String, String>();
+        HashMap<String, String> jarToManifestMapTmp = new HashMap<String, String>();
         HashMap<String, String> rootEntriesTmp = new HashMap<String, String>();
 
         for (Entry<Object, Object> entry : properties.entrySet()) {
@@ -85,6 +87,9 @@ public class BuildPropertiesImpl implements BuildProperties {
             } else if (key.startsWith("output.")) {
                 String jarName = key.substring("output.".length());
                 jarToOutputFolderMapTmp.put(jarName, value);
+            } else if (key.startsWith("manifest.")) {
+                String jarName = key.substring("manifest.".length());
+                jarToManifestMapTmp.put(jarName, value);
             } else if (key.startsWith("root.") || key.equals("root")) {
                 rootEntriesTmp.put(key, value);
             }
@@ -93,6 +98,7 @@ public class BuildPropertiesImpl implements BuildProperties {
         jarToExtraClasspathMap = unmodifiableMap(jarToExtraClasspathTmp);
         jarToJavacDefaultEncodingMap = unmodifiableMap(jarToJavacDefaultEncodingTmp);
         jarToOutputFolderMap = unmodifiableMap(jarToOutputFolderMapTmp);
+        jarToManifestMap = unmodifiableMap(jarToManifestMapTmp);
         rootEntries = unmodifiableMap(rootEntriesTmp);
     }
 
@@ -192,6 +198,10 @@ public class BuildPropertiesImpl implements BuildProperties {
 
     public Map<String, String> getJarToOutputFolderMap() {
         return jarToOutputFolderMap;
+    }
+
+    public Map<String, String> getJarToManifestMap() {
+        return jarToManifestMap;
     }
 
     public String getJreCompilationProfile() {

@@ -128,11 +128,22 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     private File makeJar(BuildOutputJar jar) throws MojoExecutionException {
         String jarName = jar.getName();
+        BuildProperties buildProperties = pdeProject.getBuildProperties();
+        String customManifest = buildProperties.getJarToManifestMap().get(jarName);
         try {
             File jarFile = new File(project.getBasedir(), jarName);
             JarArchiver archiver = new JarArchiver();
             archiver.setDestFile(jarFile);
             archiver.addDirectory(jar.getOutputDirectory());
+            if (customManifest != null) {
+                for (File sourceFolder : jar.getSourceFolders()) {
+                    File manifestFile = new File(sourceFolder, customManifest);
+                    if (manifestFile.isFile()) {
+                        archiver.setManifest(manifestFile);
+                        break;
+                    }
+                }
+            }
             archiver.createArchive();
             return jarFile;
         } catch (Exception e) {

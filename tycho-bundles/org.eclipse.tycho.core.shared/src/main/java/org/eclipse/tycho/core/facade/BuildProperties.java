@@ -50,6 +50,11 @@ public interface BuildProperties {
 
     public Map<String, String> getJarToOutputFolderMap();
 
+    /**
+     * Custom manifests for nested jars
+     */
+    public Map<String, String> getJarToManifestMap();
+
     public Map<String, String> getRootEntries();
 
     public Map<String, List<String>> getJarToSourceFolderMap();

@@ -81,6 +81,21 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         }
     }
 
+    public void testCustomManifestNestedJar() throws Exception {
+        File basedir = getBasedir("projects/customManifestNestedJar");
+        File classes = new File(basedir, "target/classes");
+        classes.mkdirs();
+        PackagePluginMojo mojo = execMaven(basedir);
+        mojo.execute();
+
+        JarFile nestedJar = new JarFile(new File(basedir, "nested.jar"));
+        try {
+            assertEquals("nested", nestedJar.getManifest().getMainAttributes().getValue("Bundle-SymbolicName"));
+        } finally {
+            nestedJar.close();
+        }
+    }
+
     public void testNoManifestVersion() throws Exception {
         File basedir = getBasedir("projects/noManifestVersion");
         PackagePluginMojo mojo = execMaven(basedir);
