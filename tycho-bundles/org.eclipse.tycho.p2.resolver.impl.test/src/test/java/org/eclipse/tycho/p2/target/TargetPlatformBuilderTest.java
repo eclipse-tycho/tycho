@@ -8,9 +8,15 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.target;
 
+import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V1;
+import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V2;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,6 +28,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
@@ -31,18 +39,18 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
+import org.eclipse.tycho.p2.impl.resolver.P2ResolverTestBase;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.InstallableUnitUtil;
-import org.junit.Assert;
 import org.junit.Test;
 
-// TODO move to org.eclipse.tycho.p2.target package
 public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
     @Test
@@ -64,7 +72,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(0, units.size());
+        assertEquals(0, units.size());
 
         // classifier matches one of the two IUs
         artifact.setClassifier("sources");
@@ -72,7 +80,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(1, units.size());
+        assertEquals(1, units.size());
         assertContainsIU(units, "test.ui.source");
 
         // main (i.e. null) classifier matches one of the two IUs
@@ -81,7 +89,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context.addArtifactWithExistingMetadata(artifact, metadata);
         platform = (P2TargetPlatform) context.buildTargetPlatform();
         units = platform.getInstallableUnits();
-        Assert.assertEquals(1, units.size());
+        assertEquals(1, units.size());
         assertContainsIU(units, "test.ui");
     }
 
@@ -108,20 +116,18 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(1, units.size());
-        Assert.assertEquals("1.0.0.qualifier", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion()
-                .toString());
+        assertEquals(1, units.size());
+        assertEquals("1.0.0.qualifier", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion().toString());
 
-        // publish "complete" metedata 
+        // publish "complete" metedata
         metadata = impl.generateMetadata(new ArtifactMock(new File(
                 "resources/platformbuilder/publish-complete-metadata/bundle-complete"), groupId, artifactId, version,
                 ArtifactKey.TYPE_ECLIPSE_PLUGIN, null), environments);
         artifact.setDependencyMetadata(metadata);
 
         units = platform.getInstallableUnits();
-        Assert.assertEquals(1, units.size());
-        Assert.assertEquals("1.0.0.123abc", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion()
-                .toString());
+        assertEquals(1, units.size());
+        assertEquals("1.0.0.123abc", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion().toString());
 
     }
 
@@ -162,19 +168,19 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(3, units.size());
+        assertEquals(3, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle");
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.source");
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.secondary");
 
         Collection<IInstallableUnit> projectPrimaryIUs = platform.getReactorProjectIUs(artifact.getLocation(), true);
 
-        Assert.assertEquals(2, projectPrimaryIUs.size());
+        assertEquals(2, projectPrimaryIUs.size());
         assertContainsIU(projectPrimaryIUs, "org.eclipse.tycho.p2.impl.test.bundle");
         assertContainsIU(projectPrimaryIUs, "org.eclipse.tycho.p2.impl.test.bundle.source");
 
         Collection<IInstallableUnit> projectSecondaryIUs = platform.getReactorProjectIUs(artifact.getLocation(), false);
-        Assert.assertEquals(1, projectSecondaryIUs.size());
+        assertEquals(1, projectSecondaryIUs.size());
         assertContainsIU(projectSecondaryIUs, "org.eclipse.tycho.p2.impl.test.bundle.secondary");
     }
 
@@ -192,20 +198,20 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         P2TargetPlatform platform = context.buildTargetPlatform();
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        Assert.assertEquals(units.toString(), 1, units.size());
+        assertEquals(units.toString(), 1, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group");
         // assertContainsIU(units, "iu.p2.inf"); removed by the filter
 
         units = platform.getReactorProjectIUs(projectRoot, true);
-        Assert.assertEquals(units.toString(), 1, units.size());
+        assertEquals(units.toString(), 1, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group");
     }
 
     @Test
     public void testIncludeLocalMavenRepo() throws Exception {
-        TestTargetPlatformBuilderFactory factory = new TestTargetPlatformBuilderFactory();
+        TestTargetPlatformBuilderFactory factory = new TestTargetPlatformBuilderFactory(logVerifier.getLogger());
         LocalMetadataRepository localMetadataRepo = factory.getLocalMetadataRepository();
-        // add one IU to local repo 
+        // add one IU to local repo
         localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"), new GAV(
                 "test", "foo", "1.0.0"));
         TargetPlatformBuilderImpl tpBuilder = factory.createTargetPlatformBuilder();
@@ -218,8 +224,28 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         assertEquals("locallyInstalledIU", retainedIUs.iterator().next().getId());
     }
 
+    @Test
+    public void testAddMultipleIndependentlyResolvedTargetFiles() throws Exception {
+        List<TargetEnvironment> env = Collections.singletonList(new TargetEnvironment(null, null, null));
+
+        TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilder();
+        tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1), env);
+        tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2), env);
+        P2TargetPlatform tp = tpBuilder.buildTargetPlatform();
+        // platforms must have been resolved in two planner calls because otherwise the singleton bundles would have collided
+
+        assertThat(versionedIdsOf(tp), hasItem(REFERENCED_BUNDLE_V1));
+        assertThat(versionedIdsOf(tp), hasItem(REFERENCED_BUNDLE_V2));
+    }
+
+    private static TargetDefinition plannerTargetDefinition(TestRepositories repository, IVersionedId unit) {
+        TargetDefinition.Location location = new TargetDefinitionResolverIncludeModeTests.PlannerLocationStub(
+                repository, unit);
+        return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
+    }
+
     private void assertContainsIU(Collection<IInstallableUnit> units, String id) {
-        Assert.assertNotNull("Missing installable unit with id " + id, getIU(units, id));
+        assertNotNull("Missing installable unit with id " + id, getIU(units, id));
     }
 
     protected IInstallableUnit getIU(Collection<IInstallableUnit> units, String id) {
@@ -228,7 +254,15 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
                 return unit;
             }
         }
-        Assert.fail("Missing installable unit with id " + id);
+        fail("Missing installable unit with id " + id);
         return null;
+    }
+
+    static Collection<IVersionedId> versionedIdsOf(P2TargetPlatform platform) {
+        Collection<IVersionedId> result = new ArrayList<IVersionedId>();
+        for (IInstallableUnit unit : platform.getInstallableUnits()) {
+            result.add(new VersionedId(unit.getId(), unit.getVersion()));
+        }
+        return result;
     }
 }

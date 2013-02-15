@@ -33,7 +33,7 @@
         [Enter Copyright Description here.]
       </copyright>
     </unit>
-    <unit id='trt.bundle.referenced' version='1.0.0.201108051343' singleton='false'>
+    <unit id='trt.bundle.referenced' version='1.0.0.201108051343' singleton='true'>
       <update id='trt.bundle.referenced' range='[0.0.0,1.0.0.201108051343)' severity='0'/>
       <properties size='4'>
         <property name='org.eclipse.equinox.p2.name' value='Bundle required from the main bundle and included in the target feature'/>

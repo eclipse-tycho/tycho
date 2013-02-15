@@ -5,7 +5,7 @@
     <property name='p2.timestamp' value='1312543738706'/>
   </properties>
   <units size='1'>
-    <unit id='trt.bundle.referenced' version='2.0.0.201108051319' singleton='false'>
+    <unit id='trt.bundle.referenced' version='2.0.0.201108051319' singleton='true'>
       <update id='trt.bundle.referenced' range='[0.0.0,2.0.0.201108051319)' severity='0'/>
       <properties size='4'>
         <property name='org.eclipse.equinox.p2.name' value='Bundle required from the main bundle, but not included in the target feature'/>
