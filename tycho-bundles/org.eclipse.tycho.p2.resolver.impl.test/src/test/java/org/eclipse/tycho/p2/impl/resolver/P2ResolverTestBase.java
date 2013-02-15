@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,21 +45,24 @@ import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
-import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Before;
+import org.junit.Rule;
 
 public class P2ResolverTestBase {
 
     private static final String DEFAULT_VERSION = "1.0.0-SNAPSHOT";
-
     private static final String DEFAULT_GROUP_ID = "test.groupId";
+
+    @Rule
+    public final LogVerifier logVerifier = new LogVerifier();
 
     private P2GeneratorImpl fullGenerator;
     private DefaultDependencyMetadataGenerator dependencyGenerator;
 
-    P2Resolver impl;
-    TargetPlatformBuilderImpl context;
+    protected P2Resolver impl;
+    protected TargetPlatformBuilderImpl context;
 
     @Before
     final public void prepare() {
@@ -70,13 +73,13 @@ public class P2ResolverTestBase {
         dependencyGenerator.setBuildPropertiesParser(buildPropertiesReader);
     }
 
-    static List<TargetEnvironment> getEnvironments() {
+    protected static List<TargetEnvironment> getEnvironments() {
         List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         return environments;
     }
 
-    final void addContextProject(File projectRoot, String packaging) throws IOException {
+    protected final void addContextProject(File projectRoot, String packaging) throws IOException {
         ArtifactMock artifact = new ArtifactMock(projectRoot.getCanonicalFile(), DEFAULT_GROUP_ID,
                 projectRoot.getName(), DEFAULT_VERSION, packaging);
 
@@ -85,7 +88,7 @@ public class P2ResolverTestBase {
         context.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
     }
 
-    final void addReactorProject(File projectRoot, String packagingType, String artifactId) {
+    protected final void addReactorProject(File projectRoot, String packagingType, String artifactId) {
         ArtifactMock artifact = new ArtifactMock(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
                 packagingType);
         IDependencyMetadata metadata = dependencyGenerator.generateMetadata(artifact, getEnvironments(),
@@ -102,33 +105,36 @@ public class P2ResolverTestBase {
      * Creates a target platform builder without any special handling for execution environments.
      */
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilder() throws Exception {
-        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new NoopEEResolverHints());
+        return new TestTargetPlatformBuilderFactory(logVerifier.getLogger())
+                .createTargetPlatformBuilder(new NoopEEResolverHints());
     }
 
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithEE(String bree) throws Exception {
-        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(new StandardEEResolutionHints(bree));
+        return new TestTargetPlatformBuilderFactory(logVerifier.getLogger())
+                .createTargetPlatformBuilder(new StandardEEResolutionHints(bree));
     }
 
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithEE(
             ExecutionEnvironmentResolutionHandler eeResolutionHandler) throws Exception {
-        return new TestTargetPlatformBuilderFactory().createTargetPlatformBuilder(eeResolutionHandler);
+        return new TestTargetPlatformBuilderFactory(logVerifier.getLogger())
+                .createTargetPlatformBuilder(eeResolutionHandler);
     }
 
     protected final TargetPlatformBuilderImpl createTargetPlatformBuilderWithCustomEE(String customEE) throws Exception {
-        return new TestTargetPlatformBuilderFactory()
+        return new TestTargetPlatformBuilderFactory(logVerifier.getLogger())
                 .createTargetPlatformBuilder(new CustomEEResolutionHints(customEE));
     }
 
-    static class TestTargetPlatformBuilderFactory {
+    public static class TestTargetPlatformBuilderFactory {
 
         private MavenContext mavenContext;
         private TargetDefinitionResolverService targetDefinitionResolverService;
         private LocalMetadataRepository localMetadataRepo;
         private LocalArtifactRepository localArtifactRepo;
 
-        TestTargetPlatformBuilderFactory() throws Exception {
+        public TestTargetPlatformBuilderFactory(MavenLogger logger) throws Exception {
             boolean offline = false;
-            mavenContext = createMavenContext(offline, new MemoryLog());
+            mavenContext = createMavenContext(offline, logger);
 
             targetDefinitionResolverService = new TargetDefinitionResolverService(mavenContext);
 
