@@ -80,6 +80,18 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private boolean sourceBundle;
 
     /**
+     * Whether sources for nested jars should be put into distinct source root folders inside the
+     * source jar (one source root per nested jar). E.g. if this paramater is <code>true</code> and
+     * there is a nested jar named <code>foo.jar</code>, all of its sources will go into folder
+     * <code>foosrc/</code>. Otherwise all sources for all jars, nested or not, will go into the
+     * root of the source jar (this is the default as it provides interoperability with maven source
+     * jars).
+     * 
+     * @parameter default-value="false"
+     */
+    private boolean distinctSourceRoots;
+
+    /**
      * The suffix to be added to the symbolic name of the bundle to construct the symbolic name of
      * the Eclipse source bundle.
      * 
@@ -142,23 +154,31 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private BundleReader bundleReader;
 
     /** {@inheritDoc} */
-    protected List<String> getSources(MavenProject p) throws MojoExecutionException {
+    protected List<Resource> getSources(MavenProject p) throws MojoExecutionException {
         return getSources(project, requireSourceRoots, buildPropertiesParser.parse(p.getBasedir()));
     }
 
-    protected static List<String> getSources(MavenProject p, boolean requireSourceRoots, BuildProperties buildProperties)
+    protected List<Resource> getSources(MavenProject p, boolean requireSourceRoots, BuildProperties buildProperties)
             throws MojoExecutionException {
-        List<String> sources = new ArrayList<String>();
-        for (List<String> sourceFolderList : buildProperties.getJarToSourceFolderMap().values()) {
-            for (String sourceFolder : sourceFolderList) {
-                sources.add(new File(p.getBasedir(), sourceFolder).getAbsolutePath());
+        List<Resource> resources = new ArrayList<Resource>();
+        for (Map.Entry<String, List<String>> entry : buildProperties.getJarToSourceFolderMap().entrySet()) {
+            for (String sourceFolder : entry.getValue()) {
+                Resource resource = new Resource();
+                resource.setDirectory(new File(p.getBasedir(), sourceFolder).getAbsolutePath());
+                if (distinctSourceRoots) {
+                    String jarName = entry.getKey();
+                    if (!".".equals(jarName)) {
+                        resource.setTargetPath(getSourceRootTargetPath(jarName));
+                    }
+                }
+                resources.add(resource);
             }
         }
 
-        if (requireSourceRoots && sources.isEmpty()) {
+        if (requireSourceRoots && resources.isEmpty()) {
             throw new MojoExecutionException("no source folders found in build.properties");
         }
-        return sources;
+        return resources;
     }
 
     /** {@inheritDoc} */
@@ -292,7 +312,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             mavenArchiveConfiguration.addManifestEntry(BUNDLE_VERSION, expandedVersion.toString());
 
             mavenArchiveConfiguration.addManifestEntry(MANIFEST_HEADER_ECLIPSE_SOURCE_BUNDLE, symbolicName
-                    + ";version=\"" + expandedVersion + "\";roots:=\".\"");
+                    + ";version=\"" + expandedVersion + "\";roots:=\"" + getEclipseHeaderSourceRoots() + "\"");
 
             mavenArchiveConfiguration.addManifestEntry(BUNDLE_NAME, I18N_KEY_PREFIX + I18N_KEY_BUNDLE_NAME);
             mavenArchiveConfiguration.addManifestEntry(BUNDLE_VENDOR, I18N_KEY_PREFIX + I18N_KEY_BUNDLE_VENDOR);
@@ -300,6 +320,35 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         } else {
             getLog().info("NOT adding source bundle manifest entries. Incomplete or no bundle information available.");
         }
+    }
+
+    private String getEclipseHeaderSourceRoots() {
+        if (!distinctSourceRoots) {
+            return ".";
+        }
+        StringBuilder result = new StringBuilder();
+        for (String jarName : getBuildProperties().getJarToSourceFolderMap().keySet()) {
+            String sourceRoot;
+            if (".".equals(jarName)) {
+                sourceRoot = ".";
+            } else {
+                sourceRoot = getSourceRootTargetPath(jarName);
+            }
+            if (result.length() > 0) {
+                result.append(",");
+            }
+            result.append(sourceRoot);
+        }
+        return result.toString();
+    }
+
+    private static String getSourceRootTargetPath(String jarName) {
+        if (jarName.endsWith(".jar")) {
+            jarName = jarName.substring(0, jarName.length() - ".jar".length());
+        } else if (jarName.endsWith("/")) {
+            jarName = jarName.substring(0, jarName.length() - 1);
+        }
+        return jarName + "src";
     }
 
     private Version getExpandedVersion(String versionStr) {
@@ -362,5 +411,9 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
             return null;
         }
         return child.getValue();
+    }
+
+    private BuildProperties getBuildProperties() {
+        return buildPropertiesParser.parse(project.getBasedir());
     }
 }

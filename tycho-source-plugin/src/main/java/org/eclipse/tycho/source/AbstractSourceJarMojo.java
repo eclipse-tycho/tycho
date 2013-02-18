@@ -210,7 +210,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      *            not null
      * @return the compile or test sources
      */
-    protected abstract List getSources(MavenProject p) throws MojoExecutionException;
+    protected abstract List<Resource> getSources(MavenProject p) throws MojoExecutionException;
 
     /**
      * @param p
@@ -299,12 +299,19 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         }
 
         for (Iterator i = getSources(p).iterator(); i.hasNext();) {
-            String s = (String) i.next();
+            Resource resource = (Resource) i.next();
 
-            File sourceDirectory = new File(s);
-
+            File sourceDirectory = new File(resource.getDirectory());
             if (sourceDirectory.exists()) {
-                addDirectory(archiver, sourceDirectory, getCombinedIncludes(null), getCombinedExcludes(null));
+                String path = resource.getTargetPath();
+                if (path == null) {
+                    addDirectory(archiver, sourceDirectory, getCombinedIncludes(null), getCombinedExcludes(null));
+                } else {
+                    if (!path.trim().endsWith("/")) {
+                        path += "/";
+                    }
+                    addDirectory(archiver, sourceDirectory, path, getCombinedIncludes(null), getCombinedExcludes(null));
+                }
             }
         }
 
