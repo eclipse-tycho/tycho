@@ -29,7 +29,7 @@ public class SourceBundlesNestedJarsTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testDistinctSourceRoots() throws Exception {
-        Verifier verifier = getVerifier("sourceBundle.nestedjars", false);
+        Verifier verifier = getVerifier("sourcebundle.nestedjars", false);
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
         File sourceJar = new File(verifier.getBasedir(), "target/test.distinct.sourceroots-1.0.0-sources.jar");
