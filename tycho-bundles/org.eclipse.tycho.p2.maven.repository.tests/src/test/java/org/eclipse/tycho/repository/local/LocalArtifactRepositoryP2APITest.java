@@ -22,12 +22,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -63,8 +67,13 @@ public class LocalArtifactRepositoryP2APITest {
     private static final IArtifactDescriptor ARTIFACT_A_DESCRIPTOR_2 = ARTIFACT_A_PACKED;
     private static final IArtifactDescriptor ARTIFACT_B_DESCRIPTOR = ARTIFACT_B_PACKED;
 
+    // not in the repository
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
     private static final IArtifactDescriptor OTHER_DESCRIPTOR = ARTIFACT_B_CANONICAL;
+
+    // not (yet) in the repository
+    private static final IArtifactKey NEW_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
+    private static final IArtifactDescriptor NEW_DESCRIPTOR = localPackedDescriptorFor(NEW_KEY);
 
     private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<IArtifactKey>(Arrays.asList(ARTIFACT_A_KEY,
             ARTIFACT_B_KEY));
@@ -272,6 +281,7 @@ public class LocalArtifactRepositoryP2APITest {
         assertThat(testSink.isClosed(), is(false));
         assertThat(testSink.writtenBytes(), is(0));
         assertThat(status, is(errorStatus()));
+        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
     }
 
     @Test
@@ -312,6 +322,56 @@ public class LocalArtifactRepositoryP2APITest {
         assertThat(testSink.writtenBytes(), is(0));
         assertThat(testSink.isClosed(), is(false));
         assertThat(status, is(errorStatus()));
+        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+    }
+
+    @Test
+    public void testWriteArtifact() throws Exception {
+        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
+        addSink.write(new byte[33]);
+        addSink.close();
+
+        assertTrue(subject.contains(NEW_KEY));
+        assertTrue(subject.contains(NEW_DESCRIPTOR));
+        subject.getRawArtifact(NEW_DESCRIPTOR, testSink, null);
+        assertThat(testSink.writtenBytes(), is(33));
+    }
+
+    @Test
+    public void testReWriteArtifactFails() throws Exception {
+        ProvisionException expectedException = null;
+        try {
+            OutputStream addSink = subject.getOutputStream(ARTIFACT_A_CANONICAL);
+            addSink.write(new byte[1]);
+            addSink.close();
+        } catch (ProvisionException e) {
+            expectedException = e;
+        }
+
+        assertThat(expectedException, is(ProvisionException.class));
+        assertThat(expectedException.getStatus().getCode(), is(ProvisionException.ARTIFACT_EXISTS));
+    }
+
+    @Test
+    public void testWriteArtifactAndCancel() throws Exception {
+        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
+        addSink.write(new byte[33]);
+        // setStatus needs to be called when copying from a repository using getArtifact, and that method returns an error (e.g. due to artifact corruption)
+        ((IStateful) addSink).setStatus(new Status(IStatus.ERROR, "test", "written data is bad"));
+        addSink.close();
+
+        assertFalse(subject.contains(NEW_DESCRIPTOR));
+        assertFalse(subject.contains(NEW_KEY));
+    }
+
+    @Test
+    public void testWriteArtifactWithNonFatalStatus() throws Exception {
+        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
+        addSink.write(new byte[33]);
+        ((IStateful) addSink).setStatus(new Status(IStatus.WARNING, "test", "irrelevant warning"));
+        addSink.close();
+
+        assertTrue(subject.contains(NEW_DESCRIPTOR));
     }
 
     /**
