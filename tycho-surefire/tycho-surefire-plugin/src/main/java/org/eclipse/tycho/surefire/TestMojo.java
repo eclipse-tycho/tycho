@@ -87,6 +87,15 @@ public class TestMojo extends AbstractMojo {
     private File work;
 
     /**
+     * This parameter can be used to provide a different eclipse workspace directory, like the plain
+     * eclipse command line option "-data". The directory won't be cleaned if already existent, to
+     * allow test runs with an existing workspace.
+     * 
+     * @parameter default-value="${project.build.directory}/work/data"
+     */
+    private File data;
+
+    /**
      * @parameter expression="${project}"
      * @readonly
      */
@@ -662,7 +671,13 @@ public class TestMojo extends AbstractMojo {
         int result;
         try {
             File workspace = new File(work, "data").getAbsoluteFile();
-            FileUtils.deleteDirectory(workspace);
+            if (data.equals(workspace)) {
+                // default location so cleanup on startup
+                FileUtils.deleteDirectory(workspace);
+            } else {
+                // a specific workspace directory was specified, therefore use it without cleanup
+                workspace = data;
+            }
             LaunchConfiguration cli = createCommandLine(testRuntime, workspace);
             getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
