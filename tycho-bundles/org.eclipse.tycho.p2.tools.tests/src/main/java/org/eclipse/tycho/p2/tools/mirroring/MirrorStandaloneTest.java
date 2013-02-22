@@ -51,7 +51,7 @@ public class MirrorStandaloneTest {
     public void initTestContext() {
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
         subject = new MirrorApplicationServiceImpl();
-        MavenContext mavenContext = new MavenContextImpl(null, false, logVerifier.getLogger(), null);
+        MavenContext mavenContext = new MavenContextImpl(null, logVerifier.getLogger());
         subject.setMavenContext(mavenContext);
         targetFolder = new BuildOutputDirectory(tempFolder.getRoot());
     }

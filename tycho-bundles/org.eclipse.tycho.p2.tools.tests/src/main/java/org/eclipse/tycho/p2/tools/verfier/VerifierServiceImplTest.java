@@ -43,7 +43,7 @@ public class VerifierServiceImplTest {
     public void setup() {
         subject = new VerifierServiceImpl();
         logger = new ErrorStoreMemoryLog();
-        MavenContext mavenContext = new MavenContextImpl(null, false, logger, null);
+        MavenContext mavenContext = new MavenContextImpl(null, logger);
         subject.setMavenContext(mavenContext);
     }
 

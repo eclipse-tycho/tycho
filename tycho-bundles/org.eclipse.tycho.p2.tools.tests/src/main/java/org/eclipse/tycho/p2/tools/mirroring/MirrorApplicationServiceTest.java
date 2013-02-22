@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
@@ -79,7 +78,7 @@ public class MirrorApplicationServiceTest {
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         subject = new MirrorApplicationServiceImpl();
-        MavenContext mavenContext = new MavenContextImpl(null, false, logVerifier.getLogger(), new Properties());
+        MavenContext mavenContext = new MavenContextImpl(null, logVerifier.getLogger());
         subject.setMavenContext(mavenContext);
     }
 

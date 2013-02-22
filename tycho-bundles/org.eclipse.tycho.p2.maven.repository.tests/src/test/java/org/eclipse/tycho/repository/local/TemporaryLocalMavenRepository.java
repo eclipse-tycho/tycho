@@ -12,7 +12,6 @@ package org.eclipse.tycho.repository.local;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.tycho.core.facade.MavenContext;
@@ -67,9 +66,7 @@ public class TemporaryLocalMavenRepository extends ExternalResource {
     }
 
     private void createLocalRepoIndices() {
-        MavenContext mavenContext = new MavenContextImpl(getLocalRepositoryRoot(), false, new MemoryLog(),
-                new Properties());
-
+        MavenContext mavenContext = new MavenContextImpl(getLocalRepositoryRoot(), new MemoryLog());
         repoIndex = new LocalRepositoryP2IndicesImpl(mavenContext, new NoopFileLockService());
     }
 

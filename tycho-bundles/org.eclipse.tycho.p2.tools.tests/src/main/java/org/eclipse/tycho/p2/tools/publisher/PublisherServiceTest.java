@@ -187,7 +187,7 @@ public class PublisherServiceTest {
     }
 
     private static MavenContext createMavenContext(MavenLogger mavenLogger) {
-        MavenContext mavenContext = new MavenContextImpl(null, false, mavenLogger, null);
+        MavenContext mavenContext = new MavenContextImpl(null, mavenLogger);
         return mavenContext;
     }
 
