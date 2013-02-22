@@ -28,6 +28,11 @@ public class MavenContextImpl implements MavenContext {
         this.mergedProperties = mergedProperties;
     }
 
+    // constructor for tests
+    public MavenContextImpl(File localRepositoryRoot, MavenLogger mavenLogger) {
+        this(localRepositoryRoot, false, mavenLogger, new Properties());
+    }
+
     public File getLocalRepositoryRoot() {
         return localRepositoryRoot;
     }
