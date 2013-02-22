@@ -22,7 +22,7 @@
 	<artifactId>tycho-p2-extras-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho p2 Extras Plugin (Incubation)</name>
+	<name>p2 Extras Plugin (Incubation)</name>
 
 	<properties>
 		<tycho-build-version>${project.version}</tycho-build-version>

@@ -20,6 +20,7 @@
   </parent>
 
   <artifactId>tycho-pack200b-plugin</artifactId>
+  <name>Pack200 Pack Plugin (Incubation)</name>
   <packaging>maven-plugin</packaging>
 
   <dependencies>

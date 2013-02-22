@@ -8,6 +8,7 @@
 	</parent>
 
 	<artifactId>tycho-source-feature-plugin</artifactId>
+	<name>Source Feature Generation Plugin (Incubation)</name>
 	<packaging>maven-plugin</packaging>
 
 	<dependencies>

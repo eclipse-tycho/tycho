@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Tycho Extras">
+  <body>
+    <!-- TODO add samples -->
+    <menu name="Tycho Extras" inherit="top">
+      <item name="Introduction" href="index.html"/>
+      <item name="P2 Extras Plugin" href="tycho-p2-extras-plugin/plugin-info.html"/>
+      <item name="Target Platform Validation Plugin" href="target-platform-validation-plugin/plugin-info.html"/>
+      <item name="Eclipserun Plugin" href="tycho-eclipserun-plugin/plugin-info.html"/>
+      <item name="Source Feature Generation Plugin" href="tycho-source-feature-plugin/plugin-info.html"/>
+      <item name="Pack200 Plugins" href="tycho-pack200/index.html">
+        <item name="Normalization Plugin" href="tycho-pack200/tycho-pack200a-plugin/plugin-info.html"/>
+        <item name="Pack Plugin" href="tycho-pack200/tycho-pack200b-plugin/plugin-info.html"/>
+      </item>
+    </menu>
+	<links>
+	  <item name="This content is PRELIMINARY API and still subject to change" href="http://wiki.eclipse.org/Development_Resources/HOWTO/Incubation_Phase#.281.29_What_Is_Incubation.3F"/>
+	</links>
+  </body>
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-fluido-skin</artifactId>
+    <version>1.3.0</version>
+  </skin>
+</project>

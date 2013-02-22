@@ -21,6 +21,7 @@
 
   <artifactId>tycho-pack200</artifactId>
   <packaging>pom</packaging>
+  <description>Plugins for the pack200 archive format</description>
   
   <modules>
     <module>tycho-pack200a-plugin</module>
