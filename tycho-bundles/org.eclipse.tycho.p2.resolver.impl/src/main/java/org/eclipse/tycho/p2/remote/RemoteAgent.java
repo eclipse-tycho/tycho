@@ -56,7 +56,7 @@ public class RemoteAgent implements IProvisioningAgent {
         }
 
         // cache indices of p2 repositories in the local Maven repository
-        TychoP2RepositoryCacheManager cacheMgr = new TychoP2RepositoryCacheManager(transport, mavenContext);
+        RemoteRepositoryCacheManager cacheMgr = new RemoteRepositoryCacheManager(transport, mavenContext);
         agent.registerService(CacheManager.class, cacheMgr);
 
         if (disableP2Mirrors) {
@@ -82,19 +82,19 @@ public class RemoteAgent implements IProvisioningAgent {
             MavenRepositorySettings mavenRepositorySettings, MavenLogger logger) {
 
         // register service which stores mapping between URLs and IDs (used by Maven)
-        RemoteRepositoryHelper remoteRepositoryHelper = new RemoteRepositoryHelper(mavenRepositorySettings, logger);
-        agent.registerService(IRepositoryIdManager.class, remoteRepositoryHelper);
+        RemoteRepositoryLoadingHelper loadingHelper = new RemoteRepositoryLoadingHelper(mavenRepositorySettings, logger);
+        agent.registerService(IRepositoryIdManager.class, loadingHelper);
 
         // wrap metadata repository manager
         IMetadataRepositoryManager plainMetadataRepoManager = agent.getService(IMetadataRepositoryManager.class);
         IMetadataRepositoryManager remoteMetadataRepoManager = new RemoteMetadataRepositoryManager(
-                plainMetadataRepoManager, remoteRepositoryHelper);
+                plainMetadataRepoManager, loadingHelper);
         agent.registerService(IMetadataRepositoryManager.class, remoteMetadataRepoManager);
 
         // wrap artifact repository manager
         IArtifactRepositoryManager plainArtifactRepoManager = agent.getService(IArtifactRepositoryManager.class);
         RemoteArtifactRepositoryManager remoteArtifactRepoManager = new RemoteArtifactRepositoryManager(
-                plainArtifactRepoManager, remoteRepositoryHelper);
+                plainArtifactRepoManager, loadingHelper);
         agent.registerService(IArtifactRepositoryManager.class, remoteArtifactRepoManager);
     }
 

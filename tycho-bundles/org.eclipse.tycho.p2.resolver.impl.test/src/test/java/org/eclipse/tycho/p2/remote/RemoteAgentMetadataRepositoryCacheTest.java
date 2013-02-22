@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,19 +31,23 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class RemoteAgentMetadataCacheTest {
+/**
+ * Tests for verifying the caching behaviour of the {@link RemoteAgent}'s metadata repository
+ * manager.
+ */
+public class RemoteAgentMetadataRepositoryCacheTest {
 
     private static final String HTTP_REPO_PATH = "e342";
 
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();
+    @Rule
+    public LogVerifier logVerifier = new LogVerifier();
 
     private HttpServer localServer;
     private URI localHttpRepo;
 
     private File localMavenRepository;
-
-    private LogVerifier logVerifier = new LogVerifier();
 
     @Before
     public void startHttpServer() throws Exception {

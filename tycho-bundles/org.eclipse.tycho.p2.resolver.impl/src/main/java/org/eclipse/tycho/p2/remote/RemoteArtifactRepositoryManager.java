@@ -26,19 +26,19 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 class RemoteArtifactRepositoryManager implements IArtifactRepositoryManager {
 
     private IArtifactRepositoryManager delegate;
-    private final RemoteRepositoryHelper repositoryHelper;
+    private final RemoteRepositoryLoadingHelper loadingHelper;
 
-    RemoteArtifactRepositoryManager(IArtifactRepositoryManager delegate, RemoteRepositoryHelper repositoryHelper) {
+    RemoteArtifactRepositoryManager(IArtifactRepositoryManager delegate, RemoteRepositoryLoadingHelper loadingHelper) {
         this.delegate = delegate;
-        this.repositoryHelper = repositoryHelper;
+        this.loadingHelper = loadingHelper;
     }
 
     private URI translate(URI location) {
-        return repositoryHelper.getEffectiveLocation(location);
+        return loadingHelper.getEffectiveLocation(location);
     }
 
     private URI translateAndPrepareLoad(URI location) throws ProvisionException {
-        return repositoryHelper.getEffectiveLocationAndPrepareLoad(location);
+        return loadingHelper.getEffectiveLocationAndPrepareLoad(location);
     }
 
     public void addRepository(URI location) {
