@@ -67,6 +67,8 @@ public class RemoteAgent implements IProvisioningAgent {
             addMavenAwareRepositoryManagers(agent, mavenRepositorySettings, mavenContext.getLogger());
         }
 
+        makeCompositeRepositoryLoadingAtomicByDefault();
+
         return agent.getAgent();
     }
 
@@ -96,6 +98,24 @@ public class RemoteAgent implements IProvisioningAgent {
         RemoteArtifactRepositoryManager remoteArtifactRepoManager = new RemoteArtifactRepositoryManager(
                 plainArtifactRepoManager, loadingHelper);
         agent.registerService(IArtifactRepositoryManager.class, remoteArtifactRepoManager);
+    }
+
+    private static void makeCompositeRepositoryLoadingAtomicByDefault() {
+        /*
+         * Workaround for p2 bug 356561: Due to historical reasons, p2 considers a composite
+         * repository to be loaded successfully even though some of its children failed to load.
+         * This is bad for Tycho because it allows for network/server outages to threaten build
+         * reproducibility. Therefore, we change the composite loading behaviour to be atomic for
+         * composite repositories (except those that explicitly state
+         * p2.atomic.composite.loading=false in their repository properties). This can be done via a
+         * system property (see CompositeArtifactRepository and CompositeMetadataRepository).
+         */
+        String atomicDefaultSystemProperty = "eclipse.p2.atomic.composite.loading.default";
+
+        if (System.getProperty(atomicDefaultSystemProperty) == null) {
+            // not explicitly set on command line -> set Tycho's default
+            System.setProperty(atomicDefaultSystemProperty, Boolean.toString(true));
+        }
     }
 
     /**
