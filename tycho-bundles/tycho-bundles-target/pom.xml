@@ -10,35 +10,7 @@
 	</parent>
 
 	<artifactId>tycho-bundles-target</artifactId>
-	<packaging>pom</packaging>
+	<packaging>eclipse-target-definition</packaging>
 
 	<name>Tycho OSGi Bundles Target Platform (Incubation)</name>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.3</version>
-				<executions>
-					<execution>
-						<id>attach-artifacts</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<artifact>
-									<file>tycho.target</file>
-									<type>target</type>
-									<classifier>tycho</classifier>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 </project>
