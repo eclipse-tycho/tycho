@@ -21,8 +21,12 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 
+/**
+ * p2 {@link CacheManager} instance caching the p2 repository indices (i.e. <tt>content.xml</tt> and
+ * <tt>artifacts.xml</tt>) in the local Maven repository.
+ */
 @SuppressWarnings("restriction")
-class TychoP2RepositoryCacheManager extends CacheManager {
+class RemoteRepositoryCacheManager extends CacheManager {
     public static final String CACHE_RELPATH = ".cache/tycho/p2-repository-metadata";
 
     private final boolean offline;
@@ -31,7 +35,7 @@ class TychoP2RepositoryCacheManager extends CacheManager {
 
     private final MavenLogger logger;
 
-    public TychoP2RepositoryCacheManager(Transport transport, MavenContext mavenContext) {
+    public RemoteRepositoryCacheManager(Transport transport, MavenContext mavenContext) {
         super(null, transport);
 
         this.localRepositoryLocation = mavenContext.getLocalRepositoryRoot();

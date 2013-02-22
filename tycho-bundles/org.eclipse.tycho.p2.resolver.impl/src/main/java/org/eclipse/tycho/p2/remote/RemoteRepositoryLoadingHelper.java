@@ -20,14 +20,18 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 
-class RemoteRepositoryHelper implements IRepositoryIdManager {
+/**
+ * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the
+ * settings.xml-configured mirrors and setting passwords.
+ */
+class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
 
     private final MavenRepositorySettings settings;
     private final MavenLogger logger;
 
     private Map<URI, String> knownMavenRepositoryIds = new HashMap<URI, String>();
 
-    public RemoteRepositoryHelper(MavenRepositorySettings settings, MavenLogger logger) {
+    public RemoteRepositoryLoadingHelper(MavenRepositorySettings settings, MavenLogger logger) {
         this.settings = settings;
         this.logger = logger;
     }
