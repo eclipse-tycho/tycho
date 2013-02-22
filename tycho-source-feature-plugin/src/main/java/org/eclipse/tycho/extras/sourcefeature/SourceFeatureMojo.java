@@ -99,6 +99,15 @@ public class SourceFeatureMojo extends AbstractMojo {
     private boolean skip;
 
     /**
+     * Whether to add an include dependency from the source feature to the corresponding binary
+     * feature. If <code>true</code>, this ensures the version of the installed sources matches the
+     * binaries.
+     * 
+     * @parameter default-value="true"
+     */
+    private boolean includeBinaryFeature;
+
+    /**
      * Source feature label suffix. Unless explicitly provided in
      * <code>sourceTemplateFeature/feature.properties</code>, this suffix will be appended to the
      * original feature label to construct the source feature label.
@@ -280,11 +289,12 @@ public class SourceFeatureMojo extends AbstractMojo {
             sourceFeature.setBrandingPluginId(feature.getBrandingPluginId());
         }
 
-        // make sure versions of sources and binary features match
-        FeatureRef binaryRef = new FeatureRef(new Element("includes"));
-        binaryRef.setId(feature.getId());
-        binaryRef.setVersion(feature.getVersion());
-        sourceFeature.addFeatureRef(binaryRef);
+        if (includeBinaryFeature) {
+            FeatureRef binaryRef = new FeatureRef(new Element("includes"));
+            binaryRef.setId(feature.getId());
+            binaryRef.setVersion(feature.getVersion());
+            sourceFeature.addFeatureRef(binaryRef);
+        }
 
         if (feature.getLabel() != null) {
             String originalLabel = feature.getLabel();
