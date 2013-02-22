@@ -46,16 +46,11 @@ public class RemoteAgentMavenMirrorsTest {
     public final TemporaryFolder tempManager = new TemporaryFolder();
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
-
-    private HttpServer localServer;
+    @Rule
+    public HttpServer localServer = new HttpServer();
 
     private MavenRepositorySettingsStub mavenRepositorySettings;
     private IProvisioningAgent subject;
-
-    @Before
-    public void initServer() throws Exception {
-        localServer = HttpServer.startServer();
-    }
 
     @Before
     public void initSubject() throws ProvisionException {
@@ -70,7 +65,7 @@ public class RemoteAgentMavenMirrorsTest {
     @Test
     public void testLoadFromOriginalLocation() throws Exception {
         String repositoryId = "other-id";
-        URI url = URI.create(localServer.addServer("original", ResourceUtil.resourceFile("repositories/e342")));
+        URI url = URI.create(localServer.addServlet("original", ResourceUtil.resourceFile("repositories/e342")));
 
         Repositories repos = loadRepositories(repositoryId, url);
 
@@ -81,8 +76,9 @@ public class RemoteAgentMavenMirrorsTest {
     @Test
     public void testLoadFromMirroredLocation() throws Exception {
         String repositoryId = "well-known-id";
-        URI originalUrl = URI.create(localServer.addServer("original", noContent())); // will fail if used
-        URI mirroredUrl = URI.create(localServer.addServer("mirrored", ResourceUtil.resourceFile("repositories/e342")));
+        URI originalUrl = URI.create(localServer.addServlet("original", noContent())); // will fail if used
+        URI mirroredUrl = URI
+                .create(localServer.addServlet("mirrored", ResourceUtil.resourceFile("repositories/e342")));
         prepareMavenMirrorConfiguration(repositoryId, mirroredUrl);
 
         Repositories repos = loadRepositories(repositoryId, originalUrl);
@@ -93,8 +89,9 @@ public class RemoteAgentMavenMirrorsTest {
 
     @Test
     public void testLoadFromMirroredLocationWithFallbackId() throws Exception {
-        URI originalUrl = URI.create(localServer.addServer("original", noContent())); // will fail if used
-        URI mirroredUrl = URI.create(localServer.addServer("mirrored", ResourceUtil.resourceFile("repositories/e342")));
+        URI originalUrl = URI.create(localServer.addServlet("original", noContent())); // will fail if used
+        URI mirroredUrl = URI
+                .create(localServer.addServlet("mirrored", ResourceUtil.resourceFile("repositories/e342")));
         String repositoryFallbackId = originalUrl.toString();
         assertFalse("self-test: fallback ID shall be URL without trailing slash", repositoryFallbackId.endsWith("/"));
         prepareMavenMirrorConfiguration(repositoryFallbackId, mirroredUrl);

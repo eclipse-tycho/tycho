@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,47 +17,56 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.security.Password;
+import org.junit.rules.ExternalResource;
 
-public class HttpServer {
-    private static final int BIND_ATTEMPTS = 20;
+public class HttpServer extends ExternalResource {
+    static final int BIND_ATTEMPTS = 20;
+    static final Random rnd = new Random();
 
-    private static final Random rnd = new Random();
+    private RunningServer runningServer;
 
-    private final Server server;
+    private static class RunningServer {
 
-    private final ServletContextHandler context;
+        final Server server;
+        final ServletContextHandler context;
+        final int port;
+        final Map<String, FileServerServlet> servlets = new HashMap<String, FileServerServlet>();
 
-    private final int port;
+        RunningServer(int port, Server jettyIntance, ServletContextHandler context) {
+            this.port = port;
+            this.server = jettyIntance;
+            this.context = context;
+        }
 
-    private final Map<String, FileServerServlet> servers = new HashMap<String, FileServerServlet>();
-
-    private HttpServer(int port, Server server, ServletContextHandler context) {
-        this.port = port;
-        this.server = server;
-        this.context = context;
     }
 
-    public static HttpServer startServer() throws Exception {
-        return startServer(null, null);
+    @Override
+    protected void before() throws Throwable {
+        runningServer = startServer(null, null);
     }
 
-    public static HttpServer startServer(String username, String password) throws Exception {
+    @Override
+    protected void after() {
+        try {
+            stop();
+        } catch (Exception e) {
+            // only log to not hide test result
+            e.printStackTrace();
+        }
+    }
+
+    private static RunningServer startServer(String username, String password) throws Exception {
         int baseport = 1024;
         BindException cause = null;
         for (int i = 0; i < BIND_ATTEMPTS; i++) {
             int port = baseport + rnd.nextInt(65534 - baseport);
             try {
-                return doStartServer(username, password, port);
+                return startServerOnPort(port);
             } catch (BindException e) {
                 cause = e;
             }
@@ -66,62 +75,59 @@ public class HttpServer {
         throw new IllegalStateException("Could not allocate available port", cause);
     }
 
-    private static HttpServer doStartServer(String username, String password, int port) throws Exception {
-        Server server = new Server();
+    private static RunningServer startServerOnPort(int port) throws Exception {
+        Server jetty = new Server();
         Connector connector = new SocketConnector();
         connector.setPort(port);
-        server.addConnector(connector);
+        jetty.addConnector(connector);
 
         ServletContextHandler context;
-        if (username != null) {
-            context = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS
-                    | ServletContextHandler.SECURITY);
+        context = new ServletContextHandler(jetty, "/", 0);
+        jetty.start();
 
-            HashLoginService userRealm = new HashLoginService("default");
-            userRealm.putUser(username, new Password(password), new String[0]);
-
-            Constraint constraint = new Constraint(Constraint.__BASIC_AUTH, Constraint.ANY_ROLE);
-            constraint.setAuthenticate(true);
-
-            ConstraintMapping constraintMapping = new ConstraintMapping();
-            constraintMapping.setPathSpec("/*");
-            constraintMapping.setConstraint(constraint);
-
-            ConstraintSecurityHandler securityHandler = (ConstraintSecurityHandler) context.getSecurityHandler();
-            securityHandler.setLoginService(userRealm);
-            securityHandler.setAuthMethod(Constraint.__BASIC_AUTH);
-            securityHandler.setConstraintMappings(new ConstraintMapping[] { constraintMapping });
-        } else {
-            context = new ServletContextHandler(server, "/", 0);
-        }
-        server.start();
-
-        return new HttpServer(port, server, context);
+        return new RunningServer(port, jetty, context);
     }
 
-    public void stop() throws Exception {
-        server.stop();
-        server.join();
-    }
+    public String addServlet(String contextName, final File content) {
+        checkRunning();
 
-    public String addServer(String contextName, final File content) {
         FileServerServlet servlet = new FileServerServlet(content);
-        servers.put(contextName, servlet);
-        context.addServlet(new ServletHolder(servlet), "/" + contextName + "/*");
+        runningServer.servlets.put(contextName, servlet);
+        runningServer.context.addServlet(new ServletHolder(servlet), "/" + contextName + "/*");
 
         return getUrl(contextName);
     }
 
     public String getUrl(String contextName) {
-        return "http://localhost:" + port + "/" + contextName;
+        checkRunning();
+
+        return "http://localhost:" + runningServer.port + "/" + contextName;
     }
 
     public List<String> getAccessedUrls(String contextName) {
-        return servers.get(contextName).getAccessedUrls();
+        checkRunning();
+
+        return runningServer.servlets.get(contextName).getAccessedUrls();
     }
 
     public void clearAccessedUrls(String contextName) {
-        servers.get(contextName).getAccessedUrls().clear();
+        checkRunning();
+
+        runningServer.servlets.get(contextName).getAccessedUrls().clear();
+    }
+
+    public void stop() throws Exception {
+        if (runningServer != null) {
+            runningServer.server.stop();
+            runningServer.server.join();
+        }
+        runningServer = null;
+    }
+
+    private void checkRunning() {
+        if (runningServer == null) {
+            throw new IllegalStateException("HttpServer instance is not running. Did you forget the @Rule annotation?");
+        }
     }
 
 }
