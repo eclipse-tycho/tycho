@@ -60,7 +60,7 @@ public class RemoteAgent implements IProvisioningAgent {
         agent.registerService(CacheManager.class, cacheMgr);
 
         if (disableP2Mirrors) {
-            addP2MirrorDisablingRepositoryManager(agent);
+            addP2MirrorDisablingRepositoryManager(agent, mavenContext.getLogger());
         }
 
         if (mavenRepositorySettings != null) {
@@ -70,11 +70,11 @@ public class RemoteAgent implements IProvisioningAgent {
         return agent.getAgent();
     }
 
-    private static void addP2MirrorDisablingRepositoryManager(AgentBuilder agent) {
+    private static void addP2MirrorDisablingRepositoryManager(AgentBuilder agent, MavenLogger mavenLogger) {
         // wrap artifact repository manager
         IArtifactRepositoryManager plainRepoManager = agent.getService(IArtifactRepositoryManager.class);
         IArtifactRepositoryManager mirrorDisablingRepoManager = new P2MirrorDisablingArtifactRepositoryManager(
-                plainRepoManager);
+                plainRepoManager, mavenLogger);
         agent.registerService(IArtifactRepositoryManager.class, mirrorDisablingRepoManager);
     }
 

@@ -41,13 +41,25 @@ public class RemoteAgentManager {
 
     public synchronized IProvisioningAgent getProvisioningAgent() throws ProvisionException {
         if (cachedAgent == null) {
-            boolean disableP2Mirrors = Boolean.parseBoolean(mavenContext.getSessionProperties().getProperty(
-                    "tycho.disableP2Mirrors"));
+            boolean disableP2Mirrors = getDisableP2MirrorsConfiguration();
             cachedAgent = new RemoteAgent(mavenContext, mavenRepositorySettings, disableP2Mirrors);
         }
         return cachedAgent;
     }
 
+    private boolean getDisableP2MirrorsConfiguration() {
+        String key = "tycho.disableP2Mirrors";
+        String value = mavenContext.getSessionProperties().getProperty(key);
+
+        boolean disableP2Mirrors = Boolean.parseBoolean(value);
+        if (disableP2Mirrors && mavenContext.getLogger().isDebugEnabled()) {
+            String message = key + "=" + value + " -> ignoring mirrors specified in p2 artifact repositories";
+            mavenContext.getLogger().debug(message);
+        }
+        return disableP2Mirrors;
+    }
+
+    // setters for DS
     public void setMavenContext(MavenContext mavenContext) {
         this.mavenContext = mavenContext;
     }

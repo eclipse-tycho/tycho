@@ -26,27 +26,36 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
+import org.eclipse.tycho.core.facade.MavenLogger;
 
 @SuppressWarnings("restriction")
 class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryManager {
 
-    private IArtifactRepositoryManager delegate;
+    private final IArtifactRepositoryManager delegate;
+    private final MavenLogger mavenLogger;
 
-    public P2MirrorDisablingArtifactRepositoryManager(IArtifactRepositoryManager originalRepositoryManager) {
+    public P2MirrorDisablingArtifactRepositoryManager(IArtifactRepositoryManager originalRepositoryManager,
+            MavenLogger mavenLogger) {
         this.delegate = originalRepositoryManager;
+        this.mavenLogger = mavenLogger;
     }
 
-    private static IArtifactRepository disableMirrors(IArtifactRepository repository) throws ProvisionException {
+    private static IArtifactRepository disableMirrors(IArtifactRepository repository, MavenLogger logger)
+            throws ProvisionException {
         if (repository instanceof SimpleArtifactRepository) {
-            stripMirrorsURLProperty((SimpleArtifactRepository) repository);
+            stripMirrorsURLProperty((SimpleArtifactRepository) repository, logger);
         }
         return repository;
     }
 
-    private static void stripMirrorsURLProperty(AbstractRepository<?> repository) {
+    private static void stripMirrorsURLProperty(AbstractRepository<?> repository, MavenLogger logger) {
         try {
             Map<?, ?> properties = getRepositoryProperties(repository);
-            properties.remove(IRepository.PROP_MIRRORS_URL);
+            Object removedConfiguration = properties.remove(IRepository.PROP_MIRRORS_URL);
+
+            if (removedConfiguration != null && logger.isDebugEnabled()) {
+                logger.debug("Removed 'p2.mirrorsURL' property in repository " + repository.getLocation());
+            }
         } catch (Exception e) {
             throw new RuntimeException("Failed to disable mirrors for artifact repository at \""
                     + repository.getLocation() + "\"", e);
@@ -66,26 +75,26 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
     public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException {
         IArtifactRepository repository = delegate.createRepository(location, name, type, properties);
-        disableMirrors(repository);
+        disableMirrors(repository, mavenLogger);
         return repository;
     }
 
     public IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
             throws ProvisionException {
         IArtifactRepository repository = delegate.loadRepository(location, flags, monitor);
-        disableMirrors(repository);
+        disableMirrors(repository, mavenLogger);
         return repository;
     }
 
     public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
         IArtifactRepository repository = delegate.loadRepository(location, monitor);
-        disableMirrors(repository);
+        disableMirrors(repository, mavenLogger);
         return repository;
     }
 
     public IArtifactRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
         IArtifactRepository repository = delegate.refreshRepository(location, monitor);
-        disableMirrors(repository);
+        disableMirrors(repository, mavenLogger);
         return repository;
     }
 
