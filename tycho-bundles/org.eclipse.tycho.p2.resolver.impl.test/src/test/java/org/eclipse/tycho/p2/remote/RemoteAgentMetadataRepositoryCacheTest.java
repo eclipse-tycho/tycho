@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.remote;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -25,7 +26,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,20 +44,15 @@ public class RemoteAgentMetadataRepositoryCacheTest {
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
 
-    private HttpServer localServer;
+    @Rule
+    public final HttpServer localServer = new HttpServer();
     private URI localHttpRepo;
 
     private File localMavenRepository;
 
     @Before
     public void startHttpServer() throws Exception {
-        localServer = HttpServer.startServer();
-        localHttpRepo = URI.create(localServer.addServer(HTTP_REPO_PATH, new File("resources/repositories/e342")));
-    }
-
-    @After
-    public void stopHttpServer() throws Exception {
-        localServer.stop();
+        localHttpRepo = URI.create(localServer.addServlet(HTTP_REPO_PATH, new File("resources/repositories/e342")));
     }
 
     @Before
@@ -77,6 +72,7 @@ public class RemoteAgentMetadataRepositoryCacheTest {
         RemoteAgent onlineAgent = newOnlineAgent();
         loadHttpRepository(onlineAgent);
 
+        assertThat(localServer.getAccessedUrls(HTTP_REPO_PATH), not(is(Collections.<String> emptyList()))); // self-test
         localServer.clearAccessedUrls(HTTP_REPO_PATH);
 
         RemoteAgent offlineAgent = newOfflineAgent();
@@ -119,6 +115,7 @@ public class RemoteAgentMetadataRepositoryCacheTest {
         RemoteAgent onlineAgent = newOnlineAgent();
         loadHttpRepository(onlineAgent);
 
+        assertThat(localServer.getAccessedUrls(HTTP_REPO_PATH), not(is(Collections.<String> emptyList()))); // self-test
         localServer.clearAccessedUrls(HTTP_REPO_PATH);
 
         IMetadataRepository repo = loadHttpRepository(onlineAgent);
