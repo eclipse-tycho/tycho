@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/feature_0.0.0.jar" id="feature" version="0.0.0"/>
+   <bundle id="org.eclipse.osgi.source" version="0.0.0"/>
 </site>
