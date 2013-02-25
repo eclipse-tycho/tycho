@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//9Kk\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/remote/RemoteAgent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-25T09:08:52Z",
+      "side": 1,
+      "message": "mavenContext.getLogger() should work here fi you assign it to a field in constructor. no need to add MavenLogger to method signature then",
+      "revId": "857cb02151fe60c61e6931b60cc10a5e8e5d1fc8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
