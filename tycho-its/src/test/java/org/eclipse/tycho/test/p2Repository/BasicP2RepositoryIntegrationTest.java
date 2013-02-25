@@ -17,11 +17,15 @@ import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTest {
+
+    private static final String INCLUDED_PLUGIN_ID = "org.eclipse.osgi.source";
+    private static final String INCLUDED_PLUGIN_VERSION = "3.4.3.R34x_v20081215-1030";
 
     private static final String CUSTOM_FINAL_NAME = "testrepo-myqualifier";
 
@@ -31,9 +35,17 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
     @BeforeClass
     public static void executeBuild() throws Exception {
         verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository", false);
-        verifier.getCliOptions().add("-Dp2.repo=" + ResourceUtil.P2Repositories.SIMPLE_FEATURE.toString());
+        verifier.getCliOptions().add("-Dtest-data-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
+    }
+
+    @Test
+    public void test381377BundleInclusion() {
+        P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
+
+        // check that (separately!) included bundle is there
+        assertThat(p2Repo.getBundleArtifact(INCLUDED_PLUGIN_ID, INCLUDED_PLUGIN_VERSION), isFile());
     }
 
     @Test

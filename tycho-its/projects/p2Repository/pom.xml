@@ -24,9 +24,9 @@
 
 	<repositories>
 		<repository>
-			<id>eclipse-3.4.2</id>
+			<id>test-data-repo</id>
 			<layout>p2</layout>
-			<url>${p2.repo}</url>
+			<url>${test-data-repo}</url>
 		</repository>
 	</repositories>
 

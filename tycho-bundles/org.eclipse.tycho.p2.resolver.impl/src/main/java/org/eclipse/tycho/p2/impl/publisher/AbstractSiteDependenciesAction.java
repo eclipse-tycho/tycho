@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.impl.publisher;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.equinox.internal.p2.updatesite.SiteBundle;
 import org.eclipse.equinox.internal.p2.updatesite.SiteFeature;
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -44,6 +45,13 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
 
             VersionRange range = getVersionRange(createVersion(feature.getFeatureVersion()));
 
+            required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null, false,
+                    false));
+        }
+
+        for (SiteBundle bundle : getSiteModel().getBundles()) {
+            String id = bundle.getBundleIdentifier();
+            VersionRange range = getVersionRange(createVersion(bundle.getBundleVersion()));
             required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null, false,
                     false));
         }
