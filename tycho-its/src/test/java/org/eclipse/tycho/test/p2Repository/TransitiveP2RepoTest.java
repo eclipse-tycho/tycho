@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.p2Repository.transitive;
+package org.eclipse.tycho.test.p2Repository;
 
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
 import static org.junit.Assert.assertFalse;
