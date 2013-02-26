@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,12 +74,12 @@ public class ProjectMetadataReader {
     private Set<File> getChildren(File basedir, MutablePomFile project) throws IOException {
         LinkedHashSet<File> children = new LinkedHashSet<File>();
         for (String module : project.getModules()) {
-            children.add(new File(basedir, module).getCanonicalFile());
+            children.add(canonify(new File(basedir, module)));
         }
 
         for (Profile profile : project.getProfiles()) {
             for (String module : profile.getModules()) {
-                children.add(new File(basedir, module).getCanonicalFile());
+                children.add(canonify(new File(basedir, module)));
             }
         }
         return children;
@@ -87,6 +87,10 @@ public class ProjectMetadataReader {
 
     public Collection<ProjectMetadata> getProjects() {
         return projects.values();
+    }
+
+    private File canonify(File file) {
+        return new File(file.toURI().normalize());
     }
 
 }

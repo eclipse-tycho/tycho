@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.tycho.core.osgitools.targetplatform;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -70,13 +69,7 @@ public class BasicDependencyArtifacts {
 
         ArtifactKey key = normalizePluginType(artifact.getKey());
 
-        File location;
-        try {
-            location = artifact.getLocation().getCanonicalFile();
-        } catch (IOException e) {
-            // not sure what good this will do to the caller
-            location = artifact.getLocation().getAbsoluteFile();
-        }
+        File location = normalizeLocation(artifact.getLocation());
 
         ArtifactDescriptor original = artifacts.get(key);
 
@@ -145,6 +138,12 @@ public class BasicDependencyArtifacts {
         }
 
         classified.put(artifact.getClassifier(), artifact);
+    }
+
+    // ideally this would return a specialized type -> the type checker would then ensure that this is called wherever needed
+    private static File normalizeLocation(File location) {
+        // don't call getCanonicalFile here because otherwise we'll be forced to call getCanonical* everywhere
+        return new File(location.getAbsoluteFile().toURI().normalize());
     }
 
     protected ArtifactDescriptor normalize(ArtifactDescriptor artifact) {
@@ -248,12 +247,7 @@ public class BasicDependencyArtifacts {
     }
 
     public Map<String, ArtifactDescriptor> getArtifact(File location) {
-        try {
-            location = location.getCanonicalFile();
-            return locations.get(location);
-        } catch (IOException e) {
-            return null;
-        }
+        return locations.get(normalizeLocation(location));
     }
 
     public ArtifactDescriptor getArtifact(ArtifactKey key) {

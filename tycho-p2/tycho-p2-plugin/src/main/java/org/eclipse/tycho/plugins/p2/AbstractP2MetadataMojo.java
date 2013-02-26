@@ -120,7 +120,7 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
     }
 
     protected void addArguments(P2ApplicationLauncher launcher) throws IOException, MalformedURLException {
-        launcher.addArguments("-source", getUpdateSiteLocation().getCanonicalPath(), //
+        launcher.addArguments("-source", getUpdateSiteLocation().getAbsolutePath(), //
                 "-metadataRepository", getUpdateSiteLocation().toURL().toExternalForm(), //
                 "-metadataRepositoryName", metadataRepositoryName, //
                 "-artifactRepository", getUpdateSiteLocation().toURL().toExternalForm(), //

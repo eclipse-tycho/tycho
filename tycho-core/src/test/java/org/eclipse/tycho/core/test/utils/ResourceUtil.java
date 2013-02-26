@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,13 +16,7 @@ import java.io.IOException;
 public class ResourceUtil {
 
     public static File resourceFile(String path) throws IOException {
-        File resolvedFile;
-        try {
-            resolvedFile = new File("src/test/resources", path).getCanonicalFile();
-        } catch (IOException e) {
-            // this should not happen in the expected test setup
-            throw new IllegalStateException("I/O error while resolving test resource \"" + path + "\" ", e);
-        }
+        File resolvedFile = new File("src/test/resources", path).getAbsoluteFile();
 
         if (!resolvedFile.canRead()) {
             throw new IllegalStateException("Test resource \"" + path

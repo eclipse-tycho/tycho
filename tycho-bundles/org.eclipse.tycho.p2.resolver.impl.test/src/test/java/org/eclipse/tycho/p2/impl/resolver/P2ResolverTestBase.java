@@ -80,7 +80,7 @@ public class P2ResolverTestBase {
     }
 
     protected final void addContextProject(File projectRoot, String packaging) throws IOException {
-        ArtifactMock artifact = new ArtifactMock(projectRoot.getCanonicalFile(), DEFAULT_GROUP_ID,
+        ArtifactMock artifact = new ArtifactMock(projectRoot.getAbsoluteFile(), DEFAULT_GROUP_ID,
                 projectRoot.getName(), DEFAULT_VERSION, packaging);
 
         DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments());
@@ -98,7 +98,7 @@ public class P2ResolverTestBase {
     }
 
     static File getLocalRepositoryLocation() throws IOException {
-        return new File("target/localrepo").getCanonicalFile();
+        return new File("target/localrepo").getAbsoluteFile();
     }
 
     /**

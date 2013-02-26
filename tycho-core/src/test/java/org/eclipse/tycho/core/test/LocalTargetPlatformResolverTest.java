@@ -70,9 +70,9 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
         File platformPath = new File("src/test/resources/targetplatforms/basic");
         DependencyArtifacts platform = getTargetPlatform(platformPath);
 
-        // canonical path to a bundle
+        // absolute path to a bundle
         File bundlePath = new File(platformPath, "plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar")
-                .getCanonicalFile();
+                .getAbsoluteFile();
 
         Map<String, ArtifactDescriptor> artifact = platform.getArtifact(bundlePath);
 
@@ -80,7 +80,7 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
     }
 
     public void testBundleRelativePath() throws Exception {
-        File platformPath = new File("src/test/resources/targetplatforms/basic").getCanonicalFile();
+        File platformPath = new File("src/test/resources/targetplatforms/basic").getAbsoluteFile();
         DependencyArtifacts platform = getTargetPlatform(platformPath);
 
         File bundlePath = new File(

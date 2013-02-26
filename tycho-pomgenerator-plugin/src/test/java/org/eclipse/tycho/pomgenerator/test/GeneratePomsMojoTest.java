@@ -48,7 +48,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
             for (File dir : extraDirs) {
                 if (sb.length() > 0)
                     sb.append(',');
-                sb.append(dir.getCanonicalPath());
+                sb.append(dir.getAbsolutePath());
             }
             setVariableValueToObject(generateMojo, "extraDirs", sb.toString());
         }
@@ -188,7 +188,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         params.put("groupId", "group");
         params.put("version", "1.0.0");
         params.put("aggregator", Boolean.TRUE);
-        params.put("rootProjects", new File(baseDir, "p004").getCanonicalPath());
+        params.put("rootProjects", new File(baseDir, "p004").getAbsolutePath());
         generate(baseDir, params);
 
         Model parent = readModel(baseDir, "pom.xml");

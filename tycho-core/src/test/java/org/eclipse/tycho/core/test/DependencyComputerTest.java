@@ -68,7 +68,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         ExecutionEnvironment executionEnvironment = TychoProjectUtils.getExecutionEnvironmentConfiguration(project)
                 .getFullSpecification();
         State state = resolver.newResolvedState(project, executionEnvironment, platform);
-        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getCanonicalPath());
+        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
         Assert.assertEquals(3, dependencies.size());
@@ -109,7 +109,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
                 new SystemCapability(Type.OSGI_EE, "JavaSE", "1.2.0")));
 
         State state = resolver.newResolvedState(project, customProfile, platform);
-        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getCanonicalPath());
+        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
 

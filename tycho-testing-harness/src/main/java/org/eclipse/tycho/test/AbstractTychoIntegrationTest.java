@@ -44,9 +44,9 @@ public abstract class AbstractTychoIntegrationTest {
     public TestName name = new TestName();
 
     protected File getBasedir(String test) throws IOException {
-        File src = new File("projects", test).getCanonicalFile();
+        File src = new File("projects", test).getAbsoluteFile();
         File dst = new File("target/projects", getClass().getSimpleName() + "/" + name.getMethodName() + "/" + test)
-                .getCanonicalFile();
+                .getAbsoluteFile();
 
         if (dst.isDirectory()) {
             FileUtils.deleteDirectory(dst);
@@ -88,7 +88,7 @@ public abstract class AbstractTychoIntegrationTest {
             verifier.getCliOptions().add("-Dtycho.targetPlatform=" + getTargetPlatform());
         }
         verifier.getCliOptions().add("-X");
-        verifier.getCliOptions().add("-s " + userSettings.getCanonicalPath());
+        verifier.getCliOptions().add("-s " + userSettings.getAbsolutePath());
         verifier.getVerifierProperties().put("use.mavenRepoLocal", "true");
         verifier.setLocalRepo(EnvironmentUtil.getLocalRepo());
 

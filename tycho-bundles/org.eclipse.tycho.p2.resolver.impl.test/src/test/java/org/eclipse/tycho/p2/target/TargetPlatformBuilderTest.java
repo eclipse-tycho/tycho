@@ -41,6 +41,7 @@ import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverTestBase;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -192,7 +193,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
                 CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
         context.addFilters(Arrays.asList(filter));
 
-        File projectRoot = new File("resources/platformbuilder/feature-p2-inf").getCanonicalFile();
+        File projectRoot = ResourceUtil.resourceFile("platformbuilder/feature-p2-inf");
         addReactorProject(projectRoot, ArtifactKey.TYPE_ECLIPSE_FEATURE, "org.eclipse.tycho.p2.impl.test.bundle-p2-inf");
 
         P2TargetPlatform platform = context.buildTargetPlatform();

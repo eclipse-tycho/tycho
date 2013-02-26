@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -66,7 +65,7 @@ public class EquinoxResolver {
 
         resolveState(state);
 
-        BundleDescription bundleDescription = state.getBundleByLocation(getCanonicalPath(project.getBasedir()));
+        BundleDescription bundleDescription = state.getBundleByLocation(getNormalizedPath(project.getBasedir()));
 
         assertResolved(state, bundleDescription);
 
@@ -81,7 +80,7 @@ public class EquinoxResolver {
 
         resolveState(state);
 
-        BundleDescription bundleDescription = state.getBundleByLocation(getCanonicalPath(basedir));
+        BundleDescription bundleDescription = state.getBundleByLocation(getNormalizedPath(basedir));
 
         assertResolved(state, bundleDescription);
 
@@ -218,7 +217,8 @@ public class EquinoxResolver {
 
     public void addBundle(State state, long id, File bundleLocation, Dictionary<String, String> mf, boolean override)
             throws BundleException {
-        BundleDescription descriptor = factory.createBundleDescription(state, mf, getCanonicalPath(bundleLocation), id);
+        BundleDescription descriptor = factory
+                .createBundleDescription(state, mf, getNormalizedPath(bundleLocation), id);
 
         if (override) {
             BundleDescription[] conflicts = state.getBundles(descriptor.getSymbolicName());
@@ -235,12 +235,8 @@ public class EquinoxResolver {
         state.addBundle(descriptor);
     }
 
-    private static String getCanonicalPath(File file) throws BundleException {
-        try {
-            return file.getCanonicalPath();
-        } catch (IOException e) {
-            throw new BundleException(e.getMessage(), e);
-        }
+    private static String getNormalizedPath(File file) throws BundleException {
+        return file.getAbsolutePath();
     }
 
     private Dictionary<String, String> loadManifest(File bundleLocation) {

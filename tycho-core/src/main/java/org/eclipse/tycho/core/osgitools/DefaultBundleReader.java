@@ -45,12 +45,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     private FileLockService fileLockService;
 
     public OsgiManifest loadManifest(File bundleLocation) {
-        String locationPath;
-        try {
-            locationPath = bundleLocation.getCanonicalPath();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String locationPath = bundleLocation.getAbsolutePath();
         OsgiManifest manifest = manifestCache.get(locationPath);
         if (manifest == null) {
             manifest = doLoadManifest(bundleLocation);
