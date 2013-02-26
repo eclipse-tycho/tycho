@@ -16,6 +16,24 @@
       "revId": "857cb02151fe60c61e6931b60cc10a5e8e5d1fc8",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8ys\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/remote/RemoteAgent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-02-26T15:57:53Z",
+      "side": 1,
+      "message": "This method (and its caller) is static because it is being called during the construction of the containing class. It could be set on the construction helper instance (of type AgentBuilder) but IMHO this would not be particularly intuitive.",
+      "parentUuid": "AABOPX//9Kk\u003d",
+      "revId": "857cb02151fe60c61e6931b60cc10a5e8e5d1fc8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
