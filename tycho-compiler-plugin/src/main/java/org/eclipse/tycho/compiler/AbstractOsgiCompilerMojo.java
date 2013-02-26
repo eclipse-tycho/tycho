@@ -334,11 +334,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     protected final List<String> getCompileSourceRoots() throws MojoExecutionException {
         ArrayList<String> roots = new ArrayList<String>();
         for (File folder : outputJar.getSourceFolders()) {
-            try {
-                roots.add(folder.getCanonicalPath());
-            } catch (IOException e) {
-                throw new MojoExecutionException("Unexpected IOException", e);
-            }
+            roots.add(new File(folder.getAbsoluteFile().toURI().normalize()).toString());
         }
         return roots;
     }

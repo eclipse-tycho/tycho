@@ -184,11 +184,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
     }
 
     private String toString(File file) {
-        try {
-            return file.getCanonicalPath();
-        } catch (IOException e) {
-            return file.getAbsolutePath();
-        }
+        return file.getAbsolutePath();
     }
 
     private void addLinks(Set<File> result, File targetPlatform, File linksFolder) {
@@ -210,7 +206,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
                             if (!dir.isAbsolute() && targetPlatform.getParentFile() != null) {
                                 dir = new File(targetPlatform.getParentFile(), path);
                             }
-                            dir = dir.getCanonicalFile();
+                            dir = dir.getAbsoluteFile();
                             if (dir.isDirectory()) {
                                 result.add(dir);
                             }
@@ -269,9 +265,9 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
                         if (str != null) {
                             File file = new File(str);
                             if (!file.isAbsolute()) {
-                                file = new File(platformBase, str).getCanonicalFile();
+                                file = new File(platformBase, str).getAbsoluteFile();
                             }
-                            pool = file.getParentFile().getParentFile().getCanonicalFile();
+                            pool = file.getParentFile().getParentFile().getAbsoluteFile();
                         }
                         break;
                     }

@@ -82,7 +82,7 @@ public class VersionsEngine {
 
         // make changes to the metadata
         for (ProjectMetadata project : projects) {
-            logger.info("Making changes in " + project.getBasedir().getCanonicalPath());
+            logger.info("Making changes in " + project.getBasedir().getAbsolutePath());
             Set<VersionChange> applied = new HashSet<VersionChange>();
 
             MutablePomFile pom = project.getMetadata(MutablePomFile.class);

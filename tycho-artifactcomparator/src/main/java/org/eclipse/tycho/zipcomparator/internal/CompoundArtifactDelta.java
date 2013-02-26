@@ -78,7 +78,7 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
     }
 
     private void writeFile(File basedir, String path, String data) throws IOException {
-        File file = new File(basedir, path).getCanonicalFile();
+        File file = new File(basedir, path).getAbsoluteFile();
         file.getParentFile().mkdirs();
         FileUtils.fileWrite(file.getAbsolutePath(), data);
     }

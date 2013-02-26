@@ -85,9 +85,9 @@ public class DefaultTargetPlatformTest {
         File canonical = new File("canonical.xml");
 
         tp.addArtifactFile(new DefaultArtifactKey("foo", "relative", "1"), relative, null);
-        tp.addArtifactFile(new DefaultArtifactKey("foo", "canonical", "1"), canonical.getCanonicalFile(), null);
+        tp.addArtifactFile(new DefaultArtifactKey("foo", "canonical", "1"), canonical.getAbsoluteFile(), null);
 
-        Assert.assertNotNull(tp.getArtifact(relative.getCanonicalFile()));
+        Assert.assertNotNull(tp.getArtifact(relative.getAbsoluteFile()));
         Assert.assertNotNull(tp.getArtifact(canonical));
     }
 

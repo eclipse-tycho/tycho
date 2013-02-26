@@ -145,7 +145,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
     }
 
     private String getClasspathElement(File base, String path, String accessRules) throws IOException {
-        String file = new File(base, path).getCanonicalPath();
+        String file = new File(base, path).getAbsolutePath();
         return file + accessRules.replace(":", AbstractOsgiCompilerMojo.RULE_SEPARATOR);
     }
 

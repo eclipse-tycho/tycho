@@ -61,7 +61,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     protected ArtifactRepository getLocalRepository() throws Exception {
         RepositorySystem repoSystem = lookup(RepositorySystem.class);
 
-        File path = new File("target/local-repo").getCanonicalFile();
+        File path = new File("target/local-repo").getAbsoluteFile();
 
         ArtifactRepository r = repoSystem.createLocalRepository(path);
 
@@ -118,7 +118,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         request.getProjectBuildingRequest().setProcessPlugins(false);
         request.setLocalRepository(getLocalRepository());
         if (platform != null) {
-            request.getUserProperties().put("tycho.targetPlatform", platform.getCanonicalPath());
+            request.getUserProperties().put("tycho.targetPlatform", platform.getAbsolutePath());
         }
         if (userProperties != null) {
             request.getUserProperties().putAll(userProperties);

@@ -748,7 +748,7 @@ public class TestMojo extends AbstractMojo {
             File workspace = new File(work, "data").getAbsoluteFile();
             FileUtils.deleteDirectory(workspace);
             LaunchConfiguration cli = createCommandLine(testRuntime, workspace);
-            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getCanonicalPath());
+            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getAbsolutePath());
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);

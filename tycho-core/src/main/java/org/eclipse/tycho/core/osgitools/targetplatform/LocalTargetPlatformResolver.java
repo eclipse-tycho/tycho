@@ -228,7 +228,7 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
     }
 
     public void setLocation(File location) throws IOException {
-        layout.setLocation(location.getCanonicalFile());
+        layout.setLocation(location.getAbsoluteFile());
     }
 
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject) {

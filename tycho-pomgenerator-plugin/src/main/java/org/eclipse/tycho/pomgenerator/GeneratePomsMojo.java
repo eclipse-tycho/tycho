@@ -332,11 +332,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private String toString(File file) {
-        try {
-            return file.getCanonicalPath();
-        } catch (IOException e) {
-            return file.getAbsolutePath();
-        }
+        return file.getAbsolutePath();
     }
 
     private List<File> getBaseDirs() {
@@ -353,15 +349,11 @@ public class GeneratePomsMojo extends AbstractMojo {
         if (str != null) {
             StringTokenizer st = new StringTokenizer(str, ",");
             while (st.hasMoreTokens()) {
-                try {
-                    File dir = new File(st.nextToken()).getCanonicalFile();
-                    if (dir.exists() && dir.isDirectory()) {
-                        dirs.add(dir);
-                    } else {
-                        getLog().warn("Not a directory " + dir.getAbsolutePath());
-                    }
-                } catch (IOException e) {
-                    getLog().warn("Can't parse extraDirs", e);
+                File dir = new File(st.nextToken()).getAbsoluteFile();
+                if (dir.exists() && dir.isDirectory()) {
+                    dirs.add(dir);
+                } else {
+                    getLog().warn("Not a directory " + dir.getAbsolutePath());
                 }
             }
         }
@@ -558,7 +550,7 @@ public class GeneratePomsMojo extends AbstractMojo {
                 StandardExecutionEnvironment ee = ExecutionEnvironmentUtils
                         .getExecutionEnvironment(executionEnvironment);
                 State state = resolver.newResolvedState(basedir, ee, platform);
-                BundleDescription bundle = state.getBundleByLocation(basedir.getCanonicalPath());
+                BundleDescription bundle = state.getBundleByLocation(basedir.getAbsolutePath());
                 if (bundle != null) {
                     for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(
                             state.getStateHelper(), bundle)) {
@@ -572,8 +564,6 @@ public class GeneratePomsMojo extends AbstractMojo {
                     getLog().warn("Not an OSGi bundle " + basedir.toString());
                 }
             } catch (BundleException e) {
-                warnNoBundleDependencies(e);
-            } catch (IOException e) {
                 warnNoBundleDependencies(e);
             }
         }
