@@ -53,6 +53,9 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
 
         assertPom(new File(basedir, "product"));
         assertProductFile(new File(basedir, "product"), "product.product");
+
+        assertPom(new File(basedir, "repository"));
+        assertProductFile(new File(basedir, "repository"), "product.product");
     }
 
     public void testProfile() throws Exception {

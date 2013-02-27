@@ -23,11 +23,10 @@ public abstract class ProductFileManipulator extends AbstractMetadataManipulator
             VersionChange change) {
         if (isSameProject(project, change.getProject())) {
             // in eclipse-repository, change.getArtifactId() doesn't have to match product.getId()
-            if (change.getVersion().equals(product.getVersion())) {
-                logger.info("  " + productFileName + "//product/@version: " + change.getVersion() + " => "
-                        + change.getNewVersion());
-                product.setVersion(change.getNewVersion());
-            }
+            // and change.getVersion() doesn't have to match product.getVersion()
+            logger.info("  " + productFileName + "//product/@version: " + change.getVersion() + " => "
+                    + change.getNewVersion());
+            product.setVersion(change.getNewVersion());
         } else if (isBundle(change.getProject())) {
             for (PluginRef plugin : product.getPlugins()) {
                 if (change.getArtifactId().equals(plugin.getId()) && change.getVersion().equals(plugin.getVersion())) {
