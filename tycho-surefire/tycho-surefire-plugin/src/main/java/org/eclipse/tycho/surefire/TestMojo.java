@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG        - port to surefire 2.10
+ *    SAP AG - port to surefire 2.10
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
@@ -74,6 +74,19 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 
 /**
+ * <p>
+ * Executes tests in an OSGi runtime.
+ * </p>
+ * <p>
+ * The goal launches an OSGi runtime and executes the project's tests in that runtime. The "test
+ * runtime" consists of the bundle built in this project and its transitive dependencies, plus some
+ * Equinox OSGi framework bundles. The bundles are resolved from the target platform of the project.
+ * Note that the test runtime does typically <em>not</em> contain the entire target platform. If
+ * there are implicitly required bundles (e.g. <tt>org.eclipse.equinox.ds</tt> to make declarative
+ * services work), they need to be added manually through an explicit <tt>dependencies</tt>
+ * configuration.
+ * </p>
+ * 
  * @phase integration-test
  * @goal test
  * @requiresProject true
@@ -93,38 +106,46 @@ public class TestMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
+     * <p>
      * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
      * session on the specified port.
+     * </p>
      * 
      * @parameter expression="${debugPort}"
      */
     private int debugPort;
 
     /**
+     * <p>
      * List of patterns (separated by commas) used to specify the tests that should be included in
      * testing. When not specified and whent the <code>test</code> parameter is not specified, the
      * default includes will be
      * <code>**&#47;Test*.java   **&#47;*Test.java   **&#47;*TestCase.java</code>
+     * </p>
      * 
      * @parameter
      */
     private List<String> includes;
 
     /**
+     * <p>
      * List of patterns (separated by commas) used to specify the tests that should be excluded in
      * testing. When not specified and whent the <code>test</code> parameter is not specified, the
      * default excludes will be
      * <code>**&#47;Abstract*Test.java  **&#47;Abstract*TestCase.java **&#47;*$*</code>
+     * </p>
      * 
      * @parameter
      */
     private List<String> excludes;
 
     /**
+     * <p>
      * Specify this parameter if you want to use the test pattern matching notation, Ant pattern
      * matching, to select tests to run. The Ant pattern will be used to create an include pattern
      * formatted like <code>**&#47;${test}.java</code> When used, the <code>includes</code> and
      * <code>excludes</code> patterns parameters are ignored
+     * </p>
      * 
      * @parameter expression="${test}"
      */
@@ -137,60 +158,76 @@ public class TestMojo extends AbstractMojo {
     private boolean skipExec;
 
     /**
-     * @parameter expression="${skipTests}" default-value="false"
+     * <p>
+     * Set this to "true" to skip running tests, but still compile them. Its use is NOT RECOMMENDED,
+     * but quite convenient on occasion.
+     * </p>
      * 
-     *            Set this to "true" to skip running tests, but still compile them. Its use is NOT
-     *            RECOMMENDED, but quite convenient on occasion.
+     * @parameter expression="${skipTests}" default-value="false"
      */
     private boolean skipTests;
 
     /**
+     * <p>
+     * Same as {@link #skipTests}
+     * </p>
+     * 
      * @parameter expression="${maven.test.skip}" default-value="false"
      * 
-     *            Same as {@link #skipTests}
      */
     private boolean skip;
 
     /**
+     * <p>
      * If set to "false" the test execution will not fail in case there are no tests found.
+     * </p>
      * 
      * @parameter expression="${failIfNoTests}" default-value="true"
      */
     private boolean failIfNoTests;
 
     /**
+     * <p>
      * Set this to true to ignore a failure during testing. Its use is NOT RECOMMENDED, but quite
      * convenient on occasion.
+     * </p>
      * 
      * @parameter expression="${maven.test.failure.ignore}" default-value="false"
      */
     private boolean testFailureIgnore;
 
     /**
+     * <p>
      * The directory containing generated test classes of the project being tested.
+     * </p>
      * 
-     * @parameter expression="${project.build.outputDirectory}"
-     * @required
+     * @parameter default-value="${project.build.outputDirectory}"
      */
     private File testClassesDirectory;
 
     /**
+     * <p>
      * Enables -debug -consolelog for the test OSGi runtime
+     * </p>
      * 
      * @parameter expression="${tycho.showEclipseLog}" default-value="false"
      */
     private boolean showEclipseLog;
 
     /**
+     * <p>
      * Set this to "true" to redirect the unit test standard output to a file (found in
      * reportsDirectory/testName-output.txt).
+     * </p>
      * 
      * @parameter expression="${maven.test.redirectTestOutputToFile}" default-value="false"
      */
     private boolean redirectTestOutputToFile;
 
     /**
+     * <p>
      * Base directory where all reports are written to.
+     * </p>
      * 
      * @parameter expression="${project.build.directory}/surefire-reports"
      */
@@ -200,23 +237,34 @@ public class TestMojo extends AbstractMojo {
     private File surefireProperties;
 
     /**
-     * Additional test target platform dependencies.
+     * <p>
+     * Additional dependencies to be added to the test runtime.
+     * </p>
+     * <p>
+     * The dependencies specified here are &ndash; together with the dependencies specified in the
+     * <tt>MANIFEST.MF</tt> of the project &ndash; resolved against the target platform. The
+     * resulting set of bundles is included in the test runtime.
+     * </p>
      * 
      * @parameter
      */
     private Dependency[] dependencies;
 
     /**
+     * <p>
      * Eclipse application to be run. If not specified, default application
      * org.eclipse.ui.ide.workbench will be used. Application runnable will be invoked from test
      * harness, not directly from Eclipse.
+     * </p>
      * 
      * @parameter
      */
     private String application;
 
     /**
+     * <p>
      * Eclipse product to be run, i.e. -product parameter passed to test Eclipse runtime.
+     * </p>
      * 
      * @parameter
      */
@@ -230,14 +278,18 @@ public class TestMojo extends AbstractMojo {
     private MavenSession session;
 
     /**
+     * <p>
      * Run tests using UI (true) or headless (false) test harness.
+     * </p>
      * 
      * @parameter default-value="false"
      */
     private boolean useUIHarness;
 
     /**
+     * <p>
      * Run tests in UI (true) or background (false) thread. Only applies to UI test harness.
+     * </p>
      * 
      * @parameter default-value="true"
      */
@@ -249,89 +301,109 @@ public class TestMojo extends AbstractMojo {
     private List<Artifact> pluginArtifacts;
 
     /**
+     * <p>
      * Arbitrary JVM options to set on the command line.
+     * </p>
      * 
      * @parameter expression="${tycho.testArgLine}"
      */
     private String argLine;
 
     /**
+     * <p>
      * Arbitrary applications arguments to set on the command line.
+     * </p>
      * 
      * @parameter
      */
     private String appArgLine;
 
     /**
+     * <p>
      * Kill the forked test process after a certain number of seconds. If set to 0, wait forever for
      * the process, never timing out.
+     * </p>
      * 
      * @parameter expression="${surefire.timeout}"
      */
     private int forkedProcessTimeoutInSeconds;
 
     /**
+     * <p>
      * Bundle-SymbolicName of the test suite, a special bundle that knows how to locate and execute
      * all relevant tests.
+     * </p>
      * 
+     * <p>
      * testSuite and testClass identify single test class to run. All other tests will be ignored if
      * both testSuite and testClass are provided. It is an error if provide one of the two
      * parameters but not the other.
+     * </p>
      * 
      * @parameter expression="${testSuite}"
      */
     private String testSuite;
 
     /**
+     * <p>
      * See testSuite
+     * </p>
      * 
      * @parameter expression="${testClass}"
      */
     private String testClass;
 
     /**
+     * <p>
      * Additional environments to set for the forked test JVM.
+     * </p>
      * 
      * @parameter
      */
     private Map<String, String> environmentVariables;
 
     /**
+     * <p>
      * Additional system properties to set for the forked test JVM.
+     * </p>
      * 
      * @parameter
      */
     private Map<String, String> systemProperties;
 
     /**
+     * <p>
      * List of bundles that must be expanded in order to execute the tests
+     * </p>
      * 
      * @parameter
      */
     private String[] explodedBundles;
 
     /**
-     * List of framework extension bundles to add.
+     * <p>
+     * List of framework extension bundles to add. Note: The goal does not automatically detect
+     * which bundles in the test runtime are framework extensions, but they have to be explicitly
+     * specified using this parameter.
+     * </p>
      * 
      * @parameter
      */
     private Dependency[] frameworkExtensions;
 
     /**
+     * <p>
      * Bundle start level and auto start configuration used by the test runtime.
+     * </p>
      * 
      * @parameter
      */
     private BundleStartLevel[] bundleStartLevel;
 
-    /**
-     * @component
-     */
+    /** @component */
     private RepositorySystem repositorySystem;
 
-    /**
-     * @component
-     */
+    /** @component */
     private ResolutionErrorHandler resolutionErrorHandler;
 
     /** @component */
@@ -354,12 +426,14 @@ public class TestMojo extends AbstractMojo {
     private OsgiBundleProject osgiBundle;
 
     /**
+     * <p>
      * Normally tycho will automatically determine the test framework provider based on the test
      * project's classpath. Use this to force using a test framework provider implementation with
      * the given role hint. Tycho comes with providers
      * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;. Note that when specifying a
      * providerHint, you have to make sure the provider is actually available in the dependencies of
      * tycho-surefire-plugin.
+     * </p>
      * 
      * @parameter
      * @since 0.16.0
@@ -367,8 +441,10 @@ public class TestMojo extends AbstractMojo {
     private String providerHint;
 
     /**
+     * <p>
      * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads,
      * as controlled by threadCount.
+     * </p>
      * 
      * @parameter expression="${parallel}"
      * @since 0.16.0
@@ -376,7 +452,9 @@ public class TestMojo extends AbstractMojo {
     private ParallelMode parallel;
 
     /**
+     * <p>
      * (JUnit 4.7 provider) Indicates that threadCount is per cpu core.
+     * </p>
      * 
      * @parameter expression="${perCoreThreadCount}" default-value="true"
      * @since 0.16.0
@@ -384,9 +462,11 @@ public class TestMojo extends AbstractMojo {
     private boolean perCoreThreadCount;
 
     /**
+     * <p>
      * (JUnit 4.7 provider) The attribute thread-count allows you to specify how many threads should
      * be allocated for this execution. Only makes sense to use in conjunction with the parallel
      * parameter.
+     * </p>
      * 
      * @parameter expression="${threadCount}"
      * @since 0.16.0
@@ -394,9 +474,11 @@ public class TestMojo extends AbstractMojo {
     private int threadCount = -1;
 
     /**
+     * <p>
      * (JUnit 4.7 provider) Indicates that the thread pool will be unlimited. The parallel parameter
      * and the actual number of classes/methods will decide. Setting this to "true" effectively
      * disables perCoreThreadCount and threadCount.
+     * </p>
      * 
      * @parameter expression="${useUnlimitedThreads}" default-value="false"
      * @since 0.16.0
@@ -404,7 +486,9 @@ public class TestMojo extends AbstractMojo {
     private boolean useUnlimitedThreads;
 
     /**
+     * <p>
      * Use this to specify surefire provider-specific properties.
+     * </p>
      * 
      * @parameter
      * @since 0.16.0
