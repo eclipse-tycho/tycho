@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//8Kc\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T14:20:44Z",
+      "side": 1,
+      "message": ".. plus some Equinox bundles required by the test harness ...",
+      "revId": "6a06efe355866bc3ea0e42fa07b4362e74e56296",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8KQ\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T14:20:44Z",
+      "side": 1,
+      "message": "See \u003ca href\u003d\"http://help.eclipse.org/indigo/index.jsp?topic\u003d%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Fruntime-options.html\"\u003eosgi.framework.extensions\u003c/a\u003e",
+      "revId": "6a06efe355866bc3ea0e42fa07b4362e74e56296",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
