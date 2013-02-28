@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//8Lw\u003d",
+        "filename": "src/site/site.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T13:20:53Z",
+      "side": 1,
+      "message": "maybe we want 3 nested items with parent item \"p2 Plugins?\"  here to structure the content a little more?",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8Lk\u003d",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/AbstractP2Mojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T13:20:53Z",
+      "side": 1,
+      "message": "I\u0027m afraid this means nobody can use -DbuildQualifier (or configure the buildQualifier property in the pom) anymore, see [1]\n\nis this incomatible change inended?\n\n[1] http://www.sonatype.com/books/mvnref-book/reference/writing-plugins-sect-mojo-params.html",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8Lg\u003d",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T13:20:53Z",
+      "side": 1,
+      "message": "any links to p2 docs to explain what this actually does / means?",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8Lc\u003d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AbstractRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T13:20:53Z",
+      "side": 1,
+      "message": "see previous comment",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8LU\u003d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T13:20:53Z",
+      "side": 1,
+      "message": "assembles?",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8LQ\u003d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T13:20:53Z",
+      "side": 1,
+      "message": "... and a co-located p2 artifact repository ...",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8LM\u003d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/VerifyIntegrityRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-02-28T13:20:53Z",
+      "side": 1,
+      "message": "maybe we could explain what checking consistency means technically.",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
