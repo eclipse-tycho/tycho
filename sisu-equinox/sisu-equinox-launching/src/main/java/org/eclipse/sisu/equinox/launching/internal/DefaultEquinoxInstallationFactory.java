@@ -124,6 +124,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             }
 
             if (!frameworkExtensions.isEmpty()) {
+                // see osgi.framework.extensions at http://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Fruntime-options.html
                 Collection<String> bundleNames = unpackFrameworkExtensions(location, frameworkExtensions);
                 p.setProperty("osgi.framework", copySystemBundle(description, location));
                 p.setProperty("osgi.framework.extensions", StringUtils.join(bundleNames.iterator(), ","));
