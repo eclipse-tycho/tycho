@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "AABOPX//8H8\u003d",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/AbstractP2Mojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-01T08:20:51Z",
+      "side": 1,
+      "message": "The BuildQualifierMojo always overrides the buildQualifier property, so one has to use -DforceContextQualifier\u003d... for this. This still works.\n\nThe doc says that @readonly parameters cannot be set via plugins/plugin/configuration, but even this seems to continue to work. So this change really only affects the visibility in the documentation.",
+      "parentUuid": "AABOPX//8Lk\u003d",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOPX//8Lg\u003d",
         "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishProductMojo.java",
         "patchSetId": 1
@@ -47,6 +65,24 @@
       "writtenOn": "2013-02-28T13:20:53Z",
       "side": 1,
       "message": "any links to p2 docs to explain what this actually does / means?",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//8Ik\u003d",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-01T08:20:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOPX//8Lg\u003d",
       "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -87,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "AABOPX//710\u003d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-01T08:20:51Z",
+      "side": 1,
+      "message": "With \"assemble\" I\u0027d think of a more complex way of \"putting things together\", e.g. like \"assemble a machine\". Here however we are really only putting content into an un-ordered pool.",
+      "parentUuid": "AABOPX//8LU\u003d",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOPX//8LQ\u003d",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
         "patchSetId": 1
@@ -104,6 +158,24 @@
     },
     {
       "key": {
+        "uuid": "AABOPX//72A\u003d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-01T08:20:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOPX//8LQ\u003d",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOPX//8LM\u003d",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/VerifyIntegrityRepositoryMojo.java",
         "patchSetId": 1
@@ -115,6 +187,24 @@
       "writtenOn": "2013-02-28T13:20:53Z",
       "side": 1,
       "message": "maybe we could explain what checking consistency means technically.",
+      "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//71w\u003d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/VerifyIntegrityRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-01T08:20:51Z",
+      "side": 1,
+      "message": "I would need to look into the code for this, so I consider this out of scope here.",
+      "parentUuid": "AABOPX//8LM\u003d",
       "revId": "250d1cb0a476a114552a45afbe307c1c5bbff93d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
