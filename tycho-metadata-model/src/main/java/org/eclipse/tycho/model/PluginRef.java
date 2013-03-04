@@ -97,10 +97,22 @@ public class PluginRef {
         dom.setAttribute("arch", arch);
     }
 
+    /**
+     * @deprecated The installation format (packed/unpacked) shall be specified through the bundle's
+     *             Eclipse-BundleShape manifest header. The feature.xml's unpack attribute may not
+     *             be supported in a future version of Tycho.
+     */
+    @Deprecated
     public boolean isUnpack() {
         return Boolean.parseBoolean(dom.getAttributeValue("unpack"));
     }
 
+    /**
+     * @deprecated The installation format (packed/unpacked) shall be specified through the bundle's
+     *             Eclipse-BundleShape manifest header. The feature.xml's unpack attribute may not
+     *             be supported in a future version of Tycho.
+     */
+    @Deprecated
     public void setUnpack(boolean unpack) {
         dom.setAttribute("unpack", Boolean.toString(unpack));
     }
