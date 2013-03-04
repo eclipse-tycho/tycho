@@ -27,6 +27,7 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.facade.BuildProperties;
@@ -57,6 +58,26 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
      * parameter expression="${component.org.codehaus.plexus.archiver.Archiver#jar}" required
      */
     private JarArchiver jarArchiver = new JarArchiver();
+
+    /**
+     * Additional files to be included in the bundle jar. This can be used when
+     * <tt>bin.includes</tt> in build.properties is not flexible enough , e.g. for generated files.<br/>
+     * Example:<br/>
+     * 
+     * <pre>
+     * &lt;additionalFileSets&gt;
+     *  &lt;fileSet&gt;
+     *   &lt;directory&gt;${project.build.directory}/mytool-gen/&lt;/directory&gt;
+     *   &lt;includes&gt;
+     *    &lt;include&gt;&#42;&#42;/*&lt;/include&gt;
+     *   &lt;/includes&gt;
+     *  &lt;/fileSet&gt;     
+     * &lt;/additionalFileSets&gt;
+     * </pre>
+     * 
+     * @parameter
+     */
+    private DefaultFileSet[] additionalFileSets;
 
     /**
      * Name of the generated JAR.
@@ -178,6 +199,13 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
             archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
 
+            if (additionalFileSets != null) {
+                for (DefaultFileSet fileSet : additionalFileSets) {
+                    if (fileSet.getDirectory() != null && fileSet.getDirectory().isDirectory()) {
+                        archiver.getArchiver().addFileSet(fileSet);
+                    }
+                }
+            }
             File manifest = updateManifest();
             if (manifest.exists()) {
                 archive.setManifestFile(manifest);

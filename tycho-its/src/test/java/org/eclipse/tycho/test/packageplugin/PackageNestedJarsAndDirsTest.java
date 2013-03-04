@@ -13,6 +13,7 @@ package org.eclipse.tycho.test.packageplugin;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -36,6 +37,10 @@ public class PackageNestedJarsAndDirsTest extends AbstractTychoIntegrationTest {
         assertTrue(bundleJar.isFile());
         JarFile jarFile = new JarFile(bundleJar);
         try {
+            // included via additional filesets
+            assertFileEntryExists("foo.txt", jarFile);
+            assertNull(jarFile.getEntry("bar.txt"));
+            // included via bin.includes
             assertFileEntryExists("resources/test.txt", jarFile);
             assertFileEntryExists("org/eclipse/tycho/its/nestedJarsAndDirs/Main.class", jarFile);
             assertFileEntryExists("internal2/org/eclipse/tycho/its/nestedJarsAndDirs/internal2/Internal2.class",

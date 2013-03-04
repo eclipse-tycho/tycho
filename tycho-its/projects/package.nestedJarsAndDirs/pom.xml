@@ -15,6 +15,21 @@
                 <version>${tycho-version}</version>
                 <extensions>true</extensions>
             </plugin>
+             <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-packaging-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                  <additionalFileSets>
+                    <fileSet>
+                      <directory>${project.basedir}/additional</directory>
+                      <includes>
+                        <include>foo*</include>
+                      </includes>
+                    </fileSet>
+                  </additionalFileSets>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
