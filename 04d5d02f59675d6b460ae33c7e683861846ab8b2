@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//7E0\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackagePluginMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-05T10:40:26Z",
+      "side": 1,
+      "message": "Is capitalization important for parameters? If yes, I\u0027d prefer the same capitalization of \"set\" as in the descriptor of the assembly-plugin [1] -\u003e additionalFileSets\n\n[1] http://maven.apache.org/plugins/maven-assembly-plugin/examples/single/filtering-some-distribution-files.html",
+      "revId": "04d5d02f59675d6b460ae33c7e683861846ab8b2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
