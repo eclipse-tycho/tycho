@@ -95,9 +95,30 @@ import org.osgi.framework.Version;
 public class TestMojo extends AbstractMojo {
 
     /**
+     * Root directory (<a href=
+     * "http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstallarea"
+     * >osgi.install.area</a>) of the Equinox installation used to execute tests.
+     * 
      * @parameter default-value="${project.build.directory}/work"
      */
     private File work;
+
+    /**
+     * <a href=
+     * "http://help.eclipse.org/juno/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstancearea"
+     * >Instance data location</a> (aka the workspace) of the Equinox installation used to execute
+     * tests.
+     * 
+     * @parameter default-value="${project.build.directory}/work/data/"
+     */
+    private File dataLocation;
+
+    /**
+     * Whether to recursively delete the directory {@link #dataLocation} before running the tests.
+     * 
+     * @parameter default-value="true"
+     */
+    private boolean deleteDataLocation;
 
     /**
      * @parameter expression="${project}"
@@ -745,10 +766,11 @@ public class TestMojo extends AbstractMojo {
     private void runTest(EquinoxInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
         int result;
         try {
-            File workspace = new File(work, "data").getAbsoluteFile();
-            FileUtils.deleteDirectory(workspace);
-            LaunchConfiguration cli = createCommandLine(testRuntime, workspace);
-            getLog().info("Expected eclipse log file: " + new File(workspace, ".metadata/.log").getAbsolutePath());
+            if (deleteDataLocation) {
+                FileUtils.deleteDirectory(dataLocation);
+            }
+            LaunchConfiguration cli = createCommandLine(testRuntime);
+            getLog().info("Expected eclipse log file: " + new File(dataLocation, ".metadata/.log").getAbsolutePath());
             result = launcher.execute(cli, forkedProcessTimeoutInSeconds);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while executing platform", e);
@@ -788,8 +810,8 @@ public class TestMojo extends AbstractMojo {
         return tc;
     }
 
-    LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime, File workspace)
-            throws MalformedURLException, MojoExecutionException {
+    LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime) throws MalformedURLException,
+            MojoExecutionException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(testRuntime);
 
         String executable = null;
@@ -825,7 +847,7 @@ public class TestMojo extends AbstractMojo {
             cli.addProgramArguments("-debug", "-consolelog");
         }
 
-        addProgramArgs(true, cli, "-data", workspace.getAbsolutePath(), //
+        addProgramArgs(true, cli, "-data", dataLocation.getAbsolutePath(), //
                 "-install", testRuntime.getLocation().getAbsolutePath(), //
                 "-configuration", new File(work, "configuration").getAbsolutePath(), //
                 "-application", getTestApplication(testRuntime.getInstallationDescription()), //
