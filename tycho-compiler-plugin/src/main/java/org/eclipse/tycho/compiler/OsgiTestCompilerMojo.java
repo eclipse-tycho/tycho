@@ -26,6 +26,8 @@ import org.apache.maven.plugin.MojoExecutionException;
  * @phase test-compile
  * @requiresDependencyResolution test
  * @description Compiles test application sources with eclipse plugin dependencies
+ * @deprecated not used in eclipse-test-plugin default lifecycle anymore, goal kept for
+ *             compatibility reasons only
  */
 public class OsgiTestCompilerMojo extends AbstractOsgiCompilerMojo {
 

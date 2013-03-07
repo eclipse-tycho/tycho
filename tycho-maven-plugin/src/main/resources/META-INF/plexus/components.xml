@@ -88,10 +88,6 @@
               <process-test-resources>
                 org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:testResources
               </process-test-resources>
-              <test-compile>
-                org.eclipse.tycho:tycho-compiler-plugin:${project.version}:testCompile
-              </test-compile>
-              <test></test>
               <package>
                 org.eclipse.tycho:tycho-packaging-plugin:${project.version}:package-plugin,
                 org.eclipse.tycho:tycho-p2-plugin:${project.version}:p2-metadata-default
