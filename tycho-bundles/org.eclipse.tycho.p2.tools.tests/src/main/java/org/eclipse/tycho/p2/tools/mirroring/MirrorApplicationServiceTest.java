@@ -70,7 +70,7 @@ public class MirrorApplicationServiceTest {
     public final LogVerifier logVerifier = new LogVerifier();
 
     @Before
-    public void initTestContext() {
+    public void initTestContext() throws Exception {
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
         File outputFolder = tempFolder.getRoot();
