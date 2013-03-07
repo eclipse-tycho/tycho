@@ -53,7 +53,11 @@ public class TemporaryLocalMavenRepository extends ExternalResource {
 
     public File getLocalRepositoryRoot() {
         if (repoRoot == null) {
-            repoRoot = tempManager.newFolder("repository");
+            try {
+                repoRoot = tempManager.newFolder("repository");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return repoRoot;
     }

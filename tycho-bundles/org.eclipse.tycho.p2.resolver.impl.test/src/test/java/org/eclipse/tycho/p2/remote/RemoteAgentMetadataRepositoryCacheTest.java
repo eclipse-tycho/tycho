@@ -56,7 +56,7 @@ public class RemoteAgentMetadataRepositoryCacheTest {
     }
 
     @Before
-    public void initLocalMavenRepository() {
+    public void initLocalMavenRepository() throws Exception {
         localMavenRepository = tempManager.newFolder("m2-repo");
     }
 

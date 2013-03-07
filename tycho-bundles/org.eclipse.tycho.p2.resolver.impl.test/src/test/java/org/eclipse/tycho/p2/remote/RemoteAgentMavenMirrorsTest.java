@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -53,7 +52,7 @@ public class RemoteAgentMavenMirrorsTest {
     private IProvisioningAgent subject;
 
     @Before
-    public void initSubject() throws ProvisionException {
+    public void initSubject() throws Exception {
         File localRepository = tempManager.newFolder("localRepo");
         MavenContext mavenContext = new MavenContextImpl(localRepository, OFFLINE, logVerifier.getLogger(),
                 new Properties());
@@ -106,7 +105,7 @@ public class RemoteAgentMavenMirrorsTest {
         mavenRepositorySettings.addMirror(id, mirrorUrl);
     }
 
-    private File noContent() {
+    private File noContent() throws Exception {
         return tempManager.newFolder("empty");
     }
 

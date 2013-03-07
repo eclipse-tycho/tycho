@@ -57,7 +57,7 @@ public class RemoteAgentDisableP2MirrorsTest {
         assertThat(repo.getProperty(IRepository.PROP_MIRRORS_URL), is("file://dummy/"));
     }
 
-    private IProvisioningAgent createRemoteAgent(boolean disableMirrors) throws ProvisionException {
+    private IProvisioningAgent createRemoteAgent(boolean disableMirrors) throws Exception {
         File localRepo = tempManager.newFolder("localRepo");
         return new RemoteAgent(new MavenContextImpl(localRepo, logVerifier.getLogger()), disableMirrors);
     }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
+import java.io.IOException;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.junit.Rule;
@@ -43,7 +45,11 @@ public final class P2Context extends ExternalResource {
      */
     public IProvisioningAgent getAgent() throws ProvisionException {
         if (agent == null) {
-            agent = Activator.createProvisioningAgent(tempManager.newFolder("p2agent").toURI());
+            try {
+                agent = Activator.createProvisioningAgent(tempManager.newFolder("p2agent").toURI());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return agent;
     }

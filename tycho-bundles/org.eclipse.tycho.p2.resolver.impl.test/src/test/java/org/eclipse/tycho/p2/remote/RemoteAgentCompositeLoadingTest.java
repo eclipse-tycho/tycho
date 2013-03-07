@@ -39,7 +39,7 @@ public class RemoteAgentCompositeLoadingTest {
     private RemoteAgent subject;
 
     @Before
-    public void initSubject() throws ProvisionException {
+    public void initSubject() throws Exception {
         File localRepo = tempManager.newFolder("localRepo");
         subject = new RemoteAgent(new MavenContextImpl(localRepo, logVerifier.getLogger()));
     }

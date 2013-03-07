@@ -16,8 +16,8 @@ import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.internal.matchers.SubstringMatcher;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.SubstringMatcher;
 import org.junit.matchers.JUnitMatchers;
 
 /**
@@ -26,7 +26,6 @@ import org.junit.matchers.JUnitMatchers;
  * @see CoreMatchers
  * @see JUnitMatchers
  */
-@SuppressWarnings("restriction")
 public class TychoMatchers {
 
     /**
