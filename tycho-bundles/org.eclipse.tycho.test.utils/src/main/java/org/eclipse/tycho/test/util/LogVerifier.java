@@ -70,9 +70,9 @@ public class LogVerifier extends Verifier {
         MemoryLog logger;
 
         boolean expectNoErrors = true;
-        List<Matcher<? extends String>> loggedErrorsMatchers = new ArrayList<Matcher<? extends String>>();
+        List<Matcher<? super String>> loggedErrorsMatchers = new ArrayList<Matcher<? super String>>();
         boolean expectNoWarnings = false;
-        List<Matcher<? extends String>> loggedWarningsMatchers = new ArrayList<Matcher<? extends String>>();
+        List<Matcher<? super String>> loggedWarningsMatchers = new ArrayList<Matcher<? super String>>();
 
         MemoryLog getInitializedLogger() {
             if (logger == null) {

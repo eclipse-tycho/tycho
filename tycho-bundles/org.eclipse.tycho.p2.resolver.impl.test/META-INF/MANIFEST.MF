@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.impl.test;singleton:=true
 Bundle-Version: 0.17.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Fragment-Host: org.eclipse.tycho.p2.resolver.impl
-Require-Bundle: org.junit4,
+Require-Bundle: org.junit,
  org.eclipse.equinox.ds,
  org.eclipse.equinox.p2.transport.ecf
 Bundle-ActivationPolicy: lazy
