@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//5xk\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-08T10:22:00Z",
+      "side": 1,
+      "message": "Very good documentation - a lot better than before :-)\n\nI\u0027d like to propose the following small changes (here and in other two additions):\n- Wrap in \u003cp\u003e...\u003c/p\u003e so that the formatting in the site docs is right.\n- Use \"Equinox runtime\" instead of \"Equinox installation\", because otherwise people may be tempted to think that we are creating an installation in the standard layout (as requested in bug 386988)",
+      "revId": "cc0251615a7e39fe23d24351d42ada40e5fcbf58",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//5xo\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-08T10:22:00Z",
+      "side": 1,
+      "message": "Could be renamed to \"osgiInstallDirectory\", but probably not as part of this commit (and would need to keep \"work\" parameter as compatibility for a while).",
+      "revId": "cc0251615a7e39fe23d24351d42ada40e5fcbf58",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//5x4\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-08T10:22:00Z",
+      "side": 1,
+      "message": "IMHO, \"Location\" shall be replaced by \"Directory\". The term \"directory\" is what is consistently used by the maven-surefire-plugin:test goal.\n\nProposal: How about also adding \"OSGi\" to the name to qualify the term \"data\" (which really doesn\u0027t mean much by itself), so e.g. \"osgiDataDirectory\"?",
+      "revId": "cc0251615a7e39fe23d24351d42ada40e5fcbf58",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//5x0\u003d",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-08T10:22:00Z",
+      "side": 1,
+      "message": "\"deleteOsgiDataDirectory\"?",
+      "revId": "cc0251615a7e39fe23d24351d42ada40e5fcbf58",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
