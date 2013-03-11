@@ -84,10 +84,20 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
      */
     private IncludeValidationHelper includeValidationHelper;
 
+    /**
+     * @return a {@link FileSet} with the given includes and excludes and the configured default
+     *         excludes. An empty list of includes leads to an empty file set.
+     */
     protected FileSet getFileSet(File basedir, List<String> includes, List<String> excludes) {
         DefaultFileSet fileSet = new DefaultFileSet();
         fileSet.setDirectory(basedir);
-        fileSet.setIncludes(includes.toArray(new String[includes.size()]));
+
+        if (includes.isEmpty()) {
+            // FileSet interprets empty list as "everything", so we need to express "nothing" in a different way
+            fileSet.setIncludes(new String[] { "" });
+        } else {
+            fileSet.setIncludes(includes.toArray(new String[includes.size()]));
+        }
 
         Set<String> allExcludes = new LinkedHashSet<String>();
         if (excludes != null) {
