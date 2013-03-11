@@ -138,7 +138,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         jarArchiver.setDestFile(outputJar);
 
         try {
-            archiver.getArchiver().addFileSet(getFileSet(buildProperties));
+            archiver.getArchiver().addFileSet(getManuallyIncludedFiles(buildProperties));
             if (licenseFeature != null) {
                 archiver.getArchiver().addArchivedFileSet(getLicenseFeatureFileSet(licenseFeature));
             }
@@ -215,7 +215,12 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         return featureProperties;
     }
 
-    private FileSet getFileSet(BuildProperties buildProperties) {
+    /**
+     * @return A {@link FileSet} including files as configured by the <tt>bin.includes</tt> and
+     *         <tt>bin.excludes</tt> properties without the files that are always included
+     *         automatically.
+     */
+    private FileSet getManuallyIncludedFiles(BuildProperties buildProperties) {
         List<String> binExcludes = new ArrayList<String>(buildProperties.getBinExcludes());
         binExcludes.add(Feature.FEATURE_XML); // we'll include updated feature.xml
         binExcludes.add(FEATURE_PROPERTIES); // we'll include updated feature.properties
