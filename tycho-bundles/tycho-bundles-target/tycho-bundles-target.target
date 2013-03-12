@@ -8,5 +8,10 @@
 <unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20130305-2200"/>
 <repository location="http://download.eclipse.org/eclipse/updates/4.3-I-builds/I20130311-0800"/>
 </location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
+<!-- required for surefire junit3 provider -->
+<unit id="org.junit" version="3.8.2.v3_8_2_v20100427-1100"/>
+<repository location="http://download.eclipse.org/releases/indigo"/>
+</location>
 </locations>
 </target>
