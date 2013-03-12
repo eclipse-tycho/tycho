@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//4xQ\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository.tests/META-INF/MANIFEST.MF",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-03-12T08:17:38Z",
+      "side": 1,
+      "message": "minimum version 4?",
+      "revId": "e2dc571feac737aca1f65d6865fb55b50b75f810",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//4xM\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/META-INF/MANIFEST.MF",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-03-12T08:17:38Z",
+      "side": 1,
+      "message": "minimum version 4?",
+      "revId": "e2dc571feac737aca1f65d6865fb55b50b75f810",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//4xI\u003d",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.junit/META-INF/MANIFEST.MF",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-03-12T08:17:38Z",
+      "side": 1,
+      "message": "we have two providers:\n\none for old eclipse releasetrains with junit \u003c4 and one for newer with junit \u003e\u003d4 (see the providerselctor code)\n\nthis is the \"old\"/legacy one and ith suold only be used in case no junit 4 is available. will make it easier to phase it out one day.\n\nI would prefer keeping the two providers distinct and not overlapping in junit version ranges.",
+      "revId": "e2dc571feac737aca1f65d6865fb55b50b75f810",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
