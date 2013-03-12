@@ -86,6 +86,24 @@
       "revId": "e2dc571feac737aca1f65d6865fb55b50b75f810",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//4wg\u003d",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.junit/META-INF/MANIFEST.MF",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-03-12T08:45:19Z",
+      "side": 1,
+      "message": "I thought we explicitly build only the surefire plugins against an older releasetrain (indigo?) to make sure people can use older releasetrains...",
+      "parentUuid": "AABOPX//4w4\u003d",
+      "revId": "e2dc571feac737aca1f65d6865fb55b50b75f810",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
