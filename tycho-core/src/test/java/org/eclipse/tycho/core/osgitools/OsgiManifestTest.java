@@ -2,7 +2,9 @@ package org.eclipse.tycho.core.osgitools;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -32,10 +34,8 @@ public class OsgiManifestTest {
         try {
             parseManifest("noBsn.mf");
             fail();
-        } catch (InvalidOSGiManifestException e) {
-            assertEquals(
-                    "Exception parsing OSGi MANIFEST testLocation: MANIFEST header 'Bundle-SymbolicName' not found",
-                    e.getMessage());
+        } catch (OsgiManifestParserException e) {
+            assertThat(e.getMessage(), containsString("The \"Bundle-SymbolicName\" header must be specified"));
         }
     }
 
@@ -55,10 +55,22 @@ public class OsgiManifestTest {
         try {
             parseManifest("invalidVersion.mf");
             fail();
-        } catch (InvalidOSGiManifestException e) {
-            assertEquals(
-                    "Exception parsing OSGi MANIFEST testLocation: invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\"",
-                    e.getMessage());
+        } catch (OsgiManifestParserException e) {
+            assertThat(
+                    e.getMessage(),
+                    containsString("invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\""));
+        }
+    }
+
+    @Test
+    public void testDuplicateImport() throws Exception {
+        try {
+            parseManifest("duplicateImport.mf");
+            fail();
+        } catch (OsgiManifestParserException e) {
+            assertThat(
+                    e.getMessage(),
+                    containsString("Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
         }
     }
 
@@ -67,10 +79,10 @@ public class OsgiManifestTest {
         try {
             parseManifest("invalidVersionQualifier.mf");
             fail();
-        } catch (InvalidOSGiManifestException e) {
-            assertEquals(
-                    "Exception parsing OSGi MANIFEST testLocation: invalid version \"invalid\": non-numeric \"invalid\"",
-                    e.getMessage());
+        } catch (OsgiManifestParserException e) {
+            assertThat(
+                    e.getMessage(),
+                    containsString("Invalid manifest header Bundle-Version: \"invalid\" : invalid version \"invalid\": non-numeric \"invalid\""));
         }
     }
 

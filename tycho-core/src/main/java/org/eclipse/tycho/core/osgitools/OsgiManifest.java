@@ -1,12 +1,13 @@
 package org.eclipse.tycho.core.osgitools;
 
 import static org.osgi.framework.Constants.BUNDLE_CLASSPATH;
-import static org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
 import java.io.InputStream;
 
 import org.eclipse.osgi.framework.util.Headers;
+import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
@@ -38,16 +39,17 @@ public class OsgiManifest {
         this.location = location;
         try {
             this.headers = Headers.parseManifest(stream);
+            // this will do more strict validation of headers on OSGi semantical level
+            BundleDescription bundleDescription = StateObjectFactoryImpl.defaultFactory.createBundleDescription(null,
+                    headers, location, 0L);
+            this.bundleSymbolicName = bundleDescription.getSymbolicName();
         } catch (BundleException e) {
             throw new OsgiManifestParserException(location, e);
         }
-        this.bundleSymbolicName = parseMandatoryFirstValue(BUNDLE_SYMBOLICNAME);
         this.bundleVersion = parseBundleVersion();
         this.bundleClassPath = parseBundleClasspath();
         this.isDirectoryShape = parseDirectoryShape();
         this.executionEnvironments = parseExecutionEnvironments();
-        // TODO if we want more strict and OSGi-specific validation here, we could use
-        // StateObjectFactory#createBundleDescription(State state, Dictionary<String, String> manifest, String location, long id) 
     }
 
     private StandardExecutionEnvironment[] parseExecutionEnvironments() {
