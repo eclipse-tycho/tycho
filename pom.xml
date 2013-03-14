@@ -110,16 +110,16 @@
 
             4. Close and release staged artifacts into repository 'Releases'
 
-# Version corresponds to the Eclipse 4.2
-EQUINOX_VERSION=3.8.1.v20120830-144521
-JDT_VERSION=3.8.2.v20120814-155456
-JDT_APT_VERSION=1.0.500.v20120522-1651
+# Versions correspond to the Eclipse 4.3M6
+EQUINOX_VERSION=3.9.0.v20130305-2200
+JDT_VERSION=3.9.0.v20130313-2254
+JDT_APT_VERSION=1.0.600.v20130227-1643
 
 # Location of unpacked Eclipse SDK
 PLUGINS=/tmp/eclipse/plugins
 
 # install command
-CMD="/opt/maven/bin/mvn install:install-file -Dpackaging=jar"
+CMD="mvn install:install-file -Dpackaging=jar"
 
 # deploy command
 CMD="mvn gpg:sign-and-deploy-file -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=forge-releases"
@@ -140,9 +140,9 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
   -Dsources=$PLUGINS/org.eclipse.jdt.compiler.apt.source_$JDT_APT_VERSION.jar
 		 -->
 
-		<equinoxVersion>3.8.1.v20120830-144521</equinoxVersion>
-		<jdtVersion>3.8.2.v20120814-155456</jdtVersion>
-		<jdtAptVersion>1.0.500.v20120522-1651</jdtAptVersion>
+		<equinoxVersion>3.9.0.v20130305-2200</equinoxVersion>
+		<jdtVersion>3.9.0.v20130313-2254</jdtVersion>
+		<jdtAptVersion>1.0.600.v20130227-1643</jdtAptVersion>
 
 		<!-- version of tycho used by this build -->
 		<tychoBootstrapVersion>0.16.0</tychoBootstrapVersion>
