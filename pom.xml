@@ -16,7 +16,7 @@
 
 	<groupId>org.eclipse.tycho.extras</groupId>
 	<artifactId>tycho-extras</artifactId>
-	<version>0.17.0-SNAPSHOT</version>
+	<version>0.17.0</version>
 	<packaging>pom</packaging>
 
 	<inceptionYear>2010</inceptionYear>
@@ -74,7 +74,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven-version>3.0</maven-version>
 		<jgit-version>2.0.0.201206130900-r</jgit-version>
-		<tycho-version>0.17.0-SNAPSHOT</tycho-version>
+		<!-- tycho-extras and tycho are normally developed and released in parallel using the same version -->
+		<tycho-version>${project.version}</tycho-version>
 
 		<!-- workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=360628 -->
 		<tycho-snapshots-url>https://oss.sonatype.org/content/groups/public/</tycho-snapshots-url>
