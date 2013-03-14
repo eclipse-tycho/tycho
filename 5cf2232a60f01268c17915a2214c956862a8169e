@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//39s\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-03-14T10:29:16Z",
+      "side": 1,
+      "message": "Which bugs is this fixing? It would be good to list all bugs resolved by this with a \"Bug: xxx\" footer\n\nThe first line may also state multiple bug numbers, or only the bug number of the main issue addressed.",
+      "revId": "5cf2232a60f01268c17915a2214c956862a8169e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
