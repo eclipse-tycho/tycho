@@ -219,9 +219,10 @@ public class EclipseRunMojo extends AbstractMojo {
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
         for (P2ResolutionResult result : resolver.resolveDependencies(targetPlatform, null)) {
             for (Entry entry : result.getArtifacts()) {
-                installationDesc.addBundle(
-                        new DefaultArtifactKey(ArtifactKey.TYPE_ECLIPSE_PLUGIN, entry.getId(), entry.getVersion()),
-                        entry.getLocation());
+                if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
+                    installationDesc.addBundle(new DefaultArtifactKey(ArtifactKey.TYPE_ECLIPSE_PLUGIN, entry.getId(),
+                            entry.getVersion()), entry.getLocation());
+                }
             }
         }
         return installationFactory.createInstallation(installationDesc, work);
