@@ -18,7 +18,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 
 public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
-    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "J2SE-1.5";
+    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-1.6";
 
     private static final int PRIMARY = 0;
     private static final int SECONDARY = 1;
