@@ -36,7 +36,7 @@ import copied.org.apache.maven.plugin.CompilationFailureException;
 public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     private static final int TARGET_1_4 = 48;
-    private static final int TARGET_1_5 = 49;
+    private static final int TARGET_1_6 = 50;
 
     protected File storage;
 
@@ -227,10 +227,10 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project;
         // project with neither POM nor MANIFEST configuration => must fallback to 
-        // source/target level == 1.5
+        // source/target level == 1.6
         project = projects.get(1);
         getMojo(projects, project).execute();
-        assertBytecodeMajorLevel(TARGET_1_5, new File(project.getBasedir(), "target/classes/Generic.class"));
+        assertBytecodeMajorLevel(TARGET_1_6, new File(project.getBasedir(), "target/classes/Generic.class"));
 
         // project with multiple execution envs.
         // Minimum source and target level must be taken

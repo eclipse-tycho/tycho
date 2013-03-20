@@ -41,9 +41,9 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Test
     public void testDefaults() {
-        assertThat(subject.getProfileName(), is("J2SE-1.5"));
+        assertThat(subject.getProfileName(), is("JavaSE-1.6"));
         assertThat(subject.isCustomProfile(), is(false));
-        assertThat(subject.getFullSpecification().getProfileName(), is("J2SE-1.5"));
+        assertThat(subject.getFullSpecification().getProfileName(), is("JavaSE-1.6"));
     }
 
     @Test
