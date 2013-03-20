@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
-import org.codehaus.plexus.compiler.CompilerError;
+import org.codehaus.plexus.compiler.CompilerMessage;
 import org.junit.Test;
 
 public class JDTCompilerTest {
@@ -29,10 +29,10 @@ public class JDTCompilerTest {
 
     @Test
     public void testParseModernStreamErrorWithLineAndTrailingSpace() throws IOException {
-        List<CompilerError> errors = JDTCompiler.parseModernStream(createOutputForLines(
+        List<CompilerMessage> errors = JDTCompiler.parseModernStream(createOutputForLines(
                 "1. ERROR in foo bar (at line 3) ", "2. ERROR in test (at line 5)"));
         assertEquals(2, errors.size());
-        CompilerError error = errors.get(0);
+        CompilerMessage error = errors.get(0);
         assertTrue(error.isError());
         assertEquals("", error.getMessage());
         assertEquals("foo bar", error.getFile());
@@ -46,16 +46,16 @@ public class JDTCompilerTest {
 
     @Test
     public void testParseModernStreamContextLines() throws IOException {
-        List<CompilerError> errors = JDTCompiler.parseModernStream(createOutputForLines("prologue (must be discarded)",
+        List<CompilerMessage> errors = JDTCompiler.parseModernStream(createOutputForLines("prologue (must be discarded)",
                 "1. ERROR in foo bar (at line 3) ", "message line1", "message line2"));
         assertEquals(1, errors.size());
-        CompilerError error = errors.get(0);
+        CompilerMessage error = errors.get(0);
         assertEquals(EOL + "message line1" + EOL + "message line2", error.getMessage());
     }
 
     @Test
     public void testParseModernStreamIgnoreSeparatorLines() throws IOException {
-        List<CompilerError> errors = JDTCompiler.parseModernStream(createOutputForLines(//
+        List<CompilerMessage> errors = JDTCompiler.parseModernStream(createOutputForLines(//
                 "----------",//
                 "1. ERROR in foo bar (at line 3) ", //
                 "a context line",//
@@ -65,7 +65,7 @@ public class JDTCompilerTest {
                 "second context line",//
                 "----------"));
         assertEquals(2, errors.size());
-        CompilerError error = errors.get(0);
+        CompilerMessage error = errors.get(0);
         assertTrue(error.isError());
         assertEquals("foo bar", error.getFile());
         assertEquals(3, error.getStartLine());
@@ -79,9 +79,9 @@ public class JDTCompilerTest {
 
     @Test
     public void testParseModernStreamErrorWithoutLine() throws IOException {
-        List<CompilerError> errors = JDTCompiler.parseModernStream(createOutputForLines("1. ERROR in baz"));
+        List<CompilerMessage> errors = JDTCompiler.parseModernStream(createOutputForLines("1. ERROR in baz"));
         assertEquals(1, errors.size());
-        CompilerError error = errors.get(0);
+        CompilerMessage error = errors.get(0);
         assertTrue(error.isError());
         assertEquals("baz", error.getFile());
         assertEquals(-1, error.getStartLine());
@@ -89,10 +89,10 @@ public class JDTCompilerTest {
 
     @Test
     public void testParseModernStreamWarning() throws IOException {
-        List<CompilerError> errors = JDTCompiler
+        List<CompilerMessage> errors = JDTCompiler
                 .parseModernStream(createOutputForLines("2. WARNING in foo (at line 4)"));
         assertEquals(1, errors.size());
-        CompilerError error = errors.get(0);
+        CompilerMessage error = errors.get(0);
         assertFalse(error.isError());
         assertEquals("foo", error.getFile());
         assertEquals(4, error.getStartLine());
@@ -100,9 +100,9 @@ public class JDTCompilerTest {
 
     @Test
     public void testParseModernStreamWarningNoNumber() throws IOException {
-        List<CompilerError> errors = JDTCompiler.parseModernStream(createOutputForLines("WARNING in foo (at line 4)"));
+        List<CompilerMessage> errors = JDTCompiler.parseModernStream(createOutputForLines("WARNING in foo (at line 4)"));
         assertEquals(1, errors.size());
-        CompilerError error = errors.get(0);
+        CompilerMessage error = errors.get(0);
         assertFalse(error.isError());
         assertEquals("foo", error.getFile());
         assertEquals(4, error.getStartLine());
