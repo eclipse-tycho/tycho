@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.compiler.CompilerError;
+import org.codehaus.plexus.compiler.CompilerMessage;
 
 public class CompilationFailureException extends MojoFailureException {
     /**
@@ -37,7 +37,7 @@ public class CompilationFailureException extends MojoFailureException {
         StringBuffer sb = new StringBuffer();
 
         for (Iterator it = messages.iterator(); it.hasNext();) {
-            CompilerError compilerError = (CompilerError) it.next();
+            CompilerMessage compilerError = (CompilerMessage) it.next();
 
             sb.append(compilerError).append(LS);
         }

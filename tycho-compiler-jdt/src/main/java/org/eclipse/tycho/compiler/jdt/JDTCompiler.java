@@ -28,9 +28,10 @@ import java.util.regex.Pattern;
 
 import org.codehaus.plexus.compiler.AbstractCompiler;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
-import org.codehaus.plexus.compiler.CompilerError;
+import org.codehaus.plexus.compiler.CompilerMessage;
 import org.codehaus.plexus.compiler.CompilerException;
 import org.codehaus.plexus.compiler.CompilerOutputStyle;
+import org.codehaus.plexus.compiler.CompilerResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
@@ -69,7 +70,7 @@ public class JDTCompiler extends AbstractCompiler {
     // Compiler Implementation
     // ----------------------------------------------------------------------
 
-    public List<CompilerError> compile(CompilerConfiguration config) throws CompilerException {
+    public CompilerResult performCompile(CompilerConfiguration config) throws CompilerException {
         CustomCompilerConfiguration custom = new CustomCompilerConfiguration();
 
         File destinationDir = new File(config.getOutputLocation());
@@ -81,7 +82,7 @@ public class JDTCompiler extends AbstractCompiler {
         String[] sourceFiles = getSourceFiles(config);
 
         if (sourceFiles.length == 0) {
-            return Collections.emptyList();
+            return new CompilerResult();
         }
 
         getLogger().info(
@@ -94,7 +95,7 @@ public class JDTCompiler extends AbstractCompiler {
 
         String[] args = buildCompilerArguments(config, custom, sourceFiles);
 
-        List<CompilerError> messages;
+        CompilerResult messages;
 
         if (config.isFork()) {
             String executable = config.getExecutable();
@@ -277,10 +278,10 @@ public class JDTCompiler extends AbstractCompiler {
      *            name of the executable to launch
      * @param args
      *            arguments for the executable launched
-     * @return List of CompilerError objects with the errors encountered.
+     * @return List of CompilerMessage objects with the errors encountered.
      * @throws CompilerException
      */
-    List<CompilerError> compileOutOfProcess(File workingDirectory, String executable, String[] args)
+    CompilerResult compileOutOfProcess(File workingDirectory, String executable, String[] args)
             throws CompilerException {
         if (true /* fork is not supported */) {
             throw new UnsupportedOperationException("compileoutOfProcess not supported");
@@ -300,7 +301,7 @@ public class JDTCompiler extends AbstractCompiler {
 
         int returnCode;
 
-        List<CompilerError> messages;
+        List <CompilerMessage> messages;
 
         try {
             returnCode = CommandLineUtils.executeCommandLine(cli, out, err);
@@ -314,11 +315,12 @@ public class JDTCompiler extends AbstractCompiler {
 
         if (returnCode != 0 && messages.isEmpty()) {
             // TODO: exception?
-            messages.add(new CompilerError("Failure executing javac,  but could not parse the error:" + EOL
+            messages.add(new CompilerMessage("Failure executing javac,  but could not parse the error:" + EOL
                     + err.getOutput(), true));
         }
 
-        return messages;
+        boolean success = (returnCode == 0) ? true : false;
+        return new CompilerResult(success, messages);
     }
 
     /**
@@ -327,12 +329,12 @@ public class JDTCompiler extends AbstractCompiler {
      * 
      * @param args
      *            arguments for the compiler as they would be used in the command line javac
-     * @return List of CompilerError objects with the errors encountered.
+     * @return List of CompilerMessage objects with the errors encountered.
      * @throws CompilerException
      */
-    List<CompilerError> compileInProcess(String[] args, CustomCompilerConfiguration custom) throws CompilerException {
+    CompilerResult compileInProcess(String[] args, CustomCompilerConfiguration custom) throws CompilerException {
 
-        List<CompilerError> messages;
+        List <CompilerMessage> messages;
 
         StringWriter out = new StringWriter();
         StringWriter err = new StringWriter();
@@ -357,19 +359,19 @@ public class JDTCompiler extends AbstractCompiler {
             // low-level, e.g. configuration error
             throw new CompilerException(err.toString());
         }
-        return messages;
+        return new CompilerResult(success, messages);
     }
 
     /**
-     * Parse the output from the compiler into a list of CompilerError objects
+     * Parse the output from the compiler into a list of CompilerMessage objects
      * 
      * @param input
      *            The output of the compiler
-     * @return List of CompilerError objects
+     * @return List of CompilerMessage objects
      * @throws IOException
      */
-    protected static List<CompilerError> parseModernStream(BufferedReader input) throws IOException {
-        List<CompilerError> errors = new ArrayList<CompilerError>();
+    protected static List<CompilerMessage> parseModernStream(BufferedReader input) throws IOException {
+        List<CompilerMessage> errors = new ArrayList<CompilerMessage>();
         String type = null;
         String file = null;
         int lineNr = -1;
@@ -399,9 +401,9 @@ public class JDTCompiler extends AbstractCompiler {
         return errors;
     }
 
-    private static void addErrorIfFound(List<CompilerError> errors, String type, String file, int line, String message) {
+    private static void addErrorIfFound(List<CompilerMessage> errors, String type, String file, int line, String message) {
         if (type != null) {
-            errors.add(new CompilerError(file, "ERROR".equals(type), line, 0, line, 0, message));
+            errors.add(new CompilerMessage(file, "ERROR".equals(type), line, 0, line, 0, message));
         }
     }
 

@@ -29,7 +29,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.compiler.Compiler;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
-import org.codehaus.plexus.compiler.CompilerError;
+import org.codehaus.plexus.compiler.CompilerMessage;
 import org.codehaus.plexus.compiler.CompilerException;
 import org.codehaus.plexus.compiler.CompilerOutputStyle;
 import org.codehaus.plexus.compiler.manager.CompilerManager;
@@ -420,7 +420,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         List messages;
 
         try {
-            messages = compiler.compile(compilerConfiguration);
+            messages = compiler.performCompile(compilerConfiguration).getCompilerMessages();
         } catch (Exception e) {
             // TODO: don't catch Exception
             throw new MojoExecutionException("Fatal error compiling", e);
@@ -429,7 +429,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         boolean compilationError = false;
 
         for (Iterator i = messages.iterator(); i.hasNext();) {
-            CompilerError message = (CompilerError) i.next();
+            CompilerMessage message = (CompilerMessage) i.next();
             if (message.isError()) {
                 compilationError = true;
             } else {
