@@ -16,11 +16,10 @@
 
 package copied.org.apache.maven.plugin;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.compiler.CompilerError;
+import org.codehaus.plexus.compiler.CompilerMessage;
 
 public class CompilationFailureException extends MojoFailureException {
     /**
@@ -29,17 +28,14 @@ public class CompilationFailureException extends MojoFailureException {
     private static final long serialVersionUID = 6116801730028853785L;
     private static final String LS = System.getProperty("line.separator");
 
-    public CompilationFailureException(List messages) {
+    public CompilationFailureException(List<CompilerMessage> messages) {
         super(null, "Compilation failure", longMessage(messages));
     }
 
-    public static String longMessage(List messages) {
+    public static String longMessage(List<CompilerMessage> messages) {
         StringBuffer sb = new StringBuffer();
-
-        for (Iterator it = messages.iterator(); it.hasNext();) {
-            CompilerError compilerError = (CompilerError) it.next();
-
-            sb.append(compilerError).append(LS);
+        for (CompilerMessage compilerMessage : messages) {
+            sb.append(compilerMessage).append(LS);
         }
         return sb.toString();
     }
