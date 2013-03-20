@@ -29,9 +29,10 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.compiler.Compiler;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
-import org.codehaus.plexus.compiler.CompilerError;
 import org.codehaus.plexus.compiler.CompilerException;
+import org.codehaus.plexus.compiler.CompilerMessage;
 import org.codehaus.plexus.compiler.CompilerOutputStyle;
+import org.codehaus.plexus.compiler.CompilerResult;
 import org.codehaus.plexus.compiler.manager.CompilerManager;
 import org.codehaus.plexus.compiler.manager.NoSuchCompilerException;
 import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
@@ -417,28 +418,26 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         // Compile!
         // ----------------------------------------------------------------------
 
-        List messages;
+        CompilerResult result;
 
         try {
-            messages = compiler.compile(compilerConfiguration);
+            result = compiler.performCompile(compilerConfiguration);
         } catch (Exception e) {
             // TODO: don't catch Exception
             throw new MojoExecutionException("Fatal error compiling", e);
         }
 
-        boolean compilationError = false;
+        List<CompilerMessage> messages = result.getCompilerMessages();
 
-        for (Iterator i = messages.iterator(); i.hasNext();) {
-            CompilerError message = (CompilerError) i.next();
-            if (message.isError()) {
-                compilationError = true;
-            } else {
+        for (Iterator<CompilerMessage> i = messages.iterator(); i.hasNext();) {
+            CompilerMessage message = i.next();
+            if (!message.isError()) {
                 getLog().warn(message.toString());
                 i.remove();
             }
         }
 
-        if (compilationError) {
+        if (!result.isSuccess()) {
             throw new CompilationFailureException(messages);
         }
     }
