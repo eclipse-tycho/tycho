@@ -252,6 +252,19 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         Versions.assertIsOsgiVersion("1.2.3.qualifier");
     }
 
+    public void testBuildPluginManagement() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/pluginmanagement");
+
+        VersionsEngine engine = newEngine(basedir);
+
+        engine.addVersionChange("parent", "1.0.1.qualifier");
+        engine.apply();
+
+        assertPom(basedir);
+        assertPom(new File(basedir, "plugin"));
+        assertPom(new File(basedir, "jar"));
+    }
+
     private VersionsEngine newEngine(File basedir) throws Exception {
         VersionsEngine engine = lookup(VersionsEngine.class);
         ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);

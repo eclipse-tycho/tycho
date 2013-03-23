@@ -183,6 +183,30 @@ public class MutablePomFile {
         }
 
         return result;
+    }
 
+    public List<Plugin> getPlugins() {
+        List<Plugin> result = new ArrayList<Plugin>();
+        Element build = project.getChild("build");
+        if (build != null) {
+            Element plugins = build.getChild("plugins");
+            if (plugins != null) {
+                for (Element plugin : plugins.getChildren("plugin"))
+                    result.add(new Plugin(plugin));
+            }
+        }
+        return result;
+    }
+
+    public PluginManagement getPluginManagement() {
+        Element build = project.getChild("build");
+        if (build == null) {
+            return null;
+        }
+        Element pluginManagement = build.getChild("pluginManagement");
+        if (pluginManagement == null) {
+            return null;
+        }
+        return new PluginManagement(pluginManagement);
     }
 }

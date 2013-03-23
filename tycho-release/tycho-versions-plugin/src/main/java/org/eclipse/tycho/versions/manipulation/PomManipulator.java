@@ -14,6 +14,7 @@ import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -24,6 +25,8 @@ import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.DependencyManagement;
 import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.Plugin;
+import org.eclipse.tycho.versions.pom.PluginManagement;
 
 @Component(role = MetadataManipulator.class, hint = "pom")
 public class PomManipulator extends AbstractMetadataManipulator {
@@ -85,7 +88,36 @@ public class PomManipulator extends AbstractMetadataManipulator {
             }
         }
 
+        applyChange("pom.xml//project/build/plugins/plugin", pom.getPlugins(), change, version, newVersion);
+
+        PluginManagement pluginManagement = pom.getPluginManagement();
+        if (pluginManagement != null) {
+            applyChange("pom.xml//project/build/pluginManagemment/plugins/plugin", pluginManagement.getPlugins(),
+                    change, version, newVersion);
+        }
+
         // TODO update other references
+    }
+
+    private void applyChange(String pomPath, List<Plugin> plugins, VersionChange change, String version,
+            String newVersion) {
+        for (Plugin plugin : plugins) {
+            GAV pluginGAV = plugin.getGAV();
+            if (isGavEquals(pluginGAV, change)) {
+                logger.info("  " + pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] "
+                        + version + " => " + newVersion);
+                pluginGAV.setVersion(newVersion);
+            }
+
+            for (GAV dependency : plugin.getDependencies()) {
+                if (isGavEquals(dependency, change)) {
+                    logger.info("  " + pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId()
+                            + " ] /dependencies/dependency/[ " + dependency.getGroupId() + ":"
+                            + dependency.getArtifactId() + " ] " + version + " => " + newVersion);
+                    dependency.setVersion(newVersion);
+                }
+            }
+        }
     }
 
     private static boolean isGavEquals(MutablePomFile pom, VersionChange change) {
