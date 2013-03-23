@@ -1,0 +1,86 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>pluginmanagement</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>plugin</module>
+    <module>jar</module>
+  </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>pluginmanagement</groupId>
+        <artifactId>plugin</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <dependencies>
+          <dependency>
+            <groupId>pluginmanagement</groupId>
+            <artifactId>jar</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>pluginmanagement</groupId>
+          <artifactId>plugin</artifactId>
+          <version>1.0.0-SNAPSHOT</version>
+          <dependencies>
+            <dependency>
+              <groupId>pluginmanagement</groupId>
+              <artifactId>jar</artifactId>
+              <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>test</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>pluginmanagement</groupId>
+            <artifactId>plugin</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <dependencies>
+              <dependency>
+                <groupId>pluginmanagement</groupId>
+                <artifactId>jar</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>pluginmanagement</groupId>
+              <artifactId>plugin</artifactId>
+              <version>1.0.0-SNAPSHOT</version>
+              <dependencies>
+                <dependency>
+                  <groupId>pluginmanagement</groupId>
+                  <artifactId>jar</artifactId>
+                  <version>1.0.0-SNAPSHOT</version>
+                </dependency>
+              </dependencies>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
+</project>

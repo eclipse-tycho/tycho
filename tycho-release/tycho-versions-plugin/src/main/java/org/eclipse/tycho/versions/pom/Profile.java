@@ -34,4 +34,11 @@ public class Profile {
         return new ArrayList<String>(result);
     }
 
+    public String getId() {
+        return dom.getChild("id").getText();
+    }
+
+    public Build getBuild() {
+        return Build.getBuild(dom);
+    }
 }

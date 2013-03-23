@@ -163,7 +163,6 @@ public class MutablePomFile {
     }
 
     public DependencyManagement getDependencyManagement() {
-
         Element dependencyManagement = project.getChild("dependencyManagement");
 
         if (dependencyManagement == null)
@@ -183,6 +182,9 @@ public class MutablePomFile {
         }
 
         return result;
+    }
 
+    public Build getBuild() {
+        return Build.getBuild(project);
     }
 }

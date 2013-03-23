@@ -14,6 +14,7 @@ import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -21,9 +22,13 @@ import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.Versions;
+import org.eclipse.tycho.versions.pom.Build;
 import org.eclipse.tycho.versions.pom.DependencyManagement;
 import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.Plugin;
+import org.eclipse.tycho.versions.pom.PluginManagement;
+import org.eclipse.tycho.versions.pom.Profile;
 
 @Component(role = MetadataManipulator.class, hint = "pom")
 public class PomManipulator extends AbstractMetadataManipulator {
@@ -44,6 +49,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
 
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+
+        // TODO visitor pattern is a better way to implement this
 
         String version = Versions.toMavenVersion(change.getVersion());
         String newVersion = Versions.toMavenVersion(change.getNewVersion());
@@ -85,7 +92,45 @@ public class PomManipulator extends AbstractMetadataManipulator {
             }
         }
 
-        // TODO update other references
+        applyChange("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
+
+        for (Profile profile : pom.getProfiles()) {
+            applyChange("  pom.xml//project/profiles/profile[ " + profile.getId() + " ]/build", profile.getBuild(),
+                    change, version, newVersion);
+        }
+    }
+
+    private void applyChange(String pomPath, Build build, VersionChange change, String version, String newVersion) {
+        if (build == null) {
+            return;
+        }
+        applyChange(pomPath + "/plugins/plugin", build.getPlugins(), change, version, newVersion);
+        PluginManagement pluginManagement = build.getPluginManagement();
+        if (pluginManagement != null) {
+            applyChange(pomPath + "/pluginManagemment/plugins/plugin", pluginManagement.getPlugins(), change, version,
+                    newVersion);
+        }
+    }
+
+    private void applyChange(String pomPath, List<Plugin> plugins, VersionChange change, String version,
+            String newVersion) {
+        for (Plugin plugin : plugins) {
+            GAV pluginGAV = plugin.getGAV();
+            if (isGavEquals(pluginGAV, change)) {
+                logger.info("  " + pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] "
+                        + version + " => " + newVersion);
+                pluginGAV.setVersion(newVersion);
+            }
+
+            for (GAV dependency : plugin.getDependencies()) {
+                if (isGavEquals(dependency, change)) {
+                    logger.info("  " + pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId()
+                            + " ] /dependencies/dependency/[ " + dependency.getGroupId() + ":"
+                            + dependency.getArtifactId() + " ] " + version + " => " + newVersion);
+                    dependency.setVersion(newVersion);
+                }
+            }
+        }
     }
 
     private static boolean isGavEquals(MutablePomFile pom, VersionChange change) {
