@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    Tobias Oberlies (SAP AG) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
@@ -32,11 +32,11 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 public interface IRawArtifactFileProvider extends IArtifactFileProvider, IRawArtifactProvider {
 
     /**
-     * Returns the local file system location of the given artifact in the given format.
+     * Returns the file system location of the given artifact in the given format.
      * 
      * @param descriptor
-     *            the key and format of an artifact
-     * @return the location of the specified raw artifact, or<code>null</code> the that artifact
+     *            The key and format of an artifact
+     * @return The location of the specified raw artifact, or<code>null</code> the that artifact
      *         does not exist in the given format.
      */
     public File getArtifactFile(IArtifactDescriptor descriptor);

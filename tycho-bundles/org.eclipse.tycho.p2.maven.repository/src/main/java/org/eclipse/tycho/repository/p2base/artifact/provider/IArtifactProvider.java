@@ -6,16 +6,16 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    Tobias Oberlies (SAP AG) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
-
-import java.io.OutputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
+import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
 
 /**
  * Provider for artifact content.
@@ -26,22 +26,35 @@ public interface IArtifactProvider extends IQueryable<IArtifactKey> {
      * Returns <code>true</code> if this is a provider for the given artifact.
      * 
      * @param key
-     *            an artifact key
+     *            An artifact key
      * @return <code>true</code> if this instance can provide the artifact for the given key
      */
     public boolean contains(IArtifactKey key);
 
     /**
-     * Writes the artifact to the given output stream.
+     * Writes the requested artifact to the given {@link IArtifactSink}.
      * 
-     * @param key
-     *            the key of the artifact to transfer
-     * @param destination
-     *            the stream to write the artifact to
+     * <p>
+     * The implementation is free to pick the most suitable internal storage format to serve the
+     * request, e.g. it may extract the artifact from a pack200-compressed format. If an error is
+     * detected while streaming the artifact (e.g. an MD5 checksum error), the implementation may
+     * re-attempt the read from all other available sources. In case there were multiple read
+     * attempts, a multi-status with the results of all attempts is returned.
+     * </p>
+     * 
+     * @param sink
+     *            A sink for a specific artifact. When this method returns, the sink will either be
+     *            closed (with {@link IArtifactSink#commitWrite()} or
+     *            {@link IArtifactSink#abortWrite()}, depending on the status), or not have received
+     *            any content.
      * @param monitor
-     *            a progress monitor, or <code>null</code>
-     * @return the result of the artifact transfer
+     *            A progress monitor, or <code>null</code>
+     * @return A non-fatal status (warning or better) if the read operation was successful.
+     * @throws ArtifactSinkException
+     *             if that exception is thrown by the given {@link IArtifactSink}
+     * 
+     * @see IArtifactSink#getArtifactToBeWritten()
      */
-    public IStatus getArtifact(IArtifactKey key, OutputStream destination, IProgressMonitor monitor);
+    public IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException;
 
 }

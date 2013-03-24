@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    Tobias Oberlies (SAP AG) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
@@ -26,11 +26,11 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 public interface IArtifactFileProvider extends IArtifactProvider {
 
     /**
-     * Returns the local file system location of the given artifact.
+     * Returns the file system location of the given artifact.
      * 
      * @param key
-     *            an artifact key
-     * @return the location of the specified artifact, or <code>null</code> the given artifact does
+     *            An artifact key
+     * @return The location of the specified artifact, or <code>null</code> the given artifact does
      *         not exist.
      */
     public File getArtifactFile(IArtifactKey key);
