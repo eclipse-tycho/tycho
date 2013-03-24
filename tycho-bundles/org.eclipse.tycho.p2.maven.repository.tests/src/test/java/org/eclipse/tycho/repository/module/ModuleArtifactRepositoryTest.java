@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactSink;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.BeforeClass;
@@ -117,6 +118,19 @@ public class ModuleArtifactRepositoryTest {
     @Test
     public void testWriteToRepository() throws Exception {
         subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+        subject.setGAV("", "", ""); // TODO this should not be necessary
+
+        IArtifactSink sink = subject.newAddingArtifactSink(BINARY_ARTIFACT_KEY, new WriteSessionStub());
+        writeAndClose(sink.beginWrite(), BINARY_ARTIFACT_SIZE);
+        sink.commitWrite();
+
+        assertThat(artifactSizeOf(BINARY_ARTIFACT_KEY, subject), is(BINARY_ARTIFACT_SIZE));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testWriteToRepositoryViaStream() throws Exception {
+        subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
 
         OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
@@ -138,6 +152,7 @@ public class ModuleArtifactRepositoryTest {
         File repoDir = tempManager.newFolder("targetDir");
         subject = ModuleArtifactRepository.createInstance(null, repoDir);
 
+        // TODO write via sink
         OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
 
@@ -161,6 +176,7 @@ public class ModuleArtifactRepositoryTest {
     public void testRemovingWithOtherDescriptorType() throws Exception {
         // existingModuleDir points to the original source files -> use temporary repository instead so that we don't edit source files
         subject = ModuleArtifactRepository.createInstance(null, tempManager.newFolder("targetDir"));
+        // TODO write via sink
         OutputStream outputStream = subject.getOutputStream(newDescriptor(BINARY_ARTIFACT_KEY));
         writeAndClose(outputStream, BINARY_ARTIFACT_SIZE);
 

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
+import java.util.LinkedList;
+
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 /**
@@ -17,29 +19,18 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * provider with this policy will use the canonical format (if available) when asked for an
  * artifact, avoiding unnecessary pack200 decompression operations.
  */
-public class LocalArtifactTransferPolicy extends ArtifactTransferPolicy {
+// TODO instantiate via factory?
+public class LocalArtifactTransferPolicy extends ArtifactTransferPolicyBase {
 
     @Override
-    public IArtifactDescriptor pickFormat(IArtifactDescriptor[] formats) throws IllegalArgumentException {
-        if (formats.length < 1) {
-            throw new IllegalArgumentException("List of artifact formats is empty");
+    protected void insertCanonicalAndPacked(IArtifactDescriptor canonical, IArtifactDescriptor packed,
+            LinkedList<IArtifactDescriptor> list) {
+        if (packed != null) {
+            list.add(0, packed);
         }
-
-        // prefer canonical then pack200
-        IArtifactDescriptor pack200 = null;
-        for (IArtifactDescriptor format : formats) {
-            if (isCanonicalFormat(format)) {
-                return format;
-            } else if (isPack200Format(format)) {
-                pack200 = format;
-            }
-        }
-
-        if (pack200 != null) {
-            return pack200;
-        } else {
-            // there were only formats other than pack200 and canonical -> this case should be rare
-            return formats[0];
+        if (canonical != null) {
+            // canonical is most preferred -> add at head of the list
+            list.add(0, canonical);
         }
     }
 

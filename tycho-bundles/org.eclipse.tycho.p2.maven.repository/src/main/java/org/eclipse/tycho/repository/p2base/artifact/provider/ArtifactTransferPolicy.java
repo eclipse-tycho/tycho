@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
+import java.io.OutputStream;
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -30,7 +33,11 @@ public abstract class ArtifactTransferPolicy {
      * @throws IllegalArgumentException
      *             if the list of formats is empty
      */
+    // TODO remove?
     public abstract IArtifactDescriptor pickFormat(IArtifactDescriptor[] formats) throws IllegalArgumentException;
+
+    // TODO javadoc
+    public abstract List<IArtifactDescriptor> sortFormatsByPreference(IArtifactDescriptor[] artifactDescriptors);
 
     public static boolean isCanonicalFormat(IArtifactDescriptor format) {
         return null == format.getProperty(IArtifactDescriptor.FORMAT);

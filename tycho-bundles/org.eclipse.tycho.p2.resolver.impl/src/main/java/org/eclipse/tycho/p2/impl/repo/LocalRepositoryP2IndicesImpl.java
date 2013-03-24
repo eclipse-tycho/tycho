@@ -20,9 +20,9 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
 
-    // collaborators
-    private MavenContext mavenContext;
+    // injected members
     private FileLockService fileLockService;
+    private File localRepositoryRoot;
 
     // derived members
     private boolean initialized = false;
@@ -35,7 +35,7 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
 
     // injected by DS runtime
     public void setMavenContext(MavenContext mavenContext) {
-        this.mavenContext = mavenContext;
+        this.localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
     }
 
     // injected by DS runtime
@@ -44,8 +44,8 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
     }
 
     // test constructor
-    public LocalRepositoryP2IndicesImpl(MavenContext mavenContext, FileLockService fileLockService) {
-        this.mavenContext = mavenContext;
+    public LocalRepositoryP2IndicesImpl(File localRepositoryRoot, FileLockService fileLockService) {
+        this.localRepositoryRoot = localRepositoryRoot;
         this.fileLockService = fileLockService;
     }
 
@@ -53,7 +53,6 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
         if (initialized) {
             return;
         }
-        File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
         this.artifactsIndex = FileBasedTychoRepositoryIndex.createArtifactsIndex(localRepositoryRoot, fileLockService);
         this.metadataIndex = FileBasedTychoRepositoryIndex.createMetadataIndex(localRepositoryRoot, fileLockService);
         initialized = true;
@@ -70,7 +69,7 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
     }
 
     public File getBasedir() {
-        return mavenContext.getLocalRepositoryRoot();
+        return localRepositoryRoot;
     }
 
 }

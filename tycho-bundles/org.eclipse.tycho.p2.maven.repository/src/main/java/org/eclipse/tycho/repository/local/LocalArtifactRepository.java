@@ -174,6 +174,11 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
     }
 
     @Override
+    public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+        return new GAVArtifactDescriptor(key);
+    }
+
+    @Override
     protected IArtifactDescriptor getComparableDescriptor(IArtifactDescriptor descriptor) {
         // any descriptor can be converted to our internal type GAVArtifactDescriptor
         return toInternalDescriptor(descriptor);

@@ -35,6 +35,7 @@ import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.module.ModuleArtifactRepository.ModuleArtifactDescriptor;
 import org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactTransferPolicy;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.LocalArtifactTransferPolicy;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
@@ -119,7 +120,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
                 RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS));
     }
 
-    // TODO the GAV should not be mutable; it should be encoded in the GAV
+    // TODO the GAV should not be mutable; it should be encoded in the location URI
     public void setGAV(String groupId, String artifactId, String version) {
         this.moduleGAV = new GAV(groupId, artifactId, version);
     }
@@ -160,21 +161,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
     }
 
     @Override
-    public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
-        // we need to know the classifier for new artifacts
-        throw new UnsupportedOperationException();
-    }
-
-    public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, WriteSessionContext writeSession) {
-        ClassifierAndExtension additionalProperties = writeSession.getClassifierAndExtensionForNewKey(key);
-        MavenArtifactCoordinates mavenCoordinates = new MavenArtifactCoordinates(moduleGAV,
-                additionalProperties.classifier, additionalProperties.fileExtension);
-
-        return new ModuleArtifactDescriptor(key, mavenCoordinates);
-    }
-
-    @Override
-    public ModuleArtifactDescriptor getInternalDescriptorForAdding(IArtifactDescriptor descriptor)
+    protected ModuleArtifactDescriptor getInternalDescriptorForAdding(IArtifactDescriptor descriptor)
             throws IllegalArgumentException {
         if (descriptor == null) {
             throw new NullPointerException();
@@ -195,6 +182,28 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         // TODO only persist when committing new artifact?
 
         return internalDescriptor;
+    }
+
+    // we need to know the classifier when create new artifact descriptors
+    @Override
+    public ModuleArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+        throw new UnsupportedOperationException();
+    }
+
+    public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, WriteSessionContext writeSession) {
+        ClassifierAndExtension additionalProperties = writeSession.getClassifierAndExtensionForNewKey(key);
+        MavenArtifactCoordinates mavenCoordinates = new MavenArtifactCoordinates(moduleGAV,
+                additionalProperties.classifier, additionalProperties.fileExtension);
+
+        return new ModuleArtifactDescriptor(key, mavenCoordinates);
+    }
+
+    // TODO use this method from ModuleArtifactRepositoryDelegate?
+    public IArtifactSink newAddingArtifactSink(IArtifactKey key, WriteSessionContext writeSession)
+            throws ProvisionException {
+        ModuleArtifactDescriptor internalDescriptorForAdding = getInternalDescriptorForAdding(createArtifactDescriptor(
+                key, writeSession));
+        return internalNewAddingArtifactSink(internalDescriptorForAdding);
     }
 
     @Override

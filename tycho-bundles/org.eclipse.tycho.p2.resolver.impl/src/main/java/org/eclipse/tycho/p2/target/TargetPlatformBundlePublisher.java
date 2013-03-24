@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -40,6 +41,10 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.util.StatusTool;
+import org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactSinkException;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactSink;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactSink;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {
@@ -192,8 +197,9 @@ public class TargetPlatformBundlePublisher {
         }
     }
 
+    // TODO 393004 use a different base class
     private static class PublishedBundlesArtifactRepository extends AbstractMavenArtifactRepository implements
-            IFileArtifactRepository {
+            IFileArtifactRepository, IRawArtifactFileProvider {
 
         PublishedBundlesArtifactRepository(File localMavenRepositoryRoot) {
             this(new LocalRepositoryReader(localMavenRepositoryRoot));
@@ -236,5 +242,16 @@ public class TargetPlatformBundlePublisher {
             internalDescriptor.setProperty(RepositoryLayoutHelper.PROP_EXTENSION, null);
             return internalDescriptor;
         }
+
+        public IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
+            // TODO 393004 inherit this from a base class
+            return null;
+        }
+
+        public IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
+            // TODO 393004 use a different base class
+            return null;
+        }
+
     }
 }

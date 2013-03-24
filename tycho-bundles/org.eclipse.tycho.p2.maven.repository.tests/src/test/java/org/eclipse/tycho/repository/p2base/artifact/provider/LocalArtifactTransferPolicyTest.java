@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
+import static org.eclipse.tycho.repository.p2base.artifact.provider.RemoteArtifactTransferPolicyTest.asSet;
+import static org.eclipse.tycho.repository.p2base.artifact.provider.RemoteArtifactTransferPolicyTest.getFormats;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -24,8 +27,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
-import org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactTransferPolicy;
-import org.eclipse.tycho.repository.p2base.artifact.provider.LocalArtifactTransferPolicy;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,6 +62,18 @@ public class LocalArtifactTransferPolicyTest {
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyList() {
         subject.pickFormat(new IArtifactDescriptor[0]);
+    }
+
+    @Test
+    public void testPreferredOrder() throws Exception {
+        IArtifactDescriptor[] descriptors = loadDescriptorsFromRepository("packedCanonicalAndOther", p2Context);
+
+        List<IArtifactDescriptor> result = subject.sortFormatsByPreference(descriptors);
+
+        assertThat(result.get(0).getProperty(IArtifactDescriptor.FORMAT), is(nullValue()));
+        assertThat(result.get(1).getProperty(IArtifactDescriptor.FORMAT), is(IArtifactDescriptor.FORMAT_PACKED));
+        assertThat(getFormats(result.get(2), result.get(3)), is(asSet("customFormat", "anotherFormat")));
+        assertThat(result.size(), is(4));
     }
 
     static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context) throws Exception {

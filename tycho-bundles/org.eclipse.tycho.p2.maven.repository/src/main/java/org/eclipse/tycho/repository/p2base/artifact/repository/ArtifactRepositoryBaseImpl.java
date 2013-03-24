@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
+import static org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactProviderImplUtilities.canWriteCanonicalArtifactToSink;
+import static org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactProviderImplUtilities.canWriteToSink;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,6 +24,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +34,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -40,8 +43,11 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.tycho.p2.maven.repository.Activator;
+import org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactTransferPolicy;
-import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactFileProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactSink;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactSink;
 
 /**
  * Base implementation of a mutable, file system based p2 artifact repository. This class manages
@@ -56,7 +62,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactFileProvid
  */
 @SuppressWarnings("restriction")
 public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IArtifactDescriptor> extends
-        AbstractArtifactRepository2 implements IFileArtifactRepository, IArtifactFileProvider {
+        AbstractArtifactRepository2 implements IFileArtifactRepository, IRawArtifactFileProvider {
 
     private static final IArtifactDescriptor[] EMPTY_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
 
@@ -136,9 +142,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
      * {@link #createArtifactDescriptor(IArtifactKey)}.
      * 
      * <p>
-     * This method is called for adding entries to the index, i.e. from
-     * {@link #getOutputStream(IArtifactDescriptor)} (and the deprecated <code>addDescriptor</code>
-     * methods).
+     * This method is called by methods that add entries to the index, i.e. from
+     * {@link #newAddingArtifactSink(IArtifactKey)}.
      * </p>
      * 
      * @param descriptor
@@ -263,23 +268,46 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         return null;
     }
 
-    // TODO handle error cases via exceptions; the IStatus return value makes it hard to extract methods
-    public final IStatus getArtifact(IArtifactKey key, OutputStream destination, IProgressMonitor monitor) {
-        IArtifactDescriptor[] availableFormats = getArtifactDescriptors(key);
-        if (availableFormats.length == 0) {
-            return new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact " + key
-                    + " is not available in the repository " + getLocation(), null);
+    // TODO deprecation message?
+    @Deprecated
+    @Override
+    public final IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+        IStatus status = getProcessedRawArtifact(descriptor, destination, monitor);
+
+        setStatusOnStreamIfPossible(destination, status);
+        return status;
+    }
+
+    public final IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
+        canWriteToSink(sink);
+        // method signature allows calls with a IRawArtifactSink -> make sure this is only done if sink requests a raw artifact in canonical format
+        canWriteCanonicalArtifactToSink(sink);
+
+        IArtifactKey requestedKey = sink.getArtifactToBeWritten();
+        List<IArtifactDescriptor> formatsByPreference = transferPolicy
+                .sortFormatsByPreference(getArtifactDescriptors(requestedKey));
+        for (IArtifactDescriptor descriptor : formatsByPreference) {
+            IStatus result;
+            result = getProcessedRawArtifact(descriptor, sink.beginWrite(), monitor);
+            // TODO only commit in case of success & try other formats -> no use case for LocalArtifactRepository
+            sink.commitWrite();
+            return result;
         }
-        IArtifactDescriptor preferredFormat = transferPolicy.pickFormat(availableFormats);
+        return errorStatus("Artifact " + requestedKey + " is not available in the repository " + getLocation(), null,
+                ProvisionException.ARTIFACT_NOT_FOUND);
+    }
+
+    private IStatus getProcessedRawArtifact(IArtifactDescriptor descriptor, OutputStream destination,
+            IProgressMonitor monitor) {
 
         OutputStream destinationWithProcessing = new ProcessingStepHandler().createAndLink(getProvisioningAgent(),
-                preferredFormat.getProcessingSteps(), preferredFormat, destination, monitor);
+                descriptor.getProcessingSteps(), descriptor, destination, monitor);
         IStatus initStatus = ProcessingStepHandler.getStatus(destinationWithProcessing, true);
         if (isFatal(initStatus)) {
             return initStatus;
         }
 
-        IStatus rawReadingStatus = getRawArtifact(preferredFormat, destinationWithProcessing, monitor);
+        IStatus rawReadingStatus = getRawArtifact(descriptor, destinationWithProcessing, monitor);
         if (isFatal(rawReadingStatus)) {
             return rawReadingStatus;
         }
@@ -287,8 +315,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         try {
             closeProcessingSteps(destinationWithProcessing);
         } catch (IOException e) {
-            return new Status(IStatus.ERROR, Activator.ID, "I/O exception while processing raw artifact "
-                    + preferredFormat);
+            return errorStatus("I/O exception while processing raw artifact " + descriptor, e);
         }
 
         IStatus processingStatus = ProcessingStepHandler.getStatus(destinationWithProcessing, true);
@@ -302,13 +329,40 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         }
     }
 
+    public final IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
+        canWriteToSink(sink);
+
+        IArtifactDescriptor descriptor = sink.getArtifactFormatToBeWritten();
+        if (!contains(descriptor)) {
+            return errorStatus("Artifact " + descriptor + " is not available in the repository " + getLocation(), null,
+                    ProvisionException.ARTIFACT_NOT_FOUND);
+        }
+
+        OutputStream outputStream = sink.beginWrite();
+        IStatus readStatus = readRawArtifact(descriptor, outputStream);
+        // TODO only commit if successful
+        sink.commitWrite();
+        return readStatus;
+
+    }
+
+    // TODO deprecation message?
+    @Deprecated
     public final IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination,
             IProgressMonitor monitor) {
         if (!contains(descriptor)) {
-            return new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact "
-                    + descriptor + " is not available in the repository " + getLocation(), null);
+            IStatus status = errorStatus("Artifact " + descriptor + " is not available in the repository "
+                    + getLocation(), null, ProvisionException.ARTIFACT_NOT_FOUND);
+            setStatusOnStreamIfPossible(destination, status);
+            return status;
         }
 
+        IStatus status = readRawArtifact(descriptor, destination);
+        setStatusOnStreamIfPossible(destination, status);
+        return status;
+    }
+
+    private IStatus readRawArtifact(IArtifactDescriptor descriptor, OutputStream destination) {
         try {
             InputStream source = new FileInputStream(internalGetArtifactStorageLocation(descriptor));
 
@@ -316,91 +370,120 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             FileUtils.copyStream(source, true, destination, false);
 
         } catch (IOException e) {
-            return new Status(IStatus.ERROR, Activator.ID, "I/O exception while reading artifact " + descriptor, e);
+            return errorStatus("I/O exception while reading artifact " + descriptor, e);
         }
         return Status.OK_STATUS;
     }
 
     @Override
-    public final OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
-        ArtifactDescriptorT internalDescriptor = getInternalDescriptorForAdding(descriptor);
-
-        if (contains(internalDescriptor)) {
-            IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_EXISTS, "Artifact "
-                    + descriptor + " already exists in repository " + getLocation(), null);
-            throw new ProvisionException(status);
-        }
-
-        // TODO 397355 use a temporary file location in case multiple threads/processes write in parallel
-        File file = internalGetArtifactStorageLocation(internalDescriptor);
-
-        try {
-            return new CommittingArtifactOutputStream(file, internalDescriptor);
-        } catch (FileNotFoundException e) {
-            // TODO revise message?
-            throw new ProvisionException("Could not create artifact file", e);
-        }
+    public final IArtifactSink newAddingArtifactSink(final IArtifactKey key) throws ProvisionException {
+        ArtifactDescriptorT newDescriptor = getInternalDescriptorForAdding(createArtifactDescriptor(key));
+        return internalNewAddingArtifactSink(newDescriptor);
     }
 
-    private class CommittingArtifactOutputStream extends OutputStream implements IStateful {
-        final FileOutputStream artifactSink;
+    protected final AddingArtifactSink internalNewAddingArtifactSink(ArtifactDescriptorT canonicalDescriptorToBeAdded)
+            throws ProvisionException {
+        // unlike RawAddingArtifactSink, this sink takes the artifact even if it needs to be converted from non-canonical format
+        return new AddingArtifactSink(canonicalDescriptorToBeAdded);
+    }
 
-        private ArtifactDescriptorT artifactDescriptorToAdd;
-        private IStatus externallySetStatus = Status.OK_STATUS;
+    @Override
+    public final IRawArtifactSink newAddingRawArtifactSink(IArtifactDescriptor newDescriptor) throws ProvisionException {
+        ArtifactDescriptorT newInternalDescriptorToBeAdded = getInternalDescriptorForAdding(newDescriptor);
+        return new RawAddingArtifactSink(newInternalDescriptorToBeAdded);
+    }
 
-        CommittingArtifactOutputStream(File artifactLocation, ArtifactDescriptorT artifactDescriptorToAdd)
-                throws FileNotFoundException {
-            artifactLocation.getParentFile().mkdirs();
-            this.artifactSink = new FileOutputStream(artifactLocation);
+    private class AddingArtifactSink implements IArtifactSink {
+        protected final ArtifactDescriptorT newDescriptor;
+        private OutputStream currentOutputStream = null;
+        private boolean committed = false;
 
-            this.artifactDescriptorToAdd = artifactDescriptorToAdd;
-        }
-
-        public void setStatus(IStatus status) {
-            if (status == null) {
-                throw new NullPointerException();
+        AddingArtifactSink(ArtifactDescriptorT newDescriptor) throws ProvisionException {
+            if (contains(newDescriptor)) {
+                IStatus status = errorStatus("Artifact " + newDescriptor + " already exists in repository "
+                        + getLocation(), null, ProvisionException.ARTIFACT_EXISTS);
+                throw new ProvisionException(status);
             }
-            externallySetStatus = status;
+
+            this.newDescriptor = newDescriptor;
         }
 
-        public IStatus getStatus() {
-            return externallySetStatus;
+        public IArtifactKey getArtifactToBeWritten() {
+            return newDescriptor.getArtifactKey();
         }
 
-        @Override
-        public void close() throws IOException {
-            artifactSink.close();
+        public boolean canBeginWrite() {
+            return !committed;
+        }
 
-            if (!isFatal(externallySetStatus)) {
-                internalAddInternalDescriptor(artifactDescriptorToAdd);
-                internalStore(null);
+        public OutputStream beginWrite() throws IllegalStateException, ArtifactSinkException {
+            if (committed) {
+                throw new IllegalStateException(
+                        "This sink has already been used to add an artifact. Cannot start another write operation.");
+            } else {
+                // abort anything written so far
+                abortWrite();
+            }
+
+            // TODO 397355 use a temporary file location in case multiple threads/processes write in parallel
+            File artifactFile = internalGetArtifactStorageLocation(newDescriptor);
+            artifactFile.getParentFile().mkdirs();
+
+            try {
+                currentOutputStream = new FileOutputStream(artifactFile);
+            } catch (FileNotFoundException e) {
+                throw new ArtifactSinkException("I/O error while creating artifact file " + artifactFile, e);
+            }
+            return currentOutputStream;
+        }
+
+        public void commitWrite() throws IllegalStateException, ArtifactSinkException {
+            if (currentOutputStream == null) {
+                throw new IllegalStateException("Write operation has not yet been started. Cannot add artifact.");
+            }
+            try {
+                currentOutputStream.close();
+            } catch (IOException e) {
+                throw new ArtifactSinkException("I/O error while closing artifact file", e);
+            } finally {
+                currentOutputStream = null;
+            }
+
+            internalAddInternalDescriptor(newDescriptor);
+            internalStore(null);
+        }
+
+        public void abortWrite() throws ArtifactSinkException {
+            if (currentOutputStream == null) {
+                return;
+            }
+            try {
+                currentOutputStream.close();
+            } catch (IOException e) {
+                throw new ArtifactSinkException("I/O error while closing artifact file", e);
+            } finally {
+                currentOutputStream = null;
             }
         }
+    }
 
-        @Override
-        public void write(int b) throws IOException {
-            artifactSink.write(b);
+    private class RawAddingArtifactSink extends AddingArtifactSink implements IRawArtifactSink {
+
+        RawAddingArtifactSink(ArtifactDescriptorT newDescriptor) throws ProvisionException {
+            super(newDescriptor);
         }
 
-        @Override
-        public void write(byte[] b) throws IOException {
-            artifactSink.write(b);
-        }
-
-        @Override
-        public void write(byte[] b, int off, int len) throws IOException {
-            artifactSink.write(b, off, len);
-        }
-
-        @Override
-        public void flush() throws IOException {
-            artifactSink.flush();
+        public IArtifactDescriptor getArtifactFormatToBeWritten() {
+            return newDescriptor;
         }
 
     }
 
-    static boolean isFatal(IStatus status) {
-        return status.matches(IStatus.ERROR | IStatus.CANCEL);
+    static IStatus errorStatus(String message, Throwable cause) {
+        return errorStatus(message, cause, 0);
     }
 
+    static IStatus errorStatus(String message, Throwable cause, int code) {
+        return new Status(IStatus.ERROR, Activator.ID, code, message, cause);
+    }
 }

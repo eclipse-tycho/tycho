@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
+import static org.eclipse.tycho.repository.p2base.artifact.provider.ProbeArtifactSink.newArtifactSinkFor;
+import static org.eclipse.tycho.repository.p2base.artifact.provider.ProbeRawArtifactSink.newRawArtifactSinkFor;
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -40,6 +42,12 @@ import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
+import org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactSinkException;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactSink;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactSink;
+import org.eclipse.tycho.repository.p2base.artifact.provider.NonStartableArtifactSink;
+import org.eclipse.tycho.repository.p2base.artifact.provider.ProbeArtifactSink;
+import org.eclipse.tycho.repository.p2base.artifact.provider.ProbeRawArtifactSink;
 import org.eclipse.tycho.repository.test.util.ProbeOutputStream;
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,11 +63,11 @@ public class LocalArtifactRepositoryP2APITest {
     private static final Set<String> ARTIFACT_A_CONTENT = TestRepositoryContent.BUNDLE_A_FILES;
     private static final Set<String> ARTIFACT_B_CONTENT = TestRepositoryContent.BUNDLE_B_FILES;
 
-    private static final IArtifactDescriptor ARTIFACT_A_CANONICAL = localDescriptorFor(ARTIFACT_A_KEY);
+    private static final IArtifactDescriptor ARTIFACT_A_CANONICAL = localCanonicalDescriptorFor(ARTIFACT_A_KEY);
     private static final IArtifactDescriptor ARTIFACT_A_PACKED = localPackedDescriptorFor(ARTIFACT_A_KEY);
     private static final IArtifactDescriptor ARTIFACT_B_PACKED = localPackedDescriptorFor(ARTIFACT_B_KEY);
     // not in the repository!
-    private static final IArtifactDescriptor ARTIFACT_B_CANONICAL = localDescriptorFor(ARTIFACT_B_KEY);
+    private static final IArtifactDescriptor ARTIFACT_B_CANONICAL = localCanonicalDescriptorFor(ARTIFACT_B_KEY);
 
     private static final String ARTIFACT_A_CANONICAL_MD5 = TestRepositoryContent.BUNDLE_A_CONTENT_MD5;
     private static final String ARTIFACT_A_PACKED_MD5 = TestRepositoryContent.BUNDLE_A_PACKED_CONTENT_MD5;
@@ -83,7 +91,10 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Rule
     public TemporaryLocalMavenRepository temporaryLocalMavenRepo = new TemporaryLocalMavenRepository();
-    private ProbeOutputStream testSink = new ProbeOutputStream();
+
+    private ProbeArtifactSink testSink;
+    private ProbeRawArtifactSink rawTestSink;
+    private ProbeOutputStream testOutputStream;
 
     private LocalArtifactRepository subject;
 
@@ -91,6 +102,8 @@ public class LocalArtifactRepositoryP2APITest {
     public void initSubject() throws Exception {
         temporaryLocalMavenRepo.initContentFromTestResource("repositories/local");
         subject = new LocalArtifactRepository(null, temporaryLocalMavenRepo.getLocalRepositoryIndex());
+
+        testOutputStream = new ProbeOutputStream();
     }
 
     @Test
@@ -268,78 +281,256 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Test
     public void testGetArtifact() throws Exception {
-        IStatus status = subject.getArtifact(ARTIFACT_A_KEY, testSink, null);
+        testSink = newArtifactSinkFor(ARTIFACT_A_KEY);
+        IStatus status = subject.getArtifact(testSink, null);
 
         assertThat(status, is(okStatus()));
-        assertThat(testSink.isClosed(), is(false));
         assertThat(testSink.getFilesInZip(), is(ARTIFACT_A_CONTENT));
     }
 
     @Test
-    public void testGetNonContainedArtifact() {
-        IStatus status = subject.getArtifact(OTHER_KEY, testSink, null);
+    public void testGetNonContainedArtifact() throws Exception {
+        testSink = newArtifactSinkFor(OTHER_KEY);
+        IStatus status = subject.getArtifact(testSink, null);
 
-        assertThat(testSink.isClosed(), is(false));
-        assertThat(testSink.writtenBytes(), is(0));
+        assertThat(testSink.writeIsCommitted(), is(false));
+        assertThat(testSink.writeIsStarted(), is(false));
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
     }
 
     @Test
     public void testGetArtifactOnlyAvailableInPackedFormat() throws Exception {
+        testSink = newArtifactSinkFor(ARTIFACT_B_KEY);
         // this method must return the original artifact, regardless of how the artifact is stored internally
-        IStatus status = subject.getArtifact(ARTIFACT_B_KEY, testSink, null);
+        IStatus status = subject.getArtifact(testSink, null);
 
         assertThat(status, is(okStatus()));
-        assertThat(testSink.isClosed(), is(false));
-        assertThat(testSink.writtenBytes(), not(is(0)));
         assertThat(testSink.getFilesInZip(), is(ARTIFACT_B_CONTENT));
+    }
+
+    @Test(expected = ArtifactSinkException.class)
+    public void testGetArtifactToBrokenSink() throws Exception {
+        IArtifactSink brokenSink = new IArtifactSink() {
+            public IArtifactKey getArtifactToBeWritten() {
+                return ARTIFACT_A_KEY;
+            }
+
+            public boolean canBeginWrite() {
+                return true;
+            }
+
+            public OutputStream beginWrite() {
+                return testOutputStream;
+            }
+
+            public void commitWrite() throws ArtifactSinkException {
+                throw new ArtifactSinkException("simulated error on commit");
+            }
+
+            public void abortWrite() {
+            }
+
+        };
+        subject.getArtifact(brokenSink, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetArtifactToClosedSink() throws Exception {
+        subject.getArtifact(new NonStartableArtifactSink(), null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetArtifactToNonCanonicalSink() throws Exception {
+        subject.getArtifact(newRawArtifactSinkFor(ARTIFACT_A_PACKED), null);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testGetArtifactToStream() throws Exception {
+        IStatus status = subject.getArtifact(ARTIFACT_A_CANONICAL, testOutputStream, null);
+
+        assertThat(status, is(okStatus()));
+        assertThat(testOutputStream.isClosed(), is(false));
+        assertThat(testOutputStream.getFilesInZip(), is(ARTIFACT_A_CONTENT));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testGetNonContainedArtifactToStream() {
+        IStatus status = subject.getArtifact(OTHER_DESCRIPTOR, testOutputStream, null);
+
+        assertThat(testOutputStream.isClosed(), is(false));
+        assertThat(testOutputStream.writtenBytes(), is(0));
+        assertThat(testOutputStream.getStatus(), is(errorStatus())); // from IStateful
+        assertThat(status, is(errorStatus()));
+        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testGetArtifactToStreamOnlyAvailableInPackedFormat() throws Exception {
+        // this method must always return the original artifact, even if called with a pack200 descriptor  
+        IStatus status = subject.getArtifact(ARTIFACT_B_PACKED, testOutputStream, null);
+
+        assertThat(status, is(okStatus()));
+        assertThat(testOutputStream.isClosed(), is(false));
+        assertThat(testOutputStream.writtenBytes(), not(is(0)));
+        assertThat(testOutputStream.getFilesInZip(), is(ARTIFACT_B_CONTENT));
     }
 
     @Test
     public void testGetRawArtifact() throws Exception {
-        IStatus status = subject.getRawArtifact(ARTIFACT_A_PACKED, testSink, null);
+        rawTestSink = newRawArtifactSinkFor(ARTIFACT_A_PACKED);
+        IStatus status = subject.getRawArtifact(rawTestSink, null);
 
         assertThat(status, is(okStatus()));
-        assertThat(testSink.isClosed(), is(false));
-        assertThat(testSink.md5AsHex(), is(ARTIFACT_A_PACKED_MD5));
+        assertThat(rawTestSink.md5AsHex(), is(ARTIFACT_A_PACKED_MD5));
     }
 
     @Test
     public void testGetRawArtifactForCanonicalFormat() throws Exception {
-        IStatus status = subject.getRawArtifact(ARTIFACT_A_CANONICAL, testSink, null);
+        rawTestSink = newRawArtifactSinkFor(ARTIFACT_A_CANONICAL);
+        IStatus status = subject.getRawArtifact(rawTestSink, null);
 
         assertThat(status, is(okStatus()));
-        assertThat(testSink.isClosed(), is(false));
-        assertThat(testSink.md5AsHex(), is(ARTIFACT_A_CANONICAL_MD5));
+        assertThat(rawTestSink.md5AsHex(), is(ARTIFACT_A_CANONICAL_MD5));
     }
 
     @Test
-    public void testGetRawArtifactOfNonContainedFormat() {
-        assertFalse(subject.contains(ARTIFACT_B_CANONICAL)); // self-test
+    public void testGetRawArtifactOfNonContainedFormat() throws Exception {
+        assertTrue(subject.contains(ARTIFACT_B_PACKED));
+        assertFalse(subject.contains(ARTIFACT_B_CANONICAL));
 
-        IStatus status = subject.getRawArtifact(ARTIFACT_B_CANONICAL, testSink, null);
+        // getRawArtifact does not convert from packed to canonical format
+        rawTestSink = newRawArtifactSinkFor(ARTIFACT_B_CANONICAL);
+        IStatus status = subject.getRawArtifact(rawTestSink, null);
 
-        assertThat(testSink.writtenBytes(), is(0));
-        assertThat(testSink.isClosed(), is(false));
+        assertThat(rawTestSink.writeIsStarted(), is(false));
+        assertThat(status, is(errorStatus()));
+        assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetRawArtifactToClosedSink() throws Exception {
+        subject.getRawArtifact(new NonStartableArtifactSink(), null);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testGetRawArtifactToStream() throws Exception {
+        IStatus status = subject.getRawArtifact(ARTIFACT_A_PACKED, testOutputStream, null);
+
+        assertThat(status, is(okStatus()));
+        assertThat(testOutputStream.isClosed(), is(false));
+        assertThat(testOutputStream.md5AsHex(), is(ARTIFACT_A_PACKED_MD5));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testGetRawArtifactForCanonicalFormatToStream() throws Exception {
+        IStatus status = subject.getRawArtifact(ARTIFACT_A_CANONICAL, testOutputStream, null);
+
+        assertThat(status, is(okStatus()));
+        assertThat(testOutputStream.isClosed(), is(false));
+        assertThat(testOutputStream.md5AsHex(), is(ARTIFACT_A_CANONICAL_MD5));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testGetRawArtifactOfNonContainedFormatToStream() {
+        assertFalse(subject.contains(ARTIFACT_B_CANONICAL));
+
+        // getRawArtifact does not convert from packed to canonical format
+        IStatus status = subject.getRawArtifact(ARTIFACT_B_CANONICAL, testOutputStream, null);
+
+        assertThat(testOutputStream.writtenBytes(), is(0));
+        assertThat(testOutputStream.isClosed(), is(false));
+        assertThat(testOutputStream.getStatus(), is(errorStatus())); // from IStateful
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
     }
 
     @Test
     public void testWriteArtifact() throws Exception {
-        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
-        addSink.write(new byte[33]);
-        addSink.close();
+        IArtifactSink addSink = subject.newAddingArtifactSink(NEW_KEY);
+        addSink.beginWrite().write(new byte[33]);
+        addSink.commitWrite();
 
         assertTrue(subject.contains(NEW_KEY));
-        assertTrue(subject.contains(NEW_DESCRIPTOR));
-        subject.getRawArtifact(NEW_DESCRIPTOR, testSink, null);
-        assertThat(testSink.writtenBytes(), is(33));
+        assertTrue(subject.contains(localCanonicalDescriptorFor(NEW_KEY)));
+
+        subject.getArtifact(testSink = newArtifactSinkFor(NEW_KEY), null);
+        assertThat(testSink.committedBytes(), is(33));
     }
 
     @Test
     public void testReWriteArtifactFails() throws Exception {
+        // LocalArtifactRepository doesn't allow overwrites -> this may be different in other IArtifactRepository implementations
+        ProvisionException expectedException = null;
+        try {
+            IArtifactSink addSink = subject.newAddingArtifactSink(ARTIFACT_A_KEY);
+            addSink.beginWrite();
+            addSink.commitWrite();
+        } catch (ProvisionException e) {
+            expectedException = e;
+        }
+
+        assertThat(expectedException, is(instanceOf(ProvisionException.class)));
+        assertThat(expectedException.getStatus().getCode(), is(ProvisionException.ARTIFACT_EXISTS));
+    }
+
+    @Test
+    public void testWriteArtifactAndCancel() throws Exception {
+        IArtifactSink addSink = subject.newAddingArtifactSink(NEW_KEY);
+        addSink.beginWrite().write(new byte[33]);
+        addSink.abortWrite();
+
+        assertFalse(subject.contains(NEW_KEY));
+        assertFalse(subject.contains(localCanonicalDescriptorFor(NEW_KEY)));
+    }
+
+    @Test
+    public void testWriteArtifactOnSecondAttempt() throws Exception {
+        IArtifactSink addSink = subject.newAddingArtifactSink(NEW_KEY);
+        addSink.beginWrite().write(new byte[11]);
+        addSink.beginWrite().write(new byte[22]);
+        addSink.commitWrite();
+
+        assertThat(subject.contains(NEW_KEY), is(true));
+        assertThat(subject.contains(localCanonicalDescriptorFor(NEW_KEY)), is(true));
+        subject.getArtifact(testSink = newArtifactSinkFor(NEW_KEY), null);
+        assertThat(testSink.committedBytes(), is(22));
+    }
+
+    @Test
+    public void testWriteRawArtifact() throws Exception {
+        IRawArtifactSink addSink = subject.newAddingRawArtifactSink(NEW_DESCRIPTOR);
+        addSink.beginWrite().write(new byte[33]);
+        addSink.commitWrite();
+
+        assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
+        assertThat(subject.contains(NEW_DESCRIPTOR.getArtifactKey()), is(true));
+        subject.getRawArtifact(rawTestSink = newRawArtifactSinkFor(NEW_DESCRIPTOR), null);
+        assertThat(rawTestSink.committedBytes(), is(33));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testWriteArtifactViaStream() throws Exception {
+        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
+        addSink.write(new byte[33]);
+        addSink.close();
+
+        assertThat(subject.contains(NEW_KEY), is(true));
+        assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
+        subject.getRawArtifact(NEW_DESCRIPTOR, testOutputStream, null);
+        assertThat(testOutputStream.writtenBytes(), is(33));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testReWriteArtifactViaStreamFails() throws Exception {
         ProvisionException expectedException = null;
         try {
             OutputStream addSink = subject.getOutputStream(ARTIFACT_A_CANONICAL);
@@ -353,33 +544,35 @@ public class LocalArtifactRepositoryP2APITest {
         assertThat(expectedException.getStatus().getCode(), is(ProvisionException.ARTIFACT_EXISTS));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
-    public void testWriteArtifactAndCancel() throws Exception {
+    public void testWriteArtifactViaStreamAndCancel() throws Exception {
         OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
         addSink.write(new byte[33]);
         // setStatus needs to be called when copying from a repository using getArtifact, and that method returns an error (e.g. due to artifact corruption)
         ((IStateful) addSink).setStatus(new Status(IStatus.ERROR, "test", "written data is bad"));
         addSink.close();
 
-        assertFalse(subject.contains(NEW_DESCRIPTOR));
-        assertFalse(subject.contains(NEW_KEY));
+        assertThat(subject.contains(NEW_DESCRIPTOR), is(false));
+        assertThat(subject.contains(NEW_KEY), is(false));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
-    public void testWriteArtifactWithNonFatalStatus() throws Exception {
+    public void testWriteArtifactViaStreamWithNonFatalStatus() throws Exception {
         OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
         addSink.write(new byte[33]);
         ((IStateful) addSink).setStatus(new Status(IStatus.WARNING, "test", "irrelevant warning"));
         addSink.close();
 
-        assertTrue(subject.contains(NEW_DESCRIPTOR));
+        assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
     }
 
     /**
      * Returns a descriptor of the internally used {@link IArtifactDescriptor} type for the
      * canonical format of the given key.
      */
-    private static IArtifactDescriptor localDescriptorFor(IArtifactKey key) {
+    private static IArtifactDescriptor localCanonicalDescriptorFor(IArtifactKey key) {
         return new GAVArtifactDescriptor(key);
     }
 

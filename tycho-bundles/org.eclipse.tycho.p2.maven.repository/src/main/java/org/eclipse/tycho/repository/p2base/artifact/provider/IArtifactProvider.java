@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
-import java.io.OutputStream;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -32,16 +30,23 @@ public interface IArtifactProvider extends IQueryable<IArtifactKey> {
     public boolean contains(IArtifactKey key);
 
     /**
-     * Writes the artifact to the given output stream.
+     * Writes the requested artifact to the given {@link IArtifactSink}. The implementation is free
+     * to pick the most suitable internal storage format to serve the request, e.g. it may extract
+     * the artifact from a pack200-compressed format. In case an error is detected while streaming
+     * the artifact (e.g. an MD5 checksum error), the implementation shall re-attempt the read from
+     * all other available sources.
      * 
-     * @param key
-     *            the key of the artifact to transfer
-     * @param destination
-     *            the stream to write the artifact to
+     * @param sink
+     *            a sink for a specific artifact
      * @param monitor
      *            a progress monitor, or <code>null</code>
-     * @return the result of the artifact transfer
+     * @throws ArtifactSinkException
+     *             if that exception is thrown by the given {@link IArtifactSink}
+     * 
+     * @see IArtifactSink#getArtifactToBeWritten()
      */
-    public IStatus getArtifact(IArtifactKey key, OutputStream destination, IProgressMonitor monitor);
+    // TODO assert status <-> committed relationship
+    // TODO implement&document returned warnings
+    public IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException;
 
 }

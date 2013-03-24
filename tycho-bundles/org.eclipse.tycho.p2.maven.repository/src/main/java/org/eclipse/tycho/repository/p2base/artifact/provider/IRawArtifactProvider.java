@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
-import java.io.OutputStream;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -49,16 +47,23 @@ public interface IRawArtifactProvider extends IArtifactProvider {
     public boolean contains(IArtifactDescriptor descriptor);
 
     /**
-     * Writes the artifact in the described raw format to the given output stream
+     * Writes the requested artifact in the specified raw format to the given
+     * {@link IRawArtifactSink}. In case an error is detected while streaming the artifact (e.g. an
+     * MD5 checksum error) and there are other sources available (e.g. in a composite provide), the
+     * implementation shall re-attempt the read from these other sources.
      * 
-     * @param descriptor
-     *            the key and format of the artifact to transfer
-     * @param destination
-     *            the stream to write the raw artifact to
+     * @param sink
+     *            a sink for a specific artifact in a specific format
      * @param monitor
      *            a progress monitor, or <code>null</code>
-     * @return the result of the artifact transfer
+     * @throws ArtifactSinkException
+     *             if that exception is thrown by the given {@link IArtifactSink}
+     * 
+     * @see IRawArtifactSink#getArtifactToBeWritten()
+     * @see IRawArtifactSink#getArtifactFormatToBeWritten()
      */
-    public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor);
+    // TODO assert status <-> committed relationship
+    // TODO implement&document returned warnings
+    public IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException;
 
 }

@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
+import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -223,31 +227,7 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
             }
         };
         IStatus status = repo.getArtifacts(new IArtifactRequest[] { errorRequest }, new NullProgressMonitor());
-        Assert.assertFalse(status.isOK());
-    }
-
-    @Test
-    public void testGetArtifactsCreateSubmonitor() {
-        NullProgressMonitor monitor = new NullProgressMonitor();
-        LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
-        final IProgressMonitor[] requestMonitorReturnValue = new IProgressMonitor[1];
-        IArtifactRequest errorRequest = new IArtifactRequest() {
-            public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
-                requestMonitorReturnValue[0] = monitor;
-            }
-
-            public IStatus getResult() {
-                return Status.OK_STATUS;
-            }
-
-            public IArtifactKey getArtifactKey() {
-                return null;
-            }
-        };
-        IStatus status = repo.getArtifacts(new IArtifactRequest[] { errorRequest }, monitor);
-        Assert.assertTrue(status.isOK());
-        Assert.assertNotNull(requestMonitorReturnValue[0]);
-        Assert.assertNotSame(monitor, requestMonitorReturnValue[0]);
+        assertThat(status, not(okStatus()));
     }
 
     @Test
