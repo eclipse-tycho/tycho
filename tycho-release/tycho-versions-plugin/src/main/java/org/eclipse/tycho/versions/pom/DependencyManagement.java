@@ -35,4 +35,13 @@ public class DependencyManagement {
 
         return result;
     }
+
+    public static DependencyManagement getDependencyManagement(Element dom) {
+        Element dependencyManagement = dom.getChild("dependencyManagement");
+        if (dependencyManagement == null) {
+            return null;
+        }
+        return new DependencyManagement(dependencyManagement);
+    }
+
 }

@@ -19,4 +19,21 @@
     </dependency>
   </dependencies>
 
+  <profiles>
+    <profile>
+      <id>test</id>
+      <dependencies>
+        <dependency>
+          <groupId>dependencysimple</groupId>
+          <artifactId>someproject</artifactId>
+          <version>1.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>3.8.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>

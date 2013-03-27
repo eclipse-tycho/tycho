@@ -71,48 +71,54 @@ public class PomManipulator extends AbstractMetadataManipulator {
         // does occur inside OSGI related project. Hence we must be able to handle
         // it.
         //
-        for (GAV dependency : pom.getDependencies()) {
-            if (isGavEquals(dependency, change)) {
-                logger.info("  pom.xml//project/dependencies/dependency/[ " + dependency.getGroupId() + ":"
-                        + dependency.getArtifactId() + " ] " + version + " => " + newVersion);
-                dependency.setVersion(newVersion);
-            }
-        }
 
-        DependencyManagement dependencyManagment = pom.getDependencyManagement();
+        changeDependencies("  pom.xml//project/dependencies", pom.getDependencies(), change, version, newVersion);
+        changeDependencyManagement("  pom.xml//project/dependencyManagement", pom.getDependencyManagement(), change,
+                version, newVersion);
 
-        if (dependencyManagment != null) {
-            for (GAV dependency : dependencyManagment.getDependencies()) {
-                if (isGavEquals(dependency, change)) {
-                    logger.info("  pom.xml//project/dependencyManagement/dependencies/dependency/[ "
-                            + dependency.getGroupId() + ":" + dependency.getArtifactId() + " ] " + version + " => "
-                            + newVersion);
-                    dependency.setVersion(newVersion);
-                }
-            }
-        }
-
-        applyChange("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
+        changeBuild("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
 
         for (Profile profile : pom.getProfiles()) {
-            applyChange("  pom.xml//project/profiles/profile[ " + profile.getId() + " ]/build", profile.getBuild(),
-                    change, version, newVersion);
+            String pomPath = "  pom.xml//project/profiles/profile[ " + profile.getId() + " ]";
+            changeDependencies(pomPath + "/dependencies", profile.getDependencies(), change, version, newVersion);
+            changeDependencyManagement(pomPath + "/dependencyManagement", profile.getDependencyManagement(), change,
+                    version, newVersion);
+            changeBuild(pomPath + "/build", profile.getBuild(), change, version, newVersion);
         }
     }
 
-    private void applyChange(String pomPath, Build build, VersionChange change, String version, String newVersion) {
-        if (build == null) {
-            return;
-        }
-        applyChange(pomPath + "/plugins/plugin", build.getPlugins(), change, version, newVersion);
-        PluginManagement pluginManagement = build.getPluginManagement();
-        if (pluginManagement != null) {
-            applyChange(pomPath + "/pluginManagemment/plugins/plugin", pluginManagement.getPlugins(), change, version,
+    protected void changeDependencyManagement(String pomPath, DependencyManagement dependencyManagment,
+            VersionChange change, String version, String newVersion) {
+        if (dependencyManagment != null) {
+            changeDependencies(pomPath + "/dependencies", dependencyManagment.getDependencies(), change, version,
                     newVersion);
         }
     }
 
-    private void applyChange(String pomPath, List<Plugin> plugins, VersionChange change, String version,
+    protected void changeDependencies(String pomPath, List<GAV> dependencies, VersionChange change, String version,
+            String newVersion) {
+        for (GAV dependency : dependencies) {
+            if (isGavEquals(dependency, change)) {
+                logger.info(pomPath + "/dependency/[ " + dependency.getGroupId() + ":" + dependency.getArtifactId()
+                        + " ] " + version + " => " + newVersion);
+                dependency.setVersion(newVersion);
+            }
+        }
+    }
+
+    private void changeBuild(String pomPath, Build build, VersionChange change, String version, String newVersion) {
+        if (build == null) {
+            return;
+        }
+        changePlugins(pomPath + "/plugins/plugin", build.getPlugins(), change, version, newVersion);
+        PluginManagement pluginManagement = build.getPluginManagement();
+        if (pluginManagement != null) {
+            changePlugins(pomPath + "/pluginManagemment/plugins/plugin", pluginManagement.getPlugins(), change,
+                    version, newVersion);
+        }
+    }
+
+    private void changePlugins(String pomPath, List<Plugin> plugins, VersionChange change, String version,
             String newVersion) {
         for (Plugin plugin : plugins) {
             GAV pluginGAV = plugin.getGAV();

@@ -41,4 +41,12 @@ public class Profile {
     public Build getBuild() {
         return Build.getBuild(dom);
     }
+
+    public List<GAV> getDependencies() {
+        return Dependencies.getDependencies(dom);
+    }
+
+    public DependencyManagement getDependencyManagement() {
+        return DependencyManagement.getDependencyManagement(dom);
+    }
 }

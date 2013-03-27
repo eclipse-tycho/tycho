@@ -163,25 +163,11 @@ public class MutablePomFile {
     }
 
     public DependencyManagement getDependencyManagement() {
-        Element dependencyManagement = project.getChild("dependencyManagement");
-
-        if (dependencyManagement == null)
-            return null;
-
-        return new DependencyManagement(dependencyManagement);
+        return DependencyManagement.getDependencyManagement(project);
     }
 
     public List<GAV> getDependencies() {
-        ArrayList<GAV> result = new ArrayList<GAV>();
-
-        Element dependencies = project.getChild("dependencies");
-
-        if (dependencies != null) {
-            for (Element dependency : dependencies.getChildren("dependency"))
-                result.add(new GAV(dependency));
-        }
-
-        return result;
+        return Dependencies.getDependencies(project);
     }
 
     public Build getBuild() {
