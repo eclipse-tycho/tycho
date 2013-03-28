@@ -49,4 +49,8 @@ public class Profile {
     public DependencyManagement getDependencyManagement() {
         return DependencyManagement.getDependencyManagement(dom);
     }
+
+    public List<Property> getProperties() {
+        return Property.getProperties(dom);
+    }
 }

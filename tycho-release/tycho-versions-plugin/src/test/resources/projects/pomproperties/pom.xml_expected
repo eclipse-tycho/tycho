@@ -1,0 +1,23 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>pomproperties</groupId>
+  <artifactId>pomproperties</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <p1>changed</p1>
+    <p2>original</p2>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>test</id>
+      <properties>
+        <p1>changed</p1>
+        <p2>original</p2>
+      </properties>
+    </profile>
+  </profiles>
+</project>

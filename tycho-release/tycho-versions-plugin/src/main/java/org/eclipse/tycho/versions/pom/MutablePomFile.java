@@ -173,4 +173,8 @@ public class MutablePomFile {
     public Build getBuild() {
         return Build.getBuild(project);
     }
+
+    public List<Property> getProperties() {
+        return Property.getProperties(project);
+    }
 }

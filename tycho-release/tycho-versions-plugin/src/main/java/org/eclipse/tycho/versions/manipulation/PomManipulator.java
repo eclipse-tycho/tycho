@@ -29,9 +29,12 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
 import org.eclipse.tycho.versions.pom.Plugin;
 import org.eclipse.tycho.versions.pom.PluginManagement;
 import org.eclipse.tycho.versions.pom.Profile;
+import org.eclipse.tycho.versions.pom.Property;
 
-@Component(role = MetadataManipulator.class, hint = "pom")
+@Component(role = MetadataManipulator.class, hint = PomManipulator.HINT)
 public class PomManipulator extends AbstractMetadataManipulator {
+    public static final String HINT = "pom";
+
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
@@ -123,14 +126,14 @@ public class PomManipulator extends AbstractMetadataManipulator {
         for (Plugin plugin : plugins) {
             GAV pluginGAV = plugin.getGAV();
             if (isGavEquals(pluginGAV, change)) {
-                logger.info("  " + pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] "
+                logger.info(pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] "
                         + version + " => " + newVersion);
                 pluginGAV.setVersion(newVersion);
             }
 
             for (GAV dependency : plugin.getDependencies()) {
                 if (isGavEquals(dependency, change)) {
-                    logger.info("  " + pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId()
+                    logger.info(pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId()
                             + " ] /dependencies/dependency/[ " + dependency.getGroupId() + ":"
                             + dependency.getArtifactId() + " ] " + version + " => " + newVersion);
                     dependency.setVersion(newVersion);
@@ -158,4 +161,20 @@ public class PomManipulator extends AbstractMetadataManipulator {
         }
     }
 
+    public void applyPropertyChange(MutablePomFile pom, String propertyName, String propertyValue) {
+        changeProperties("  pom.xml//project/properties", pom.getProperties(), propertyName, propertyValue);
+        for (Profile profile : pom.getProfiles()) {
+            String pomPath = "  pom.xml//project/profiles/profile[ " + profile.getId() + " ]/properties";
+            changeProperties(pomPath, profile.getProperties(), propertyName, propertyValue);
+        }
+    }
+
+    private void changeProperties(String pomPath, List<Property> properties, String propertyName, String propertyValue) {
+        for (Property property : properties) {
+            if (propertyName.equals(property.getName())) {
+                logger.info(pomPath + "/[ " + propertyName + " ] " + property.getValue() + " => " + propertyValue);
+                property.setValue(propertyValue);
+            }
+        }
+    }
 }

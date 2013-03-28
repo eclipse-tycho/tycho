@@ -265,6 +265,17 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "jar"));
     }
 
+    public void testPomProperties() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/pomproperties");
+
+        VersionsEngine engine = newEngine(basedir);
+
+        engine.addPropertyChange("pomproperties", "p1", "changed");
+        engine.apply();
+
+        assertPom(basedir);
+    }
+
     private VersionsEngine newEngine(File basedir) throws Exception {
         VersionsEngine engine = lookup(VersionsEngine.class);
         ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);

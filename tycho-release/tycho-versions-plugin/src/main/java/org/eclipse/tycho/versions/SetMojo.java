@@ -11,6 +11,8 @@
 package org.eclipse.tycho.versions;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -45,6 +47,14 @@ public class SetMojo extends AbstractVersionsMojo {
      */
     private String artifacts;
 
+    /**
+     * Comma separated list of names of pom properties to set the new version to. Properties are
+     * changed in projects identified by {@link #artifacts} parameter only.
+     * 
+     * @parameter expression="${properties}"
+     */
+    private String properties;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (newVersion == null || newVersion.length() == 0) {
             throw new MojoExecutionException("Missing required parameter newVersion");
@@ -64,10 +74,11 @@ public class SetMojo extends AbstractVersionsMojo {
             engine.setProjects(metadataReader.getProjects());
 
             // initial changes
-            StringTokenizer st = new StringTokenizer(artifacts, ",");
-            while (st.hasMoreTokens()) {
-                String artifactId = st.nextToken().trim();
+            for (String artifactId : split(artifacts)) {
                 engine.addVersionChange(artifactId, newVersion);
+                for (String propertyName : split(properties)) {
+                    engine.addPropertyChange(artifactId, propertyName, newVersion);
+                }
             }
 
             engine.apply();
@@ -78,5 +89,14 @@ public class SetMojo extends AbstractVersionsMojo {
 
     private VersionsEngine newEngine() throws MojoFailureException {
         return lookup(VersionsEngine.class);
+    }
+
+    private List<String> split(String str) {
+        ArrayList<String> result = new ArrayList<String>();
+        StringTokenizer st = new StringTokenizer(artifacts, ",");
+        while (st.hasMoreTokens()) {
+            result.add(st.nextToken().trim());
+        }
+        return result;
     }
 }
