@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
@@ -41,7 +43,35 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
         return loadingHelper.getEffectiveLocationAndPrepareLoad(location);
     }
 
-    // delegate methods
+    public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException,
+            OperationCanceledException {
+        return this.loadRepository(location, IRepository.NONE, monitor);
+    }
+
+    public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
+            throws ProvisionException, OperationCanceledException {
+        URI effectiveLocation = translateAndPrepareLoad(location);
+
+        IMetadataRepository loadedRepository = delegate.loadRepository(effectiveLocation, flags, monitor);
+        failIfRepositoryContainsPartialIUs(loadedRepository, effectiveLocation);
+
+        return loadedRepository;
+    }
+
+    private void failIfRepositoryContainsPartialIUs(IMetadataRepository repository, URI effectiveLocation)
+            throws ProvisionException {
+        IQueryResult<IInstallableUnit> allUnits = repository.query(QueryUtil.ALL_UNITS, null);
+        for (IInstallableUnit unit : allUnits.toUnmodifiableSet()) {
+            if (Boolean.valueOf(unit.getProperty(IInstallableUnit.PROP_PARTIAL_IU)) == true) {
+                String message = "The p2 repository at "
+                        + effectiveLocation
+                        + " contains units from an old style update site which cannot be used for dependency resolution";
+                throw new ProvisionException(message);
+            }
+        }
+    }
+
+    // delegated methods
 
     public void addRepository(URI location) {
         delegate.addRepository(translate(location));
@@ -70,16 +100,6 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
     public boolean isEnabled(URI location) {
         return delegate.isEnabled(translate(location));
-    }
-
-    public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
-            throws ProvisionException, OperationCanceledException {
-        return delegate.loadRepository(translateAndPrepareLoad(location), flags, monitor);
-    }
-
-    public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException,
-            OperationCanceledException {
-        return delegate.loadRepository(translateAndPrepareLoad(location), monitor);
     }
 
     public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {

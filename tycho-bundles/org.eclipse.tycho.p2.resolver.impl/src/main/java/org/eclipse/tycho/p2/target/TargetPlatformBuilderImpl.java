@@ -250,7 +250,9 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
             // processPartialIUs( metadataRepository, artifactRepository );
         } catch (ProvisionException e) {
-            throw new RuntimeException(e);
+            String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
+            throw new RuntimeException("Failed to load p2 repository" + idMessage + " from location "
+                    + location.getURL(), e);
         }
     }
 
