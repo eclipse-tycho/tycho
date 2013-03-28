@@ -187,7 +187,7 @@ public class TargetDefinitionResolver {
         try {
             return metadataManager.loadRepository(repository.getLocation(), monitor);
         } catch (ProvisionException e) {
-            throw new TargetDefinitionResolutionException("Failed to load metadata repository from location "
+            throw new TargetDefinitionResolutionException("Failed to load p2 metadata repository from location "
                     + repository.getLocation(), e);
         }
     }
