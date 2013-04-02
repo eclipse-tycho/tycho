@@ -1,0 +1,8 @@
+Verified+1: Hudson CI
+Code-Review+2: Igor Fedorenko <igor@ifedorenko.com>
+IP-Clean+1: Igor Fedorenko <igor@ifedorenko.com>
+Submitted-by: Igor Fedorenko <igor@ifedorenko.com>
+Submitted-at: Mon, 01 Apr 2013 21:40:58 -0400
+Reviewed-on: https://git.eclipse.org/r/11535
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
