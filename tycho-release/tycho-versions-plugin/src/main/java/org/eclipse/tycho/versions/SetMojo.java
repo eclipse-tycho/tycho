@@ -91,9 +91,9 @@ public class SetMojo extends AbstractVersionsMojo {
         return lookup(VersionsEngine.class);
     }
 
-    private List<String> split(String str) {
+    private static List<String> split(String str) {
         ArrayList<String> result = new ArrayList<String>();
-        StringTokenizer st = new StringTokenizer(artifacts, ",");
+        StringTokenizer st = new StringTokenizer(str, ",");
         while (st.hasMoreTokens()) {
             result.add(st.nextToken().trim());
         }
