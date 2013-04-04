@@ -103,6 +103,22 @@ public class VersionsEngine {
             }
         }
 
+        // validate version changes can be implemented
+        List<String> errors = new ArrayList<String>();
+        for (ProjectMetadata project : projects) {
+            for (VersionChange change : versionChanges) {
+                for (MetadataManipulator manipulator : manipulators) {
+                    Collection<String> error = manipulator.validateChange(project, change);
+                    if (error != null) {
+                        errors.addAll(error);
+                    }
+                }
+            }
+        }
+        if (!errors.isEmpty()) {
+            throw new IllegalVersionChangeException(errors);
+        }
+
         // make changes to the metadata
         for (ProjectMetadata project : projects) {
             logger.info("Making changes in " + project.getBasedir().getAbsolutePath());

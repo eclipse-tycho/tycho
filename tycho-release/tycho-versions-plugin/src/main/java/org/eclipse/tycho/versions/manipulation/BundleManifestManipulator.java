@@ -12,6 +12,8 @@ package org.eclipse.tycho.versions.manipulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -19,25 +21,32 @@ import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.Versions;
 
 @Component(role = MetadataManipulator.class, hint = "bundle-manifest")
 public class BundleManifestManipulator extends AbstractMetadataManipulator {
 
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
-        if (isBundle(project)) {
-            // only update bundle version for now
-            if (isBundleVersionChange(change) && isBundleIdEquals(project, change)) {
-                MutableBundleManifest mf = getBundleManifest(project);
+        // only update bundle version for now
+        if (isBundle(project) && isProjectVersionChange(project, change)) {
+            MutableBundleManifest mf = getBundleManifest(project);
 
-                logger.info("  META-INF/MANIFEST.MF//Bundle-Version: " + change.getVersion() + " => "
-                        + change.getNewVersion());
+            logger.info("  META-INF/MANIFEST.MF//Bundle-Version: " + change.getVersion() + " => "
+                    + change.getNewVersion());
 
-                mf.setVersion(change.getNewVersion());
-            }
+            mf.setVersion(change.getNewVersion());
         }
     }
 
-    private boolean isBundleIdEquals(ProjectMetadata project, VersionChange change) {
+    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+        if (isBundle(project) && isProjectVersionChange(project, change)) {
+            String error = Versions.validateOsgiVersion(change.getNewVersion(), getManifestFile(project));
+            return error != null ? Collections.singleton(error) : null;
+        }
+        return null;
+    }
+
+    private boolean isProjectVersionChange(ProjectMetadata project, VersionChange change) {
         MutableBundleManifest mf = getBundleManifest(project);
         return change.getArtifactId().equals(mf.getSymbolicName()) && change.getVersion().equals(mf.getVersion());
     }
@@ -45,7 +54,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
     private MutableBundleManifest getBundleManifest(ProjectMetadata project) {
         MutableBundleManifest mf = project.getMetadata(MutableBundleManifest.class);
         if (mf == null) {
-            File file = new File(project.getBasedir(), "META-INF/MANIFEST.MF");
+            File file = getManifestFile(project);
             try {
                 mf = MutableBundleManifest.read(file);
             } catch (IOException e) {
@@ -56,14 +65,14 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         return mf;
     }
 
-    private boolean isBundleVersionChange(VersionChange change) {
-        return isBundle(change.getProject());
+    private File getManifestFile(ProjectMetadata project) {
+        return new File(project.getBasedir(), "META-INF/MANIFEST.MF");
     }
 
     public void writeMetadata(ProjectMetadata project) throws IOException {
         MutableBundleManifest mf = project.getMetadata(MutableBundleManifest.class);
         if (mf != null) {
-            MutableBundleManifest.write(mf, new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
+            MutableBundleManifest.write(mf, getManifestFile(project));
         }
     }
 }

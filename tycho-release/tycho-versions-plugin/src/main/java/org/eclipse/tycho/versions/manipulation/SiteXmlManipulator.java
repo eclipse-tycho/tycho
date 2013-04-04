@@ -13,6 +13,7 @@ package org.eclipse.tycho.versions.manipulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -89,5 +90,9 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
         if (site != null) {
             UpdateSite.write(site, new File(basedir, UpdateSite.SITE_XML));
         }
+    }
+
+    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+        return null; // there is no project version in site.xml
     }
 }

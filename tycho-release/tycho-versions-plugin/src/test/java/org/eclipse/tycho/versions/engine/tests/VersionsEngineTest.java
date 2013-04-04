@@ -13,6 +13,7 @@ package org.eclipse.tycho.versions.engine.tests;
 import java.io.File;
 
 import org.eclipse.tycho.testing.TestUtil;
+import org.eclipse.tycho.versions.engine.IllegalVersionChangeException;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
@@ -274,6 +275,37 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         engine.apply();
 
         assertPom(basedir);
+    }
+
+    public void testNonOsgiVersionOsgiProject() throws Exception {
+        assertNonOsgiVersionOsgiProject("bundle");
+        assertNonOsgiVersionOsgiProject("feature");
+        assertNonOsgiVersionOsgiProject("product");
+        assertNonOsgiVersionOsgiProject("repository");
+    }
+
+    private void assertNonOsgiVersionOsgiProject(String artifactId) throws Exception {
+        File basedir = TestUtil.getBasedir("projects/nonosgiversion/" + artifactId);
+
+        VersionsEngine engine = newEngine(basedir);
+
+        engine.addVersionChange(artifactId, "1.0.1-01");
+        try {
+            engine.apply();
+            fail();
+        } catch (IllegalVersionChangeException e) {
+            // not a valid osgi version
+            assertEquals(1, e.getErrors().size());
+        }
+    }
+
+    public void testNonOsgiVersionNonOsgiProject() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/nonosgiversion/maven");
+
+        VersionsEngine engine = newEngine(basedir);
+
+        engine.addVersionChange("maven", "1.0.1-01");
+        engine.apply();
     }
 
     private VersionsEngine newEngine(File basedir) throws Exception {

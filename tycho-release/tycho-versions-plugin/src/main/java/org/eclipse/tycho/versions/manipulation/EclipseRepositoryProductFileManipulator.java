@@ -14,6 +14,8 @@ package org.eclipse.tycho.versions.manipulation;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +26,7 @@ import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProductConfigurations;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-repository")
@@ -36,6 +39,25 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
         for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
             applyChangeToProduct(project, entry.getValue(), entry.getKey().getName(), change);
         }
+    }
+
+    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+        if (isEclipseRepository(project)) {
+            ArrayList<String> errors = new ArrayList<String>();
+            for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
+                if (isSameProject(project, change.getProject())
+                        && change.getVersion().equals(entry.getValue().getVersion())) {
+                    String error = Versions.validateOsgiVersion(change.getNewVersion(), entry.getKey());
+                    if (error != null) {
+                        errors.add(error);
+                    }
+                }
+            }
+            if (!errors.isEmpty()) {
+                return errors;
+            }
+        }
+        return null;
     }
 
     private boolean isEclipseRepository(ProjectMetadata project) {
