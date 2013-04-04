@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
+import java.io.File;
+
 import org.osgi.framework.Version;
 
 public class Versions {
@@ -50,4 +52,12 @@ public class Versions {
         return toCanonicalVersion(a).equals(toCanonicalVersion(b));
     }
 
+    public static String validateOsgiVersion(String version, File location) {
+        try {
+            Versions.assertIsOsgiVersion(Versions.toCanonicalVersion(version));
+        } catch (RuntimeException e) {
+            return String.format("Version %s is not valid for %s", version, location);
+        }
+        return null;
+    }
 }

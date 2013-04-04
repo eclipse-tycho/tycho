@@ -12,6 +12,8 @@ package org.eclipse.tycho.versions.manipulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -21,6 +23,7 @@ import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.Versions;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-feature")
 public class FeatureXmlManipulator extends AbstractMetadataManipulator {
@@ -39,6 +42,17 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
                 changeIncludedPlugins(change, feature);
             }
         }
+    }
+
+    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+        if (isFeature(project)) {
+            Feature feature = getFeatureXml(project);
+            if (change.getArtifactId().equals(feature.getId()) && change.getVersion().equals(feature.getVersion())) {
+                String error = Versions.validateOsgiVersion(change.getNewVersion(), getFeatureFile(project));
+                return error != null ? Collections.singleton(error) : null;
+            }
+        }
+        return null;
     }
 
     private void changeIncludedFeatures(VersionChange change, Feature feature) {
@@ -64,7 +78,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
     private Feature getFeatureXml(ProjectMetadata project) {
         Feature feature = project.getMetadata(Feature.class);
         if (feature == null) {
-            File file = new File(project.getBasedir(), Feature.FEATURE_XML);
+            File file = getFeatureFile(project);
             try {
                 feature = Feature.read(file);
             } catch (IOException e) {
@@ -75,10 +89,14 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
         return feature;
     }
 
+    private File getFeatureFile(ProjectMetadata project) {
+        return new File(project.getBasedir(), Feature.FEATURE_XML);
+    }
+
     public void writeMetadata(ProjectMetadata project) throws IOException {
         Feature feature = project.getMetadata(Feature.class);
         if (feature != null) {
-            Feature.write(feature, new File(project.getBasedir(), Feature.FEATURE_XML));
+            Feature.write(feature, getFeatureFile(project));
         }
     }
 }

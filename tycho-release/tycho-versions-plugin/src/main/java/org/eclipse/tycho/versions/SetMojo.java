@@ -18,7 +18,6 @@ import java.util.StringTokenizer;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
-import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 
 /**
@@ -58,11 +57,6 @@ public class SetMojo extends AbstractVersionsMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (newVersion == null || newVersion.length() == 0) {
             throw new MojoExecutionException("Missing required parameter newVersion");
-        }
-        try {
-            Versions.assertIsOsgiVersion(Versions.toCanonicalVersion(newVersion));
-        } catch (RuntimeException e) {
-            throw new MojoExecutionException("Invalid version: " + newVersion, e);
         }
 
         VersionsEngine engine = newEngine();

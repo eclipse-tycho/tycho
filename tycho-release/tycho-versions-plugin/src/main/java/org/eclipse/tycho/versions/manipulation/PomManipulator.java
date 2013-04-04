@@ -14,6 +14,7 @@ import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -176,5 +177,9 @@ public class PomManipulator extends AbstractMetadataManipulator {
                 property.setValue(propertyValue);
             }
         }
+    }
+
+    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+        return null; // there are no restrictions on maven version format
     }
 }
