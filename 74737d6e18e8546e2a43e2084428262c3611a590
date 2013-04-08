@@ -16,6 +16,24 @@
       "revId": "74737d6e18e8546e2a43e2084428262c3611a590",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//zG4\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/Versions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2013-04-08T11:33:53Z",
+      "side": 1,
+      "message": "This message is reported for each place where new version cannot be applied, i.e. each bundle manifest, feature.xml and product file. For multimodule project this will result in a lot of duplicate OSGi version format specification. I will have to rearrange the code to be able to produce proper message without polluting the output with redundant static text.",
+      "parentUuid": "AABOPX//zKs\u003d",
+      "revId": "74737d6e18e8546e2a43e2084428262c3611a590",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
