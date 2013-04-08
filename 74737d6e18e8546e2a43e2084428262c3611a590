@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//zKs\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/Versions.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-04-08T08:17:42Z",
+      "side": 1,
+      "message": "might want to make error message more explicit (and include original exception message). Sth like\n\n\"Version %s is not a valid OSGi version for %s:\" + e.getMessage() + \"\\nExpected format: \n\n\t version ::\u003d major(\u0027.\u0027minor(\u0027.\u0027micro(\u0027.\u0027qualifier)?)?)?\n\t major ::\u003d digit+\n\t minor ::\u003d digit+\n\t micro ::\u003d digit+\n\t qualifier ::\u003d (alpha|digit|\u0027_\u0027|\u0027-\u0027)+\n\t digit ::\u003d [0..9]\n\t alpha ::\u003d [a..zA..Z]\n\n\"",
+      "revId": "74737d6e18e8546e2a43e2084428262c3611a590",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
