@@ -96,7 +96,7 @@ public final class DirectorMojo extends AbstractProductMojo {
                 DirectorRuntime.Command command = director.newInstallCommand();
 
                 File destination = getProductMaterializeDirectory(product, env);
-                String rootFolder = product.getRootFolder();
+                String rootFolder = product.getRootFolder(env.getOs());
                 if (rootFolder != null && rootFolder.length() > 0) {
                     destination = new File(destination, rootFolder);
                 }

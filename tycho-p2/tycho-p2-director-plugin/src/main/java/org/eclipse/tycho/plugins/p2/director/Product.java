@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
+import java.util.Map;
+
 /**
  * Value object for the configuration of this Maven plug-in. Used to select products to be
  * materialized and to specify the classifier under which the product archives artifacts are
@@ -33,6 +35,12 @@ public final class Product {
      * root folder.
      */
     private String rootFolder;
+
+    /**
+     * OS-specific name of the root folder of the materialized product using <tt>osgi.os</tt>
+     * environment values as keys. Has precedence over rootFolder.
+     */
+    private Map<String, String> rootFolders;
 
     /**
      * The name of the output archive file (without extension). If omitted, the id will be used
@@ -60,8 +68,16 @@ public final class Product {
         return attachId;
     }
 
-    public String getRootFolder() {
-        return rootFolder;
+    public String getRootFolder(String os) {
+        if (rootFolders == null) {
+            return rootFolder;
+        } else {
+            if (rootFolders.get(os) == null) {
+                return rootFolder;
+            } else {
+                return rootFolders.get(os);
+            }
+        }
     }
 
     /**
