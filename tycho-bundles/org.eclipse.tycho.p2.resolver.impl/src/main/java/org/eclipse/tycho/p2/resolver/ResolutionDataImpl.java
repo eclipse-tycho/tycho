@@ -11,7 +11,9 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -22,6 +24,7 @@ public class ResolutionDataImpl implements ResolutionData {
     private Collection<IInstallableUnit> rootIUs;
     private List<IRequirement> additionalRequirements;
     private ExecutionEnvironmentResolutionHints eeResolutionHints;
+    private Map<String, String> additionalFilterProperties;
 
     public Collection<IInstallableUnit> getAvailableIUs() {
         return availableIUs;
@@ -53,6 +56,17 @@ public class ResolutionDataImpl implements ResolutionData {
 
     public void setEEResolutionHints(ExecutionEnvironmentResolutionHints eeResolutionHints) {
         this.eeResolutionHints = eeResolutionHints;
+    }
+
+    public Map<String, String> getAdditionalFilterProperties() {
+        if (additionalFilterProperties == null) {
+            return Collections.emptyMap();
+        }
+        return additionalFilterProperties;
+    }
+
+    public void setAdditionalFilterProperties(Map<String, String> additionalFilterProperties) {
+        this.additionalFilterProperties = additionalFilterProperties;
     }
 
 }

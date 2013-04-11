@@ -358,6 +358,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
         resolver.setEnvironments(configuration.getEnvironments());
+        resolver.setAdditionalFilterProperties(configuration.getProfileProperties());
 
         for (ReactorProject otherProject : reactorProjects) {
             projects.put(otherProject.getBasedir(), otherProject);

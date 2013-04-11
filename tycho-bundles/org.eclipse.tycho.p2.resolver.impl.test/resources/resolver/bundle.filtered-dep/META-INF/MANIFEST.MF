@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle.filtered-dep
+Bundle-Version: 1.0.0
