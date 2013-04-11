@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -30,17 +27,11 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.archiver.ArchivedFileSet;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
-import org.codehaus.plexus.archiver.util.DefaultArchivedFileSet;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
-import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.BuildProperties;
-import org.eclipse.tycho.core.facade.BuildPropertiesImpl;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
@@ -101,6 +92,11 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     /**
      * @component
      */
+    private LicenseFeatureHelper licenseFeatureHelper;
+
+    /**
+     * @component
+     */
     private BuildPropertiesParser buildPropertiesParser;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -109,7 +105,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
         Feature feature = Feature.loadFeature(basedir);
 
-        File licenseFeature = getLicenseFeature(feature);
+        File licenseFeature = licenseFeatureHelper.getLicenseFeature(feature, project);
 
         // remove license feature id and version from feature.xml
         feature.setLicenseFeature(null);
@@ -140,7 +136,8 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         try {
             archiver.getArchiver().addFileSet(getManuallyIncludedFiles(buildProperties));
             if (licenseFeature != null) {
-                archiver.getArchiver().addArchivedFileSet(getLicenseFeatureFileSet(licenseFeature));
+                archiver.getArchiver()
+                        .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
             }
             archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
             if (featureProperties != null) {
@@ -225,75 +222,6 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         binExcludes.add(Feature.FEATURE_XML); // we'll include updated feature.xml
         binExcludes.add(FEATURE_PROPERTIES); // we'll include updated feature.properties
         return getFileSet(basedir, buildProperties.getBinIncludes(), binExcludes);
-    }
-
-    private ArchivedFileSet getLicenseFeatureFileSet(File licenseFeature) throws IOException {
-        // copy all files from license feature's build.properties file except feature.properties and feature.xml
-
-        BuildProperties buildProperties;
-
-        ZipFile zip = new ZipFile(licenseFeature);
-        try {
-            ZipEntry entry = zip.getEntry(BuildPropertiesParser.BUILD_PROPERTIES);
-            if (entry != null) {
-                InputStream is = zip.getInputStream(entry);
-                Properties p = new Properties();
-                p.load(is);
-                buildProperties = new BuildPropertiesImpl(p);
-            } else {
-                throw new IllegalArgumentException("license feature must include build.properties file");
-            }
-        } finally {
-            zip.close();
-        }
-
-        List<String> includes = buildProperties.getBinIncludes();
-
-        Set<String> excludes = new HashSet<String>(buildProperties.getBinExcludes());
-        excludes.add(Feature.FEATURE_XML);
-        excludes.add(FEATURE_PROPERTIES);
-        excludes.add(BuildPropertiesParser.BUILD_PROPERTIES);
-
-        // mavenArchiver ignores license feature files that are also present in 'this' feature
-        // i.e. if there is a conflict, files from 'this' feature win
-
-        DefaultArchivedFileSet result = new DefaultArchivedFileSet();
-        result.setArchive(licenseFeature);
-        result.setIncludes(includes.toArray(new String[includes.size()]));
-        result.setExcludes(excludes.toArray(new String[excludes.size()]));
-
-        return result;
-    }
-
-    /**
-     * Process license feature as described in http://wiki.eclipse.org/Equinox/p2/License_Mechanism
-     */
-    private File getLicenseFeature(Feature feature) {
-        String id = feature.getLicenseFeature();
-
-        if (id == null) {
-            return null;
-        }
-
-        ArtifactDescriptor licenseFeature = getDependencyArtifacts().getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, id,
-                feature.getLicenseFeatureVersion());
-
-        if (licenseFeature == null) {
-            throw new IllegalStateException("License feature with id " + id
-                    + " is not found among project dependencies");
-        }
-
-        ReactorProject licenseProject = licenseFeature.getMavenProject();
-        if (licenseProject == null) {
-            return licenseFeature.getLocation();
-        }
-
-        File artifact = licenseProject.getArtifact();
-        if (!artifact.isFile()) {
-            throw new IllegalStateException("At least ``package'' phase need to be executed");
-        }
-
-        return artifact;
     }
 
     private void assembleDeployableFeature(Feature feature) throws MojoExecutionException {
