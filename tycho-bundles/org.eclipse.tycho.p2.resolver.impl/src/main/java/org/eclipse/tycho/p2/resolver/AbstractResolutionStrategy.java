@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -54,8 +55,12 @@ public abstract class AbstractResolutionStrategy {
         modifiableData.setEEResolutionHints(eeResolutionHints);
     }
 
+    public final void setAdditionalFilterProperties(Map<String, String> additionalFilterProperties) {
+        modifiableData.setAdditionalFilterProperties(additionalFilterProperties);
+    }
+
     public Collection<IInstallableUnit> resolve(TargetEnvironment environment, IProgressMonitor monitor) {
-        return resolve(getFilterProperties(environment), monitor);
+        return resolve(getEffectiveFilterProperties(environment), monitor);
     }
 
     public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
@@ -63,7 +68,7 @@ public abstract class AbstractResolutionStrategy {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetEnvironment environment : environments) {
-            result.addAll(resolve(getFilterProperties(environment), monitor));
+            result.addAll(resolve(getEffectiveFilterProperties(environment), monitor));
         }
 
         return result;
@@ -71,10 +76,22 @@ public abstract class AbstractResolutionStrategy {
 
     protected abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
 
-    private Map<String, String> getFilterProperties(TargetEnvironment environment) {
-        Map<String, String> filterProperties = environment.toFilterProperties();
-        filterProperties.put("org.eclipse.update.install.features", "true");
-        return filterProperties;
+    private Map<String, String> getEffectiveFilterProperties(TargetEnvironment environment) {
+        Map<String, String> result = environment.toFilterProperties();
+        result.put("org.eclipse.update.install.features", "true");
+        insertAdditionalFilterProperties(result);
+        return result;
+    }
+
+    private void insertAdditionalFilterProperties(Map<String, String> result) {
+        for (Entry<String, String> entry : data.getAdditionalFilterProperties().entrySet()) {
+            String overwrittenValue = result.put(entry.getKey(), entry.getValue());
+
+            if (overwrittenValue != null) {
+                logger.warn("Overriding profile property '" + entry.getKey() + "' with value '" + entry.getValue()
+                        + "' (was '" + overwrittenValue + "')");
+            }
+        }
     }
 
     protected RuntimeException newResolutionException(IStatus status) {

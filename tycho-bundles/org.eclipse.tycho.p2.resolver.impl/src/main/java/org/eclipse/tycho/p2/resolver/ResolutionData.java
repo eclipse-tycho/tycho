@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.resolver;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -25,4 +26,6 @@ public interface ResolutionData {
     List<IRequirement> getAdditionalRequirements();
 
     ExecutionEnvironmentResolutionHints getEEResolutionHints();
+
+    Map<String, String> getAdditionalFilterProperties();
 }

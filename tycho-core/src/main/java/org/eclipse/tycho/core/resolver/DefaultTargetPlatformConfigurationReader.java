@@ -81,9 +81,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 readFilters(result, configuration);
 
-                readExtraRequirements(result, configuration);
-
-                setOptionalDependencies(result, configuration);
+                readDependencyResolutionConfiguration(result, configuration);
 
                 setIncludePackedArtifacts(result, configuration);
             }
@@ -134,12 +132,19 @@ public class DefaultTargetPlatformConfigurationReader {
         result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
     }
 
-    private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom resolverDom = getDependencyResolutionDom(configuration);
+    private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        Xpp3Dom resolverDom = configuration.getChild("dependency-resolution");
         if (resolverDom == null) {
             return;
         }
 
+        setOptionalDependencies(result, resolverDom);
+        readExtraRequirements(result, resolverDom);
+        readProfileProperties(result, resolverDom);
+
+    }
+
+    private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
         String value = getStringValue(resolverDom.getChild("optionalDependencies"));
 
         if (value == null) {
@@ -154,12 +159,7 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private void readExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom configuration) {
-        Xpp3Dom resolverDom = getDependencyResolutionDom(configuration);
-        if (resolverDom == null) {
-            return;
-        }
-
+    private void readExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
         Xpp3Dom requirementsDom = resolverDom.getChild("extraRequirements");
         if (requirementsDom == null) {
             return;
@@ -172,11 +172,33 @@ public class DefaultTargetPlatformConfigurationReader {
             d.setVersion(requirementDom.getChild("versionRange").getValue());
             result.addExtraRequirement(d);
         }
+    }
+
+    private void readProfileProperties(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
+        Xpp3Dom propertiesDom = resolverDom.getChild("profileProperties");
+        if (propertiesDom == null) {
+            return;
+        }
+
+        Xpp3Dom[] propertyDomList = propertiesDom.getChildren();
+        for (Xpp3Dom propertyDom : propertyDomList) {
+            readProfileProperty(result, propertyDom);
+        }
 
     }
 
-    private Xpp3Dom getDependencyResolutionDom(Xpp3Dom configuration) {
-        return configuration.getChild("dependency-resolution");
+    private void readProfileProperty(TargetPlatformConfiguration result, Xpp3Dom propertyDom) {
+        String config = getStringValue(propertyDom);
+        if (config != null) {
+            String[] configSegments = config.split("=");
+            if (configSegments.length == 2) {
+                result.addProfileProperty(configSegments[0], configSegments[1]);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Entry \"" + config
+                + "\" of the <profileProperties> dependency resolution parameter "
+                + "does not match the format \"key=value\"");
     }
 
     private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {

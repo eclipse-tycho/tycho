@@ -16,6 +16,8 @@ import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN;
 import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_REPOSITORY;
 import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE;
 import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
+import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.unitWithId;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -434,5 +436,22 @@ public class P2ResolverTest extends P2ResolverTestBase {
         Assert.assertEquals(1, macosxEntries.size());
         Assert.assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
         Assert.assertEquals(0, macosx.getNonReactorUnits().size());
+    }
+
+    @Test
+    public void testAdditionalFilterProperties() throws Exception {
+        context.addP2Repository(resourceFile("repositories/e342").toURI());
+
+        File bundle = resourceFile("resolver/bundle.filtered-dep");
+        String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundle.filtered-dep";
+        addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, artifactId);
+
+        impl.setAdditionalFilterProperties(Collections.singletonMap("org.example.custom.option", "true"));
+        List<P2ResolutionResult> results = impl.resolveDependencies(context.buildTargetPlatform(), bundle);
+
+        Assert.assertEquals(1, results.size());
+        P2ResolutionResult result = results.get(0);
+
+        Assert.assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
     }
 }

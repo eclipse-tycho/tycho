@@ -14,9 +14,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -55,6 +57,7 @@ public class P2ResolverImpl implements P2Resolver {
     private final IProgressMonitor monitor;
 
     private List<TargetEnvironment> environments;
+    private Map<String, String> additionalFilterProperties = new HashMap<String, String>();
 
     private final List<IRequirement> additionalRequirements = new ArrayList<IRequirement>();
 
@@ -118,6 +121,7 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setAdditionalRequirements(additionalRequirements);
         strategy.setAvailableInstallableUnits(availableUnits);
         strategy.setEEResolutionHints(context.getEEResolutionHints());
+        strategy.setAdditionalFilterProperties(additionalFilterProperties);
 
         Collection<IInstallableUnit> newState = strategy.resolve(environment, monitor);
 
@@ -240,7 +244,17 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     public void setEnvironments(List<TargetEnvironment> environments) {
+        if (environments == null) {
+            throw new NullPointerException();
+        }
         this.environments = environments;
+    }
+
+    public void setAdditionalFilterProperties(Map<String, String> additionalFilterProperties) {
+        if (additionalFilterProperties == null) {
+            throw new NullPointerException();
+        }
+        this.additionalFilterProperties = additionalFilterProperties;
     }
 
     public void addDependency(String type, String id, String versionRange) {

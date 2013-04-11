@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.resolver.facade;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -29,6 +30,12 @@ public interface P2Resolver {
     public static final String ANY_QUALIFIER = "qualifier";
 
     public void setEnvironments(List<TargetEnvironment> environments);
+
+    /**
+     * Sets additional properties that will be used to evaluate filter expressions in the p2
+     * metadata. These properties are also known as "profile properties" in p2.
+     */
+    public void setAdditionalFilterProperties(Map<String, String> filterProperties);
 
     public void addDependency(String type, String id, String versionRange);
 
@@ -51,4 +58,5 @@ public interface P2Resolver {
      * version is return if id/versionRange match multiple units.
      */
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange);
+
 }

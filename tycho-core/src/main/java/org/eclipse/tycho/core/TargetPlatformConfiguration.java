@@ -13,7 +13,9 @@ package org.eclipse.tycho.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.model.Dependency;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
@@ -47,6 +49,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private final List<Dependency> extraRequirements = new ArrayList<Dependency>();
 
     private boolean includePackedArtifacts;
+
+    private Map<String, String> resolverProfileProperties = new HashMap<String, String>();
 
     /**
      * Returns the list of configured target environments, or the running environment if no
@@ -157,4 +161,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         return includePackedArtifacts;
     }
 
+    /**
+     * Returns the properties to be used for evaluating filters during dependency resolution.
+     */
+    public Map<String, String> getProfileProperties() {
+        return resolverProfileProperties;
+    }
+
+    public void addProfileProperty(String key, String value) {
+        resolverProfileProperties.put(key, value);
+    }
 }
