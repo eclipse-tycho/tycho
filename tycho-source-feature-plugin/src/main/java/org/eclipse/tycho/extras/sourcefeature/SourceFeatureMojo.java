@@ -46,6 +46,7 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.packaging.LicenseFeatureHelper;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -172,6 +173,11 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     private MavenProjectHelper projectHelper;
 
+    /**
+     * @component
+     */
+    private LicenseFeatureHelper licenseFeatureHelper;
+
     /** @component */
     private EquinoxServiceFactory equinox;
 
@@ -201,6 +207,12 @@ public class SourceFeatureMojo extends AbstractMojo {
             }
             archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);
             archiver.getArchiver().addFile(getMergedSourceFeaturePropertiesFile(), FEATURE_PROPERTIES);
+            File licenseFeature = licenseFeatureHelper.getLicenseFeature(
+                    Feature.read(new File(project.getBasedir(), "feature.xml")), project);
+            if (licenseFeature != null) {
+                archiver.getArchiver()
+                        .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
+            }
             archiver.createArchive(project, archive);
 
             projectHelper.attachArtifact(project, outputJarFile, SOURCES_FEATURE_CLASSIFIER);

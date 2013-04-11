@@ -10,6 +10,9 @@ Assert.assertTrue("Missing expected file " + sourceFeature, sourceFeature.canRea
 ZipFile featureZip = new ZipFile(sourceFeature);
 Assert.assertNotNull("feature.properties not found in " + sourceFeature, featureZip.entries().find {it.name.equals("feature.properties")})
 
+// test for bug 403950
+Assert.assertNotNull("license.html not found in " + sourceFeature, featureZip.entries().find {it.name.equals("license.html")})
+
 // test bug 395773
 Properties actual = new Properties();
 actual.load(featureZip.getInputStream(featureZip.getEntry("feature.properties")));
