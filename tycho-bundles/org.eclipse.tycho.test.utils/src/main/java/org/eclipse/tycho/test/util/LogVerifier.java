@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.util.ArrayList;
 import java.util.List;

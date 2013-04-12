@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product.fileFormat;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.util.List;
@@ -22,9 +22,9 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Test;
-import org.junit.matchers.JUnitMatchers;
 
 public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegrationTest {
 
@@ -57,6 +57,6 @@ public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegration
 
     @SuppressWarnings("unchecked")
     private static <T> Matcher<Iterable<T>> hasItems(List<T> list) {
-        return JUnitMatchers.hasItems((T[]) list.toArray());
+        return CoreMatchers.hasItems((T[]) list.toArray());
     }
 }

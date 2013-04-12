@@ -11,10 +11,10 @@
 package org.eclipse.tycho.repository.module;
 
 import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.allKeysIn;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;

@@ -14,9 +14,9 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.defaultEn
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitionWith;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.unit;
 import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.unitWithId;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +40,11 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.internal.matchers.TypeSafeMatcher;
 
-@SuppressWarnings("restriction")
 public class TargetDefinitionResolverTest {
     /** Feature including MAIN_BUNDLE and REFERENCED_BUNDLE_V1 */
     static final IVersionedId TARGET_FEATURE = new VersionedId("trt.targetFeature.feature.group", "1.0.0.201108051343");

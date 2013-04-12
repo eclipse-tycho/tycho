@@ -12,12 +12,12 @@ package org.eclipse.tycho.repository.module;
 
 import static org.eclipse.tycho.repository.module.ModuleArtifactRepositoryTest.writeAndClose;
 import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.allKeysIn;
-import static org.eclipse.tycho.test.util.TychoMatchers.endsWithString;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,6 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.test.util.P2Context;
@@ -77,9 +76,9 @@ public class PublishingRepositoryTest {
 
         // file name extension is used when attaching the artifacts
         assertThat(artifacts.get(AttachedTestArtifact.classifier).toString(),
-                endsWithString(AttachedTestArtifact.fileExtension));
-        assertThat(artifacts.get("p2metadata").toString(), endsWithString(".xml"));
-        assertThat(artifacts.get("p2artifacts").toString(), endsWithString(".xml"));
+                endsWith(AttachedTestArtifact.fileExtension));
+        assertThat(artifacts.get("p2metadata").toString(), endsWith(".xml"));
+        assertThat(artifacts.get("p2artifacts").toString(), endsWith(".xml"));
     }
 
     @Test

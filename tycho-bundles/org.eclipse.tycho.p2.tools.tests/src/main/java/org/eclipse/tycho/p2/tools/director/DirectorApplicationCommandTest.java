@@ -11,9 +11,9 @@
 package org.eclipse.tycho.p2.tools.director;
 
 import static org.eclipse.tycho.test.util.TychoMatchers.hasSequence;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.net.URI;

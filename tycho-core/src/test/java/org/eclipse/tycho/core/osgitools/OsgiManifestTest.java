@@ -1,10 +1,10 @@
 package org.eclipse.tycho.core.osgitools;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;

@@ -15,9 +15,8 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
-@SuppressWarnings("restriction")
 public class InstallableUnitMatchers {
     private static final String TYPE = "IInstallableUnit";
 

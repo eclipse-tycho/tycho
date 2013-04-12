@@ -11,11 +11,11 @@
 package org.eclipse.tycho.core.ee;
 
 import static org.hamcrest.CoreMatchers.any;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.osgi.framework.Constants;
 
@@ -46,7 +47,8 @@ public class CustomExecutionEnvironmentTest {
         assertThat(customExecutionEnvironment.getProfileName(), is("name"));
         assertThat(customExecutionEnvironment.getCompilerSourceLevelDefault(), is(nullValue()));
         assertThat(customExecutionEnvironment.getCompilerTargetLevelDefault(), is(nullValue()));
-        assertThat(customExecutionEnvironment.getSystemPackages(), not(hasItem(any(String.class))));
+        assertThat(customExecutionEnvironment.getSystemPackages(),
+                not(CoreMatchers.<String> hasItem(any(String.class)))); // explicitly specify template parameter to work around bug present 1.6.0_37 
         assertProperty(org.eclipse.osgi.framework.internal.core.Constants.OSGI_JAVA_PROFILE_NAME, "name");
     }
 
@@ -82,7 +84,8 @@ public class CustomExecutionEnvironmentTest {
     public void testOsgiEeCapability() throws Exception {
         createExecutionEnvironment(OSGI_JAVASE_1_6);
 
-        assertThat(customExecutionEnvironment.getSystemPackages(), not(hasItem(any(String.class))));
+        assertThat(customExecutionEnvironment.getSystemPackages(),
+                not(CoreMatchers.<String> hasItem(any(String.class)))); // explicitly specify template parameter to work around bug present 1.6.0_37 
         assertThat(customExecutionEnvironment.getProfileProperties().size(), is(3));
         assertProperty(Constants.FRAMEWORK_SYSTEMCAPABILITIES, "osgi.ee; osgi.ee=\"JavaSE\"; version:Version=\"1.6\"");
         assertProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "JavaSE-1.6");
@@ -158,4 +161,5 @@ public class CustomExecutionEnvironmentTest {
     private void assertProperty(String key, String value) {
         assertThat(customExecutionEnvironment.getProfileProperties().getProperty(key), is(value));
     }
+
 }

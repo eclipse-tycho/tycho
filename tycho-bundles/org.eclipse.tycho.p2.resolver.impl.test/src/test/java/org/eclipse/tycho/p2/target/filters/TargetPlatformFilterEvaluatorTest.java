@@ -16,9 +16,9 @@ import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithVersionRange;
 import static org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern.patternWithoutVersion;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.util.Collection;
@@ -41,33 +41,39 @@ import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.internal.matchers.TypeSafeMatcher;
 
 public class TargetPlatformFilterEvaluatorTest {
 
     private static final CapabilityPattern ALL_MULTIVERSION_BUNDLES = patternWithVersion(CapabilityType.OSGI_BUNDLE,
             "trf.bundle.multiversion", null);
 
-    @Rule
-    public final P2Context p2Context = new P2Context();
+    @ClassRule
+    public static final P2Context p2Context = new P2Context();
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
 
-    private Set<IInstallableUnit> baselineUnits;
+    private static Set<IInstallableUnit> baselineUnits;
     private LinkedHashSet<IInstallableUnit> workUnits;
 
     private TargetPlatformFilterEvaluator subject;
 
+    @BeforeClass
+    public static void initTestUnits() throws Exception {
+        baselineUnits = loadTestUnits();
+    }
+
     @Before
     public void setUp() throws Exception {
-        baselineUnits = loadTestUnits(); // TODO do this in beforeClass -> requires @ClassRule from junit >= 4.9
         workUnits = new LinkedHashSet<IInstallableUnit>(baselineUnits);
     }
 
-    private Set<IInstallableUnit> loadTestUnits() throws Exception {
+    private static Set<IInstallableUnit> loadTestUnits() throws Exception {
         IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) p2Context.getAgent().getService(
                 IMetadataRepositoryManager.SERVICE_NAME);
         File testDataFile = ResourceUtil.resourceFile("targetfiltering/content.xml");
@@ -179,7 +185,6 @@ public class TargetPlatformFilterEvaluatorTest {
         assertThat(removedUnits(), hasSize(1));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testWarningIfRestrictionRemovesAll() throws Exception {
         TargetPlatformFilter versionFilter = restrictionFilter(ALL_MULTIVERSION_BUNDLES,

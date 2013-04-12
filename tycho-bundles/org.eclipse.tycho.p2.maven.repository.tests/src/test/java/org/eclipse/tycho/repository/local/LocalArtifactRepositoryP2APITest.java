@@ -12,6 +12,8 @@ package org.eclipse.tycho.repository.local;
 
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -19,7 +21,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -348,7 +349,7 @@ public class LocalArtifactRepositoryP2APITest {
             expectedException = e;
         }
 
-        assertThat(expectedException, is(ProvisionException.class));
+        assertThat(expectedException, is(instanceOf(ProvisionException.class)));
         assertThat(expectedException.getStatus().getCode(), is(ProvisionException.ARTIFACT_EXISTS));
     }
 

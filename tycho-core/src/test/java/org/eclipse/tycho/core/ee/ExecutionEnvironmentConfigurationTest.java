@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -69,7 +70,7 @@ public class ExecutionEnvironmentConfigurationTest {
         subject.setProfileConfiguration(STANDARD_PROFILE, DUMMY_ORIGIN);
 
         assertThat(subject.isCustomProfile(), is(false));
-        assertThat(subject.getFullSpecification(), is(StandardExecutionEnvironment.class));
+        assertThat(subject.getFullSpecification(), is(instanceOf(StandardExecutionEnvironment.class)));
         assertThat(subject.getFullSpecification().getProfileName(), is(STANDARD_PROFILE));
     }
 
@@ -81,7 +82,7 @@ public class ExecutionEnvironmentConfigurationTest {
 
         subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
 
-        assertThat(subject.getFullSpecification(), is(CustomExecutionEnvironment.class));
+        assertThat(subject.getFullSpecification(), is(instanceOf(CustomExecutionEnvironment.class)));
         assertThat(subject.getFullSpecification().getProfileName(), is(CUSTOM_PROFILE));
     }
 

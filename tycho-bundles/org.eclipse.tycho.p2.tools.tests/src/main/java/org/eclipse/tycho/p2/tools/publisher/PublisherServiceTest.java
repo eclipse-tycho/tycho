@@ -11,15 +11,15 @@
 package org.eclipse.tycho.p2.tools.publisher;
 
 import static org.eclipse.tycho.p2.tools.test.util.ResourceUtil.resolveTestResource;
-import static org.eclipse.tycho.test.util.TychoMatchers.endsWithString;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -171,7 +171,7 @@ public class PublisherServiceTest {
         String executableClassifier = "productUid.executable.testws.testos.testarch";
         assertThat(artifactLocations.keySet(), hasItem(executableClassifier));
         assertThat(artifactLocations.get(executableClassifier), isFile());
-        assertThat(artifactLocations.get(executableClassifier).toString(), endsWithString(".zip"));
+        assertThat(artifactLocations.get(executableClassifier).toString(), endsWith(".zip"));
 
 //        openFolderAndSleep(outputDirectory);
     }
