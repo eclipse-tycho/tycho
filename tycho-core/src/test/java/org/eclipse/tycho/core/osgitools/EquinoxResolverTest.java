@@ -24,8 +24,10 @@ import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Ignore;
 import org.osgi.framework.BundleException;
 
+@Ignore
 public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
     private static final ExecutionEnvironment DUMMY_EE = ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.5");
 

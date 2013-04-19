@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Properties;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.osgi.framework.Version;
-import org.sonatype.aether.artifact.Artifact;
 
 /**
  * Surefire provider adapter for tycho. Any plexus {@link Component} in the classpath of

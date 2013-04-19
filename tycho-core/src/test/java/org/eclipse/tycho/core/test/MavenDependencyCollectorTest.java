@@ -24,7 +24,9 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.eclipse.tycho.testing.CompoundRuntimeException;
 import org.junit.Assert;
+import org.junit.Ignore;
 
+@Ignore
 public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
 
     @Override

@@ -13,6 +13,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+// this test fails with binary mismatch errors 
+// because maven 3.1-SNAPSHOT bring asm 3.3.1 in the core classloader
+// but we use asm 4.0 in tycho-artifactcomparator
 public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest {
 
     private static File baselineRepo;

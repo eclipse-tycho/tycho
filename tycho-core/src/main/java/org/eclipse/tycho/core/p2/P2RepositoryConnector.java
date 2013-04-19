@@ -12,14 +12,14 @@ package org.eclipse.tycho.core.p2;
 
 import java.util.Collection;
 
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.spi.connector.ArtifactDownload;
-import org.sonatype.aether.spi.connector.ArtifactUpload;
-import org.sonatype.aether.spi.connector.MetadataDownload;
-import org.sonatype.aether.spi.connector.MetadataUpload;
-import org.sonatype.aether.spi.connector.RepositoryConnector;
-import org.sonatype.aether.transfer.ArtifactNotFoundException;
-import org.sonatype.aether.transfer.MetadataNotFoundException;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.spi.connector.ArtifactDownload;
+import org.eclipse.aether.spi.connector.ArtifactUpload;
+import org.eclipse.aether.spi.connector.MetadataDownload;
+import org.eclipse.aether.spi.connector.MetadataUpload;
+import org.eclipse.aether.spi.connector.RepositoryConnector;
+import org.eclipse.aether.transfer.ArtifactNotFoundException;
+import org.eclipse.aether.transfer.MetadataNotFoundException;
 
 public class P2RepositoryConnector implements RepositoryConnector {
 

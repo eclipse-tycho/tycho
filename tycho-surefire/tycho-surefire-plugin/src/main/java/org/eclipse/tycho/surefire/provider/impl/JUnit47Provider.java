@@ -20,12 +20,12 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 @Component(role = TestFrameworkProvider.class, hint = "junit47")
 public class JUnit47Provider extends AbstractJUnitProvider {

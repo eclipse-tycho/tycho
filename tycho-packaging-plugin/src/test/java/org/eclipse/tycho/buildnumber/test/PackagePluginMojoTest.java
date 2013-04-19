@@ -24,7 +24,9 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.packaging.PackagePluginMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Ignore;
 
+@Ignore("maven-plugin-testing harness broken with maven 3.1-SNAPSHOT")
 public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
 
     public void testBinIncludesNoDot() throws Exception {
