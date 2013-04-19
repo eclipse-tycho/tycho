@@ -77,6 +77,9 @@ public class PluginRealmHelper {
     @Requirement
     private LifecyclePluginResolver lifecyclePluginResolver;
 
+    @Requirement
+    private CompatibilityFacade compatibilityFacade;
+
     public void execute(MavenSession session, MavenProject project, Runnable runnable, PluginFilter filter)
             throws MavenExecutionException {
         for (Plugin plugin : project.getBuildPlugins()) {
@@ -89,18 +92,18 @@ public class PluginRealmHelper {
             }
             try {
                 lifecyclePluginResolver.resolveMissingPluginVersions(project, session);
-                PluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptor(plugin,
-                        project.getRemotePluginRepositories(), session.getRepositorySession());
+                PluginDescriptor pluginDescriptor = compatibilityFacade.getPluginDescriptor(plugin,
+                        project.getRemotePluginRepositories(), session);
 
                 if (pluginDescriptor != null) {
                     if (pluginDescriptor.getArtifactMap().isEmpty() && pluginDescriptor.getDependencies().isEmpty()) {
                         // force plugin descriptor reload to workaround http://jira.codehaus.org/browse/MNG-5212
                         // this branch won't be executed on 3.0.5+, where MNG-5212 is fixed already
-                        PluginDescriptorCache.Key descriptorCacheKey = pluginDescriptorCache.createKey(plugin,
-                                project.getRemotePluginRepositories(), session.getRepositorySession());
+                        PluginDescriptorCache.Key descriptorCacheKey = compatibilityFacade.createKey(plugin,
+                                project.getRemotePluginRepositories(), session);
                         pluginDescriptorCache.put(descriptorCacheKey, null);
-                        pluginDescriptor = pluginManager.getPluginDescriptor(plugin,
-                                project.getRemotePluginRepositories(), session.getRepositorySession());
+                        pluginDescriptor = compatibilityFacade.getPluginDescriptor(plugin, project.getRemotePluginRepositories(),
+                                session);
                     }
 
                     if (filter == null || filter.accept(pluginDescriptor)) {

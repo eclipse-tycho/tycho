@@ -30,7 +30,9 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Ignore;
 
+@Ignore("maven-plugin-testing harness broken with maven 3.1-SNAPSHOT")
 public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
     public void testForceContextQualifier() throws Exception {

@@ -23,7 +23,9 @@ import org.apache.maven.it.util.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.packaging.PackageUpdateSiteMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Ignore;
 
+@Ignore("maven-plugin-testing harness broken with maven 3.1-SNAPSHOT")
 public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
 
     private MavenProject project;

@@ -11,17 +11,17 @@
 package org.eclipse.tycho.core.p2;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.spi.connector.RepositoryConnector;
-import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
-import org.sonatype.aether.transfer.NoRepositoryConnectorException;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.spi.connector.RepositoryConnector;
+import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.transfer.NoRepositoryConnectorException;
 
 @Component(role = RepositoryConnectorFactory.class, hint = "p2")
 public class P2RepositoryConnectorFactory implements RepositoryConnectorFactory {
 
-    public int getPriority() {
-        return 0;
+    public float getPriority() {
+        return 0f;
     }
 
     public RepositoryConnector newInstance(RepositorySystemSession session, RemoteRepository repository)

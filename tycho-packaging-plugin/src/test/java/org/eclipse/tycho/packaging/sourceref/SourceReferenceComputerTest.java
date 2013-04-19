@@ -11,40 +11,53 @@
 
 package org.eclipse.tycho.packaging.sourceref;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.util.HashMap;
 import java.util.jar.Manifest;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.PlexusTestCase;
 import org.eclipse.tycho.packaging.SourceReferences;
+import org.junit.Before;
+import org.junit.Test;
 
-public class SourceReferenceComputerTest extends PlexusTestCase {
+public class SourceReferenceComputerTest {
 
     private SourceReferenceComputer sourceRefComputer;
     private Manifest manifest;
 
-    @Override
-    protected void setUp() throws Exception {
-        sourceRefComputer = lookup(SourceReferenceComputer.class);
+    @Before
+    public void setUp() throws Exception {
+        // TODO investigate why plexus lookup using PlexusTestCase no longer works 
+        sourceRefComputer = new SourceReferenceComputer();
+        sourceRefComputer.providerMap = new HashMap<String, SourceReferencesProvider>();
+        sourceRefComputer.providerMap.put("dummy", new DummySourceReferencesProvider());
         manifest = new Manifest();
     }
 
+    @Test
     public void testAddSourceReferenceDummyProvider() throws Exception {
         sourceRefComputer.addSourceReferenceHeader(manifest, createSourceRefConfig(true, null), createProjectStub());
         assertEquals("scm:dummy:aDummySCMURL;path=\"dummy/path\"", getSourceRefsHeaderValue());
     }
 
+    @Test
     public void testAddSourceReferenceCustomValue() throws Exception {
         sourceRefComputer.addSourceReferenceHeader(manifest, createSourceRefConfig(true, "scm:myvalue"),
                 createProjectStub());
         assertEquals("scm:myvalue", getSourceRefsHeaderValue());
     }
 
+    @Test
     public void testAddSourceReferenceNoGenerate() throws Exception {
         sourceRefComputer.addSourceReferenceHeader(manifest, createSourceRefConfig(false, null), createProjectStub());
         assertNull(getSourceRefsHeaderValue());
     }
 
+    @Test
     public void testAddSourceReferenceNoProvider() {
         try {
             sourceRefComputer.addSourceReferenceHeader(manifest, createSourceRefConfig(true, null),

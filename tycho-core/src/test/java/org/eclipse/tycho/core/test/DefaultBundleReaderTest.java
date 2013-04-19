@@ -18,7 +18,9 @@ import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Ignore;
 
+@Ignore 
 public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
 
     private File cacheDir;

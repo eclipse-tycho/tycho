@@ -69,7 +69,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             return;
         }
         List<MavenProject> projects = session.getProjects();
-        validate(projects);
+        validate(session.getProjects());
         registerExecutionListener(session);
         configureComponents(session);
 

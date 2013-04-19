@@ -13,12 +13,10 @@ package org.eclipse.tycho.packaging.sourceref;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.annotations.Component;
 
 /**
  * For test purposes only
  */
-@Component(role = SourceReferencesProvider.class, hint = "dummy")
 public class DummySourceReferencesProvider implements SourceReferencesProvider {
 
     public String getSourceReferencesHeader(MavenProject project, ScmUrl scmUrl) throws MojoExecutionException {

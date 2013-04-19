@@ -26,7 +26,7 @@ public class SourceReferenceComputer {
     private static final String MANIFEST_HEADER = "Eclipse-SourceReferences";
 
     @Requirement
-    private Map<String, SourceReferencesProvider> providerMap;
+    Map<String, SourceReferencesProvider> providerMap;
 
     public SourceReferenceComputer() {
     }

@@ -36,9 +36,11 @@ import org.eclipse.tycho.core.utils.MavenSessionUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.Constants;
 
+@Ignore
 public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     private DependencyComputer dependencyComputer;
 
