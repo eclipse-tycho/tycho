@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.execution.AbstractExecutionListener;
 import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -62,6 +63,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Requirement
     private Logger log;
+    // TODO update once maven 3.1 is released
+    private static final ComparableVersion MIN_MAVEN_VERSION = new ComparableVersion("3.1.0-alpha-1");
 
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
@@ -69,7 +72,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             return;
         }
         List<MavenProject> projects = session.getProjects();
-        validate(projects);
+        validate(session);
         registerExecutionListener(session);
         configureComponents(session);
 
@@ -83,9 +86,24 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         }
     }
 
-    private void validate(List<MavenProject> projects) throws MavenExecutionException {
-        validateConsistentTychoVersion(projects);
-        validateUniqueBaseDirs(projects);
+    private void validate(MavenSession session) throws MavenExecutionException {
+        validateMinMavenVersion(session);
+        validateConsistentTychoVersion(session.getProjects());
+        validateUniqueBaseDirs(session.getProjects());
+    }
+
+    private void validateMinMavenVersion(MavenSession session) throws MavenExecutionException {
+        // ${maven.version} available since 3.0.4, see http://maven.apache.org/ref/3.0.4/maven-model-builder/
+        String versionString = session.getSystemProperties().getProperty("maven.version");
+        if (versionString == null) {
+            throw new MavenExecutionException("Minimum required maven version is " + MIN_MAVEN_VERSION
+                    + ". Detected version is < 3.0.4", session.getTopLevelProject().getFile());
+        }
+        ComparableVersion version = new ComparableVersion(versionString);
+        if (version.compareTo(MIN_MAVEN_VERSION) < 0) {
+            throw new MavenExecutionException("Minimum required maven version is " + MIN_MAVEN_VERSION
+                    + ". Detected version: " + version, session.getTopLevelProject().getFile());
+        }
     }
 
     private void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {

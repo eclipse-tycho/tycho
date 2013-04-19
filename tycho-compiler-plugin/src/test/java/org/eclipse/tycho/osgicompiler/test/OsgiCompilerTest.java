@@ -30,9 +30,11 @@ import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.compiler.AbstractOsgiCompilerMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Ignore;
 
 import copied.org.apache.maven.plugin.CompilationFailureException;
 
+@Ignore
 public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     private static final int TARGET_1_4 = 48;

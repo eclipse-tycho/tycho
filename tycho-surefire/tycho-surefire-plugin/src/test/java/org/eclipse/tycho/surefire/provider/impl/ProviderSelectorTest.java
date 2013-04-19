@@ -25,10 +25,10 @@ import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusTestCase;
+import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
-import org.sonatype.aether.artifact.Artifact;
 
 public class ProviderSelectorTest extends PlexusTestCase {
 

@@ -73,22 +73,22 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
-		<classWorldsVersion>2.2.3</classWorldsVersion>
+		<classWorldsVersion>2.4.2</classWorldsVersion>
 		<commonsCliVersion>1.2</commonsCliVersion>
 		<easyMockVersion>1.2_Java1.3</easyMockVersion>
 		<junitVersion>3.8.2</junitVersion>
 		<plexusVersion>1.5.5</plexusVersion>
 		<plexusInterpolationVersion>1.14</plexusInterpolationVersion>
 		<plexusUtilsVersion>3.0.7</plexusUtilsVersion>
-		<sisuInjectVersion>1.4.2</sisuInjectVersion>
-		<wagonVersion>1.0-beta-6</wagonVersion>
+		<sisuInjectVersion>0.0.0.M2a</sisuInjectVersion>
+		<wagonVersion>2.4</wagonVersion>
 		<securityDispatcherVersion>1.3</securityDispatcherVersion>
-		<cipherVersion>1.4</cipherVersion>
-		<modelloVersion>1.4</modelloVersion>
+		<cipherVersion>1.7</cipherVersion>
+		<modelloVersion>1.7</modelloVersion>
 		<jxpathVersion>1.3</jxpathVersion>
-		<aetherVersion>1.7</aetherVersion>
+		<aetherVersion>0.9.0.M2</aetherVersion>
 
-		<maven-version>3.0</maven-version>
+		<maven-version>3.1-SNAPSHOT</maven-version>
 
 		<!-- 
             This is total pain in the neck, but I can't find a better/easier way to satisfy Maven Central guards, 
@@ -252,11 +252,11 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 				<version>5.1</version>
 			</dependency>
 			<dependency>
-				<groupId>org.sonatype.sisu</groupId>
-				<artifactId>sisu-inject-plexus</artifactId>
-				<version>${sisuInjectVersion}</version>
-			</dependency>
-			<dependency>
+		        <groupId>org.eclipse.sisu</groupId>
+		        <artifactId>org.eclipse.sisu.plexus</artifactId>
+		        <version>${sisuInjectVersion}</version>
+   			</dependency>
+  	<dependency>
 				<groupId>org.apache.maven.plugin-testing</groupId>
 				<artifactId>maven-plugin-testing-harness</artifactId>
 				<version>2.1</version>
@@ -560,12 +560,10 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
         </snapshotRepository>
   	</distributionManagement>
 
-<!--
     <repositories>
         <repository>
-            <id>staging</id>
-            <url>https://oss.sonatype.org/content/groups/staging</url>
+            <id>apache-snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </repository>
     </repositories>
--->
 </project>

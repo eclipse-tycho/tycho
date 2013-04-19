@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 @Component(role = TestFrameworkProvider.class, hint = "junit4")
 public class JUnit4Provider extends AbstractJUnitProvider {
