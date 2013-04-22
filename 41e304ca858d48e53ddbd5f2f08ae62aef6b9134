@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//vWc\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-04-22T13:00:13Z",
+      "side": 1,
+      "message": "Needs to be propertiesDom",
+      "revId": "41e304ca858d48e53ddbd5f2f08ae62aef6b9134",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
