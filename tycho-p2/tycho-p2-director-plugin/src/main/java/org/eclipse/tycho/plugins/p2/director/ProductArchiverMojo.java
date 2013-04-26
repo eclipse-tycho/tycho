@@ -31,7 +31,7 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
  */
 public final class ProductArchiverMojo extends AbstractProductMojo {
 
-    static final String DEFAULT_ARHCIVE_FORMAT = "zip";
+    static final String DEFAULT_ARCHIVE_FORMAT = "zip";
 
     private abstract class ProductArchiver {
         abstract Archiver getArchiver() throws ArchiverException;
@@ -108,6 +108,10 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // TODO use archive format default here - currently need null here to allow for compatibility with deprecated parameter 'formats'
+        EnvironmentSpecificConfiguration globalConfiguration = new EnvironmentSpecificConfiguration(null, null/* DEFAULT_ARCHIVE_FORMAT */);
+        readEnvironmentSpecificConfiguration(globalConfiguration);
+
         ProductConfig config = getProductConfig();
         if (!config.uniqueAttachIds()) {
             throw new MojoFailureException("Artifact file names for the archived products are not unique. "
@@ -117,13 +121,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
         for (Product product : config.getProducts()) {
             for (TargetEnvironment env : getEnvironments()) {
-                String format = formats != null ? formats.get(env.getOs()) : DEFAULT_ARHCIVE_FORMAT;
-                if (format != null) {
-                    format = format.trim();
-                }
-                if (format == null || format.length() == 0) {
-                    format = DEFAULT_ARHCIVE_FORMAT;
-                }
+                String format = getArchiveFormatForEnvironment(env);
 
                 ProductArchiver productArchiver = productArchivers.get(format);
                 if (productArchiver == null) {
@@ -149,6 +147,29 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 helper.attachArtifact(getProject(), format, artifactClassifier, productArchive);
             }
         }
+    }
+
+    private String getArchiveFormatForEnvironment(TargetEnvironment env) {
+        String newEnvSpecificValue = parsedEnvSpecificConfig.getEffectiveValue(
+                EnvironmentSpecificConfiguration.Parameter.ARCHIVE_FORMAT, env);
+        if (newEnvSpecificValue != null) {
+            return newEnvSpecificValue;
+        }
+
+        if (formats != null) {
+            String format = formats.get(env.getOs());
+            if (format != null) {
+                format = format.trim();
+            }
+            if (format != null && format.length() != 0) {
+                getLog().warn(
+                        "The configuration parameter 'formats' is deprecated. Use envSpecificConfiguration/<os>[.<ws>[.<arch>]]/archiveFormat instead");
+                // TODO link to bug that traces the removal
+                return format;
+            }
+        }
+
+        return DEFAULT_ARCHIVE_FORMAT;
     }
 
     static String getArchiveFileName(Product product) {

@@ -47,12 +47,11 @@
 								</product>
 							</products>
 							<profile>ConfiguredDefaultProfileName</profile>
-							<profileNames>
-								<profileName>
-									<name>ProfileNameForLinux</name>
-									<os>linux</os>
-								</profileName>
-							</profileNames>
+							<envSpecificConfiguration>
+								<linux>
+									<profileName>ProfileNameForLinux</profileName>
+								</linux>
+							</envSpecificConfiguration>
 						</configuration>
 					</plugin>
 				</plugins>

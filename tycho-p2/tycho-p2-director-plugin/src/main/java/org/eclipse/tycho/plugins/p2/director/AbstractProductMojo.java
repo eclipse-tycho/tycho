@@ -15,8 +15,10 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -40,6 +42,22 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * @parameter
      */
     private List<Product> products;
+    // TODO only support a single product
+
+    /**
+     * TODO siteDoc
+     * 
+     * @parameter
+     */
+    private PlexusConfiguration envSpecificConfiguration;
+    /*
+     * Note on above parameter: Plexus currently cannot parse the configuration we want here (see
+     * http://bugs.eclipse.org/406688). As a workaround, we parse the from the DOM ourselves. In
+     * order to get SiteDocs, we still mark this field as parameter and use the type Map. The
+     * configuration we expect here parses as Map, but the keys will always be null.
+     */
+
+    EnvironmentSpecificConfigurations parsedEnvSpecificConfig;
 
     MavenProject getProject() {
         return project;
@@ -68,6 +86,16 @@ abstract class AbstractProductMojo extends AbstractMojo {
 
     ProductConfig getProductConfig() throws MojoFailureException {
         return new ProductConfig(products, getProductsBuildDirectory());
+    }
+
+    void readEnvironmentSpecificConfiguration(EnvironmentSpecificConfiguration globalConfiguration)
+            throws MojoExecutionException {
+        if (envSpecificConfiguration != null) {
+            parsedEnvSpecificConfig = EnvironmentSpecificConfigurations.parse(globalConfiguration,
+                    envSpecificConfiguration);
+        } else {
+            parsedEnvSpecificConfig = EnvironmentSpecificConfigurations.globalOnly(globalConfiguration);
+        }
     }
 
     static String getOsWsArch(TargetEnvironment env, char separator) {
