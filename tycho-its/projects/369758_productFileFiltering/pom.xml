@@ -63,9 +63,11 @@
           </execution>
         </executions>
         <configuration>
-          <formats>
-            <linux>tar.gz</linux>
-          </formats>
+          <envSpecificConfiguration>
+            <linux>
+              <archiveFormat>tar.gz</archiveFormat>
+            </linux>
+          </envSpecificConfiguration>
         </configuration>
       </plugin>
 

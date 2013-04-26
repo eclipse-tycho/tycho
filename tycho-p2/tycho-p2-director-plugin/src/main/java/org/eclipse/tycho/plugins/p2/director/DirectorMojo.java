@@ -85,6 +85,11 @@ public final class DirectorMojo extends AbstractProductMojo {
 
     // TODO extract methods
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // TODO use values of global parameters here - currently need null here to allow for compatibility with deprecated parameter 'profileNames'
+        EnvironmentSpecificConfiguration globalConfiguration = new EnvironmentSpecificConfiguration(/* profile */null,
+                null);
+        readEnvironmentSpecificConfiguration(globalConfiguration);
+
         List<Product> products = getProductConfig().getProducts();
         if (products.isEmpty()) {
             getLog().info("No product definitions found. Nothing to do.");
@@ -105,7 +110,7 @@ public final class DirectorMojo extends AbstractProductMojo {
                 command.addArtifactSources(sources.getArtifactRepositories());
                 command.addUnitToInstall(product.getId());
                 command.setDestination(destination);
-                command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
+                command.setProfileName(getProfileNameForEnvironment(env));
                 command.setEnvironment(env);
                 command.setInstallFeatures(installFeatures);
                 getLog().info(
@@ -165,5 +170,23 @@ public final class DirectorMojo extends AbstractProductMojo {
     private RepositoryReferences getTargetPlatformRepositories() throws MojoExecutionException, MojoFailureException {
         int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
         return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
+    }
+
+    private String getProfileNameForEnvironment(TargetEnvironment env) {
+        String newSpecificValue = parsedEnvSpecificConfig.getEffectiveValue(
+                EnvironmentSpecificConfiguration.Parameter.PROFILE_NAME, env);
+        if (newSpecificValue != null) {
+            return newSpecificValue;
+        }
+
+        String oldSpecificValue = ProfileName.getNameForEnvironment(env, profileNames, /* profile */null);
+        if (oldSpecificValue != null) {
+            getLog().warn(
+                    "The configuration parameter 'profileNames' is deprecated. Use envSpecificConfiguration/<os>[.<ws>[.<arch>]]/profileName instead");
+            // TODO link to bug that traces the removal
+            return oldSpecificValue;
+        }
+
+        return profile;
     }
 }
