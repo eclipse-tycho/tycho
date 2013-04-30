@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AABOPX//sf8\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-04-30T10:35:28Z",
+      "side": 1,
+      "message": "Yes, this is definately a TODO for productizing this POC.",
+      "parentUuid": "AABOPX//si0\u003d",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOPX//sjE\u003d",
         "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2013-04-30T07:30:44Z",
       "side": 1,
       "message": "using PlexusConfiguration here may be an alternative with less limitations. See e.g. SourceFeatureMojo.setExcludes()",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//sgU\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-04-30T10:35:28Z",
+      "side": 1,
+      "message": "Thanks for the idea - I wasn\u0027t aware of this option.",
+      "parentUuid": "AABOPX//sjE\u003d",
       "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -64,6 +100,24 @@
       "writtenOn": "2013-04-30T07:30:44Z",
       "side": 1,
       "message": "do we document the \"any\" syntax?",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//sgY\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/test/java/org/eclipse/tycho/plugins/p2/director/EnvironmentSpecificConfigurationsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-04-30T10:35:28Z",
+      "side": 1,
+      "message": "Probably yes. The problem is that profileNames currently supports specifying subset of ws/os/arch. The profileNames parameter was a contribution by WindRiver so I don\u0027t exactly know their use case - but I\u0027d rather not break it.",
+      "parentUuid": "AABOPX//si4\u003d",
       "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
