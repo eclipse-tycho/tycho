@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//si0\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-04-30T07:30:44Z",
+      "side": 1,
+      "message": "site docs with example configuration?",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//sjE\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-04-30T07:30:44Z",
+      "side": 1,
+      "message": "using PlexusConfiguration here may be an alternative with less limitations. See e.g. SourceFeatureMojo.setExcludes()",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//si8\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/RawConfigurationParserHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-04-30T07:30:44Z",
+      "side": 1,
+      "message": "may not be needed if we use a PlexusConfiguration parameter",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//si4\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/test/java/org/eclipse/tycho/plugins/p2/director/EnvironmentSpecificConfigurationsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-04-30T07:30:44Z",
+      "side": 1,
+      "message": "do we document the \"any\" syntax?",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
