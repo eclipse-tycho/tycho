@@ -32,7 +32,7 @@ import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.repository.p2base.artifact.provider.LocalArtifactTransferPolicy;
+import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 
 public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtifactDescriptor> {
@@ -56,7 +56,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
 
     public LocalArtifactRepository(IProvisioningAgent agent, LocalRepositoryP2Indices localRepoIndices,
             RepositoryReader contentLocator) {
-        super(agent, localRepoIndices.getBasedir().toURI(), new LocalArtifactTransferPolicy());
+        super(agent, localRepoIndices.getBasedir().toURI(), ArtifactTransferPolicies.forLocalArtifacts());
         this.localRepoIndices = localRepoIndices;
         this.contentLocator = contentLocator;
         loadMaven();
@@ -171,6 +171,11 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         String extension = mavenCoordinates.getExtension();
         File file = new File(basedir, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
         return file;
+    }
+
+    @Override
+    public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+        return new GAVArtifactDescriptor(key);
     }
 
     @Override
