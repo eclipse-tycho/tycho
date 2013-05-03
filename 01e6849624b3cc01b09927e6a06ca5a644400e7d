@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "AABOPX//rTU\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-05-03T13:41:46Z",
+      "side": 1,
+      "message": "PlexusConfiguration indeed doesn\u0027t have the limitation with configuration on execution level. This is great news - the parameter will just behave like any other parameter.",
+      "parentUuid": "AABOPX//sgU\u003d",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOPX//si8\u003d",
         "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/RawConfigurationParserHelper.java",
         "patchSetId": 1
@@ -83,6 +101,24 @@
       "writtenOn": "2013-04-30T07:30:44Z",
       "side": 1,
       "message": "may not be needed if we use a PlexusConfiguration parameter",
+      "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPX//rTQ\u003d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/RawConfigurationParserHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-05-03T13:41:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOPX//si8\u003d",
       "revId": "01e6849624b3cc01b09927e6a06ca5a644400e7d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
