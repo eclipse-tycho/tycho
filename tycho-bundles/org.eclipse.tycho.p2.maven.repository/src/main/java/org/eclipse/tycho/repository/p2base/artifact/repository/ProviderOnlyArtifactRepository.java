@@ -6,12 +6,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    Tobias Oberlies (SAP AG) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
 import java.io.File;
-import java.io.OutputStream;
 import java.net.URI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,6 +24,9 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
+import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
+import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
 
 /**
  * Read-only repository which delegates artifact read operations to a provider instance. Adapter
@@ -35,7 +37,7 @@ public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2 
 
     private final IRawArtifactFileProvider delegate;
 
-    // TODO only create via a factory -> class could be package private
+    // TODO make package private and create via a factory?
     public ProviderOnlyArtifactRepository(IRawArtifactFileProvider delegate, IProvisioningAgent agent, URI location) {
         super(agent, null, ProviderOnlyArtifactRepository.class.getSimpleName(), "1.0", location,
                 "Read-only repository adapter for " + delegate, null, null);
@@ -57,8 +59,8 @@ public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2 
         return delegate.getArtifactFile(key);
     }
 
-    public IStatus getArtifact(IArtifactKey key, OutputStream destination, IProgressMonitor monitor) {
-        return delegate.getArtifact(key, destination, monitor);
+    public IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
+        return delegate.getArtifact(sink, monitor);
     }
 
     // delegated methods for raw artifacts
@@ -77,10 +79,11 @@ public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2 
         return delegate.getArtifactFile(descriptor);
     }
 
-    public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-        return delegate.getRawArtifact(descriptor, destination, monitor);
+    public IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
+        return delegate.getRawArtifact(sink, monitor);
     }
 
+    // TODO don't throw this here but in MirroringArtifactProvider?
     public IQueryable<IArtifactDescriptor> descriptorQueryable() {
         /*
          * Delegating this method would break the MirroringArtifactProvider: In order to determine
@@ -135,7 +138,12 @@ public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2 
     }
 
     @Override
-    public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
+    public IArtifactSink newAddingArtifactSink(IArtifactKey key) throws ProvisionException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IRawArtifactSink newAddingRawArtifactSink(IArtifactDescriptor descriptor) throws ProvisionException {
         throw new UnsupportedOperationException();
     }
 

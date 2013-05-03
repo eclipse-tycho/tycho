@@ -6,13 +6,17 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    Tobias Oberlies (SAP AG) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.p2base.artifact.provider;
+package org.eclipse.tycho.repository.p2base.artifact.provider.formats;
+
+import java.io.OutputStream;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactProvider;
 
 /**
  * Policy for picking the internally used artifact format when obtaining an artifact. Different
@@ -23,14 +27,14 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 public abstract class ArtifactTransferPolicy {
 
     /**
-     * Returns the preferred format to be used for a (non-raw) artifact read operation.
+     * Sorts a list of artifact formats by the order in which they should be tried to be used for a
+     * (non-raw) artifact read operation.
      * 
      * @param formats
      *            the list of raw artifact formats available from a provider
-     * @throws IllegalArgumentException
-     *             if the list of formats is empty
+     * @return the list of formats, sorted by preference
      */
-    public abstract IArtifactDescriptor pickFormat(IArtifactDescriptor[] formats) throws IllegalArgumentException;
+    public abstract List<IArtifactDescriptor> sortFormatsByPreference(IArtifactDescriptor[] artifactDescriptors);
 
     public static boolean isCanonicalFormat(IArtifactDescriptor format) {
         return null == format.getProperty(IArtifactDescriptor.FORMAT);

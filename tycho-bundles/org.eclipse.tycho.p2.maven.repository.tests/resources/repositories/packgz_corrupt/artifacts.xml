@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?artifactRepository version='1.1.0'?>
-<repository name='packedAndCanonical' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+<repository name='packgz' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
   <properties size='3'>
     <property name='publishPackFilesAsSiblings' value='true'/>
     <property name='p2.compressed' value='false'/>
@@ -14,6 +14,18 @@
     <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
   </mappings>
   <artifacts size='3'>
+    <!-- broken entry because artifact is "corrupt" (actually the artifact is a different pack200-compressed archive, containing a wrong_content.txt file) -->
+    <artifact classifier='osgi.bundle' id='org.eclipse.ecf' version='3.1.300.v20120319-0616'>
+      <processing size='1'>
+        <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
+      </processing>
+      <properties size='3'>
+        <property name='artifact.size' value='971'/>
+        <property name='download.size' value='703'/>
+        <property name='download.md5' value='00000000000000000000000000000000'/><!-- non-matching md5 -->
+        <property name='format' value='packed'/>
+      </properties>
+    </artifact>
     <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
       <properties size='4'>
         <property name='artifact.size' value='11034'/>
@@ -22,23 +34,15 @@
         <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
+    <!-- broken entry because artifact is missing -->
     <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
       <processing size='1'>
         <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
       </processing>
       <properties size='3'>
-        <property name='artifact.size' value='11034'/>
-        <property name='download.size' value='0'/>
+        <property name='artifact.size' value='10855'/>
+        <property name='download.size' value='1723'/>
         <property name='format' value='packed'/>
-      </properties>
-    </artifact>
-    <!-- p2 allows to define own formats -> simulate that someone did this -->
-    <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
-      <processing size='1'>
-        <step id='org.example.SomeProcessingStep' required='true'/>
-      </processing>
-      <properties size='1'>
-        <property name='format' value='anotherFormat'/>
       </properties>
     </artifact>
   </artifacts>

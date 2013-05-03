@@ -23,15 +23,21 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+
 /**
  * An output stream aggregating a summary of the zip entries.
  */
-public class ProbeOutputStream extends OutputStream {
+public class ProbeOutputStream extends OutputStream implements IStateful {
 
     static String MD5_SUM_ZEROS = "00000000000000000000000000000000";
 
     private ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
     private boolean byteBufferIsClosed = false;
+
+    private IStatus externallySetStatus = Status.OK_STATUS;
 
     public int writtenBytes() {
         return byteBuffer.size();
@@ -110,6 +116,14 @@ public class ProbeOutputStream extends OutputStream {
     public void close() throws IOException {
         byteBufferIsClosed = true;
         byteBuffer.close();
+    }
+
+    public void setStatus(IStatus status) {
+        externallySetStatus = status;
+    }
+
+    public IStatus getStatus() {
+        return externallySetStatus;
     }
 
 }

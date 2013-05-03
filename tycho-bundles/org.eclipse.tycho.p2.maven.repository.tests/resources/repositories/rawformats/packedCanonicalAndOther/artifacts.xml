@@ -13,7 +13,36 @@
     <rule filter='(&amp; (classifier=org.eclipse.update.feature) (format=packed))' output='${repoUrl}/features/${id}_${version}.jar.pack.gz'/>
     <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
   </mappings>
-  <artifacts size='2'>
+  <artifacts size='4'>
+    <!-- p2 allows to define own formats -> simulate that someone did this -->
+    <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
+      <processing size='1'>
+        <step id='org.example.SomeProcessingStep' required='true'/>
+      </processing>
+      <properties size='1'>
+        <property name='format' value='customFormat'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
+      <processing size='1'>
+        <step id='org.example.OtherProcessingStep' required='true'/>
+      </processing>
+      <properties size='1'>
+        <property name='format' value='anotherFormat'/>
+      </properties>
+    </artifact>
+
+    <!-- canonical format -->
+    <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
+      <properties size='4'>
+        <property name='artifact.size' value='11034'/>
+        <property name='download.size' value='11034'/>
+        <property name='download.md5' value='58057045158895009b845b9a93f3eb6e'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+
+	<!-- packed format -->
     <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
       <processing size='1'>
         <step id='org.eclipse.equinox.p2.processing.Pack200Unpacker' required='true'/>
@@ -22,15 +51,6 @@
         <property name='artifact.size' value='11034'/>
         <property name='download.size' value='0'/>
         <property name='format' value='packed'/>
-      </properties>
-    </artifact>
-    <!-- p2 allows to define own formats -> simulate that someone did this -->
-    <artifact classifier='osgi.bundle' id='org.eclipse.osgi' version='3.4.3.R34x_v20081215-1030'>
-      <processing size='1'>
-        <step id='org.example.SomeProcessingStep' required='true'/>
-      </processing>
-      <properties size='1'>
-        <property name='format' value='anotherFormat'/>
       </properties>
     </artifact>
   </artifacts>

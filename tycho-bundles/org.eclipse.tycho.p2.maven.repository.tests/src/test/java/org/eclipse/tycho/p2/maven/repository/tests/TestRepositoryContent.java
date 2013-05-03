@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository.tests;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -70,4 +71,25 @@ public final class TestRepositoryContent {
     /** Artifact which is contained in none of the repositories. */
     public static final IArtifactKey NOT_CONTAINED_ARTIFACT_KEY = new ArtifactKey("osgi.bundle", "not-in-repo",
             Version.parseVersion("1"));
+
+    // repositories (of regular p2 type) containing the test data
+
+    /** Repository with bundle A */
+    public static final URI REPO_BUNDLE_A = ResourceUtil.P2Repositories.ECLIPSE_342.toURI();
+    /**
+     * Repository with bundles A and B. Bundle A is available both in packed and canonical format,
+     * bundle B only in packed format.
+     */
+    public static final URI REPO_BUNDLE_AB = ResourceUtil.P2Repositories.PACK_GZ.toURI();
+
+    /** Repository that claims to contain bundle A, but accesses to the artifact file will fail */
+    public static final URI REPO_BUNDLE_A_CORRUPT = ResourceUtil.resourceFile("repositories/e342_missing_file").toURI();
+    /**
+     * Repository that claims to contain both bundles A and B. Bundle B is contained only in packed
+     * format, but the artifact is broken. Bundle A is contained in packed format (artifact missing)
+     * and in canonical format (working).
+     */
+    public static final URI REPO_BUNLDE_AB_PACK_CORRUPT = ResourceUtil.resourceFile("repositories/packgz_corrupt")
+            .toURI();
+
 }
