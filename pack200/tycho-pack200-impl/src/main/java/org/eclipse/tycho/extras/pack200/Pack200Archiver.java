@@ -44,14 +44,14 @@ public class Pack200Archiver {
     public boolean normalize(List<Artifact> pluginArtifacts, File file, File packFile) throws IOException {
         JarFile jarFile = new JarFile(file);
         try {
-            if (isSigned(jarFile)) {
-                throw new IOException("pack200:normalize cannot be called for signed jar " + file);
-            }
 
             EclipseInf eclipseInf = EclipseInf.readEclipseInf(jarFile);
             assertSupportedEclipseInf(eclipseInf);
             if (eclipseInf == null || (eclipseInf.shouldPack() && !eclipseInf.isPackNormalized())) {
-                log.info("Pack200 nomalizing jar " + file.getAbsolutePath());
+                if (isSigned(jarFile)) {
+                    throw new IOException("pack200:normalize cannot be called for signed jar " + file);
+                }
+                log.info("Pack200 normalizing jar " + file.getAbsolutePath());
 
                 File tmpFile = null;
                 if (eclipseInf != null) {
