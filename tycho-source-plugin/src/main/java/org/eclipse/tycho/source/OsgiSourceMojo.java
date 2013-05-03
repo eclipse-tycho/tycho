@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ArtifactKey;
@@ -134,6 +136,26 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     protected boolean strictSrcIncludes;
 
     /**
+     * Additional files to be included in the source bundle jar. This can be used when
+     * <tt>src.includes</tt> in build.properties is not flexible enough , e.g. for files which would
+     * otherwise conflict with files in <tt>bin.includes</tt><br/>
+     * Example:<br/>
+     * 
+     * <pre>
+     * &lt;additionalFileSets&gt;
+     *  &lt;fileSet&gt;
+     *   &lt;directory&gt;${project.basedir}/sourceIncludes/&lt;/directory&gt;
+     *   &lt;includes&gt;
+     *    &lt;include&gt;&#42;&#42;/*&lt;/include&gt;
+     *   &lt;/includes&gt;
+     *  &lt;/fileSet&gt;     
+     * &lt;/additionalFileSets&gt;
+     * </pre>
+     * 
+     * @parameter
+     */
+    private DefaultFileSet[] additionalFileSets;
+    /**
      * @component role="org.eclipse.tycho.core.TychoProject"
      */
     private Map<String, TychoProject> projectTypes;
@@ -191,16 +213,36 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         List<Resource> resources = new ArrayList<Resource>();
         if (!srcIncludesList.isEmpty()) {
             includeValidationHelper.checkSourceIncludesExist(p, buildProperties, strictSrcIncludes);
-            Resource resource = new Resource();
-            resource.setDirectory(project.getBasedir().getAbsolutePath());
-            resource.setExcludes(buildProperties.getSourceExcludes());
-            resource.setIncludes(srcIncludesList);
-            resources.add(resource);
+            resources.add(createResource(project.getBasedir().getAbsolutePath(), srcIncludesList,
+                    buildProperties.getSourceExcludes()));
+        }
+        if (additionalFileSets != null) {
+            for (DefaultFileSet fileSet : additionalFileSets) {
+                if (fileSet.getIncludes() != null && fileSet.getIncludes().length > 0) {
+                    resources.add(createResource(fileSet.getDirectory().getAbsolutePath(),
+                            asList(fileSet.getIncludes()), asList(fileSet.getExcludes())));
+                }
+            }
         }
         if (!srcIncludesList.contains(MANIFEST_BUNDLE_LOCALIZATION_FILENAME)) {
             resources.add(generateL10nFile());
         }
         return resources;
+    }
+
+    private static List<String> asList(String[] patterns) {
+        if (patterns == null) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(patterns);
+    }
+
+    private static Resource createResource(String directory, List<String> includes, List<String> excludes) {
+        Resource resource = new Resource();
+        resource.setDirectory(directory);
+        resource.setExcludes(excludes);
+        resource.setIncludes(includes);
+        return resource;
     }
 
     private Resource generateL10nFile() throws MojoExecutionException {
@@ -386,6 +428,11 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
                 if (requireSourceRoots) {
                     return true;
                 }
+                boolean hasAdditionalFilesets = getConfigurationElement((Xpp3Dom) execution.getConfiguration(),
+                        "additionalFileSets") != null;
+                if (hasAdditionalFilesets) {
+                    return true;
+                }
                 BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
                 if (buildProperties.getJarToSourceFolderMap().size() > 0
                         || buildProperties.getSourceIncludes().size() > 0) {
@@ -403,14 +450,19 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     }
 
     private static String getElementValue(Xpp3Dom config, String name) {
-        if (config == null) {
-            return null;
-        }
-        Xpp3Dom child = config.getChild(name);
+        Xpp3Dom child = getConfigurationElement(config, name);
         if (child == null) {
             return null;
         }
         return child.getValue();
+    }
+
+    private static Xpp3Dom getConfigurationElement(Xpp3Dom config, String name) {
+        if (config == null) {
+            return null;
+        }
+        Xpp3Dom child = config.getChild(name);
+        return child;
     }
 
     private BuildProperties getBuildProperties() {

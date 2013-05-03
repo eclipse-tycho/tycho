@@ -32,6 +32,7 @@ public class Tycho449SrcIncludesExcludesTest extends AbstractTychoIntegrationTes
             Assert.assertNull(sourceJar.getEntry("resourceFolder/.svn/"));
             Assert.assertNotNull(sourceJar.getEntry("resourceFolder/test.txt"));
             Assert.assertNotNull(sourceJar.getEntry("resource.txt"));
+            Assert.assertNotNull(sourceJar.getEntry("additionalResource.txt"));
         } finally {
             sourceJar.close();
         }

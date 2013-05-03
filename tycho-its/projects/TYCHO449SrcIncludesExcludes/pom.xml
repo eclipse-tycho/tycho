@@ -17,6 +17,16 @@
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-source-plugin</artifactId>
         <version>${tycho-version}</version>
+        <configuration>
+			 <additionalFileSets>
+			  <fileSet>
+			   <directory>${project.basedir}/additionalSourceIncludes/</directory>
+			   <includes>
+			    <include>**/*</include>
+			   </includes>
+			  </fileSet>     
+			 </additionalFileSets>
+        </configuration>
         <executions>
           <execution>
             <id>plugin-source</id>
