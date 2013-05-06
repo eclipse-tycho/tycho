@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPX//q4A\u003d",
+        "filename": "tycho-source-plugin/src/main/java/org/eclipse/tycho/source/OsgiSourceMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-05-06T10:49:56Z",
+      "side": 1,
+      "message": "Isn\u0027t the else case of this if a configuration error?",
+      "revId": "9960fcb331e84ce17d2573ab9f9aeb8b34894c05",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
