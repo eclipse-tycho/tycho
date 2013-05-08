@@ -40,10 +40,10 @@
       <artifactId>junit</artifactId>
       <groupId>junit</groupId>
     </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu</groupId>
-      <artifactId>sisu-inject-plexus</artifactId>
-    </dependency>
+	<dependency>
+		<groupId>org.codehaus.plexus</groupId>
+		<artifactId>plexus-container-default</artifactId>
+	</dependency>
   </dependencies>
 
   <build>

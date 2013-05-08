@@ -28,10 +28,6 @@
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-component-annotations</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.sonatype.sisu</groupId>
-			<artifactId>sisu-inject-plexus</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
