@@ -1,13 +1,13 @@
 /*******************************************************************************
-* Copyright (c) 2011 SAP AG and others.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    SAP AG - initial API and implementation
-*******************************************************************************/
+ * Copyright (c) 2011 SAP AG and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.tycho.testing;
 
 import java.util.List;
@@ -56,6 +56,17 @@ public class EmptyLifecycleExecutor implements LifecycleExecutor {
 
     public List<MavenProject> executeForkedExecutions(MojoExecution mojoExecution, MavenSession session)
             throws LifecycleExecutionException {
+        return null;
+    }
+
+    /*
+     * method added to interface with maven 3.1
+     */
+    public MavenExecutionPlan calculateExecutionPlan(MavenSession arg0, boolean arg1, String... arg2)
+            throws PluginNotFoundException, PluginResolutionException, PluginDescriptorParsingException,
+            MojoNotFoundException, NoPluginFoundForPrefixException, InvalidPluginDescriptorException,
+            PluginManagerException, LifecyclePhaseNotFoundException, LifecycleNotFoundException,
+            PluginVersionResolutionException {
         return null;
     }
 
