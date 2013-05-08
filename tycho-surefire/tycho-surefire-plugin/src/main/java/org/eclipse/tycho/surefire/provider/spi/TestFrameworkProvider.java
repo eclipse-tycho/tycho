@@ -14,10 +14,10 @@ package org.eclipse.tycho.surefire.provider.spi;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.maven.model.Dependency;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.osgi.framework.Version;
-import org.sonatype.aether.artifact.Artifact;
 
 /**
  * Surefire provider adapter for tycho. Any plexus {@link Component} in the classpath of
@@ -59,5 +59,5 @@ public interface TestFrameworkProvider {
      * groupId, artifactId and optionally version (if != <code>null</code>) will be matched against
      * the plugin dependencies of tycho-surefire-plugin.
      */
-    public List<Artifact> getRequiredBundles();
+    public List<Dependency> getRequiredBundles();
 }

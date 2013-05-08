@@ -29,12 +29,6 @@
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-component-annotations</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>org.sonatype.sisu</groupId>
-			<artifactId>sisu-inject-plexus</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.osgi</artifactId>
@@ -44,6 +38,10 @@
 			<artifactId>sisu-equinox-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-container-default</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -51,7 +49,6 @@
 			<plugin>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-component-metadata</artifactId>
-				<version>${plexusVersion}</version>
 				<executions>
 					<execution>
 						<goals>
