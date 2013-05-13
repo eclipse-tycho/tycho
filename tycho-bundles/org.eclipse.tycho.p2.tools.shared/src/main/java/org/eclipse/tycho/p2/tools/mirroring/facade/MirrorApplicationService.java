@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.tools.mirroring.facade;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.p2.tools.BuildContext;
@@ -43,12 +44,15 @@ public interface MirrorApplicationService {
      *            Whether to include all transitive dependencies
      * @param includePacked
      *            Whether to include packed artifacts
+     * @param filterProperties
+     *            additional filter properties to be set in the p2 slicing options. May be
+     *            <code>null</code>
      * @throws FacadeException
      *             if a checked exception occurs while mirroring
      */
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, boolean includeAllDependencies,
-            boolean includePacked) throws FacadeException;
+            boolean includePacked, Map<String, String> filterProperties) throws FacadeException;
 
     /**
      * Copies installable units from the source repositories to the destination repository. The
