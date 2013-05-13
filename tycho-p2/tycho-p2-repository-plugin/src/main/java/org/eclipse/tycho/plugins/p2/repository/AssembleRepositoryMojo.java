@@ -12,6 +12,7 @@ package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -73,6 +74,13 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements Lo
      */
     private String repositoryName;
 
+    /**
+     * Additional filter properties for the p2 slicing options to be set while aggregating.
+     * 
+     * @parameter
+     */
+    private Map<String, String> filter;
+
     /** @component */
     private RepositoryReferenceTool repositoryReferenceTool;
 
@@ -99,7 +107,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements Lo
             DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                     destination, repositoryName, compress, !createArtifactRepository, true);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, rootIUs, getBuildContext(),
-                    includeAllDependencies, configuration.isIncludePackedArtifacts());
+                    includeAllDependencies, configuration.isIncludePackedArtifacts(), filter);
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
         }

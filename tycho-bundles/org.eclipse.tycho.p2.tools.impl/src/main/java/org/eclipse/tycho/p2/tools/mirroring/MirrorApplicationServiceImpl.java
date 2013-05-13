@@ -120,8 +120,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?> seedUnits, BuildContext context, boolean includeAllDependencies, boolean includePacked)
-            throws FacadeException {
+            Collection<?> seedUnits, BuildContext context, boolean includeAllDependencies, boolean includePacked,
+            Map<String, String> filterProperties) throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, includePacked);
@@ -135,6 +135,9 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                 options.considerStrictDependencyOnly(!includeAllDependencies);
                 Map<String, String> filter = options.getFilter();
                 addFilterForFeatureJARs(filter);
+                if (filterProperties != null) {
+                    filter.putAll(filterProperties);
+                }
                 filter.putAll(environment.toFilterProperties());
                 mirrorApp.setSlicingOptions(options);
 
