@@ -209,6 +209,10 @@ public class Feature {
     }
 
     public static void write(Feature feature, File file) throws IOException {
+        write(feature, file, null);
+    }
+
+    public static void write(Feature feature, File file, String indent) throws IOException {
         OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
 
         Document document = feature.document;
@@ -216,6 +220,7 @@ public class Feature {
             String enc = document.getEncoding() != null ? document.getEncoding() : "UTF-8";
             Writer w = new OutputStreamWriter(os, enc);
             XMLWriter xw = new XMLWriter(w);
+            xw.setIndent(indent);
             try {
                 document.toXML(xw);
             } finally {
