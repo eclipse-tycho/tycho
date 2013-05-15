@@ -39,7 +39,6 @@ public class P2InfLoader {
      * @param descriptor
      * @return an array of Installation Units defined in a p2.inf file
      */
-    @SuppressWarnings("restriction")
     public InstallableUnitDescription[] loadInstallableUnitDescription(ArtifactDescriptor descriptor) {
         if (descriptor == null) {
             return null;
@@ -128,7 +127,7 @@ public class P2InfLoader {
         } catch (Exception e) {
             log(e);
         } finally {
-            closeResource(jarFile);
+            closeJar(jarFile);
             closeResource(inputStream);
             closeResource(outputfile);
         }
@@ -162,6 +161,17 @@ public class P2InfLoader {
         int data = 0;
         while ((data = inputStream.read()) != -1) {
             outputfile.write(data);
+        }
+    }
+
+    private void closeJar(JarFile jarFile) {
+        //TODO: at eclipse gerrit (jenkins) the JarFile is not an instance of Closeable
+        if (jarFile != null) {
+            try {
+                jarFile.close();
+            } catch (IOException e) {
+                log(e);
+            }
         }
     }
 
