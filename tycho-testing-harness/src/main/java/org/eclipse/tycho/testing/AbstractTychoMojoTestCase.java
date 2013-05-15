@@ -30,6 +30,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.MavenSettingsBuilder;
 import org.apache.maven.settings.Settings;
+import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
 public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
 
@@ -132,7 +133,9 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
     protected MavenSession newMavenSession(MavenProject project, List<MavenProject> projects) throws Exception {
         MavenExecutionRequest request = newMavenExecutionRequest(new File(project.getBasedir(), "pom.xml"));
         MavenExecutionResult result = new DefaultMavenExecutionResult();
-        MavenSession session = new MavenSession(getContainer(), request, result, projects);
+        DefaultRepositorySystemSession repositorySession = new DefaultRepositorySystemSession();
+        MavenSession session = new MavenSession(getContainer(), repositorySession, request, result);
+        session.setProjects(projects);
         session.setCurrentProject(project);
         return session;
     }

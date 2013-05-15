@@ -21,12 +21,12 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
+import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 @Component(role = ProviderSelector.class)
 public class ProviderSelector {
@@ -77,10 +77,11 @@ public class ProviderSelector {
     public Set<Artifact> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
             throws MojoExecutionException {
         Set<Artifact> result = new LinkedHashSet<Artifact>();
-        List<Dependency> requiredArtifacts = new ArrayList<Dependency>();
-        requiredArtifacts.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.osgibooter"));
+        List<org.sonatype.aether.artifact.Artifact> requiredArtifacts = new ArrayList<org.sonatype.aether.artifact.Artifact>();
+        requiredArtifacts.add(new DefaultArtifact("org.eclipse.tycho", "org.eclipse.tycho.surefire.osgibooter", null,
+                null));
         requiredArtifacts.addAll(provider.getRequiredBundles());
-        for (Dependency dependency : requiredArtifacts) {
+        for (org.sonatype.aether.artifact.Artifact dependency : requiredArtifacts) {
             boolean found = false;
             for (Artifact artifact : pluginArtifacts) {
                 if (dependency.getGroupId().equals(artifact.getGroupId())) {
@@ -110,13 +111,6 @@ public class ProviderSelector {
             }
         }
         return result;
-    }
-
-    static Dependency newDependency(String groupId, String artifactId) {
-        Dependency dependency = new Dependency();
-        dependency.setGroupId(groupId);
-        dependency.setArtifactId(artifactId);
-        return dependency;
     }
 
     private void validateCandidates(List<TestFrameworkProvider> candidates) throws MojoExecutionException {

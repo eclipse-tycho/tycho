@@ -80,11 +80,13 @@
 		<plexusVersion>1.5.5</plexusVersion>
 		<plexusInterpolationVersion>1.14</plexusInterpolationVersion>
 		<plexusUtilsVersion>3.0.7</plexusUtilsVersion>
+		<sisuInjectVersion>1.4.2</sisuInjectVersion>
 		<wagonVersion>1.0-beta-6</wagonVersion>
 		<securityDispatcherVersion>1.3</securityDispatcherVersion>
 		<cipherVersion>1.4</cipherVersion>
 		<modelloVersion>1.4</modelloVersion>
 		<jxpathVersion>1.3</jxpathVersion>
+		<aetherVersion>1.7</aetherVersion>
 
 		<maven-version>3.0</maven-version>
 
@@ -180,19 +182,6 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-container-default</artifactId>
-				<version>${plexusVersion}</version>
-				<!-- classes from plexus-container-default come with the maven installation -->
-				<!-- BUT groupId/artifactId was changed from 
-				       plexus-container-default (maven 2.0.x) 
-				       sisu-inject-plexus (maven 3.0.x) 
-				       org.eclipse.sisu.plexus (maven 3.1.x)
-				     so we use oldest version with scope provided to stay compatible and make sure 
-				     we don't have a conflicting injection container at runtime -->
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-utils</artifactId>
 				<version>${plexusUtilsVersion}</version>
 			</dependency>
@@ -261,6 +250,11 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 				<groupId>bcel</groupId>
 				<artifactId>bcel</artifactId>
 				<version>5.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sonatype.sisu</groupId>
+				<artifactId>sisu-inject-plexus</artifactId>
+				<version>${sisuInjectVersion}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven.plugin-testing</groupId>
