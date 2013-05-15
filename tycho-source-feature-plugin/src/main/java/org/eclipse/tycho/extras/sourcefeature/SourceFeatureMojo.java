@@ -50,7 +50,6 @@ import org.eclipse.tycho.packaging.LicenseFeatureHelper;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
-import de.pdark.decentxml.XMLDeclaration;
 
 /**
  * Generates a source feature for projects of packaging type <code>eclipse-feature</code>. By
@@ -253,7 +252,7 @@ public class SourceFeatureMojo extends AbstractMojo {
                 sourceTemplateProps);
         fillReferences(sourceFeature, feature, TychoProjectUtils.getTargetPlatform(project));
 
-        Feature.write(sourceFeature, sourceFeatureXml);
+        Feature.write(sourceFeature, sourceFeatureXml, "  ");
         return sourceFeatureXml;
     }
 
@@ -292,8 +291,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     Feature createSourceFeatureSkeleton(Feature feature, Properties mergedFeatureProperties,
             Properties sourceTemplateProperties) throws IOException, MojoExecutionException {
         Document document = new Document();
+        document.setEncoding("UTF-8");
         document.setRootNode(new Element("feature"));
-        document.setXmlDeclaration(new XMLDeclaration("1.0", "UTF-8"));
         Feature sourceFeature = new Feature(document);
         sourceFeature.setId(feature.getId() + ".source");
         sourceFeature.setVersion(feature.getVersion());
