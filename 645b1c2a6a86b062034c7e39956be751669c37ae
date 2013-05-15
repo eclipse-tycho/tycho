@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPn//92k\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-05-15T10:56:11Z",
+      "side": 1,
+      "message": "see my other comment",
+      "revId": "645b1c2a6a86b062034c7e39956be751669c37ae",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPn//92o\u003d",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-05-15T10:56:11Z",
+      "side": 1,
+      "message": "For consistency with the target-platform-configuration/configuration/depencency-resoution/profileProperties parameter, this parameter should also be called \"profileProperties\"\n\nAlthough there is no \"profile\" involved here, I still think that this is a reasonable name. The p2 installation profile is the place that usually defines the properties used to evaluate filters in the p2 metadata. With names like \"filterProperties\" or \"filter\", I think it will be hard to see that this relates to p2 metadata.",
+      "revId": "645b1c2a6a86b062034c7e39956be751669c37ae",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
