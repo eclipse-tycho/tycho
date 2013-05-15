@@ -25,6 +25,13 @@
 
 	<name>Tycho Surefire Plugin (Incubation)</name>
 
+	<properties>
+		<equinox.common.version>3.6.100.v20120522-1841</equinox.common.version>
+		<equinox.p2.publisher.version>1.2.0.v20121002-080415</equinox.p2.publisher.version>
+		<equinox.p2.metadata.version>2.1.0.v20120430-2001</equinox.p2.metadata.version>
+		<equinox.p2.core.version>2.2.0.v20120430-0525</equinox.p2.core.version>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -95,6 +102,40 @@
 			<groupId>org.apache.maven.surefire</groupId>
 			<artifactId>surefire-api</artifactId>
 			<version>${surefire-version}</version>
+		</dependency>
+
+		<!-- required dependencies for parsing p2.inf files 
+		
+			NOTE: these dependencies should be hosted somewhere. You can find them in tycho-surefire-plugin\additionalBundles  
+		
+		-->
+		<dependency>
+			<groupId>org.eclipse.equinox</groupId>
+			<artifactId>org.eclipse.equinox.p2.core</artifactId>
+			<version>${equinox.p2.core.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/additionalBundles/org.eclipse.equinox.p2.core_2.1.1.v20120113-1346.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.equinox</groupId>
+			<artifactId>org.eclipse.equinox.p2.publisher</artifactId>
+			<version>${equinox.p2.publisher.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/additionalBundles/org.eclipse.equinox.p2.publisher_1.2.0.v20110815-1419.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.equinox</groupId>
+			<artifactId>org.eclipse.equinox.common</artifactId>
+			<version>${equinox.common.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/additionalBundles/org.eclipse.equinox.common_3.6.0.v20110523.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.equinox</groupId>
+			<artifactId>org.eclipse.equinox.p2.metadata</artifactId>
+			<version>${equinox.p2.metadata.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/additionalBundles/org.eclipse.equinox.p2.metadata_2.1.0.v20110815-1419.jar</systemPath>
 		</dependency>
 	</dependencies>
 </project>

@@ -69,6 +69,7 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.surefire.p2inf.P2InfResolver;
 import org.eclipse.tycho.surefire.provider.impl.ProviderSelector;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
@@ -424,6 +425,27 @@ public class TestMojo extends AbstractMojo {
      */
     private BundleStartLevel[] bundleStartLevel;
 
+    /**
+     * <p>
+     * Set this to "true" to enable parsing p2.inf file in order to get an additional bundle start
+     * level configuration
+     * </p>
+     * 
+     * @parameter expression="${p2InfStartLevels}" default-value="false"
+     */
+    private boolean p2InfStartLevels;
+
+    /**
+     * <p>
+     * by providing this parameter a user can filter out features that will be taken into
+     * consideration while parsing p2.inf files. If a {@link #p2InfStartLevels} is set on false then
+     * this parameter is skipped.
+     * </p>
+     * 
+     * @parameter expression="${p2InfFeatureFilter}" default-value=""
+     */
+    private String p2InfFeatureFilter;
+
     /** @component */
     private RepositorySystem repositorySystem;
 
@@ -599,6 +621,8 @@ public class TestMojo extends AbstractMojo {
 
         work.mkdirs();
 
+        loadP2infBundleStartLevels(testRuntimeArtifacts);
+
         EquinoxInstallationDescription testRuntime = new DefaultEquinoxInstallationDescription();
         testRuntime.addBundlesToExplode(getBundlesToExplode());
         testRuntime.addFrameworkExtensions(getFrameworkExtensions());
@@ -654,6 +678,27 @@ public class TestMojo extends AbstractMojo {
 
         reportsDirectory.mkdirs();
         return installationFactory.createInstallation(testRuntime, work);
+    }
+
+    /**
+     * loads bundle start levels from p2.inf files
+     */
+    private void loadP2infBundleStartLevels(DependencyArtifacts testRuntimeArtifacts) {
+        if (!p2InfStartLevels) {
+            // this functionality is not enabled in a tycho-surefire-plugin's configuration.
+            return;
+        }
+
+        P2InfResolver p2infResolver = new P2InfResolver(getLog(), bundleStartLevel, testRuntimeArtifacts,
+                p2InfFeatureFilter);
+        List<BundleStartLevel> startLevels = p2infResolver.resolveBundleStartLevels();
+        if (bundleStartLevel == null) {
+            bundleStartLevel = startLevels.toArray(new BundleStartLevel[startLevels.size()]);
+        } else {
+            // merge with existing start levels
+            startLevels.addAll(Arrays.asList(bundleStartLevel));
+            bundleStartLevel = startLevels.toArray(new BundleStartLevel[startLevels.size()]);
+        }
     }
 
     private ArtifactKey getBundleArtifactKey(File file) throws MojoExecutionException {

@@ -1,0 +1,53 @@
+############ IU fragment for org.apache.aries.blueprint ############
+
+#create a requirement on the fragment we are creating
+requires.0.namespace=org.eclipse.equinox.p2.iu
+requires.0.name=aries.blueprint.fragment
+requires.0.greedy=true
+
+#create a IU fragment for org.apache.aries.blueprint
+units.0.id=aries.blueprint.fragment
+units.0.provides.1.namespace=org.eclipse.equinox.p2.iu
+units.0.provides.1.name=aries.blueprint.fragment
+units.0.instructions.install=org.eclipse.equinox.p2.touchpoint.eclipse.installBundle(bundle:${artifact});
+units.0.instructions.uninstall=org.eclipse.equinox.p2.touchpoint.eclipse.uninstallBundle(bundle:${artifact});
+units.0.instructions.unconfigure=\
+       org.eclipse.equinox.p2.touchpoint.eclipse.setStartLevel(startLevel:-1); \
+ org.eclipse.equinox.p2.touchpoint.eclipse.markStarted(started:false);
+units.0.instructions.configure=\
+       org.eclipse.equinox.p2.touchpoint.eclipse.setStartLevel(startLevel:3); \
+ org.eclipse.equinox.p2.touchpoint.eclipse.markStarted(started:true);
+units.0.hostRequirements.1.namespace=osgi.bundle
+units.0.hostRequirements.1.name=org.apache.aries.blueprint
+units.0.hostRequirements.1.greedy=false
+units.0.hostRequirements.2.namespace=org.eclipse.equinox.p2.eclipse.type
+units.0.hostRequirements.2.name=bundle
+units.0.hostRequirements.2.range=[1.0.0,2.0.0)
+units.0.hostRequirements.2.greedy=false
+
+############ IU fragment for org.apache.aries.proxy ############
+
+#create a requirement on the fragment we are creating
+requires.1.namespace=org.eclipse.equinox.p2.iu
+requires.1.name=aries.proxy.fragment
+requires.1.greedy=true
+
+#create a IU fragment for org.apache.aries.proxy
+units.1.id=aries.proxy.fragment
+units.1.provides.1.namespace=org.eclipse.equinox.p2.iu
+units.1.provides.1.name=aries.proxy.fragment
+units.1.instructions.install=org.eclipse.equinox.p2.touchpoint.eclipse.installBundle(bundle:${artifact});
+units.1.instructions.uninstall=org.eclipse.equinox.p2.touchpoint.eclipse.uninstallBundle(bundle:${artifact});
+units.1.instructions.unconfigure=\
+       org.eclipse.equinox.p2.touchpoint.eclipse.setStartLevel(startLevel:-1); \
+ org.eclipse.equinox.p2.touchpoint.eclipse.markStarted(started:false);
+units.1.instructions.configure=\
+       org.eclipse.equinox.p2.touchpoint.eclipse.setStartLevel(startLevel:3); \
+ org.eclipse.equinox.p2.touchpoint.eclipse.markStarted(started:true);
+units.1.hostRequirements.1.namespace=osgi.bundle
+units.1.hostRequirements.1.name=org.apache.aries.proxy
+units.1.hostRequirements.1.greedy=false
+units.1.hostRequirements.2.namespace=org.eclipse.equinox.p2.eclipse.type
+units.1.hostRequirements.2.name=bundle
+units.1.hostRequirements.2.range=[1.0.0,2.0.0)
+units.1.hostRequirements.2.greedy=false
