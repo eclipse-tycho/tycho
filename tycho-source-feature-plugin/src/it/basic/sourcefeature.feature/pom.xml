@@ -24,6 +24,7 @@
               <goal>source-feature</goal>
             </goals>
             <configuration>
+              <reuseBrandingPlugin>false</reuseBrandingPlugin>
               <excludes>
                 <plugin id="sourcefeature.bundle.nosource"/>
               </excludes>

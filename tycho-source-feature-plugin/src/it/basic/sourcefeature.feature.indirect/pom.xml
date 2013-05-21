@@ -17,6 +17,9 @@
         <groupId>org.eclipse.tycho.extras</groupId>
         <artifactId>tycho-source-feature-plugin</artifactId>
         <version>${tycho-extras-version}</version>
+        <configuration>
+          <brandingPlugin>sourcefeature.bundle</brandingPlugin>
+        </configuration>
         <executions>
           <execution>
             <id>source-feature</id>

@@ -3,7 +3,8 @@
       id="sourcefeature.feature"
       label="%label"
       version="1.0.0.qualifier"
-      provider-name="Eclipse.org">
+      provider-name="Eclipse.org"
+      plugin="sourcefeature.bundle">
 
    <includes
          id="sourcefeature.feature.indirect"

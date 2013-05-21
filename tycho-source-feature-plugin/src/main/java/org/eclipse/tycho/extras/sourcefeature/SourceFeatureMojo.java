@@ -117,6 +117,24 @@ public class SourceFeatureMojo extends AbstractMojo {
     private String labelSuffix;
 
     /**
+     * Use this to explicitly set the <a href=
+     * "http://help.eclipse.org/juno/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Feditors%2Ffeature_editor%2Ffeature_editor.htm"
+     * branding plugin attribute</a> of the generated source feature (overrides
+     * {@link #reuseBrandingPlugin}).
+     * 
+     * @parameter
+     */
+    private String brandingPlugin;
+
+    /**
+     * Whether to reuse an explicit branding plugin from the binary feature for the generated source
+     * feature.
+     * 
+     * @parameter default-value="true"
+     */
+    private boolean reuseBrandingPlugin;
+
+    /**
      * Bundles and features that do not have corresponding sources. Example:
      * 
      * <pre>
@@ -296,8 +314,12 @@ public class SourceFeatureMojo extends AbstractMojo {
         Feature sourceFeature = new Feature(document);
         sourceFeature.setId(feature.getId() + ".source");
         sourceFeature.setVersion(feature.getVersion());
-        if (feature.getBrandingPluginId() != null) {
-            sourceFeature.setBrandingPluginId(feature.getBrandingPluginId());
+        if (reuseBrandingPlugin && brandingPlugin == null) {
+            if (feature.getBrandingPluginId() != null) {
+                sourceFeature.setBrandingPluginId(feature.getBrandingPluginId());
+            }
+        } else if (brandingPlugin != null) {
+            sourceFeature.setBrandingPluginId(brandingPlugin);
         }
 
         if (includeBinaryFeature) {
