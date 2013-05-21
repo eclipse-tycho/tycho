@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.tycho.p2.maven.repository.Activator;
+import org.eclipse.tycho.repository.util.BundleConstants;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -65,7 +66,7 @@ public class MetadataIO {
         private List<InstallableUnitDescription> units;
 
         public Parser() {
-            super(Activator.getContext(), Activator.ID);
+            super(Activator.getContext(), BundleConstants.BUNDLE_ID);
         }
 
         @Override

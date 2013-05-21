@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository;
 
+import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
@@ -68,9 +70,9 @@ public abstract class AbstractMetadataRepository2 extends AbstractRepository<IIn
             // TODO do we need better support for batch operations?
             runnable.run(monitor);
         } catch (OperationCanceledException oce) {
-            return new Status(IStatus.CANCEL, Activator.ID, oce.getMessage(), oce);
+            return new Status(IStatus.CANCEL, BUNDLE_ID, oce.getMessage(), oce);
         } catch (Exception e) {
-            return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+            return new Status(IStatus.ERROR, BUNDLE_ID, e.getMessage(), e);
         }
         return Status.OK_STATUS;
     }

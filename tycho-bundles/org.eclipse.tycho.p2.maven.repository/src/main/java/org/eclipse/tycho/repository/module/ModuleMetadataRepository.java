@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.module;
 
+import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,7 +31,6 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2.maven.repository.AbstractMetadataRepository2;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
@@ -80,7 +81,7 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
         } catch (IOException e) {
             String message = "I/O error while reading repository from " + storage;
             int code = ProvisionException.REPOSITORY_FAILED_READ;
-            Status status = new Status(IStatus.ERROR, Activator.ID, code, message, e);
+            Status status = new Status(IStatus.ERROR, BUNDLE_ID, code, message, e);
             throw new ProvisionException(status);
         }
 
@@ -92,7 +93,7 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
         } catch (IOException e) {
             String message = "I/O error while writing repository to " + storage;
             int code = ProvisionException.REPOSITORY_FAILED_WRITE;
-            Status status = new Status(IStatus.ERROR, Activator.ID, code, message, e);
+            Status status = new Status(IStatus.ERROR, BUNDLE_ID, code, message, e);
             throw new ProvisionException(status);
         }
     }

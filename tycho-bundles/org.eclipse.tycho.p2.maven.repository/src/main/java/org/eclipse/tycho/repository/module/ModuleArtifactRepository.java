@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.module;
 
+import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,7 +30,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
@@ -214,7 +215,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         } catch (IOException e) {
             String message = "Error while writing repository to " + p2DataFile;
             int code = ProvisionException.REPOSITORY_FAILED_WRITE;
-            Status status = new Status(IStatus.ERROR, Activator.ID, code, message, e);
+            Status status = new Status(IStatus.ERROR, BUNDLE_ID, code, message, e);
             throw new ProvisionException(status);
         }
     }
@@ -275,7 +276,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
             message += ": " + details;
         }
         int code = ProvisionException.REPOSITORY_FAILED_READ;
-        Status status = new Status(IStatus.ERROR, Activator.ID, code, message, exception);
+        Status status = new Status(IStatus.ERROR, BUNDLE_ID, code, message, exception);
         return new ProvisionException(status);
     }
 
