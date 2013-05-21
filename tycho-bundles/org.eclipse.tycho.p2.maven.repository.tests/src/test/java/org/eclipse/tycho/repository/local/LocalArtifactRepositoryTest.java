@@ -29,7 +29,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.junit.Assert;
@@ -215,7 +214,7 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
             }
 
             public IStatus getResult() {
-                return new Status(IStatus.ERROR, Activator.ID, "Error");
+                return new Status(IStatus.ERROR, "test-bundle", "Error");
             }
 
             public IArtifactKey getArtifactKey() {

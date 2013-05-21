@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.util;
 
+import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+
 import java.io.File;
 import java.net.URI;
 
@@ -17,7 +19,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 
 public class RepositoryFactoryTools {
     /**
@@ -34,7 +35,7 @@ public class RepositoryFactoryTools {
 
     public static void verifyModifiableNotRequested(int flags, String repositoryType) throws ProvisionException {
         if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) != 0) {
-            Status errorStatus = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_READ_ONLY,
+            Status errorStatus = new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.REPOSITORY_READ_ONLY,
                     "Cannot create writable repositories of type " + repositoryType, null);
             throw new ProvisionException(errorStatus);
         }
@@ -53,12 +54,12 @@ public class RepositoryFactoryTools {
     private static Status newUnsupportedCreationStatus(String message) {
         // none of the codes defined in ProvisionException really fit
         int errorCode = 0;
-        return new Status(IStatus.ERROR, Activator.ID, errorCode, message, null);
+        return new Status(IStatus.ERROR, BUNDLE_ID, errorCode, message, null);
     }
 
     public static ProvisionException invalidCreationLocation(String repositoryType, URI location) {
         String message = "Cannot create repositories of type " + repositoryType + " at location " + location;
         int errorCode = ProvisionException.REPOSITORY_INVALID_LOCATION;
-        return new ProvisionException(new Status(IStatus.ERROR, Activator.ID, errorCode, message, null));
+        return new ProvisionException(new Status(IStatus.ERROR, BUNDLE_ID, errorCode, message, null));
     }
 }

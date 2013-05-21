@@ -17,8 +17,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public class Activator implements BundleActivator {
-    public static final String ID = "org.eclipse.tycho.p2.maven.repository";
-
     private static BundleContext context;
 
     private static IProvisioningAgent agent;

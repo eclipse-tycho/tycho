@@ -12,6 +12,8 @@
 
 package org.eclipse.tycho.p2.maven.repository;
 
+import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -173,7 +175,7 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
     public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
         SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
         try {
-            MultiStatus result = new MultiStatus(Activator.ID, 0, "Error while getting requested artifacts", null);
+            MultiStatus result = new MultiStatus(BUNDLE_ID, 0, "Error while getting requested artifacts", null);
             for (IArtifactRequest request : requests) {
                 request.perform(this, subMonitor.newChild(1));
                 result.add(request.getResult());
@@ -213,8 +215,8 @@ public abstract class AbstractMavenArtifactRepository extends AbstractArtifactRe
             // copy to destination and close source 
             FileUtils.copyStream(source, true, destination, false);
         } catch (IOException e) {
-            return new Status(IStatus.ERROR, Activator.ID, "I/O exception while reading artifact "
-                    + gav.toExternalForm() + ":" + classifier + ":" + extension, e);
+            return new Status(IStatus.ERROR, BUNDLE_ID, "I/O exception while reading artifact " + gav.toExternalForm()
+                    + ":" + classifier + ":" + extension, e);
         }
         return Status.OK_STATUS;
     }

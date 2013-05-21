@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
+import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
@@ -24,7 +27,6 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactProvider;
 
 public abstract class AbstractArtifactRepository2 extends AbstractArtifactRepository implements IArtifactProvider {
@@ -150,7 +152,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
     public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
         SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
         try {
-            MultiStatus result = new MultiStatus(Activator.ID, 0, "Error while getting requested artifacts", null);
+            MultiStatus result = new MultiStatus(BUNDLE_ID, 0, "Error while getting requested artifacts", null);
             for (IArtifactRequest request : requests) {
                 request.perform(this, subMonitor.newChild(1));
                 result.add(request.getResult());

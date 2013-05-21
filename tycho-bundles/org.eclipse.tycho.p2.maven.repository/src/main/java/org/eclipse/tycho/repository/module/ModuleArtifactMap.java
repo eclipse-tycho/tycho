@@ -12,6 +12,7 @@ package org.eclipse.tycho.repository.module;
 
 import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_ATTACHED;
 import static org.eclipse.tycho.p2.repository.RepositoryLayoutHelper.KEY_ARTIFACT_MAIN;
+import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +27,6 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
@@ -118,7 +118,7 @@ class ModuleArtifactMap {
         } catch (IOException e) {
             String message = "I/O error while reading repository from " + mapFile;
             int code = ProvisionException.REPOSITORY_FAILED_READ;
-            Status status = new Status(IStatus.ERROR, Activator.ID, code, message, e);
+            Status status = new Status(IStatus.ERROR, BUNDLE_ID, code, message, e);
             throw new ProvisionException(status);
         }
     }
@@ -155,7 +155,7 @@ class ModuleArtifactMap {
         } catch (IOException e) {
             String message = "I/O error while writing repository to " + mapFile;
             int code = ProvisionException.REPOSITORY_FAILED_WRITE;
-            Status status = new Status(IStatus.ERROR, Activator.ID, code, message, e);
+            Status status = new Status(IStatus.ERROR, BUNDLE_ID, code, message, e);
             throw new ProvisionException(status);
         }
 

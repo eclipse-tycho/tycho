@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
+import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,7 +41,6 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
-import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactTransferPolicy;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactFileProvider;
 
@@ -267,7 +268,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     public final IStatus getArtifact(IArtifactKey key, OutputStream destination, IProgressMonitor monitor) {
         IArtifactDescriptor[] availableFormats = getArtifactDescriptors(key);
         if (availableFormats.length == 0) {
-            return new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact " + key
+            return new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact " + key
                     + " is not available in the repository " + getLocation(), null);
         }
         IArtifactDescriptor preferredFormat = transferPolicy.pickFormat(availableFormats);
@@ -287,7 +288,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         try {
             closeProcessingSteps(destinationWithProcessing);
         } catch (IOException e) {
-            return new Status(IStatus.ERROR, Activator.ID, "I/O exception while processing raw artifact "
+            return new Status(IStatus.ERROR, BUNDLE_ID, "I/O exception while processing raw artifact "
                     + preferredFormat);
         }
 
@@ -305,8 +306,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     public final IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination,
             IProgressMonitor monitor) {
         if (!contains(descriptor)) {
-            return new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact "
-                    + descriptor + " is not available in the repository " + getLocation(), null);
+            return new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact " + descriptor
+                    + " is not available in the repository " + getLocation(), null);
         }
 
         try {
@@ -316,7 +317,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             FileUtils.copyStream(source, true, destination, false);
 
         } catch (IOException e) {
-            return new Status(IStatus.ERROR, Activator.ID, "I/O exception while reading artifact " + descriptor, e);
+            return new Status(IStatus.ERROR, BUNDLE_ID, "I/O exception while reading artifact " + descriptor, e);
         }
         return Status.OK_STATUS;
     }
@@ -326,7 +327,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         ArtifactDescriptorT internalDescriptor = getInternalDescriptorForAdding(descriptor);
 
         if (contains(internalDescriptor)) {
-            IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_EXISTS, "Artifact "
+            IStatus status = new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_EXISTS, "Artifact "
                     + descriptor + " already exists in repository " + getLocation(), null);
             throw new ProvisionException(status);
         }

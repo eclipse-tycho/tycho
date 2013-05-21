@@ -24,6 +24,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio35.SimpleArtifactRepositoryIO;
+import org.eclipse.tycho.repository.util.BundleConstants;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -110,7 +111,7 @@ public class ArtifactsIO {
     }
 
     public Set<IArtifactDescriptor> readXML(InputStream is) throws IOException {
-        Parser35M7 parser = new Parser35M7(Activator.getContext(), Activator.ID);
+        Parser35M7 parser = new Parser35M7(Activator.getContext(), BundleConstants.BUNDLE_ID);
 
         parser.parse(is);
 
