@@ -38,10 +38,10 @@ public class ReferenceBetweenProductsTest extends AbstractTychoIntegrationTest {
         // verify that product IUs were create by full publisher and not the dependency-only publisher
         P2RepositoryTool.IU referencingProduct = repository.getUniqueIU("product.crossreference.extending-product");
         assertThat(referencingProduct.getVersion(), not(containsString("qualifier")));
-        assertThat(referencingProduct.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+        assertThat(referencingProduct.getProperties(), hasItem("lineUp=true"));
 
         P2RepositoryTool.IU referencedProduct = repository.getUniqueIU("product.crossreference.product");
         assertThat(referencedProduct.getVersion(), not(containsString("qualifier")));
-        assertThat(referencedProduct.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+        assertThat(referencedProduct.getProperties(), hasItem("lineUp=true"));
     }
 }
