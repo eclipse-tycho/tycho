@@ -106,7 +106,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
     static private void assertProductIUs(Document contentXml, Product product, Environment env) {
         assertTrue(product.unitId + " IU with org.eclipse.equinox.p2.type.product property value true does not exist",
-                +Util.containsIUWithProperty(contentXml, product.unitId, "org.eclipse.equinox.p2.type.product", "true"));
+                Util.containsIUWithProperty(contentXml, product.unitId, "org.eclipse.equinox.p2.type.product", "true"));
 
         final String p2InfAdded = "p2.inf.added-property";
         assertEquals("Property " + p2InfAdded + " in " + product.unitId, product.p2InfProperty,
