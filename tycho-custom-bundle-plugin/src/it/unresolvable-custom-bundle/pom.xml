@@ -12,7 +12,7 @@
 			<id>tycho-snapshots</id>
 			<url>${tycho-snapshots-url}</url>
 			<releases>
-				<enabled>false</enabled>
+				<enabled>true</enabled>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>

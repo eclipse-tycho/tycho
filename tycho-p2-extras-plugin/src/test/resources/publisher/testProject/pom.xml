@@ -24,7 +24,7 @@
       <id>tycho-snapshots</id>
       <url>https://oss.sonatype.org/content/groups/public/</url>
       <releases>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>true</enabled>
