@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="15">
+<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="16">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
 <unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20130521-0416"/>
-<unit id="org.eclipse.sdk.ide" version="4.3.0.I20130526-0500"/>
-<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20130526-0335"/>
-<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20130515-2026"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.3-I-builds/I20130526-0500/"/>
+<unit id="org.eclipse.sdk.ide" version="4.3.0.I20130530-1430"/>
+<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20130528-2154"/>
+<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20130529-1710"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.3milestones/S-4.3RC3-201305301430/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
 <!-- required for surefire junit3 provider -->
