@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
+import static org.eclipse.tycho.versions.engine.Versions.eq;
 import static org.eclipse.tycho.versions.engine.Versions.isVersionEquals;
 
 import java.io.File;
@@ -126,7 +127,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
             String newVersion) {
         for (Plugin plugin : plugins) {
             GAV pluginGAV = plugin.getGAV();
-            if (isGavEquals(pluginGAV, change)) {
+            if (isPluginGavEquals(pluginGAV, change)) {
                 logger.info(pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] "
                         + version + " => " + newVersion);
                 pluginGAV.setVersion(newVersion);
@@ -145,13 +146,18 @@ public class PomManipulator extends AbstractMetadataManipulator {
 
     private static boolean isGavEquals(MutablePomFile pom, VersionChange change) {
         // TODO replace with isGavEquals(pom.getEffectiveGav(), change)
-        return change.getGroupId().equals(pom.getEffectiveGroupId())
-                && change.getArtifactId().equals(pom.getArtifactId())
+        return eq(change.getGroupId(), pom.getEffectiveGroupId()) && eq(change.getArtifactId(), pom.getArtifactId())
                 && isVersionEquals(change.getVersion(), pom.getEffectiveVersion());
     }
 
     public static boolean isGavEquals(GAV gav, VersionChange change) {
-        return change.getGroupId().equals(gav.getGroupId()) && change.getArtifactId().equals(gav.getArtifactId())
+        return eq(change.getGroupId(), gav.getGroupId()) && eq(change.getArtifactId(), gav.getArtifactId())
+                && isVersionEquals(change.getVersion(), gav.getVersion());
+    }
+
+    public static boolean isPluginGavEquals(GAV gav, VersionChange change) {
+        String groupId = gav.getGroupId() != null ? gav.getGroupId() : "org.apache.maven.plugins";
+        return eq(change.getGroupId(), groupId) && eq(change.getArtifactId(), gav.getArtifactId())
                 && isVersionEquals(change.getVersion(), gav.getVersion());
     }
 

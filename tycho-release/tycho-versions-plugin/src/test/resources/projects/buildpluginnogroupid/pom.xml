@@ -1,0 +1,19 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>buildpluginnogroupid</groupId>
+  <artifactId>buildpluginnogroupid</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <packaging>pom</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.3</version>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

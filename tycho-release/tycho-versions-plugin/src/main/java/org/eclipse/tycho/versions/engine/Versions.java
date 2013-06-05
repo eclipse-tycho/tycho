@@ -49,7 +49,7 @@ public class Versions {
     }
 
     public static boolean isVersionEquals(String a, String b) {
-        return toCanonicalVersion(a).equals(toCanonicalVersion(b));
+        return eq(toCanonicalVersion(a), toCanonicalVersion(b));
     }
 
     public static String validateOsgiVersion(String version, File location) {
@@ -59,5 +59,9 @@ public class Versions {
             return String.format("Version %s is not valid for %s", version, location);
         }
         return null;
+    }
+
+    public static <T> boolean eq(T a, T b) {
+        return a != null ? a.equals(b) : b == null;
     }
 }

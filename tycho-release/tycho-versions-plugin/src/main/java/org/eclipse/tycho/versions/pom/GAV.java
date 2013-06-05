@@ -20,19 +20,23 @@ public class GAV {
     }
 
     public String getGroupId() {
-        return dom.getChild("groupId").getText().trim();
+        return getChildText("groupId");
     }
 
     public String getArtifactId() {
-        return dom.getChild("artifactId").getText().trim();
+        return getChildText("artifactId");
     }
 
     public String getVersion() {
-        Element child = dom.getChild("version");
-        return child != null ? child.getText().trim() : null;
+        return getChildText("version");
     }
 
     public void setVersion(String version) {
         dom.getChild("version").setText(version);
+    }
+
+    private String getChildText(String name) {
+        Element child = dom.getChild(name);
+        return child != null ? child.getText().trim() : null;
     }
 }

@@ -308,6 +308,15 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         engine.apply();
     }
 
+    public void testBuildPluginNoGroupId() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/buildpluginnogroupid");
+
+        VersionsEngine engine = newEngine(basedir);
+
+        engine.addVersionChange("buildpluginnogroupid", "1.0.1-01");
+        engine.apply();
+    }
+
     private VersionsEngine newEngine(File basedir) throws Exception {
         VersionsEngine engine = lookup(VersionsEngine.class);
         ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);
