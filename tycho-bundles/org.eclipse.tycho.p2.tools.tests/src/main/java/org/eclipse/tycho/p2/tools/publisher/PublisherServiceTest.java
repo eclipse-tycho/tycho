@@ -47,7 +47,7 @@ import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
-import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
 import org.eclipse.tycho.test.util.StubServiceRegistration;
@@ -64,8 +64,8 @@ public class PublisherServiceTest {
     private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
             .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
 
-    private MemoryLog mavenLogger = new MemoryLog();
-
+    @Rule
+    public LogVerifier logVerifier = new LogVerifier();
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();
     @Rule
@@ -73,7 +73,7 @@ public class PublisherServiceTest {
 
     @Rule
     public StubServiceRegistration<MavenContext> mavenContextRegistration = new StubServiceRegistration<MavenContext>(
-            MavenContext.class, createMavenContext(mavenLogger));
+            MavenContext.class, createMavenContext(logVerifier.getLogger()));
 
     @Rule
     public ExpectedException thrownException = ExpectedException.none();
@@ -97,7 +97,8 @@ public class PublisherServiceTest {
                 outputDirectory));
         PublisherInfoTemplate publisherConfiguration = new PublisherInfoTemplate(contextRepositories, buildContext,
                 p2Context.getAgent());
-        subject = new PublisherServiceImpl(buildContext, publisherConfiguration, outputRepository, mavenLogger);
+        subject = new PublisherServiceImpl(buildContext, publisherConfiguration, outputRepository,
+                logVerifier.getLogger());
     }
 
     @Test

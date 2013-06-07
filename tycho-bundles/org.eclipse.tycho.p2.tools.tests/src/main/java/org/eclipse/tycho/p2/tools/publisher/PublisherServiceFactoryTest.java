@@ -20,13 +20,17 @@ import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.impl.Activator;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
-import org.eclipse.tycho.test.util.MemoryLog;
+import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.StubServiceRegistration;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class PublisherServiceFactoryTest {
+
+    @ClassRule
+    public static LogVerifier logVerifier = new LogVerifier();
 
     // in the productive code, these services are provided from outside the OSGi runtime
     @Rule
@@ -51,7 +55,7 @@ public class PublisherServiceFactoryTest {
     }
 
     private static MavenContext createMavenContext() {
-        MavenContext mavenContext = new MavenContextImpl(null, new MemoryLog());
+        MavenContext mavenContext = new MavenContextImpl(null, logVerifier.getLogger());
         return mavenContext;
     }
 
