@@ -41,7 +41,7 @@ import org.eclipse.tycho.p2.tools.impl.Activator;
 import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
-import org.eclipse.tycho.p2.util.StatusTool;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
 public class MirrorApplicationServiceImpl implements MirrorApplicationService {

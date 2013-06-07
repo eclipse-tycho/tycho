@@ -33,10 +33,10 @@ Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.p2.tools.mirroring.facade,
  org.eclipse.tycho.p2.tools.publisher.facade,
  org.eclipse.tycho.p2.tools.verifier.facade,
- org.eclipse.tycho.p2.util,
  org.eclipse.tycho.repository.publishing,
  org.eclipse.tycho.repository.registry,
  org.eclipse.tycho.repository.registry.facade,
+ org.eclipse.tycho.repository.util,
  org.osgi.framework;version="[1.5.0,2.0.0)"
 Service-Component: OSGI-INF/directorapp.xml, OSGI-INF/publisherfactory.xml, OSGI-INF/mirrorapp.xml,
  OSGI-INF/verifierservice.xml, OSGI-INF/baseline.xml
