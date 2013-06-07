@@ -25,9 +25,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
-import org.eclipse.tycho.p2.util.StatusTool;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.MavenMirrorRequest;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
 public class P2ArtifactDownloadTool {

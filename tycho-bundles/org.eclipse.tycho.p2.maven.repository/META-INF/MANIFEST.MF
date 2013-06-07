@@ -14,7 +14,6 @@ Require-Bundle: org.eclipse.equinox.common;bundle-version="3.6.100",
  org.eclipse.equinox.p2.artifact.repository;bundle-version="1.1.200"
 Export-Package: org.eclipse.tycho.p2.maven.repository,
  org.eclipse.tycho.p2.maven.repository.xmlio,
- org.eclipse.tycho.p2.util,
  org.eclipse.tycho.repository.local,
  org.eclipse.tycho.repository.local.index;x-friends:="org.eclipse.tycho.test.utils",
  org.eclipse.tycho.repository.module;x-friends:="org.eclipse.tycho.p2.tools.tests",

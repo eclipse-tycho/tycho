@@ -29,11 +29,11 @@ import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
-import org.eclipse.tycho.p2.util.StatusTool;
 import org.eclipse.tycho.repository.local.GAVArtifactDescriptor;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
 public class TargetPlatformBundlePublisher {

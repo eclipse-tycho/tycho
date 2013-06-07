@@ -50,7 +50,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
-import org.eclipse.tycho.p2.util.StatusTool;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 public class TargetDefinitionResolver {
 
