@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.tests;
+package org.eclipse.tycho.repository.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -16,7 +16,6 @@ import static org.junit.Assert.assertSame;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.tycho.p2.util.StatusTool;
 import org.junit.Test;
 
 public class StatusToolTest {
@@ -48,7 +47,7 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Complicated error. See children for details.",
                 null);
 
-        assertEquals("\"Complicated error. See children for details.\": [\"Detail 1\", \"Detail 2\", \"Detail 3\"]",
+        assertEquals("Complicated error. See children for details.: [Detail 1; Detail 2; Detail 3]",
                 StatusTool.collectProblems(status));
 
         // take first exception found
@@ -80,8 +79,7 @@ public class StatusToolTest {
         child2.add(new Status(IStatus.ERROR, PLUGIN_ID, "Child 2.2"));
         root.add(child2);
 
-        assertEquals("\"Root message\": [\"Child 1\", \"Child 2\": [\"Child 2.1\", \"Child 2.2\"]]",
-                StatusTool.collectProblems(root));
+        assertEquals("Root message: [Child 1; Child 2: [Child 2.1; Child 2.2]]", StatusTool.collectProblems(root));
     }
 
     @Test
@@ -93,8 +91,7 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
         // extra comments are not really necessary, but not harmful either
-        assertEquals("\"Root message\": [\"Info message\", \"Error message\", \"Warning message\"]",
-                StatusTool.collectProblems(status));
+        assertEquals("Root message: [Info message; Error message; Warning message]", StatusTool.collectProblems(status));
     }
 
     @Test
@@ -103,6 +100,6 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
         // this has potential to throw an exception
-        assertEquals("\"Root message\": []", StatusTool.collectProblems(status));
+        assertEquals("Root message: []", StatusTool.collectProblems(status));
     }
 }

@@ -35,8 +35,8 @@ import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
-import org.eclipse.tycho.p2.util.StatusTool;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
 class PublisherServiceImpl implements PublisherService {

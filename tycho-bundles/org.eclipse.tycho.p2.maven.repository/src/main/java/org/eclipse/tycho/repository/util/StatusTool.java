@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.util;
+package org.eclipse.tycho.repository.util;
 
 import org.eclipse.core.runtime.IStatus;
 
@@ -37,9 +37,7 @@ public class StatusTool {
     }
 
     private static void collectStatusMessage(StringBuilder result, IStatus status) {
-        result.append('"');
         result.append(status.getMessage());
-        result.append('"');
     }
 
     private static void collectChildren(StringBuilder result, IStatus[] children) {
@@ -47,7 +45,7 @@ public class StatusTool {
         for (IStatus childStatus : children) {
             if (!childStatus.isOK()) {
                 collectStatusAndChildren(result, childStatus);
-                result.append(", ");
+                result.append("; ");
                 trailingSeparatorChars = 2;
             }
         }

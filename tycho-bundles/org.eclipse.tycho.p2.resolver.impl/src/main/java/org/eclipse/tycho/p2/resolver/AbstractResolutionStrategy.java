@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.p2.util.StatusTool;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 // TODO make this package private
 public abstract class AbstractResolutionStrategy {
