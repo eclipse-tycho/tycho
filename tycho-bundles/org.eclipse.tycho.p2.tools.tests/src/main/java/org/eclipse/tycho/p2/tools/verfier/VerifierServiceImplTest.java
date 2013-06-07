@@ -21,10 +21,10 @@ import java.util.Locale;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
+import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.verifier.VerifierServiceImpl;
-import org.eclipse.tycho.test.util.MemoryLog;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -101,12 +101,31 @@ public class VerifierServiceImplTest {
                 .get(0), new BuildOutputDirectory(tempFolder.getRoot()));
     }
 
-    class ErrorStoreMemoryLog extends MemoryLog {
+    class ErrorStoreMemoryLog implements MavenLogger {
         List<String> errors = new ArrayList<String>();
 
-        @Override
         public void error(String message) {
             errors.add(message);
+        }
+
+        public void warn(String message) {
+        }
+
+        public void warn(String message, Throwable cause) {
+        }
+
+        public void info(String message) {
+        }
+
+        public void debug(String message) {
+        }
+
+        public boolean isDebugEnabled() {
+            return true;
+        }
+
+        public boolean isExtendedDebugEnabled() {
+            return true;
         }
     }
 
