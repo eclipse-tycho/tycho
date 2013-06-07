@@ -27,23 +27,34 @@ import org.junit.rules.Verifier;
  * Verifier to be used with JUnit's {@link Rule} annotation which provides a {@link MavenLogger}
  * instance and performs assertions on the log entries written to that logger. By default, it is
  * expected that no errors are logged. The expectations can be modified (per test) by calling the
- * <code>expect</code> on this instance.
+ * <code>expect</code> methods on this instance.
  */
 public class LogVerifier extends Verifier {
+
+    private static boolean WRITE_TO_CONSOLE = false;
 
     private class MemoryLog implements MavenLogger {
 
         final StringBuilder errors = new StringBuilder();
         final StringBuilder warnings = new StringBuilder();
+        final StringBuilder infos = new StringBuilder();
 
         public void error(String message) {
             errors.append(message);
             errors.append('\n');
+
+            if (WRITE_TO_CONSOLE) {
+                System.out.println("[ERROR] " + message);
+            }
         }
 
         public void warn(String message) {
             warnings.append(message);
             warnings.append('\n');
+
+            if (WRITE_TO_CONSOLE) {
+                System.out.println("[WARNING] " + message);
+            }
         }
 
         public void warn(String message, Throwable cause) {
@@ -51,9 +62,18 @@ public class LogVerifier extends Verifier {
         }
 
         public void info(String message) {
+            infos.append(message);
+            infos.append('\n');
+
+            if (WRITE_TO_CONSOLE) {
+                System.out.println("[INFO] " + message);
+            }
         }
 
         public void debug(String message) {
+            if (WRITE_TO_CONSOLE) {
+                System.out.println("[DEBUG] " + message);
+            }
         }
 
         public boolean isDebugEnabled() {
@@ -61,6 +81,7 @@ public class LogVerifier extends Verifier {
         }
 
         public boolean isExtendedDebugEnabled() {
+            // run through message preparation code in tests
             return true;
         }
     }
@@ -71,8 +92,11 @@ public class LogVerifier extends Verifier {
 
         boolean expectNoErrors = true;
         List<Matcher<? super String>> loggedErrorsMatchers = new ArrayList<Matcher<? super String>>();
+
         boolean expectNoWarnings = false;
         List<Matcher<? super String>> loggedWarningsMatchers = new ArrayList<Matcher<? super String>>();
+
+        List<Matcher<? super String>> loggedInfosMatchers = new ArrayList<Matcher<? super String>>();
 
         MemoryLog getInitializedLogger() {
             if (logger == null) {
@@ -99,6 +123,11 @@ public class LogVerifier extends Verifier {
             }
         }
 
+        void checkLoggedInfos() {
+            Matcher<String> combinedMatcher = CoreMatchers.allOf(loggedInfosMatchers);
+            assertThat(getLoggedInfos(), combinedMatcher);
+        }
+
         private String getLoggedErrors() {
             if (logger == null) {
                 return "";
@@ -112,6 +141,14 @@ public class LogVerifier extends Verifier {
                 return "";
             } else {
                 return logger.warnings.toString();
+            }
+        }
+
+        private String getLoggedInfos() {
+            if (logger == null) {
+                return "";
+            } else {
+                return logger.infos.toString();
             }
         }
     }
@@ -170,6 +207,22 @@ public class LogVerifier extends Verifier {
         getInitializedContext().expectNoWarnings = true;
     }
 
+    /**
+     * Verify that the info output contain the given string.
+     */
+    public void expectInfo(String string) {
+        expectInfo(containsString(string));
+    }
+
+    /**
+     * Verify that the info output match the given matcher.
+     */
+    public void expectInfo(Matcher<String> matcher) {
+        TestRunContext context = getInitializedContext();
+
+        context.loggedInfosMatchers.add(matcher);
+    }
+
     @Override
     protected void verify() throws Throwable {
         TestRunContext contextAfterTest = currentContext;
@@ -180,6 +233,7 @@ public class LogVerifier extends Verifier {
         if (contextAfterTest != null) {
             contextAfterTest.checkLoggedErrors();
             contextAfterTest.checkLoggedWarnings();
+            contextAfterTest.checkLoggedInfos();
         }
     }
 
