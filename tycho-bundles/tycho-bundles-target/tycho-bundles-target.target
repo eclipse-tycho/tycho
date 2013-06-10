@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="16">
+<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="17">
 <locations>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20130521-0416"/>
 <unit id="org.eclipse.sdk.ide" version="4.3.0.I20130530-1430"/>
 <unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20130528-2154"/>
 <unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20130529-1710"/>
 <repository location="http://download.eclipse.org/eclipse/updates/4.3milestones/S-4.3RC3-201305301430/"/>
 </location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.mockito" version="1.8.4.v201303031500"/>
+<unit id="org.objenesis" version="1.0.0.v201105211943"/>
+<unit id="org.hamcrest" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.core" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.integration" version="1.1.0.v201303031500"/>
+<unit id="org.hamcrest.library" version="1.1.0.v20090501071000"/>
+<unit id="org.hamcrest.text" version="1.1.0.v20090501071000"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20130517111416/repository/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <!-- required for surefire junit3 provider -->
 <unit id="org.junit" version="3.8.2.v3_8_2_v20100427-1100"/>
 <repository location="http://download.eclipse.org/releases/indigo"/>
