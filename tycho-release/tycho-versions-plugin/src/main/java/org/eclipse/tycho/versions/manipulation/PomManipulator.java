@@ -84,7 +84,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
         changeBuild("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
 
         for (Profile profile : pom.getProfiles()) {
-            String pomPath = "  pom.xml//project/profiles/profile[ " + profile.getId() + " ]";
+            String profileId = profile.getId() != null ? profile.getId() : "<null>";
+            String pomPath = "  pom.xml//project/profiles/profile[ " + profileId + " ]";
             changeDependencies(pomPath + "/dependencies", profile.getDependencies(), change, version, newVersion);
             changeDependencyManagement(pomPath + "/dependencyManagement", profile.getDependencyManagement(), change,
                     version, newVersion);

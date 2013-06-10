@@ -35,7 +35,8 @@ public class Profile {
     }
 
     public String getId() {
-        return dom.getChild("id").getText();
+        Element child = dom.getChild("id");
+        return child != null ? child.getText() : null;
     }
 
     public Build getBuild() {

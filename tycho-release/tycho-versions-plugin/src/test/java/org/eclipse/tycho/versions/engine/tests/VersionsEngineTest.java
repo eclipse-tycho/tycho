@@ -317,6 +317,15 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         engine.apply();
     }
 
+    public void testProfileNoId() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/profilenoid");
+
+        VersionsEngine engine = newEngine(basedir);
+
+        engine.addVersionChange("profilenoid", "1.0.1-01");
+        engine.apply();
+    }
+
     private VersionsEngine newEngine(File basedir) throws Exception {
         VersionsEngine engine = lookup(VersionsEngine.class);
         ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);
