@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
+import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
@@ -52,12 +53,12 @@ import org.eclipse.tycho.repository.util.StatusTool;
  */
 public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
-    private MavenLogger logger;
+    protected final MavenLogger logger;
 
-    private IRawArtifactProvider remoteProviders;
-    private LocalArtifactRepository localArtifactRepository;
+    protected final IRawArtifactProvider remoteProviders;
+    protected final LocalArtifactRepository localArtifactRepository;
 
-    private final IProgressMonitor monitor = null; // TODO log via progress monitor (so that the remote URL is shown)?
+    protected final IProgressMonitor monitor = null; // TODO log via progress monitor (so that the remote URL is shown)?
 
     /**
      * Creates a new {@link MirroringArtifactProvider} instance.
@@ -75,12 +76,16 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      *            a logger for progress output
      */
     public static MirroringArtifactProvider createInstance(LocalArtifactRepository localArtifactRepository,
-            IRawArtifactProvider remoteProviders, MavenLogger logger) {
-        return new MirroringArtifactProvider(localArtifactRepository, remoteProviders, logger);
+            IRawArtifactProvider remoteProviders, boolean mirrorPacked, MavenLogger logger) {
+        if (!mirrorPacked) {
+            return new MirroringArtifactProvider(localArtifactRepository, remoteProviders, logger);
+        } else {
+            return new PackedFormatMirroringArtifactProvider(localArtifactRepository, remoteProviders, logger);
+        }
     }
 
-    private MirroringArtifactProvider(LocalArtifactRepository localArtifactRepository,
-            IRawArtifactProvider remoteProviders, MavenLogger logger) {
+    MirroringArtifactProvider(LocalArtifactRepository localArtifactRepository, IRawArtifactProvider remoteProviders,
+            MavenLogger logger) {
         this.remoteProviders = remoteProviders;
         this.localArtifactRepository = localArtifactRepository;
         this.logger = logger;
@@ -158,7 +163,34 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      *             if a fatal error occurred while downloading the artifact.
      */
     private boolean makeLocallyAvailable(IArtifactKey key) throws MirroringFailedException {
-        // TODO mirror raw artifacts if enabled
+        // TODO 397355 cache artifactDescriptors for the key so that only one synchronization is necessary to figure out if a download is needed
+        try {
+            boolean isAvailable = makeOneFormatLocallyAvailable(key);
+
+            if (isAvailable) {
+                /*
+                 * Always execute this step (even when not mirroring packed artifacts) so that a
+                 * local repository that only contains the packed format of an artifact is
+                 * automatically corrected. We need the canonical format in the local repository so
+                 * that {@link IArtifactFileProvider#getArtifactFile(IArtifactKey)} does not return
+                 * null.
+                 */
+                ensureArtifactIsPresentInCanonicalFormat(key);
+            }
+            return isAvailable;
+
+        } catch (ProvisionException e) {
+            throw new MirroringFailedException("Error while mirroring artifact " + key
+                    + " to the local Maven repository" + e.getMessage(), e);
+        } catch (ArtifactSinkException e) {
+            throw new MirroringFailedException("Error while mirroring artifact " + key
+                    + " to the local Maven repository" + e.getMessage(), e);
+        }
+    }
+
+    protected boolean makeOneFormatLocallyAvailable(IArtifactKey key) throws MirroringFailedException,
+            ProvisionException, ArtifactSinkException {
+
         if (localArtifactRepository.contains(key)) {
             return true;
         } else if (remoteProviders.contains(key)) {
@@ -169,30 +201,70 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         }
     }
 
-    private void downloadArtifact(IArtifactKey key) throws MirroringFailedException {
-        try {
-            // TODO log via progress monitor (so that the remote URL is shown)?
-            logger.info("Downloading " + key.getId() + "_" + key.getVersion() + "...");
+    protected final void downloadArtifact(IArtifactKey key) throws MirroringFailedException, ProvisionException,
+            ArtifactSinkException {
 
-            IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(key);
-            IStatus transferStatus = remoteProviders.getArtifact(localSink, null);
+        logger.info("Downloading " + key.getId() + "_" + key.getVersion() + "...");
+        IStatus transferStatus = downloadMostSpecificNeededFormatOfArtifact(key);
 
-            if (transferStatus.matches(IStatus.ERROR | IStatus.CANCEL)) {
-                // TODO 393004 better formatted, additional log output
-                throw new MirroringFailedException("Could not mirror artifact " + key
-                        + " into the local Maven repository: " + StatusTool.collectProblems(transferStatus),
-                        StatusTool.findException(transferStatus));
-            } else if (transferStatus.matches(IStatus.WARNING)) {
-                logger.warn(StatusTool.collectProblems(transferStatus));
-            }
-
-        } catch (ProvisionException e) {
-            throw new MirroringFailedException("Error while mirroring artifact " + key
-                    + " into the local Maven repository" + e.getMessage(), e);
-        } catch (ArtifactSinkException e) {
-            throw new MirroringFailedException("Error while mirroring artifact " + key
-                    + " into the local Maven repository" + e.getMessage(), e);
+        if (transferStatus.matches(IStatus.ERROR | IStatus.CANCEL)) {
+            // TODO 393004 better formatted, additional log output
+            throw new MirroringFailedException("Could not mirror artifact " + key
+                    + " into the local Maven repository: " + StatusTool.collectProblems(transferStatus),
+                    StatusTool.findException(transferStatus));
+        } else if (transferStatus.matches(IStatus.WARNING)) {
+            logger.warn(StatusTool.collectProblems(transferStatus));
         }
+
+    }
+
+    protected IStatus downloadMostSpecificNeededFormatOfArtifact(IArtifactKey key) throws ProvisionException,
+            ArtifactSinkException {
+        // only need canonical format
+        return downloadCanonicalArtifact(key);
+    }
+
+    protected final IStatus downloadCanonicalArtifact(IArtifactKey key) throws ProvisionException,
+            ArtifactSinkException {
+        // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS - artifact may have been added by other thread in the meantime
+        IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(key);
+        return remoteProviders.getArtifact(localSink, monitor);
+    }
+
+    private void ensureArtifactIsPresentInCanonicalFormat(IArtifactKey key) throws ProvisionException,
+            ArtifactSinkException {
+
+        if (findCanonicalDescriptor(localArtifactRepository.getArtifactDescriptors(key)) == null) {
+            // there was at least format available, but not the canonical format -> create it from the packed format 
+            createCanonicalArtifactFromLocalPackedArtifact(key);
+        }
+    }
+
+    private void createCanonicalArtifactFromLocalPackedArtifact(IArtifactKey key) throws ProvisionException,
+            ArtifactSinkException {
+        logger.info("Unpacking " + key.getId() + "_" + key.getVersion() + "...");
+
+        // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS
+        IArtifactSink sink = localArtifactRepository.newAddingArtifactSink(key);
+        localArtifactRepository.getArtifact(sink, monitor);
+    }
+
+    static IArtifactDescriptor findPackedDescriptor(IArtifactDescriptor[] descriptors) {
+        for (IArtifactDescriptor descriptor : descriptors) {
+            if (ArtifactTransferPolicy.isPack200Format(descriptor)) {
+                return descriptor;
+            }
+        }
+        return null;
+    }
+
+    static IArtifactDescriptor findCanonicalDescriptor(IArtifactDescriptor[] descriptors) {
+        for (IArtifactDescriptor descriptor : descriptors) {
+            if (ArtifactTransferPolicy.isCanonicalFormat(descriptor)) {
+                return descriptor;
+            }
+        }
+        return null;
     }
 
     private static IStatus artifactNotFoundStatus(IArtifactKey key) {
@@ -200,7 +272,6 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
                 + " is neither available in the local Maven repository nor in the configured remote repositories", null);
     }
 
-    // TODO share?
     private static IProgressMonitor nonNull(IProgressMonitor monitor) {
         if (monitor == null)
             return new NullProgressMonitor();

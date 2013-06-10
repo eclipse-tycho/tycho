@@ -343,9 +343,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
         RepositoryArtifactProvider remoteArtifacts = new RepositoryArtifactProvider(allRemoteArtifactRepositories,
                 ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent);
-        // TODO 393004 optionally cache packed artifacts
         MirroringArtifactProvider remoteArtifactCache = MirroringArtifactProvider.createInstance(
-                localArtifactRepository, remoteArtifacts, logger);
+                localArtifactRepository, remoteArtifacts, includePackedArtifacts, logger);
 
         IRawArtifactFileProvider jointArtifacts = new CompositeArtifactProvider(pomDependencyArtifactRepo,
                 remoteArtifactCache);
