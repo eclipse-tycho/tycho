@@ -23,6 +23,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.util.Arrays;
@@ -53,14 +55,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 @SuppressWarnings("restriction")
+@RunWith(Parameterized.class)
 public class MirroringArtifactProviderTest {
 
     // remote bundles
     private static final IArtifactKey BUNDLE_A_KEY = TestRepositoryContent.BUNDLE_A_KEY;
     private static final IArtifactKey BUNDLE_B_KEY = TestRepositoryContent.BUNDLE_B_KEY;
     private static final Set<String> BUNDLE_B_FILES = TestRepositoryContent.BUNDLE_B_FILES;
+    private static final String BUNDLE_B_PACKED_CONTENT_MD5 = TestRepositoryContent.BUNDLE_B_PACKED_CONTENT_MD5;
 
     // bundle already in local repository
     private static final IArtifactKey BUNDLE_L_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.core.jobs",
@@ -73,6 +80,15 @@ public class MirroringArtifactProviderTest {
     // not available bundle
     private static final IArtifactKey OTHER_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
 
+    @Parameters
+    public static Iterable<Object[]> data() {
+        return Arrays.asList(new Object[][] { { false }, { true } });
+    }
+
+    public MirroringArtifactProviderTest(boolean mirrorPacked) throws Exception {
+        this.mirrorPacked = mirrorPacked;
+    }
+
     @Rule
     public TemporaryFolder tempManager = new TemporaryFolder();
     @Rule
@@ -84,6 +100,7 @@ public class MirroringArtifactProviderTest {
     public TemporaryLocalMavenRepository localRepositoryManager = new TemporaryLocalMavenRepository();
     private File localRepositoryRoot;
     private LocalArtifactRepository localRepository;
+    private boolean mirrorPacked;
 
     private ProbeArtifactSink testSink;
     private ProbeRawArtifactSink rawTestSink;
@@ -101,7 +118,8 @@ public class MirroringArtifactProviderTest {
         FileUtils.copy(ResourceUtil.resourceFile("repositories/local_alt"), localRepositoryRoot, new File("."), true);
         localRepository = localRepositoryManager.getLocalArtifactRepository();
 
-        subject = MirroringArtifactProvider.createInstance(localRepository, remoteProvider, logVerifier.getLogger());
+        subject = MirroringArtifactProvider.createInstance(localRepository, remoteProvider, mirrorPacked,
+                logVerifier.getLogger());
     }
 
     @Before
@@ -193,11 +211,26 @@ public class MirroringArtifactProviderTest {
     }
 
     @Test
-    public void testGetArtifactDescriptors() {
+    public void testGetArtifactDescriptors_NoPackedMirroring() {
+        assumeFalse(mirrorPacked);
+
         IArtifactDescriptor[] result = subject.getArtifactDescriptors(BUNDLE_B_KEY);
 
+        // BUNDLE_B is unpacked during the transfer from remote; the packed artifact is not cached
         assertThat(result.length, is(1));
         assertTrue(ArtifactTransferPolicy.isCanonicalFormat(result[0]));
+
+        assertMirrored(BUNDLE_B_KEY);
+    }
+
+    @Test
+    public void testGetArtifactDescriptors_WithPackedMirroring() {
+        assumeTrue(mirrorPacked);
+
+        IArtifactDescriptor[] result = subject.getArtifactDescriptors(BUNDLE_B_KEY);
+
+        // BUNDLE_B is first mirrored in packed format from remote and then locally unpacked
+        assertThat(result.length, is(2));
 
         assertMirrored(BUNDLE_B_KEY);
     }
@@ -216,9 +249,9 @@ public class MirroringArtifactProviderTest {
 
     @Test
     public void testContainsPackedArtifactDescriptor() {
-        assertFalse(subject.contains(packedDescriptorFor(BUNDLE_A_KEY)));
+        assertThat(subject.contains(packedDescriptorFor(BUNDLE_A_KEY)), is(mirrorPacked));
 
-        // any descriptor access triggers the mirroring
+        // any descriptor access triggers the mirroring, even if the result is false
         assertMirrored(BUNDLE_A_KEY);
     }
 
@@ -232,6 +265,16 @@ public class MirroringArtifactProviderTest {
         // the getArtifactFile method that takes a descriptor returns the raw file
         assertThat(subject.getArtifactFile(canonicalDescriptorFor(BUNDLE_A_KEY)), is(new File(localRepositoryRoot,
                 localRepoPathOf(BUNDLE_A_KEY))));
+
+        assertMirrored(BUNDLE_A_KEY);
+    }
+
+    @Test
+    public void testGetRawPackedArtifactFile_WithPackedMirroring() {
+        assumeTrue(mirrorPacked);
+
+        assertThat(subject.getArtifactFile(packedDescriptorFor(BUNDLE_A_KEY)), is(new File(localRepositoryRoot,
+                localRepoPathOf(BUNDLE_A_KEY, "-pack200.jar.pack.gz"))));
 
         assertMirrored(BUNDLE_A_KEY);
     }
@@ -253,7 +296,9 @@ public class MirroringArtifactProviderTest {
     }
 
     @Test
-    public void testGetRawPackedArtifactFails() throws Exception {
+    public void testGetRawPackedArtifact_NoPackedMirroring() throws Exception {
+        assumeFalse(mirrorPacked);
+
         rawTestSink = newRawArtifactSinkFor(packedDescriptorFor(BUNDLE_B_KEY));
         status = subject.getRawArtifact(rawTestSink, null);
 
@@ -261,7 +306,19 @@ public class MirroringArtifactProviderTest {
         assertThat(status, is(errorStatus()));
         assertThat(status.getCode(), is(ProvisionException.ARTIFACT_NOT_FOUND));
 
-        // the default MirroringArtifactProvider doesn't mirror packed artifacts
+        assertMirrored(BUNDLE_B_KEY);
+    }
+
+    @Test
+    public void testGetRawPackedArtifact_WithPackedMirroring() throws Exception {
+        assumeTrue(mirrorPacked);
+
+        rawTestSink = newRawArtifactSinkFor(packedDescriptorFor(BUNDLE_B_KEY));
+        status = subject.getRawArtifact(rawTestSink, null);
+
+        assertThat(rawTestSink.md5AsHex(), is(BUNDLE_B_PACKED_CONTENT_MD5));
+        assertThat(status, is(okStatus()));
+
         assertMirrored(BUNDLE_B_KEY);
     }
 
@@ -284,8 +341,12 @@ public class MirroringArtifactProviderTest {
     }
 
     private static String localRepoPathOf(IArtifactKey key) {
+        return localRepoPathOf(key, ".jar");
+    }
+
+    private static String localRepoPathOf(IArtifactKey key, String classifierAndExtension) {
         return "p2/" + key.getClassifier().replace('.', '/') + "/" + key.getId() + "/" + key.getVersion() + "/"
-                + key.getId() + "-" + key.getVersion() + ".jar";
+                + key.getId() + "-" + key.getVersion() + classifierAndExtension;
     }
 
 }
