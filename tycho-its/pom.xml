@@ -30,8 +30,8 @@
 			/opt/maven/bin/mvn clean test -Pits -Dtycho-build-version=0.4.0-DEV-3023 -Dtycho.targetPlatform=/opt/eclipse-3.5/eclipse/
 		-->
 		<tycho-build-version>${project.version}</tycho-build-version>
-
-		<maven-dir>${project.build.directory}/apache-maven-${maven-version}</maven-dir>
+        <its-maven-version>${maven-version}</its-maven-version>
+		<maven-dir>${project.build.directory}/apache-maven-${its-maven-version}</maven-dir>
 
 	</properties>
 
@@ -168,7 +168,7 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>apache-maven</artifactId>
-			<version>${maven-version}</version>
+			<version>${its-maven-version}</version>
 			<classifier>bin</classifier>
 			<type>tar.gz</type>
 			<scope>provided</scope>
