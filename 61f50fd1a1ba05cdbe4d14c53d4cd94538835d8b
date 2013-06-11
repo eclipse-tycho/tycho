@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPn//3JE\u003d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/utils/MavenCompatiblityHelper.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-06-11T12:26:12Z",
+      "side": 1,
+      "message": "The previous two lines look like a typo (missing parenthesis), but they are not. Proposal: call the varialbles XXXGetter instead of getXXXMethod.\n\nThis is propably not worth a new patch set though.",
+      "revId": "61f50fd1a1ba05cdbe4d14c53d4cd94538835d8b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
