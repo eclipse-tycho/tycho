@@ -159,6 +159,8 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
         project.getProperties().put(BUILD_QUALIFIER_PROPERTY, qualifier);
         project.getProperties().put(UNQUALIFIED_VERSION_PROPERTY, getUnqualifiedVersion());
+
+        getLog().info("Qualifier: " + getUnqualifiedVersion() + "." + qualifier);
     }
 
     String getQualifier(Date timestamp) {
