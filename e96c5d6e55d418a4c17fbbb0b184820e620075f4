@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPn//2j8\u003d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildQualifierMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-06-14T07:35:16Z",
+      "side": 1,
+      "message": "what you log is the unqualified version plus the qualifier, actually, not just qualifier.",
+      "revId": "e96c5d6e55d418a4c17fbbb0b184820e620075f4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
