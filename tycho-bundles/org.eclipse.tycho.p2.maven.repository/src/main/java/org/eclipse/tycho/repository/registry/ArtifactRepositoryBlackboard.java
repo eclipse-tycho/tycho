@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
-import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
+import org.eclipse.tycho.repository.util.internal.RepositoryFactoryTools;
 
 public class ArtifactRepositoryBlackboard extends ArtifactRepositoryFactory {
 

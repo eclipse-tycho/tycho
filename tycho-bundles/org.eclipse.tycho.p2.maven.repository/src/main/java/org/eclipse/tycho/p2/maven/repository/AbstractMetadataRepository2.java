@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository;
 
-import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
 import java.net.URI;
