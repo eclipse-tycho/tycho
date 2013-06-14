@@ -12,7 +12,7 @@ package org.eclipse.tycho.repository.p2base.artifact.repository;
 
 import static org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkFactory.rawWriteToStream;
 import static org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkFactory.writeToStream;
-import static org.eclipse.tycho.repository.util.BundleConstants.BUNDLE_ID;
+import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.IOException;
 import java.io.OutputStream;

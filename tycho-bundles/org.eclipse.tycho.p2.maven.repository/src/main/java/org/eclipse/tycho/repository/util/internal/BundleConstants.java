@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.util;
+package org.eclipse.tycho.repository.util.internal;
 
 public final class BundleConstants {
 

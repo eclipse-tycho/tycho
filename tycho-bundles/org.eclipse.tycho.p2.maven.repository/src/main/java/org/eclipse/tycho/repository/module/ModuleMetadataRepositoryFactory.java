@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
-import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
+import org.eclipse.tycho.repository.util.internal.RepositoryFactoryTools;
 
 public class ModuleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 

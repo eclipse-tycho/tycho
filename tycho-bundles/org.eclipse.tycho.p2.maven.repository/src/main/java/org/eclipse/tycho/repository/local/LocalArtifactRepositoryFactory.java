@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
-import org.eclipse.tycho.repository.util.RepositoryFactoryTools;
+import org.eclipse.tycho.repository.util.internal.RepositoryFactoryTools;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
