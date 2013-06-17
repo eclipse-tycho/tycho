@@ -28,7 +28,6 @@ import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
-import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
@@ -163,14 +162,8 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
 
     @Override
     protected File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor) {
-        MavenArtifactCoordinates mavenCoordinates = getInternalDescriptorForAdding(descriptor).getMavenCoordinates();
-        GAV gav = mavenCoordinates.getGav();
-
-        File basedir = getBasedir();
-        String classifier = mavenCoordinates.getClassifier();
-        String extension = mavenCoordinates.getExtension();
-        File file = new File(basedir, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
-        return file;
+        String relativePath = toInternalDescriptor(descriptor).getMavenCoordinates().getLocalRepositoryPath();
+        return new File(getBasedir(), relativePath);
     }
 
     @Override

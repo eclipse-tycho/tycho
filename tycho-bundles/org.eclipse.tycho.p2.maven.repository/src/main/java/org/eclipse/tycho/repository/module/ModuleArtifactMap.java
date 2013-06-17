@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
+import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 
@@ -61,7 +61,7 @@ class ModuleArtifactMap {
         this.automaticArtifactFolder = new File(repositoryRoot, "extraArtifacts");
     }
 
-    public File getLocalArtifactLocation(MavenArtifactCoordinates coordinates) {
+    public File getLocalArtifactLocation(MavenRepositoryCoordinates coordinates) {
         // GAV parameter may only refer to current module; TODO verify this?
 
         File artifactFile = artifacts.get(coordinates.getClassifier());
