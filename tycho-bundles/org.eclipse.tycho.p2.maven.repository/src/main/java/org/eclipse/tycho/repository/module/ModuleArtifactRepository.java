@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.maven.repository.xmlio.ArtifactsIO;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
+import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.module.ModuleArtifactRepository.ModuleArtifactDescriptor;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
@@ -117,7 +117,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         super(agent, location.toURI(), ArtifactTransferPolicies.forLocalArtifacts());
         this.artifactsMap = artifactsMap;
 
-        this.p2DataFile = artifactsMap.getLocalArtifactLocation(new MavenArtifactCoordinates(DUMMY_GAV,
+        this.p2DataFile = artifactsMap.getLocalArtifactLocation(new MavenRepositoryCoordinates(DUMMY_GAV,
                 RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS, RepositoryLayoutHelper.EXTENSION_P2_ARTIFACTS));
     }
 
@@ -137,12 +137,12 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         return artifactsMap.getLocalArtifactLocation(readMavenCoordinates(descriptor));
     }
 
-    private static MavenArtifactCoordinates readMavenCoordinates(IArtifactDescriptor descriptor) {
+    private static MavenRepositoryCoordinates readMavenCoordinates(IArtifactDescriptor descriptor) {
         if (descriptor instanceof ModuleArtifactDescriptor) {
             return ((ModuleArtifactDescriptor) descriptor).getMavenCoordinates();
 
         } else {
-            MavenArtifactCoordinates result = GAVArtifactDescriptorBase.readMavenCoordinateProperties(descriptor);
+            MavenRepositoryCoordinates result = GAVArtifactDescriptorBase.readMavenCoordinateProperties(descriptor);
             if (result == null) {
                 throw new IllegalArgumentException("Maven coordinate properties are missing in artifact descriptor "
                         + descriptor);
@@ -173,7 +173,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
         ModuleArtifactDescriptor internalDescriptor = (ModuleArtifactDescriptor) descriptor;
 
         try {
-            MavenArtifactCoordinates coordinates = internalDescriptor.getMavenCoordinates();
+            MavenRepositoryCoordinates coordinates = internalDescriptor.getMavenCoordinates();
             artifactsMap.addToAutomaticLocation(coordinates.getClassifier(), coordinates.getExtension());
 
         } catch (ProvisionException e) {
@@ -193,7 +193,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
     public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, WriteSessionContext writeSession) {
         ClassifierAndExtension additionalProperties = writeSession.getClassifierAndExtensionForNewKey(key);
-        MavenArtifactCoordinates mavenCoordinates = new MavenArtifactCoordinates(moduleGAV,
+        MavenRepositoryCoordinates mavenCoordinates = new MavenRepositoryCoordinates(moduleGAV,
                 additionalProperties.classifier, additionalProperties.fileExtension);
 
         return new ModuleArtifactDescriptor(key, mavenCoordinates);
@@ -255,7 +255,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
     private ModuleArtifactDescriptor getInternalDescriptorFromLoadedDescriptor(IArtifactDescriptor loadedDescriptor,
             File sourceFile) throws ProvisionException {
-        MavenArtifactCoordinates mavenCoordinates = GAVArtifactDescriptorBase
+        MavenRepositoryCoordinates mavenCoordinates = GAVArtifactDescriptorBase
                 .readMavenCoordinateProperties(loadedDescriptor);
         if (mavenCoordinates != null) {
             return new ModuleArtifactDescriptor(loadedDescriptor, mavenCoordinates);
@@ -268,7 +268,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
              * RepositoryPackedArtifactsTest failed without this hack.)
              */
             if (ArtifactTransferPolicy.isPack200Format(loadedDescriptor)) {
-                MavenArtifactCoordinates guessedPack200Coordinates = new MavenArtifactCoordinates(moduleGAV,
+                MavenRepositoryCoordinates guessedPack200Coordinates = new MavenRepositoryCoordinates(moduleGAV,
                         RepositoryLayoutHelper.PACK200_CLASSIFIER, RepositoryLayoutHelper.PACK200_EXTENSION);
                 // TODO store GAV in properties; doesn't work while moduleGAV is null during construction
                 return new ModuleArtifactDescriptor(loadedDescriptor, guessedPack200Coordinates, false);
@@ -302,18 +302,18 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
      */
     class ModuleArtifactDescriptor extends GAVArtifactDescriptorBase {
 
-        ModuleArtifactDescriptor(IArtifactDescriptor base, MavenArtifactCoordinates mavenCoordinates) {
+        ModuleArtifactDescriptor(IArtifactDescriptor base, MavenRepositoryCoordinates mavenCoordinates) {
             super(base, mavenCoordinates, false); // Maven coordinates are copied from the base
         }
 
         // do not use; only needed for a workaround
         @Deprecated
-        private ModuleArtifactDescriptor(IArtifactDescriptor base, MavenArtifactCoordinates mavenCoordinates,
+        private ModuleArtifactDescriptor(IArtifactDescriptor base, MavenRepositoryCoordinates mavenCoordinates,
                 boolean setProperties) {
             super(base, mavenCoordinates, setProperties);
         }
 
-        ModuleArtifactDescriptor(IArtifactKey p2Key, MavenArtifactCoordinates mavenCoordinates) {
+        ModuleArtifactDescriptor(IArtifactKey p2Key, MavenRepositoryCoordinates mavenCoordinates) {
             super(p2Key, mavenCoordinates, true); // set Maven coordinate properties
         }
 

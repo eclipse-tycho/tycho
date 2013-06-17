@@ -10,20 +10,22 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.util;
 
+import java.util.Map;
+
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.p2.repository.GAV;
-import org.eclipse.tycho.p2.repository.MavenArtifactCoordinates;
+import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 public class GAVArtifactDescriptorBase extends ArtifactDescriptor {
 
-    protected final MavenArtifactCoordinates coordinates;
+    protected final MavenRepositoryCoordinates coordinates;
 
     // BEGIN construction
 
-    protected GAVArtifactDescriptorBase(IArtifactDescriptor base, MavenArtifactCoordinates mavenCoordinates,
+    protected GAVArtifactDescriptorBase(IArtifactDescriptor base, MavenRepositoryCoordinates mavenCoordinates,
             boolean storeMavenCoordinates) {
         super(base);
 
@@ -36,7 +38,7 @@ public class GAVArtifactDescriptorBase extends ArtifactDescriptor {
         }
     }
 
-    protected GAVArtifactDescriptorBase(IArtifactKey p2Key, MavenArtifactCoordinates mavenCoordinates,
+    protected GAVArtifactDescriptorBase(IArtifactKey p2Key, MavenRepositoryCoordinates mavenCoordinates,
             boolean storeMavenCoordinates) {
         super(p2Key);
 
@@ -53,16 +55,23 @@ public class GAVArtifactDescriptorBase extends ArtifactDescriptor {
         properties.put(RepositoryLayoutHelper.PROP_GROUP_ID, coordinates.getGroupId());
         properties.put(RepositoryLayoutHelper.PROP_ARTIFACT_ID, coordinates.getArtifactId());
         properties.put(RepositoryLayoutHelper.PROP_VERSION, coordinates.getVersion());
-        properties.put(RepositoryLayoutHelper.PROP_CLASSIFIER, coordinates.getClassifier());
-        properties.put(RepositoryLayoutHelper.PROP_EXTENSION, coordinates.getExtension());
+        putOrRemoveOnNull(properties, RepositoryLayoutHelper.PROP_CLASSIFIER, coordinates.getClassifier());
+        putOrRemoveOnNull(properties, RepositoryLayoutHelper.PROP_EXTENSION, coordinates.getExtension());
+    }
 
-        // TODO replace "jar" with null (if this is the only place handing the Maven properties)
+    private static void putOrRemoveOnNull(Map<String, String> properties, String key, String value) {
+        if (value == null) {
+            properties.remove(key);
+        } else {
+            properties.put(key, value);
+        }
     }
 
     /**
-     * @return the Maven coordinates stored in the given descriptor, or <code>null</code>
+     * @return the Maven coordinates stored in the properties of the given descriptor, or
+     *         <code>null</code>
      */
-    public static MavenArtifactCoordinates readMavenCoordinateProperties(IArtifactDescriptor descriptor) {
+    public static MavenRepositoryCoordinates readMavenCoordinateProperties(IArtifactDescriptor descriptor) {
         GAV gav = RepositoryLayoutHelper.getGAV(descriptor.getProperties());
         if (gav == null) {
             return null;
@@ -70,7 +79,7 @@ public class GAVArtifactDescriptorBase extends ArtifactDescriptor {
 
         String classifier = RepositoryLayoutHelper.getClassifier(descriptor.getProperties());
         String extension = RepositoryLayoutHelper.getExtension(descriptor.getProperties());
-        return new MavenArtifactCoordinates(gav, classifier, extension);
+        return new MavenRepositoryCoordinates(gav, classifier, extension);
     }
 
     // END construction
@@ -80,7 +89,7 @@ public class GAVArtifactDescriptorBase extends ArtifactDescriptor {
      * 
      * @return The Maven coordinates; never <code>null</code>
      */
-    public final MavenArtifactCoordinates getMavenCoordinates() {
+    public final MavenRepositoryCoordinates getMavenCoordinates() {
         return coordinates;
     }
 
