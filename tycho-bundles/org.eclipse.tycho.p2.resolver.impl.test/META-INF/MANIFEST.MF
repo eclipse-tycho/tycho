@@ -10,4 +10,5 @@ Require-Bundle: org.junit,
  org.eclipse.equinox.p2.transport.ecf
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
-Import-Package: org.eclipse.tycho.test.util
+Import-Package: org.eclipse.tycho.repository.streaming.testutil,
+ org.eclipse.tycho.test.util
