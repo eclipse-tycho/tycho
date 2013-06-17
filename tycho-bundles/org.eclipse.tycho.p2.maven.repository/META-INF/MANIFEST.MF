@@ -23,7 +23,8 @@ Export-Package: org.eclipse.tycho.p2.maven.repository,
  org.eclipse.tycho.repository.p2base.artifact.provider.streaming,
  org.eclipse.tycho.repository.p2base.artifact.repository,
  org.eclipse.tycho.repository.publishing,
- org.eclipse.tycho.repository.registry
+ org.eclipse.tycho.repository.registry,
+ org.eclipse.tycho.repository.util
 Import-Package: org.eclipse.osgi.util,
  org.eclipse.tycho,
  org.eclipse.tycho.core.facade,
