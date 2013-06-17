@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,7 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
+import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
@@ -68,6 +69,8 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
+import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
@@ -204,16 +207,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
             addMavenArtifact(new ClassifiedLocation(artifact), artifact, Collections.singleton(bundleIU));
     }
 
-    /**
-     * Returns an {@link IArtifactRepository} instance containing those artifacts in the resolution
-     * context which are not in the normal p2 view of the local Maven repository.
-     * 
-     * @see TargetPlatformBuilderImpl#downloadArtifacts(Collection)
-     */
-    private IArtifactRepository getSupplementaryArtifactRepository() {
-        return bundlesPublisher.getArtifactRepoOfPublishedBundles();
-    }
-
     // ------------------------------------------------------------
 
     /**
@@ -312,16 +305,17 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     private File projectLocation;
 
-    // TODO 364134 get rid of this method
+    // TODO 372780 get rid of this method
     public void setProjectLocation(File projectLocation) {
         this.projectLocation = projectLocation;
     }
 
     public P2TargetPlatform buildTargetPlatform() {
-        // TODO 364134 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
-        IArtifactRepository resolutionContextArtifactRepo = getSupplementaryArtifactRepository();
+        // TODO 372780 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
+        IRawArtifactFileProvider pomDependencyArtifactRepo = bundlesPublisher.getArtifactRepoOfPublishedBundles();
         RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey.forResolutionContextArtifacts(projectLocation);
-        ArtifactRepositoryBlackboard.putRepository(blackboardKey, resolutionContextArtifactRepo);
+        ArtifactRepositoryBlackboard.putRepository(blackboardKey, new ProviderOnlyArtifactRepository(
+                pomDependencyArtifactRepo, Activator.getProvisioningAgent(), blackboardKey.toURI()));
         logger.debug("Registered artifact repository " + blackboardKey);
 
         Set<IInstallableUnit> reactorProjectUIs = getReactorProjectUIs();
