@@ -13,9 +13,10 @@ package org.eclipse.tycho.repository.local;
 
 import java.io.File;
 
-import org.eclipse.tycho.p2.impl.repo.FileBasedTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
+import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
+import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Before;

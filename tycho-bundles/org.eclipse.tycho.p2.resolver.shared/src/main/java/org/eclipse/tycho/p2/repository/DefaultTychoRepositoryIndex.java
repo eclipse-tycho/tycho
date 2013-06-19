@@ -26,6 +26,7 @@ import java.util.Set;
  * Default implementation of TychoRepositoryIndex defines tycho repository index format and provides
  * generic index read/write methods.
  */
+//TODO merge into only sub-class FileBasedTychoRepositoryIndex?
 public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryIndex {
 
     private static final String ENCODING = "UTF8";

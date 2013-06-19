@@ -17,13 +17,17 @@ Require-Bundle: org.junit;bundle-version="[4.8.1,5.0.0)",
  org.eclipse.equinox.common;bundle-version="3.6.100",
  org.eclipse.equinox.ds;bundle-version="1.4.0"
 Bundle-Vendor: %providerName
-Export-Package: org.eclipse.tycho.repository.test.util,
+Export-Package: org.eclipse.tycho.repository.local.testutil,
+ org.eclipse.tycho.repository.test.util,
  org.eclipse.tycho.test.util
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.core.facade,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.p2.remote,
+ org.eclipse.tycho.p2.repository,
+ org.eclipse.tycho.repository.local,
+ org.eclipse.tycho.repository.local.index,
  org.osgi.framework
 Bundle-Activator: org.eclipse.tycho.test.util.Activator
 Bundle-ActivationPolicy: lazy
