@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="false">
-   <implementation class="org.eclipse.tycho.p2.impl.repo.LocalRepositoryP2IndicesImpl"/>
+   <implementation class="org.eclipse.tycho.repository.local.index.LocalRepositoryP2IndicesImpl"/>
    <service>
       <provide interface="org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices"/>
    </service>

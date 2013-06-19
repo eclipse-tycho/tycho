@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.repo;
+package org.eclipse.tycho.repository.local.index;
 
 import java.io.File;
 import java.io.FileInputStream;

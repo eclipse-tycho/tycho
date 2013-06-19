@@ -42,7 +42,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+import org.eclipse.tycho.p2.maven.repository.tests.ResourceUtil;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
+import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
@@ -112,7 +114,7 @@ public class LocalArtifactRepositoryP2APITest {
 
     @Before
     public void initSubject() throws Exception {
-        temporaryLocalMavenRepo.initContentFromTestResource("repositories/local");
+        temporaryLocalMavenRepo.initContentFromResourceFolder(ResourceUtil.resourceFile("repositories/local"));
         subject = new LocalArtifactRepository(null, temporaryLocalMavenRepo.getLocalRepositoryIndex());
 
         testOutputStream = new ProbeOutputStream();

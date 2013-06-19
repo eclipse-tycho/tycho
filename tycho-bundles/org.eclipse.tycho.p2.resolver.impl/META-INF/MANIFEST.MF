@@ -45,7 +45,6 @@ Service-Component: OSGI-INF/generator.xml,
  OSGI-INF/metadataserializable.xml,
  OSGI-INF/proxyfacade.xml,
  OSGI-INF/resolver.xml,
- OSGI-INF/localRepoP2Indices.xml,
  OSGI-INF/remoteAgentManager.xml,
  OSGI-INF/targetDefinitionResolverService.xml
 Bundle-Vendor: %providerName
