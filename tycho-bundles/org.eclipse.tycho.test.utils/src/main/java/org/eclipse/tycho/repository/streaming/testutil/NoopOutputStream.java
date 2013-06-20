@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.test.util;
+package org.eclipse.tycho.repository.streaming.testutil;
 
 import java.io.IOException;
 import java.io.OutputStream;
