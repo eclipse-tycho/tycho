@@ -8,7 +8,7 @@
  * Contributors:
  *    Tobias Oberlies (SAP AG) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.p2base.artifact.provider.streaming;
+package org.eclipse.tycho.repository.streaming.testutil;
 
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
@@ -27,7 +27,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
-import org.eclipse.tycho.repository.test.util.ProbeOutputStream;
 
 public class ProbeArtifactSink implements IArtifactSink {
 

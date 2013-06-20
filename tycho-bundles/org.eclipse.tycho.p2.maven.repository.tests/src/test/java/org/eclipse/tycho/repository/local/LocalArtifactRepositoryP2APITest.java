@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
-import static org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ProbeArtifactSink.newArtifactSinkFor;
-import static org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ProbeRawArtifactSink.newRawArtifactSinkFor;
+import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
+import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -49,11 +49,10 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFilePro
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.NonStartableArtifactSink;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ProbeArtifactSink;
-import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ProbeRawArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
-import org.eclipse.tycho.repository.test.util.ProbeOutputStream;
+import org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink;
+import org.eclipse.tycho.repository.streaming.testutil.ProbeOutputStream;
+import org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

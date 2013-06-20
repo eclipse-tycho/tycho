@@ -8,7 +8,7 @@
  * Contributors:
  *    Tobias Oberlies (SAP AG) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.p2base.artifact.provider.streaming;
+package org.eclipse.tycho.repository.streaming.testutil;
 
 import java.io.IOException;
 
