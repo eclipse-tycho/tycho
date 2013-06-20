@@ -11,5 +11,6 @@ Require-Bundle: org.junit,
  org.eclipse.equinox.ds
 Import-Package: org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.repository.local.testutil,
+ org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.test.util,
  org.eclipse.tycho.test.util
