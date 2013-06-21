@@ -52,6 +52,7 @@ public class OsgiSurefireBooter {
         File testClassesDir = new File(testProps.getProperty("testclassesdirectory"));
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
         String provider = testProps.getProperty("testprovider");
+        String runOrder = testProps.getProperty("runOrder");
         List<String> includes = getIncludesExcludes(testProps.getProperty("includes"));
         List<String> excludes = getIncludesExcludes(testProps.getProperty("excludes"));
 
@@ -71,7 +72,7 @@ public class OsgiSurefireBooter {
         StartupConfiguration startupConfiguration = new StartupConfiguration(provider, classPathConfig,
                 new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), forkMode, inForkedVM);
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir, includes,
-                excludes, failIfNoTests, RunOrder.FILESYSTEM);
+                excludes, failIfNoTests, RunOrder.valueOf(runOrder));
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStacktrace);
         TestRequest testRequest = new TestRequest(null, testClassesDir, null);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams, failIfNoTests,

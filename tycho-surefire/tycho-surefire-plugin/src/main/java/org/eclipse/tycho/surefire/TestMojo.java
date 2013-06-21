@@ -466,6 +466,18 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * <p>
+     * Defines the order the tests will be run in. Supported values are "alphabetical",
+     * "reversealphabetical", "random", "hourly" (alphabetical on even hours, reverse alphabetical
+     * on odd hours) and "filesystem".
+     * </p>
+     * 
+     * @parameter default-value="filesystem"
+     * @since 0.19.0
+     */
+    private String runOrder;
+
+    /**
+     * <p>
      * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads,
      * as controlled by threadCount.
      * </p>
@@ -721,6 +733,7 @@ public class TestMojo extends AbstractMojo {
             }
         }
         p.put("failifnotests", String.valueOf(failIfNoTests));
+        p.put("runOrder", runOrder);
         mergeProviderProperties(p);
         return p;
     }
