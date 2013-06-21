@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPn//1NY\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/GAVArtifactDescriptorBase.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-06-21T14:03:21Z",
+      "side": 1,
+      "message": "should be in the order key, value",
+      "revId": "b4169848e0d8ce363b2f422d50aafed063d45a4d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
