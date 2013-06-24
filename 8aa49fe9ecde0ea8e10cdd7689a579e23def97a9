@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AABOPn//0zU\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBuilderImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-06-24T10:54:21Z",
+      "side": 1,
+      "message": "This is unnecessary and prevents the performance enhancement of bug 347477",
+      "revId": "8aa49fe9ecde0ea8e10cdd7689a579e23def97a9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPn//0zQ\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBuilderImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-06-24T10:54:21Z",
+      "side": 1,
+      "message": "This is obsolete; the whole p2 mirror request stuff is no longer involved in the downloads.",
+      "revId": "8aa49fe9ecde0ea8e10cdd7689a579e23def97a9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
