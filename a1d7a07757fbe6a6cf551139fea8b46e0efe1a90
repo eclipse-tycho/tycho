@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "AABOPn//0zc\u003d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-06-24T10:47:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOPn//1Ns\u003d",
+      "revId": "a1d7a07757fbe6a6cf551139fea8b46e0efe1a90",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOPn//1No\u003d",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/META-INF/MANIFEST.MF",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2013-06-21T13:57:20Z",
       "side": 1,
       "message": "This change is an unnecessary leftover from an earlier version of the change.",
+      "revId": "a1d7a07757fbe6a6cf551139fea8b46e0efe1a90",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AABOPn//0zg\u003d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-06-24T10:47:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "AABOPn//1No\u003d",
       "revId": "a1d7a07757fbe6a6cf551139fea8b46e0efe1a90",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
