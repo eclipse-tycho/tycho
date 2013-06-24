@@ -51,7 +51,7 @@ public class TPValidationMojo extends AbstractMojo {
      */
     private boolean failOnError;
 
-    /** @parameter default-value="J2SE-1.5" */
+    /** @parameter default-value="JavaSE-1.6" */
     private String executionEnvironment;
 
     /** @component */

@@ -19,6 +19,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
@@ -31,6 +32,9 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
 
     /** @component */
     private Logger logger;
+
+    /** @parameter default-value="JavaSE-1.6" */
+    private String executionEnvironment;
 
     protected P2Resolver p2;
 
@@ -52,7 +56,8 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     private void createResolver() {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
         p2 = factory.createResolver(new MavenLoggerAdapter(logger, false));
-        resolutionContext = factory.createTargetPlatformBuilder(null);
+        resolutionContext = factory.createTargetPlatformBuilder(new ExecutionEnvironmentConfigurationStub(
+                executionEnvironment));
     }
 
 }
