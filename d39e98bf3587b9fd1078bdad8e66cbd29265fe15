@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "AABOPn//0vc\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/MutableBundleManifest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-06-24T15:17:31Z",
+      "side": 1,
+      "message": "Who owns the copyright of this patch? Typically this is not you but your employer.",
+      "revId": "d39e98bf3587b9fd1078bdad8e66cbd29265fe15",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOJX//+4w\u003d",
         "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/MutableBundleManifest.java",
         "patchSetId": 1
