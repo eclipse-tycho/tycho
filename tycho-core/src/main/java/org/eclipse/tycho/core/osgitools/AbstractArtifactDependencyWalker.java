@@ -169,7 +169,12 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             try {
                 File location = artifact.getLocation();
 
-                Feature feature = Feature.loadFeature(location);
+                Feature feature;
+                if ("sources-feature".equals(artifact.getClassifier())) {
+                    feature = Feature.loadFeature(new File(location, "target/sources-feature"));
+                } else {
+                    feature = Feature.loadFeature(location);
+                }
                 traverseFeature(location, feature, ref, visitor, visited);
             } finally {
                 visited.leave(artifact);
