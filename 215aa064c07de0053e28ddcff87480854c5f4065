@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87a3737f_379340b1",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/AbstractArtifactDependencyWalker.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-06-25T07:32:39Z",
+      "side": 1,
+      "message": "1. location is hardcoded\n2. not sure if the build result in target is always available when traversing",
+      "revId": "215aa064c07de0053e28ddcff87480854c5f4065",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
