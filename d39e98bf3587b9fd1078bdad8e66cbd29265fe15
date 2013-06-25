@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "AABOPX//2Do\u003d",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/MutableBundleManifest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2013-06-25T16:43:26Z",
+      "side": 1,
+      "message": "Why is use regex here is because I couldn\u0027t figure out a way to build the correct value string out of an ManifestElement[] to call _attr.set(Constants.EXPORT_PACKAGE, newExportedPackage);_ correctly.\n\nThis is why I used regex to simply replace the version number.",
+      "parentUuid": "AABOJX//+4E\u003d",
+      "revId": "d39e98bf3587b9fd1078bdad8e66cbd29265fe15",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "AABOJX//+4o\u003d",
         "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/MutableBundleManifest.java",
         "patchSetId": 1
