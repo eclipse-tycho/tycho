@@ -326,6 +326,15 @@ public class SourceFeatureMojo extends AbstractMojo {
             FeatureRef binaryRef = new FeatureRef(new Element("includes"));
             binaryRef.setId(feature.getId());
             binaryRef.setVersion(feature.getVersion());
+            if (feature.getOS() != null) {
+                binaryRef.setOS(feature.getOS());
+            }
+            if (feature.getWS() != null) {
+                binaryRef.setWS(feature.getWS());
+            }
+            if (feature.getArch() != null) {
+                binaryRef.setArch(feature.getArch());
+            }
             sourceFeature.addFeatureRef(binaryRef);
         }
 
