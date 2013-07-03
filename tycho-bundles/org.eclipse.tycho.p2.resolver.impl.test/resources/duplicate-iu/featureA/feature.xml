@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="featureA" version="1.0.0.qualifier">
+      id="featureA"
+      version="1.0.0.qualifier">
+
+   <includes
+         id="org.eclipse.cvs"
+         version="0.0.0"
+         os="linux"
+         ws="gtk"
+         arch="x86_64"/>
 
 </feature>
