@@ -402,4 +402,28 @@ public class Feature {
         }
         licenseElement.setAttribute("url", licenseURL);
     }
+
+    public String getOS() {
+        return dom.getAttributeValue("os");
+    }
+
+    public void setOS(String value) {
+        dom.setAttribute("os", value);
+    }
+
+    public String getArch() {
+        return dom.getAttributeValue("arch");
+    }
+
+    public void setArch(String value) {
+        dom.setAttribute("arch", value);
+    }
+
+    public String getWS() {
+        return dom.getAttributeValue("ws");
+    }
+
+    public void setWS(String value) {
+        dom.setAttribute("ws", value);
+    }
 }
