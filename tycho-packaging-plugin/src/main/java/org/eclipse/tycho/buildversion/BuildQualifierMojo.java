@@ -128,21 +128,20 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        String osgiVersionStr = getOSGiVersion();
-        if (osgiVersionStr != null) {
-            try {
-                Version osgiVersion = Version.parseVersion(osgiVersionStr);
+        TychoProjectVersion projectVersion = calculateQualifiedVersion();
+        project.getProperties().put(BUILD_QUALIFIER_PROPERTY, projectVersion.qualifier);
+        project.getProperties().put(UNQUALIFIED_VERSION_PROPERTY, projectVersion.unqualifiedVersion);
+    }
 
-                if (!VersioningHelper.QUALIFIER.equals(osgiVersion.getQualifier())) {
-                    // fully expended or absent qualified. nothing to expand
-                    project.getProperties().put(BUILD_QUALIFIER_PROPERTY, osgiVersion.getQualifier());
-                    project.getProperties().put(UNQUALIFIED_VERSION_PROPERTY,
-                            osgiVersion.getMajor() + "." + osgiVersion.getMinor() + "." + osgiVersion.getMicro());
+    private TychoProjectVersion calculateQualifiedVersion() throws MojoFailureException, MojoExecutionException {
+        Version osgiVersion = getParsedOSGiVersion();
+        if (osgiVersion != null) {
 
-                    return;
-                }
-            } catch (IllegalArgumentException e) {
-                throw new MojoFailureException("Not a valid OSGi version " + osgiVersionStr + " for project " + project);
+            if (!VersioningHelper.QUALIFIER.equals(osgiVersion.getQualifier())) {
+                // fully expended or absent qualified. nothing to expand
+                String unqualifiedVersion = osgiVersion.getMajor() + "." + osgiVersion.getMinor() + "."
+                        + osgiVersion.getMicro();
+                return new TychoProjectVersion(unqualifiedVersion, osgiVersion.getQualifier());
             }
         }
 
@@ -157,8 +156,20 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
             qualifier = getQualifier(timestamp);
         }
 
-        project.getProperties().put(BUILD_QUALIFIER_PROPERTY, qualifier);
-        project.getProperties().put(UNQUALIFIED_VERSION_PROPERTY, getUnqualifiedVersion());
+        return new TychoProjectVersion(getUnqualifiedVersion(), qualifier);
+    }
+
+    private Version getParsedOSGiVersion() throws MojoFailureException {
+        String osgiVersionString = getOSGiVersion();
+        if (osgiVersionString == null) {
+            return null;
+        }
+
+        try {
+            return Version.parseVersion(osgiVersionString);
+        } catch (IllegalArgumentException e) {
+            throw new MojoFailureException("Not a valid OSGi version " + osgiVersionString + " for project " + project);
+        }
     }
 
     String getQualifier(Date timestamp) {
@@ -182,4 +193,24 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         return provider.getTimestamp(session, project, execution);
     }
 
+    // TODO 382482 use this class throughout Tycho? 
+    static class TychoProjectVersion {
+
+        // TODO also store Maven version? make constraints enforced by ValidateVersionMojo invariants of this class?
+        private String unqualifiedVersion;
+        private String qualifier;
+
+        TychoProjectVersion(String unqualifiedVersion, String qualifier) {
+            this.unqualifiedVersion = unqualifiedVersion;
+            this.qualifier = qualifier == null ? "" : qualifier;
+        }
+
+        public String getOSGiVersion() {
+            if (qualifier.length() == 0) {
+                return unqualifiedVersion;
+            } else {
+                return unqualifiedVersion + '.' + qualifier;
+            }
+        }
+    }
 }
