@@ -4,7 +4,7 @@ import java.io.*;
 
 import junit.framework.Assert;
 
-File sourceFeature = new File(basedir, "feature/target/feature-sources-feature.jar");
+File sourceFeature = new File(basedir, "feature/target/feature-1.0.0-sources-feature.jar");
 Assert.assertTrue("Missing expected file " + sourceFeature, sourceFeature.canRead());
 
 ZipFile featureZip = new ZipFile(sourceFeature);

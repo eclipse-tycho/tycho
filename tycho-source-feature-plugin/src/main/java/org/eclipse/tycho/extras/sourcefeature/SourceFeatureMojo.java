@@ -181,6 +181,14 @@ public class SourceFeatureMojo extends AbstractMojo {
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     /**
+     * The filename to be used for the generated archive file. For the source-feature goal,
+     * "-sources-feature" is appended to this filename.
+     * 
+     * @parameter default-value="${project.build.finalName}"
+     */
+    private String finalName;
+
+    /**
      * @component role="org.codehaus.plexus.archiver.Archiver" roleHint="jar"
      */
     private JarArchiver jarArchiver;
@@ -515,7 +523,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     }
 
     protected File getOutputJarFile() {
-        String filename = project.getArtifactId() + "-" + SOURCES_FEATURE_CLASSIFIER + ".jar";
+        String filename = finalName + "-" + SOURCES_FEATURE_CLASSIFIER + ".jar";
         return new File(project.getBuild().getDirectory(), filename);
     }
 
