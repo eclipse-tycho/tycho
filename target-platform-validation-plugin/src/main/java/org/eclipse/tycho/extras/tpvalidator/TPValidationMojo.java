@@ -20,7 +20,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
@@ -110,14 +109,13 @@ public class TPValidationMojo extends AbstractMojo {
             // create resolver
             this.logger.info("Validating " + targetFile + "...");
             TargetPlatformBuilder resolutionContext;
-            resolutionContext = this.factory.createTargetPlatformBuilder(new ExecutionEnvironmentConfigurationStub(
-                    executionEnvironment));
+            resolutionContext = this.factory.createTargetPlatformBuilder();
 
             TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
 
-            resolutionContext.addTargetDefinition(target,
-                    Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
-            P2ResolutionResult result = this.p2.resolveMetadata(resolutionContext);
+            resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+            resolutionContext.addTargetDefinition(target);
+            P2ResolutionResult result = this.p2.resolveMetadata(resolutionContext, executionEnvironment);
         } catch (Exception ex) {
             throw new TPError(targetFile, ex);
         }

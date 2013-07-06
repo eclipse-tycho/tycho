@@ -199,14 +199,14 @@ public class EclipseRunMojo extends AbstractMojo {
 
     private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
         P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
-        TargetPlatformBuilder tpBuilder = resolverFactory
-                .createTargetPlatformBuilder(new ExecutionEnvironmentConfigurationStub(executionEnvironment));
+        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder();
         // we want to resolve from remote repos only
         tpBuilder.setIncludeLocalMavenRepo(false);
         for (Repository repository : repositories) {
             tpBuilder.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
         }
-        TargetPlatform targetPlatform = tpBuilder.buildTargetPlatform();
+        TargetPlatform targetPlatform = tpBuilder.buildTargetPlatform(new ExecutionEnvironmentConfigurationStub(
+                executionEnvironment));
         P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
         for (Dependency dependency : dependencies) {
             resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());

@@ -52,9 +52,9 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
                 }
             }
         }
-        resolutionContext.addTargetDefinition(target,
-                Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
-        P2ResolutionResult result = p2.resolveMetadata(resolutionContext);
+        resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+        resolutionContext.addTargetDefinition(target);
+        P2ResolutionResult result = p2.resolveMetadata(resolutionContext, executionEnvironment);
 
         Map<String, String> ius = new HashMap<String, String>();
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
