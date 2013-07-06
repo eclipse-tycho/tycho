@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,28 +9,41 @@
  *    SAP AG - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.osgi.configuration;
-
-import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.settings.Proxy;
+import org.apache.maven.settings.Server;
 import org.apache.maven.settings.building.SettingsProblem;
+import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
+import org.apache.maven.settings.crypto.SettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
+import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 
-public abstract class AbstractSettingsConfigurator extends EquinoxLifecycleListener {
+
+@Component(role = SettingsDecrypterHelper.class)
+public class SettingsDecrypterHelper {
 
     @Requirement
-    protected Logger logger;
+    private Logger logger;
     @Requirement
-    protected LegacySupport context;
-    @Requirement
-    protected SettingsDecrypter decrypter;
+    private SettingsDecrypter decrypter;
 
-    public AbstractSettingsConfigurator() {
+    public SettingsDecryptionResult decryptAndLogProblems(Proxy proxySettings) {
+        return decryptAndLogProblems(new DefaultSettingsDecryptionRequest(proxySettings));
     }
 
-    protected void logProblems(SettingsDecryptionResult decryptionResult) {
+    public SettingsDecryptionResult decryptAndLogProblems(Server serverSettings) {
+        return decryptAndLogProblems(new DefaultSettingsDecryptionRequest(serverSettings));
+    }
+
+    private SettingsDecryptionResult decryptAndLogProblems(SettingsDecryptionRequest decryptRequest) {
+        SettingsDecryptionResult result = decrypter.decrypt(decryptRequest);
+        logProblems(result);
+        return result;
+    }
+
+    private void logProblems(SettingsDecryptionResult decryptionResult) {
         boolean hasErrors = false;
         for (SettingsProblem problem : decryptionResult.getProblems()) {
             switch (problem.getSeverity()) {

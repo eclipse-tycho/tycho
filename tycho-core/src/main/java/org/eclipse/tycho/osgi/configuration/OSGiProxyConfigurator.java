@@ -13,16 +13,27 @@ package org.eclipse.tycho.osgi.configuration;
 import java.util.Locale;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.settings.Proxy;
-import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
 import org.eclipse.tycho.core.facade.ProxyServiceFacade;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "P2ProxyConfigurator")
-public class OSGiProxyConfigurator extends AbstractSettingsConfigurator {
+public class OSGiProxyConfigurator extends EquinoxLifecycleListener {
+
+    @Requirement
+    protected Logger logger;
+    @Requirement
+    protected LegacySupport context;
+
+    @Requirement
+    protected SettingsDecrypterHelper decrypter;
+
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         MavenSession session = context.getSession();
@@ -49,9 +60,7 @@ public class OSGiProxyConfigurator extends AbstractSettingsConfigurator {
 
         if (isSupportedProtocol(protocol)) {
 
-            DefaultSettingsDecryptionRequest decryptRequest = new DefaultSettingsDecryptionRequest(proxy);
-            SettingsDecryptionResult result = decrypter.decrypt(decryptRequest);
-            logProblems(result);
+            SettingsDecryptionResult result = decrypter.decryptAndLogProblems(proxy);
             proxy = result.getProxy();
             logger.debug("Configuring proxy for protocol " + protocol + ": host=" + proxy.getHost() + ", port="
                     + proxy.getPort() + ", nonProxyHosts=" + proxy.getNonProxyHosts());
