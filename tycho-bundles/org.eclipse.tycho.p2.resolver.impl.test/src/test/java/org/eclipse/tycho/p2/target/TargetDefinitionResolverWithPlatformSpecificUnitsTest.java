@@ -148,7 +148,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
                 new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, false));
         subject = createResolver(Collections.singletonList(new TargetEnvironment(null, null, null)));
 
-        subject.resolveContent(targetDefinition);
+        subject.resolveContentWithExceptions(targetDefinition);
     }
 
     private TargetDefinitionResolver createResolver(List<TargetEnvironment> environments) throws ProvisionException {

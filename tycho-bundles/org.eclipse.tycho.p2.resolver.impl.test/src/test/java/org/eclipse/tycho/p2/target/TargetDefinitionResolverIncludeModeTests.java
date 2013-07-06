@@ -64,7 +64,7 @@ public class TargetDefinitionResolverIncludeModeTests {
         logVerifier.expectError(any(String.class));
 
         TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
-        subject.resolveContent(definition);
+        subject.resolveContentWithExceptions(definition);
     }
 
     @Test
@@ -85,14 +85,14 @@ public class TargetDefinitionResolverIncludeModeTests {
     public void testUnsatisfiedInclusionWithSlicerFails() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED,
                 TARGET_FEATURE));
-        subject.resolveContent(definition);
+        subject.resolveContentWithExceptions(definition);
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testResolveConflictingIncludeMode() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.V1, MAIN_BUNDLE),
                 new PlannerLocationStub(TestRepositories.V2));
-        subject.resolveContent(definition);
+        subject.resolveContentWithExceptions(definition);
     }
 
     static class PlannerLocationStub extends LocationStub implements InstallableUnitLocation {

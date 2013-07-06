@@ -24,6 +24,11 @@ public interface TargetDefinition {
      */
     boolean hasIncludedBundles();
 
+    /**
+     * Returns the origin of the target definition, e.g. a file path. Used for debugging only.
+     */
+    String getOrigin();
+
     @Override
     public boolean equals(Object obj);
 

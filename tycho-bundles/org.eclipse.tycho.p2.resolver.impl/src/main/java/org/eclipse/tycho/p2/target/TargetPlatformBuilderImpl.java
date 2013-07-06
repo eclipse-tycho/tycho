@@ -58,8 +58,6 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
@@ -249,19 +247,36 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
 
     // ------------------------------------------------------------------------------
 
-    // TODO have other target platform content contributors also add to this list
-    private List<TargetPlatformContent> content = new ArrayList<TargetPlatformContent>();
+    private List<TargetEnvironment> environments;
 
-    public void addTargetDefinition(TargetDefinition definition, List<TargetEnvironment> environments)
-            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
-        TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
-                definition, environments, eeResolutionHandler.getResolutionHints(), remoteAgent);
-        content.add(targetFileContent);
+    private List<TargetDefinition> targetDefinitions = new ArrayList<TargetDefinition>();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Added " + targetFileContent.getUnits().size()
-                    + " units, the content of the target definition file, to the target platform");
+    public void setEnvironments(List<TargetEnvironment> environments) {
+        this.environments = environments;
+    }
+
+    public void addTargetDefinition(TargetDefinition definition) {
+        targetDefinitions.add(definition);
+    }
+
+    private List<TargetPlatformContent> resolveTargetDefinitions() {
+        List<TargetPlatformContent> result = new ArrayList<TargetPlatformContent>();
+
+        for (TargetDefinition definition : targetDefinitions) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Adding target definition file \"" + definition.getOrigin() + "\"");
+            }
+
+            TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
+                    definition, environments, eeResolutionHandler.getResolutionHints(), remoteAgent);
+            result.add(targetFileContent);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Added " + targetFileContent.getUnits().size()
+                        + " units, the content of the target definition file, to the target platform");
+            }
         }
+        return result;
     }
 
     // --------------------------------------------------------------------------------
@@ -278,6 +293,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     }
 
     public P2TargetPlatform buildTargetPlatform() {
+        List<TargetPlatformContent> targetFileContent = resolveTargetDefinitions();
         // TODO 372780 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
         IRawArtifactFileProvider pomDependencyArtifactRepo = bundlesPublisher.getArtifactRepoOfPublishedBundles();
         RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey.forResolutionContextArtifacts(projectLocation);
@@ -290,7 +306,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters,
                 logger) : null;
 
-        LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(monitor);
+        LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(targetFileContent, monitor);
         applyFilters(filter, externalUIs, reactorProjectUIs);
 
         LinkedHashSet<IInstallableUnit> mavenIUs = gatherMavenInstallableUnits();
@@ -300,7 +316,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         for (URI artifactRepository : artifactRepositories) {
             allRemoteArtifactRepositories.add(artifactRepository);
         }
-        for (TargetPlatformContent contentPart : content) {
+        for (TargetPlatformContent contentPart : targetFileContent) {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
 
@@ -332,13 +348,14 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     // -------------------------------------------------------------------------
 
     /**
-     * external installable units collevted from p2 repositories, .target files and local maven
+     * external installable units collected from p2 repositories, .target files and local maven
      * repository
      */
-    private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(IProgressMonitor monitor) {
+    private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
+            List<TargetPlatformContent> targetFileContent, IProgressMonitor monitor) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
-        for (TargetPlatformContent contentPart : content) {
+        for (TargetPlatformContent contentPart : targetFileContent) {
             result.addAll(contentPart.getUnits());
         }
 

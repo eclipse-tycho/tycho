@@ -74,8 +74,19 @@ public class TargetDefinitionResolver {
         this.repositoryIdManager = (IRepositoryIdManager) agent.getService(IRepositoryIdManager.SERVICE_NAME);
     }
 
-    public TargetPlatformContent resolveContent(TargetDefinition definition) throws TargetDefinitionSyntaxException,
-            TargetDefinitionResolutionException {
+    public TargetPlatformContent resolveContent(TargetDefinition definition) {
+        try {
+            return resolveContentWithExceptions(definition);
+        } catch (TargetDefinitionSyntaxException e) {
+            throw new RuntimeException("Invalid syntax in target definition " + definition.getOrigin() + ": "
+                    + e.getMessage(), e);
+        } catch (TargetDefinitionResolutionException e) {
+            throw new RuntimeException("Failed to resolve target definition " + definition.getOrigin(), e);
+        }
+    }
+
+    TargetPlatformContent resolveContentWithExceptions(TargetDefinition definition)
+            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
 
         List<URI> artifactRepositories = new ArrayList<URI>();
 
@@ -149,7 +160,8 @@ public class TargetDefinitionResolver {
         return new TargetPlatformContent(units, artifactRepositories);
     }
 
-    private AbstractResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments) {
+    private AbstractResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments)
+            throws TargetDefinitionResolutionException {
         switch (includeMode) {
         case PLANNER:
             return getPlannerResolutionStrategy(includeAllEnvironments);
@@ -170,7 +182,8 @@ public class TargetDefinitionResolver {
         };
     }
 
-    private AbstractResolutionStrategy getPlannerResolutionStrategy(boolean includeAllEnvironments) {
+    private AbstractResolutionStrategy getPlannerResolutionStrategy(boolean includeAllEnvironments)
+            throws TargetDefinitionResolutionException {
         if (includeAllEnvironments) {
             throw new TargetDefinitionResolutionException(
                     "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
@@ -183,7 +196,7 @@ public class TargetDefinitionResolver {
         };
     }
 
-    private IMetadataRepository loadRepository(Repository repository) {
+    private IMetadataRepository loadRepository(Repository repository) throws TargetDefinitionResolutionException {
         try {
             return metadataManager.loadRepository(repository.getLocation(), monitor);
         } catch (ProvisionException e) {
@@ -192,7 +205,8 @@ public class TargetDefinitionResolver {
         }
     }
 
-    private IInstallableUnit getUnitInstance(IQueryable<IInstallableUnit> units, Unit unitReference) {
+    private IInstallableUnit getUnitInstance(IQueryable<IInstallableUnit> units, Unit unitReference)
+            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
         IQueryResult<IInstallableUnit> queryResult = searchUnitInThisLocation(units, unitReference);
 
         if (queryResult.isEmpty()) {
@@ -207,7 +221,7 @@ public class TargetDefinitionResolver {
     }
 
     private IQueryResult<IInstallableUnit> searchUnitInThisLocation(IQueryable<IInstallableUnit> units,
-            Unit unitReference) {
+            Unit unitReference) throws TargetDefinitionSyntaxException {
         Version version = parseVersion(unitReference);
 
         // the createIUQuery treats 0.0.0 version as "any version", and all other versions as exact versions
@@ -222,7 +236,7 @@ public class TargetDefinitionResolver {
         return new TargetDefinitionResolutionException(StatusTool.collectProblems(status), new CoreException(status));
     }
 
-    private Version parseVersion(Unit unitReference) {
+    private Version parseVersion(Unit unitReference) throws TargetDefinitionSyntaxException {
         try {
             return Version.parseVersion(unitReference.getVersion());
         } catch (IllegalArgumentException e) {

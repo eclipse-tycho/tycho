@@ -11,7 +11,6 @@
 package org.eclipse.tycho.p2.resolver;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -82,8 +81,6 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 // TODO 364134 rename this class
@@ -201,8 +198,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             addEntireP2RepositoryToTargetPlatform(repository, tpBuilder, session);
         }
 
+        tpBuilder.setEnvironments(configuration.getEnvironments());
         for (File file : configuration.getTargets()) {
-            addTargetFileContentToTargetPlatform(file, configuration.getEnvironments(), tpBuilder);
+            addTargetFileContentToTargetPlatform(file, tpBuilder);
         }
 
         tpBuilder.addFilters(configuration.getFilters());
@@ -320,20 +318,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
     }
 
-    private void addTargetFileContentToTargetPlatform(File targetFile, List<TargetEnvironment> environments,
-            TargetPlatformBuilder resolutionContext) {
-        final TargetDefinitionFile target;
-        try {
-            target = TargetDefinitionFile.read(targetFile);
-            getLogger().debug("Adding target definition file \"" + targetFile + "\"");
-            resolutionContext.addTargetDefinition(target, environments);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (TargetDefinitionSyntaxException e) {
-            throw new RuntimeException("Invalid syntax in target definition " + targetFile + ": " + e.getMessage(), e);
-        } catch (TargetDefinitionResolutionException e) {
-            throw new RuntimeException("Failed to resolve target definition " + targetFile, e);
-        }
+    private void addTargetFileContentToTargetPlatform(File targetFile, TargetPlatformBuilder resolutionContext) {
+        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
+        resolutionContext.addTargetDefinition(target);
     }
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,

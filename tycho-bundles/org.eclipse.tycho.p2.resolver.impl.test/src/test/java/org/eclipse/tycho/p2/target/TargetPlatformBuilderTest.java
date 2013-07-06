@@ -230,8 +230,9 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         List<TargetEnvironment> env = Collections.singletonList(new TargetEnvironment(null, null, null));
 
         TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilder();
-        tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1), env);
-        tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2), env);
+        tpBuilder.setEnvironments(env);
+        tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1));
+        tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2));
         P2TargetPlatform tp = tpBuilder.buildTargetPlatform();
         // platforms must have been resolved in two planner calls because otherwise the singleton bundles would have collided
 

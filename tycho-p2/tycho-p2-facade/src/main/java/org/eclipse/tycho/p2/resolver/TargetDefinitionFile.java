@@ -43,11 +43,11 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     private static XMLParser parser = new XMLParser();
 
-    private Element dom;
+    private final File origin;
+    private final byte[] fileContentHash;
 
-    private Document document;
-
-    private byte[] fileContentHash;
+    private final Element dom;
+    private final Document document;
 
     public static class IULocation implements TargetDefinition.InstallableUnitLocation {
         private final Element dom;
@@ -169,8 +169,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    private TargetDefinitionFile(File source) {
+    private TargetDefinitionFile(File source) throws TargetDefinitionSyntaxException {
         try {
+            this.origin = source;
             this.fileContentHash = computeFileContentHash(source);
 
             FileInputStream input = new FileInputStream(source);
@@ -207,8 +208,16 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return dom.getChild("includeBundles") != null;
     }
 
-    public static TargetDefinitionFile read(File file) throws IOException {
-        return new TargetDefinitionFile(file);
+    public String getOrigin() {
+        return origin.getAbsolutePath();
+    }
+
+    public static TargetDefinitionFile read(File file) {
+        try {
+            return new TargetDefinitionFile(file);
+        } catch (TargetDefinitionSyntaxException e) {
+            throw new RuntimeException("Invalid syntax in target definition " + file + ": " + e.getMessage(), e);
+        }
     }
 
     public static void write(TargetDefinitionFile target, File file) throws IOException {

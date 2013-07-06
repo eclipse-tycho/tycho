@@ -147,14 +147,14 @@ public class TargetDefinitionResolverTest {
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testMissingUnit() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V2, MAIN_BUNDLE));
-        subject.resolveContent(definition);
+        subject.resolveContentWithExceptions(definition);
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testUnitOnlyLookedUpInLocation() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V2, MAIN_BUNDLE),
                 new LocationStub(TestRepositories.V1));
-        subject.resolveContent(definition);
+        subject.resolveContentWithExceptions(definition);
     }
 
     @Test
@@ -180,13 +180,13 @@ public class TargetDefinitionResolverTest {
     public void testUnitWithWrongVersionYieldsSyntaxException() {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2,
                 REFERENCED_BUNDLE_INVALID_VERSION));
-        subject.resolveContent(definition);
+        subject.resolveContentWithExceptions(definition);
     }
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testInvalidRepository() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.INVALID, TARGET_FEATURE));
-        subject.resolveContent(definition);
+        subject.resolveContentWithExceptions(definition);
     }
 
     @Test
@@ -249,6 +249,10 @@ public class TargetDefinitionResolverTest {
 
         public boolean hasIncludedBundles() {
             return hasBundleSelectionList;
+        }
+
+        public String getOrigin() {
+            return "test stub";
         }
     }
 

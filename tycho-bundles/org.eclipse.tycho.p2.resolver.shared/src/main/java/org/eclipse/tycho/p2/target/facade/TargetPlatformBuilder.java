@@ -35,9 +35,10 @@ public interface TargetPlatformBuilder {
 
     public void addP2Repository(MavenRepositoryLocation location);
 
+    public void setEnvironments(List<TargetEnvironment> environments);
+
     // TODO document
-    public void addTargetDefinition(TargetDefinition definition, List<TargetEnvironment> environments)
-            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException;
+    public void addTargetDefinition(TargetDefinition definition);
 
     public void addFilters(List<TargetPlatformFilter> filters);
 

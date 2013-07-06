@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
+import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -24,9 +25,15 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class TargetDefinitionFileTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Test
     public void testTarget() throws Exception {
         List<? extends Location> locations = readTargetLocations("target.target");
@@ -84,13 +91,15 @@ public class TargetDefinitionFileTest {
         assertEquals(true, locationWithSlicerAndAllEnvironments.includeAllEnvironments());
     }
 
-    @Test(expected = TargetDefinitionSyntaxException.class)
+    @Test
     public void testInvalidXML() throws Exception {
+        expectedException.expectCause(isA(TargetDefinitionSyntaxException.class));
         readTargetLocations("invalidXML.target");
     }
 
-    @Test(expected = TargetDefinitionSyntaxException.class)
     public void testInvalidIncludeMode() throws Exception {
+        expectedException.expect(TargetDefinitionSyntaxException.class);
+
         List<? extends Location> locations = readTargetLocations("invalidMode.target");
 
         // allow exception to be thrown late
