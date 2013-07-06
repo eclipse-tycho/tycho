@@ -46,8 +46,8 @@ public class TargetDefinitionResolverIncludeModeTests {
 
     @Before
     public void initSubject() throws Exception {
-        subject = new TargetDefinitionResolver(defaultEnvironments(), new NoopEEResolverHints(), p2Context.getAgent(),
-                logVerifier.getLogger());
+        subject = new TargetDefinitionResolver(defaultEnvironments(),
+                ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS, p2Context.getAgent(), logVerifier.getLogger());
     }
 
     @Test

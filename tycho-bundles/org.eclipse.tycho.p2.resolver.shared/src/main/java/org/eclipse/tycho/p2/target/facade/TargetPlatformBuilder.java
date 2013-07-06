@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -42,7 +43,7 @@ public interface TargetPlatformBuilder {
 
     public void addFilters(List<TargetPlatformFilter> filters);
 
-    public TargetPlatform buildTargetPlatform();
+    public TargetPlatform buildTargetPlatform(ExecutionEnvironmentConfiguration eeConfiguration);
 
     public void setIncludePackedArtifacts(boolean include);
 

@@ -152,8 +152,8 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
     }
 
     private TargetDefinitionResolver createResolver(List<TargetEnvironment> environments) throws ProvisionException {
-        return new TargetDefinitionResolver(environments, new NoopEEResolverHints(), p2Context.getAgent(),
-                logVerifier.getLogger());
+        return new TargetDefinitionResolver(environments, ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS,
+                p2Context.getAgent(), logVerifier.getLogger());
     }
 
     private static class FilterRepoLocationStubWithLauncherUnit implements TargetDefinition.InstallableUnitLocation {

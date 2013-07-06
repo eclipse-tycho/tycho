@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
-import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 
 public interface P2ResolverFactory {
 
-    public TargetPlatformBuilder createTargetPlatformBuilder(ExecutionEnvironmentConfiguration eeConfiguration);
+    public TargetPlatformBuilder createTargetPlatformBuilder();
 
     public P2Resolver createResolver(MavenLogger logger);
 }

@@ -39,10 +39,9 @@ public class CustomEEResolutionHandlerTest extends P2ResolverTestBase {
         ExecutionEnvironmentConfigurationCapture eeConfigurationCapture = new ExecutionEnvironmentConfigurationCapture(
                 "Custom/Profile-2");
 
-        TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilderWithEE(new CustomEEResolutionHandler(
-                eeConfigurationCapture));
+        TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilder();
         tpBuilder.addP2Repository(ResourceUtil.resourceFile("repositories/custom-profile").toURI());
-        tpBuilder.buildTargetPlatform(); // includes reading the custom profile specification
+        tpBuilder.buildTargetPlatform(new CustomEEResolutionHandler(eeConfigurationCapture)); // includes reading the custom profile specification
 
         List<SystemCapability> result = eeConfigurationCapture.capturedSystemCapabilities;
 
@@ -62,9 +61,8 @@ public class CustomEEResolutionHandlerTest extends P2ResolverTestBase {
 
         thrownException
                 .expectMessage("Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'");
-        TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilderWithEE(new CustomEEResolutionHandler(
-                eeConfigurationCapture));
-        tpBuilder.buildTargetPlatform();
+        TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilder();
+        tpBuilder.buildTargetPlatform(new CustomEEResolutionHandler(eeConfigurationCapture));
     }
 
     static class ExecutionEnvironmentConfigurationCapture implements ExecutionEnvironmentConfiguration {

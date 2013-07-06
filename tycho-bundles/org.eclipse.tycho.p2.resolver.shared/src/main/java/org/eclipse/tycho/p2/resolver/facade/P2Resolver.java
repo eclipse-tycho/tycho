@@ -51,7 +51,7 @@ public interface P2Resolver {
     @Deprecated
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation);
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context);
+    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, String executionEnvironmentName);
 
     /**
      * Resolves specified installable unit identified by id and versionRange. The unit with latest

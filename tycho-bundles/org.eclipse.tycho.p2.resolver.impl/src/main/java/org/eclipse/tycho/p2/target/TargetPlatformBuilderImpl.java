@@ -42,6 +42,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -56,8 +57,11 @@ import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
@@ -91,12 +95,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private boolean includePackedArtifacts;
     private boolean failOnDuplicateIUs = true;
 
-    /**
-     * Representation of the target execution environment profile. In case of a custom EE profile,
-     * the handler also reads the full specification from the target platform.
-     */
-    private final ExecutionEnvironmentResolutionHandler eeResolutionHandler;
-
     /** maven local repository as P2 IArtifactRepository */
     private final LocalArtifactRepository localArtifactRepository;
 
@@ -105,8 +103,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     private boolean includeLocalMavenRepo;
 
     public TargetPlatformBuilderImpl(IProvisioningAgent remoteAgent, MavenContext mavenContext,
-            TargetDefinitionResolverService targetDefinitionResolverService,
-            ExecutionEnvironmentResolutionHandler eeResolutionHandler, LocalArtifactRepository localArtifactRepo,
+            TargetDefinitionResolverService targetDefinitionResolverService, LocalArtifactRepository localArtifactRepo,
             LocalMetadataRepository localMetadataRepo) throws ProvisionException {
         this.remoteAgent = remoteAgent;
         this.targetDefinitionResolverService = targetDefinitionResolverService;
@@ -130,8 +127,6 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 .getService(IRepositoryIdManager.SERVICE_NAME);
 
         this.offline = mavenContext.isOffline();
-
-        this.eeResolutionHandler = eeResolutionHandler;
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
         this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, logger);
@@ -259,7 +254,8 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         targetDefinitions.add(definition);
     }
 
-    private List<TargetPlatformContent> resolveTargetDefinitions() {
+    private List<TargetPlatformContent> resolveTargetDefinitions(
+            ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
         List<TargetPlatformContent> result = new ArrayList<TargetPlatformContent>();
 
         for (TargetDefinition definition : targetDefinitions) {
@@ -292,8 +288,20 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         this.projectLocation = projectLocation;
     }
 
-    public P2TargetPlatform buildTargetPlatform() {
-        List<TargetPlatformContent> targetFileContent = resolveTargetDefinitions();
+    public P2TargetPlatform buildTargetPlatform(ExecutionEnvironmentConfiguration eeConfiguration)
+            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
+        return buildTargetPlatform(ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration));
+    }
+
+    /**
+     * @param eeResolutionHandler
+     *            Representation of the target execution environment profile. In case of a custom EE
+     *            profile, the handler also reads the full specification from the target platform.
+     */
+    public P2TargetPlatform buildTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler)
+            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
+        List<TargetPlatformContent> targetFileContent = resolveTargetDefinitions(eeResolutionHandler);
+
         // TODO 372780 get rid of this special handling of pomDependency artifacts: there should be one p2 artifact repo view on the target platform
         IRawArtifactFileProvider pomDependencyArtifactRepo = bundlesPublisher.getArtifactRepoOfPublishedBundles();
         RepositoryBlackboardKey blackboardKey = RepositoryBlackboardKey.forResolutionContextArtifacts(projectLocation);
@@ -307,10 +315,10 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
                 logger) : null;
 
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(targetFileContent, monitor);
-        applyFilters(filter, externalUIs, reactorProjectUIs);
+        applyFilters(filter, externalUIs, reactorProjectUIs, eeResolutionHandler.getResolutionHints());
 
         LinkedHashSet<IInstallableUnit> mavenIUs = gatherMavenInstallableUnits();
-        applyFilters(filter, mavenIUs, reactorProjectUIs);
+        applyFilters(filter, mavenIUs, reactorProjectUIs, eeResolutionHandler.getResolutionHints());
 
         List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
         for (URI artifactRepository : artifactRepositories) {
@@ -404,7 +412,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
     }
 
     private void applyFilters(TargetPlatformFilterEvaluator filter, LinkedHashSet<IInstallableUnit> units,
-            Set<IInstallableUnit> reactorProjectUIs) {
+            Set<IInstallableUnit> reactorProjectUIs, ExecutionEnvironmentResolutionHints eeResolutionHints) {
 
         Set<String> reactorIUIDs = new HashSet<String>();
         for (IInstallableUnit unit : reactorProjectUIs) {
@@ -417,7 +425,7 @@ public class TargetPlatformBuilderImpl implements TargetPlatformBuilder {
         Iterator<IInstallableUnit> iter = units.iterator();
         while (iter.hasNext()) {
             IInstallableUnit unit = iter.next();
-            if (eeResolutionHandler.getResolutionHints().isNonApplicableEEUnit(unit) || isPartialIU(unit)
+            if (eeResolutionHints.isNonApplicableEEUnit(unit) || isPartialIU(unit)
                     || reactorIUIDs.contains(unit.getId())) {
                 // TODO log
                 iter.remove();

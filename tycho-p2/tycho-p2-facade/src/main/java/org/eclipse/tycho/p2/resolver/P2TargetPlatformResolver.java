@@ -182,7 +182,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
 
-        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(ee);
+        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder();
         tpBuilder.setProjectLocation(project.getBasedir());
         tpBuilder.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
         tpBuilder.setFailOnDuplicateIUs(failOnDuplicateIUs);
@@ -205,7 +205,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         tpBuilder.addFilters(configuration.getFilters());
 
-        return tpBuilder.buildTargetPlatform();
+        return tpBuilder.buildTargetPlatform(ee);
     }
 
     private void addThisReactorProjectToTargetPlatform(MavenSession session, MavenProject project,

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V1;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V2;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -71,7 +72,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         // classifier does not match available metadata
         context = createTargetPlatformBuilder();
         context.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = (P2TargetPlatform) context.buildTargetPlatform();
+        platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
         units = platform.getInstallableUnits();
         assertEquals(0, units.size());
 
@@ -79,7 +80,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         artifact.setClassifier("sources");
         context = createTargetPlatformBuilder();
         context.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = (P2TargetPlatform) context.buildTargetPlatform();
+        platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
         units = platform.getInstallableUnits();
         assertEquals(1, units.size());
         assertContainsIU(units, "test.ui.source");
@@ -88,7 +89,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         artifact.setClassifier(null);
         context = createTargetPlatformBuilder();
         context.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = (P2TargetPlatform) context.buildTargetPlatform();
+        platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
         units = platform.getInstallableUnits();
         assertEquals(1, units.size());
         assertContainsIU(units, "test.ui");
@@ -114,7 +115,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context = createTargetPlatformBuilder();
         context.addReactorArtifact(artifact);
 
-        P2TargetPlatform platform = context.buildTargetPlatform();
+        P2TargetPlatform platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(1, units.size());
@@ -166,7 +167,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         context.addReactorArtifact(secondaryArtifact);
         context.addReactorArtifact(sourceArtifact);
 
-        P2TargetPlatform platform = context.buildTargetPlatform();
+        P2TargetPlatform platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(3, units.size());
@@ -196,7 +197,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         File projectRoot = ResourceUtil.resourceFile("platformbuilder/feature-p2-inf");
         addReactorProject(projectRoot, ArtifactKey.TYPE_ECLIPSE_FEATURE, "org.eclipse.tycho.p2.impl.test.bundle-p2-inf");
 
-        P2TargetPlatform platform = context.buildTargetPlatform();
+        P2TargetPlatform platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(units.toString(), 1, units.size());
@@ -216,9 +217,11 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"), new GAV(
                 "test", "foo", "1.0.0"));
         TargetPlatformBuilderImpl tpBuilder = factory.createTargetPlatformBuilder();
-        Collection<IInstallableUnit> iusIncludingLocalRepo = tpBuilder.buildTargetPlatform().getInstallableUnits();
+        Collection<IInstallableUnit> iusIncludingLocalRepo = tpBuilder.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER)
+                .getInstallableUnits();
         tpBuilder.setIncludeLocalMavenRepo(false);
-        Collection<IInstallableUnit> iusWithoutLocalRepo = tpBuilder.buildTargetPlatform().getInstallableUnits();
+        Collection<IInstallableUnit> iusWithoutLocalRepo = tpBuilder.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER)
+                .getInstallableUnits();
         Set<IInstallableUnit> retainedIUs = new HashSet<IInstallableUnit>(iusIncludingLocalRepo);
         retainedIUs.removeAll(iusWithoutLocalRepo);
         assertEquals(1, retainedIUs.size());
@@ -233,7 +236,7 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         tpBuilder.setEnvironments(env);
         tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1));
         tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2));
-        P2TargetPlatform tp = tpBuilder.buildTargetPlatform();
+        P2TargetPlatform tp = tpBuilder.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
         // platforms must have been resolved in two planner calls because otherwise the singleton bundles would have collided
 
         assertThat(versionedIdsOf(tp), hasItem(REFERENCED_BUNDLE_V1));

@@ -36,6 +36,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -94,9 +95,10 @@ public class P2ResolverImpl implements P2Resolver {
                 null));
     }
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context) {
+    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, String eeName) {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
-        P2TargetPlatform contextImpl = (P2TargetPlatform) context.buildTargetPlatform();
+        P2TargetPlatform contextImpl = (P2TargetPlatform) context
+                .buildTargetPlatform(new ExecutionEnvironmentConfigurationStub(eeName));
         strategy.setEEResolutionHints(contextImpl.getEEResolutionHints());
         strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
