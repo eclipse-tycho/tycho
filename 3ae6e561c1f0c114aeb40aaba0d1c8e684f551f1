@@ -16,6 +16,24 @@
       "revId": "3ae6e561c1f0c114aeb40aaba0d1c8e684f551f1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "273ac7f6_e7507f2b",
+        "filename": "tycho-bundles/tycho-bundles-target/tycho-bundles-target.target",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-07-08T10:47:29Z",
+      "side": 1,
+      "message": "Good idea :-)",
+      "parentUuid": "273ac7f6_d493672b",
+      "revId": "3ae6e561c1f0c114aeb40aaba0d1c8e684f551f1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
