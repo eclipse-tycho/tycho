@@ -50,6 +50,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
@@ -175,33 +176,37 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         addExtraClasspathEntries(classpath, projectProxy, artifacts);
 
         // dependencies
+        List<AccessRule> strictBootClasspathAccessRules = new ArrayList<AccessRule>();
+        strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
         for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
-            if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(entry.desc.getSymbolicName())) {
-                ArtifactKey systemBundleKey = new DefaultArtifactKey(EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME,
-                        EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME, "1.0.0");
-                // access rules will be applied to boot classpath if requireJREPackageImports == true
-                classpath.add(new DefaultClasspathEntry(null, systemBundleKey, Collections.<File> emptyList(),
-                        entry.rules));
-            } else {
-                File location = new File(entry.desc.getLocation());
-                ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.desc.getSymbolicName());
-                ReactorProject otherProject = otherArtifact.getMavenProject();
-                List<File> locations;
-                if (otherProject != null) {
-                    locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
-                } else {
-                    locations = getBundleClasspath(otherArtifact);
+            if (EquinoxResolver.SYSTEM_BUNDLE_ID == entry.desc.getBundleId()) {
+                strictBootClasspathAccessRules.addAll(entry.rules);
+                if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(entry.desc.getSymbolicName())) {
+                    // synthetic system.bundle representing only the packages exported by the 
+                    // execution environment has no filesystem location
+                    continue;
                 }
-
-                if (locations.isEmpty() && !entry.rules.isEmpty()) {
-                    getLogger().warn("Empty classpath of required bundle " + otherArtifact);
-                }
-
-                classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
             }
+            File location = new File(entry.desc.getLocation());
+            ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.desc.getSymbolicName());
+            ReactorProject otherProject = otherArtifact.getMavenProject();
+            List<File> locations;
+            if (otherProject != null) {
+                locations = getOtherProjectClasspath(otherArtifact, otherProject, null);
+            } else {
+                locations = getBundleClasspath(otherArtifact);
+            }
+
+            if (locations.isEmpty() && !entry.rules.isEmpty()) {
+                getLogger().warn("Empty classpath of required bundle " + otherArtifact);
+            }
+
+            classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
         }
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
 
+        project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES,
+                strictBootClasspathAccessRules);
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES,
                 dependencyComputer.computeBootClasspathExtraAccessRules(state.getStateHelper(), bundleDescription));
 
