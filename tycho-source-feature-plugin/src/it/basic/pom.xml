@@ -40,6 +40,7 @@
 		<module>sourcefeature.bundle.nosource</module>
 		<module>sourcefeature.feature</module>
 		<module>sourcefeature.feature.indirect</module>
+		<module>feature.consumingsourcefeature</module>
 		<module>sourcefeature.repository</module>
 	</modules>
 

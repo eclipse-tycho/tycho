@@ -30,6 +30,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -93,6 +94,12 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
 
                 sourceFeature.setId(feature.getId() + ".source");
                 sourceFeature.setVersion(feature.getVersion());
+
+                // 410418 source feature includes binary feature
+                FeatureRef binaryRef = new FeatureRef("includes");
+                binaryRef.setId(feature.getId());
+                binaryRef.setVersion(feature.getVersion());
+                sourceFeature.addFeatureRef(binaryRef);
 
                 Feature.write(sourceFeature, new File(sourceFeatureBasedir, Feature.FEATURE_XML));
 
