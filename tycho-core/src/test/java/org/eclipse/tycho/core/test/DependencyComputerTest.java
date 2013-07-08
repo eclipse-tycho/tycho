@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.test;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionResult;
@@ -24,8 +27,10 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.CustomExecutionEnvironment;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
@@ -37,15 +42,18 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     private DependencyComputer dependencyComputer;
+    private EquinoxResolver resolver;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         dependencyComputer = lookup(DependencyComputer.class);
+        resolver = lookup(EquinoxResolver.class);
     }
 
     @Override
@@ -57,7 +65,6 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testExportPackage() throws Exception {
         File basedir = getBasedir("projects/exportpackage");
-        EquinoxResolver resolver = lookup(EquinoxResolver.class);
 
         Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
 
@@ -93,7 +100,6 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
     @Test
     public void testWiringToPackageFromCustomProfile() throws Exception {
         File basedir = getBasedir("projects/customProfile");
-        EquinoxResolver resolver = lookup(EquinoxResolver.class);
 
         Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
 
@@ -118,4 +124,39 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
             assertThat(dependencies.get(0).desc.getSymbolicName(), is(Constants.SYSTEM_BUNDLE_SYMBOLICNAME));
         }
     }
+
+    @Test
+    public void testStrictBootClasspathAccessRules() throws Exception {
+        File basedir = getBasedir("projects/bootclasspath");
+        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null,
+                getBasedir("p2repo")));
+        // 1. bundle importing a JRE package only
+        MavenProject bundle1Project = basedirMap.get(new File(basedir, "bundle1"));
+        List<DependencyEntry> bundle1Dependencies = computeDependencies(bundle1Project);
+        assertEquals(1, bundle1Dependencies.size());
+        DependencyEntry dependency = bundle1Dependencies.get(0);
+        assertEquals(1, dependency.rules.size());
+        assertEquals("javax/net/ssl/*", dependency.rules.get(0).getPattern());
+
+        // 2. bundle importing both a JRE package and an OSGi framework package
+        MavenProject bundle2Project = basedirMap.get(new File(basedir, "bundle2"));
+        List<DependencyEntry> bundle2Dependencies = computeDependencies(bundle2Project);
+        assertEquals(1, bundle2Dependencies.size());
+        DependencyEntry dependencyBundle2 = bundle2Dependencies.get(0);
+        Set<String> accessRules = new HashSet<String>();
+        for (AccessRule rule : dependencyBundle2.rules) {
+            accessRules.add(rule.getPattern());
+        }
+        assertEquals(new HashSet<String>(asList("javax/net/ssl/*", "org/osgi/framework/*")), accessRules);
+    }
+
+    private List<DependencyEntry> computeDependencies(MavenProject project) throws BundleException {
+        DependencyArtifacts platform = (DependencyArtifacts) project
+                .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
+        State state = resolver.newResolvedState(project, ExecutionEnvironmentUtils.getExecutionEnvironment("J2SE-1.4"),
+                platform);
+        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
+        return dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
+    }
+
 }

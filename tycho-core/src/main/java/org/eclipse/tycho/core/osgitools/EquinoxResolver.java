@@ -47,7 +47,9 @@ import org.osgi.framework.Constants;
 
 @Component(role = EquinoxResolver.class)
 public class EquinoxResolver {
+    // see http://wiki.osgi.org/wiki/System_Bundle
     public static final String SYSTEM_BUNDLE_SYMBOLIC_NAME = "system.bundle";
+    public static final long SYSTEM_BUNDLE_ID = 0L;
 
     private static StateObjectFactory factory = StateObjectFactory.defaultFactory;
 
@@ -96,7 +98,7 @@ public class EquinoxResolver {
             logger.warn("No system.bundle");
         } else if (bundles.length > 1) {
             logger.warn("Multiple system.bundles " + Arrays.toString(bundles));
-        } else if (bundles[0].getBundleId() != 0) {
+        } else if (bundles[0].getBundleId() != SYSTEM_BUNDLE_ID) {
             logger.warn("system.bundle bundleId == " + bundles[0].getBundleId());
         }
     }
@@ -163,7 +165,7 @@ public class EquinoxResolver {
             }
         }
 
-        long id = 0;
+        long id = SYSTEM_BUNDLE_ID;
         if (systemBundles.isEmpty()) {
             // there were no OSGi framework implementations among bundles being resolve
             // fabricate system.bundle to export visible JRE packages
@@ -187,7 +189,7 @@ public class EquinoxResolver {
         // force our system.bundle
         Hashtable<Object, Object> platformProperties = new Hashtable<Object, Object>(properties);
         platformProperties.put(org.eclipse.osgi.framework.internal.core.Constants.STATE_SYSTEM_BUNDLE,
-                state.getBundle(0).getSymbolicName());
+                state.getBundle(SYSTEM_BUNDLE_ID).getSymbolicName());
         state.setPlatformProperties(platformProperties);
 
         return state;
