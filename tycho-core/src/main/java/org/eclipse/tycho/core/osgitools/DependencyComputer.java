@@ -128,7 +128,7 @@ public class DependencyComputer {
             Map<BundleDescription, ArrayList<AccessRule>> visiblePackages) {
         if (desc == null)
             return;
-        ExportPackageDescription[] exports = helper.getVisiblePackages(desc);
+        ExportPackageDescription[] exports = helper.getVisiblePackages(desc, StateHelper.VISIBLE_INCLUDE_EE_PACKAGES);
         for (int i = 0; i < exports.length; i++) {
             BundleDescription exporter = exports[i].getExporter();
             if (exporter == null)

@@ -47,7 +47,9 @@ import org.osgi.framework.Constants;
 
 @Component(role = EquinoxResolver.class)
 public class EquinoxResolver {
+    // see http://wiki.osgi.org/wiki/System_Bundle
     public static final String SYSTEM_BUNDLE_SYMBOLIC_NAME = "system.bundle";
+    public static final long SYSTEM_BUNDLE_ID = 0L;
 
     private static StateObjectFactory factory = StateObjectFactory.defaultFactory;
 
