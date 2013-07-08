@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "273ac7f6_d493672b",
+        "filename": "tycho-bundles/tycho-bundles-target/tycho-bundles-target.target",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-07-08T09:10:05Z",
+      "side": 1,
+      "message": "should get junit 3 from orbit too (just to reduce number of repos used) ; I will propose an enhancement for this.",
+      "revId": "3ae6e561c1f0c114aeb40aaba0d1c8e684f551f1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
