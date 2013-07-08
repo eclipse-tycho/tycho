@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle1
+Bundle-Version: 0.0.1
+Bundle-ClassPath: .
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Import-Package: javax.net.ssl

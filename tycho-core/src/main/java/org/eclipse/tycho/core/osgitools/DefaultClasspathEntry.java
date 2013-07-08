@@ -51,6 +51,11 @@ public class DefaultClasspathEntry implements ClasspathEntry {
             return pattern;
         }
 
+        @Override
+        public String toString() {
+            return getPattern();
+        }
+
         public boolean isDiscouraged() {
             return discouraged;
         }

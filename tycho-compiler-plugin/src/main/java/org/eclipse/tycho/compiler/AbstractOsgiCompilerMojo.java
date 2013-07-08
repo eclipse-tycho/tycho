@@ -16,8 +16,6 @@
 
 package org.eclipse.tycho.compiler;
 
-import static java.util.Collections.emptyList;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,12 +52,12 @@ import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.classpath.JavaCompilerConfiguration;
 import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
@@ -417,8 +415,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         List<AccessRule> accessRules = new ArrayList<ClasspathEntry.AccessRule>();
 
         if (requireJREPackageImports) {
-            accessRules.add(new DefaultAccessRule("java/**", false));
-            accessRules.addAll(getStrictSystemBundleAccessRules());
+            accessRules.addAll(getStrictBootClasspathAccessRules());
         } else {
             accessRules.add(new DefaultAccessRule("java/**", false));
             for (String pkg : getTargetExecutionEnvironment().getSystemPackages()) {
@@ -433,14 +430,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         }
     }
 
-    private List<AccessRule> getStrictSystemBundleAccessRules() throws MojoExecutionException {
-        for (ClasspathEntry entry : getClasspath()) {
-            String id = entry.getArtifactKey().getId();
-            if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(id)) {
-                return entry.getAccessRules();
-            }
-        }
-        return emptyList();
+    private List<AccessRule> getStrictBootClasspathAccessRules() throws MojoExecutionException {
+        return (List<AccessRule>) project
+                .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES);
     }
 
     private void configureJavaHome(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {

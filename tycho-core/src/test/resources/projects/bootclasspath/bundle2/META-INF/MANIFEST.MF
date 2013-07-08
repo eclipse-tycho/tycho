@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle2
+Bundle-Version: 0.0.1
+Bundle-ClassPath: .
+Import-Package: javax.net.ssl,
+ org.osgi.framework
+
