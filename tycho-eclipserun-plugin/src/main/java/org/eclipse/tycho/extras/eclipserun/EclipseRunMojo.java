@@ -45,7 +45,7 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.plugins.p2.extras.Repository;
 
 /**
@@ -199,14 +199,14 @@ public class EclipseRunMojo extends AbstractMojo {
 
     private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
         P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
-        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder();
+        TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
         // we want to resolve from remote repos only
-        tpBuilder.setIncludeLocalMavenRepo(false);
+        tpConfiguration.setForceIgnoreLocalArtifacts(true);
         for (Repository repository : repositories) {
-            tpBuilder.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
+            tpConfiguration.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
         }
-        TargetPlatform targetPlatform = tpBuilder.buildTargetPlatform(new ExecutionEnvironmentConfigurationStub(
-                executionEnvironment));
+        TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().buildTargetPlatform(tpConfiguration,
+                new ExecutionEnvironmentConfigurationStub(executionEnvironment), null, null);
         P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
         for (Dependency dependency : dependencies) {
             resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());

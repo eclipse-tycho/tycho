@@ -22,7 +22,7 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public abstract class AbstractUpdateMojo extends AbstractMojo {
 
@@ -37,7 +37,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
 
     protected P2Resolver p2;
 
-    protected TargetPlatformBuilder resolutionContext;
+    protected TargetPlatformConfigurationStub resolutionContext;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
@@ -55,7 +55,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     private void createResolver() {
         P2ResolverFactory factory = equinox.getService(P2ResolverFactory.class);
         p2 = factory.createResolver(new MavenLoggerAdapter(logger, false));
-        resolutionContext = factory.createTargetPlatformBuilder();
+        resolutionContext = new TargetPlatformConfigurationStub();
     }
 
 }

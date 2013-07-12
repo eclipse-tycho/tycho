@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -26,7 +25,7 @@ import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 /**
  * Validates that specified target platforms (.target files) contents can be resolved.
@@ -55,11 +54,6 @@ public class TPValidationMojo extends AbstractMojo {
 
     /** @component */
     protected EquinoxServiceFactory equinox;
-
-    /**
-     * @parameter default-value="${project}"
-     */
-    private MavenProject project;
 
     /** @component */
     private Logger logger;
@@ -108,14 +102,13 @@ public class TPValidationMojo extends AbstractMojo {
         try {
             // create resolver
             this.logger.info("Validating " + targetFile + "...");
-            TargetPlatformBuilder resolutionContext;
-            resolutionContext = this.factory.createTargetPlatformBuilder();
+            TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
 
-            TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
+            TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
 
-            resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
-            resolutionContext.addTargetDefinition(target);
-            P2ResolutionResult result = this.p2.resolveMetadata(resolutionContext, executionEnvironment);
+            tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
+            tpConfiguration.addTargetDefinition(targetDefinition);
+            P2ResolutionResult result = this.p2.resolveMetadata(tpConfiguration, executionEnvironment);
         } catch (Exception ex) {
             throw new TPError(targetFile, ex);
         }
