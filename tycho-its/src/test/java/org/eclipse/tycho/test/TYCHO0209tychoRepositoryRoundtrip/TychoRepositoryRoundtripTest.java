@@ -28,8 +28,9 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
         v01.executeGoal("install");
         v01.verifyErrorFreeLog();
 
+        final boolean ignoreLocallyInstalledArtifacts = false;
         // build02, some dependencies come from local, some from remote repositories
-        Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false);
+        Verifier v02 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build02", false, ignoreLocallyInstalledArtifacts);
         v02.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
         v02.executeGoal("install");
         v02.verifyErrorFreeLog();
@@ -40,7 +41,7 @@ public class TychoRepositoryRoundtripTest extends AbstractTychoIntegrationTest {
         Assert.assertEquals(3, new File(site, "plugins").listFiles().length);
 
         // build03, all dependencies come from local repository
-        Verifier v03 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build03", false);
+        Verifier v03 = getVerifier("TYCHO0209tychoRepositoryRoundtrip/build03", false, ignoreLocallyInstalledArtifacts);
         v03.executeGoal("install");
         v03.verifyErrorFreeLog();
     }

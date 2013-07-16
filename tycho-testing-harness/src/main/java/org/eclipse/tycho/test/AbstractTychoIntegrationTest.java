@@ -65,8 +65,18 @@ public abstract class AbstractTychoIntegrationTest {
         return getVerifier(test, setTargetPlatform, getSettings());
     }
 
-    @SuppressWarnings("unchecked")
+    protected Verifier getVerifier(String test, boolean setTargetPlatform, boolean ignoreLocalArtifacts)
+            throws Exception {
+        return getVerifier(test, setTargetPlatform, getSettings(), ignoreLocalArtifacts);
+    }
+
     protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings) throws Exception {
+        return getVerifier(test, setTargetPlatform, userSettings, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings,
+            boolean ignoreLocalArtifacts) throws Exception {
         /*
          * Test JVM can be started in debug mode by passing the following env to execute(...)
          * methods.
@@ -86,6 +96,9 @@ public abstract class AbstractTychoIntegrationTest {
         verifier.getCliOptions().add("-Dtycho-version=" + getTychoVersion());
         if (setTargetPlatform) {
             verifier.getCliOptions().add("-Dtycho.targetPlatform=" + getTargetPlatform());
+        }
+        if (ignoreLocalArtifacts) {
+            verifier.getCliOptions().add("-Dtycho.localArtifacts=ignore");
         }
         verifier.getCliOptions().add("-X");
         verifier.getCliOptions().add("-s " + userSettings.getAbsolutePath());

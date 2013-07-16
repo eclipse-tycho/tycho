@@ -56,7 +56,9 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
         // re-build the repository project only (incl. products) to ensure that the created root file zips were attached
         // to the project and are available from the local repository
-        Verifier eclipseRepoProjectVerifier = getVerifier("/TYCHO465RootFiles/eclipse-repository", false);
+        final boolean ignoreLocallyInstalledArtifacts = false;
+        Verifier eclipseRepoProjectVerifier = getVerifier("/TYCHO465RootFiles/eclipse-repository", false,
+                ignoreLocallyInstalledArtifacts);
 
         eclipseRepoProjectVerifier.getSystemProperties().setProperty("forceContextQualifier",
                 Tycho465RootFilesTest.QUALIFIER.toString());
