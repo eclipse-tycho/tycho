@@ -12,28 +12,52 @@ package org.eclipse.tycho.extras.buildtimestamp.jgit;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.IndexDiff;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.tycho.buildversion.BuildTimestampProvider;
 
 /**
- * Build timestamp provider that returns date of the most recent commit that touches any file under
- * project basedir. File additional flexibility, some files can be ignored using gitignore patters
- * specified in &ltjgit.ignore> element of tycho-packaging-plugin configuration block
+ * Build timestamp provider that returns date of the most recent git commit that touches any file
+ * under project basedir. Because this timestamp provider is meant to be used for reproducible
+ * builds, by default an exception is thrown if <code>git status</code> is not clean (i.e.
+ * uncommitted changes are detected).
+ * <p/>
+ * If uncommitted changes should be tolerated with a warning, configure
+ * 
+ * <pre>
+ * &lt;jgit.dirtyWorkingTree&gt;warning&lt;/jgit.dirtyWorkingTree&gt;
+ * </pre>
+ * 
+ * In this case, this timestamp provider will delegate to the default timestamp provider which uses
+ * the current build timestamp.
+ * <p/>
+ * 
+ * For additional flexibility, some files can be ignored using gitignore patters specified in
+ * &ltjgit.ignore> element of tycho-packaging-plugin configuration block.
  * 
  * <p>
  * Typical usage
@@ -62,6 +86,12 @@ import org.eclipse.tycho.buildversion.BuildTimestampProvider;
 @Component(role = BuildTimestampProvider.class, hint = "jgit")
 public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 
+    @Requirement(hint = "default")
+    private BuildTimestampProvider defaultTimestampProvider;
+
+    @Requirement
+    private Logger logger;
+
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution)
             throws MojoExecutionException {
         FileRepositoryBuilder builder = new FileRepositoryBuilder() //
@@ -71,17 +101,38 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
         try {
             Repository repository = builder.build();
             try {
+                String relPath = getRelPath(repository, project);
+                TreeFilter pathFilter = createPathFilter(relPath, execution);
+                ObjectId headId = repository.resolve(Constants.HEAD);
+                // 1. check if 'git status' is clean for relPath
+                IndexDiff diff = new IndexDiff(repository, headId, new FileTreeIterator(repository));
+                if (pathFilter != null) {
+                    diff.setFilter(pathFilter);
+                }
+                diff.diff();
+                Status status = new Status(diff);
+                if (!status.isClean()) {
+                    String message = "Working tree is dirty.\ngit status " + (relPath != null ? relPath : "") + ":\n"
+                            + toGitStatusStyleOutput(diff);
+                    if (warnOnlyOnDirtyWorkingTree(execution)) {
+                        logger.warn(message);
+                        logger.warn("Fallback to default timestamp provider");
+                        return defaultTimestampProvider.getTimestamp(session, project, execution);
+                    } else {
+                        throw new MojoExecutionException(
+                                message
+                                        + "\n"
+                                        + "You are trying to use tycho-buildtimestamp-jgit on a directory that has uncommitted changes (see details above)."
+                                        + "\nEither commit all changes, or enable fallback to default timestamp provider by configuring "
+                                        + "\njgit.dirtyWorkingTree=warning for tycho-packaging-plugin");
+                    }
+                }
+                // 2. get latest commit for relPath
                 RevWalk walk = new RevWalk(repository);
                 try {
-                    String relPath = getRelPath(repository, project);
-                    if (relPath != null && relPath.length() > 0) {
-                        walk.setTreeFilter(AndTreeFilter.create(new PathFilter(relPath, getIgnoreFilter(execution)),
-                                TreeFilter.ANY_DIFF));
+                    if (pathFilter != null) {
+                        walk.setTreeFilter(AndTreeFilter.create(pathFilter, TreeFilter.ANY_DIFF));
                     }
-
-                    // TODO make sure working tree is clean
-
-                    ObjectId headId = repository.resolve(Constants.HEAD);
                     walk.markStart(walk.parseCommit(headId));
                     RevCommit commit = walk.next();
                     return new Date(commit.getCommitTime() * 1000L);
@@ -96,13 +147,29 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
         }
     }
 
-    private String getIgnoreFilter(MojoExecution execution) {
+    private static TreeFilter createPathFilter(String relPath, MojoExecution execution) throws IOException {
+        if (relPath != null && relPath.length() > 0) {
+            return new PathFilter(relPath, getIgnoreFilter(execution));
+        }
+        return null;
+    }
+
+    private static String getIgnoreFilter(MojoExecution execution) {
         Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
         Xpp3Dom ignoreDom = pluginConfiguration.getChild("jgit.ignore");
         if (ignoreDom == null) {
             return null;
         }
         return ignoreDom.getValue();
+    }
+
+    private static boolean warnOnlyOnDirtyWorkingTree(MojoExecution execution) {
+        Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
+        Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild("jgit.dirtyWorkingTree");
+        if (dirtyWorkingTreeDom == null) {
+            return false;
+        }
+        return "warning".equals(dirtyWorkingTreeDom.getValue());
     }
 
     private String getRelPath(Repository repository, MavenProject project) throws IOException {
@@ -125,4 +192,44 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 
         return path;
     }
+
+    private static String toGitStatusStyleOutput(IndexDiff diff) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        List<String> toBeCommitted = new ArrayList<String>(diff.getAdded());
+        toBeCommitted.addAll(diff.getChanged());
+        toBeCommitted.addAll(diff.getRemoved());
+        if (toBeCommitted.size() > 0) {
+            pw.println("Changes to be committed:");
+            printList(pw, "\tnew file:    ", diff.getAdded());
+            printList(pw, "\tmodified:    ", diff.getChanged());
+            printList(pw, "\tdeleted:     ", diff.getRemoved());
+        }
+        List<String> notStaged = new ArrayList<String>(diff.getModified());
+        notStaged.addAll(diff.getMissing());
+        if (notStaged.size() > 0) {
+            pw.println();
+            pw.println("Changes not staged for commit:");
+            printList(pw, "\tmodified:    ", diff.getModified());
+            printList(pw, "\tdeleted:     ", diff.getMissing());
+        }
+        if (diff.getConflicting().size() > 0) {
+            pw.println();
+            pw.println("Conflicting files:");
+            printList(pw, "\tconflict:    ", diff.getConflicting());
+        }
+        if (diff.getUntracked().size() > 0) {
+            pw.println();
+            pw.println("Untracked files:");
+            printList(pw, "\t", diff.getUntracked());
+        }
+        return sw.toString();
+    }
+
+    private static void printList(PrintWriter witer, String prefix, Set<String> files) {
+        for (String file : files) {
+            witer.println(prefix + file);
+        }
+    }
+
 }
