@@ -122,7 +122,7 @@ public class ProbeArtifactSink implements IArtifactSink {
         }
         if (writeIsStarted()) {
             // if the sink was opened, it should also be closed
-            assertThat(writeIsAborted() || writeIsStarted(), is(true));
+            assertThat(writeIsAborted() || writeIsCommitted(), is(true));
         }
     }
 

@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertThat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -24,16 +26,17 @@ public class StatusToolTest {
     @Test
     public void testSimpleStatus() {
         IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, "Simple error");
-        // no extra quotes if no MultiStatus
-        assertEquals("Simple error", StatusTool.collectProblems(status));
-        assertSame(null, StatusTool.findException(status));
+
+        assertThat(StatusTool.collectProblems(status), is("Simple error"));
+        assertThat(StatusTool.findException(status), is(nullValue()));
     }
 
     @Test
     public void testSimpleStatusWithException() {
-        Exception exception = new Exception();
+        Throwable exception = new Exception();
         IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, "Simple error", exception);
-        assertSame(exception, StatusTool.findException(status));
+
+        assertThat(StatusTool.findException(status), is(sameInstance(exception)));
     }
 
     @Test
@@ -47,11 +50,11 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Complicated error. See children for details.",
                 null);
 
-        assertEquals("Complicated error. See children for details.: [Detail 1; Detail 2; Detail 3]",
-                StatusTool.collectProblems(status));
+        assertThat(StatusTool.collectProblems(status),
+                is("Complicated error. See children for details.: [Detail 1; Detail 2; Detail 3]"));
 
-        // take first exception found
-        assertSame(exceptionChild2, StatusTool.findException(status));
+        // use the first exception found
+        assertThat(StatusTool.findException(status), is(sameInstance(exceptionChild2)));
     }
 
     @Test
@@ -64,7 +67,7 @@ public class StatusToolTest {
         root.add(child);
 
         // prefer root exceptions over child exceptions
-        assertSame(exceptionRoot, StatusTool.findException(root));
+        assertThat(StatusTool.findException(root), is(sameInstance(exceptionRoot)));
     }
 
     @Test
@@ -79,7 +82,7 @@ public class StatusToolTest {
         child2.add(new Status(IStatus.ERROR, PLUGIN_ID, "Child 2.2"));
         root.add(child2);
 
-        assertEquals("Root message: [Child 1; Child 2: [Child 2.1; Child 2.2]]", StatusTool.collectProblems(root));
+        assertThat(StatusTool.collectProblems(root), is("Root message: [Child 1; Child 2: [Child 2.1; Child 2.2]]"));
     }
 
     @Test
@@ -90,8 +93,8 @@ public class StatusToolTest {
         IStatus[] children = new IStatus[] { Status.OK_STATUS, info, Status.OK_STATUS, error, warning };
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
-        // extra comments are not really necessary, but not harmful either
-        assertEquals("Root message: [Info message; Error message; Warning message]", StatusTool.collectProblems(status));
+        assertThat(StatusTool.collectProblems(status),
+                is("Root message: [Info message; Error message; Warning message]"));
     }
 
     @Test
@@ -100,6 +103,6 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
         // this has potential to throw an exception
-        assertEquals("Root message: []", StatusTool.collectProblems(status));
+        assertThat(StatusTool.collectProblems(status), is("Root message: []"));
     }
 }
