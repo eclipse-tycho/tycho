@@ -145,39 +145,51 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         IArtifactDescriptor[] allFormats = repository.getArtifactDescriptors(sink.getArtifactToBeWritten());
         List<IArtifactDescriptor> formatsByPreference = transferPolicy.sortFormatsByPreference(allFormats);
 
-        for (IArtifactDescriptor descriptor : formatsByPreference) {
-            boolean artifactWasRead = getArtifactFromAnyMirror(descriptor, repository, sink, statusCollector, monitor);
-            if (artifactWasRead) {
+        return getArtifactFromAnyMirror(formatsByPreference, repository, sink, statusCollector, monitor);
+    }
+
+    private boolean getArtifactFromAnyMirror(List<IArtifactDescriptor> availableDescriptors,
+            IArtifactRepository repository, IArtifactSink sink, List<IStatus> statusCollector, IProgressMonitor monitor)
+            throws ArtifactSinkException {
+
+        for (RetryTracker retryTracker = new RetryTracker(); retryTracker.canRetry(); retryTracker.increment()) {
+            boolean artifactWasRead = getArtifactFromOneMirror(availableDescriptors, repository, sink, statusCollector,
+                    retryTracker, monitor);
+            if (artifactWasRead)
                 return true;
-            }
         }
         return false;
     }
 
-    private boolean getArtifactFromAnyMirror(IArtifactDescriptor descriptor, IArtifactRepository repository,
-            IArtifactSink sink, List<IStatus> statusCollector, IProgressMonitor monitor) throws ArtifactSinkException {
+    private boolean getArtifactFromOneMirror(List<IArtifactDescriptor> availableDescriptors,
+            IArtifactRepository repository, IArtifactSink sink, List<IStatus> statusCollector,
+            RetryTracker retryTracker, IProgressMonitor monitor) throws ArtifactSinkException {
 
-        // try at most a fixed number of mirrors; there is no API to query the actual number of mirrors
-        for (int attemptIx = 0; attemptIx < 16; attemptIx++) {
-
+        for (IArtifactDescriptor descriptor : availableDescriptors) {
             if (!sink.canBeginWrite()) {
                 return false;
             }
+            // there is no way to explicitly select a mirror - the repository magically picks one
             IStatus status = repository.getArtifact(descriptor, sink.beginWrite(), monitor);
 
-            statusCollector.add(improveMessageIfError(status, repository, sink));
+            statusCollector.add(improveMessageIfError(status, repository, descriptor));
             if (isFatal(status)) {
                 sink.abortWrite();
 
-                // CODE_RETRY is how the repository signals that it has more mirrors to try
+                /*
+                 * CODE_RETRY is how the repository signals that it has more mirrors to try, and
+                 * that we can call the same method with exactly the same parameters (!) again.
+                 * However we try another format first, so that we don't "spoil" all mirrors by
+                 * continuing to querying for a pack200 artifact that is actually broken in the
+                 * master repository (cf. bug 412945).
+                 */
                 if (status.getCode() != IArtifactRepository.CODE_RETRY) {
-                    return false;
+                    retryTracker.noMoreRetries();
                 }
             } else {
                 sink.commitWrite();
                 return true;
             }
-
         }
         return false;
     }
@@ -195,6 +207,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         }
     }
 
+    // TODO 393004 retry mirrors
     private boolean getRawArtifactFromRepository(IArtifactRepository repository, IRawArtifactSink sink,
             List<IStatus> statusCollector, IProgressMonitor monitor) throws ArtifactSinkException {
         IArtifactDescriptor requestedDescriptor = sink.getArtifactFormatToBeWritten();
@@ -217,24 +230,12 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
     }
 
     private IStatus improveMessageIfError(IStatus originalStatus, IArtifactRepository repository,
-            IArtifactDescriptor requestedDescriptor) {
+            IArtifactDescriptor currentDescriptor) {
         if (!isFatal(originalStatus)) {
             return originalStatus;
         }
-        return improveErrorMessage(originalStatus, repository, requestedDescriptor.toString());
-    }
-
-    private IStatus improveMessageIfError(IStatus originalStatus, IArtifactRepository repository, IArtifactSink sink) {
-        if (!isFatal(originalStatus)) {
-            return originalStatus;
-        }
-        return improveErrorMessage(originalStatus, repository, sink.getArtifactToBeWritten().toString());
-    }
-
-    private IStatus improveErrorMessage(IStatus originalStatus, IArtifactRepository currentRepository,
-            String currentArtifact) {
-        String message = "An error occurred while transferring artifact " + currentArtifact + " from repository "
-                + currentRepository.getLocation();
+        String message = "An error occurred while transferring artifact " + currentDescriptor + " from repository "
+                + repository.getLocation();
         return new MultiStatus(BUNDLE_ID, 0, new IStatus[] { originalStatus }, message, null);
     }
 
@@ -257,6 +258,23 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         } else {
             IArtifactRepository[] repositoriesArray = repositories.toArray(new IArtifactRepository[repositoryCount]);
             return new CompoundQueryable<IArtifactKey>(repositoriesArray);
+        }
+    }
+
+    private static class RetryTracker {
+        // try at most a fixed number of mirrors; there is no API to query the actual number of mirrors
+        private int remaining = 16;
+
+        boolean canRetry() {
+            return remaining > 0;
+        }
+
+        void increment() {
+            --remaining;
+        }
+
+        void noMoreRetries() {
+            remaining = 0;
         }
     }
 
