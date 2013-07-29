@@ -85,7 +85,7 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
                 providerFor(TestRepositoryContent.REPO_BUNLDE_AB_PACK_CORRUPT), true, logVerifier.getLogger());
 
         exceptionVerifier.expect(MirroringFailedException.class);
-        exceptionVerifier.expectMessage(packedDescriptorFor(BUNDLE_A_KEY).toString());
+        exceptionVerifier.expectMessage(BUNDLE_A_KEY.toString());
 
         subject.getArtifactDescriptors(BUNDLE_A_KEY);
     }

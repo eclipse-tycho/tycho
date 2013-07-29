@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.util;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -27,6 +28,7 @@ public class StatusToolTest {
     public void testSimpleStatus() {
         IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, "Simple error");
 
+        assertThat(StatusTool.toLogMessage(status), is("Simple error"));
         assertThat(StatusTool.collectProblems(status), is("Simple error"));
         assertThat(StatusTool.findException(status), is(nullValue()));
     }
@@ -50,6 +52,8 @@ public class StatusToolTest {
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Complicated error. See children for details.",
                 null);
 
+        assertThat(StatusTool.toLogMessage(status),
+                is("Complicated error. See children for details.:\n   Detail 1\n   Detail 2\n   Detail 3"));
         assertThat(StatusTool.collectProblems(status),
                 is("Complicated error. See children for details.: [Detail 1; Detail 2; Detail 3]"));
 
@@ -74,15 +78,19 @@ public class StatusToolTest {
     public void testDeepNesting() {
         MultiStatus root = new MultiStatus(PLUGIN_ID, 0, "Root message", null);
 
-        IStatus child1 = new Status(IStatus.ERROR, PLUGIN_ID, "Child 1");
+        MultiStatus child1 = new MultiStatus(PLUGIN_ID, IStatus.ERROR, "Child 1", null);
+        child1.add(new Status(IStatus.ERROR, PLUGIN_ID, "Child 1.1"));
+        child1.add(new Status(IStatus.ERROR, PLUGIN_ID, "Child 1.2"));
         root.add(child1);
 
         MultiStatus child2 = new MultiStatus(PLUGIN_ID, IStatus.ERROR, "Child 2", null);
         child2.add(new Status(IStatus.ERROR, PLUGIN_ID, "Child 2.1"));
-        child2.add(new Status(IStatus.ERROR, PLUGIN_ID, "Child 2.2"));
         root.add(child2);
 
-        assertThat(StatusTool.collectProblems(root), is("Root message: [Child 1; Child 2: [Child 2.1; Child 2.2]]"));
+        assertThat(StatusTool.toLogMessage(root),
+                is("Root message:\n   Child 1:\n      Child 1.1\n      Child 1.2\n   Child 2:\n      Child 2.1"));
+        assertThat(StatusTool.collectProblems(root),
+                is("Root message: [Child 1: [Child 1.1; Child 1.2]; Child 2: [Child 2.1]]"));
     }
 
     @Test
@@ -102,7 +110,8 @@ public class StatusToolTest {
         IStatus[] children = new IStatus[] { Status.OK_STATUS, Status.OK_STATUS };
         MultiStatus status = new MultiStatus(PLUGIN_ID, 0, children, "Root message", null);
 
-        // this has potential to throw an exception
-        assertThat(StatusTool.collectProblems(status), is("Root message: []"));
+        // use case should not occur -> just make sure that it wouldn't throw an exception
+        assertThat(StatusTool.toLogMessage(status), containsString("Root message"));
+        assertThat(StatusTool.collectProblems(status), containsString("Root message"));
     }
 }

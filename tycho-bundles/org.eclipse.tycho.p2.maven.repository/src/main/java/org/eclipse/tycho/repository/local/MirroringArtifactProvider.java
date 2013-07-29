@@ -26,6 +26,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.facade.MultiLineLogger;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
@@ -54,6 +55,7 @@ import org.eclipse.tycho.repository.util.StatusTool;
 public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     protected final MavenLogger logger;
+    protected final MavenLogger splittingLogger;
 
     protected final IRawArtifactProvider remoteProviders;
     protected final LocalArtifactRepository localArtifactRepository;
@@ -89,6 +91,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         this.remoteProviders = remoteProviders;
         this.localArtifactRepository = localArtifactRepository;
         this.logger = logger;
+        this.splittingLogger = new MultiLineLogger(logger);
     }
 
     // pass through methods
@@ -208,12 +211,11 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         IStatus transferStatus = downloadMostSpecificNeededFormatOfArtifact(key);
 
         if (transferStatus.matches(IStatus.ERROR | IStatus.CANCEL)) {
-            // TODO 393004 better formatted, additional log output
-            throw new MirroringFailedException("Could not mirror artifact " + key
-                    + " into the local Maven repository: " + StatusTool.collectProblems(transferStatus),
-                    StatusTool.findException(transferStatus));
+            splittingLogger.error(StatusTool.toLogMessage(transferStatus));
+            throw new MirroringFailedException("Could not mirror artifact " + key + " into the local Maven repository."
+                    + "See log output for details.", StatusTool.findException(transferStatus));
         } else if (transferStatus.matches(IStatus.WARNING)) {
-            logger.warn(StatusTool.collectProblems(transferStatus));
+            splittingLogger.warn(StatusTool.toLogMessage(transferStatus));
         }
 
     }

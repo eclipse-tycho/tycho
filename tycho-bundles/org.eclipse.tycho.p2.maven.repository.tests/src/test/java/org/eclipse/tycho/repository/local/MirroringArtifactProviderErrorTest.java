@@ -59,8 +59,9 @@ public class MirroringArtifactProviderErrorTest {
 
     @Test(expected = MirroringFailedException.class)
     public void testMirrorCorruptArtifact() throws Exception {
-        testSink = newArtifactSinkFor(CORRUPT_ARTIFACT);
+        logVerifier.expectError(CORRUPT_ARTIFACT.toString());
 
+        testSink = newArtifactSinkFor(CORRUPT_ARTIFACT);
         try {
             // here we expect an exception, an not (!) an error status, to be consistent with other methods that mirror but don't return a status
             subject.getArtifact(testSink, null);
