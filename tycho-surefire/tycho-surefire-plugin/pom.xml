@@ -52,6 +52,11 @@
 			<artifactId>plexus-utils</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>3.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-core</artifactId>
 			<version>${project.version}</version>
@@ -95,6 +100,11 @@
 			<groupId>org.apache.maven.surefire</groupId>
 			<artifactId>surefire-api</artifactId>
 			<version>${surefire-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-p2-facade</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - port to surefire 2.10
+ *    Red Hat Inc. (mistria)- 386988 Support for provisionned applications
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -40,6 +42,7 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.osgi.framework.internal.core.Constants;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -49,6 +52,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -59,6 +63,7 @@ import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -69,9 +74,20 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
+import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.IP2Artifact;
+import org.eclipse.tycho.p2.metadata.P2Generator;
+import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
+import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2.tools.mirroring.facade.IUDescription;
+import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
 import org.eclipse.tycho.surefire.provider.impl.ProviderSelector;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
+import org.sonatype.aether.impl.ArtifactResolver;
 
 /**
  * <p>
@@ -531,6 +547,22 @@ public class TestMojo extends AbstractMojo {
      */
     private Properties providerProperties = new Properties();
 
+    /**
+     * <p>
+     * Path to the application on which one to run tests. The application must be existing prior to
+     * execution of the Mojo.
+     * </p>
+     * 
+     * @parameter expression="${tycho.testProvisionnedApplication}"
+     */
+    private File targetApplicationPath;
+
+    /**
+     * @parameter expression="${buildQualifier}"
+     * @readonly
+     */
+    private String qualifier;
+
     /** @component */
     private ToolchainManager toolchainManager;
 
@@ -539,6 +571,15 @@ public class TestMojo extends AbstractMojo {
 
     /** @component */
     private DevWorkspaceResolver workspaceState;
+
+    /** @component */
+    private RepositoryReferenceTool repositoryReferenceTool;
+
+    /** @component */
+    private EquinoxServiceFactory p2;
+
+    /** @component */
+    private ArtifactResolver artifactResolver;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip || skipExec || skipTests) {
@@ -568,8 +609,79 @@ public class TestMojo extends AbstractMojo {
             }
         }
 
-        EquinoxInstallation testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
+        EquinoxInstallation testRuntime = null;
+        if (this.targetApplicationPath == null) {
+            testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
+        } else {
+            testRuntime = createInstallationFromProvisionnedApplication(this.targetApplicationPath,
+                    DefaultReactorProject.adapt(session));
+        }
+
         runTest(testRuntime);
+    }
+
+    private EquinoxInstallation createInstallationFromProvisionnedApplication(File targetApplicationPath2,
+            List<ReactorProject> adapt) throws MojoExecutionException {
+        ProvisionnedEquinoxInstallation res = new ProvisionnedEquinoxInstallation(targetApplicationPath2);
+        try {
+            // properties copites from createEclipseInstallation
+            BundleProject projectType = (BundleProject) projectTypes.get(project.getPackaging());
+            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+            String testBundleSymbolicName = projectType.getArtifactKey(reactorProject).getId();
+            Properties surefireProps = createSurefireProperties(testBundleSymbolicName);
+            TestFrameworkProvider provider = providerSelector.selectProvider(projectType.getClasspath(project),
+                    providerProperties, providerHint);
+            surefireProps.setProperty("testprovider", provider.getSurefireProviderClassName());
+            getLog().debug("Using test framework provider " + provider.getClass().getName());
+            storeProperties(surefireProps, surefireProperties);
+
+            // Create a site made of all dependencies
+
+            // surefire booter
+            File testDependenciesRepoDestination = new File(this.work, "testDependencies");
+            File pluginsDir = new File(testDependenciesRepoDestination, "plugins");
+            if (!pluginsDir.exists()) {
+                pluginsDir.mkdirs();
+            }
+            Set<Artifact> artifacts = this.providerSelector.filterTestFrameworkBundles(provider, this.pluginArtifacts);
+            List<IArtifactFacade> surefireBooterArtifactFacades = new ArrayList<IArtifactFacade>();
+            for (Artifact artifact : artifacts) {
+                FileUtils.copyFileToDirectory(artifact.getFile(), pluginsDir);
+                surefireBooterArtifactFacades.add(new ArtifactFacade(artifact));
+            }
+            // Copied from P2MetadataMojo
+            P2Generator p2generator = this.p2.getService(P2Generator.class);
+            Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(surefireBooterArtifactFacades,
+                    testDependenciesRepoDestination);
+
+            // Test bundle + deps; Copied from AssembleRepositoryMojo
+            int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
+            RepositoryReferences sources = this.repositoryReferenceTool.getVisibleRepositories(this.project,
+                    this.session, flags);
+            List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+            environments.add(TargetEnvironment.getRunningEnvironment());
+            MirrorApplicationService mirrorApp = this.p2.getService(MirrorApplicationService.class);
+            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
+                    testDependenciesRepoDestination, "surefire test dependencies", false, false, true);
+            MirrorOptions mirrorOptions = new MirrorOptions();
+            mirrorOptions.setFollowStrictOnly(false);
+            Collection<IUDescription> ius = new ArrayList<IUDescription>();
+            IUDescription currentModuleIU = new IUDescription(testBundleSymbolicName, this.project.getVersion()
+                    .replace("-SNAPSHOT", "." + this.qualifier));
+            ius.add(currentModuleIU);
+            mirrorApp.mirrorStandalone(sources, destinationRepoDescriptor, ius, mirrorOptions,
+                    new BuildOutputDirectory(new File(testDependenciesRepoDestination, "tmp")));
+
+            // install depdendencies
+            for (IArtifactFacade artifact : surefireBooterArtifactFacades) {
+                ius.add(new IUDescription(artifact.getArtifactId(), "0.0.0"));
+            }
+            res.p2directorInstall(this.launcher, getToolchain(), testDependenciesRepoDestination, ius);
+
+            return res;
+        } catch (Exception ex) {
+            throw new MojoExecutionException(ex.getMessage(), ex);
+        }
     }
 
     private EquinoxInstallation createEclipseInstallation(List<ReactorProject> reactorProjects)

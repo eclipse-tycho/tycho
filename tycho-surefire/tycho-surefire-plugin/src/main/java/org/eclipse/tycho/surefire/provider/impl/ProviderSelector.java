@@ -83,20 +83,13 @@ public class ProviderSelector {
         for (Dependency dependency : requiredArtifacts) {
             boolean found = false;
             for (Artifact artifact : pluginArtifacts) {
-                if (dependency.getGroupId().equals(artifact.getGroupId())) {
-                    if (dependency.getArtifactId().equals(artifact.getArtifactId())) {
-                        if (dependency.getVersion() != null && !"".equals(dependency.getVersion())) {
-                            if (dependency.getVersion().equals(artifact.getVersion())) {
-                                found = true;
-                                result.add(artifact);
-                                break;
-                            }
-                        } else {
-                            found = true;
-                            result.add(artifact);
-                            break;
-                        }
-                    }
+                if (dependency.getGroupId().equals(artifact.getGroupId())
+                        && dependency.getArtifactId().equals(artifact.getArtifactId())
+                        && (dependency.getVersion() == null || dependency.getVersion().isEmpty() || dependency
+                                .getVersion().equals(artifact.getVersion()))) {
+                    found = true;
+                    result.add(artifact);
+                    break;
                 }
             }
             if (!found) {
