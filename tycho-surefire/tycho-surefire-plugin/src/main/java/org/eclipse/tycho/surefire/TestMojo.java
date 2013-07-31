@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -40,6 +41,7 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.osgi.framework.internal.core.Constants;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -59,6 +61,7 @@ import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -69,6 +72,12 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.osgi.adapters.MavenReactorProjectCoordinates;
+import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
+import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
+import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 import org.eclipse.tycho.surefire.provider.impl.ProviderSelector;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
@@ -531,6 +540,22 @@ public class TestMojo extends AbstractMojo {
      */
     private Properties providerProperties = new Properties();
 
+    /**
+     * <p>
+     * Path to the application on which one to run tests. The application must be existing prior to
+     * execution of the Mojo.
+     * </p>
+     * 
+     * @parameter expression="${tycho.testProvisionnedApplication}"
+     */
+    private File targetApplicationPath;
+
+    /**
+     * @parameter expression="${buildQualifier}"
+     * @readonly
+     */
+    private String qualifier;
+
     /** @component */
     private ToolchainManager toolchainManager;
 
@@ -539,6 +564,12 @@ public class TestMojo extends AbstractMojo {
 
     /** @component */
     private DevWorkspaceResolver workspaceState;
+
+    /** @component */
+    private RepositoryReferenceTool repositoryReferenceTool;
+
+    /** @component */
+    private EquinoxServiceFactory p2;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip || skipExec || skipTests) {
@@ -568,8 +599,52 @@ public class TestMojo extends AbstractMojo {
             }
         }
 
-        EquinoxInstallation testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
+        EquinoxInstallation testRuntime = null;
+        if (this.targetApplicationPath == null) {
+            testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
+        } else {
+            testRuntime = createInstallationFromProvisionnedApplication(this.targetApplicationPath,
+                    DefaultReactorProject.adapt(session));
+        }
         runTest(testRuntime);
+    }
+
+    private EquinoxInstallation createInstallationFromProvisionnedApplication(File targetApplicationPath2,
+            List<ReactorProject> adapt) throws MojoExecutionException {
+        try {
+            // Create a site made of all dependencies
+            // Copied from AssembleRepositoryMojo
+            File destination = new File(this.work, "testDependencies");
+            int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
+            RepositoryReferences sources = this.repositoryReferenceTool.getVisibleRepositories(this.project,
+                    this.session, flags);
+
+            List<TargetEnvironment> environments = TychoProjectUtils.getTargetPlatformConfiguration(this.project)
+                    .getEnvironments();
+            BuildContext buildContext = new BuildContext(new MavenReactorProjectCoordinates(this.project),
+                    this.qualifier, environments);
+
+            MirrorApplicationService mirrorApp = this.p2.getService(MirrorApplicationService.class);
+            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
+                    destination, "surefire test dependencies", false, false, true);
+            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, Collections.EMPTY_LIST, buildContext, true,
+                    false, null);
+
+            // install depdendencies
+            ProvisionnedEquinoxInstallation res = new ProvisionnedEquinoxInstallation(targetApplicationPath2);
+            String version = this.project.getVersion();
+            if (version.endsWith("-SNAPSHOT")) {
+                version = version.substring(0, version.length() - "-SNAPSHOT".length());
+                version += ".";
+                version += this.qualifier;
+            }
+            res.p2directorInstall(launcher, getToolchain(), destination, this.project.getArtifactId(), version);
+            // TODO install org.eclipse.tycho.surefire.osgibooter
+
+            return res;
+        } catch (Exception ex) {
+            throw new MojoExecutionException(ex.getMessage(), ex);
+        }
     }
 
     private EquinoxInstallation createEclipseInstallation(List<ReactorProject> reactorProjects)
