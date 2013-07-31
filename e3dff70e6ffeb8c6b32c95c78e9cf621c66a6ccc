@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c73e4bec_d0219ba8",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-07-31T16:23:06Z",
+      "side": 1,
+      "message": "This is where I\u0027d like to install org.eclipse.tycho.surefire.osgibooter",
+      "revId": "e3dff70e6ffeb8c6b32c95c78e9cf621c66a6ccc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
