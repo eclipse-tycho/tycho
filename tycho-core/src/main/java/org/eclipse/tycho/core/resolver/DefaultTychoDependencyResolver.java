@@ -53,8 +53,13 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
     private Map<String, TychoProject> projectTypes;
 
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
-        AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
-        if (dr == null) {
+        boolean forceOnNonTychoProject = false;
+        setupProject(session, project, reactorProject, forceOnNonTychoProject);
+    }
+
+    public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject,
+            boolean forceOnNonTychoProject) {
+        if (isProjectAlreadySetup(project)) {
             return;
         }
 
@@ -65,7 +70,12 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         // generic Eclipse/OSGi metadata
 
-        dr.setupProject(session, project);
+        AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
+        if (dr != null) { // is a Tycho module
+            dr.setupProject(session, project);
+        } else if (!forceOnNonTychoProject) { // skip for non Tycho modules by default
+            return;
+        }
 
         // p2 metadata
 
@@ -85,6 +95,10 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
 
         TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
         resolver.setupProjects(session, project, reactorProject);
+    }
+
+    private boolean isProjectAlreadySetup(MavenProject project) {
+        return project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION) != null;
     }
 
     public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects) {

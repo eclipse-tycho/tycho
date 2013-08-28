@@ -246,8 +246,6 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             }
         } else if (location.isFile() && location.getName().endsWith(".jar")) {
             actions.add(new BundlesAction(new File[] { location }));
-        } else {
-            throw new IllegalArgumentException("Unknown type of packaging " + packaging);
         }
 
         return actions;
