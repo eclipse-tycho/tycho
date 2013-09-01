@@ -57,7 +57,7 @@ public class Pack200NormalizeMojo extends AbstractMojo {
      * 
      * @parameter
      */
-    private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin");
+    private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin", "jar");
 
     /** @parameter expression="${plugin.artifacts}" */
     private List<Artifact> pluginArtifacts;
