@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,13 +26,17 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 
-@Component(role = ProviderSelector.class)
-public class ProviderSelector {
+@Component(role = ProviderHelper.class)
+public class ProviderHelper {
 
     @Requirement
     private Map<String, TestFrameworkProvider> providers;
+
+    @Requirement
+    private BundleReader bundleReader;
 
     private static final Comparator<TestFrameworkProvider> VERSION_COMPARATOR = new Comparator<TestFrameworkProvider>() {
 
@@ -83,20 +87,13 @@ public class ProviderSelector {
         for (Dependency dependency : requiredArtifacts) {
             boolean found = false;
             for (Artifact artifact : pluginArtifacts) {
-                if (dependency.getGroupId().equals(artifact.getGroupId())) {
-                    if (dependency.getArtifactId().equals(artifact.getArtifactId())) {
-                        if (dependency.getVersion() != null && !"".equals(dependency.getVersion())) {
-                            if (dependency.getVersion().equals(artifact.getVersion())) {
-                                found = true;
-                                result.add(artifact);
-                                break;
-                            }
-                        } else {
-                            found = true;
-                            result.add(artifact);
-                            break;
-                        }
-                    }
+                if (dependency.getGroupId().equals(artifact.getGroupId())
+                        && dependency.getArtifactId().equals(artifact.getArtifactId())
+                        && (dependency.getVersion() == null || dependency.getVersion().isEmpty() || dependency
+                                .getVersion().equals(artifact.getVersion()))) {
+                    found = true;
+                    result.add(artifact);
+                    break;
                 }
             }
             if (!found) {
@@ -137,6 +134,14 @@ public class ProviderSelector {
                                 + providers.keySet());
             }
         }
+    }
+
+    public List<String> getSymbolicNames(Set<Artifact> bundleArtifacts) {
+        List<String> result = new ArrayList<String>();
+        for (Artifact artifact : bundleArtifacts) {
+            result.add(bundleReader.loadManifest(artifact.getFile()).getBundleSymbolicName());
+        }
+        return result;
     }
 
 }

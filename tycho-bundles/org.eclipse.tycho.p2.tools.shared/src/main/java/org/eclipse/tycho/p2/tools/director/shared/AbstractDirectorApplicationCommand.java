@@ -75,7 +75,9 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         args.addUnlessEmpty("-artifactRepository", artifactSources);
         args.addUnlessEmpty("-installIU", unitsToInstall);
         args.add("-destination", destination.getAbsolutePath());
-        args.add("-profile", profileName);
+        if (profileName != null) {
+            args.add("-profile", profileName);
+        }
         args.add("-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures));
         args.add("-roaming");
 
