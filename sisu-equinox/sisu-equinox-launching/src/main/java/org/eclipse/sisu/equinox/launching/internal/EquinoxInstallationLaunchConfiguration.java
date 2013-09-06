@@ -33,7 +33,7 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
         this.launcherJar = findLauncherJar(equinoxDirectory);
     }
 
-    private static File findLauncherJar(File equinoxDirectory) {
+    public static File findLauncherJar(File equinoxDirectory) {
         File pluginsDir = new File(equinoxDirectory, "plugins");
         File[] launchers = pluginsDir.listFiles(new FilenameFilter() {
 
