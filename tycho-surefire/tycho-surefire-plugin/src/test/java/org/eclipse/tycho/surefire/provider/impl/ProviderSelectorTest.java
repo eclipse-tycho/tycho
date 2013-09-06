@@ -125,6 +125,10 @@ public class ProviderSelectorTest extends PlexusTestCase {
             public List<Dependency> getRequiredBundles() {
                 return emptyList();
             }
+
+            public List<String> getRequiredBundleSymbolicNames() {
+                return emptyList();
+            }
         };
         PlexusContainer container = getContainer();
         container.addComponent(anotherProvider, TestFrameworkProvider.class, "another_test_fwk");

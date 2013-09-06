@@ -8,8 +8,11 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - port to surefire 2.10
+ *    Red Hat Inc. (mistria)- 386988 Support for provisioned applications
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
+
+import static java.util.Arrays.asList;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -40,6 +43,7 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.osgi.framework.internal.core.Constants;
+import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -47,6 +51,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
+import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
@@ -59,6 +64,7 @@ import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -69,6 +75,10 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
+import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
+import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.surefire.provider.impl.ProviderSelector;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
@@ -531,6 +541,27 @@ public class TestMojo extends AbstractMojo {
      */
     private Properties providerProperties = new Properties();
 
+    /**
+     * <p>
+     * Name of IU to be installed using p2 director. This will run tests on a "fully provisioned"
+     * application/product (intended for integration test/ end user scenarios). I.e.
+     * 
+     * <ol>
+     * <li>Install the (typically product) IU together with surefire test harness bundles and the
+     * test bundle including all transitive dependencies using p2 director</li>
+     * <li>Run surefire tests using the installation created by p2 director</li>
+     * </ol>
+     * </p>
+     * 
+     * The IU to be installed as well as its dependencies will be resolved from the project's target
+     * platform.
+     * 
+     * TODO for more flexibility maybe rather use a list of IUs here
+     * 
+     * @parameter expression="${tycho.testInstallIU}"
+     */
+    private String installIU;
+
     /** @component */
     private ToolchainManager toolchainManager;
 
@@ -539,6 +570,15 @@ public class TestMojo extends AbstractMojo {
 
     /** @component */
     private DevWorkspaceResolver workspaceState;
+
+    /** @component */
+    private RepositoryReferenceTool repositoryReferenceTool;
+
+    /** @component */
+    private EquinoxServiceFactory osgiServices;
+
+    /** @component */
+    private P2ApplicationLauncher forkedAppLauncher;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip || skipExec || skipTests) {
@@ -568,8 +608,106 @@ public class TestMojo extends AbstractMojo {
             }
         }
 
-        EquinoxInstallation testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
+        EquinoxInstallation testRuntime = null;
+        if (this.installIU == null) {
+            testRuntime = createEclipseInstallation(DefaultReactorProject.adapt(session));
+        } else {
+            testRuntime = createInstallationFromProvisionedApplication();
+        }
+
         runTest(testRuntime);
+    }
+
+    private EquinoxInstallation createInstallationFromProvisionedApplication() throws MojoExecutionException {
+        ProvisionedEquinoxInstallation installation = new ProvisionedEquinoxInstallation(work);
+        try {
+            // TODO remove duplication 
+            // copied from createEclipseInstallation
+            BundleProject projectType = (BundleProject) projectTypes.get(project.getPackaging());
+            ReactorProject reactorProject = DefaultReactorProject.adapt(project);
+            String testBundleSymbolicName = projectType.getArtifactKey(reactorProject).getId();
+            Properties surefireProps = createSurefireProperties(testBundleSymbolicName);
+            TestFrameworkProvider provider = providerSelector.selectProvider(projectType.getClasspath(project),
+                    providerProperties, providerHint);
+            surefireProps.setProperty("testprovider", provider.getSurefireProviderClassName());
+            getLog().debug("Using test framework provider " + provider.getClass().getName());
+            storeProperties(surefireProps, surefireProperties);
+
+            File testHarnessRepo = createTestHarnessRepo(provider);
+
+            RepositoryReferences sources = this.repositoryReferenceTool.getVisibleRepositories(this.project,
+                    this.session, RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
+            DirectorRuntime.Command command = getDirectorRuntime().newInstallCommand();
+
+            command.addMetadataSources(sources.getMetadataRepositories());
+            command.addArtifactSources(sources.getArtifactRepositories());
+            command.addMetadataSources(asList(testHarnessRepo.toURI()));
+            command.addArtifactSources(asList(testHarnessRepo.toURI()));
+            List<String> iusToInstall = new ArrayList<String>();
+            iusToInstall.add(project.getArtifactId());
+            iusToInstall.addAll(provider.getRequiredBundleSymbolicNames());
+            iusToInstall.add(installIU);
+            for (String iu : iusToInstall) {
+                command.addUnitToInstall(iu);
+            }
+            command.setDestination(work);
+            //TODO
+            command.setProfileName("SDKProfile");
+            command.setEnvironment(TargetEnvironment.getRunningEnvironment());
+            command.setInstallFeatures(true);
+            getLog().info("Installing IUs" + iusToInstall + " to " + work.getAbsolutePath());
+
+            try {
+                command.execute();
+            } catch (DirectorCommandException e) {
+                throw new MojoFailureException("Installation of IUs " + iusToInstall + " failed", e);
+            }
+            return installation;
+        } catch (Exception ex) {
+            throw new MojoExecutionException(ex.getMessage(), ex);
+        }
+    }
+
+    private File createTestHarnessRepo(TestFrameworkProvider provider) throws MojoExecutionException, IOException,
+            MojoFailureException {
+        File testHarnessRepo = new File(project.getBuild().getDirectory(), "testHarnessRepo");
+        File pluginsDir = new File(testHarnessRepo, "plugins");
+        if (!pluginsDir.exists()) {
+            pluginsDir.mkdirs();
+        }
+        Set<Artifact> testHarnessArtifacts = this.providerSelector.filterTestFrameworkBundles(provider,
+                this.pluginArtifacts);
+        for (Artifact artifact : testHarnessArtifacts) {
+            FileUtils.copyFileToDirectory(artifact.getFile(), pluginsDir);
+        }
+        publishBundles(testHarnessRepo);
+        return testHarnessRepo;
+    }
+
+    private DirectorRuntime getDirectorRuntime() {
+        return osgiServices.getService(DirectorRuntime.class);
+    }
+
+    private void publishBundles(File sourceLocation) throws MojoExecutionException, MojoFailureException {
+        try {
+            File sourceRepositoryDir = sourceLocation.getCanonicalFile();
+            List<String> contentArgs = new ArrayList<String>();
+            contentArgs.add("-source");
+            contentArgs.add(sourceRepositoryDir.toString());
+
+            forkedAppLauncher.setWorkingDirectory(new File(project.getBuild().getDirectory()));
+            forkedAppLauncher.setApplicationName("org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher");
+            forkedAppLauncher.addArguments("-artifactRepository", sourceRepositoryDir.toURL().toString(), //
+                    "-metadataRepository", sourceRepositoryDir.toURL().toString());
+            forkedAppLauncher.addArguments(new String[] { "-compress", "-publishArtifacts" });
+            forkedAppLauncher.addArguments(contentArgs.toArray(new String[contentArgs.size()]));
+            int result = forkedAppLauncher.execute(forkedProcessTimeoutInSeconds);
+            if (result != 0) {
+                throw new MojoFailureException("P2 publisher return code was " + result);
+            }
+        } catch (IOException ioe) {
+            throw new MojoExecutionException("Unable to execute the publisher", ioe);
+        }
     }
 
     private EquinoxInstallation createEclipseInstallation(List<ReactorProject> reactorProjects)

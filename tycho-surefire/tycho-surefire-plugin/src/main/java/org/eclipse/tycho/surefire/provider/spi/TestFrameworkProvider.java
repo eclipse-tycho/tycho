@@ -60,4 +60,7 @@ public interface TestFrameworkProvider {
      * the plugin dependencies of tycho-surefire-plugin.
      */
     public List<Dependency> getRequiredBundles();
+
+    // TODO merge this method into getRequiredBundles()
+    public List<String> getRequiredBundleSymbolicNames();
 }

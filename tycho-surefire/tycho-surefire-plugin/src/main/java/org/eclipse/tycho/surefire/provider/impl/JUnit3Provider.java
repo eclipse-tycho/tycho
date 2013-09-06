@@ -15,6 +15,7 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.surefire.provider.impl.ProviderSelector.newDependency;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -49,6 +50,10 @@ public class JUnit3Provider extends AbstractJUnitProvider {
     @Override
     protected Set<String> getJUnitBundleNames() {
         return singleton("org.junit");
+    }
+
+    public List<String> getRequiredBundleSymbolicNames() {
+        return Arrays.asList("org.eclipse.tycho.surefire.osgibooter", "org.eclipse.tycho.surefire.junit");
     }
 
 }

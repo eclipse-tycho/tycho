@@ -15,6 +15,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.eclipse.tycho.surefire.provider.impl.ProviderSelector.newDependency;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +51,10 @@ public class JUnit4Provider extends AbstractJUnitProvider {
     @Override
     protected VersionRange getJUnitVersionRange() {
         return new VersionRange("[4,5)");
+    }
+
+    public List<String> getRequiredBundleSymbolicNames() {
+        return Arrays.asList("org.eclipse.tycho.surefire.osgibooter", "org.eclipse.tycho.surefire.junit4");
     }
 
 }
