@@ -13,7 +13,7 @@ package org.eclipse.tycho.surefire.provider.impl;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.eclipse.tycho.surefire.provider.impl.ProviderSelector.newDependency;
+import static org.eclipse.tycho.surefire.provider.impl.ProviderHelper.newDependency;
 
 import java.util.HashSet;
 import java.util.List;
