@@ -85,8 +85,9 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
         IPath basePath = new Path(productFileLocation.getParent());
 
         // must match org.eclipse.tycho.plugins.p2.publisher.PublishProductMojo.getSourceP2InfFile(File)
-        final int indexOfExtension = productFileLocation.getName().indexOf(".product");
-        final String p2infFilename = productFileLocation.getName().substring(0, indexOfExtension) + ".p2.inf";
+        final String productFileName = productFileLocation.getName();
+        final String p2infFilename = productFileName.substring(0, productFileName.length() - ".product".length())
+                + ".p2.inf";
 
         AdviceFileAdvice advice = new AdviceFileAdvice(id, parseVersion, basePath, new Path(p2infFilename));
         if (advice.containsAdvice()) {

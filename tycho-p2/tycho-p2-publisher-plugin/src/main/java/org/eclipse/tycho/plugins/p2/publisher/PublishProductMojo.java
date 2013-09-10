@@ -215,8 +215,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      */
     static File getSourceP2InfFile(File productFile) {
         // This must match org.eclipse.tycho.p2.impl.publisher.ProductDependenciesAction.addPublisherAdvice(IPublisherInfo)
-        final int indexOfExtension = productFile.getName().indexOf(".product");
-        final String p2infFilename = productFile.getName().substring(0, indexOfExtension) + ".p2.inf";
+        final String productFileName = productFile.getName();
+        final String p2infFilename = productFileName.substring(0, productFileName.length() - ".product".length())
+                + ".p2.inf";
         return new File(productFile.getParentFile(), p2infFilename);
     }
 
@@ -230,13 +231,13 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
         // now same for the features and bundles that version would be something else than "0.0.0"
         for (FeatureRef featRef : productConfiguration.getFeatures()) {
-            if (featRef.getVersion() != null && featRef.getVersion().indexOf(VersioningHelper.QUALIFIER) != -1) {
+            if (featRef.getVersion() != null && featRef.getVersion().endsWith(VersioningHelper.QUALIFIER)) {
                 String newVersion = replaceQualifier(featRef.getVersion(), buildQualifier);
                 featRef.setVersion(newVersion);
             }
         }
         for (PluginRef plugRef : productConfiguration.getPlugins()) {
-            if (plugRef.getVersion() != null && plugRef.getVersion().indexOf(VersioningHelper.QUALIFIER) != -1) {
+            if (plugRef.getVersion() != null && plugRef.getVersion().endsWith(VersioningHelper.QUALIFIER)) {
                 String newVersion = replaceQualifier(plugRef.getVersion(), buildQualifier);
                 plugRef.setVersion(newVersion);
             }
