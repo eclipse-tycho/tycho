@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,26 +24,30 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 
 public class PomDependencyProcessor {
 
     private final MavenSession session;
     private final RepositorySystem repositorySystem;
     private final Logger logger;
+    private P2ResolverFactory resolverFactory;
     private final LocalRepositoryP2Indices localRepoIndices;
 
     public PomDependencyProcessor(MavenSession session, RepositorySystem repositorySystem,
-            LocalRepositoryP2Indices localRepoIndices, Logger logger) {
+            P2ResolverFactory resolverFactory, LocalRepositoryP2Indices localRepoIndices, Logger logger) {
         this.session = session;
         this.repositorySystem = repositorySystem;
         this.logger = logger;
+        this.resolverFactory = resolverFactory;
         this.localRepoIndices = localRepoIndices;
     }
 
-    void addPomDependenciesToResolutionContext(MavenProject project, Collection<Artifact> transitivePomDependencies,
-            TargetPlatformBuilder resolutionContext) {
+    PomDependencyCollector collectPomDependencies(MavenProject project, Collection<Artifact> transitivePomDependencies) {
         final TychoRepositoryIndex p2ArtifactsInLocalRepo = localRepoIndices.getArtifactsIndex();
+        PomDependencyCollector result = resolverFactory.newPomDependencyCollector();
+        result.setProjectLocation(project.getBasedir());
 
         for (Artifact artifact : transitivePomDependencies) {
             P2DataArtifacts p2Data = new P2DataArtifacts(artifact);
@@ -60,7 +64,7 @@ public class PomDependencyProcessor {
                     logger.debug("P2TargetPlatformResolver: Using existing metadata of " + artifact.toString());
                 }
 
-                resolutionContext.addArtifactWithExistingMetadata(new ArtifactFacade(artifact), new ArtifactFacade(
+                result.addArtifactWithExistingMetadata(new ArtifactFacade(artifact), new ArtifactFacade(
                         p2Data.p2MetadataXml.artifact));
 
                 /*
@@ -81,12 +85,13 @@ public class PomDependencyProcessor {
                     logger.debug("P2resolver.addMavenArtifact " + artifact.toString());
                 }
 
-                resolutionContext.publishAndAddArtifactIfBundleArtifact(new ArtifactFacade(artifact));
+                result.publishAndAddArtifactIfBundleArtifact(new ArtifactFacade(artifact));
 
             } else {
                 failDueToPartialP2Data(artifact, p2Data);
             }
         }
+        return result;
     }
 
     private void failDueToPartialP2Data(Artifact artifact, P2DataArtifacts p2Data) {

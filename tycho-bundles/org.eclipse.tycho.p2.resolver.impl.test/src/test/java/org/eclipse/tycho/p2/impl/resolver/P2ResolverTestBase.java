@@ -28,12 +28,15 @@ import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.remote.RemoteAgent;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
-import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.repository.local.index.LocalRepositoryP2IndicesImpl;
@@ -55,15 +58,21 @@ public class P2ResolverTestBase {
     private DefaultDependencyMetadataGenerator dependencyGenerator;
 
     protected P2Resolver impl;
-    protected TargetPlatformBuilderImpl context;
+    protected TargetPlatformConfigurationStub tpConfig;
+    protected PomDependencyCollectorImpl pomDependencies;
+    protected List<IReactorArtifactFacade> reactorArtifacts = new ArrayList<IReactorArtifactFacade>();
+    protected TargetPlatformFactoryImpl tpFactory;
 
     @Before
-    final public void prepare() {
+    final public void prepare() throws Exception {
         fullGenerator = new P2GeneratorImpl(true);
         BuildPropertiesParserForTesting buildPropertiesReader = new BuildPropertiesParserForTesting();
         fullGenerator.setBuildPropertiesParser(buildPropertiesReader);
         dependencyGenerator = new DefaultDependencyMetadataGenerator();
         dependencyGenerator.setBuildPropertiesParser(buildPropertiesReader);
+
+        tpConfig = new TargetPlatformConfigurationStub();
+        tpFactory = createTargetPlatformFactory();
     }
 
     protected static List<TargetEnvironment> getEnvironments() {
@@ -78,7 +87,7 @@ public class P2ResolverTestBase {
 
         DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments());
 
-        context.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
+        pomDependencies.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
     }
 
     protected final void addReactorProject(File projectRoot, String packagingType, String artifactId) {
@@ -87,17 +96,23 @@ public class P2ResolverTestBase {
         IDependencyMetadata metadata = dependencyGenerator.generateMetadata(artifact, getEnvironments(),
                 OptionalResolutionAction.REQUIRE);
         artifact.setDependencyMetadata(metadata);
-        context.addReactorArtifact(artifact);
+        reactorArtifacts.add(artifact);
     }
 
     static File getLocalRepositoryLocation() throws IOException {
         return new File("target/localrepo").getAbsoluteFile();
     }
 
-    protected final TargetPlatformBuilderImpl createTargetPlatformBuilder() throws Exception {
-        return new TestTargetPlatformBuilderFactory(logVerifier.getLogger()).createTargetPlatformBuilder();
+    protected final PomDependencyCollectorImpl createPomDependencyCollector() throws IOException {
+        return new PomDependencyCollectorImpl(new MavenContextImpl(getLocalRepositoryLocation(),
+                logVerifier.getLogger()));
     }
 
+    protected final TargetPlatformFactoryImpl createTargetPlatformFactory() throws Exception {
+        return new TestTargetPlatformBuilderFactory(logVerifier.getLogger()).createTargetPlatformFactory();
+    }
+
+    // TODO make this available as JUnit Rule
     public static class TestTargetPlatformBuilderFactory {
 
         private MavenContext mavenContext;
@@ -123,9 +138,9 @@ public class P2ResolverTestBase {
             return localMetadataRepo;
         }
 
-        public TargetPlatformBuilderImpl createTargetPlatformBuilder() throws ProvisionException {
-            return new TargetPlatformBuilderImpl(new RemoteAgent(mavenContext), mavenContext,
-                    targetDefinitionResolverService, localArtifactRepo, localMetadataRepo);
+        public TargetPlatformFactoryImpl createTargetPlatformFactory() throws ProvisionException {
+            return new TargetPlatformFactoryImpl(mavenContext, new RemoteAgent(mavenContext), localArtifactRepo,
+                    localMetadataRepo, targetDefinitionResolverService);
         }
 
         private MavenContext createMavenContext(boolean offline, MavenLogger logger) throws IOException {

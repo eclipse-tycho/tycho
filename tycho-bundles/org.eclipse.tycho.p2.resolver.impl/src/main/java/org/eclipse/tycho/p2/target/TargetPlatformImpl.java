@@ -138,7 +138,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         for (IReactorArtifactFacade project : reactorProjects) {
             if (project.getLocation().equals(projectRoot)) {
                 found = true;
-                result.addAll(TargetPlatformBuilderImpl.toSet(project.getDependencyMetadata(primary),
+                result.addAll(TargetPlatformFactoryImpl.toSet(project.getDependencyMetadata(primary),
                         IInstallableUnit.class));
             }
         }

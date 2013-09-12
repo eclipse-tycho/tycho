@@ -41,7 +41,7 @@ public class P2ResolverAdditionalRequirementsTest {
 
     @Before
     public void initBlankResolver() {
-        impl = new P2ResolverImpl(logVerifier.getLogger());
+        impl = new P2ResolverImpl(null, logVerifier.getLogger());
     }
 
     @Test

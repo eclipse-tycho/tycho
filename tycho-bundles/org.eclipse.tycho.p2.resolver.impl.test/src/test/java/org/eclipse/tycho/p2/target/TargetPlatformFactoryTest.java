@@ -45,6 +45,7 @@ import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -53,14 +54,13 @@ import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.InstallableUnitUtil;
 import org.junit.Test;
 
-public class TargetPlatformBuilderTest extends P2ResolverTestBase {
+public class TargetPlatformFactoryTest extends P2ResolverTestBase {
 
     @Test
     public void test_addArtifactWithExistingMetadata_respects_artifact_classifiers() throws Exception {
-
         ArtifactMock artifact = new ArtifactMock(new File(
                 "resources/platformbuilder/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"), "groupId",
-                "artifactId", "1", ArtifactKey.TYPE_ECLIPSE_PLUGIN, "classifier");
+                "artifactId", "1", ArtifactKey.TYPE_ECLIPSE_PLUGIN, null);
 
         ArtifactMock metadata = new ArtifactMock(new File(
                 "resources/platformbuilder/pom-dependencies/existing-p2-metadata.xml"), "groupId", "artifactId", "1",
@@ -70,26 +70,27 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         Collection<IInstallableUnit> units;
 
         // classifier does not match available metadata
-        context = createTargetPlatformBuilder();
-        context.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+        artifact.setClassifier("classifier-not-in-p2-metadata");
+        pomDependencies = createPomDependencyCollector();
+        pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
+        platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
         units = platform.getInstallableUnits();
         assertEquals(0, units.size());
 
         // classifier matches one of the two IUs
         artifact.setClassifier("sources");
-        context = createTargetPlatformBuilder();
-        context.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+        pomDependencies = createPomDependencyCollector();
+        pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
+        platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
         units = platform.getInstallableUnits();
         assertEquals(1, units.size());
         assertContainsIU(units, "test.ui.source");
 
         // main (i.e. null) classifier matches one of the two IUs
         artifact.setClassifier(null);
-        context = createTargetPlatformBuilder();
-        context.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+        pomDependencies = createPomDependencyCollector();
+        pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
+        platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
         units = platform.getInstallableUnits();
         assertEquals(1, units.size());
         assertContainsIU(units, "test.ui");
@@ -112,10 +113,9 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
         artifact.setDependencyMetadata(metadata);
 
-        context = createTargetPlatformBuilder();
-        context.addReactorArtifact(artifact);
-
-        P2TargetPlatform platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+        List<IReactorArtifactFacade> reactorArtifacts = Collections.<IReactorArtifactFacade> singletonList(artifact);
+        P2TargetPlatform platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                reactorArtifacts, null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(1, units.size());
@@ -162,12 +162,13 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         IDependencyMetadata sourcesMetadata = sourcesGeneratorImpl.generateMetadata(sourceArtifact, environments, null);
         sourceArtifact.setDependencyMetadata(sourcesMetadata);
 
-        context = createTargetPlatformBuilder();
-        context.addReactorArtifact(artifact);
-        context.addReactorArtifact(secondaryArtifact);
-        context.addReactorArtifact(sourceArtifact);
+        List<IReactorArtifactFacade> reactorProjects = new ArrayList<IReactorArtifactFacade>();
+        reactorProjects.add(artifact);
+        reactorProjects.add(secondaryArtifact);
+        reactorProjects.add(sourceArtifact);
 
-        P2TargetPlatform platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+        P2TargetPlatform platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                reactorProjects, null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(3, units.size());
@@ -188,16 +189,15 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
 
     @Test
     public void testReactorProjectFiltering() throws Exception {
-        context = createTargetPlatformBuilder();
-
         TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
                 CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
-        context.addFilters(Arrays.asList(filter));
+        tpConfig.addFilters(Arrays.asList(filter));
 
         File projectRoot = ResourceUtil.resourceFile("platformbuilder/feature-p2-inf");
         addReactorProject(projectRoot, ArtifactKey.TYPE_ECLIPSE_FEATURE, "org.eclipse.tycho.p2.impl.test.bundle-p2-inf");
 
-        P2TargetPlatform platform = context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+        P2TargetPlatform platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                reactorArtifacts, null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(units.toString(), 1, units.size());
@@ -216,12 +216,12 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
         // add one IU to local repo
         localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"), new GAV(
                 "test", "foo", "1.0.0"));
-        TargetPlatformBuilderImpl tpBuilder = factory.createTargetPlatformBuilder();
-        Collection<IInstallableUnit> iusIncludingLocalRepo = tpBuilder.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER)
-                .getInstallableUnits();
-        tpBuilder.setIncludeLocalMavenRepo(false);
-        Collection<IInstallableUnit> iusWithoutLocalRepo = tpBuilder.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER)
-                .getInstallableUnits();
+        tpFactory = factory.createTargetPlatformFactory();
+        Collection<IInstallableUnit> iusIncludingLocalRepo = tpFactory.buildTargetPlatform(tpConfig,
+                NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
+        tpConfig.setForceIgnoreLocalArtifacts(true);
+        Collection<IInstallableUnit> iusWithoutLocalRepo = tpFactory.buildTargetPlatform(tpConfig,
+                NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
         Set<IInstallableUnit> retainedIUs = new HashSet<IInstallableUnit>(iusIncludingLocalRepo);
         retainedIUs.removeAll(iusWithoutLocalRepo);
         assertEquals(1, retainedIUs.size());
@@ -229,14 +229,13 @@ public class TargetPlatformBuilderTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void testAddMultipleIndependentlyResolvedTargetFiles() throws Exception {
+    public void testMultipleIndependentlyResolvedTargetFiles() throws Exception {
         List<TargetEnvironment> env = Collections.singletonList(new TargetEnvironment(null, null, null));
 
-        TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilder();
-        tpBuilder.setEnvironments(env);
-        tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1));
-        tpBuilder.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2));
-        P2TargetPlatform tp = tpBuilder.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+        tpConfig.setEnvironments(env);
+        tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1));
+        tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2));
+        P2TargetPlatform tp = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
         // platforms must have been resolved in two planner calls because otherwise the singleton bundles would have collided
 
         assertThat(versionedIdsOf(tp), hasItem(REFERENCED_BUNDLE_V1));

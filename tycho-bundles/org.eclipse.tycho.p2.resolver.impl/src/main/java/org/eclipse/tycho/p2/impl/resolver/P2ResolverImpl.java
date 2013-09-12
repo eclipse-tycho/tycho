@@ -47,7 +47,8 @@ import org.eclipse.tycho.p2.resolver.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.resolver.QueryableCollection;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 @SuppressWarnings("restriction")
 public class P2ResolverImpl implements P2Resolver {
@@ -63,11 +64,13 @@ public class P2ResolverImpl implements P2Resolver {
 
     private final List<IRequirement> additionalRequirements = new ArrayList<IRequirement>();
 
+    private TargetPlatformFactoryImpl targetPlatformFactory;
     private P2TargetPlatform context;
 
     private Set<IInstallableUnit> usedTargetPlatformUnits;
 
-    public P2ResolverImpl(MavenLogger logger) {
+    public P2ResolverImpl(TargetPlatformFactoryImpl targetPlatformFactory, MavenLogger logger) {
+        this.targetPlatformFactory = targetPlatformFactory;
         this.logger = logger;
         this.monitor = new LoggingProgressMonitor(logger);
         this.environments = Collections.singletonList(TargetEnvironment.getRunningEnvironment());
@@ -95,10 +98,10 @@ public class P2ResolverImpl implements P2Resolver {
                 null));
     }
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, String eeName) {
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String eeName) {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
-        P2TargetPlatform contextImpl = (P2TargetPlatform) context
-                .buildTargetPlatform(new ExecutionEnvironmentConfigurationStub(eeName));
+        P2TargetPlatform contextImpl = targetPlatformFactory.buildTargetPlatform(context,
+                new ExecutionEnvironmentConfigurationStub(eeName), null, null);
         strategy.setEEResolutionHints(contextImpl.getEEResolutionHints());
         strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
         strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
@@ -301,7 +304,7 @@ public class P2ResolverImpl implements P2Resolver {
         return additionalRequirements;
     }
 
-    // TODO this should be a method on the class TargetPlatform
+    // TODO 412416 this should be a method on the class TargetPlatform
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange) {
         this.context = (P2TargetPlatform) context;
 
