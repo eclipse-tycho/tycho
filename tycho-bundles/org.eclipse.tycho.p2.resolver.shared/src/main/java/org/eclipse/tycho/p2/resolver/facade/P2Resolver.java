@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import java.util.Map;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public interface P2Resolver {
     /**
@@ -51,7 +51,7 @@ public interface P2Resolver {
     @Deprecated
     public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation);
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformBuilder context, String executionEnvironmentName);
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String executionEnvironmentName);
 
     /**
      * Resolves specified installable unit identified by id and versionRange. The unit with latest

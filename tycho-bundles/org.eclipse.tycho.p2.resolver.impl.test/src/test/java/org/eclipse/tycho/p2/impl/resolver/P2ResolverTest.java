@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,14 +59,14 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Before
     public void initDefaultResolver() throws Exception {
 //        org.eclipse.equinox.internal.p2.core.helpers.Tracing.DEBUG_PLANNER_PROJECTOR = true;
-        context = createTargetPlatformBuilder();
-        impl = new P2ResolverImpl(logVerifier.getLogger());
+        pomDependencies = createPomDependencyCollector();
+        impl = new P2ResolverImpl(tpFactory, logVerifier.getLogger());
         impl.setEnvironments(getEnvironments());
     }
 
     @Test
     public void basic() throws Exception {
-        context.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
 
         File bundle = resourceFile("resolver/bundle01");
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundle01";
@@ -83,7 +83,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void siteConflictingDependenciesResolver() throws IOException {
-        context.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
 
         File[] projects = new File[] { resourceFile("siteresolver/bundle342"), //
                 resourceFile("siteresolver/bundle352"), //
@@ -166,7 +166,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb,
                 getEnvironments(), null);
         sb.setDependencyMetadata(metadata);
-        context.addReactorArtifact(sb);
+        reactorArtifacts.add(sb);
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), feature);
 
@@ -191,8 +191,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void eclipseRepository() throws Exception {
-        context.addP2Repository(resourceFile("repositories/e342").toURI());
-        context.addP2Repository(resourceFile("repositories/launchers").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/launchers").toURI());
 
         File projectDir = resourceFile("resolver/repository");
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.repository";
@@ -214,7 +214,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void bundleUsesSWT() throws Exception {
-        context.addP2Repository(resourceFile("repositories/e361").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e361").toURI());
 
         File bundle = resourceFile("resolver/bundleUsesSWT");
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
@@ -269,7 +269,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void swtFragmentWithRemoteSWT() throws Exception {
-        context.addP2Repository(resourceFile("repositories/e361").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e361").toURI());
 
         File swtFragment = resourceFile("resolver/swt/swtFragment");
         addReactorProject(swtFragment, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.swtFragment");
@@ -303,7 +303,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void reactorVsExternal() throws Exception {
-        context.addP2Repository(resourceFile("reactor-vs-external/extrepo").toURI());
+        tpConfig.addP2Repository(resourceFile("reactor-vs-external/extrepo").toURI());
 
         addReactorProject(resourceFile("reactor-vs-external/bundle01"), TYPE_ECLIPSE_PLUGIN,
                 "org.sonatype.tycho.p2.impl.resolver.test.bundle01");
@@ -326,7 +326,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void resolutionRestrictedEE() throws Exception {
-        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 
         File bundle = resourceFile("resolver/bundle.bree");
         String artifactId = "bundle.bree";
@@ -348,7 +348,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void resolutionEE() throws Exception {
-        context.addP2Repository(resourceFile("repositories/javax.xml").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 
         File bundle = resourceFile("resolver/bundle.bree");
         String artifactId = "bundle.bree";
@@ -370,7 +370,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Test
     public void resolutionCustomEE() throws Exception {
         // repository containing both a bundle and the custom profile providing javax.activation;version="1.1.1"
-        context.addP2Repository(resourceFile("repositories/custom-profile").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/custom-profile").toURI());
 
         // bundle importing javax.activation;version="1.1.1"
         File bundle = resourceFile("resolver/bundleRequiringVersionedJDKPackage");
@@ -445,7 +445,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testAdditionalFilterProperties() throws Exception {
-        context.addP2Repository(resourceFile("repositories/e342").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
 
         File bundle = resourceFile("resolver/bundle.filtered-dep");
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundle.filtered-dep";
@@ -463,7 +463,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Test
     public void testMissingArtifact() throws Exception {
         // repository with the IU org.eclipse.osgi but not the corresponding artifact (-> this repository is inconsistent, more often you'd get this situation in offline mode)
-        context.addP2Repository(resourceFile("repositories/missing-artifact").toURI());
+        tpConfig.addP2Repository(resourceFile("repositories/missing-artifact").toURI());
         // module requiring org.eclipse.osgi
         File bundle = resourceFile("resolver/bundle01");
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, "org.eclipse.tycho.p2.impl.resolver.test.bundle01");
@@ -473,10 +473,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     private P2TargetPlatform getTargetPlatform() {
-        return context.buildTargetPlatform(NOOP_EE_RESOLUTION_HANDLER);
+        return tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorArtifacts, pomDependencies);
     }
 
     private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
-        return context.buildTargetPlatform(eeResolutionHandler);
+        return tpFactory.buildTargetPlatform(tpConfig, eeResolutionHandler, reactorArtifacts, pomDependencies);
     }
 }

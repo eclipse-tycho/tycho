@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,11 +77,13 @@ import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
-import org.eclipse.tycho.p2.target.facade.TargetPlatformBuilder;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 // TODO 364134 rename this class
 @Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
@@ -182,34 +184,40 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
 
-        TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder();
-        tpBuilder.setProjectLocation(project.getBasedir());
-        tpBuilder.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
-        tpBuilder.setFailOnDuplicateIUs(failOnDuplicateIUs);
-        addThisReactorProjectToTargetPlatform(session, project, configuration, tpBuilder);
+        TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
+        tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
+        tpConfiguration.setFailOnDuplicateIUs(failOnDuplicateIUs);
 
-        addOtherReactorProjectsToTargetPlatform(project, reactorProjects, tpBuilder);
+        List<IReactorArtifactFacade> reactorArtifacts = getArtifactsOfThisReactorProject(session, project,
+                configuration);
+        reactorArtifacts.addAll(getArtifactsOfOtherReactorProjects(project, reactorProjects));
 
+        PomDependencyCollector pomDependencies = null;
         if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
-            addPomDependenciesToTargetPlatform(project, tpBuilder, reactorProjects, session);
+            pomDependencies = collectPomDependencies(project, reactorProjects, session);
+        } else {
+            // TODO 412416 remove this when the setProjectLocation is no longer needed
+            pomDependencies = resolverFactory.newPomDependencyCollector();
+            pomDependencies.setProjectLocation(project.getBasedir());
         }
 
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
-            addEntireP2RepositoryToTargetPlatform(repository, tpBuilder, session);
+            addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration, session);
         }
 
-        tpBuilder.setEnvironments(configuration.getEnvironments());
+        tpConfiguration.setEnvironments(configuration.getEnvironments());
         for (File file : configuration.getTargets()) {
-            addTargetFileContentToTargetPlatform(file, tpBuilder);
+            addTargetFileContentToTargetPlatform(file, tpConfiguration);
         }
 
-        tpBuilder.addFilters(configuration.getFilters());
+        tpConfiguration.addFilters(configuration.getFilters());
 
-        return tpBuilder.buildTargetPlatform(ee);
+        return resolverFactory.getTargetPlatformFactory().buildTargetPlatform(tpConfiguration, ee, reactorArtifacts,
+                pomDependencies);
     }
 
-    private void addThisReactorProjectToTargetPlatform(MavenSession session, MavenProject project,
-            TargetPlatformConfiguration configuration, TargetPlatformBuilder tpBuilder) {
+    private List<IReactorArtifactFacade> getArtifactsOfThisReactorProject(MavenSession session, MavenProject project,
+            TargetPlatformConfiguration configuration) {
         // 'this' project should obey optionalDependencnies configuration
 
         final List<TargetEnvironment> environments = configuration.getEnvironments();
@@ -229,33 +237,34 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 return primary ? metadata : secondaryMetadata;
             }
         };
+        List<IReactorArtifactFacade> result = new ArrayList<IReactorArtifactFacade>();
         for (String classifier : dependencyMetadata.keySet()) {
-            tpBuilder.addReactorArtifact(new ReactorArtifactFacade(reactorProjet, classifier));
+            result.add(new ReactorArtifactFacade(reactorProjet, classifier));
         }
+        return result;
     }
 
-    private void addOtherReactorProjectsToTargetPlatform(MavenProject project, List<ReactorProject> reactorProjects,
-            TargetPlatformBuilder resolutionContext) {
+    private List<IReactorArtifactFacade> getArtifactsOfOtherReactorProjects(MavenProject project,
+            List<ReactorProject> reactorProjects) {
+        List<IReactorArtifactFacade> result = new ArrayList<IReactorArtifactFacade>();
 
         for (ReactorProject otherProject : reactorProjects) {
             if (otherProject.sameProject(project)) {
                 continue;
             }
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("P2resolver.addMavenProject " + otherProject.getId());
-            }
 
             Map<String, Set<Object>> dependencyMetadata = otherProject.getDependencyMetadata();
             if (dependencyMetadata != null) {
                 for (String classifier : dependencyMetadata.keySet()) {
-                    resolutionContext.addReactorArtifact(new ReactorArtifactFacade(otherProject, classifier));
+                    result.add(new ReactorArtifactFacade(otherProject, classifier));
                 }
             }
         }
+        return result;
     }
 
-    private void addPomDependenciesToTargetPlatform(MavenProject project, TargetPlatformBuilder resolutionContext,
-            List<ReactorProject> reactorProjects, MavenSession session) {
+    private PomDependencyCollector collectPomDependencies(MavenProject project, List<ReactorProject> reactorProjects,
+            MavenSession session) {
         Set<String> projectIds = new HashSet<String>();
         for (ReactorProject p : reactorProjects) {
             String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
@@ -298,12 +307,12 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
         List<Artifact> explicitArtifacts = MavenDependencyInjector.filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
         PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
-                equinox.getService(LocalRepositoryP2Indices.class), getLogger());
-        pomDependencyProcessor.addPomDependenciesToResolutionContext(project, explicitArtifacts, resolutionContext);
+                resolverFactory, equinox.getService(LocalRepositoryP2Indices.class), getLogger());
+        return pomDependencyProcessor.collectPomDependencies(project, explicitArtifacts);
     }
 
     private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
-            TargetPlatformBuilder resolutionContext, MavenSession session) {
+            TargetPlatformConfigurationStub resolutionContext, MavenSession session) {
         try {
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
                 URI url = new URL(repository.getUrl()).toURI();
@@ -318,7 +327,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
     }
 
-    private void addTargetFileContentToTargetPlatform(File targetFile, TargetPlatformBuilder resolutionContext) {
+    private void addTargetFileContentToTargetPlatform(File targetFile, TargetPlatformConfigurationStub resolutionContext) {
         TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
         resolutionContext.addTargetDefinition(target);
     }

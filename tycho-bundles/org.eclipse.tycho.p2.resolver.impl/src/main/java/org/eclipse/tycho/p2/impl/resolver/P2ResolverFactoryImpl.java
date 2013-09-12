@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@ package org.eclipse.tycho.p2.impl.resolver;
 
 import java.io.File;
 
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -21,8 +20,10 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverService;
-import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
+import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 
@@ -36,19 +37,6 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
     private LocalRepositoryP2Indices localRepoIndices;
     private RemoteAgentManager remoteAgentManager;
     private TargetDefinitionResolverService targetDefinitionResolverService;
-
-    public TargetPlatformBuilderImpl createTargetPlatformBuilder() {
-        IProvisioningAgent remoteAgent;
-        try {
-            remoteAgent = remoteAgentManager.getProvisioningAgent();
-            LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
-            LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
-            return new TargetPlatformBuilderImpl(remoteAgent, mavenContext, targetDefinitionResolverService,
-                    localArtifactRepo, localMetadataRepo);
-        } catch (ProvisionException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private static synchronized LocalMetadataRepository getLocalMetadataRepository(MavenContext context,
             LocalRepositoryP2Indices localRepoIndices) {
@@ -71,8 +59,24 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         return localArtifactRepository;
     }
 
+    public PomDependencyCollector newPomDependencyCollector() {
+        return new PomDependencyCollectorImpl(mavenContext);
+    }
+
+    public TargetPlatformFactoryImpl getTargetPlatformFactory() {
+        try {
+            // TODO don't synchronize twice
+            LocalMetadataRepository localMetadataRepo = getLocalMetadataRepository(mavenContext, localRepoIndices);
+            LocalArtifactRepository localArtifactRepo = getLocalArtifactRepository(mavenContext, localRepoIndices);
+            return new TargetPlatformFactoryImpl(mavenContext, remoteAgentManager.getProvisioningAgent(),
+                    localArtifactRepo, localMetadataRepo, targetDefinitionResolverService);
+        } catch (ProvisionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public P2ResolverImpl createResolver(MavenLogger logger) {
-        return new P2ResolverImpl(logger);
+        return new P2ResolverImpl(getTargetPlatformFactory(), logger);
     }
 
     // setters for DS

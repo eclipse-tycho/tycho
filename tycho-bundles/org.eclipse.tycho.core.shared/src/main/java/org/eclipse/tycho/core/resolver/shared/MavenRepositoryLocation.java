@@ -12,6 +12,7 @@ package org.eclipse.tycho.core.resolver.shared;
 
 import java.net.URI;
 
+// TODO javadoc
 public class MavenRepositoryLocation {
 
     private final String id;

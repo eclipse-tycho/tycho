@@ -24,7 +24,6 @@ import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
 import org.eclipse.tycho.p2.impl.resolver.P2ResolverTestBase;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
-import org.eclipse.tycho.p2.target.TargetPlatformBuilderImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,9 +38,9 @@ public class CustomEEResolutionHandlerTest extends P2ResolverTestBase {
         ExecutionEnvironmentConfigurationCapture eeConfigurationCapture = new ExecutionEnvironmentConfigurationCapture(
                 "Custom/Profile-2");
 
-        TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilder();
-        tpBuilder.addP2Repository(ResourceUtil.resourceFile("repositories/custom-profile").toURI());
-        tpBuilder.buildTargetPlatform(new CustomEEResolutionHandler(eeConfigurationCapture)); // includes reading the custom profile specification
+        tpConfig.addP2Repository(ResourceUtil.resourceFile("repositories/custom-profile").toURI());
+        // this includes reading the custom profile specification
+        tpFactory.buildTargetPlatform(tpConfig, new CustomEEResolutionHandler(eeConfigurationCapture), null, null);
 
         List<SystemCapability> result = eeConfigurationCapture.capturedSystemCapabilities;
 
@@ -61,8 +60,7 @@ public class CustomEEResolutionHandlerTest extends P2ResolverTestBase {
 
         thrownException
                 .expectMessage("Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'");
-        TargetPlatformBuilderImpl tpBuilder = createTargetPlatformBuilder();
-        tpBuilder.buildTargetPlatform(new CustomEEResolutionHandler(eeConfigurationCapture));
+        tpFactory.buildTargetPlatform(tpConfig, new CustomEEResolutionHandler(eeConfigurationCapture), null, null);
     }
 
     static class ExecutionEnvironmentConfigurationCapture implements ExecutionEnvironmentConfiguration {
