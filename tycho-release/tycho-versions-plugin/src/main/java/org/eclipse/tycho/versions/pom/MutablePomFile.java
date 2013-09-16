@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import org.codehaus.plexus.util.IOUtil;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
+import de.pdark.decentxml.Node;
 import de.pdark.decentxml.Text;
 import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
@@ -40,12 +42,18 @@ public class MutablePomFile {
     private static XMLParser parser = new XMLParser();
 
     private Document document;
-
     private Element project;
+
+    private String version;
 
     public MutablePomFile(Document pom) {
         this.document = pom;
         this.project = document.getRootElement();
+
+        this.version = this.getExplicitVersionFromXML();
+        if (this.version == null) {
+            this.version = this.getParentVersion();
+        }
     }
 
     public static MutablePomFile read(File file) throws IOException {
@@ -66,6 +74,7 @@ public class MutablePomFile {
                 : new OutputStreamWriter(out);
         XMLWriter xw = new XMLWriter(w);
         try {
+            pom.setVersionInXML();
             pom.document.toXML(xw);
         } finally {
             xw.flush();
@@ -81,34 +90,73 @@ public class MutablePomFile {
         }
     }
 
-    public void setVersion(String version) {
-        Element element = project.getChild("version");
-        if (element == null) {
-            element = new Element(project, "version");
-            // TODO proper indentation
-            project.addNode(new Text("\n"));
-        }
-        element.setText(version);
+    private String getExplicitVersionFromXML() {
+        return getElementValue("version");
     }
 
+    private void setVersionInXML() {
+        boolean needsExplicitVersion = !version.equals(getParentVersion());
+        if (needsExplicitVersion) {
+            Element versionElement = project.getChild("version");
+            if (versionElement == null) {
+                versionElement = addEmptyVersionElementToXML(project);
+            }
+            versionElement.setText(version);
+        } else {
+            removeVersionElementFromXML(project);
+        }
+    }
+
+    private static Element addEmptyVersionElementToXML(Element project) {
+        Element result = new Element(project, "version");
+        // TODO proper indentation
+        project.addNode(new Text("\n"));
+        return result;
+    }
+
+    private static void removeVersionElementFromXML(Element project) {
+        List<Node> elements = project.getNodes();
+        for (Iterator<Node> iterator = elements.iterator(); iterator.hasNext();) {
+            Node node = iterator.next();
+            if (node instanceof Element) {
+                if ("version".equals(((Element) node).getName())) {
+                    iterator.remove();
+
+                    // also return newline after the element
+                    if (iterator.hasNext() && iterator.next() instanceof Text) {
+                        iterator.remove();
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the version in the parent POM declaration. This never affects the (effective) version of
+     * the project itself.
+     * 
+     * @see #setVersion(String)
+     */
     public void setParentVersion(String newVersion) {
         Element element = project.getChild("parent/version");
         if (element == null) {
             throw new IllegalArgumentException("No parent/version");
         }
-
         element.setText(newVersion);
     }
 
-    public String getVersion() {
-        return getElementValue("version");
+    /**
+     * Sets the version of the project.
+     */
+    public void setVersion(String version) {
+        this.version = version;
     }
 
-    public String getEffectiveVersion() {
-        String version = getVersion();
-        if (version == null) {
-            version = getParentVersion();
-        }
+    /**
+     * Returns the (effective) version of the project.
+     */
+    public String getVersion() {
         return version;
     }
 
@@ -118,15 +166,19 @@ public class MutablePomFile {
     }
 
     public String getParentVersion() {
-        return getParent().getVersion();
+        GAV parent = getParent();
+        return parent != null ? parent.getVersion() : null;
     }
 
-    public String getGroupId() {
+    private String getExplicitGroupId() {
         return getElementValue("groupId");
     }
 
-    public String getEffectiveGroupId() {
-        String groupId = getGroupId();
+    /**
+     * Returns the (effective) groupId of the project.
+     */
+    public String getGroupId() {
+        String groupId = getExplicitGroupId();
         if (groupId == null) {
             groupId = getParent().getGroupId();
         }
