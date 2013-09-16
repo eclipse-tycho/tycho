@@ -42,6 +42,6 @@ public class Property {
     }
 
     public String getValue() {
-        return dom.getText();
+        return dom.getTrimmedText();
     }
 }

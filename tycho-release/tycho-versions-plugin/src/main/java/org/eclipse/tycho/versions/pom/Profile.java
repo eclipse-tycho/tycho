@@ -28,7 +28,7 @@ public class Profile {
         LinkedHashSet<String> result = new LinkedHashSet<String>();
         for (Element modules : dom.getChildren("modules")) {
             for (Element module : modules.getChildren("module")) {
-                result.add(module.getText());
+                result.add(module.getTrimmedText());
             }
         }
         return new ArrayList<String>(result);
@@ -36,7 +36,7 @@ public class Profile {
 
     public String getId() {
         Element child = dom.getChild("id");
-        return child != null ? child.getText() : null;
+        return child != null ? child.getTrimmedText() : null;
     }
 
     public Build getBuild() {

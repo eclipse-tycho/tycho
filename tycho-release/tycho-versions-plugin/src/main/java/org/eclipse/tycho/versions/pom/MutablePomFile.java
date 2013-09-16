@@ -98,8 +98,7 @@ public class MutablePomFile {
     }
 
     public String getVersion() {
-        Element element = project.getChild("version");
-        return element != null ? element.getText().trim() : null;
+        return getElementValue("version");
     }
 
     public String getEffectiveVersion() {
@@ -111,8 +110,8 @@ public class MutablePomFile {
     }
 
     public String getPackaging() {
-        Element packaging = project.getChild("packaging");
-        return packaging != null ? packaging.getText().trim() : "jar";
+        String packaging = getElementValue("packaging");
+        return packaging != null ? packaging : "jar";
     }
 
     public String getParentVersion() {
@@ -120,8 +119,7 @@ public class MutablePomFile {
     }
 
     public String getGroupId() {
-        Element element = project.getChild("groupId");
-        return element != null ? element.getText() : null;
+        return getElementValue("groupId");
     }
 
     public String getEffectiveGroupId() {
@@ -133,8 +131,7 @@ public class MutablePomFile {
     }
 
     public String getArtifactId() {
-        Element element = project.getChild("artifactId");
-        return element != null ? element.getText().trim() : null;
+        return getElementValue("artifactId");
     }
 
     public GAV getParent() {
@@ -146,7 +143,7 @@ public class MutablePomFile {
         LinkedHashSet<String> result = new LinkedHashSet<String>();
         for (Element modules : project.getChildren("modules")) {
             for (Element module : modules.getChildren("module")) {
-                result.add(module.getText().trim());
+                result.add(module.getTrimmedText());
             }
         }
         return new ArrayList<String>(result);
@@ -176,5 +173,10 @@ public class MutablePomFile {
 
     public List<Property> getProperties() {
         return Property.getProperties(project);
+    }
+
+    private String getElementValue(String name) {
+        Element child = project.getChild(name);
+        return child != null ? child.getTrimmedText() : null;
     }
 }

@@ -1,0 +1,36 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>ignorewhitespace  </groupId>
+    <artifactId>
+      parent
+    </artifactId>
+    <version> 1.0.0-SNAPSHOT </version>
+  </parent>
+
+  <groupId>without.space  </groupId>
+  <artifactId> bundle</artifactId>
+  <version>1.0.1-SNAPSHOT     </version>
+  <packaging>
+    pom
+  </packaging>
+
+  <modules>
+    <module>	child </module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>profile</id>
+      <modules>
+        <module>profileChild </module>
+      </modules>
+    </profile>
+  </profiles>
+  
+  <properties>
+    <key> value-without-space </key>
+  </properties>
+
+</project>

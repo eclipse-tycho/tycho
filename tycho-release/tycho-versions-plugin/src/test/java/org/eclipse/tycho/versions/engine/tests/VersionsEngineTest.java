@@ -224,20 +224,6 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "module"));
     }
 
-    public void testIgnoreWhitespace() throws Exception {
-        File basedir = TestUtil.getBasedir("projects/ignorewhitespace");
-
-        VersionsEngine engine = newEngine(basedir);
-
-        engine.addVersionChange("parent", "1.0.1.qualifier");
-        engine.apply();
-
-        assertPom(basedir);
-
-        assertPom(new File(basedir, "bundle"));
-        assertBundleManifest(new File(basedir, "bundle"));
-    }
-
     public void testWrongSnapshotVersion() throws Exception {
         try {
             Versions.assertIsOsgiVersion("1.2.3_SNAPSHOT");

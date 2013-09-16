@@ -37,6 +37,6 @@ public class GAV {
 
     private String getChildText(String name) {
         Element child = dom.getChild(name);
-        return child != null ? child.getText().trim() : null;
+        return child != null ? child.getTrimmedText() : null;
     }
 }

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom.tests;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,18 +24,40 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class MutablePomFileTest {
+
+    private MutablePomFile subject;
+
+    @Test
+    public void testWhitespacesInValuesAreIgnored() throws Exception {
+        subject = getPom("/poms/whitespaceInElementText.xml");
+
+        assertThat(subject.getParent().getGroupId(), is("ignorewhitespace"));
+        assertThat(subject.getParent().getArtifactId(), is("parent"));
+        assertThat(subject.getParent().getVersion(), is("1.0.0-SNAPSHOT"));
+        assertThat(subject.getParentVersion(), is("1.0.0-SNAPSHOT"));
+        assertThat(subject.getGroupId(), is("without.space"));
+        assertThat(subject.getArtifactId(), is("bundle"));
+        assertThat(subject.getVersion(), is("1.0.1-SNAPSHOT"));
+        assertThat(subject.getPackaging(), is("pom"));
+
+        assertThat(subject.getModules().get(0), is("child"));
+        assertThat(subject.getProfiles().get(0).getModules().get(0), is("profileChild"));
+
+        assertThat(subject.getProperties().get(0).getValue(), is("value-without-space"));
+    }
+
     @Test
     public void setVersion001() throws Exception {
-        MutablePomFile pom = getPom("/poms/setVersion001.xml");
-        pom.setVersion("1.2.3.qualifier");
-        assertContent(pom, "/poms/setVersion001_expected.xml");
+        subject = getPom("/poms/setVersion001.xml");
+        subject.setVersion("1.2.3.qualifier");
+        assertContent(subject, "/poms/setVersion001_expected.xml");
     }
 
     @Test
     public void setVersion002() throws Exception {
-        MutablePomFile pom = getPom("/poms/setVersion002.xml");
-        pom.setVersion("1.2.3.qualifier");
-        assertContent(pom, "/poms/setVersion002_expected.xml");
+        subject = getPom("/poms/setVersion002.xml");
+        subject.setVersion("1.2.3.qualifier");
+        assertContent(subject, "/poms/setVersion002_expected.xml");
     }
 
     private MutablePomFile getPom(String path) throws IOException {
