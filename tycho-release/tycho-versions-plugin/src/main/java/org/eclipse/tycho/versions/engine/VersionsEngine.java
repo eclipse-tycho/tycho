@@ -22,7 +22,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.versions.manipulation.PomManipulator;
-import org.eclipse.tycho.versions.pom.GAV;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 
 /**
@@ -69,7 +68,7 @@ public class VersionsEngine {
     public void addVersionChange(String artifactId, String newVersion) throws IOException {
         MutablePomFile pom = getMutablePom(artifactId);
 
-        if (!newVersion.equals(pom.getEffectiveVersion())) {
+        if (!newVersion.equals(pom.getVersion())) {
             addVersionChange(new VersionChange(pom, newVersion));
         }
     }
@@ -125,7 +124,6 @@ public class VersionsEngine {
             Set<VersionChange> applied = new HashSet<VersionChange>();
 
             MutablePomFile pom = project.getMetadata(MutablePomFile.class);
-            GAV parent = pom != null ? pom.getParent() : null;
 
             // make changes to pom properties, assume project/version and project/parent/version are constants for now
             for (PropertyChange propertyChange : propertyChanges) {
@@ -135,15 +133,7 @@ public class VersionsEngine {
                 }
             }
 
-            // apply change to pom <parent> first, this will avoid unnecessary addition of project/version element
-            for (VersionChange change : versionChanges) {
-                if (parent != null && PomManipulator.isGavEquals(parent, change)) {
-                    applied.add(change);
-                    applyChange(project, change);
-                }
-            }
-
-            // apply all other changes
+            // apply version changes
             for (VersionChange change : versionChanges) {
                 if (!applied.contains(change)) {
                     applyChange(project, change);

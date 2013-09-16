@@ -20,7 +20,7 @@ public class VersionChange {
     private final String version;
 
     public VersionChange(MutablePomFile pom, String newVersion) {
-        this(pom, pom.getEffectiveVersion(), newVersion);
+        this(pom, pom.getVersion(), newVersion);
     }
 
     public VersionChange(MutablePomFile pom, String version, String newVersion) {
@@ -30,7 +30,7 @@ public class VersionChange {
     }
 
     public String getGroupId() {
-        return pom.getEffectiveGroupId();
+        return pom.getGroupId();
     }
 
     public String getArtifactId() {
@@ -53,7 +53,7 @@ public class VersionChange {
     public int hashCode() {
         int hash = version.hashCode();
         hash = 17 * hash + newVersion.hashCode();
-        hash = 17 * hash + pom.getEffectiveGroupId().hashCode();
+        hash = 17 * hash + pom.getGroupId().hashCode();
         hash = 17 * hash + pom.getArtifactId().hashCode();
         return hash;
     }
@@ -71,7 +71,6 @@ public class VersionChange {
         VersionChange other = (VersionChange) obj;
 
         return version.equals(other.version) && newVersion.equals(other.newVersion)
-                && pom.getEffectiveGroupId().equals(other.pom.getEffectiveGroupId())
-                && pom.getArtifactId().equals(other.getArtifactId());
+                && pom.getGroupId().equals(other.pom.getGroupId()) && pom.getArtifactId().equals(other.getArtifactId());
     }
 }

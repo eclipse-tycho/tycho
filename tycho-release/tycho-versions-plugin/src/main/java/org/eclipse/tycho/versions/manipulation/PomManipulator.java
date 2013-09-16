@@ -41,10 +41,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
     public boolean addMoreChanges(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
         GAV parent = pom.getParent();
-        if (parent != null && isGavEquals(parent, change)
-                && !isVersionEquals(change.getNewVersion(), parent.getVersion())) {
-            String explicitVersion = pom.getVersion();
-            if (explicitVersion == null || isVersionEquals(explicitVersion, change.getVersion())) {
+        if (parent != null && isGavEquals(parent, change)) {
+            if (isVersionEquals(pom.getVersion(), change.getVersion())) {
                 return allChanges.add(new VersionChange(pom, change.getVersion(), change.getNewVersion()));
             }
         }
@@ -147,8 +145,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
 
     private static boolean isGavEquals(MutablePomFile pom, VersionChange change) {
         // TODO replace with isGavEquals(pom.getEffectiveGav(), change)
-        return eq(change.getGroupId(), pom.getEffectiveGroupId()) && eq(change.getArtifactId(), pom.getArtifactId())
-                && isVersionEquals(change.getVersion(), pom.getEffectiveVersion());
+        return eq(change.getGroupId(), pom.getGroupId()) && eq(change.getArtifactId(), pom.getArtifactId())
+                && isVersionEquals(change.getVersion(), pom.getVersion());
     }
 
     public static boolean isGavEquals(GAV gav, VersionChange change) {
