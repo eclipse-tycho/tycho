@@ -50,7 +50,7 @@ public abstract class ProductFileManipulator extends AbstractMetadataManipulator
     protected boolean isSameProject(ProjectMetadata project1, MutablePomFile project2) {
         MutablePomFile project1Pom = project1.getMetadata(MutablePomFile.class);
         return project1Pom.getArtifactId().equals(project2.getArtifactId())
-                && project1Pom.getEffectiveGroupId().equals(project2.getEffectiveGroupId());
+                && project1Pom.getGroupId().equals(project2.getGroupId());
     }
 
 }

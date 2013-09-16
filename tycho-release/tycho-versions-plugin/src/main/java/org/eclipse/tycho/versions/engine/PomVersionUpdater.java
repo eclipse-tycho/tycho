@@ -87,7 +87,7 @@ public class PomVersionUpdater {
                 continue;
             }
 
-            String pomVersion = Versions.toCanonicalVersion(pom.getEffectiveVersion());
+            String pomVersion = Versions.toCanonicalVersion(pom.getVersion());
 
             VersionAdaptor adaptor = updaters.get(pom.getPackaging());
 
