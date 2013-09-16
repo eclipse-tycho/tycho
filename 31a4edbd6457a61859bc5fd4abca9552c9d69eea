@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a74dd7b0_8a5ca5fa",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-09-16T15:28:36Z",
+      "side": 1,
+      "message": "I suggest we replace this coupld of flags by \"provisionedProductIU\" which would use TP if null, and that would provision this specified IU if set.",
+      "revId": "31a4edbd6457a61859bc5fd4abca9552c9d69eea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
