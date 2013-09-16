@@ -28,6 +28,7 @@ import org.codehaus.plexus.util.IOUtil;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
+import de.pdark.decentxml.Text;
 import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
@@ -84,6 +85,8 @@ public class MutablePomFile {
         Element element = project.getChild("version");
         if (element == null) {
             element = new Element(project, "version");
+            // TODO proper indentation
+            project.addNode(new Text("\n"));
         }
         element.setText(version);
     }

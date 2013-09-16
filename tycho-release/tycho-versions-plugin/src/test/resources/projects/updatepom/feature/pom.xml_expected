@@ -10,4 +10,5 @@
   <artifactId>feature</artifactId>
   <packaging>eclipse-feature</packaging>
 
-<version>1.0.1-SNAPSHOT</version></project>
+<version>1.0.1-SNAPSHOT</version>
+</project>
