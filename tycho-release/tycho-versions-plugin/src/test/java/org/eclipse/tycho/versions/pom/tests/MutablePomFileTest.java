@@ -46,18 +46,61 @@ public class MutablePomFileTest {
         assertThat(subject.getProperties().get(0).getValue(), is("value-without-space"));
     }
 
-    @Test
-    public void setVersion001() throws Exception {
+    public void testSetVersion() throws Exception {
         subject = getPom("/poms/setVersion001.xml");
         subject.setVersion("1.2.3.qualifier");
         assertContent(subject, "/poms/setVersion001_expected.xml");
     }
 
     @Test
-    public void setVersion002() throws Exception {
+    public void testSetVersionOnPomWithProcessingInstruction() throws Exception {
         subject = getPom("/poms/setVersion002.xml");
         subject.setVersion("1.2.3.qualifier");
         assertContent(subject, "/poms/setVersion002_expected.xml");
+    }
+
+    @Test
+    public void testSetExplicitVersion() throws Exception {
+        subject = getPom("/poms/inheritedVersion.xml");
+        assertThat(subject.getParentVersion(), is("1.0.2"));
+        assertThat(subject.getVersion(), is("1.0.2"));
+
+        subject.setVersion("1.1.0-SNAPSHOT");
+
+        assertThat(subject.getVersion(), is("1.1.0-SNAPSHOT"));
+        assertContent(subject, "/poms/inheritedVersion_changedProjectVersion.xml");
+    }
+
+    @Test
+    public void testSetParentVersionDoesNotChangeEffectiveVersionOfChild() throws Exception {
+        subject = getPom("/poms/inheritedVersion.xml");
+        assertThat(subject.getParentVersion(), is("1.0.2"));
+        assertThat(subject.getVersion(), is("1.0.2"));
+
+        subject.setParentVersion("3.0.0");
+
+        assertThat(subject.getParentVersion(), is("3.0.0"));
+        assertThat(subject.getVersion(), is("1.0.2"));
+        assertContent(subject, "/poms/inheritedVersion_changedParentVersion.xml");
+    }
+
+    @Test
+    public void testSetVersionAvoidsExplicitVersion() throws Exception {
+        subject = getPom("/poms/inheritedVersion_changedProjectVersion.xml");
+        assertThat(subject.getParentVersion(), is("1.0.2"));
+        assertThat(subject.getVersion(), is("1.1.0-SNAPSHOT"));
+
+        subject.setVersion("1.0.2");
+
+        assertThat(subject.getVersion(), is("1.0.2"));
+        assertContent(subject, "/poms/inheritedVersion.xml");
+    }
+
+    @Test
+    public void testSetVersionAvoidsExplicitVersion_noFollowingSpaceCornerCase() throws Exception {
+        subject = getPom("/poms/inheritedVersion_changedProjectVersionWithoutFollowingSpace.xml");
+        subject.setVersion("1.0.2");
+        assertContent(subject, "/poms/inheritedVersion.xml");
     }
 
     private MutablePomFile getPom(String path) throws IOException {
