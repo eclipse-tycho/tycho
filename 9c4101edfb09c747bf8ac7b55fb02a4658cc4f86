@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a74dd7b0_053246f4",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/pom/MutablePomFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2013-09-16T16:58:08Z",
+      "side": 1,
+      "message": "Can we move this to a helper used everywhere we need to access element value in this plugin?\n\nDoes getTrimmedText return empty strings?",
+      "revId": "9c4101edfb09c747bf8ac7b55fb02a4658cc4f86",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
