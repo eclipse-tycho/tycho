@@ -34,6 +34,40 @@
       "revId": "31a4edbd6457a61859bc5fd4abca9552c9d69eea",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a74dd7b0_a8b99f34",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-09-17T14:51:13Z",
+      "side": 1,
+      "message": "IF we go for supporting 3 kinds of test runtime (minimal TP, provision product or pre-existing provisioned product, it would be interesting to factorize installation of tests on a provisioned product:\n\n\nif (provisionInstallation || provisionnedApplication !\u003d null) {\n   if (provisionInstallation) {\n       testRuntime \u003d provisionInstallation(); // provision only product\n   } else if (provisionnedApplication !\u003d null) {\n       testRuntime \u003d getProvisionnedInstallationFacade();\n   }\n   ((ProvisionnedEquinoxInstallation)testRuntime).installTestsAndDependencies(...);\n} else {\n   testRuntime \u003d createEclipseInstallation(DefaultReactorProject.adapt(session));\n}\n\n\nAlso, we could think about renaming \"createEclipseInstallation\" to \"createMinimalEclipseInstallation\" to make it clearer that this is not using p2 provisioning.",
+      "revId": "31a4edbd6457a61859bc5fd4abca9552c9d69eea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a74dd7b0_6836776e",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provisioning/BundlesPublisher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-09-17T14:51:13Z",
+      "side": 1,
+      "message": "This method ans class could be replaced by a method such as P2GeneratorImpl.appendToRepository(metadata) which would alter an existing repository to add the usts and artifacts entry to the right file, instead of calling yet-another-jvm to process the metadata",
+      "revId": "31a4edbd6457a61859bc5fd4abca9552c9d69eea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
