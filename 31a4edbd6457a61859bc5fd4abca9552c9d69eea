@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "a74dd7b0_ebe3a1c0",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-09-17T15:39:12Z",
+      "side": 1,
+      "message": "So usage would be like:\n$ mvn clean verify -DprovisionInstallation\u003dtrue -DprovisionnedApplication\u003d/path/to/existing/app\n?\nIt seems IMO a bit redundant to have to specify that we are in the \"provision\" case when we already set another \"provision\" property.\n\nAnyway, it\u0027s a minor concern. Such small usability issue aren\u0027t currently the big part of this enhancement. It would probably better to keep if for later. So feel free to ignore my comment (for now ;) )",
+      "parentUuid": "a74dd7b0_4b2d7595",
+      "revId": "31a4edbd6457a61859bc5fd4abca9552c9d69eea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a74dd7b0_6836776e",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provisioning/BundlesPublisher.java",
         "patchSetId": 2
