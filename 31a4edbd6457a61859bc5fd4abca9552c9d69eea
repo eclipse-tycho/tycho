@@ -16,6 +16,24 @@
       "revId": "31a4edbd6457a61859bc5fd4abca9552c9d69eea",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a74dd7b0_31cdfddb",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-09-17T07:17:45Z",
+      "side": 1,
+      "message": "We may actually remove this parameter, I\u0027m working on a new patchset until next week.\nwe already have a \"dependencies\" parameter which can specify any number of IUs.",
+      "parentUuid": "a74dd7b0_8a5ca5fa",
+      "revId": "31a4edbd6457a61859bc5fd4abca9552c9d69eea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
