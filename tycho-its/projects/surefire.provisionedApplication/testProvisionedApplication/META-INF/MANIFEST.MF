@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: testProvisionedApplication
+Bundle-Version: 1.0.0
+Require-Bundle: org.junit,
+ org.eclipse.core.runtime

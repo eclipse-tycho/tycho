@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="example-product" application="bogus" version="1.0.0" useFeatures="true" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <launcher>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="example-feature" version="0.0.0"/>
+   </features>
+
+  <configurations>
+    <plugin id="org.eclipse.equinox.app" autoStart="true" startLevel="0" />
+  </configurations>
+
+</product>

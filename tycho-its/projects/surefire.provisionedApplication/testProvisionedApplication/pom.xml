@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ Copyright (c) 2013 Red Hat Inc.
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v1.0
+ which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+
+ Contributors:
+      Mickael Istria (Red Hat JBoss) - sample product and surefire-config for 386988
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.tycho.tycho-its</groupId>
+		<artifactId>provisionedApplicationParent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<groupId>org.eclipse.tycho.tycho-its.testProvisionedApplication</groupId>
+	<artifactId>testProvisionedApplication</artifactId>
+	<version>1.0.0</version>
+	<packaging>eclipse-test-plugin</packaging>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<provisionInstallation>true</provisionInstallation>
+				</configuration>
+			</plugin>
+
+			<!-- unpack provisioned product archive before running tests -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<id>unpack-product</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.eclipse.tycho.tycho-its.testProvisionedApplication</groupId>
+									<artifactId>example-product</artifactId>
+									<version>1.0.0</version>
+									<type>zip</type>
+									<!-- os.ws.arch classifier is set by ProvisioningTest -->
+									<classifier>${productClassifier}</classifier>
+									<!-- this is where tycho surefire expects/creates the installation under test by default-->
+									<outputDirectory>${project.build.directory}/work</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
