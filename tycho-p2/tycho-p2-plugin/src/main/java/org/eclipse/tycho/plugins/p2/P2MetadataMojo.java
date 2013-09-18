@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2017 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Mickael Istria (Red Hat Inc.) - Allow BaselineValidation as component/strategy
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
@@ -51,9 +52,7 @@ import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
-import org.eclipse.tycho.plugins.p2.BaselineMode;
-import org.eclipse.tycho.plugins.p2.BaselineReplace;
-import org.eclipse.tycho.plugins.p2.BaselineValidator;
+import org.eclipse.tycho.plugins.p2.baseline.BaselineVersionValidator;
 
 @Mojo(name = "p2-metadata")
 public class P2MetadataMojo extends AbstractMojo {
@@ -99,8 +98,15 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(property = "tycho.baseline.replace", defaultValue = "all")
     private BaselineReplace baselineReplace;
 
-    @Component
-    private BaselineValidator baselineValidator;
+    @Component(role = BaselineValidator.class)
+    private Map<String, BaselineValidator> baselineValidators;
+
+    /**
+     * The strategy to choose for the baseline validator. Will resolve to one of the registered
+     * {@link BaselineValidator} components.
+     */
+    @Parameter(defaultValue = BaselineVersionValidator.HINT)
+    private String baselineStrategy;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -136,10 +142,9 @@ public class P2MetadataMojo extends AbstractMojo {
             artifacts.add(projectDefaultArtifact);
 
             for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
-                if (attachedArtifact.getFile() != null
-                        && (attachedArtifact.getFile().getName().endsWith(".jar") || (attachedArtifact.getFile()
-                                .getName().endsWith(".zip") && project.getPackaging().equals(
-                                ArtifactType.TYPE_INSTALLABLE_UNIT)))) {
+                if (attachedArtifact.getFile() != null && (attachedArtifact.getFile().getName().endsWith(".jar")
+                        || (attachedArtifact.getFile().getName().endsWith(".zip")
+                                && project.getPackaging().equals(ArtifactType.TYPE_INSTALLABLE_UNIT)))) {
                     artifacts.add(new ArtifactFacade(attachedArtifact));
                 }
             }
@@ -149,8 +154,31 @@ public class P2MetadataMojo extends AbstractMojo {
             Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts, targetDir);
 
             if (baselineMode != BaselineMode.disable) {
-                generatedMetadata = baselineValidator.validateAndReplace(project, generatedMetadata,
-                        baselineRepositories, baselineMode, baselineReplace);
+                /*
+                 * TODO? && baselineReplace != BaselineReplace.none && baselineRepositories != null &&
+                 * !baselineRepositories.isEmpty()
+                 */
+                if (this.baselineStrategy == null) {
+                    this.baselineStrategy = BaselineVersionValidator.HINT;
+                }
+                BaselineValidator baselineValidator = baselineValidators.get(this.baselineStrategy);
+                if (baselineValidator != null) {
+                    generatedMetadata = baselineValidator.validateAndReplace(project, generatedMetadata,
+                            baselineRepositories, baselineMode, baselineReplace);
+                } else {
+                    StringBuilder message = new StringBuilder();
+                    message.append("No such baselineStrategy '");
+                    message.append(this.baselineStrategy);
+                    message.append("'. Available strategies are: ");
+                    for (String baselineHints : baselineValidators.keySet()) {
+                        message.append(baselineHints);
+                        message.append(", ");
+                    }
+                    message.deleteCharAt(message.length() - 1);
+                    message.deleteCharAt(message.length() - 1);
+                    message.append(". Did you forget to add a dependency for the required baseline?");
+                    throw new MojoExecutionException(message.toString());
+                }
             }
 
             File contentsXml = new File(targetDir, FILE_NAME_P2_METADATA);
