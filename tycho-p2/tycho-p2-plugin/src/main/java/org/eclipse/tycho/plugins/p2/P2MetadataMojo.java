@@ -45,6 +45,7 @@ import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
+import org.eclipse.tycho.plugins.p2.baseline.BaselineVersionValidator;
 
 /**
  * @goal p2-metadata
@@ -96,9 +97,17 @@ public class P2MetadataMojo extends AbstractMojo {
     private BaselineReplace baselineReplace;
 
     /**
-     * @component
+     * @component role="org.eclipse.tycho.plugins.p2.BaselineValidator"
      */
-    private BaselineValidator baselineValidator;
+    private Map<String, BaselineValidator> baselineValidators;
+
+    /**
+     * The strategy to choose for the baseline validator. Will resolve to one of the registered
+     * {@link BaselineValidator} components.
+     * 
+     * @parameter
+     */
+    private String baselineStrategy;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         attachP2Metadata();
@@ -143,8 +152,31 @@ public class P2MetadataMojo extends AbstractMojo {
             Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts, targetDir);
 
             if (baselineMode != BaselineMode.disable) {
-                generatedMetadata = baselineValidator.validateAndReplace(project, generatedMetadata,
-                        baselineRepositories, baselineMode, baselineReplace);
+                /*
+                 * TODO? && baselineReplace != BaselineReplace.none && baselineRepositories != null
+                 * && !baselineRepositories.isEmpty()
+                 */
+                if (this.baselineStrategy == null) {
+                    this.baselineStrategy = BaselineVersionValidator.HINT;
+                }
+                BaselineValidator baselineValidator = baselineValidators.get(this.baselineStrategy);
+                if (baselineValidator != null) {
+                    generatedMetadata = baselineValidator.validateAndReplace(project, generatedMetadata,
+                            baselineRepositories, baselineMode, baselineReplace);
+                } else {
+                    StringBuilder message = new StringBuilder();
+                    message.append("No such baselineStrategy '");
+                    message.append(this.baselineStrategy);
+                    message.append("'. Available strategies are: ");
+                    for (String baselineHints : baselineValidators.keySet()) {
+                        message.append(baselineHints);
+                        message.append(", ");
+                    }
+                    message.deleteCharAt(message.length() - 1);
+                    message.deleteCharAt(message.length() - 1);
+                    message.append(". Did you forget to add a dependency for the required baseline?");
+                    throw new MojoExecutionException(message.toString());
+                }
             }
 
             File contentsXml = new File(targetDir, FILE_NAME_P2_METADATA);
