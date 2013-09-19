@@ -16,6 +16,24 @@
       "revId": "9c4101edfb09c747bf8ac7b55fb02a4658cc4f86",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a74dd7b0_0117b778",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/pom/MutablePomFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-19T10:50:12Z",
+      "side": 1,
+      "message": "getTrimmedText() is identical to getText().trim(), so it may return an empty String. getText() never returns null, so getTrimmedText() won\u0027t either.\n\nI\u0027m not opposed to moving this helper to somewhere shared, but I didn\u0027t find a natural place, so I just duplicated the two lines here.",
+      "parentUuid": "a74dd7b0_053246f4",
+      "revId": "9c4101edfb09c747bf8ac7b55fb02a4658cc4f86",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
