@@ -35,7 +35,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         File basedir = TestUtil.getBasedir("projects/exportpackage");
 
         VersionsEngine engine = newEngine(basedir);
-        engine.addVersionChange("exportpackage", "1.0.1.qualifier", true);
+        engine.addVersionChange("exportpackage", "1.0.1.qualifier");
         engine.apply();
 
         assertPom(basedir);

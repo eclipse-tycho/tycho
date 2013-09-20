@@ -66,12 +66,11 @@ public class VersionsEngine {
         this.projects = projects;
     }
 
-    public void addVersionChange(String artifactId, String newVersion, boolean updateExportedPackage)
-            throws IOException {
+    public void addVersionChange(String artifactId, String newVersion) throws IOException {
         MutablePomFile pom = getMutablePom(artifactId);
 
         if (!newVersion.equals(pom.getEffectiveVersion())) {
-            addVersionChange(new VersionChange(pom, newVersion, updateExportedPackage));
+            addVersionChange(new VersionChange(pom, newVersion));
         }
     }
 
@@ -84,10 +83,6 @@ public class VersionsEngine {
         }
 
         return project.getMetadata(MutablePomFile.class);
-    }
-
-    public void addVersionChange(String artifactId, String newVersion) throws IOException {
-        addVersionChange(artifactId, newVersion, false);
     }
 
     public void addVersionChange(VersionChange change) {

@@ -35,11 +35,9 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
                     + change.getNewVersion());
 
             mf.setVersion(change.getNewVersion());
-            if (isUpdateExportPackages(change)) {
-                logger.info("  Setting export-package version: " + change.getVersion() + " => "
-                        + change.getNewVersion().replace(".qualifier", ""));
-                mf.setExportedPackageVersion(change.getNewVersion());
-            }
+            logger.info("  Setting export-package version: " + change.getVersion() + " => "
+                    + change.getNewVersion().replace(".qualifier", ""));
+            mf.setExportedPackageVersion(change.getNewVersion());
         }
     }
 
@@ -72,10 +70,6 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
 
     private File getManifestFile(ProjectMetadata project) {
         return new File(project.getBasedir(), "META-INF/MANIFEST.MF");
-    }
-
-    private boolean isUpdateExportPackages(VersionChange change) {
-        return change.isUpdateExportedPackages();
     }
 
     public void writeMetadata(ProjectMetadata project) throws IOException {
