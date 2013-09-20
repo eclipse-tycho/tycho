@@ -26,9 +26,11 @@ import java.io.PushbackReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.versions.engine.Versions;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
@@ -196,13 +198,18 @@ public class MutableBundleManifest {
         }
     }
 
-    public void setExportedPackageVersion(String version) {
+    public void setExportedPackageVersion(String oldVersion, String newVersion) {
         ManifestAttribute attr = getAttribute(Constants.EXPORT_PACKAGE);
-        if (attr == null)
+        if (attr == null) {
             return;
+        }
 
-        String newExportedPackage = attr.getValue().replaceAll("(version=)\"(.*?)\"", "$1\"" + version + "\"") //Replacing all version fields
-                .replaceAll(".qualifier", ""); // Removing all .qualifier
+        // never put ".qualifier" literals into package versions
+        String oldBaseVersion = Versions.toBaseVersion(oldVersion);
+        String newBaseVersion = Versions.toBaseVersion(newVersion);
+
+        String newExportedPackage = attr.getValue().replaceAll(";version=\"" + Pattern.quote(oldBaseVersion) + "\"",
+                ";version=\"" + newBaseVersion + "\"");
         attr.set(Constants.EXPORT_PACKAGE, newExportedPackage);
     }
 }

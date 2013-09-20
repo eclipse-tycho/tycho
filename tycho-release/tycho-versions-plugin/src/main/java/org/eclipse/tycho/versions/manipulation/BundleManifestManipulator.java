@@ -35,9 +35,11 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
                     + change.getNewVersion());
 
             mf.setVersion(change.getNewVersion());
-            logger.info("  Setting export-package version: " + change.getVersion() + " => "
+
+            // TODO handle this by separate PackageVersionChange instances for each changed package? see addMoreChanges
+            logger.info("  META-INF/MANIFEST.MF//Export-Package//version: " + change.getVersion() + " => "
                     + change.getNewVersion().replace(".qualifier", ""));
-            mf.setExportedPackageVersion(change.getNewVersion());
+            mf.setExportedPackageVersion(change.getVersion(), change.getNewVersion());
         }
     }
 

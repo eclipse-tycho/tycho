@@ -54,7 +54,16 @@ public class MutableBundleManifestTest {
     public void setExportedVersion() throws Exception {
         MutableBundleManifest mf = getManifest("/manifests/setExportedPackage.mf");
 
-        mf.setExportedPackageVersion("1.0.1.qualifier");
+        mf.setExportedPackageVersion("1.0.0", "1.0.1");
+        assertContents(mf, "/manifests/setExportedPackage.mf_expected");
+    }
+
+    @Test
+    public void setExportedVersionWithQualifiers() throws Exception {
+        MutableBundleManifest mf = getManifest("/manifests/setExportedPackage.mf");
+
+        // omit ".qualifier" from package exports (because they are not expanded on exported packages and so can't be used)
+        mf.setExportedPackageVersion("1.0.0.qualifier", "1.0.1.qualifier");
         assertContents(mf, "/manifests/setExportedPackage.mf_expected");
     }
 
