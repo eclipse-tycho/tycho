@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_b0f39ed8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-20T07:43:35Z",
+      "side": 1,
+      "message": "should be: \"effective values\"",
+      "revId": "8e5e5a90835dce145dc48c70675dbc8a5a63516c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
