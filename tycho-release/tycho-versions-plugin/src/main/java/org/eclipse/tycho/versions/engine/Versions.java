@@ -31,6 +31,24 @@ public class Versions {
         return version;
     }
 
+    /**
+     * Returns the version without trailing ".qualifier" or "-SNAPSHOT".
+     */
+    public static String toBaseVersion(String version) {
+        if (version == null) {
+            return null;
+        }
+
+        if (version.endsWith(SUFFIX_SNAPSHOT)) {
+            return version.substring(0, version.length() - SUFFIX_SNAPSHOT.length());
+        }
+        if (version.endsWith(SUFFIX_QUALIFIER)) {
+            return version.substring(0, version.length() - SUFFIX_QUALIFIER.length());
+        }
+
+        return version;
+    }
+
     public static void assertIsOsgiVersion(String version) throws NumberFormatException, IllegalArgumentException,
             NullPointerException {
         new Version(version);
