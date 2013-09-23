@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -36,6 +38,7 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
@@ -45,19 +48,24 @@ import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
+import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 public class TargetPlatformFactoryTest {
+
+    private static final ReactorProjectIdentities DUMMY_PROJECT = new ReactorProjectIdentitiesStub(null);
 
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
@@ -94,10 +102,10 @@ public class TargetPlatformFactoryTest {
         project.setDependencyMetadata(metadata);
 
         List<ReactorProject> reactorProjects = Collections.<ReactorProject> singletonList(project);
-        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects,
-                null);
+        P2TargetPlatform mutableTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                reactorProjects, null);
 
-        Collection<IInstallableUnit> units = platform.getInstallableUnits();
+        Collection<IInstallableUnit> units = mutableTP.getInstallableUnits();
         assertEquals(1, units.size());
         assertEquals("1.0.0.qualifier", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion().toString());
 
@@ -107,43 +115,134 @@ public class TargetPlatformFactoryTest {
                 ArtifactKey.TYPE_ECLIPSE_PLUGIN, null), environments);
         project.setDependencyMetadata(metadata);
 
-        units = platform.getInstallableUnits();
+        units = mutableTP.getInstallableUnits();
         assertEquals(1, units.size());
         assertEquals("1.0.0.123abc", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion().toString());
     }
 
     @Test
-    public void testReactorProjectFiltering() throws Exception {
+    public void testFinalTargetPlatformNotContainsPreliminaryReactorIU() throws Exception {
+        List<ReactorProject> preliminaryReactor = Arrays.asList(createReactorProject(new File("dummy"), "reactor.id",
+                null));
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                preliminaryReactor, null);
+
+        // final TP without any reactor content
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("reactor.id"))));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsExternalRepoIU() throws Exception {
+        tpConfig.addP2Repository(ResourceUtil.resourceFile("repositories/launchers").toURI());
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("org.eclipse.equinox.launcher")));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsTargetFileIU() {
+        tpConfig.addTargetDefinition(targetDefinition(TestRepositories.V1_AND_V2, MAIN_BUNDLE));
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(),
+                hasItem(unit(MAIN_BUNDLE.getId(), MAIN_BUNDLE.getVersion().toString())));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsPomDependencyIU() throws Exception {
+        PomDependencyCollector pomDependencies = subject.newPomDependencyCollector();
+        pomDependencies.addArtifactWithExistingMetadata(PomDependencyCollectorTest.artifactWithClassifier(null),
+                PomDependencyCollectorTest.existingMetadata());
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
+                pomDependencies);
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("test.ui")));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsExecutionEnvironmentIU() throws Exception {
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig,
+                ExecutionEnvironmentTestUtils.standardEEResolutionHintProvider("J2SE-1.4"), null, null);
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unit("a.jre.j2se", "1.4.0")));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsFinalReactorIU() throws Exception {
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
+
+        Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections.singletonMap(
+                InstallableUnitUtil.createIU("bundle", "1.2.0"), DUMMY_PROJECT);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unit("bundle", "1.2.0")));
+    }
+
+    // TODO 396999 test filter on POM dependencies
+    // TODO 372035 test logging for potential bugs in the explicit filters configuration
+
+    // TODO 412416 test configured filters on external content
+
+    @Test
+    public void testConfiguredFiltersOnReactorIUsInPreliminaryTP() throws Exception {
         TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
                 CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
         tpConfig.addFilters(Arrays.asList(filter));
 
-        File projectRoot = new File("dummy");
-        ReactorProject reactorProject = createReactorProject(projectRoot,
-                "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group", "iu.p2.inf");
-        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+        ReactorProject reactorProject = createReactorProject(new File("dummy"), "test.feature.feature.group",
+                "iu.p2.inf");
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 Collections.singletonList(reactorProject), null);
 
-        Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        assertEquals(units.toString(), 1, units.size());
-        assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group");
-        // assertContainsIU(units, "iu.p2.inf"); removed by the filter
+        assertThat(preliminaryTP.getInstallableUnits(), hasItem(unitWithId("test.feature.feature.group")));
+        assertThat(preliminaryTP.getInstallableUnits(), not(hasItem(unitWithId("iu.p2.inf"))));
     }
 
     @Test
-    public void testTargetFileCannotContributeOtherVersionsOfUnitsProducedByReactor() {
-        tpConfig.addTargetDefinition(targetDefinition(TestRepositories.V1_AND_V2, MAIN_BUNDLE));
+    public void testConfiguredFiltersOnReactorIUsInFinalTP() throws Exception {
+        TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
+                CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
+        tpConfig.addFilters(Arrays.asList(filter));
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
+
+        Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = new HashMap<IInstallableUnit, ReactorProjectIdentities>();
+        finalUnits.put(InstallableUnitUtil.createIU("test.feature.feature.group"), DUMMY_PROJECT);
+        finalUnits.put(InstallableUnitUtil.createIU("iu.p2.inf"), DUMMY_PROJECT);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("test.feature.feature.group")));
+        assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("iu.p2.inf"))));
+    }
+
+    @Test
+    public void testOtherVersionsOfReactorIUsAreFilteredFromExternalContent() throws Exception {
+        // contains trt.bundle/1.0.0.201108051343
+        tpConfig.addP2Repository(ResourceUtil.resourceFile("targetresolver/v1_content").toURI());
 
         // reactor artifact produces a unit with same ID
-        // TODO make produced version more explicit
-        File projectRoot = new File("dummy");
-        ReactorProject reactorProject = createReactorProject(projectRoot, MAIN_BUNDLE.getId(), null);
-        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+        ReactorProject reactorProject = createReactorProject(new File("dummy"), "trt.bundle/1.5.5.qualifier", null);
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 Collections.singletonList(reactorProject), null);
 
-        assertThat(platform.getInstallableUnits(), hasItem(unit(MAIN_BUNDLE.getId(), "1.0.2"))); // from reactor
-        assertThat(platform.getInstallableUnits(),
-                not(hasItem(unit(MAIN_BUNDLE.getId(), MAIN_BUNDLE.getVersion().toString())))); // from target file
+        assertThat(preliminaryTP.getInstallableUnits(), hasItem(unit("trt.bundle", "1.5.5.qualifier")));
+        assertThat(preliminaryTP.getInstallableUnits(), not(hasItem(unit("trt.bundle", "1.0.0.201108051343"))));
+
+        Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections.singletonMap(
+                InstallableUnitUtil.createIU("trt.bundle", "1.5.5.20140216"), reactorProject.getIdentities());
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unit("trt.bundle", "1.5.5.20140216")));
+        assertThat(finalTP.getInstallableUnits(), not(hasItem(unit("trt.bundle", "1.0.0.201108051343"))));
     }
 
     @Test
@@ -196,8 +295,7 @@ public class TargetPlatformFactoryTest {
     }
 
     private ReactorProject createReactorProject(File projectRoot, String[] primaryUnitIds, String[] secondaryUnitIds) {
-        // TODO ReactorProjectMock constructor with less nulls?
-        ReactorProjectStub result = new ReactorProjectStub(projectRoot, null, null, null, null);
+        ReactorProjectStub result = new ReactorProjectStub(projectRoot);
 
         DependencyMetadata dependencyMetadata = new DependencyMetadata();
         dependencyMetadata.setMetadata(true, createUnits(primaryUnitIds));
@@ -213,7 +311,7 @@ public class TargetPlatformFactoryTest {
         } else {
             List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
             for (String unitId : unitIds) {
-                result.add(InstallableUnitUtil.createIU(unitId, "1.0.2"));
+                result.add(InstallableUnitUtil.createIU(unitId));
             }
             return result;
         }

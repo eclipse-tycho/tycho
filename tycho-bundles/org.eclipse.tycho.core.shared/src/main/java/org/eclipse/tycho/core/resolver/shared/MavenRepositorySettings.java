@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver.shared;
 
-
+/**
+ * Provides the mirror configuration and credentials from the Maven settings for loading remote p2
+ * repositories.
+ */
 public interface MavenRepositorySettings {
 
     public final class Credentials {
@@ -37,7 +40,7 @@ public interface MavenRepositorySettings {
     MavenRepositoryLocation getMirror(MavenRepositoryLocation location);
 
     /**
-     * Returns the configured credentials for the given repository.
+     * Returns the configured credentials for the given repository, or <code>null</code>.
      */
     Credentials getCredentials(MavenRepositoryLocation location);
 

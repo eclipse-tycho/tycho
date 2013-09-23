@@ -21,8 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -32,9 +30,8 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
-import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
+import org.eclipse.tycho.p2.remote.testutil.MavenRepositorySettingsStub;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.After;
@@ -152,26 +149,6 @@ public class RemoteAgentMavenMirrorsTest {
         IArtifactRepository artifactsRepo = artifactsManager.loadRepository(specifiedUrl, null);
 
         return new Repositories(metadataRepo, artifactsRepo);
-    }
-
-    static class MavenRepositorySettingsStub implements MavenRepositorySettings {
-        private Map<String, URI> idToMirrorMap = new HashMap<String, URI>();
-
-        public void addMirror(String repositoryId, URI mirroredUrl) {
-            idToMirrorMap.put(repositoryId, mirroredUrl);
-        }
-
-        public MavenRepositoryLocation getMirror(MavenRepositoryLocation repository) {
-            if (idToMirrorMap.containsKey(repository.getId())) {
-                return new MavenRepositoryLocation("mirror-id", idToMirrorMap.get(repository.getId()));
-            }
-            return null;
-        }
-
-        public Credentials getCredentials(MavenRepositoryLocation location) {
-            // TODO Auto-generated method stub
-            return null;
-        }
     }
 
     static class Repositories {
