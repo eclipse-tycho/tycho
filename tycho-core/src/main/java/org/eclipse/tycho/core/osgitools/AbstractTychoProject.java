@@ -16,7 +16,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
@@ -103,11 +102,4 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         }
     }
 
-    public TargetPlatform getTargetPlatform(MavenProject project) {
-        return (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);
-    }
-
-    public void setTargetPlatform(MavenProject project, TargetPlatform targetPlatform) {
-        project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM, targetPlatform);
-    }
 }

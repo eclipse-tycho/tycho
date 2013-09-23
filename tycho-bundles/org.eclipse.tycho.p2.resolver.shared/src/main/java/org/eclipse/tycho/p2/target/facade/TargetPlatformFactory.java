@@ -19,7 +19,12 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 // TODO 412416 javadoc
 public interface TargetPlatformFactory {
 
-    public TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpParameters,
+    /**
+     * Creates a new object for collecting the bundles within the POM dependencies.
+     */
+    public PomDependencyCollector newPomDependencyCollector();
+
+    public TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies);
 
