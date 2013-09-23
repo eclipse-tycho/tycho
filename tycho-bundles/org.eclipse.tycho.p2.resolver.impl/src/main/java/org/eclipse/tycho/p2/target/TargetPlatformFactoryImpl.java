@@ -35,6 +35,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -61,6 +62,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFilePro
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
+import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 
@@ -111,6 +113,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         this.localMetadataRepository = localMetadataRepo;
         this.localArtifactRepository = localArtifactRepo;
         this.targetDefinitionResolverService = targetDefinitionResolverService;
+    }
+
+    public PomDependencyCollector newPomDependencyCollector() {
+        return new PomDependencyCollectorImpl(mavenContext);
     }
 
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
@@ -182,7 +188,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         LinkedHashSet<IInstallableUnit> mavenIUs = pomDependenciesContent.gatherMavenInstallableUnits();
         applyFilters(filter, mavenIUs, reactorProjectUIs, eeResolutionHandler.getResolutionHints());
 
-        TargetPlatformImpl targetPlatform = new TargetPlatformImpl(reactorProjects,//
+        PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjects,//
                 externalUIs, //
                 pomDependenciesContent.getMavenInstallableUnits(), //
                 eeResolutionHandler.getResolutionHints(), //
@@ -414,6 +420,32 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             set.add(targetType.cast(o));
         }
         return set;
+    }
+
+    public P2TargetPlatform createTargetPlatformWithUpdatedReactorContent(TargetPlatform baseTargetPlatform,
+            List<PublishingRepository> upstreamProjectResults) {
+
+        Set<IInstallableUnit> reactorUnits = new LinkedHashSet<IInstallableUnit>();
+        for (PublishingRepository projectResult : upstreamProjectResults) {
+            reactorUnits.addAll(projectResult.getMetadataRepository().query(QueryUtil.ALL_UNITS, null)
+                    .toUnmodifiableSet());
+        }
+
+        return createTargetPlatformWithUpdatedReactorUnits(baseTargetPlatform, reactorUnits);
+    }
+
+    P2TargetPlatform createTargetPlatformWithUpdatedReactorUnits(TargetPlatform baseTargetPlatform,
+            Set<IInstallableUnit> reactorUnits) {
+        // TODO 412416 check cast
+        Set<IInstallableUnit> externalUnits = ((PreliminaryTargetPlatformImpl) baseTargetPlatform).getExternalUnits();
+
+        // TODO 412416 filter
+        LinkedHashSet<IInstallableUnit> allUnits = new LinkedHashSet<IInstallableUnit>(externalUnits);
+        if (reactorUnits != null) {
+            allUnits.addAll(reactorUnits);
+        }
+
+        return new FinalTargetPlatformImpl(allUnits);
     }
 
 }

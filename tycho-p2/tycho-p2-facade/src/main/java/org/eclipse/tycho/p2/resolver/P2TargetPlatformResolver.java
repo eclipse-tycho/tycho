@@ -84,6 +84,7 @@ import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
 // TODO 364134 rename this class
 @Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
@@ -116,6 +117,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     private P2ResolverFactory resolverFactory;
 
     private DependencyMetadataGenerator generator;
+
+    private ReactorRepositoryManagerFacade reactorRepositoryManager;
 
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
@@ -212,8 +215,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         tpConfiguration.addFilters(configuration.getFilters());
 
-        return resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration, ee, reactorArtifacts,
-                pomDependencies);
+        return reactorRepositoryManager.computePreliminaryTargetPlatform(DefaultReactorProject.adapt(project),
+                tpConfiguration, ee, reactorArtifacts, pomDependencies);
     }
 
     private List<IReactorArtifactFacade> getArtifactsOfThisReactorProject(MavenSession session, MavenProject project,
@@ -429,6 +432,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     public void initialize() throws InitializationException {
         this.resolverFactory = equinox.getService(P2ResolverFactory.class);
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
+        this.reactorRepositoryManager = equinox.getService(ReactorRepositoryManagerFacade.class);
     }
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,

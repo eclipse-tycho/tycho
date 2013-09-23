@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 
-public class TargetPlatformImpl implements P2TargetPlatform {
+public class PreliminaryTargetPlatformImpl implements P2TargetPlatform {
 
     /**
      * IInstallableUnits available from p2 repositories, either directly or via .target files, and
@@ -73,8 +73,8 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
     private boolean includeLocalRepo;
 
-    public TargetPlatformImpl(Collection<IReactorArtifactFacade> reactorProjects, Collection<IInstallableUnit> ius,
-            Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
+    public PreliminaryTargetPlatformImpl(Collection<IReactorArtifactFacade> reactorProjects,
+            Collection<IInstallableUnit> ius, Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
             LocalMetadataRepository localMetadataRepository, IRawArtifactFileProvider jointArtifacts,
             LocalArtifactRepository localArtifactRepository, boolean includeLocalRepo, MavenLogger logger) {
@@ -191,6 +191,14 @@ public class TargetPlatformImpl implements P2TargetPlatform {
                 logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
             }
         }
+    }
+
+    public Set<IInstallableUnit> getExternalUnits() {
+        Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        result.addAll(externalIUs);
+        result.addAll(mavenArtifactIUs.keySet());
+        result.addAll(executionEnvironment.getMandatoryUnits());
+        return result;
     }
 
 }
