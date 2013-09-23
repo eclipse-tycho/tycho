@@ -8,10 +8,10 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - split target platform computation and dependency resolution
+ *    SAP AG - create immutable target platform instances
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -20,12 +20,10 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
@@ -34,24 +32,13 @@ import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 
-public class TargetPlatformImpl implements P2TargetPlatform {
+public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     /**
      * IInstallableUnits available from p2 repositories, either directly or via .target files, and
      * from local maven repository
      */
     private final Collection<IInstallableUnit> externalIUs;
-
-    /**
-     * Additional information about the execution environment, e.g. the "a.jre" IU with the list of
-     * exported packages.
-     */
-    private final ExecutionEnvironmentResolutionHints executionEnvironment;
-
-    /**
-     * IInstallableUnits that correspond to pom dependency artifacts.
-     */
-    private final Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs;
 
     /**
      * Reactor build projects
@@ -61,10 +48,6 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     // FIXME only used to warn about locally installed artifacts, this logic does not belong here
     private final LocalMetadataRepository localMetadataRepository;
 
-    private final IRawArtifactFileProvider jointArtifacts;
-    @Deprecated
-    private LocalArtifactRepository localArtifactRepository;
-
     private final MavenLogger logger;
 
     /**
@@ -72,22 +55,19 @@ public class TargetPlatformImpl implements P2TargetPlatform {
      */
     private final TargetPlatformFilterEvaluator filter;
 
-    private boolean includeLocalRepo;
+    private final boolean includeLocalRepo;
 
-    public TargetPlatformImpl(Collection<ReactorProject> reactorProjects, Collection<IInstallableUnit> ius,
+    public PreliminaryTargetPlatformImpl(Collection<ReactorProject> reactorProjects, Collection<IInstallableUnit> ius,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
             LocalMetadataRepository localMetadataRepository, IRawArtifactFileProvider jointArtifacts,
             LocalArtifactRepository localArtifactRepository, boolean includeLocalRepo, MavenLogger logger) {
+        super(executionEnvironment, jointArtifacts, localArtifactRepository, mavenArtifactIUs);
         this.reactorProjects = reactorProjects;
         this.externalIUs = ius;
-        this.executionEnvironment = executionEnvironment;
-        this.mavenArtifactIUs = mavenArtifactIUs;
         this.filter = filter;
         this.localMetadataRepository = localMetadataRepository;
         this.includeLocalRepo = includeLocalRepo;
-        this.jointArtifacts = jointArtifacts;
-        this.localArtifactRepository = localArtifactRepository;
         this.logger = logger;
     }
 
@@ -98,7 +78,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
         allius.addAll(externalIUs);
 
-        allius.addAll(mavenArtifactIUs.keySet());
+        allius.addAll(mavenArtifactLookup.keySet());
 
         // TODO this should be done by the builder
         allius.addAll(executionEnvironment.getMandatoryUnits());
@@ -130,24 +110,8 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         }
     }
 
-    public ExecutionEnvironmentResolutionHints getEEResolutionHints() {
-        return executionEnvironment;
-    }
-
     public Map<IInstallableUnit, ReactorProjectIdentities> getOriginalReactorProjectMap() {
         return getReactorProjectIUs();
-    }
-
-    public Map<IInstallableUnit, IArtifactFacade> getOriginalMavenArtifactMap() {
-        return mavenArtifactIUs;
-    }
-
-    public File getLocalArtifactFile(IArtifactKey key) {
-        return jointArtifacts.getArtifactFile(key);
-    }
-
-    public void saveLocalMavenRepository() {
-        localArtifactRepository.save();
     }
 
     public void reportUsedLocalIUs(Collection<IInstallableUnit> usedUnits) {
@@ -170,6 +134,18 @@ public class TargetPlatformImpl implements P2TargetPlatform {
                 logger.warn("  " + localIu.getId() + "/" + localIu.getVersion());
             }
         }
+    }
+
+    public Set<IInstallableUnit> getExternalUnits() {
+        Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        result.addAll(externalIUs);
+        result.addAll(mavenArtifactLookup.keySet());
+        result.addAll(executionEnvironment.getMandatoryUnits());
+        return result;
+    }
+
+    public IRawArtifactFileProvider getJointArtifacts() {
+        return jointArtifacts;
     }
 
 }

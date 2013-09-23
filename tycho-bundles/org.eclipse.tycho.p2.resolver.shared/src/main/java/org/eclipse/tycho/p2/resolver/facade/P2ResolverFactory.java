@@ -19,8 +19,10 @@ public interface P2ResolverFactory {
     /**
      * Creates a new object for collecting the bundles within the POM dependencies.
      */
+    // TODO move to a PomDependencyCollectorFactory interface?
     public PomDependencyCollector newPomDependencyCollector();
 
+    // TODO directly register as service
     public TargetPlatformFactory getTargetPlatformFactory();
 
     public P2Resolver createResolver(MavenLogger logger);

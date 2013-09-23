@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,12 +15,18 @@ import java.io.File;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 
 /**
  * Representation of the p2 repositories that receive the artifacts produced by a project.
  */
 public interface PublishingRepository extends PublishingRepositoryFacade {
+
+    /**
+     * Returns the project for which this instance contains the publishing results.
+     */
+    public ReactorProjectIdentities getProjectIdentities();
 
     public IMetadataRepository getMetadataRepository();
 

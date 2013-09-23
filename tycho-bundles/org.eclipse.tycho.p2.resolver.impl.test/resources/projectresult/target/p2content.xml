@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<units size='2'>
+  <unit id='bundle' version='1.2.3.201011101425'>
+    <update id='bundle' range='[0.0.0,1.2.3.201011101425)' severity='0'/>
+    <properties size='4'>
+      <property name='org.eclipse.equinox.p2.name' value='Bundle Plug-in'/>
+      <property name='maven-groupId' value='TYCHO285EclipseSourceBundles'/>
+      <property name='maven-artifactId' value='bundle'/>
+      <property name='maven-version' value='1.2.3-SNAPSHOT'/>
+    </properties>
+    <provides size='3'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='bundle' version='1.2.3.201011101425'/>
+      <provided namespace='osgi.bundle' name='bundle' version='1.2.3.201011101425'/>
+      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+    </provides>
+    <requires size='1'>
+      <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='3.2.0'/>
+    </requires>
+    <artifacts size='1'>
+      <artifact classifier='osgi.bundle' id='bundle' version='1.2.3.201011101425'/>
+    </artifacts>
+    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    <touchpointData size='1'>
+      <instructions size='1'>
+        <instruction key='manifest'>
+          Bundle-Name: Bundle Plug-in&#xA;Created-By: Apache Maven&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: bundle;singleton:=true&#xA;Bundle-ManifestVersion: 2&#xA;Build-Jdk: 1.6.0_18&#xA;Archiver-Version: Plexus Archiver&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 1.2.3.201011101425&#xA;Built-By: d051585&#xA;Eclipse-ExtensibleAPI: true&#xA;Require-Bundle: org.eclipse.core.runtime;bundle-version=&quot;3.2.0&quot;&#xA;
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+  <unit id='bundle.source' version='1.2.3.TAGNAME' singleton='false'>
+    <update id='bundle.source' range='[0.0.0,1.2.3.TAGNAME)' severity='0'/>
+    <properties size='4'>
+      <property name='maven-groupId' value='TYCHO285EclipseSourceBundles'/>
+      <property name='maven-artifactId' value='bundle'/>
+      <property name='maven-version' value='1.2.3-SNAPSHOT'/>
+      <property name='maven-classifier' value='sources'/>
+    </properties>
+    <provides size='3'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='bundle.source' version='1.2.3.TAGNAME'/>
+      <provided namespace='osgi.bundle' name='bundle.source' version='1.2.3.TAGNAME'/>
+      <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='source' version='1.0.0'/>
+    </provides>
+    <artifacts size='1'>
+      <artifact classifier='osgi.bundle' id='bundle.source' version='1.2.3.TAGNAME'/>
+    </artifacts>
+    <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+    <touchpointData size='1'>
+      <instructions size='1'>
+        <instruction key='manifest'>
+          Bundle-ManifestVersion: 2&#xA;Built-By: d051585&#xA;Bundle-Version: 1.2.3.TAGNAME&#xA;Build-Jdk: 1.6.0_18&#xA;Eclipse-SourceBundle: bundle;version=&quot;1.2.3.TAGNAME&quot;;roots:=&quot;.&quot;&#xA;Created-By: Apache Maven&#xA;Bundle-SymbolicName: bundle.source&#xA;Manifest-Version: 1.0&#xA;Archiver-Version: Plexus Archiver&#xA;
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+</units>

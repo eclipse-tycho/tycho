@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,11 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 
+/**
+ * Service instance for resolving target definitions. Results are cached so that there is no
+ * redundant computations in the common case where all modules have the same target definition file
+ * configured.
+ */
 public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
