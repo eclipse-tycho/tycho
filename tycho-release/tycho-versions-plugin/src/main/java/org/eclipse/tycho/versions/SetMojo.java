@@ -54,6 +54,16 @@ public class SetMojo extends AbstractVersionsMojo {
      */
     private String properties;
 
+    /**
+     * If this parameter is true, then all exported packages will be set to the given ${newVersion}
+     * parameter.
+     * <p/>
+     * By default the export-package header will not be updated.
+     * 
+     * @parameter expression="{updateExportPackage} default-value="false"
+     */
+    private boolean updateExportPackage;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (newVersion == null || newVersion.length() == 0) {
             throw new MojoExecutionException("Missing required parameter newVersion");
@@ -69,7 +79,7 @@ public class SetMojo extends AbstractVersionsMojo {
 
             // initial changes
             for (String artifactId : split(artifacts)) {
-                engine.addVersionChange(artifactId, newVersion);
+                engine.addVersionChange(artifactId, newVersion, updateExportPackage);
                 for (String propertyName : split(properties)) {
                     engine.addPropertyChange(artifactId, propertyName, newVersion);
                 }
