@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,17 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 
 @SuppressWarnings({ "restriction", "nls" })
 public class InstallableUnitUtil {
+
+    public static String DEFAULT_VERSION = "0.0.20";
+
+    public static IInstallableUnit createIU(String versionedId) {
+        int separator = versionedId.indexOf('/');
+        if (separator > 0) {
+            return createIU(versionedId.substring(0, separator), versionedId.substring(separator + 1));
+        } else {
+            return createIU(versionedId, DEFAULT_VERSION);
+        }
+    }
 
     public static IInstallableUnit createIU(String id, String version) {
         InstallableUnitDescription description = createIuDescription(id, version);

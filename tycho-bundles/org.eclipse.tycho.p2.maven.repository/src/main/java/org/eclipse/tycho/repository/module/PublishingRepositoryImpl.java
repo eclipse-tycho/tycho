@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,14 +26,21 @@ import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 
 public class PublishingRepositoryImpl implements PublishingRepository {
+    private final ReactorProjectIdentities project;
 
     private final ModuleMetadataRepository metadataRepository;
     private final ModuleArtifactRepository artifactRepository;
 
     public PublishingRepositoryImpl(IProvisioningAgent agent, ReactorProjectIdentities project) {
+        this.project = project;
+
         PublishingRepositoryLoader loadHelper = new PublishingRepositoryLoader(agent, project);
         this.metadataRepository = loadHelper.getModuleMetadataRepository();
         this.artifactRepository = loadHelper.getModuleArtifactRepository();
+    }
+
+    public ReactorProjectIdentities getProjectIdentities() {
+        return project;
     }
 
     public IMetadataRepository getMetadataRepository() {

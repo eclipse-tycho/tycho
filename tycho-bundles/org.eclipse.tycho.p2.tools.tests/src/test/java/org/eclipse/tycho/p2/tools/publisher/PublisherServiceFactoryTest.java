@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,31 +14,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
-import org.eclipse.tycho.core.facade.MavenContext;
-import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.tools.impl.Activator;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
-import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
-import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.StubServiceRegistration;
-import org.junit.ClassRule;
-import org.junit.Rule;
+import org.eclipse.tycho.test.util.MavenServiceStubbingTestBase;
 import org.junit.Test;
 import org.osgi.util.tracker.ServiceTracker;
 
-public class PublisherServiceFactoryTest {
-
-    @ClassRule
-    public static LogVerifier logVerifier = new LogVerifier();
-
-    // in the productive code, these services are provided from outside the OSGi runtime
-    @Rule
-    public StubServiceRegistration<MavenContext> mavenContextRegistration = new StubServiceRegistration<MavenContext>(
-            MavenContext.class, createMavenContext());
-    @Rule
-    public StubServiceRegistration<BuildPropertiesParser> buildPropertiesParserRegistration = new StubServiceRegistration<BuildPropertiesParser>(
-            BuildPropertiesParser.class, new BuildPropertiesParserForTesting());
+public class PublisherServiceFactoryTest extends MavenServiceStubbingTestBase {
 
     @Test
     public void testThatRequiredServicesAreAvailable() throws Exception {
@@ -52,11 +34,6 @@ public class PublisherServiceFactoryTest {
         } finally {
             tracker.close();
         }
-    }
-
-    private static MavenContext createMavenContext() {
-        MavenContext mavenContext = new MavenContextImpl(null, logVerifier.getLogger());
-        return mavenContext;
     }
 
 }

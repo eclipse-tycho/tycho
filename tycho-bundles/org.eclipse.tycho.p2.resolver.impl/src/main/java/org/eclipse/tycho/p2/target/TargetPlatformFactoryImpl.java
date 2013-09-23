@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,17 +8,21 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - split target platform computation and dependency resolution
+ *    SAP AG - create immutable target platform instances
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +38,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -58,6 +64,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFilePro
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
+import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
 import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
@@ -109,6 +116,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         this.localMetadataRepository = localMetadataRepo;
         this.localArtifactRepository = localArtifactRepo;
         this.targetDefinitionResolverService = targetDefinitionResolverService;
+    }
+
+    public PomDependencyCollector newPomDependencyCollector() {
+        return new PomDependencyCollectorImpl(mavenContext);
     }
 
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
@@ -180,7 +191,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         LinkedHashSet<IInstallableUnit> mavenIUs = pomDependenciesContent.gatherMavenInstallableUnits();
         applyFilters(filter, mavenIUs, reactorProjectUIs, eeResolutionHandler.getResolutionHints());
 
-        TargetPlatformImpl targetPlatform = new TargetPlatformImpl(reactorProjects,//
+        PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjects,//
                 externalUIs, //
                 pomDependenciesContent.getMavenInstallableUnits(), //
                 eeResolutionHandler.getResolutionHints(), //
@@ -401,4 +412,58 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         return result;
     }
 
+    public P2TargetPlatform createTargetPlatformWithUpdatedReactorContent(TargetPlatform baseTargetPlatform,
+            List<PublishingRepository> upstreamProjectResults) {
+        return createTargetPlatformWithUpdatedReactorUnits(baseTargetPlatform,
+                extractProjectResultIUs(upstreamProjectResults));
+    }
+
+    P2TargetPlatform createTargetPlatformWithUpdatedReactorUnits(TargetPlatform baseTargetPlatform,
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorUnits) {
+        if (!(baseTargetPlatform instanceof PreliminaryTargetPlatformImpl)) {
+            throw new IllegalArgumentException(
+                    "Base target platform must be an instance of PreliminaryTargetPlatformImpl; was: "
+                            + baseTargetPlatform);
+        }
+        return createTargetPlatformWithUpdatedReactorUnits((PreliminaryTargetPlatformImpl) baseTargetPlatform,
+                reactorUnits);
+    }
+
+    P2TargetPlatform createTargetPlatformWithUpdatedReactorUnits(PreliminaryTargetPlatformImpl preliminaryTP,
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorUnitsMap) {
+
+        LinkedHashSet<IInstallableUnit> allUnits = preliminaryTP.getExternalUnits();
+
+        // external units are already filtered, only reactor units need to be filtered again
+        if (reactorUnitsMap != null) {
+            Collection<IInstallableUnit> reactorUnits = new LinkedList<IInstallableUnit>(reactorUnitsMap.keySet());
+
+            TargetPlatformFilterEvaluator configuredFilters = preliminaryTP.getFilter();
+            if (configuredFilters != null) {
+                configuredFilters.filterUnits(reactorUnits);
+            }
+            allUnits.addAll(reactorUnits);
+        }
+
+        // TODO 372780 create an artifact provider which includes the reactor artifacts 
+        IRawArtifactFileProvider jointArtifacts = preliminaryTP.getJointArtifacts();
+
+        return new FinalTargetPlatformImpl(allUnits, preliminaryTP.getEEResolutionHints(), jointArtifacts,
+                localArtifactRepository, preliminaryTP.getOriginalMavenArtifactMap(), reactorUnitsMap);
+
+    }
+
+    private static Map<IInstallableUnit, ReactorProjectIdentities> extractProjectResultIUs(
+            List<PublishingRepository> projectResults) {
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorUnits = new LinkedHashMap<IInstallableUnit, ReactorProjectIdentities>();
+        for (PublishingRepository projectResult : projectResults) {
+            Set<IInstallableUnit> projectUnits = projectResult.getMetadataRepository().query(QueryUtil.ALL_UNITS, null)
+                    .toUnmodifiableSet();
+            ReactorProjectIdentities project = projectResult.getProjectIdentities();
+            for (IInstallableUnit projectUnit : projectUnits) {
+                reactorUnits.put(projectUnit, project);
+            }
+        }
+        return reactorUnits;
+    }
 }
