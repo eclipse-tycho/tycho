@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_c91812ab",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "The expected format is \"Full Name (Company)\"",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_89c56a86",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "-1 for the expression",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_69c29e7c",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "Order is unusual: I\u0027d have expected all @parameters before the @components.",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_292a56b2",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "What is the alternative to \"provisioning\" and \"installation\"? I wouldn\u0027t call the default test runtime an \"installation\". So IMHO it is unclear what \"installation\" means here. So something like \"provisionTestRuntime\" would be better.\n\nOr even better: don\u0027t use a boolean but a field that allows further extensions, e.g. something like a field \"testRuntime\" with values \"default\" and \"p2Installation\"\n\n-1 on the expression.",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_4937e208",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provisioning/ProvisionedEquinoxInstallation.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "Expected format: Full Name (Company)",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_293c16eb",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provisioning/ProvisionedInstallationBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "Wrong line endings.",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_8950ca2a",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provisioning/ProvisionedInstallationBuilderFactory.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "Wrong line endings.",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_694d7e93",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provisioning/ProvisionedInstallationDescription.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "Again wrong format; wrong line endings",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_09a83a93",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/test/java/org/eclipse/tycho/surefire/provider/impl/ProviderHelperTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-09-24T15:00:17Z",
+      "side": 1,
+      "message": "This is why it is IMHO better to call the field with the class under test \"subject\". Using the class name is a repetition and hence leads to large changes or inconsistencies.",
+      "revId": "d78bf9504f465fa58bc68027ebd261f206e5824d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
