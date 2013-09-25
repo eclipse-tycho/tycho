@@ -3,11 +3,29 @@
       id="example-feature"
       label="Example Feature"
       version="1.0.0">
-    <!-- empty feature just transporting root files -->
-    <requires>
-       <!-- bare minimum requirements to be able to launch an application -->
-       <import plugin="org.eclipse.equinox.app"/>
-       <import plugin="org.eclipse.equinox.launcher"/>
-    </requires>
+
+   <!-- Minimal set of plugins for a RCP application -->
+   <!-- Include plugins (instead of require) to lock on specific version,
+        common use-case of org.eclipse.rcp/org.eclipse.e4.rcp features -->
+   <plugin
+         id="org.eclipse.equinox.app"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.launcher"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.core.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>
