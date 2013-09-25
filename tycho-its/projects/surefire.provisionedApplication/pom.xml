@@ -21,14 +21,6 @@
 
 	<packaging>pom</packaging>
 
-	<repositories>
-		<repository>
-			<id>eclipse352-minimal</id>
-			<url>${p2.repo.url}</url>
-			<layout>p2</layout>
-		</repository>
-	</repositories>
-
 	<modules>
 		<module>example-feature</module>
 		<module>example-product</module>

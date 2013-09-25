@@ -19,10 +19,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -610,7 +614,7 @@ public class TestMojo extends AbstractMojo {
      * @parameter default-value="DefaultProfile"
      * @since 0.19.0
      */
-    // default value should be kept the same as DirectorMojo#profile default value 
+    // default value should be kept the same as DirectorMojo#profile default value
     private String profileName;
 
     /** @component */
@@ -686,12 +690,67 @@ public class TestMojo extends AbstractMojo {
             for (Artifact testHarnessArtifact : testHarnessArtifacts) {
                 installationBuilder.addBundleJar(testHarnessArtifact.getFile());
             }
+            /*-
+             * Possible alternative (way more complex but cleaner implementation:
+             * Create a p2 IU to define dependencies instead of relying on a fake bundle
+             * Benefits would be:
+             * * Avoid creation of a file
+             * * Avoid installation of a useless bundle in testRuntime
+             * * Could create a single IU depending on everything instead of dealing with 2 separate way (bundle &
+             *   iusToInstall) to define dependencies
+             * Difficulties:
+             * * Requires interaction with Equinox, and then Service, Facade and common types
+             */
+            String dependencyBundleName = this.project.getArtifactId() + ".test.dependencies.group"; //$NON-NLS-1$
+            Manifest manifest = new Manifest();
+            manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0"); //$NON-NLS-1$
+            manifest.getMainAttributes().putValue(org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME,
+                    dependencyBundleName);
+            StringBuilder dependencyBundleVersion = new StringBuilder(this.project.getVersion());
+            int snapshotIndex = -1;
+            if ((snapshotIndex = dependencyBundleVersion.indexOf("-SNAPSHOT")) > 0) { //$NON-NLS-1$
+                dependencyBundleVersion.delete(snapshotIndex, dependencyBundleVersion.length());
+            }
+            dependencyBundleVersion.append(System.currentTimeMillis()); // should use a nicer UNIQUE qualifier
+            manifest.getMainAttributes().putValue(org.osgi.framework.Constants.BUNDLE_VERSION,
+                    dependencyBundleVersion.toString());
+            StringBuilder requireBundle = new StringBuilder();
+            for (String testHarnessBundle : this.providerHelper.getSymbolicNames(testHarnessArtifacts)) {
+                if (requireBundle.length() > 0) {
+                    requireBundle.append(","); //$NON-NLS-1$
+                }
+                requireBundle.append(testHarnessBundle);
+            }
+
+            List<String> iusToInstall = new LinkedList<String>();
+            for (Dependency extraDep : getExtraDependencies(false)) {
+                String type = extraDep.getType();
+                if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type)) {
+                    requireBundle.append(","); //$NON-NLS-1$
+                    requireBundle.append(extraDep.getArtifactId());
+                } else if (P2Resolver.TYPE_INSTALLABLE_UNIT.equals(type)) {
+                    iusToInstall.add(extraDep.getArtifactId());
+                } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
+                    iusToInstall.add(extraDep.getArtifactId() + ".feature.group"); //$NON-NLS-1$
+                }
+            }
+
+            manifest.getMainAttributes()
+                    .putValue(org.osgi.framework.Constants.REQUIRE_BUNDLE, requireBundle.toString());
+            File testDependenciesBundle = new File(this.project.getBuild().getDirectory(), dependencyBundleName + "-"
+                    + this.project.getVersion() + ".jar"); //$NON-NLS-1$
+            JarOutputStream out = new JarOutputStream(new FileOutputStream(testDependenciesBundle), manifest);
+            out.close();
+            installationBuilder.addBundleJar(testDependenciesBundle);
+            iusToInstall.add(getTestBundleSymbolicName());
+            iusToInstall.add(dependencyBundleName);
+
             RepositoryReferences sources = repositoryReferenceTool.getVisibleRepositories(project, session,
                     RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE);
             installationBuilder.addMetadataRepositories(sources.getMetadataRepositories());
             installationBuilder.addArtifactRepositories(sources.getArtifactRepositories());
             installationBuilder.setProfileName(profileName);
-            installationBuilder.addIUsToBeInstalled(getIUsToInstall(testHarnessArtifacts));
+            installationBuilder.addIUsToBeInstalled(iusToInstall);
             File workingDir = new File(project.getBuild().getDirectory(), "p2temp");
             workingDir.mkdirs();
             installationBuilder.setWorkingDir(workingDir);
@@ -700,21 +759,6 @@ public class TestMojo extends AbstractMojo {
         } catch (Exception ex) {
             throw new MojoExecutionException(ex.getMessage(), ex);
         }
-    }
-
-    private List<String> getIUsToInstall(Set<Artifact> testHarnessArtifacts) {
-        List<String> iusToInstall = new ArrayList<String>();
-        iusToInstall.add(getTestBundleSymbolicName());
-        iusToInstall.addAll(providerHelper.getSymbolicNames(testHarnessArtifacts));
-        for (Dependency extraDep : getExtraDependencies(false)) {
-            String type = extraDep.getType();
-            if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type) || P2Resolver.TYPE_INSTALLABLE_UNIT.equals(type)) {
-                iusToInstall.add(extraDep.getArtifactId());
-            } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
-                iusToInstall.add(extraDep.getArtifactId() + ".feature.group");
-            }
-        }
-        return iusToInstall;
     }
 
     private BundleProject getProjectType() {

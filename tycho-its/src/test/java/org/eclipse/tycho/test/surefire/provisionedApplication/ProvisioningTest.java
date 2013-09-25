@@ -43,6 +43,19 @@ public class ProvisioningTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
     }
 
+    @Test
+    public void testRunTestOnProvisionedAppWithDifferentOSGiVersions() throws Exception {
+        Verifier verifier = getVerifier("surefire.provisionedApplication", false);
+        List options = verifier.getCliOptions();
+        options.add("-Dp2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_352.toString());
+        // Use differnt TP for test and product
+        options.add("-Dother.p2.repo.url=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+        options.add("-PuseProvisionedProduct");
+        options.add("-DproductClassifier=" + getProductClassifier());
+        verifier.executeGoals(asList("clean", "integration-test"));
+        verifier.verifyErrorFreeLog();
+    }
+
     private static String getProductClassifier() {
         TargetEnvironment currentEnv = TargetEnvironment.getRunningEnvironment();
         return currentEnv.getOs() + "." + currentEnv.getWs() + "." + currentEnv.getArch();

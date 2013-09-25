@@ -27,6 +27,14 @@
 
 	<packaging>eclipse-test-plugin</packaging>
 
+	<repositories>
+		<repository>
+			<id>eclipse352-minimal</id>
+			<url>${p2.repo.url}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
