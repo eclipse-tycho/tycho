@@ -74,7 +74,7 @@ public class TargetDefinitionResolver {
         this.repositoryIdManager = (IRepositoryIdManager) agent.getService(IRepositoryIdManager.SERVICE_NAME);
     }
 
-    public TargetPlatformContent resolveContent(TargetDefinition definition) {
+    public TargetDefinitionContent resolveContent(TargetDefinition definition) {
         try {
             return resolveContentWithExceptions(definition);
         } catch (TargetDefinitionSyntaxException e) {
@@ -85,7 +85,7 @@ public class TargetDefinitionResolver {
         }
     }
 
-    TargetPlatformContent resolveContentWithExceptions(TargetDefinition definition)
+    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
 
         List<URI> artifactRepositories = new ArrayList<URI>();
@@ -157,7 +157,7 @@ public class TargetDefinitionResolver {
             logger.warn("De-selecting bundles in a target definition file is not supported. See http://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
         }
 
-        return new TargetPlatformContent(units, artifactRepositories);
+        return new TargetDefinitionContent(units, artifactRepositories);
     }
 
     private AbstractResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments)

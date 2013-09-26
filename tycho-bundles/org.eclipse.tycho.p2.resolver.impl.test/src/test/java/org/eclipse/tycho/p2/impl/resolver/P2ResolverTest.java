@@ -473,10 +473,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     private P2TargetPlatform getTargetPlatform() {
-        return tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorArtifacts, pomDependencies);
+        return tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorArtifacts, pomDependencies);
     }
 
     private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
-        return tpFactory.buildTargetPlatform(tpConfig, eeResolutionHandler, reactorArtifacts, pomDependencies);
+        return tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorArtifacts, pomDependencies);
     }
 }

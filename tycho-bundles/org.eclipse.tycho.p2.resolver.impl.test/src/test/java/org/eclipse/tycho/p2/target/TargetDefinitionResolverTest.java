@@ -85,14 +85,14 @@ public class TargetDefinitionResolverTest {
     @Test
     public void testResolveNoLocations() throws Exception {
         TargetDefinition definition = definitionWith();
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList()));
     }
 
     @Test
     public void testResolveOtherLocationYieldsWarning() throws Exception {
         TargetDefinition definition = definitionWith(new OtherLocationStub(), new LocationStub(TARGET_FEATURE));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         logVerifier.expectWarning("Target location type: Directory is not supported");
     }
@@ -100,7 +100,7 @@ public class TargetDefinitionResolverTest {
     @Test
     public void testResolveMultipleUnits() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(OPTIONAL_BUNDLE, REFERENCED_BUNDLE_V1));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
@@ -108,7 +108,7 @@ public class TargetDefinitionResolverTest {
     public void testResolveMultipleLocations() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(OPTIONAL_BUNDLE), new LocationStub(
                 REFERENCED_BUNDLE_V1));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
@@ -116,21 +116,21 @@ public class TargetDefinitionResolverTest {
     public void testResolveMultipleRepositories() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, OPTIONAL_BUNDLE,
                 REFERENCED_BUNDLE_V2));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V2, OPTIONAL_BUNDLE)));
     }
 
     @Test
     public void testResolveNoRepositories() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.NONE));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList()));
     }
 
     @Test
     public void testResolveIncludesDependencies() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
     }
@@ -139,7 +139,7 @@ public class TargetDefinitionResolverTest {
     public void testResolveDependenciesAcrossLocations() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.UNSATISFIED, TARGET_FEATURE),
                 new LocationStub(TestRepositories.V1_AND_V2));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
     }
@@ -161,14 +161,14 @@ public class TargetDefinitionResolverTest {
     public void testUnitWithWildcardVersion() {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2,
                 REFERENCED_BUNDLE_WILDCARD_VERSION));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V2)));
     }
 
     @Test
     public void testUnitWithExactVersion() {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_V1));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1)));
     }
 
@@ -214,7 +214,7 @@ public class TargetDefinitionResolverTest {
         };
     }
 
-    static Collection<IVersionedId> versionedIdsOf(TargetPlatformContent content) {
+    static Collection<IVersionedId> versionedIdsOf(TargetDefinitionContent content) {
         Collection<IVersionedId> result = new ArrayList<IVersionedId>();
         for (IInstallableUnit unit : content.getUnits()) {
             result.add(new VersionedId(unit.getId(), unit.getVersion()));

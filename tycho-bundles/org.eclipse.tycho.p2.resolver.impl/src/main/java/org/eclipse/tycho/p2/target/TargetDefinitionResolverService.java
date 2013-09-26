@@ -26,7 +26,7 @@ public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
 
-    private Map<ResolutionArguments, TargetPlatformContent> resolutionCache = new HashMap<TargetDefinitionResolverService.ResolutionArguments, TargetPlatformContent>();
+    private Map<ResolutionArguments, TargetDefinitionContent> resolutionCache = new HashMap<TargetDefinitionResolverService.ResolutionArguments, TargetDefinitionContent>();
 
     // (static) collaborator
     private MavenLogger logger;
@@ -40,11 +40,11 @@ public class TargetDefinitionResolverService {
         this.logger = mavenContext.getLogger();
     }
 
-    public TargetPlatformContent getTargetDefinitionContent(TargetDefinition definition,
+    public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
             List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
 
-        TargetPlatformContent resolution = resolutionCache.get(arguments);
+        TargetDefinitionContent resolution = resolutionCache.get(arguments);
 
         if (resolution == null) {
             if (logger.isDebugEnabled()) {
@@ -59,7 +59,7 @@ public class TargetDefinitionResolverService {
     }
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
-    private TargetPlatformContent resolveFromArguments(ResolutionArguments arguments) {
+    private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
 
         return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.agent, logger)
                 .resolveContent(arguments.definition);

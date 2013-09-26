@@ -73,7 +73,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         artifact.setClassifier("classifier-not-in-p2-metadata");
         pomDependencies = createPomDependencyCollector();
         pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
+        platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
         units = platform.getInstallableUnits();
         assertEquals(0, units.size());
 
@@ -81,7 +81,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         artifact.setClassifier("sources");
         pomDependencies = createPomDependencyCollector();
         pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
+        platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
         units = platform.getInstallableUnits();
         assertEquals(1, units.size());
         assertContainsIU(units, "test.ui.source");
@@ -90,7 +90,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         artifact.setClassifier(null);
         pomDependencies = createPomDependencyCollector();
         pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
+        platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
         units = platform.getInstallableUnits();
         assertEquals(1, units.size());
         assertContainsIU(units, "test.ui");
@@ -114,7 +114,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         artifact.setDependencyMetadata(metadata);
 
         List<IReactorArtifactFacade> reactorArtifacts = Collections.<IReactorArtifactFacade> singletonList(artifact);
-        P2TargetPlatform platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+        P2TargetPlatform platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 reactorArtifacts, null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
@@ -167,7 +167,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         reactorProjects.add(secondaryArtifact);
         reactorProjects.add(sourceArtifact);
 
-        P2TargetPlatform platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+        P2TargetPlatform platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 reactorProjects, null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
@@ -196,7 +196,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         File projectRoot = ResourceUtil.resourceFile("platformbuilder/feature-p2-inf");
         addReactorProject(projectRoot, ArtifactKey.TYPE_ECLIPSE_FEATURE, "org.eclipse.tycho.p2.impl.test.bundle-p2-inf");
 
-        P2TargetPlatform platform = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+        P2TargetPlatform platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 reactorArtifacts, null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
@@ -217,10 +217,10 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"), new GAV(
                 "test", "foo", "1.0.0"));
         tpFactory = factory.createTargetPlatformFactory();
-        Collection<IInstallableUnit> iusIncludingLocalRepo = tpFactory.buildTargetPlatform(tpConfig,
+        Collection<IInstallableUnit> iusIncludingLocalRepo = tpFactory.createTargetPlatform(tpConfig,
                 NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
         tpConfig.setForceIgnoreLocalArtifacts(true);
-        Collection<IInstallableUnit> iusWithoutLocalRepo = tpFactory.buildTargetPlatform(tpConfig,
+        Collection<IInstallableUnit> iusWithoutLocalRepo = tpFactory.createTargetPlatform(tpConfig,
                 NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
         Set<IInstallableUnit> retainedIUs = new HashSet<IInstallableUnit>(iusIncludingLocalRepo);
         retainedIUs.removeAll(iusWithoutLocalRepo);
@@ -235,7 +235,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         tpConfig.setEnvironments(env);
         tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1));
         tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2));
-        P2TargetPlatform tp = tpFactory.buildTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
+        P2TargetPlatform tp = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
         // platforms must have been resolved in two planner calls because otherwise the singleton bundles would have collided
 
         assertThat(versionedIdsOf(tp), hasItem(REFERENCED_BUNDLE_V1));

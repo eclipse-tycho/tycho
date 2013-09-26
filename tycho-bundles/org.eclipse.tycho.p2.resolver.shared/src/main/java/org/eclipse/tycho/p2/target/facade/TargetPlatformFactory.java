@@ -19,7 +19,7 @@ import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 // TODO 412416 javadoc
 public interface TargetPlatformFactory {
 
-    public TargetPlatform buildTargetPlatform(TargetPlatformConfigurationStub tpParameters,
+    public TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpParameters,
             ExecutionEnvironmentConfiguration eeConfiguration, List<IReactorArtifactFacade> reactorProjects,
             PomDependencyCollector pomDependencies);
 
