@@ -53,7 +53,7 @@ public class TargetDefinitionResolverIncludeModeTests {
     @Test
     public void testResolveWithPlanner() throws Exception {
         TargetDefinition definition = definitionWith(new PlannerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
@@ -70,14 +70,14 @@ public class TargetDefinitionResolverIncludeModeTests {
     @Test
     public void testResolveWithSlicer() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.V1_AND_V2, TARGET_FEATURE));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1)));
     }
 
     @Test
     public void testUnsatisfiedDependencyWithSlicerIsOk() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED, MAIN_BUNDLE));
-        TargetPlatformContent units = subject.resolveContent(definition);
+        TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(MAIN_BUNDLE)));
     }
 

@@ -212,7 +212,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         tpConfiguration.addFilters(configuration.getFilters());
 
-        return resolverFactory.getTargetPlatformFactory().buildTargetPlatform(tpConfiguration, ee, reactorArtifacts,
+        return resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration, ee, reactorArtifacts,
                 pomDependencies);
     }
 

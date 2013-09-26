@@ -100,7 +100,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String eeName) {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
-        P2TargetPlatform contextImpl = targetPlatformFactory.buildTargetPlatform(context,
+        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(context,
                 new ExecutionEnvironmentConfigurationStub(eeName), null, null);
         strategy.setEEResolutionHints(contextImpl.getEEResolutionHints());
         strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());

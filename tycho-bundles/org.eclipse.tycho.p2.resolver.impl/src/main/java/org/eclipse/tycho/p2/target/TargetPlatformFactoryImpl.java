@@ -142,9 +142,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
     }
 
-    private List<TargetPlatformContent> resolveTargetDefinitions(TargetPlatformConfigurationStub tpConfiguration,
+    private List<TargetDefinitionContent> resolveTargetDefinitions(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
-        List<TargetPlatformContent> result = new ArrayList<TargetPlatformContent>();
+        List<TargetDefinitionContent> result = new ArrayList<TargetDefinitionContent>();
 
         for (TargetDefinition definition : tpConfiguration.getTargetDefinitions()) {
             if (logger.isDebugEnabled()) {
@@ -152,7 +152,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
 
             List<TargetEnvironment> environments = tpConfiguration.getEnvironments();
-            TargetPlatformContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
+            TargetDefinitionContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
                     definition, environments, eeResolutionHandler.getResolutionHints(), remoteAgent);
             result.add(targetFileContent);
 
@@ -164,10 +164,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         return result;
     }
 
-    public P2TargetPlatform buildTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
+    public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfiguration, List<IReactorArtifactFacade> reactorArtifacts,
             PomDependencyCollector pomDependencies) {
-        return buildTargetPlatform(tpConfiguration, ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration),
+        return createTargetPlatform(tpConfiguration, ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration),
                 reactorArtifacts, pomDependencies);
     }
 
@@ -181,10 +181,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      * @param pomDependencies
      *            may be <code>null</code>
      */
-    public P2TargetPlatform buildTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
+    public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<IReactorArtifactFacade> reactorProjects,
             PomDependencyCollector pomDependencies) {
-        List<TargetPlatformContent> targetFileContent = resolveTargetDefinitions(tpConfiguration, eeResolutionHandler);
+        List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration, eeResolutionHandler);
 
         PomDependencyCollectorImpl pomDependenciesContent = (PomDependencyCollectorImpl) pomDependencies;
         // TODO 412416 remove when the RepositoryBlackboardKey registration is gone
@@ -226,7 +226,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 allRemoteArtifactRepositories.add(location.getURL());
             }
         }
-        for (TargetPlatformContent contentPart : targetFileContent) {
+        for (TargetDefinitionContent contentPart : targetFileContent) {
             allRemoteArtifactRepositories.addAll(contentPart.getArtifactRepositoryLocations());
         }
 
@@ -260,11 +260,11 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      * repository
      */
     private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
-            List<TargetPlatformContent> targetFileContent, TargetPlatformConfigurationStub tpConfig,
+            List<TargetDefinitionContent> targetFileContent, TargetPlatformConfigurationStub tpConfig,
             boolean includeLocalMavenRepo) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
-        for (TargetPlatformContent contentPart : targetFileContent) {
+        for (TargetDefinitionContent contentPart : targetFileContent) {
             result.addAll(contentPart.getUnits());
         }
 

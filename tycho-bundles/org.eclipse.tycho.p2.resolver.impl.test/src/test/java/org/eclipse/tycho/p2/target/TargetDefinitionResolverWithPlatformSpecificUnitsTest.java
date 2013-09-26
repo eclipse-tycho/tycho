@@ -64,7 +64,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(Collections.singletonList(new TargetEnvironment(null, null, null)));
 
-        TargetPlatformContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
         assertThat(versionedIdsOf(units),
                 bagEquals(versionedIdList(LAUNCHER_FEATURE, LAUNCHER_FEATURE_JAR, LAUNCHER_BUNDLE)));
@@ -76,7 +76,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetPlatformContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
         assertThat(
                 versionedIdsOf(units),
@@ -91,7 +91,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.PLANNER));
         subject = createResolver(environments);
 
-        TargetPlatformContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
         assertThat(
                 versionedIdsOf(units),
@@ -105,7 +105,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetPlatformContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
         assertThat(
                 versionedIdsOf(units),
@@ -120,7 +120,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER));
         subject = createResolver(environments);
 
-        TargetPlatformContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
         assertThat(
                 versionedIdsOf(units),
@@ -134,7 +134,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true));
         subject = createResolver(Collections.singletonList(environment));
 
-        TargetPlatformContent units = subject.resolveContent(targetDefinition);
+        TargetDefinitionContent units = subject.resolveContent(targetDefinition);
 
         assertThat(
                 versionedIdsOf(units),

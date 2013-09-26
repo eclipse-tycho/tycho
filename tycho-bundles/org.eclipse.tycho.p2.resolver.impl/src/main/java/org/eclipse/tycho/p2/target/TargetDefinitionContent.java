@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,12 +15,16 @@ import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
-public class TargetPlatformContent {
+/**
+ * Result from resolving a target definition: A list of installable units, plus the URLs of the
+ * artifact repositories containing the corresponding artifacts.
+ */
+public class TargetDefinitionContent {
 
     private Collection<IInstallableUnit> units;
     private Collection<URI> artifactRepositories;
 
-    public TargetPlatformContent(Collection<IInstallableUnit> units, Collection<URI> artifactRepositories) {
+    public TargetDefinitionContent(Collection<IInstallableUnit> units, Collection<URI> artifactRepositories) {
         this.units = units;
         this.artifactRepositories = artifactRepositories;
     }
