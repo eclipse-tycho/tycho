@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,25 +22,44 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
-import org.eclipse.tycho.p2.impl.resolver.P2ResolverTestBase;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
+import org.eclipse.tycho.p2.target.TestResolverFactory;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
+import org.eclipse.tycho.test.util.LogVerifier;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class CustomEEResolutionHandlerTest extends P2ResolverTestBase {
+public class CustomEEResolutionHandlerTest {
 
     @Rule
     public ExpectedException thrownException = ExpectedException.none();
+    @Rule
+    public LogVerifier logVerifier = new LogVerifier();
+
+    private TargetPlatformFactory tpFactory;
+    private TargetPlatformConfigurationStub tpConfig;
+
+    @Before
+    public void setUpContext() throws Exception {
+        tpFactory = new TestResolverFactory(logVerifier.getLogger()).getTargetPlatformFactory();
+        tpConfig = new TargetPlatformConfigurationStub();
+    }
 
     @Test
     public void testReadFullSpecificationFromTargetPlatform() throws Exception {
         ExecutionEnvironmentConfigurationCapture eeConfigurationCapture = new ExecutionEnvironmentConfigurationCapture(
                 "Custom/Profile-2");
-
         tpConfig.addP2Repository(ResourceUtil.resourceFile("repositories/custom-profile").toURI());
-        // this includes reading the custom profile specification
-        tpFactory.createTargetPlatform(tpConfig, new CustomEEResolutionHandler(eeConfigurationCapture), null, null);
+
+        /*
+         * Test CustomEEResolutionHandler in integration: Check that the CustomEEResolutionHandler
+         * (which is wrapped around the eeConfigurationCapture argument by the called method)
+         * correctly reads the custom profile specification from the target platform.
+         */
+        tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null);
 
         List<SystemCapability> result = eeConfigurationCapture.capturedSystemCapabilities;
 
@@ -60,7 +79,7 @@ public class CustomEEResolutionHandlerTest extends P2ResolverTestBase {
 
         thrownException
                 .expectMessage("Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'");
-        tpFactory.createTargetPlatform(tpConfig, new CustomEEResolutionHandler(eeConfigurationCapture), null, null);
+        tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null);
     }
 
     static class ExecutionEnvironmentConfigurationCapture implements ExecutionEnvironmentConfiguration {

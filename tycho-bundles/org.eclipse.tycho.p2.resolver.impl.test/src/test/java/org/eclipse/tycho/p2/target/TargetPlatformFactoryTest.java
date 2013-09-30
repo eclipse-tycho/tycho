@@ -13,9 +13,9 @@ package org.eclipse.tycho.p2.target;
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V1;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V2;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -40,60 +40,36 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
-import org.eclipse.tycho.p2.impl.resolver.P2ResolverTestBase;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
-import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.LogVerifier;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-public class TargetPlatformFactoryTest extends P2ResolverTestBase {
+public class TargetPlatformFactoryTest {
 
-    @Test
-    public void test_addArtifactWithExistingMetadata_respects_artifact_classifiers() throws Exception {
-        ArtifactMock artifact = new ArtifactMock(new File(
-                "resources/platformbuilder/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"), "groupId",
-                "artifactId", "1", ArtifactKey.TYPE_ECLIPSE_PLUGIN, null);
+    @Rule
+    public LogVerifier logVerifier = new LogVerifier();
 
-        ArtifactMock metadata = new ArtifactMock(new File(
-                "resources/platformbuilder/pom-dependencies/existing-p2-metadata.xml"), "groupId", "artifactId", "1",
-                ArtifactKey.TYPE_ECLIPSE_PLUGIN, "p2metadata");
+    private TargetPlatformConfigurationStub tpConfig;
 
-        P2TargetPlatform platform;
-        Collection<IInstallableUnit> units;
+    private TargetPlatformFactoryImpl subject;
 
-        // classifier does not match available metadata
-        artifact.setClassifier("classifier-not-in-p2-metadata");
-        pomDependencies = createPomDependencyCollector();
-        pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
-        units = platform.getInstallableUnits();
-        assertEquals(0, units.size());
+    @Before
+    public void setUpSubjectAndContext() throws Exception {
+        subject = new TestResolverFactory(logVerifier.getLogger()).getTargetPlatformFactoryImpl();
 
-        // classifier matches one of the two IUs
-        artifact.setClassifier("sources");
-        pomDependencies = createPomDependencyCollector();
-        pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
-        units = platform.getInstallableUnits();
-        assertEquals(1, units.size());
-        assertContainsIU(units, "test.ui.source");
-
-        // main (i.e. null) classifier matches one of the two IUs
-        artifact.setClassifier(null);
-        pomDependencies = createPomDependencyCollector();
-        pomDependencies.addArtifactWithExistingMetadata(artifact, metadata);
-        platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, pomDependencies);
-        units = platform.getInstallableUnits();
-        assertEquals(1, units.size());
-        assertContainsIU(units, "test.ui");
+        tpConfig = new TargetPlatformConfigurationStub();
     }
 
     @Test
@@ -114,7 +90,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         artifact.setDependencyMetadata(metadata);
 
         List<IReactorArtifactFacade> reactorArtifacts = Collections.<IReactorArtifactFacade> singletonList(artifact);
-        P2TargetPlatform platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 reactorArtifacts, null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
@@ -130,7 +106,6 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         units = platform.getInstallableUnits();
         assertEquals(1, units.size());
         assertEquals("1.0.0.123abc", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion().toString());
-
     }
 
     @Test
@@ -167,8 +142,8 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         reactorProjects.add(secondaryArtifact);
         reactorProjects.add(sourceArtifact);
 
-        P2TargetPlatform platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                reactorProjects, null);
+        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects,
+                null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(3, units.size());
@@ -193,11 +168,11 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
                 CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
         tpConfig.addFilters(Arrays.asList(filter));
 
-        File projectRoot = ResourceUtil.resourceFile("platformbuilder/feature-p2-inf");
-        addReactorProject(projectRoot, ArtifactKey.TYPE_ECLIPSE_FEATURE, "org.eclipse.tycho.p2.impl.test.bundle-p2-inf");
-
-        P2TargetPlatform platform = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                reactorArtifacts, null);
+        File projectRoot = new File("dummy");
+        IReactorArtifactFacade reactorArtifact = createReactorArtifact(projectRoot,
+                "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group", "iu.p2.inf");
+        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                Collections.singletonList(reactorArtifact), null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(units.toString(), 1, units.size());
@@ -211,16 +186,16 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
 
     @Test
     public void testIncludeLocalMavenRepo() throws Exception {
-        TestTargetPlatformBuilderFactory factory = new TestTargetPlatformBuilderFactory(logVerifier.getLogger());
+        TestResolverFactory factory = new TestResolverFactory(logVerifier.getLogger());
         LocalMetadataRepository localMetadataRepo = factory.getLocalMetadataRepository();
         // add one IU to local repo
         localMetadataRepo.addInstallableUnit(InstallableUnitUtil.createIU("locallyInstalledIU", "1.0.0"), new GAV(
                 "test", "foo", "1.0.0"));
-        tpFactory = factory.createTargetPlatformFactory();
-        Collection<IInstallableUnit> iusIncludingLocalRepo = tpFactory.createTargetPlatform(tpConfig,
+        subject = factory.getTargetPlatformFactoryImpl();
+        Collection<IInstallableUnit> iusIncludingLocalRepo = subject.createTargetPlatform(tpConfig,
                 NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
         tpConfig.setForceIgnoreLocalArtifacts(true);
-        Collection<IInstallableUnit> iusWithoutLocalRepo = tpFactory.createTargetPlatform(tpConfig,
+        Collection<IInstallableUnit> iusWithoutLocalRepo = subject.createTargetPlatform(tpConfig,
                 NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
         Set<IInstallableUnit> retainedIUs = new HashSet<IInstallableUnit>(iusIncludingLocalRepo);
         retainedIUs.removeAll(iusWithoutLocalRepo);
@@ -235,7 +210,7 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         tpConfig.setEnvironments(env);
         tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1));
         tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2));
-        P2TargetPlatform tp = tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
+        P2TargetPlatform tp = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
         // platforms must have been resolved in two planner calls because otherwise the singleton bundles would have collided
 
         assertThat(versionedIdsOf(tp), hasItem(REFERENCED_BUNDLE_V1));
@@ -248,11 +223,32 @@ public class TargetPlatformFactoryTest extends P2ResolverTestBase {
         return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
     }
 
-    private void assertContainsIU(Collection<IInstallableUnit> units, String id) {
-        assertNotNull("Missing installable unit with id " + id, getIU(units, id));
+    private ArtifactMock createReactorArtifact(File projectRoot, String primaryUnitId, String secondaryUnitId) {
+        // TODO ArtifactMock constructor with less nulls?
+        ArtifactMock result = new ArtifactMock(projectRoot, null, null, null, null);
+
+        // TODO DependencyMetadata constructor to make the below a one-liner?
+        DependencyMetadata dependencyMetadata = new DependencyMetadata();
+        dependencyMetadata.setMetadata(true, createUnitUnlessNull(primaryUnitId));
+        dependencyMetadata.setMetadata(false, createUnitUnlessNull(secondaryUnitId));
+        result.setDependencyMetadata(dependencyMetadata);
+
+        return result;
     }
 
-    protected IInstallableUnit getIU(Collection<IInstallableUnit> units, String id) {
+    private static List<IInstallableUnit> createUnitUnlessNull(String unitId) {
+        if (unitId == null) {
+            return Arrays.asList();
+        } else {
+            return Arrays.asList(InstallableUnitUtil.createIU(unitId, "1.0.2"));
+        }
+    }
+
+    private void assertContainsIU(Collection<IInstallableUnit> units, String id) {
+        assertThat(units, hasItem(unitWithId(id)));
+    }
+
+    private IInstallableUnit getIU(Collection<IInstallableUnit> units, String id) {
         for (IInstallableUnit unit : units) {
             if (id.equals(unit.getId())) {
                 return unit;
