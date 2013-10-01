@@ -50,6 +50,23 @@
       "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_465495ce",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-10-01T13:17:54Z",
+      "side": 1,
+      "message": "for the test bundle, you always want to force the latest version, so we should not use an open dependency range for the test bundle but rather install it as top-level IU as before",
+      "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
