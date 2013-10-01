@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_065e0df2",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/surefire/provisionedApplication/ProvisioningTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-10-01T13:26:36Z",
+      "side": 1,
+      "message": "That makes sense. I thought the verifier would automatically use a local repo.\nInstead we could make another pom for this test case, which override the value of \"work\" to point at surefire.provisionApplication/example-product/target/products/example-product/\u003cos\u003e/\u003cws\u003e/\u003carch\u003e.",
+      "parentUuid": "8748d3a1_461e5569",
+      "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_e62cc19c",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
         "patchSetId": 2
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_06f0cd56",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-10-01T13:26:36Z",
+      "side": 1,
+      "message": "That\u0027s right, I forget the bundle-version.\nIMO Bundle-Version for the dependency bundle should be the same as the test bundle one + a suffix (timestamp?) to handle multiple execution (as different executions can have multiple dependencies).\n\nI though about it while implementing this, and found it difficult to get the OSGi version for the bundle in current module. What\u0027s the easiest way to retrieve it?",
+      "parentUuid": "8748d3a1_86e5fdc8",
+      "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_465495ce",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
         "patchSetId": 2
@@ -64,6 +100,24 @@
       "writtenOn": "2013-10-01T13:17:54Z",
       "side": 1,
       "message": "for the test bundle, you always want to force the latest version, so we should not use an open dependency range for the test bundle but rather install it as top-level IU as before",
+      "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_86fb3d39",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-10-01T13:26:36Z",
+      "side": 1,
+      "message": "That\u0027s right.\nOr we could also put a specific version in it. In order to do so, it would require to get the OSGi version for the bundle created by current module. Is there an easy way to get it?",
+      "parentUuid": "8748d3a1_465495ce",
       "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
