@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_461e5569",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/surefire/provisionedApplication/ProvisioningTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-10-01T13:13:34Z",
+      "side": 1,
+      "message": "I\u0027d like to avoid using the maven local repo as artifact exchange (for reasons of test separation and e.g. to be able to run tests in parallel) this is a minor change I can do when polishing this patch",
+      "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_e62cc19c",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 693,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-10-01T13:13:34Z",
+      "side": 1,
+      "message": "I will probably move this logic into installationBuilder",
+      "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_86e5fdc8",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-10-01T13:13:34Z",
+      "side": 1,
+      "message": "we should have a Bundle-Version.\n\nIf we have one and the bundle its dependencies are dynamic, we should have strictly increasing versions over time.\n\nGenerating the bundle which can be different each time can have unwanted side-effects e.g. when you have repeated test execution on the same installation. \n\nNot sure, but I will try if we can solve this with static bundle(s) instead.",
+      "revId": "2c6ef849407afb6396500405dd4279d0fc973499",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
