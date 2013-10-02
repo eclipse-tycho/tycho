@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.test.matcher;
+package org.eclipse.tycho.repository.testutil;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IArtifactProvider;
@@ -16,7 +16,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class ArtifactRepositoryMatcher {
+public class ArtifactRepositoryMatchers {
 
     static String keyToString(IArtifactKey artifactKey) {
         return artifactKey.getClassifier() + ":" + artifactKey.getId() + ":" + artifactKey.getVersion();

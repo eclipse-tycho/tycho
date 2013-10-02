@@ -49,9 +49,9 @@ import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
-import org.eclipse.tycho.test.util.InstallableUnitUtil;
 import org.junit.Test;
 
 public class TargetPlatformFactoryTest extends P2ResolverTestBase {

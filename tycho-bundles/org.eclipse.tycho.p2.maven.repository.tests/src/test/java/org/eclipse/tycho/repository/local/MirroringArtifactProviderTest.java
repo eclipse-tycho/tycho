@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
-import static org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactProviderTestUtils.ANY_ARTIFACT_KEY_QUERY;
-import static org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactProviderTestUtils.canonicalDescriptorFor;
-import static org.eclipse.tycho.repository.p2base.artifact.provider.ArtifactProviderTestUtils.packedDescriptorFor;
 import static org.eclipse.tycho.repository.streaming.testutil.ProbeArtifactSink.newArtifactSinkFor;
 import static org.eclipse.tycho.repository.streaming.testutil.ProbeRawArtifactSink.newRawArtifactSinkFor;
+import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.ANY_ARTIFACT_KEY_QUERY;
+import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.canonicalDescriptorFor;
+import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.packedDescriptorFor;
 import static org.eclipse.tycho.test.util.StatusMatchers.errorStatus;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.is;

@@ -11,9 +11,9 @@
 package org.eclipse.tycho.p2.target;
 
 import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
-import static org.eclipse.tycho.p2.test.matcher.ArtifactRepositoryMatcher.contains;
-import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.hasGAV;
-import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.unit;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.hasGAV;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unit;
+import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryMatchers.contains;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;

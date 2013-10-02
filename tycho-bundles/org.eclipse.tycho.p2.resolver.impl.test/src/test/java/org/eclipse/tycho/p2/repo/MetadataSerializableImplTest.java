@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2.impl.Activator;
 import org.eclipse.tycho.p2.impl.repo.MetadataSerializableImpl;
-import org.eclipse.tycho.test.util.InstallableUnitUtil;
+import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

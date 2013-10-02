@@ -13,5 +13,5 @@ Require-Bundle: org.junit,
 Import-Package: org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.repository.local.testutil,
  org.eclipse.tycho.repository.streaming.testutil,
- org.eclipse.tycho.repository.test.util,
+ org.eclipse.tycho.repository.testutil,
  org.eclipse.tycho.test.util

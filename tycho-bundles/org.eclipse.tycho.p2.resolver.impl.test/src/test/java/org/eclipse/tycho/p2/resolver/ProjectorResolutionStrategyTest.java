@@ -33,7 +33,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.tycho.test.util.InstallableUnitUtil;
+import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
 import org.junit.Rule;
