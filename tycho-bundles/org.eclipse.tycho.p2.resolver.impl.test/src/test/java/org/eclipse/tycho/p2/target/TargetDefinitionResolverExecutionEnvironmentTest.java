@@ -12,8 +12,8 @@ package org.eclipse.tycho.p2.target;
 
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.defaultEnvironments;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitionWith;
-import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.unit;
-import static org.eclipse.tycho.p2.test.matcher.InstallableUnitMatchers.unitWithId;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unit;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;

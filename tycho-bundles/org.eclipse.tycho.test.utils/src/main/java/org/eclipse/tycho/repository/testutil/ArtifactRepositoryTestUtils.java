@@ -6,14 +6,18 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.p2base.artifact.provider;
+package org.eclipse.tycho.repository.testutil;
+
+import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
@@ -22,10 +26,15 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public final class ArtifactProviderTestUtils {
+public class ArtifactRepositoryTestUtils {
 
     public static final IQuery<IArtifactKey> ANY_ARTIFACT_KEY_QUERY = QueryUtil.createMatchQuery(IArtifactKey.class,
             "true");
+
+    public static Set<IArtifactKey> allKeysIn(IArtifactRepository repository) {
+        IQueryResult<IArtifactKey> queryResult = repository.query(ANY_ARTIFACT_KEY_QUERY, null);
+        return queryResult.toUnmodifiableSet();
+    }
 
     public static IArtifactDescriptor canonicalDescriptorFor(IArtifactKey key) {
         return new ArtifactDescriptor(key);

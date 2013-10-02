@@ -11,7 +11,7 @@
 package org.eclipse.tycho.repository.module;
 
 import static org.eclipse.tycho.repository.module.ModuleArtifactRepositoryTest.writeAndClose;
-import static org.eclipse.tycho.repository.test.util.ArtifactRepositoryUtils.allKeysIn;
+import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.allKeysIn;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
