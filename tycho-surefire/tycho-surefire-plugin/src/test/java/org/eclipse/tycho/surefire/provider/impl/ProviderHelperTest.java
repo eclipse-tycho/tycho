@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -36,7 +37,9 @@ public class ProviderHelperTest extends PlexusTestCase {
     private static final String TYCHO_GROUPID = "org.eclipse.tycho";
     private static final String JUNIT3_FRAGMENT = "org.eclipse.tycho.surefire.junit";
     private static final String JUNIT4_FRAGMENT = "org.eclipse.tycho.surefire.junit4";
+    private static final String JUNIT47_FRAGMENT = "org.eclipse.tycho.surefire.junit47";
     private static final String BOOTER_ARTIFACTID = "org.eclipse.tycho.surefire.osgibooter";
+    private static final String UI_HARNESS_FRAGMENT = "org.eclipse.tycho.surefire.uiharness";
 
     private ProviderHelper providerHelper;
 
@@ -148,7 +151,8 @@ public class ProviderHelperTest extends PlexusTestCase {
 
     public void testFilterTestFrameworkBundlesNotFound() {
         try {
-            providerHelper.filterTestFrameworkBundles(new JUnit3Provider(), asList(createMockArtifact("test", "test")));
+            providerHelper.filterTestFrameworkBundles(new JUnit3Provider(), false,
+                    asList(createMockArtifact("test", "test")));
             fail();
         } catch (MojoExecutionException e) {
             // expected
@@ -157,7 +161,7 @@ public class ProviderHelperTest extends PlexusTestCase {
 
     public void testFilterTestFrameworkBundlesJUnit3() throws MojoExecutionException {
         Set<org.apache.maven.artifact.Artifact> junitSurefireBundles = providerHelper.filterTestFrameworkBundles(
-                new JUnit3Provider(),
+                new JUnit3Provider(), false,
                 asList(booterArtifact(), junit3Artifact(), junit4Artifact(), createMockArtifact("foo", "bar")));
         assertEquals(2, junitSurefireBundles.size());
         Set<String> fileNames = new HashSet<String>();
@@ -172,7 +176,9 @@ public class ProviderHelperTest extends PlexusTestCase {
     public void testFilterTestFrameworkBundlesJUnit4() throws MojoExecutionException {
         Set<org.apache.maven.artifact.Artifact> junitSurefireBundles = providerHelper.filterTestFrameworkBundles(
                 new JUnit4Provider(),
-                asList(booterArtifact(), junit3Artifact(), junit4Artifact(), createMockArtifact("foo", "bar")));
+                false,
+                asList(booterArtifact(), junit3Artifact(), junit4Artifact(), uiHarnessArtifact(),
+                        createMockArtifact("foo", "bar")));
         assertEquals(2, junitSurefireBundles.size());
         Set<String> fileNames = new HashSet<String>();
         for (org.apache.maven.artifact.Artifact artifact : junitSurefireBundles) {
@@ -181,6 +187,25 @@ public class ProviderHelperTest extends PlexusTestCase {
         HashSet<String> expectedFileNames = new HashSet<String>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
                 TYCHO_GROUPID + "_" + JUNIT4_FRAGMENT));
         assertEquals(expectedFileNames, fileNames);
+    }
+
+    public void testFilterTestFrameworkBundlesUIHarness() throws MojoExecutionException {
+        assertHasUIHarness(new JUnit4Provider());
+        assertHasUIHarness(new JUnit3Provider());
+        assertHasUIHarness(new JUnit47Provider());
+    }
+
+    private void assertHasUIHarness(TestFrameworkProvider provider) throws MojoExecutionException {
+        List<Artifact> mockPluginArtifacts = asList(booterArtifact(), junit3Artifact(), junit4Artifact(),
+                junit47Artifact(), uiHarnessArtifact(), createMockArtifact("foo", "bar"));
+        final boolean useUIHarness = true;
+        Set<org.apache.maven.artifact.Artifact> junitSurefireBundles = providerHelper.filterTestFrameworkBundles(
+                provider, useUIHarness, mockPluginArtifacts);
+        Set<String> fileNames = new HashSet<String>();
+        for (org.apache.maven.artifact.Artifact artifact : junitSurefireBundles) {
+            fileNames.add(artifact.getFile().getName());
+        }
+        assertTrue(fileNames.contains(TYCHO_GROUPID + "_" + UI_HARNESS_FRAGMENT));
     }
 
     public void testGetSymbolicNames() throws MojoExecutionException {
@@ -196,6 +221,14 @@ public class ProviderHelperTest extends PlexusTestCase {
 
     private org.apache.maven.artifact.Artifact junit4Artifact() {
         return createMockArtifact(TYCHO_GROUPID, JUNIT4_FRAGMENT);
+    }
+
+    private org.apache.maven.artifact.Artifact junit47Artifact() {
+        return createMockArtifact(TYCHO_GROUPID, JUNIT47_FRAGMENT);
+    }
+
+    private org.apache.maven.artifact.Artifact uiHarnessArtifact() {
+        return createMockArtifact(TYCHO_GROUPID, UI_HARNESS_FRAGMENT);
     }
 
     private org.apache.maven.artifact.Artifact booterArtifact() {

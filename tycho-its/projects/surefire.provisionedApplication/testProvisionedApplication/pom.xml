@@ -26,6 +26,18 @@
 	<version>1.0.0</version>
 	<packaging>eclipse-test-plugin</packaging>
 
+	<properties>
+		<!-- Default value, to override to test different OSGi versions -->
+		<other.p2.repo.url>${p2.repo.url}</other.p2.repo.url>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>test-repo</id>
+			<url>${other.p2.repo.url}</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>

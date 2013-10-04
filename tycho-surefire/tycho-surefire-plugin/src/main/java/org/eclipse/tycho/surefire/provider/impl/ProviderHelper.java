@@ -78,11 +78,14 @@ public class ProviderHelper {
         }
     }
 
-    public Set<Artifact> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
-            throws MojoExecutionException {
+    public Set<Artifact> filterTestFrameworkBundles(TestFrameworkProvider provider, boolean useUIHarness,
+            List<Artifact> pluginArtifacts) throws MojoExecutionException {
         Set<Artifact> result = new LinkedHashSet<Artifact>();
         List<Dependency> requiredArtifacts = new ArrayList<Dependency>();
         requiredArtifacts.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.osgibooter"));
+        if (useUIHarness) {
+            requiredArtifacts.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.uiharness"));
+        }
         requiredArtifacts.addAll(provider.getRequiredBundles());
         for (Dependency dependency : requiredArtifacts) {
             boolean found = false;
