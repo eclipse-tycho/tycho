@@ -205,7 +205,7 @@ public class EclipseRunMojo extends AbstractMojo {
         for (Repository repository : repositories) {
             tpConfiguration.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
         }
-        TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().buildTargetPlatform(tpConfiguration,
+        TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
                 new ExecutionEnvironmentConfigurationStub(executionEnvironment), null, null);
         P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
         for (Dependency dependency : dependencies) {
