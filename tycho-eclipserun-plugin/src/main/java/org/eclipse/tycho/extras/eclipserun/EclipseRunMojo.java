@@ -57,7 +57,7 @@ import org.eclipse.tycho.plugins.p2.extras.Repository;
 public class EclipseRunMojo extends AbstractMojo {
 
     /**
-     * @parameter default-value="${project.build.directory}/work"
+     * @parameter default-value="${project.build.directory}/eclipserun-work"
      */
     private File work;
 
