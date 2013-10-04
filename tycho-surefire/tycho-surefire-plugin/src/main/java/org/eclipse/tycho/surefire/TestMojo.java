@@ -682,7 +682,8 @@ public class TestMojo extends AbstractMojo {
 
             ProvisionedInstallationBuilder installationBuilder = provisionedInstallationBuilderFactory
                     .createInstallationBuilder();
-            Set<Artifact> testHarnessArtifacts = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
+            Set<Artifact> testHarnessArtifacts = providerHelper.filterTestFrameworkBundles(provider, useUIHarness,
+                    pluginArtifacts);
             for (Artifact testHarnessArtifact : testHarnessArtifacts) {
                 installationBuilder.addBundleJar(testHarnessArtifact.getFile());
             }
@@ -704,14 +705,18 @@ public class TestMojo extends AbstractMojo {
 
     private List<String> getIUsToInstall(Set<Artifact> testHarnessArtifacts) {
         List<String> iusToInstall = new ArrayList<String>();
+        // 1. test bundle
         iusToInstall.add(getTestBundleSymbolicName());
+        // 2. test harness bundles
         iusToInstall.addAll(providerHelper.getSymbolicNames(testHarnessArtifacts));
-        for (Dependency extraDep : getExtraDependencies(false)) {
-            String type = extraDep.getType();
+        // 3. extra dependencies
+        for (Dependency extraDependency : TychoProjectUtils.getTargetPlatformConfiguration(project)
+                .getDependencyResolverConfiguration().getExtraRequirements()) {
+            String type = extraDependency.getType();
             if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type) || P2Resolver.TYPE_INSTALLABLE_UNIT.equals(type)) {
-                iusToInstall.add(extraDep.getArtifactId());
+                iusToInstall.add(extraDependency.getArtifactId());
             } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
-                iusToInstall.add(extraDep.getArtifactId() + ".feature.group");
+                iusToInstall.add(extraDependency.getArtifactId() + ".feature.group");
             }
         }
         return iusToInstall;
@@ -723,7 +728,7 @@ public class TestMojo extends AbstractMojo {
 
     private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
         TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
-        final List<Dependency> extraDependencies = getExtraDependencies(true);
+        final List<Dependency> extraDependencies = getExtraDependencies();
         List<ReactorProject> reactorProjects = getReactorProjects();
         // TODO 364134 re-use target platform from dependency resolution
         TargetPlatform targetPlatform = platformResolver
@@ -779,7 +784,8 @@ public class TestMojo extends AbstractMojo {
             testRuntime.addBundle(artifact);
         }
 
-        Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, pluginArtifacts);
+        Set<Artifact> testFrameworkBundles = providerHelper.filterTestFrameworkBundles(provider, useUIHarness,
+                pluginArtifacts);
         for (Artifact artifact : testFrameworkBundles) {
             DevBundleInfo devInfo = workspaceState.getBundleInfo(session, artifact.getGroupId(),
                     artifact.getArtifactId(), artifact.getVersion(), project.getPluginArtifactRepositories());
@@ -799,9 +805,9 @@ public class TestMojo extends AbstractMojo {
         return installationFactory.createInstallation(testRuntime, work);
     }
 
-    private List<Dependency> getExtraDependencies(boolean includeSurefireConfiguration) {
+    private List<Dependency> getExtraDependencies() {
         final List<Dependency> dependencies = new ArrayList<Dependency>();
-        if (includeSurefireConfiguration && this.dependencies != null) {
+        if (this.dependencies != null) {
             dependencies.addAll(Arrays.asList(this.dependencies));
         }
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);

@@ -23,7 +23,7 @@
 
 	<repositories>
 		<repository>
-			<id>eclipse352-minimal</id>
+			<id>test-repo</id>
 			<url>${p2.repo.url}</url>
 			<layout>p2</layout>
 		</repository>

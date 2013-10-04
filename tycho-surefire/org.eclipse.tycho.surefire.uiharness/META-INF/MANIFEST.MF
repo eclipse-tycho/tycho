@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tycho Surefire UI Harness Dependencies (Incubation)
+Bundle-SymbolicName: org.eclipse.tycho.surefire.uiharness;singleton:=true
+Bundle-Version: 0.19.0.qualifier
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter;bundle-version="0.19.0"
+Require-Bundle: org.eclipse.ui.ide.application
+Bundle-Vendor: %providerName
