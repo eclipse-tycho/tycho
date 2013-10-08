@@ -81,6 +81,14 @@ public class PomDependencyProcessor {
                  * The POM dependency has not been built by Tycho. If the dependency is a bundle,
                  * run the p2 bundle publisher on it and add the result to the resolution context.
                  */
+				if (artifact.getScope().equalsIgnoreCase(Artifact.SCOPE_SYSTEM))
+				{
+				    //Bugzilla 415774: System scoped artifacts need to be checked to see if they exist in the repository
+					if (logger.isDebugEnabled()) {
+						logger.debug("P2resolver: Skipping system scoped artifact " + artifact.toString());
+					}			
+					continue;
+				}				 
                 if (logger.isDebugEnabled()) {
                     logger.debug("P2resolver.addMavenArtifact " + artifact.toString());
                 }
