@@ -55,6 +55,21 @@ public final class DirectorMojo extends AbstractProductMojo {
     /** @parameter default-value="true" */
     private boolean installFeatures;
 
+
+    /**
+      * Additional install units that may be required to complete the product installation	  
+	  * @parameter 
+	  */
+    private List<String> additionalIUs;
+
+    /**
+     * Additional file based repositories to be considered when using an InstallationSource of
+     * <code>repository<code>.
+     * 
+     * @parameter
+     */
+    private List<String> additionalRepositories;
+
     /**
      * Installation source to be used for the director calls. Can be
      * <ul>
@@ -104,6 +119,13 @@ public final class DirectorMojo extends AbstractProductMojo {
                 command.addMetadataSources(sources.getMetadataRepositories());
                 command.addArtifactSources(sources.getArtifactRepositories());
                 command.addUnitToInstall(product.getId());
+				getLog().info("Considering specified additonal IUs "+ additionalIUs);
+                if (this.additionalIUs != null) {
+                    for (String iu : this.additionalIUs) {
+				        getLog().info("Adding additonal IUs "+ iu);					
+                        command.addUnitToInstall(iu);
+                    }
+                }
                 command.setDestination(destination);
                 command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
                 command.setEnvironment(env);
@@ -159,6 +181,18 @@ public final class DirectorMojo extends AbstractProductMojo {
         RepositoryReferences result = new RepositoryReferences();
         result.addMetadataRepository(buildOutputRepository);
         result.addArtifactRepository(buildOutputRepository);
+        for (String repoFile : additionalRepositories) {
+
+            File repo = new File(repoFile);
+            if (repo.exists()) {
+                getLog().info("Adding repository " + repoFile);
+                result.addMetadataRepository(repo);
+                result.addArtifactRepository(repo);
+            } else {
+                getLog().info("Skipping non-existent repository " + repoFile);
+            }
+
+        }
         return result;
     }
 
