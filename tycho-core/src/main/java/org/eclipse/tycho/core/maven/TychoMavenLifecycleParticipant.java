@@ -23,19 +23,13 @@ import java.util.Set;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
-import org.apache.maven.execution.AbstractExecutionListener;
-import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.component.repository.exception.ComponentLifecycleException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
@@ -70,7 +64,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         }
         List<MavenProject> projects = session.getProjects();
         validate(projects);
-        registerExecutionListener(session);
         configureComponents(session);
 
         for (MavenProject project : projects) {
@@ -134,31 +127,6 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 baseDirs.add(basedir);
             }
         }
-    }
-
-    // workaround for http://jira.codehaus.org/browse/MNG-5206
-    // TODO remove method when fix for MNG-5206 is released (maven 3.0.5) 
-    private void registerExecutionListener(MavenSession session) {
-        MavenExecutionRequest request = session.getRequest();
-        ChainedExecutionListener listener = new ChainedExecutionListener(request.getExecutionListener());
-        listener.addListener(new AbstractExecutionListener() {
-
-            @Override
-            public void sessionEnded(ExecutionEvent event) {
-                try {
-                    EquinoxServiceFactory equinoxServiceFactory = plexus.lookup(EquinoxServiceFactory.class);
-                    if (equinoxServiceFactory != null) {
-                        plexus.release(equinoxServiceFactory);
-                    }
-                } catch (ComponentLifecycleException e) {
-                    // we tried
-                } catch (ComponentLookupException e) {
-                    // we tried
-                }
-            }
-
-        });
-        request.setExecutionListener(listener);
     }
 
     private boolean disableLifecycleParticipation(MavenSession session) {
