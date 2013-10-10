@@ -98,7 +98,7 @@ public final class MavenDependencyInjector {
     private List<Dependency> newExternalDependencies(ArtifactDescriptor artifact) {
         File location = artifact.getLocation();
         if (!location.isFile() || !location.canRead()) {
-            logger.warn("Dependency at location " + location
+            logger.debug("Dependency at location " + location
                     + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
             return NO_DEPENDENCIES;
         }
@@ -117,7 +117,7 @@ public final class MavenDependencyInjector {
                             result.add(nestedJarDependency);
                         } else if (nestedJarOrDir.isDirectory()) {
                             // system-scoped dependencies on directories are not supported
-                            logger.warn("Dependency from "
+                            logger.debug("Dependency from "
                                     + project.getBasedir()
                                     + " to nested directory classpath entry "
                                     + nestedJarOrDir
@@ -172,7 +172,7 @@ public final class MavenDependencyInjector {
                         systemScopeDependency.setClassifier(classpathElement);
                         result.add(systemScopeDependency);
                     } else {
-                        logger.warn("Dependency from "
+                        logger.debug("Dependency from "
                                 + project.getBasedir()
                                 + " to nested classpath entry "
                                 + jar.getAbsolutePath()
