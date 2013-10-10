@@ -2,10 +2,10 @@
 <?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="17">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20130521-0416"/>
-<unit id="org.eclipse.sdk.ide" version="4.3.0.I20130605-2000"/>
-<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.0.v20130604-2046"/>
-<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20130529-1710"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20130807-1835"/>
+<unit id="org.eclipse.sdk.ide" version="4.3.1.M20130911-1000"/>
+<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.1.v20130828-0031"/>
+<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20130814-1242"/>
 <repository location="http://download.eclipse.org/releases/kepler/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
