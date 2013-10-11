@@ -61,7 +61,8 @@ public final class MavenDependencyInjector {
     public static List<Artifact> filterInjectedDependencies(Collection<? extends Artifact> artifacts) {
         List<Artifact> filteredArtifacts = new ArrayList<Artifact>();
         for (Artifact artifact : artifacts) {
-            if (artifact.getGroupId().startsWith(P2_GROUPID_PREFIX) && artifact.getScope() == Artifact.SCOPE_SYSTEM)
+            if (artifact.getGroupId().startsWith(P2_GROUPID_PREFIX)
+                    && Artifact.SCOPE_SYSTEM.equals(artifact.getScope()))
                 continue; // came through injected dependency -> remove
             else
                 filteredArtifacts.add(artifact);
@@ -167,8 +168,8 @@ public final class MavenDependencyInjector {
                     // we can only add a system scope dependency for an existing (checked-in) jar file
                     // otherwise maven will throw a DependencyResolutionException
                     if (jar.isFile()) {
-                        Dependency systemScopeDependency = createSystemScopeDependency(artifact.getKey(), artifact
-                                .getMavenProject().getGroupId(), jar);
+                        Dependency systemScopeDependency = createSystemScopeDependency(artifact.getKey(),
+                                P2_GROUPID_PREFIX + artifact.getMavenProject().getGroupId(), jar);
                         systemScopeDependency.setClassifier(classpathElement);
                         result.add(systemScopeDependency);
                     } else {

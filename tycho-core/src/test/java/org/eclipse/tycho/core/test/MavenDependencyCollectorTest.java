@@ -58,8 +58,8 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
             MavenProject project = projects.get(2);
             List<Dependency> mavenDependencies = project.getModel().getDependencies();
             assertEquals(1, mavenDependencies.size());
-            assertDependenciesContains(mavenDependencies, "mavenDependencies", "p002", "1.0.0", "lib/lib.jar", "jar",
-                    Artifact.SCOPE_SYSTEM, new File(getBasedir("projects/mavendeps"), "p002/lib/lib.jar"));
+            assertDependenciesContains(mavenDependencies, "p2.mavenDependencies", "p002", "1.0.0", "lib/lib.jar",
+                    "jar", Artifact.SCOPE_SYSTEM, new File(getBasedir("projects/mavendeps"), "p002/lib/lib.jar"));
         }
         {
             // 3. project with dependency to bundle with nested jar within the same reactor
@@ -75,7 +75,7 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
             final String expectedVersion = "1.0.0";
             assertDependenciesContains(mavenDependencies, expectedGroupId, expectedArtifactId, expectedVersion, null,
                     "eclipse-plugin", Artifact.SCOPE_PROVIDED, null);
-            assertDependenciesContains(mavenDependencies, expectedGroupId, expectedArtifactId, expectedVersion,
+            assertDependenciesContains(mavenDependencies, "p2." + expectedGroupId, expectedArtifactId, expectedVersion,
                     "lib/lib.jar", "jar", Artifact.SCOPE_SYSTEM, new File(getBasedir("projects/mavendeps"),
                             "p002/lib/lib.jar"));
         }
