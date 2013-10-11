@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -1006,10 +1007,8 @@ public class TestMojo extends AbstractMojo {
         addCustomProfileArg(cli);
         addVMArgs(cli, argLine);
 
-        if (systemProperties != null) {
-            for (Map.Entry<String, String> entry : systemProperties.entrySet()) {
-                cli.addVMArguments(true, "-D" + entry.getKey() + "=" + entry.getValue());
-            }
+        for (Map.Entry<String, String> entry : getMergedSystemProperties().entrySet()) {
+            cli.addVMArguments(true, "-D" + entry.getKey() + "=" + entry.getValue());
         }
 
         if (getLog().isDebugEnabled() || showEclipseLog) {
@@ -1035,6 +1034,16 @@ public class TestMojo extends AbstractMojo {
             cli.addEnvironmentVariables(environmentVariables);
         }
         return cli;
+    }
+
+    private Map<String, String> getMergedSystemProperties() {
+        Map<String, String> result = new HashMap<String, String>();
+        // bug 415489: use osgi.clean=true by default
+        result.put("osgi.clean", "true");
+        if (systemProperties != null) {
+            result.putAll(systemProperties);
+        }
+        return result;
     }
 
     private void addCustomProfileArg(EquinoxLaunchConfiguration cli) throws MojoExecutionException {
