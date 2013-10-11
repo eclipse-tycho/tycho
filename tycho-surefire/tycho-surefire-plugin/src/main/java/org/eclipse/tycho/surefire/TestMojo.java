@@ -61,6 +61,7 @@ import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -742,6 +743,12 @@ public class TestMojo extends AbstractMojo {
 
             public List<Dependency> getExtraRequirements() {
                 return extraDependencies;
+            }
+
+            public List<TargetEnvironment> getEnvironments() {
+                List<TargetEnvironment> res = new ArrayList<TargetEnvironment>(1);
+                res.add(TargetEnvironment.getRunningEnvironment());
+                return res;
             }
         };
 
