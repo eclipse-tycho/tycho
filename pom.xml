@@ -109,8 +109,8 @@
             4. Close and release staged artifacts into repository 'Releases'
 
 # Versions correspond to the Eclipse Kepler
-EQUINOX_VERSION=3.9.0.v20130529-1710
-JDT_VERSION=3.9.0.v20130604-1421
+EQUINOX_VERSION=3.9.1.v20130814-1242
+JDT_VERSION=3.9.1.v20130905-0837
 JDT_APT_VERSION=1.0.600.v20130530-1010
 
 # Location of unpacked Eclipse SDK
@@ -138,8 +138,8 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
   -Dsources=$PLUGINS/org.eclipse.jdt.compiler.apt.source_$JDT_APT_VERSION.jar
 		 -->
 
-		<equinoxVersion>3.9.0.v20130529-1710</equinoxVersion>
-		<jdtVersion>3.9.0.v20130604-1421</jdtVersion>
+		<equinoxVersion>3.9.1.v20130814-1242</equinoxVersion>
+		<jdtVersion>3.9.1.v20130905-0837</jdtVersion>
 		<jdtAptVersion>1.0.600.v20130530-1010</jdtAptVersion>
 
 		<!-- version of tycho used by this build -->
