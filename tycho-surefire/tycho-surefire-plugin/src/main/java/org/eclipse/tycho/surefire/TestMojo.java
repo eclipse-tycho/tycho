@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -40,7 +41,6 @@ import org.apache.maven.surefire.suite.RunResult;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
-import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -77,7 +77,6 @@ import org.eclipse.tycho.surefire.provider.impl.ProviderHelper;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilder;
 import org.eclipse.tycho.surefire.provisioning.ProvisionedInstallationBuilderFactory;
-import org.osgi.framework.Version;
 
 /**
  * <p>
@@ -1006,10 +1005,8 @@ public class TestMojo extends AbstractMojo {
         addCustomProfileArg(cli);
         addVMArgs(cli, argLine);
 
-        if (systemProperties != null) {
-            for (Map.Entry<String, String> entry : systemProperties.entrySet()) {
-                cli.addVMArguments(true, "-D" + entry.getKey() + "=" + entry.getValue());
-            }
+        for (Map.Entry<String, String> entry : getMergedSystemProperties().entrySet()) {
+            cli.addVMArguments(true, "-D" + entry.getKey() + "=" + entry.getValue());
         }
 
         if (getLog().isDebugEnabled() || showEclipseLog) {
@@ -1035,6 +1032,16 @@ public class TestMojo extends AbstractMojo {
             cli.addEnvironmentVariables(environmentVariables);
         }
         return cli;
+    }
+
+    private Map<String, String> getMergedSystemProperties() {
+        Map<String, String> result = new HashMap<String, String>();
+        // bug 415489: use osgi.clean=true by default
+        result.put("osgi.clean", "true");
+        if (systemProperties != null) {
+            result.putAll(systemProperties);
+        }
+        return result;
     }
 
     private void addCustomProfileArg(EquinoxLaunchConfiguration cli) throws MojoExecutionException {
