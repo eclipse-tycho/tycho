@@ -140,6 +140,10 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     }
 
     public File getEntry(File bundleLocation, String path) {
+        if (path.startsWith("external:")) {
+            getLogger().warn("Ignoring Bundle-ClassPath entry '" + path + "' of bundle " + bundleLocation);
+            return null;
+        }
         final File result;
         if (bundleLocation.isDirectory()) {
             result = new File(bundleLocation, path);

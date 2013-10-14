@@ -31,7 +31,8 @@ public interface BundleReader {
      * @throws InvalidOSGiManifestException
      *             if valid MANIFEST is found but it does not have valid mandatory OSGi headers
      */
-    public OsgiManifest loadManifest(File bundleLocation) throws OsgiManifestParserException, InvalidOSGiManifestException;
+    public OsgiManifest loadManifest(File bundleLocation) throws OsgiManifestParserException,
+            InvalidOSGiManifestException;
 
     /**
      * Returns bundle entry with given path or <code>null</code> if no such entry exists. If bundle
@@ -40,7 +41,7 @@ public interface BundleReader {
      * @param bundleLocation
      *            can be either a directory or a jar file
      * @param path
-     *            path relative to the bundle root
+     *            path relative to the bundle root. Paths starting with "external:" are ignored
      * 
      */
     public File getEntry(File bundleLocation, String path);
