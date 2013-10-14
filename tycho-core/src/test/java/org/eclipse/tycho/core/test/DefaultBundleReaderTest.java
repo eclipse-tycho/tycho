@@ -86,6 +86,14 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         assertEquals(firstExtractionTimestamp, log4jFileExtractedAgain.lastModified());
     }
 
+    public void testGetEntryExternalJar() throws Exception {
+        File bundleJar = getTestJar();
+        // 370958 IOException will only occur if extraction dir exists already
+        new File(new File(cacheDir, DefaultBundleReader.CACHE_PATH), bundleJar.getName()).mkdirs();
+        File externalLib = bundleReader.getEntry(bundleJar, "external:$user.home$/external-lib.jar");
+        assertNull(externalLib);
+    }
+
     public void testLoadManifestFromDir() throws Exception {
         File dir = new File("src/test/resources/bundlereader/dirshape");
         OsgiManifest manifest = bundleReader.loadManifest(dir);
