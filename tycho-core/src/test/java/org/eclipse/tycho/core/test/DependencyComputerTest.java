@@ -79,10 +79,10 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
 
         List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
         Assert.assertEquals(3, dependencies.size());
-        Assert.assertEquals("dep", dependencies.get(0).getBundleDescription().getSymbolicName());
-        Assert.assertEquals("dep2", dependencies.get(1).getBundleDescription().getSymbolicName());
-        Assert.assertEquals("dep3", dependencies.get(2).getBundleDescription().getSymbolicName());
-        Assert.assertTrue(dependencies.get(2).getRules().isEmpty());
+        Assert.assertEquals("dep", dependencies.get(0).desc.getSymbolicName());
+        Assert.assertEquals("dep2", dependencies.get(1).desc.getSymbolicName());
+        Assert.assertEquals("dep3", dependencies.get(2).desc.getSymbolicName());
+        Assert.assertTrue(dependencies.get(2).rules.isEmpty());
     }
 
     @Test
@@ -121,8 +121,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
 
         if (dependencies.size() > 0) {
             assertThat(dependencies.size(), is(1));
-            assertThat(dependencies.get(0).getBundleDescription().getSymbolicName(),
-                    is(Constants.SYSTEM_BUNDLE_SYMBOLICNAME));
+            assertThat(dependencies.get(0).desc.getSymbolicName(), is(Constants.SYSTEM_BUNDLE_SYMBOLICNAME));
         }
     }
 
@@ -136,8 +135,8 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         List<DependencyEntry> bundle1Dependencies = computeDependencies(bundle1Project);
         assertEquals(1, bundle1Dependencies.size());
         DependencyEntry dependency = bundle1Dependencies.get(0);
-        assertEquals(1, dependency.getRules().size());
-        assertEquals("javax/net/ssl/*", dependency.getRules().get(0).getPattern());
+        assertEquals(1, dependency.rules.size());
+        assertEquals("javax/net/ssl/*", dependency.rules.get(0).getPattern());
 
         // 2. bundle importing both a JRE package and an OSGi framework package
         MavenProject bundle2Project = basedirMap.get(new File(basedir, "bundle2"));
@@ -145,7 +144,7 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         assertEquals(1, bundle2Dependencies.size());
         DependencyEntry dependencyBundle2 = bundle2Dependencies.get(0);
         Set<String> accessRules = new HashSet<String>();
-        for (AccessRule rule : dependencyBundle2.getRules()) {
+        for (AccessRule rule : dependencyBundle2.rules) {
             accessRules.add(rule.getPattern());
         }
         assertEquals(new HashSet<String>(asList("javax/net/ssl/*", "org/osgi/framework/*")), accessRules);

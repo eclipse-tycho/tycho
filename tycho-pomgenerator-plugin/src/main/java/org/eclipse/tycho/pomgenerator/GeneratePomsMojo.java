@@ -554,7 +554,7 @@ public class GeneratePomsMojo extends AbstractMojo {
                 if (bundle != null) {
                     for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(
                             state.getStateHelper(), bundle)) {
-                        BundleDescription supplier = entry.getBundleDescription();
+                        BundleDescription supplier = entry.desc;
                         File suppliedDir = new File(supplier.getLocation());
                         if (supplier.getHost() == null && isModuleDir(suppliedDir)) {
                             addPlugin(result, suppliedDir.getName());

@@ -13,7 +13,6 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -51,27 +50,12 @@ public class DependencyComputer {
     private BundleReader manifestReader;
 
     public static class DependencyEntry {
-        private final BundleDescription desc;
-        private final List<AccessRule> rules;
+        public final BundleDescription desc;
+        public final List<AccessRule> rules;
 
-        public DependencyEntry(BundleDescription bundleDesription, List<AccessRule> accessRules) {
-            if (bundleDesription == null) {
-                throw new NullPointerException("bundleDescription must not be null");
-            }
-            if (accessRules == null) {
-                throw new NullPointerException("accessRules must not be null");
-            }
-            this.desc = bundleDesription;
-            this.rules = accessRules;
-        }
-
-        public BundleDescription getBundleDescription() {
-            return desc;
-        }
-
-        public List<AccessRule> getRules() {
-            return rules;
-
+        public DependencyEntry(BundleDescription desc, List<AccessRule> rules) {
+            this.desc = desc;
+            this.rules = rules;
         }
 
         public boolean equals(Object obj) {
@@ -222,7 +206,7 @@ public class DependencyComputer {
 
     private boolean addPlugin(BundleDescription desc, boolean useInclusions,
             Map<BundleDescription, ArrayList<AccessRule>> map, ArrayList<DependencyEntry> entries) {
-        List<AccessRule> rules = useInclusions ? getInclusions(map, desc) : Collections.<AccessRule> emptyList();
+        List<AccessRule> rules = useInclusions ? getInclusions(map, desc) : null;
         DependencyEntry entry = new DependencyEntry(desc, rules);
         if (!entries.contains(entry))
             entries.add(entry);

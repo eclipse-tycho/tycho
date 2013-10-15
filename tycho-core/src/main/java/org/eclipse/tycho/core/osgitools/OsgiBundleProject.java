@@ -179,18 +179,15 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<AccessRule>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
         for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
-            final BundleDescription dependencyBundleDesription = entry.getBundleDescription();
-            final List<AccessRule> accessRules = entry.getRules();
-            if (EquinoxResolver.SYSTEM_BUNDLE_ID == dependencyBundleDesription.getBundleId()) {
-                strictBootClasspathAccessRules.addAll(accessRules);
-                if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(dependencyBundleDesription.getSymbolicName())) {
+            if (EquinoxResolver.SYSTEM_BUNDLE_ID == entry.desc.getBundleId()) {
+                strictBootClasspathAccessRules.addAll(entry.rules);
+                if (EquinoxResolver.SYSTEM_BUNDLE_SYMBOLIC_NAME.equals(entry.desc.getSymbolicName())) {
                     // synthetic system.bundle has no filesystem location
                     continue;
                 }
             }
-            File location = new File(dependencyBundleDesription.getLocation());
-            ArtifactDescriptor otherArtifact = getArtifact(artifacts, location,
-                    dependencyBundleDesription.getSymbolicName());
+            File location = new File(entry.desc.getLocation());
+            ArtifactDescriptor otherArtifact = getArtifact(artifacts, location, entry.desc.getSymbolicName());
             ReactorProject otherProject = otherArtifact.getMavenProject();
             List<File> locations;
             if (otherProject != null) {
@@ -199,11 +196,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 locations = getBundleClasspath(otherArtifact);
             }
 
-            if (locations.isEmpty() && !accessRules.isEmpty()) {
+            if (locations.isEmpty() && !entry.rules.isEmpty()) {
                 getLogger().warn("Empty classpath of required bundle " + otherArtifact);
             }
 
-            classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, accessRules));
+            classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
         }
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
 
