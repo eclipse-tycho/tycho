@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>p1</module>
-    <module>p1.test</module>
+    <module>p1.test</module> <!-- eclipse-test-plugin which is a fragment of p1 (cf. MNGECLIPSE-902) -->
   </modules>
   <build>
     <plugins>

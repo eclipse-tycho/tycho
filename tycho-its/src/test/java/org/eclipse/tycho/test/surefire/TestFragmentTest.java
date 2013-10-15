@@ -8,19 +8,20 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test;
+package org.eclipse.tycho.test.surefire;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class MNGECLIPSE902Test extends AbstractTychoIntegrationTest {
+public class TestFragmentTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("MNGECLIPSE902");
+        Verifier verifier = getVerifier("surefire.testFragment");
 
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();

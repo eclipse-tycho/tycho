@@ -14,13 +14,12 @@ Contributors:
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.eclipse.tycho.tycho-its</groupId>
+		<groupId>tycho-its-project.surefire.p2InstalledRuntime</groupId>
 		<artifactId>provisionedApplicationParent</artifactId>
 		<version>1.0.0</version>
 	</parent>
 
-	<artifactId>example-feature</artifactId>
-	
+	<artifactId>spir.example-feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 
 </project>

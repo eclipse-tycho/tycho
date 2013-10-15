@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.tycho32;
+package org.eclipse.tycho.test.surefire;
 
 import java.io.File;
 
@@ -17,11 +17,11 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TYCHO32Test extends AbstractTychoIntegrationTest {
+public class JVMArgsTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("TYCHO32");
+        Verifier verifier = getVerifier("surefire.jvmArgs");
 
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
