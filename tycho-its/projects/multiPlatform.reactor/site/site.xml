@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/mpr.feature_0.0.0.jar" id="mpr.feature" version="0.0.0"/>
+</site>
