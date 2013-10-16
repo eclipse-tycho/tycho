@@ -21,7 +21,7 @@
 		<version>1.0.0</version>
 	</parent>
 
-	<artifactId>testProvisionedApplication</artifactId>
+	<artifactId>spir.extProductTest</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
 	<properties>

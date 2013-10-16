@@ -50,14 +50,14 @@
 			<!-- scenario 1: provision and test a product -->
 			<id>provisionProduct</id>
 			<modules>
-				<module>testProvisionApplication</module>
+				<module>productTest</module>
 			</modules>
 		</profile>
 		<profile>
 			<!-- scenario 2: run tests on top of a previously provisioned product -->
 			<id>useProvisionedProduct</id>
 			<modules>
-				<module>testProvisionedApplication</module>
+				<module>extProductTest</module>
 			</modules>
 		</profile>
 	</profiles>
