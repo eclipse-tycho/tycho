@@ -92,6 +92,31 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
     @Requirement
     private Logger logger;
 
+    private static enum DirtyBehavior {
+
+        ERROR, WARNING, IGNORE;
+
+        public static DirtyBehavior getDirtyWorkingTreeBehaviour(MojoExecution execution) {
+            Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
+            Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild("jgit.dirtyWorkingTree");
+            final DirtyBehavior defaultBehaviour = ERROR;
+            if (dirtyWorkingTreeDom == null) {
+                return defaultBehaviour;
+            }
+            String value = dirtyWorkingTreeDom.getValue();
+            if (value == null) {
+                return defaultBehaviour;
+            }
+            value = value.trim();
+            if ("warning".equals(value)) {
+                return WARNING;
+            } else if ("ignore".equals(value)) {
+                return IGNORE;
+            }
+            return defaultBehaviour;
+        }
+    }
+
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution)
             throws MojoExecutionException {
         FileRepositoryBuilder builder = new FileRepositoryBuilder() //
@@ -104,27 +129,30 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                 String relPath = getRelPath(repository, project);
                 TreeFilter pathFilter = createPathFilter(relPath, execution);
                 ObjectId headId = repository.resolve(Constants.HEAD);
-                // 1. check if 'git status' is clean for relPath
-                IndexDiff diff = new IndexDiff(repository, headId, new FileTreeIterator(repository));
-                if (pathFilter != null) {
-                    diff.setFilter(pathFilter);
-                }
-                diff.diff();
-                Status status = new Status(diff);
-                if (!status.isClean()) {
-                    String message = "Working tree is dirty.\ngit status " + (relPath != null ? relPath : "") + ":\n"
-                            + toGitStatusStyleOutput(diff);
-                    if (warnOnlyOnDirtyWorkingTree(execution)) {
-                        logger.warn(message);
-                        logger.warn("Fallback to default timestamp provider");
-                        return defaultTimestampProvider.getTimestamp(session, project, execution);
-                    } else {
-                        throw new MojoExecutionException(
-                                message
-                                        + "\n"
-                                        + "You are trying to use tycho-buildtimestamp-jgit on a directory that has uncommitted changes (see details above)."
-                                        + "\nEither commit all changes, or enable fallback to default timestamp provider by configuring "
-                                        + "\njgit.dirtyWorkingTree=warning for tycho-packaging-plugin");
+                DirtyBehavior dirtyBehaviour = DirtyBehavior.getDirtyWorkingTreeBehaviour(execution);
+                if (dirtyBehaviour != DirtyBehavior.IGNORE) {
+                    // 1. check if 'git status' is clean for relPath
+                    IndexDiff diff = new IndexDiff(repository, headId, new FileTreeIterator(repository));
+                    if (pathFilter != null) {
+                        diff.setFilter(pathFilter);
+                    }
+                    diff.diff();
+                    Status status = new Status(diff);
+                    if (!status.isClean()) {
+                        String message = "Working tree is dirty.\ngit status " + (relPath != null ? relPath : "")
+                                + ":\n" + toGitStatusStyleOutput(diff);
+                        if (dirtyBehaviour == DirtyBehavior.WARNING) {
+                            logger.warn(message);
+                            logger.warn("Fallback to default timestamp provider");
+                            return defaultTimestampProvider.getTimestamp(session, project, execution);
+                        } else {
+                            throw new MojoExecutionException(
+                                    message
+                                            + "\n"
+                                            + "You are trying to use tycho-buildtimestamp-jgit on a directory that has uncommitted changes (see details above)."
+                                            + "\nEither commit all changes/add files to .gitignore, or enable fallback to default timestamp provider by configuring "
+                                            + "\njgit.dirtyWorkingTree=warning for tycho-packaging-plugin");
+                        }
                     }
                 }
                 // 2. get latest commit for relPath
@@ -161,15 +189,6 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
             return null;
         }
         return ignoreDom.getValue();
-    }
-
-    private static boolean warnOnlyOnDirtyWorkingTree(MojoExecution execution) {
-        Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
-        Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild("jgit.dirtyWorkingTree");
-        if (dirtyWorkingTreeDom == null) {
-            return false;
-        }
-        return "warning".equals(dirtyWorkingTreeDom.getValue());
     }
 
     private String getRelPath(Repository repository, MavenProject project) throws IOException {
