@@ -45,6 +45,10 @@ import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     /**
+     * The output directory of the jar file
+     *
+     * By default this is the Maven "target/" directory.
+     *
      * @parameter expression="${project.build.directory}"
      * @required
      */
