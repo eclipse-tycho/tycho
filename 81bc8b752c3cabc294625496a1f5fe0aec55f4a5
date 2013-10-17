@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_438f9587",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/MavenDependencyInjector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-10-17T12:07:39Z",
+      "side": 1,
+      "message": "Tycho doesn\u0027t (and AFAIK never did) support POM dependency consider for system scope dependencies. Therefore, we could simply remove all system scope dependencies. This would fix bug 415774.\n\nSuch a code would however be wrong in this method (i.e. should be moved elsewhere). I\u0027m not particularly happy about the architecture of the POM dependency stuff in the P2TargetPlatformResolver code, but I also don\u0027t know how to improve it. Attempting to write a unit test for this (on the Maven classloader side) would probably help. If this is too much effort, we could also just extend one of the integration tests.",
+      "revId": "81bc8b752c3cabc294625496a1f5fe0aec55f4a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_03ae2df1",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/MavenDependencyInjector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-10-17T12:07:39Z",
+      "side": 1,
+      "message": "BTW, this is also questionable. This code implies that the dependencies use the groupId like cached p2 artifacts. However, this code results in a groupId \"p2.eclipse-plugin\", whereas the corresponding artifact would be cached at the groupId \"p2.osgi.bundle\"",
+      "revId": "81bc8b752c3cabc294625496a1f5fe0aec55f4a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_e333417b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/MavenDependencyInjector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-10-17T12:07:39Z",
+      "side": 1,
+      "message": "Using the p2 prefix here seems wrong. In the example project, the referenced artifact is a jar from the project sources, so this is unrelated to p2.",
+      "revId": "81bc8b752c3cabc294625496a1f5fe0aec55f4a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
