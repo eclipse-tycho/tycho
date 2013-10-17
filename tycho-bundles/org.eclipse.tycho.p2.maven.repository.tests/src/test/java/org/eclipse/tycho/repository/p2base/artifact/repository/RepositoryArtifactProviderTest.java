@@ -43,6 +43,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent;
 import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProviderTestBase;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
@@ -131,7 +132,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
 
     @Test
     public void testGetArtifactWithSomeMirrorFailures() throws Exception {
-        IArtifactRepository failingMirrorsRepository = mock(IArtifactRepository.class);
+        IArtifactRepository failingMirrorsRepository = createArtifactRepositoryMock();
         when(failingMirrorsRepository.contains(BUNDLE_A_KEY)).thenReturn(true);
         when(failingMirrorsRepository.getArtifactDescriptors(BUNDLE_A_KEY)).thenReturn(
                 new IArtifactDescriptor[] { canonicalDescriptorFor(BUNDLE_A_KEY) });
@@ -153,7 +154,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
 
     @Test
     public void testGetArtifactWithInfiniteMirrorFailures() throws Exception {
-        IArtifactRepository failingMirrorsRepository = mock(IArtifactRepository.class);
+        IArtifactRepository failingMirrorsRepository = createArtifactRepositoryMock();
         when(failingMirrorsRepository.contains(BUNDLE_A_KEY)).thenReturn(true);
         when(failingMirrorsRepository.getArtifactDescriptors(BUNDLE_A_KEY)).thenReturn(
                 new IArtifactDescriptor[] { canonicalDescriptorFor(BUNDLE_A_KEY) });
@@ -167,6 +168,17 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
         status = subject.getArtifact(testSink, null); // should give up if all mirrors fail
 
         assertThat(status, is(errorStatus()));
+    }
+
+    private static IArtifactRepository createArtifactRepositoryMock() {
+        /*
+         * Create an IArtifactRepository mock instance with the default implementation of
+         * org.eclipse.equinox.p2.repository.artifact.IArtifactRepository.getArtifacts(
+         * IArtifactRequest[], IProgressMonitor)
+         */
+        IArtifactRepository partialMock = mock(AbstractArtifactRepository2.class);
+        when(partialMock.getArtifacts(any(IArtifactRequest[].class), any(IProgressMonitor.class))).thenCallRealMethod();
+        return partialMock;
     }
 
     private static IStatus errorWithRetry(String message) {

@@ -31,6 +31,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactProviderBaseImpl;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
@@ -145,14 +146,49 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         IArtifactDescriptor[] allFormats = repository.getArtifactDescriptors(sink.getArtifactToBeWritten());
         List<IArtifactDescriptor> formatsByPreference = transferPolicy.sortFormatsByPreference(allFormats);
 
-        return getArtifactFromAnyMirror(formatsByPreference, repository, sink, statusCollector, monitor);
+        return getArtifactFromAnyChildRepository(formatsByPreference, repository, sink, statusCollector, monitor);
     }
 
-    private boolean getArtifactFromAnyMirror(List<IArtifactDescriptor> availableDescriptors,
-            IArtifactRepository repository, IArtifactSink sink, List<IStatus> statusCollector, IProgressMonitor monitor)
-            throws ArtifactSinkException {
+    private boolean getArtifactFromAnyChildRepository(final List<IArtifactDescriptor> availableDescriptors,
+            IArtifactRepository repository, final IArtifactSink sink, final List<IStatus> statusCollector,
+            IProgressMonitor monitor) throws ArtifactSinkException {
 
-        for (RetryTracker retryTracker = new RetryTracker(); retryTracker.canRetry(); retryTracker.increment()) {
+        /**
+         * Composite p2 repositories will execute this request for each child repository which
+         * contain the artifact key (until successful). Using the getArtifacts method instead of
+         * getArtifact directly prevents that composite repositories mark their children as bad when
+         * the transfer of a broken pack200 artifact fails (cf. bug 412945).
+         */
+        BooleanStatusArtifactRequest request = new BooleanStatusArtifactRequest(sink.getArtifactToBeWritten()) {
+            private final RetryTracker retryTracker = new RetryTracker();
+
+            public void perform(IArtifactRepository childRepository, IProgressMonitor monitor) {
+                try {
+                    boolean artifactWasRead = getArtifactFromAnyMirror(availableDescriptors, childRepository, sink,
+                            statusCollector, retryTracker, monitor);
+                    if (artifactWasRead) {
+                        this.markSuccessful();
+                    }
+                } catch (ArtifactSinkException e) {
+                    throw new ArtifactSinkExceptionWrapper(e);
+                }
+            }
+        };
+
+        try {
+            repository.getArtifacts(new IArtifactRequest[] { request }, monitor);
+        } catch (ArtifactSinkExceptionWrapper e) {
+            throw e.getWrappedException();
+        }
+
+        return request.wasSuccessful();
+    }
+
+    private boolean getArtifactFromAnyMirror(final List<IArtifactDescriptor> availableDescriptors,
+            IArtifactRepository repository, final IArtifactSink sink, final List<IStatus> statusCollector,
+            RetryTracker retryTracker, IProgressMonitor monitor) throws ArtifactSinkException {
+
+        for (; retryTracker.canRetry(); retryTracker.increment()) {
             boolean artifactWasRead = getArtifactFromOneMirror(availableDescriptors, repository, sink, statusCollector,
                     retryTracker, monitor);
             if (artifactWasRead)
@@ -275,6 +311,50 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
 
         void noMoreRetries() {
             remaining = 0;
+        }
+    }
+
+    private static abstract class BooleanStatusArtifactRequest implements IArtifactRequest {
+        private final IArtifactKey key;
+        private boolean successful = false;
+
+        public BooleanStatusArtifactRequest(IArtifactKey key) {
+            this.key = key;
+        }
+
+        public final IArtifactKey getArtifactKey() {
+            return key;
+        }
+
+        protected void markSuccessful() {
+            successful = true;
+        }
+
+        public boolean wasSuccessful() {
+            return successful;
+        }
+
+        public IStatus getResult() {
+            if (successful) {
+                return Status.OK_STATUS;
+            } else {
+                // actual status messages are tracked separately
+                return new Status(IStatus.ERROR, BUNDLE_ID, "failure marker");
+            }
+        }
+
+    }
+
+    @SuppressWarnings("serial")
+    private static class ArtifactSinkExceptionWrapper extends RuntimeException {
+        private ArtifactSinkException wrappedException;
+
+        public ArtifactSinkExceptionWrapper(ArtifactSinkException wrappedException) {
+            this.wrappedException = wrappedException;
+        }
+
+        public ArtifactSinkException getWrappedException() {
+            return wrappedException;
         }
     }
 
