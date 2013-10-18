@@ -54,6 +54,10 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     /**
+     * The output directory of the jar file
+     *
+     * By default this is the Maven "target/" directory.
+     *
      * @parameter expression="${project.build.directory}"
      */
     private File outputDirectory;
