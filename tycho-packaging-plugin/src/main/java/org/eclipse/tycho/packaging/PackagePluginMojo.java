@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -201,7 +202,6 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             }
             // 2. handle nested jars and included resources
             checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
-            archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
 
             if (additionalFileSets != null) {
                 for (DefaultFileSet fileSet : additionalFileSets) {
@@ -210,6 +210,8 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                     }
                 }
             }
+            archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
+
             File manifest = updateManifest();
             if (manifest.exists()) {
                 archive.setManifestFile(manifest);
