@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: testbundle.bug415774
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.junit,
+ bundle.bug415774
+

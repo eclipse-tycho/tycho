@@ -50,6 +50,10 @@ public class PomDependencyProcessor {
         result.setProjectLocation(project.getBasedir());
 
         for (Artifact artifact : transitivePomDependencies) {
+            if (Artifact.SCOPE_SYSTEM.equals(artifact.getScope())) {
+                // ignore
+                continue;
+            }
             P2DataArtifacts p2Data = new P2DataArtifacts(artifact);
             p2Data.resolve(session, project.getRemoteArtifactRepositories());
 

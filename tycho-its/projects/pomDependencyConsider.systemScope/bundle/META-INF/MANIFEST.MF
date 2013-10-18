@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle.bug415774
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: lib/test.jar

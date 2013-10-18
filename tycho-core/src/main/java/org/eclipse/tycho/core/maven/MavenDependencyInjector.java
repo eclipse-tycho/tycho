@@ -13,7 +13,6 @@ package org.eclipse.tycho.core.maven;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,25 +47,6 @@ public final class MavenDependencyInjector {
         for (ArtifactDescriptor artifact : dependencies.getArtifacts()) {
             generator.addDependency(artifact);
         }
-    }
-
-    /**
-     * Filters out the system scope artifacts added through this class.
-     * 
-     * @param artifacts
-     *            the list of the resolved artifacts of a project which may have dependencies
-     *            injected by this class
-     * @return the list of artifacts required by non-injected POM dependencies.
-     */
-    public static List<Artifact> filterInjectedDependencies(Collection<? extends Artifact> artifacts) {
-        List<Artifact> filteredArtifacts = new ArrayList<Artifact>();
-        for (Artifact artifact : artifacts) {
-            if (artifact.getGroupId().startsWith(P2_GROUPID_PREFIX) && artifact.getScope() == Artifact.SCOPE_SYSTEM)
-                continue; // came through injected dependency -> remove
-            else
-                filteredArtifacts.add(artifact);
-        }
-        return filteredArtifacts;
     }
 
     private static final List<Dependency> NO_DEPENDENCIES = Collections.emptyList();

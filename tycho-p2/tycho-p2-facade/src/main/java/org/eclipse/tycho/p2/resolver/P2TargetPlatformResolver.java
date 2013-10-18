@@ -305,10 +305,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
             externalArtifacts.add(artifact);
         }
-        List<Artifact> explicitArtifacts = MavenDependencyInjector.filterInjectedDependencies(externalArtifacts); // needed when the resolution is done again for the test runtime
         PomDependencyProcessor pomDependencyProcessor = new PomDependencyProcessor(session, repositorySystem,
                 resolverFactory, equinox.getService(LocalRepositoryP2Indices.class), getLogger());
-        return pomDependencyProcessor.collectPomDependencies(project, explicitArtifacts);
+        return pomDependencyProcessor.collectPomDependencies(project, externalArtifacts);
     }
 
     private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
