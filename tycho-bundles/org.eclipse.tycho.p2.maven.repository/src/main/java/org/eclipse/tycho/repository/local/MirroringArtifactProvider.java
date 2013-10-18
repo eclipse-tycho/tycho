@@ -33,6 +33,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTra
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 /**
@@ -60,7 +61,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     protected final IRawArtifactProvider remoteProviders;
     protected final LocalArtifactRepository localArtifactRepository;
 
-    protected final IProgressMonitor monitor = null; // TODO log via progress monitor (so that the remote URL is shown)?
+    protected final IProgressMonitor monitor;
 
     /**
      * Creates a new {@link MirroringArtifactProvider} instance.
@@ -92,6 +93,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         this.localArtifactRepository = localArtifactRepository;
         this.logger = logger;
         this.splittingLogger = new MultiLineLogger(logger);
+        this.monitor = new LoggingProgressMonitor(new ProgressCleaningLogger(logger));
     }
 
     // pass through methods
@@ -207,7 +209,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     protected final void downloadArtifact(IArtifactKey key) throws MirroringFailedException, ProvisionException,
             ArtifactSinkException {
 
-        logger.info("Downloading " + key.getId() + "_" + key.getVersion() + "...");
+//        logger.info("Downloading " + key.getId() + "_" + key.getVersion() + "..."); // p2 output is enough
         IStatus transferStatus = downloadMostSpecificNeededFormatOfArtifact(key);
 
         if (transferStatus.matches(IStatus.ERROR | IStatus.CANCEL)) {
