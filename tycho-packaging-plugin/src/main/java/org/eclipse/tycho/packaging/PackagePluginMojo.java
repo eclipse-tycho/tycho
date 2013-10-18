@@ -46,9 +46,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     /**
      * The output directory of the jar file
-     *
+     * 
      * By default this is the Maven "target/" directory.
-     *
+     * 
      * @parameter expression="${project.build.directory}"
      * @required
      */
@@ -65,7 +65,8 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     /**
      * Additional files to be included in the bundle jar. This can be used when
-     * <tt>bin.includes</tt> in build.properties is not flexible enough , e.g. for generated files.<br/>
+     * <tt>bin.includes</tt> in build.properties is not flexible enough , e.g. for generated files.
+     * If conflicting, additional files win over <tt>bin.includes</tt><br/>
      * Example:<br/>
      * 
      * <pre>
@@ -188,9 +189,16 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             BuildProperties buildProperties = pdeProject.getBuildProperties();
             List<String> binIncludesList = buildProperties.getBinIncludes();
             List<String> binExcludesList = buildProperties.getBinExcludes();
-
+            // 1. additional filesets should win over bin.includes, so we add them first
+            if (additionalFileSets != null) {
+                for (DefaultFileSet fileSet : additionalFileSets) {
+                    if (fileSet.getDirectory() != null && fileSet.getDirectory().isDirectory()) {
+                        archiver.getArchiver().addFileSet(fileSet);
+                    }
+                }
+            }
             List<String> binIncludesIgnoredForValidation = new ArrayList<String>();
-            // 1. handle dir classpath entries and "."            
+            // 2. handle dir classpath entries and "."
             for (BuildOutputJar outputJar : pdeProject.getOutputJarMap().values()) {
                 String jarName = outputJar.getName();
                 if (binIncludesList.contains(jarName) && outputJar.isDirClasspathEntry()) {
@@ -199,17 +207,10 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                     archiver.getArchiver().addDirectory(outputJar.getOutputDirectory(), prefix);
                 }
             }
-            // 2. handle nested jars and included resources
+            // 3. handle nested jars and included resources
             checkBinIncludesExist(buildProperties, binIncludesIgnoredForValidation.toArray(new String[0]));
             archiver.getArchiver().addFileSet(getFileSet(project.getBasedir(), binIncludesList, binExcludesList));
 
-            if (additionalFileSets != null) {
-                for (DefaultFileSet fileSet : additionalFileSets) {
-                    if (fileSet.getDirectory() != null && fileSet.getDirectory().isDirectory()) {
-                        archiver.getArchiver().addFileSet(fileSet);
-                    }
-                }
-            }
             File manifest = updateManifest();
             if (manifest.exists()) {
                 archive.setManifestFile(manifest);
