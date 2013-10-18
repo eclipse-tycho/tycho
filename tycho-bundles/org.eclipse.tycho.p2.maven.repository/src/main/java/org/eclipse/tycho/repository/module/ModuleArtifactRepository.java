@@ -36,7 +36,6 @@ import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.module.ModuleArtifactRepository.ModuleArtifactDescriptor;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
-import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositoryBaseImpl;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
@@ -261,19 +260,6 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
             return new ModuleArtifactDescriptor(loadedDescriptor, mavenCoordinates);
 
         } else {
-            /*
-             * TODO This is a hack. The proper solution is to publish bundles&packed bundles into
-             * the repository returned by PublishingRepository.getArtifactRepositoryForWriting,
-             * which allows to set the the Maven coordinates while publishing. (The integration test
-             * RepositoryPackedArtifactsTest failed without this hack.)
-             */
-            if (ArtifactTransferPolicy.isPack200Format(loadedDescriptor)) {
-                MavenRepositoryCoordinates guessedPack200Coordinates = new MavenRepositoryCoordinates(moduleGAV,
-                        RepositoryLayoutHelper.PACK200_CLASSIFIER, RepositoryLayoutHelper.PACK200_EXTENSION);
-                // TODO store GAV in properties; doesn't work while moduleGAV is null during construction
-                return new ModuleArtifactDescriptor(loadedDescriptor, guessedPack200Coordinates, false);
-            }
-
             throw failedReadException(sourceFile, "Maven coordinate properties are missing in artifact descriptor "
                     + loadedDescriptor, null);
         }
@@ -304,13 +290,6 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
         ModuleArtifactDescriptor(IArtifactDescriptor base, MavenRepositoryCoordinates mavenCoordinates) {
             super(base, mavenCoordinates, false); // Maven coordinates are copied from the base
-        }
-
-        // do not use; only needed for a workaround
-        @Deprecated
-        private ModuleArtifactDescriptor(IArtifactDescriptor base, MavenRepositoryCoordinates mavenCoordinates,
-                boolean setProperties) {
-            super(base, mavenCoordinates, setProperties);
         }
 
         ModuleArtifactDescriptor(IArtifactKey p2Key, MavenRepositoryCoordinates mavenCoordinates) {
