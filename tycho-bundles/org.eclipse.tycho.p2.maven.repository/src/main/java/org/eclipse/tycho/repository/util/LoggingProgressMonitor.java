@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.repository.util;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.tycho.core.facade.MavenLogger;

@@ -42,7 +42,6 @@ import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
-import org.eclipse.tycho.p2.impl.resolver.LoggingProgressMonitor;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
@@ -63,6 +62,7 @@ import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtif
 import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
+import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
