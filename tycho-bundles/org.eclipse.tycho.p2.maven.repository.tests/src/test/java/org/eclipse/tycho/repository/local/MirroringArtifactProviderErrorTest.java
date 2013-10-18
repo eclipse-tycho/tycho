@@ -78,7 +78,6 @@ public class MirroringArtifactProviderErrorTest {
 
         assertMirrored(ARTIFACT_ONLY_PACK200_CORRUPT);
 
-        logVerifier.expectInfo("Downloading " + ARTIFACT_ONLY_PACK200_CORRUPT.getId());
         logVerifier.expectWarning("Some attempts to read artifact " + ARTIFACT_ONLY_PACK200_CORRUPT + " failed");
     }
 
