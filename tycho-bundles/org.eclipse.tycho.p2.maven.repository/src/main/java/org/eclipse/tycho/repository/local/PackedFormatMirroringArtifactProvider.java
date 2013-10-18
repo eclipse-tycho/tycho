@@ -67,7 +67,7 @@ final class PackedFormatMirroringArtifactProvider extends MirroringArtifactProvi
             ArtifactSinkException {
         // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS
         IRawArtifactSink localSink = localArtifactRepository.newAddingRawArtifactSink(descriptor);
-        return remoteProviders.getRawArtifact(localSink, monitor);
+        return remoteProviders.getRawArtifact(localSink, monitorForDownload());
     }
 
 }
