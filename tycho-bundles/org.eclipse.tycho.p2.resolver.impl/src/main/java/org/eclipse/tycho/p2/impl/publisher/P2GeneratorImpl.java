@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
@@ -117,6 +119,16 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 if (result.containsKey(RepositoryLayoutHelper.PACK200_CLASSIFIER)) {
                     throw new IllegalArgumentException();
                 }
+                // workaround for bug 412497
+                Map<String, String> additionalProperties = new HashMap<String, String>(5);
+                additionalProperties.put(RepositoryLayoutHelper.PROP_GROUP_ID, artifact.getGroupId());
+                additionalProperties.put(RepositoryLayoutHelper.PROP_ARTIFACT_ID, artifact.getArtifactId());
+                additionalProperties.put(RepositoryLayoutHelper.PROP_VERSION, artifact.getVersion());
+                additionalProperties.put(RepositoryLayoutHelper.PROP_CLASSIFIER,
+                        RepositoryLayoutHelper.PACK200_CLASSIFIER);
+                additionalProperties.put(RepositoryLayoutHelper.PROP_EXTENSION,
+                        RepositoryLayoutHelper.PACK200_EXTENSION);
+                ((ArtifactDescriptor) packed).addProperties(additionalProperties);
                 result.put(RepositoryLayoutHelper.PACK200_CLASSIFIER,
                         new P2Artifact(packedLocation, Collections.<IInstallableUnit> emptySet(), packed));
             }
