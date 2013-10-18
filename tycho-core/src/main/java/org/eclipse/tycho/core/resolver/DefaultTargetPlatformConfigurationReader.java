@@ -182,23 +182,8 @@ public class DefaultTargetPlatformConfigurationReader {
 
         Xpp3Dom[] propertyDomList = propertiesDom.getChildren();
         for (Xpp3Dom propertyDom : propertyDomList) {
-            readProfileProperty(result, propertyDom);
+            result.addProfileProperty(propertyDom.getName(), propertyDom.getValue().trim());
         }
-
-    }
-
-    private void readProfileProperty(TargetPlatformConfiguration result, Xpp3Dom propertyDom) {
-        String config = getStringValue(propertyDom);
-        if (config != null) {
-            String[] configSegments = config.split("=");
-            if (configSegments.length == 2) {
-                result.addProfileProperty(configSegments[0], configSegments[1]);
-                return;
-            }
-        }
-        throw new IllegalArgumentException("Entry \"" + config
-                + "\" of the <profileProperties> dependency resolution parameter "
-                + "does not match the format \"key=value\"");
     }
 
     private void setExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
