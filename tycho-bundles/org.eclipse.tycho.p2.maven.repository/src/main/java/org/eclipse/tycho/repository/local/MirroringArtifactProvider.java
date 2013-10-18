@@ -33,6 +33,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTra
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 /**
@@ -60,7 +61,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     protected final IRawArtifactProvider remoteProviders;
     protected final LocalArtifactRepository localArtifactRepository;
 
-    protected final IProgressMonitor monitor = null; // TODO log via progress monitor (so that the remote URL is shown)?
+    protected final IProgressMonitor monitor;
 
     /**
      * Creates a new {@link MirroringArtifactProvider} instance.
@@ -92,6 +93,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         this.localArtifactRepository = localArtifactRepository;
         this.logger = logger;
         this.splittingLogger = new MultiLineLogger(logger);
+        this.monitor = new LoggingProgressMonitor(logger);
     }
 
     // pass through methods
@@ -207,7 +209,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     protected final void downloadArtifact(IArtifactKey key) throws MirroringFailedException, ProvisionException,
             ArtifactSinkException {
 
-        logger.info("Downloading " + key.getId() + "_" + key.getVersion() + "...");
+//        logger.info("Downloading " + key.getId() + "_" + key.getVersion() + "..."); // p2 output is enough
         IStatus transferStatus = downloadMostSpecificNeededFormatOfArtifact(key);
 
         if (transferStatus.matches(IStatus.ERROR | IStatus.CANCEL)) {
@@ -230,7 +232,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
             ArtifactSinkException {
         // TODO 397355 ignore ProvisionException.ARTIFACT_EXISTS - artifact may have been added by other thread in the meantime
         IArtifactSink localSink = localArtifactRepository.newAddingArtifactSink(key);
-        return remoteProviders.getArtifact(localSink, monitor);
+        return remoteProviders.getArtifact(localSink, monitorForDownload());
     }
 
     private void ensureArtifactIsPresentInCanonicalFormat(IArtifactKey key) throws ProvisionException,
@@ -272,6 +274,15 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     private static IStatus artifactNotFoundStatus(IArtifactKey key) {
         return new Status(IStatus.ERROR, BUNDLE_ID, ProvisionException.ARTIFACT_NOT_FOUND, "Artifact " + key
                 + " is neither available in the local Maven repository nor in the configured remote repositories", null);
+    }
+
+    /**
+     * Returns an {@link IProgressMonitor} which translates p2's status updates into a reasonable
+     * log output.
+     */
+    final IProgressMonitor monitorForDownload() {
+        // create a new instance for each call - ProgressCleaningLogger is not thread-safe
+        return new LoggingProgressMonitor(new ProgressCleaningLogger(logger));
     }
 
     private static IProgressMonitor nonNull(IProgressMonitor monitor) {
