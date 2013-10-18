@@ -90,7 +90,7 @@ public class RemoteAgent implements IProvisioningAgent {
         // wrap metadata repository manager
         IMetadataRepositoryManager plainMetadataRepoManager = agent.getService(IMetadataRepositoryManager.class);
         IMetadataRepositoryManager remoteMetadataRepoManager = new RemoteMetadataRepositoryManager(
-                plainMetadataRepoManager, loadingHelper);
+                plainMetadataRepoManager, loadingHelper, logger);
         agent.registerService(IMetadataRepositoryManager.class, remoteMetadataRepoManager);
 
         // wrap artifact repository manager

@@ -24,15 +24,19 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.core.facade.MavenLogger;
 
 class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
     private final IMetadataRepositoryManager delegate;
     private final RemoteRepositoryLoadingHelper loadingHelper;
+    private final MavenLogger logger;
 
-    RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, RemoteRepositoryLoadingHelper loadingHelper) {
+    RemoteMetadataRepositoryManager(IMetadataRepositoryManager delegate, RemoteRepositoryLoadingHelper loadingHelper,
+            MavenLogger logger) {
         this.delegate = delegate;
         this.loadingHelper = loadingHelper;
+        this.logger = logger;
     }
 
     private URI translate(URI location) {
@@ -61,13 +65,17 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
     private void failIfRepositoryContainsPartialIUs(IMetadataRepository repository, URI effectiveLocation)
             throws ProvisionException {
         IQueryResult<IInstallableUnit> allUnits = repository.query(QueryUtil.ALL_UNITS, null);
+        boolean hasPartialIUs = false;
         for (IInstallableUnit unit : allUnits.toUnmodifiableSet()) {
-            if (Boolean.valueOf(unit.getProperty(IInstallableUnit.PROP_PARTIAL_IU)) == true) {
-                String message = "The p2 repository at "
-                        + effectiveLocation
-                        + " contains units from an old style update site which cannot be used for dependency resolution";
-                throw new ProvisionException(message);
+            if (Boolean.valueOf(unit.getProperty(IInstallableUnit.PROP_PARTIAL_IU))) {
+                hasPartialIUs = true;
+                logger.debug("Partial IU: " + unit.getId());
             }
+        }
+        if (hasPartialIUs) {
+            String message = "The p2 repository at " + effectiveLocation
+                    + " contains units from an old style update site which cannot be used for dependency resolution";
+            throw new ProvisionException(message);
         }
     }
 
