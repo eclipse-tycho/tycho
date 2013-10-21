@@ -11,10 +11,13 @@
 package org.eclipse.tycho.p2.target;
 
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
+import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.MAIN_BUNDLE;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V1;
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V2;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unit;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -70,6 +73,7 @@ public class TargetPlatformFactoryTest {
         subject = new TestResolverFactory(logVerifier.getLogger()).getTargetPlatformFactoryImpl();
 
         tpConfig = new TargetPlatformConfigurationStub();
+        tpConfig.setEnvironments(Collections.singletonList(new TargetEnvironment(null, null, null))); // dummy value for target file resolution
     }
 
     @Test
@@ -185,6 +189,22 @@ public class TargetPlatformFactoryTest {
     }
 
     @Test
+    public void testTargetFileCannotContributeOtherVersionsOfUnitsProducedByReactor() {
+        tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1_AND_V2, MAIN_BUNDLE));
+
+        // reactor artifact produces a unit with same ID
+        // TODO make produced version more explicit
+        File projectRoot = new File("dummy");
+        IReactorArtifactFacade reactorArtifact = createReactorArtifact(projectRoot, MAIN_BUNDLE.getId(), null);
+        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                Collections.singletonList(reactorArtifact), null);
+
+        assertThat(platform.getInstallableUnits(), hasItem(unit(MAIN_BUNDLE.getId(), "1.0.2"))); // from reactor
+        assertThat(platform.getInstallableUnits(),
+                not(hasItem(unit(MAIN_BUNDLE.getId(), MAIN_BUNDLE.getVersion().toString())))); // from target file
+    }
+
+    @Test
     public void testIncludeLocalMavenRepo() throws Exception {
         TestResolverFactory factory = new TestResolverFactory(logVerifier.getLogger());
         LocalMetadataRepository localMetadataRepo = factory.getLocalMetadataRepository();
@@ -205,9 +225,6 @@ public class TargetPlatformFactoryTest {
 
     @Test
     public void testMultipleIndependentlyResolvedTargetFiles() throws Exception {
-        List<TargetEnvironment> env = Collections.singletonList(new TargetEnvironment(null, null, null));
-
-        tpConfig.setEnvironments(env);
         tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1, REFERENCED_BUNDLE_V1));
         tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V2, REFERENCED_BUNDLE_V2));
         P2TargetPlatform tp = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
@@ -220,6 +237,11 @@ public class TargetPlatformFactoryTest {
     private static TargetDefinition plannerTargetDefinition(TestRepositories repository, IVersionedId unit) {
         TargetDefinition.Location location = new TargetDefinitionResolverIncludeModeTests.PlannerLocationStub(
                 repository, unit);
+        return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
+    }
+
+    private static TargetDefinition targetDefinition(TestRepositories repository, IVersionedId unit) {
+        TargetDefinition.Location location = new TargetDefinitionResolverTest.LocationStub(repository, unit);
         return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
     }
 
