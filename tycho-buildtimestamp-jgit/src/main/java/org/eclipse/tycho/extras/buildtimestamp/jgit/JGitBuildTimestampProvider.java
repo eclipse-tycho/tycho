@@ -123,6 +123,9 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                 .readEnvironment() //
                 .findGitDir(project.getBasedir()) //
                 .setMustExist(true);
+        if (builder.getGitDir() == null) {
+            throw new MojoExecutionException("No git repository found searching upwards from " + project.getBasedir());
+        }
         try {
             Repository repository = builder.build();
             try {
