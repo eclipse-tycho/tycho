@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -449,7 +449,8 @@ public class SourceFeatureMojo extends AbstractMojo {
 
             String sourceId = featureRef.getId() + ".source";
 
-            P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, sourceId + ".feature.group",
+            // TODO 412416 either directly work on IUs (-> omit the "toResolutionResult" conversion), or ask for the Tycho artifact type ArtifactKey.TYPE_ECLIPSE_PLUGIN
+            P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, sourceId + ".feature.jar",
                     toStrictVersionRange(featureRef.getVersion()));
             if (result.getArtifacts().size() == 1) {
                 Entry entry = result.getArtifacts().iterator().next();
