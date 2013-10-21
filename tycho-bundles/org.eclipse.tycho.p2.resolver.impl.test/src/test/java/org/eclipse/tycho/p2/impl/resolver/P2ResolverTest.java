@@ -65,7 +65,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void basic() throws Exception {
+    public void testBasic() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
 
         File bundle = resourceFile("resolver/bundle01");
@@ -82,7 +82,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void siteConflictingDependenciesResolver() throws IOException {
+    public void testSiteConflictingDependenciesResolver() throws IOException {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
 
         File[] projects = new File[] { resourceFile("siteresolver/bundle342"), //
@@ -121,7 +121,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void duplicateInstallableUnit() throws Exception {
+    public void testDuplicateInstallableUnit() throws Exception {
         File projectLocation = resourceFile("duplicate-iu/featureA");
 
         addReactorProject(projectLocation, TYPE_ECLIPSE_FEATURE, "featureA");
@@ -136,7 +136,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void featureInstallableUnits() throws Exception {
+    public void testFeatureInstallableUnits() throws Exception {
         File feature = resourceFile("resolver/feature01");
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
         addReactorProject(feature, TYPE_ECLIPSE_FEATURE, artifactId);
@@ -152,7 +152,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void sourceBundle() throws Exception {
+    public void testSourceBundle() throws Exception {
         File feature = resourceFile("sourcebundles/feature01");
         String featureId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
         addReactorProject(feature, TYPE_ECLIPSE_FEATURE, featureId);
@@ -190,7 +190,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void eclipseRepository() throws Exception {
+    public void testEclipseRepository() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
         tpConfig.addP2Repository(resourceFile("repositories/launchers").toURI());
 
@@ -213,7 +213,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void bundleUsesSWT() throws Exception {
+    public void testBundleUsesSWT() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e361").toURI());
 
         File bundle = resourceFile("resolver/bundleUsesSWT");
@@ -233,7 +233,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void swt() throws Exception {
+    public void testSwt() throws Exception {
         File swt = resourceFile("resolver/swt/org.eclipse.swt");
         addReactorProject(swt, TYPE_ECLIPSE_PLUGIN, "org.eclipse.swt");
         File swtFragment = resourceFile("resolver/swt/swtFragment");
@@ -249,7 +249,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void swtFragment() throws Exception {
+    public void testSwtFragment() throws Exception {
         File swt = resourceFile("resolver/swt/org.eclipse.swt");
         addReactorProject(swt, TYPE_ECLIPSE_PLUGIN, "org.eclipse.swt");
         File swtFragment = resourceFile("resolver/swt/swtFragment");
@@ -268,7 +268,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void swtFragmentWithRemoteSWT() throws Exception {
+    public void testSwtFragmentWithRemoteSWT() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e361").toURI());
 
         File swtFragment = resourceFile("resolver/swt/swtFragment");
@@ -302,7 +302,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void reactorVsExternal() throws Exception {
+    public void testReactorVsExternal() throws Exception {
         tpConfig.addP2Repository(resourceFile("reactor-vs-external/extrepo").toURI());
 
         addReactorProject(resourceFile("reactor-vs-external/bundle01"), TYPE_ECLIPSE_PLUGIN,
@@ -325,7 +325,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void resolutionRestrictedEE() throws Exception {
+    public void testResolutionRestrictedEE() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 
         File bundle = resourceFile("resolver/bundle.bree");
@@ -347,7 +347,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void resolutionEE() throws Exception {
+    public void testResolutionEE() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/javax.xml").toURI());
 
         File bundle = resourceFile("resolver/bundle.bree");
@@ -368,7 +368,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void resolutionCustomEE() throws Exception {
+    public void testResolutionCustomEE() throws Exception {
         // repository containing both a bundle and the custom profile providing javax.activation;version="1.1.1"
         tpConfig.addP2Repository(resourceFile("repositories/custom-profile").toURI());
 
@@ -388,7 +388,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void featureMultienvP2Inf() throws Exception {
+    public void testFeatureMultienvP2Inf() throws Exception {
         List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
@@ -416,7 +416,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
-    public void productMultienvP2Inf() throws Exception {
+    public void testProductMultienvP2Inf() throws Exception {
         List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
