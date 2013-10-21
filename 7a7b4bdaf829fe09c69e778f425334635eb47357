@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_1f2c8ccf",
+        "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-10-21T09:46:25Z",
+      "side": 1,
+      "message": "What of this is artificial, and what would be the same in the real use case? Would you have a dependency to one (hard-coded) platform specific plugin, or would the platform also be configurable via a property?",
+      "revId": "7a7b4bdaf829fe09c69e778f425334635eb47357",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_5f5d744b",
+        "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-10-21T09:46:25Z",
+      "side": 1,
+      "message": "This doesn\u0027t contain win32 x86_64 artifacts, so this test wouldn\u0027t run on that platform.",
+      "revId": "7a7b4bdaf829fe09c69e778f425334635eb47357",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
