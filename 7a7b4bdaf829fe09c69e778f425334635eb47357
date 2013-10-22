@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_c41b70a4",
+        "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-10-22T09:42:46Z",
+      "side": 1,
+      "message": "An existing real use-case using hardcoded artifact, and dealing with profiles to workaround bug 394636: https://github.com/jbosstools/jbosstools-webservices/blob/master/tests/org.jboss.tools.ws.jaxrs.core.test/pom.xml\n\nA potential use-case to use a property is the support of tycho-surefire-plugin in some platform tests: https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d417026 . Those test require some platfrom specific artifacts. We could think of profiles to set the property, the same way as it is done in the example.",
+      "parentUuid": "8748d3a1_1f2c8ccf",
+      "revId": "7a7b4bdaf829fe09c69e778f425334635eb47357",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_5f5d744b",
         "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2013-10-21T09:46:25Z",
       "side": 1,
       "message": "This doesn\u0027t contain win32 x86_64 artifacts, so this test wouldn\u0027t run on that platform.",
+      "revId": "7a7b4bdaf829fe09c69e778f425334635eb47357",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_2415f46f",
+        "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-10-22T09:42:46Z",
+      "side": 1,
+      "message": "It also misses some other platforms. Which platforms need to be supported by integration tests? I can add the bundles for this platforms to the example repository.",
+      "parentUuid": "8748d3a1_5f5d744b",
       "revId": "7a7b4bdaf829fe09c69e778f425334635eb47357",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
