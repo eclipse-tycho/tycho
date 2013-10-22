@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_bbbf5ea6",
+        "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-10-22T14:25:43Z",
+      "side": 1,
+      "message": "Why does the org.jboss.tools.ws.jaxrs.core.test bundle require [1] the org.eclipse.jdt.launching.macosx bundle?\n\n[1] https://github.com/jbosstools/jbosstools-webservices/blob/master/tests/org.jboss.tools.ws.jaxrs.core.test/META-INF/MANIFEST.MF",
+      "parentUuid": "8748d3a1_c41b70a4",
+      "revId": "7a7b4bdaf829fe09c69e778f425334635eb47357",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_5f5d744b",
         "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
         "patchSetId": 3
