@@ -102,6 +102,21 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals("eclipse-update-site", model.getPackaging());
     }
 
+    public void testRepository() throws Exception {
+        File baseDir = getBasedir("projects/simple/p006");
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("groupId", "group-p006");
+        params.put("version", "1.0.0");
+        params.put("aggregator", Boolean.FALSE);
+        generate(baseDir, params);
+        Model model = readModel(baseDir, "pom.xml");
+
+        assertEquals("group-p006", model.getGroupId());
+        assertEquals("p006", model.getArtifactId());
+        assertEquals("1.0.0", model.getVersion());
+        assertEquals("eclipse-repository", model.getPackaging());
+    }
+
     public void testMultibase_1_2() throws Exception {
         File baseDir = getBasedir("projects/multibase");
         Map<String, Object> params = new HashMap<String, Object>();
@@ -138,7 +153,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals("pom", model.getPackaging());
 
         List modules = model.getModules();
-        assertEquals(5, modules.size());
+        assertEquals(6, modules.size());
 
         Model p002 = readModel(baseDir, "p002/pom.xml");
 

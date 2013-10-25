@@ -297,7 +297,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private boolean isProjectDir(File dir) {
-        return isPluginProject(dir) || isFeatureProject(dir) || isUpdateSiteProject(dir);
+        return isPluginProject(dir) || isFeatureProject(dir) || isUpdateSiteProject(dir) || isEclipseRepositoryProject(dir);
     }
 
     private void reorderModules(Model parent, File basedir, File testSuiteLocation) throws MojoExecutionException {
@@ -398,8 +398,14 @@ public class GeneratePomsMojo extends AbstractMojo {
         } else if (isFeatureProject(basedir)) {
             getLog().debug("Found feature PDE project " + toString(basedir));
             generateFeaturePom(parent, basedir);
+        } else if (isEclipseRepositoryProject(basedir)) {
+            getLog().debug("Found eclipse-repository PDE project " + toString(basedir));
+            generateEclipseRepositoryPom(parent, basedir);
         } else if (isUpdateSiteProject(basedir)) {
             getLog().debug("Found update site PDE project " + toString(basedir));
+            getLog().warn("Old style update site found for " + toString(basedir) +
+                    ". It is recommended you rename your site.xml to category.xml " +
+                    "and use packaging type eclipse-repository instead.");
             generateUpdateSitePom(parent, basedir);
         } else {
             getLog().debug("Not a PDE project " + toString(basedir));
@@ -410,6 +416,10 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private boolean isUpdateSiteProject(File dir) {
         return new File(dir, "site.xml").canRead();
+    }
+
+    private boolean isEclipseRepositoryProject(File dir) {
+        return new File(dir, "category.xml").canRead();
     }
 
     private boolean isFeatureProject(File dir) {
@@ -443,11 +453,38 @@ public class GeneratePomsMojo extends AbstractMojo {
         updateSites.put(basedir, parent);
     }
 
+    private void generateEclipseRepositoryPom(Model parent, File basedir) throws MojoExecutionException {
+        if (groupId == null) {
+            throw new MojoExecutionException(
+                    "groupId parameter is required to generate pom.xml for Eclipse Repository project " + basedir.getName());
+        }
+        if (version == null) {
+            throw new MojoExecutionException(
+                    "version parameter is required to generate pom.xml for Eclipse Repository project " + basedir.getName());
+        }
+
+        Model model = readPomTemplate("repository-pom.xml");
+        setParent(basedir, model, parent);
+        model.setGroupId(groupId);
+        model.setArtifactId(basedir.getName());
+        model.setVersion(version);
+        writePom(basedir, model);
+
+        updateSites.put(basedir, parent);
+    }
+
     private Set<File> getSiteFeaturesAndPlugins(File basedir) throws MojoExecutionException {
         try {
             Set<File> result = new LinkedHashSet<File>();
 
-            UpdateSite site = UpdateSite.read(new File(basedir, "site.xml"));
+            UpdateSite site;
+            File siteFile = new File(basedir, "site.xml");
+            File categoryFile = new File(basedir, "category.xml");
+            if (siteFile.exists()) {
+                site = UpdateSite.read(siteFile);
+            } else {
+                site = UpdateSite.read(categoryFile);
+            }
 
             for (FeatureRef feature : site.getFeatures()) {
                 addFeature(result, feature.getId());
