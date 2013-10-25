@@ -252,7 +252,7 @@ public class ProductConfiguration {
         private boolean useDefault = true;
 
         private ConfigIni(Element configIniElement) {
-            useDefault = "default".equals(configIniElement.getAttribute("use"));
+            useDefault = "default".equals(configIniElement.getAttributeValue("use"));
             linuxConfigIni = getOsSpecificConfigIni(configIniElement, "linux");
             macosxConfigIni = getOsSpecificConfigIni(configIniElement, "macosx");
             solarisConfigIni = getOsSpecificConfigIni(configIniElement, "solaris");

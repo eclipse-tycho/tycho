@@ -49,7 +49,7 @@ public class PropertiesComparator implements ContentsComparator {
                 continue;
             }
 
-            if (value != null ? !value.equals(value2) : value2 != null) {
+            if (!value.equals(value2)) {
                 result.put(name, new SimpleArtifactDelta("baseline='" + value + "' != reactor='" + value2 + "'"));
             }
         }

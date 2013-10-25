@@ -18,7 +18,7 @@ public class RepositoryBlackboardKey {
 
     // TODO p2 bug 347319 prevents using a special scheme, that will ensure that only our p2 repository factory load the blackboard key URIs  
     //public static String SCHEME = "registry";
-    public static String SCHEME = "file";
+    public static final String SCHEME = "file";
 
     private final URI uri;
 

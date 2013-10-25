@@ -28,14 +28,18 @@ public class DefaultClasspathEntry implements ClasspathEntry {
 
     public static class DefaultAccessRule implements AccessRule {
         private final String pattern;
-
         private final boolean discouraged;
 
         public DefaultAccessRule(String path, boolean discouraged) {
+            if (path == null) {
+                throw new NullPointerException();
+            }
+
             this.pattern = path;
             this.discouraged = discouraged;
         }
 
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
@@ -45,6 +49,15 @@ public class DefaultClasspathEntry implements ClasspathEntry {
             }
             AccessRule other = (AccessRule) obj;
             return isDiscouraged() == other.isDiscouraged() && getPattern().equals(other.getPattern());
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (discouraged ? 1231 : 1237);
+            result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
+            return result;
         }
 
         public String getPattern() {

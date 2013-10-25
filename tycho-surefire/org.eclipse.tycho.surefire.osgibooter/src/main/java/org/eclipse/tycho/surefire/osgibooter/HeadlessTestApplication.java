@@ -18,7 +18,7 @@ public class HeadlessTestApplication implements IPlatformRunnable {
 
     public Object run(Object object) throws Exception {
         String[] args = Platform.getCommandLineArgs();
-        return new Integer(OsgiSurefireBooter.run(args));
+        return Integer.valueOf(OsgiSurefireBooter.run(args));
     }
 
 }

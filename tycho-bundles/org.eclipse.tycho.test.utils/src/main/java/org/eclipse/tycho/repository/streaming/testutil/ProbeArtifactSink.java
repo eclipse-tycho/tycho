@@ -53,7 +53,7 @@ public class ProbeArtifactSink implements IArtifactSink {
     }
 
     public OutputStream beginWrite() {
-        if (committed == true) {
+        if (committed) {
             fail("Can not call beginWrite() after commitWrite()");
         }
         aborted = false;

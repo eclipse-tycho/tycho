@@ -21,10 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -190,12 +187,6 @@ public class PublisherServiceTest {
     private static MavenContext createMavenContext(MavenLogger mavenLogger) {
         MavenContext mavenContext = new MavenContextImpl(null, mavenLogger);
         return mavenContext;
-    }
-
-    private static void openFolderAndSleep(File folder) throws IOException {
-        Runtime.getRuntime().exec(new String[] { "explorer.exe", "/select," + folder.getAbsolutePath() });
-        System.out.println("Press ENTER to continue...");
-        new BufferedReader(new InputStreamReader(System.in)).readLine();
     }
 
 }
