@@ -38,6 +38,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -297,7 +298,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private boolean isProjectDir(File dir) {
-        return isPluginProject(dir) || isFeatureProject(dir) || isUpdateSiteProject(dir);
+        return isPluginProject(dir) || isFeatureProject(dir) || isUpdateSiteProject(dir) || isEclipseRepositoryProject(dir);
     }
 
     private void reorderModules(Model parent, File basedir, File testSuiteLocation) throws MojoExecutionException {
@@ -398,6 +399,9 @@ public class GeneratePomsMojo extends AbstractMojo {
         } else if (isFeatureProject(basedir)) {
             getLog().debug("Found feature PDE project " + toString(basedir));
             generateFeaturePom(parent, basedir);
+        } else if (isEclipseRepositoryProject(basedir)) {
+            getLog().debug("Found eclipse-repository PDE project " + toString(basedir));
+            generateEclipseRepositoryPom(parent, basedir);
         } else if (isUpdateSiteProject(basedir)) {
             getLog().debug("Found update site PDE project " + toString(basedir));
             generateUpdateSitePom(parent, basedir);
@@ -412,6 +416,10 @@ public class GeneratePomsMojo extends AbstractMojo {
         return new File(dir, "site.xml").canRead();
     }
 
+    private boolean isEclipseRepositoryProject(File dir) {
+        return new File(dir, "category.xml").canRead();
+    }
+
     private boolean isFeatureProject(File dir) {
         return new File(dir, "feature.xml").canRead();
     }
@@ -424,6 +432,26 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private void generateUpdateSitePom(Model parent, File basedir) throws MojoExecutionException {
+        if (groupId == null) {
+            throw new MojoExecutionException(
+                    "groupId parameter is required to generate pom.xml for Update Site project " + basedir.getName());
+        }
+        if (version == null) {
+            throw new MojoExecutionException(
+                    "version parameter is required to generate pom.xml for Update Site project " + basedir.getName());
+        }
+
+        Model model = readPomTemplate("update-site-pom.xml");
+        setParent(basedir, model, parent);
+        model.setGroupId(groupId);
+        model.setArtifactId(basedir.getName());
+        model.setVersion(version);
+        writePom(basedir, model);
+
+        updateSites.put(basedir, parent);
+    }
+
+    private void generateEclipseRepositoryPom(Model parent, File basedir) throws MojoExecutionException {
         if (groupId == null) {
             throw new MojoExecutionException(
                     "groupId parameter is required to generate pom.xml for Update Site project " + basedir.getName());
