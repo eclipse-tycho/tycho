@@ -130,12 +130,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     @Override
     public void setupProject(MavenSession session, MavenProject project) {
         ArtifactKey key = readArtifactKey(project.getBasedir());
-
-        if (key == null) {
-            throw new IllegalArgumentException("Missing bundle symbolic name or version for project "
-                    + project.toString());
-        }
-
         project.setContextValue(CTX_ARTIFACT_KEY, key);
     }
 

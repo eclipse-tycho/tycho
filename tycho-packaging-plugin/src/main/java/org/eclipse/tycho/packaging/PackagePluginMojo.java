@@ -13,7 +13,6 @@ package org.eclipse.tycho.packaging;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +24,11 @@ import java.util.jar.Manifest;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
+import org.codehaus.plexus.archiver.jar.ManifestException;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoConstants;
@@ -224,14 +226,19 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                 archive.setForced(true);
             }
             archiver.createArchive(project, archive);
-
             return pluginFile;
-        } catch (Exception e) {
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error assembling JAR", e);
+        } catch (ArchiverException e) {
+            throw new MojoExecutionException("Error assembling JAR", e);
+        } catch (ManifestException e) {
+            throw new MojoExecutionException("Error assembling JAR", e);
+        } catch (DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error assembling JAR", e);
         }
     }
 
-    private File updateManifest() throws FileNotFoundException, IOException, MojoExecutionException {
+    private File updateManifest() throws IOException, MojoExecutionException {
         File mfile = new File(project.getBasedir(), "META-INF/MANIFEST.MF");
 
         InputStream is = new FileInputStream(mfile);

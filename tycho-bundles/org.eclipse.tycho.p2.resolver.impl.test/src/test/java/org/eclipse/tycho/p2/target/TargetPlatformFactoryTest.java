@@ -240,11 +240,6 @@ public class TargetPlatformFactoryTest {
         return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
     }
 
-    private static TargetDefinition targetDefinition(TestRepositories repository, IVersionedId unit) {
-        TargetDefinition.Location location = new TargetDefinitionResolverTest.LocationStub(repository, unit);
-        return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
-    }
-
     private ArtifactMock createReactorArtifact(File projectRoot, String primaryUnitId, String secondaryUnitId) {
         // TODO ArtifactMock constructor with less nulls?
         ArtifactMock result = new ArtifactMock(projectRoot, null, null, null, null);

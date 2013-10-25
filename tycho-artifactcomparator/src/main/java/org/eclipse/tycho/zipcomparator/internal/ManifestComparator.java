@@ -79,7 +79,7 @@ public class ManifestComparator implements ContentsComparator {
                 continue;
             }
 
-            if (value != null ? !value.equals(value2) : value2 != null) {
+            if (!value.equals(value2)) {
                 addDelta(result, key, "baseline='" + value + "' != reactor='" + value2 + "'");
             }
         }

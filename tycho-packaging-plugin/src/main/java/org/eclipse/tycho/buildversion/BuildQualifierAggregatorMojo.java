@@ -87,8 +87,8 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
             private void visitArtifact(ArtifactDescriptor artifact) {
                 ReactorProject otherProject = artifact.getMavenProject();
-                String otherVersion = (otherProject != null) ? otherVersion = otherProject.getExpandedVersion()
-                        : artifact.getKey().getVersion();
+                String otherVersion = (otherProject != null) ? otherProject.getExpandedVersion() : artifact.getKey()
+                        .getVersion();
                 Version v = Version.parseVersion(otherVersion);
                 String otherQualifier = v.getQualifier();
                 if (otherQualifier != null) {

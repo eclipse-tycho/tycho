@@ -17,7 +17,7 @@ import de.pdark.decentxml.Element;
  * org.eclipse.equinox.simpleconfigurator
  */
 public class BundleConfiguration {
-    public static int NO_STARTLEVEL = -1;
+    public static final int NO_STARTLEVEL = -1;
 
     Element configuration = null;
 

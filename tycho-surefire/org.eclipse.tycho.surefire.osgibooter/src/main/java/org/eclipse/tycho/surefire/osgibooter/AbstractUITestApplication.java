@@ -112,7 +112,7 @@ public abstract class AbstractUITestApplication implements ITestHarness {
         fTestableObject.setTestHarness(this);
         Object application = getApplication(args);
         runApplication(application, args);
-        return new Integer(fTestRunnerResult);
+        return Integer.valueOf(fTestRunnerResult);
     }
 
     protected abstract void runApplication(Object application, String[] args) throws Exception;
