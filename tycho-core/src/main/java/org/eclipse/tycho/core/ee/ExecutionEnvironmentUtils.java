@@ -20,7 +20,6 @@ import java.util.Properties;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.osgi.framework.BundleActivator;
-import org.osgi.framework.Version;
 
 /**
  * Creative copy&paste from org.eclipse.osgi.framework.internal.core.Framework
@@ -30,9 +29,6 @@ import org.osgi.framework.Version;
  */
 public class ExecutionEnvironmentUtils {
 
-    private static String J2SE = "J2SE-"; //$NON-NLS-1$
-    private static String JAVASE = "JavaSE-"; //$NON-NLS-1$
-    private static String PROFILE_EXT = ".profile"; //$NON-NLS-1$
     private static Map<String, StandardExecutionEnvironment> executionEnvironmentsMap = fillEnvironmentsMap();
 
     private static Map<String, StandardExecutionEnvironment> fillEnvironmentsMap() {
@@ -116,26 +112,6 @@ public class ExecutionEnvironmentUtils {
             if (systemCapabilities != null)
                 properties.put(Constants.FRAMEWORK_SYSTEMCAPABILITIES, systemCapabilities);
         }
-    }
-
-    private static URL getNextBestProfile(String javaEdition, Version javaVersion) {
-        if (javaVersion == null || (javaEdition != J2SE && javaEdition != JAVASE))
-            return null; // we cannot automatically choose the next best profile unless this is a J2SE or JavaSE vm
-        URL bestProfile = findNextBestProfile(javaEdition, javaVersion);
-        if (bestProfile == null && javaEdition == JAVASE)
-            // if this is a JavaSE VM then search for a lower J2SE profile
-            bestProfile = findNextBestProfile(J2SE, javaVersion);
-        return bestProfile;
-    }
-
-    private static URL findNextBestProfile(String javaEdition, Version javaVersion) {
-        URL result = null;
-        int minor = javaVersion.getMinor();
-        do {
-            result = findInSystemBundle(javaEdition + javaVersion.getMajor() + "." + minor + PROFILE_EXT); //$NON-NLS-1$
-            minor = minor - 1;
-        } while (result == null && minor > 0);
-        return result;
     }
 
     private static URL findInSystemBundle(String entry) {

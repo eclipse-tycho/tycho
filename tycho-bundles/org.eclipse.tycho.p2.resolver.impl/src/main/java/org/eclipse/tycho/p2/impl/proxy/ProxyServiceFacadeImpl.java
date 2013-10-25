@@ -19,6 +19,7 @@ import org.eclipse.core.internal.net.Activator;
 import org.eclipse.core.internal.net.ProxyData;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.tycho.core.facade.ProxyServiceFacade;
 import org.osgi.service.prefs.BackingStoreException;
@@ -34,27 +35,26 @@ public class ProxyServiceFacadeImpl implements ProxyServiceFacade {
 
     public void configureProxy(String protocol, String host, int port, String user, String password,
             String nonProxyHosts) {
+        ProxyData proxyData = new ProxyData(getProxyType(protocol));
+        proxyData.setHost(host);
+        proxyData.setPort(port);
+        proxyData.setUserid(user);
+        proxyData.setPassword(password);
+        proxyData.setSource(MAVEN_SETTINGS_SOURCE);
         try {
-            ProxyData proxyData = new ProxyData(getProxyType(protocol));
-            proxyData.setHost(host);
-            proxyData.setPort(port);
-            proxyData.setUserid(user);
-            proxyData.setPassword(password);
-            proxyData.setSource(MAVEN_SETTINGS_SOURCE);
             proxyService.setProxyData(new IProxyData[] { proxyData });
             if (nonProxyHosts != null && nonProxyHosts.trim().length() > 0) {
                 proxyService.setNonProxiedHosts(NON_PROXY_DELIMITERS.split(nonProxyHosts.trim()));
             }
-            // have to register authenticator manually as this is provided as extension point in
-            // org.eclipse.ui.net only ...
-            registerAuthenticator(user, password);
-            proxyService.setProxiesEnabled(true);
-            // disable the eclipse native proxy providers
-            proxyService.setSystemProxiesEnabled(false);
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (CoreException e) {
             throw new RuntimeException(e);
         }
+        // have to register authenticator manually as this is provided as extension point in
+        // org.eclipse.ui.net only ...
+        registerAuthenticator(user, password);
+        proxyService.setProxiesEnabled(true);
+        // disable the eclipse native proxy providers
+        proxyService.setSystemProxiesEnabled(false);
     }
 
     private void registerAuthenticator(final String user, final String password) {

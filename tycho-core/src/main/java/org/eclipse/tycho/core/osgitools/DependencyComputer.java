@@ -58,16 +58,37 @@ public class DependencyComputer {
             this.rules = rules;
         }
 
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof DependencyEntry)) {
-                return false;
-            }
-            DependencyEntry other = (DependencyEntry) obj;
-            return desc.equals(other.desc) && rules.equals(other.rules);
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((desc == null) ? 0 : desc.hashCode());
+            result = prime * result + ((rules == null) ? 0 : rules.hashCode());
+            return result;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            DependencyEntry other = (DependencyEntry) obj;
+            if (desc == null) {
+                if (other.desc != null)
+                    return false;
+            } else if (!desc.equals(other.desc))
+                return false;
+            if (rules == null) {
+                if (other.rules != null)
+                    return false;
+            } else if (!rules.equals(other.rules))
+                return false;
+            return true;
+        }
+
     }
 
     public List<DependencyEntry> computeDependencies(StateHelper helper, BundleDescription desc) {

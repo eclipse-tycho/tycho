@@ -106,7 +106,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
             return false;
         }
 
-        if (configSpec != null && propertiesPerConfig.get(configSpec) != null) {
+        if (configSpec != null && propertiesPerConfig.get(ConfigSpec.createFromWsOsArch(configSpec)) != null) {
             return false;
         }
 
