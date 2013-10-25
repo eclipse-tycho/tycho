@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_f65a7954",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultClasspathEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2013-10-25T17:26:37Z",
+      "side": 1,
+      "message": "Where do 1231/1237 numbers come from? Effective Java by Joshua Bloch recommends 1/0.",
+      "revId": "0d3e737815cdca1693ea50cac2ec7f2c120c95bf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_d6ff7d9b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultClasspathEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2013-10-25T17:26:37Z",
+      "side": 1,
+      "message": "why?",
+      "revId": "0d3e737815cdca1693ea50cac2ec7f2c120c95bf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_565ecd49",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackagePluginMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2013-10-25T17:26:37Z",
+      "side": 1,
+      "message": "This only adds clutter to the code.",
+      "revId": "0d3e737815cdca1693ea50cac2ec7f2c120c95bf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
