@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_ada7db3d",
+        "filename": "tycho-pomgenerator-plugin/src/main/java/org/eclipse/tycho/pomgenerator/GeneratePomsMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 957
+      },
+      "writtenOn": "2013-10-28T20:08:53Z",
+      "side": 1,
+      "message": "I\u0027m not entirely sure if the 8 line changes above make any sense. Any suggestions what I should do here?",
+      "revId": "6fd585f951466e2ed52bd1c152ebe55c01db82d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
