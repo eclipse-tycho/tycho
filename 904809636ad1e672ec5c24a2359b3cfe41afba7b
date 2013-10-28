@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_b98e01b6",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/target/TargetPlatformFactoryTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-10-28T13:19:20Z",
+      "side": 0,
+      "message": "-1 I wanted to use this method.\n\nThanks for spotting that I had in fact not used it.",
+      "revId": "904809636ad1e672ec5c24a2359b3cfe41afba7b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
