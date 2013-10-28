@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_7961192b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultClasspathEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-10-28T13:42:22Z",
+      "side": 1,
+      "message": "either we generate both methods or none. \"ugly\" is not a category here. I care whether it\u0027s correct. The hashcode() method was missing so if you have a better replacement, go ahead and upload a new patchset.",
+      "parentUuid": "8748d3a1_19d73569",
+      "revId": "0d3e737815cdca1693ea50cac2ec7f2c120c95bf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_565ecd49",
         "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackagePluginMojo.java",
         "patchSetId": 1
