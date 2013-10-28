@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_5f3fe271",
+        "filename": "tycho-pomgenerator-plugin/src/main/java/org/eclipse/tycho/pomgenerator/GeneratePomsMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-10-28T08:10:05Z",
+      "side": 1,
+      "message": "\"... and use packaging type eclipse-repository instead.\"",
+      "revId": "0e84ec3e774784381dd31b647446d38578479453",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_ff7a2e2d",
+        "filename": "tycho-pomgenerator-plugin/src/main/resources/templates/update-site-pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-10-28T08:10:05Z",
+      "side": 1,
+      "message": "why change the eclipse-update-site template and not create a new eclipse-repository template?\nalso, will this will break the existing eclipse-update-site pom generation?",
+      "revId": "0e84ec3e774784381dd31b647446d38578479453",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_df75b23d",
+        "filename": "tycho-pomgenerator-plugin/src/test/java/org/eclipse/tycho/pomgenerator/test/GeneratePomsMojoTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-10-28T08:10:05Z",
+      "side": 1,
+      "message": "-1\n\nthis breaks the old template",
+      "revId": "0e84ec3e774784381dd31b647446d38578479453",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
