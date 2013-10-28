@@ -190,7 +190,7 @@ public class TargetPlatformFactoryTest {
 
     @Test
     public void testTargetFileCannotContributeOtherVersionsOfUnitsProducedByReactor() {
-        tpConfig.addTargetDefinition(plannerTargetDefinition(TestRepositories.V1_AND_V2, MAIN_BUNDLE));
+        tpConfig.addTargetDefinition(targetDefinition(TestRepositories.V1_AND_V2, MAIN_BUNDLE));
 
         // reactor artifact produces a unit with same ID
         // TODO make produced version more explicit
