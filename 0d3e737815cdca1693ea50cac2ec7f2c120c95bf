@@ -72,6 +72,23 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_19d73569",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultClasspathEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-10-28T13:32:43Z",
+      "side": 1,
+      "message": "IMHO, Eclipse generates really ugly equals methods.\n\nThe hand-written version could be kept if the constructor ensures that pattern was never null...",
+      "revId": "0d3e737815cdca1693ea50cac2ec7f2c120c95bf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_565ecd49",
         "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackagePluginMojo.java",
         "patchSetId": 1
