@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -62,6 +61,7 @@ import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtif
 import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
+import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
@@ -271,12 +271,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             metadataRepositories.add(localMetadataRepository);
         }
 
-        SubMonitor sub = SubMonitor.convert(monitor, metadataRepositories.size() * 200);
         for (IMetadataRepository repository : metadataRepositories) {
-            IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.ALL_UNITS, sub.newChild(100));
+            IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.ALL_UNITS, monitor);
             result.addAll(matches.toUnmodifiableSet());
         }
-        sub.done();
 
         if (includeLocalMavenRepo && logger.isDebugEnabled()) {
             IQueryResult<IInstallableUnit> locallyInstalledIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS,
@@ -293,13 +291,18 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             // TODO always log that a p2 repository is added to the target platform somewhere; used to be either from p2 or the following line
             // logger.info("Adding repository (cached) " + location.toASCIIString());
 
-            return remoteMetadataRepositoryManager.loadRepository(location.getURL(), monitor);
+            return remoteMetadataRepositoryManager.loadRepository(location.getURL(), monitorForLoading());
 
         } catch (ProvisionException e) {
             String idMessage = location.getId() == null ? "" : " with ID '" + location.getId() + "'";
             throw new RuntimeException("Failed to load p2 repository" + idMessage + " from location "
                     + location.getURL(), e);
         }
+    }
+
+    private IProgressMonitor monitorForLoading() {
+        // create a new instance for each call - DuplicateFilteringLoggingProgressMonitor is not thread-safe
+        return new DuplicateFilteringLoggingProgressMonitor(logger);
     }
 
     private IRawArtifactFileProvider createJointArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,

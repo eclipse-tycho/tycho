@@ -8,21 +8,21 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.repository.local;
+package org.eclipse.tycho.repository.util;
 
 import java.util.regex.Pattern;
 
 import org.eclipse.tycho.core.facade.MavenLogger;
 
 /**
- * Delegating logger which removes obsolete log output produced by p2/ECF when downloading
- * artifacts.
+ * {@link LoggingProgressMonitor} which removes duplicated and other obsolete log output produced by
+ * p2/ECF when downloading artifacts.
  * 
  * <p>
  * Instances of this class are not thread-safe.
  * </p>
  */
-class ProgressCleaningLogger implements MavenLogger {
+public final class DuplicateFilteringLoggingProgressMonitor extends LoggingProgressMonitor {
 
     private final Pattern PROGRESS_WITH_UNKNOWN_SPEED = Pattern.compile("\\(.* at 0B/s\\)");
 
@@ -30,23 +30,18 @@ class ProgressCleaningLogger implements MavenLogger {
     private String lastLoggedFile = NON_MATCHING_LINE;
     private boolean lastLoggedFileFiltered = false;
 
-    private final MavenLogger delegate;
-
-    public ProgressCleaningLogger(MavenLogger delegate) {
-        this.delegate = delegate;
+    public DuplicateFilteringLoggingProgressMonitor(MavenLogger logger) {
+        super(logger);
     }
 
-    public void info(String message) {
-        if (null == message || "".equals(message) || "1 operation remaining.".equals(message)) {
+    @Override
+    protected boolean suppressOutputOf(String text) {
+        if (text.equals("1 operation remaining.")) {
             // filter out
-            return;
+            return true;
         }
-        boolean isUnneededLine = checkIfDuplicateOfLastOutput(message);
-        if (isUnneededLine) {
-            return;
-        }
-
-        delegate.info(message);
+        boolean isUnneededLine = checkIfDuplicateOfLastOutput(text);
+        return isUnneededLine;
     }
 
     private boolean checkIfDuplicateOfLastOutput(String message) {
@@ -76,28 +71,4 @@ class ProgressCleaningLogger implements MavenLogger {
         return false;
     }
 
-    // delegated methods
-    public void error(String message) {
-        delegate.error(message);
-    }
-
-    public void warn(String message) {
-        delegate.warn(message);
-    }
-
-    public void warn(String message, Throwable cause) {
-        delegate.warn(message, cause);
-    }
-
-    public void debug(String message) {
-        delegate.debug(message);
-    }
-
-    public boolean isDebugEnabled() {
-        return delegate.isDebugEnabled();
-    }
-
-    public boolean isExtendedDebugEnabled() {
-        return delegate.isExtendedDebugEnabled();
-    }
 }
