@@ -33,6 +33,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTra
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.ArtifactSinkException;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IArtifactSink;
 import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtifactSink;
+import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 import org.eclipse.tycho.repository.util.StatusTool;
 
@@ -281,8 +282,8 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
      * log output.
      */
     final IProgressMonitor monitorForDownload() {
-        // create a new instance for each call - ProgressCleaningLogger is not thread-safe
-        return new LoggingProgressMonitor(new ProgressCleaningLogger(logger));
+        // create a new instance for each call - DuplicateFilteringLoggingProgressMonitor is not thread-safe
+        return new DuplicateFilteringLoggingProgressMonitor(logger);
     }
 
     private static IProgressMonitor nonNull(IProgressMonitor monitor) {
