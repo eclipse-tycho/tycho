@@ -22,7 +22,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -50,6 +49,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
+import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 public class TargetDefinitionResolver {
@@ -63,13 +63,14 @@ public class TargetDefinitionResolver {
 
     private final ExecutionEnvironmentResolutionHints executionEnvironment;
 
-    private final IProgressMonitor monitor = new NullProgressMonitor();
+    private final IProgressMonitor monitor;
 
     public TargetDefinitionResolver(List<TargetEnvironment> environments,
             ExecutionEnvironmentResolutionHints executionEnvironment, IProvisioningAgent agent, MavenLogger logger) {
         this.environments = environments;
         this.executionEnvironment = executionEnvironment;
         this.logger = logger;
+        this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
         this.metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
         this.repositoryIdManager = (IRepositoryIdManager) agent.getService(IRepositoryIdManager.SERVICE_NAME);
     }
