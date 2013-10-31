@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -62,7 +61,7 @@ import org.eclipse.tycho.repository.p2base.artifact.repository.ProviderOnlyArtif
 import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider;
 import org.eclipse.tycho.repository.registry.ArtifactRepositoryBlackboard;
 import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
-import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
+import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
 
 public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
@@ -89,7 +88,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             TargetDefinitionResolverService targetDefinitionResolverService) {
         this.mavenContext = mavenContext;
         this.logger = mavenContext.getLogger();
-        this.monitor = new LoggingProgressMonitor(logger);
+        this.monitor = new DuplicateFilteringLoggingProgressMonitor(logger); // entails that this class is not thread-safe
 
         this.remoteAgent = remoteAgent;
         this.remoteRepositoryIdManager = (IRepositoryIdManager) remoteAgent
@@ -271,12 +270,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             metadataRepositories.add(localMetadataRepository);
         }
 
-        SubMonitor sub = SubMonitor.convert(monitor, metadataRepositories.size() * 200);
         for (IMetadataRepository repository : metadataRepositories) {
-            IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.ALL_UNITS, sub.newChild(100));
+            IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.ALL_UNITS, monitor);
             result.addAll(matches.toUnmodifiableSet());
         }
-        sub.done();
 
         if (includeLocalMavenRepo && logger.isDebugEnabled()) {
             IQueryResult<IInstallableUnit> locallyInstalledIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS,

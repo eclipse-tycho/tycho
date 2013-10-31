@@ -13,6 +13,10 @@ package org.eclipse.tycho.repository.util;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.tycho.core.facade.MavenLogger;
 
+/**
+ * Special {@link IProgressMonitor} instance which writes the task names it is given via the
+ * {@link IProgressMonitor} interface to the log.
+ */
 public class LoggingProgressMonitor implements IProgressMonitor {
 
     private final MavenLogger logger;
@@ -21,32 +25,51 @@ public class LoggingProgressMonitor implements IProgressMonitor {
         this.logger = logger;
     }
 
-    public void beginTask(String name, int totalWork) {
-        logger.info(name);
+    private void writeToLog(String text) {
+        if (text == null || text.length() == 0) {
+            return;
+        } else if (suppressOutputOf(text)) {
+            return;
+        }
+
+        logger.info(text);
     }
 
-    public void done() {
-    }
-
-    public void internalWorked(double work) {
-    }
-
-    public boolean isCanceled() {
+    /**
+     * @param text
+     *            The candidate text for logging. Never <code>null</code>.
+     */
+    protected boolean suppressOutputOf(@SuppressWarnings("unused") String text) {
+        // default implementation
         return false;
     }
 
-    public void setCanceled(boolean value) {
+    public final void beginTask(String name, int totalWork) {
+        writeToLog(name);
     }
 
-    public void setTaskName(String name) {
-        logger.info(name);
+    public final void done() {
     }
 
-    public void subTask(String name) {
-        logger.info(name);
+    public final void internalWorked(double work) {
     }
 
-    public void worked(int work) {
+    public final boolean isCanceled() {
+        return false;
+    }
+
+    public final void setCanceled(boolean value) {
+    }
+
+    public final void setTaskName(String name) {
+        writeToLog(name);
+    }
+
+    public final void subTask(String name) {
+        writeToLog(name);
+    }
+
+    public final void worked(int work) {
     }
 
 }
