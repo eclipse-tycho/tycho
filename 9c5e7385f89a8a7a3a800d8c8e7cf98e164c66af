@@ -16,6 +16,24 @@
       "revId": "9c5e7385f89a8a7a3a800d8c8e7cf98e164c66af",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_346e38aa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-11-02T14:09:25Z",
+      "side": 1,
+      "message": "But the rest is perfct, I swear! ;-)\n\nBut seriously: Thanks for pointing this out. I\u0027ll fix it in case I anyway need to rebase the change.",
+      "parentUuid": "8748d3a1_0ce18cba",
+      "revId": "9c5e7385f89a8a7a3a800d8c8e7cf98e164c66af",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
