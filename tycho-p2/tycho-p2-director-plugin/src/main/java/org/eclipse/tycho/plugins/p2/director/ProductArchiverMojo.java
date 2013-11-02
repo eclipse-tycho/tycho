@@ -31,7 +31,7 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
  */
 public final class ProductArchiverMojo extends AbstractProductMojo {
 
-    static final String DEFAULT_ARHCIVE_FORMAT = "zip";
+    static final String DEFAULT_ARCHIVE_FORMAT = "zip";
 
     private abstract class ProductArchiver {
         abstract Archiver getArchiver() throws ArchiverException;
@@ -117,12 +117,12 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
         for (Product product : config.getProducts()) {
             for (TargetEnvironment env : getEnvironments()) {
-                String format = formats != null ? formats.get(env.getOs()) : DEFAULT_ARHCIVE_FORMAT;
+                String format = formats != null ? formats.get(env.getOs()) : DEFAULT_ARCHIVE_FORMAT;
                 if (format != null) {
                     format = format.trim();
                 }
                 if (format == null || format.length() == 0) {
-                    format = DEFAULT_ARHCIVE_FORMAT;
+                    format = DEFAULT_ARCHIVE_FORMAT;
                 }
 
                 ProductArchiver productArchiver = productArchivers.get(format);
