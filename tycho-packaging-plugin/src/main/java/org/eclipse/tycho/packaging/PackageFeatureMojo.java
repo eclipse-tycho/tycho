@@ -72,8 +72,8 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     private String finalName;
 
     /**
-     * If set to <code>true</code> (the default), standard eclipse update site directory with
-     * feature content will be created under target folder.
+     * If set to <code>true</code>, standard eclipse update site directory with feature content will
+     * be created under target folder.
      * 
      * @parameter default-value="false"
      */
