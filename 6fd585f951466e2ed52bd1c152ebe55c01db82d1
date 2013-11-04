@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8748d3a1_90f45d7e",
+        "filename": "tycho-pomgenerator-plugin/src/main/java/org/eclipse/tycho/pomgenerator/GeneratePomsMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-04T15:43:15Z",
+      "side": 1,
+      "message": "remove this line. only needed for aggregator poms which I believe we don\u0027t want/need for eclipse-repository.",
+      "revId": "6fd585f951466e2ed52bd1c152ebe55c01db82d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_ada7db3d",
         "filename": "tycho-pomgenerator-plugin/src/main/java/org/eclipse/tycho/pomgenerator/GeneratePomsMojo.java",
         "patchSetId": 3
@@ -13,6 +30,41 @@
       "writtenOn": "2013-10-28T20:08:53Z",
       "side": 1,
       "message": "I\u0027m not entirely sure if the 8 line changes above make any sense. Any suggestions what I should do here?",
+      "revId": "6fd585f951466e2ed52bd1c152ebe55c01db82d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_507655b0",
+        "filename": "tycho-pomgenerator-plugin/src/main/java/org/eclipse/tycho/pomgenerator/GeneratePomsMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-04T15:43:15Z",
+      "side": 1,
+      "message": "this is only used for eclipse-update-site. It has a special \"aggregator pom\" (poma.xml)  which I don\u0027t understand why it should be there/what it should be useful for, so just ignore this for eclipse-repository and keep it as it was before.",
+      "parentUuid": "8748d3a1_ada7db3d",
+      "revId": "6fd585f951466e2ed52bd1c152ebe55c01db82d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_d01c2572",
+        "filename": "tycho-pomgenerator-plugin/src/test/java/org/eclipse/tycho/pomgenerator/test/GeneratePomsMojoTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-04T15:43:15Z",
+      "side": 1,
+      "message": "it should just work without explicitly specifying aggregator\u003dfalse",
       "revId": "6fd585f951466e2ed52bd1c152ebe55c01db82d1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
