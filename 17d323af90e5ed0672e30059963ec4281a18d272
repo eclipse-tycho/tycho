@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_30aaa909",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-04T16:06:59Z",
+      "side": 1,
+      "message": "coverage should not run during normal build. Move it out into a profile \"coverage\" or similar so it has to be switched on explicitly.",
+      "revId": "17d323af90e5ed0672e30059963ec4281a18d272",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
