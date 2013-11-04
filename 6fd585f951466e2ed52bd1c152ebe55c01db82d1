@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_708271a3",
+        "filename": "tycho-pomgenerator-plugin/src/main/java/org/eclipse/tycho/pomgenerator/GeneratePomsMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 957
+      },
+      "writtenOn": "2013-11-04T16:05:56Z",
+      "side": 1,
+      "message": "Without this change though the pom generator fails and throws an exception because it cannot find site.xml. So I think we still need to do something if site.xml is not found.",
+      "parentUuid": "8748d3a1_507655b0",
+      "revId": "6fd585f951466e2ed52bd1c152ebe55c01db82d1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_d01c2572",
         "filename": "tycho-pomgenerator-plugin/src/test/java/org/eclipse/tycho/pomgenerator/test/GeneratePomsMojoTest.java",
         "patchSetId": 3
