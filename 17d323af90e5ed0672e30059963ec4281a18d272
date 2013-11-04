@@ -16,6 +16,24 @@
       "revId": "17d323af90e5ed0672e30059963ec4281a18d272",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_301c69f6",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-04T16:11:09Z",
+      "side": 1,
+      "message": "not sure (have to check with Wayne) if we don\u0027t need a CQ if it\u0027s something the user has to switch on explicitly.",
+      "parentUuid": "8748d3a1_30aaa909",
+      "revId": "17d323af90e5ed0672e30059963ec4281a18d272",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
