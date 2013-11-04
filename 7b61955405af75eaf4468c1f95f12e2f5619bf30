@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_f0ca0116",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-04T15:56:30Z",
+      "side": 1,
+      "message": "${project.build.directory}/jacoco.exec  instead of hardcoding \"target\" ?",
+      "revId": "7b61955405af75eaf4468c1f95f12e2f5619bf30",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_90157dff",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-04T15:56:30Z",
+      "side": 1,
+      "message": "do we need to file a CQ for jacoco ?\nIf so, can we piggy-back an existing CQ?",
+      "revId": "7b61955405af75eaf4468c1f95f12e2f5619bf30",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
