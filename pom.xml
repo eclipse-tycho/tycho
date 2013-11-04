@@ -144,6 +144,9 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 
 		<!-- version of tycho used by this build -->
 		<tychoBootstrapVersion>0.18.1</tychoBootstrapVersion>
+
+		<!-- Override to absolute location from command-line on CI to get a single file -->
+		<sonar.jacoco.reportPath>${project.build.directory}/jacoco.exec</sonar.jacoco.reportPath>
 	</properties>
 
 	<dependencyManagement>
@@ -364,6 +367,22 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 				<configuration>
 					<resolver>p2</resolver>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.6.3.201306030806</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<configuration>
+							<destFile>${sonar.jacoco.reportPath}</destFile>
+							<append>true</append>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 
