@@ -34,6 +34,24 @@
       "revId": "17d323af90e5ed0672e30059963ec4281a18d272",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_f097a1ca",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-11-04T17:20:09Z",
+      "side": 1,
+      "message": "Code coverage has no drawback on performance nor execution (except potential bug in jacoco agent). What would be the benefit of moving it into a profile?",
+      "parentUuid": "8748d3a1_30aaa909",
+      "revId": "17d323af90e5ed0672e30059963ec4281a18d272",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
