@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_f1bdd9af",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-05T15:14:37Z",
+      "side": 1,
+      "message": "I guess there is no point in adding an empty default statement other than making findbugs happy.\n\nvalid severities are OK, ERROR, INFO ,WARNING, CANCEL\n\nso OK is missing and should be explicitly treated with an empty statement (break;). \n\nThen, the default case can throw an IllegalStateException(\"unknown severity: \" + result.getSeverity)",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_519f6d3e",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-05T15:14:37Z",
+      "side": 1,
+      "message": "to explain the background - this whole class is code copied from p2 years ago so it may contain all kinds of half-leftover code that may not make sense anymore.\n\n I do not understand the side-effect of invoking a getter here. If there is none, the whole method body could possibly go away.",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_b1a6b194",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-05T15:14:37Z",
+      "side": 1,
+      "message": "this is due to the line commented out below. Again, if there is no side-effect, the above 3 lines could go away.",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_11d965eb",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-05T15:14:37Z",
+      "side": 1,
+      "message": "this delegates to Object.toString(), so this is pure clutter \u003d\u003e rather remove the whole method.",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_9148d506",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-05T15:14:37Z",
+      "side": 1,
+      "message": "not sure why this would make any difference.",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_11afa517",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/ProductExportMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-11-05T15:14:37Z",
+      "side": 1,
+      "message": "IOUtil.close(fos) would be shorter",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
