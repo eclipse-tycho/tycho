@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8748d3a1_644bc905",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-11-05T16:42:04Z",
+      "side": 1,
+      "message": "I know that you are contributing to many projects, but is it too much to ask to stick to our commit message format? See documentation here: http://wiki.eclipse.org/Tycho/Contributor_Guide#Commit_Message_Guidelines",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_f1bdd9af",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
         "patchSetId": 1
@@ -87,6 +104,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_c400ddbc",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-11-05T16:42:04Z",
+      "side": 1,
+      "message": "The original code is better because it better reflects the intention. The compiler anyway knows that both calls are equivalent.",
+      "parentUuid": "8748d3a1_9148d506",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_11afa517",
         "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/ProductExportMojo.java",
         "patchSetId": 1
@@ -98,6 +133,23 @@
       "writtenOn": "2013-11-05T15:14:37Z",
       "side": 1,
       "message": "IOUtil.close(fos) would be shorter",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_047da523",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/ProductExportMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-11-05T16:42:04Z",
+      "side": 1,
+      "message": "Or use the try-finally-catch pattern\n\n  try {\n    FileOutputStream fos \u003d new ...;\n    try {\n      // do stuff with fos\n    } finally {\n      fos.close();\n    }\n  } catch (IOException e) {\n    // ...\n  }\n\nI know that there could be exception hiding, but I\u0027ve never seen close() throw an exception (on non zip streams) so IMHO this doesn\u0027t have to be explicitly dealt with.",
       "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
