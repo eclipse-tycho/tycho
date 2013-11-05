@@ -469,12 +469,14 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         configsFolder.mkdirs();
 
         File configIni = new File(configsFolder, "config.ini");
+        FileOutputStream fos = null;
         try {
-            FileOutputStream fos = new FileOutputStream(configIni);
+            fos = new FileOutputStream(configIni);
             props.store(fos, "Product Runtime Configuration File");
-            fos.close();
         } catch (IOException e) {
             throw new MojoExecutionException("Error creating .eclipseproduct file.", e);
+        } finally {
+            IOUtil.close(fos);
         }
     }
 

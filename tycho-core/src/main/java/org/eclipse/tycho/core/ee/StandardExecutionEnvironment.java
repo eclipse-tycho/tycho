@@ -135,6 +135,76 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         return eeVersion.compareTo(otherEnv.eeVersion);
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((compilerSourceLevel == null) ? 0 : compilerSourceLevel.hashCode());
+        result = prime * result + ((compilerTargetLevel == null) ? 0 : compilerTargetLevel.hashCode());
+        result = prime * result + ((eeVersion == null) ? 0 : eeVersion.hashCode());
+        result = prime * result + ((profileName == null) ? 0 : profileName.hashCode());
+        result = prime * result + ((profileProperties == null) ? 0 : profileProperties.hashCode());
+        result = prime * result + ((systemPackages == null) ? 0 : systemPackages.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof StandardExecutionEnvironment)) {
+            return false;
+        }
+        StandardExecutionEnvironment other = (StandardExecutionEnvironment) obj;
+        if (this.compilerSourceLevel == null) {
+            if (other.compilerSourceLevel != null) {
+                return false;
+            }
+        } else if (!this.compilerSourceLevel.equals(other.compilerSourceLevel)) {
+            return false;
+        }
+        if (this.compilerTargetLevel == null) {
+            if (other.compilerTargetLevel != null) {
+                return false;
+            }
+        } else if (!this.compilerTargetLevel.equals(other.compilerTargetLevel)) {
+            return false;
+        }
+        if (this.eeVersion == null) {
+            if (other.eeVersion != null) {
+                return false;
+            }
+        } else if (!this.eeVersion.equals(other.eeVersion)) {
+            return false;
+        }
+        if (this.profileName == null) {
+            if (other.profileName != null) {
+                return false;
+            }
+        } else if (!this.profileName.equals(other.profileName)) {
+            return false;
+        }
+        if (this.profileProperties == null) {
+            if (other.profileProperties != null) {
+                return false;
+            }
+        } else if (!this.profileProperties.equals(other.profileProperties)) {
+            return false;
+        }
+        if (this.systemPackages == null) {
+            if (other.systemPackages != null) {
+                return false;
+            }
+        } else if (!this.systemPackages.equals(other.systemPackages)) {
+            return false;
+        }
+        return true;
+    }
+
     public Properties getProfileProperties() {
         return profileProperties;
     }

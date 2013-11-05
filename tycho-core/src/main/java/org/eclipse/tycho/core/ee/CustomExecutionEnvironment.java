@@ -116,8 +116,7 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
         }
 
         StringBuilder systemCapabilitesProperty = new StringBuilder();
-        for (String environmentName : capabilityMap.keySet()) {
-            MultipleVersionsCapability capability = capabilityMap.get(environmentName);
+        for (MultipleVersionsCapability capability : capabilityMap.values()) {
             append(systemCapabilitesProperty, capability.toString());
         }
 

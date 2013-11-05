@@ -57,4 +57,28 @@ public class EEVersion implements Comparable<EEVersion> {
         return version.compareTo(other.version);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (!(other instanceof EEVersion)) {
+            return false;
+        }
+        EEVersion o = (EEVersion) other;
+        return this.version.equals(o.version) && this.type.equals(o.type);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
+        result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
+        return result;
+    }
+
 }
