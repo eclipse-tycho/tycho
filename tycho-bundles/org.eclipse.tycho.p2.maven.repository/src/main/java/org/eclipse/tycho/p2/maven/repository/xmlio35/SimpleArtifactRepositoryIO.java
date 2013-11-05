@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -108,6 +107,9 @@ public class SimpleArtifactRepositoryIO {
                 case IStatus.WARNING:
                 case IStatus.INFO:
                     LogHelper.log(result);
+                    break;
+                default:
+                    break;
                 }
                 SimpleArtifactRepository repository = repositoryParser.getRepository();
                 if (repository == null)
@@ -306,14 +308,12 @@ public class SimpleArtifactRepositoryIO {
             private PropertiesHandler propertiesHandler = null;
             private ArtifactsHandler artifactsHandler = null;
 
-            private SimpleArtifactRepository repository = null;
-
             public RepositoryHandler() {
                 super();
             }
 
             public SimpleArtifactRepository getRepository() {
-                return repository;
+                return null;
             }
 
             protected void handleRootAttributes(Attributes attributes) {
@@ -347,12 +347,15 @@ public class SimpleArtifactRepositoryIO {
 
             protected void finished() {
                 if (isValidXML()) {
-                    String[][] mappingRules = (mappingRulesHandler == null ? new String[0][0] //
-                            : mappingRulesHandler.getMappingRules());
-                    Map properties = (propertiesHandler == null ? new OrderedProperties(0) //
-                            : propertiesHandler.getProperties());
-                    Set artifacts = (artifactsHandler == null ? new HashSet(0) //
-                            : artifactsHandler.getArtifacts());
+                    if (mappingRulesHandler != null) {
+                        mappingRulesHandler.getMappingRules();
+                    }
+                    if (propertiesHandler != null) {
+                        propertiesHandler.getProperties();
+                    }
+                    if (artifactsHandler != null) {
+                        artifactsHandler.getArtifacts();
+                    }
                 }
             }
         }
@@ -474,8 +477,9 @@ public class SimpleArtifactRepositoryIO {
                             .getProperties());
                     currentArtifact.addProperties(properties);
 
-                    properties = (repositoryPropertiesHandler == null ? new OrderedProperties(0)
-                            : repositoryPropertiesHandler.getProperties());
+                    if (repositoryPropertiesHandler != null) {
+                        repositoryPropertiesHandler.getProperties();
+                    }
                     //currentArtifact.addRepositoryProperties(properties);
 
                     ProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //
@@ -533,7 +537,7 @@ public class SimpleArtifactRepositoryIO {
 
         public String toString() {
             // TODO:
-            return null;
+            return super.toString();
         }
 
     }
