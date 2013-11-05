@@ -56,7 +56,7 @@ public class StatusTool {
         private int appendChild(IStatus status, String indentation) {
 
             if (indentation == null) {
-                appendStatusAndChildren(status, indentation);
+                appendStatusAndChildren(status, null);
                 return appendAndReturnLength("; ");
 
             } else {
