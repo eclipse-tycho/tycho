@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_c4a45d3d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-11-05T18:23:35Z",
+      "side": 1,
+      "message": "It indeed looks like those methods in Handlers are only accessors, so that calling them doesn\u0027t change any state of other code.\nI guess those lines could be removed.",
+      "parentUuid": "8748d3a1_519f6d3e",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_b1a6b194",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
         "patchSetId": 1
@@ -87,6 +105,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_841535cd",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-11-05T18:23:35Z",
+      "side": 1,
+      "message": "Do you know the reason of this TODO? It wouldn\u0027t look bad to remove the method as well.",
+      "parentUuid": "8748d3a1_11d965eb",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_9148d506",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
         "patchSetId": 1
@@ -115,6 +151,24 @@
       "writtenOn": "2013-11-05T16:42:04Z",
       "side": 1,
       "message": "The original code is better because it better reflects the intention. The compiler anyway knows that both calls are equivalent.",
+      "parentUuid": "8748d3a1_9148d506",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_e41b59fd",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-11-05T18:23:35Z",
+      "side": 1,
+      "message": "I guess this wouldn\u0027t make a difference on execution, it\u0027s just that passing a value that is known to be null isn\u0027t as easy to understand as passing null directly.",
       "parentUuid": "8748d3a1_9148d506",
       "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
