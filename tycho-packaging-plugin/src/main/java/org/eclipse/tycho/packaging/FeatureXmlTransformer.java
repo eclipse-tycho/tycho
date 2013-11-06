@@ -127,7 +127,7 @@ public class FeatureXmlTransformer {
                     jar.close();
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Could not determine installation size", e);
+                throw new RuntimeException("Could not determine installation size of file " + location, e);
             }
         } finally {
             locker.release();
