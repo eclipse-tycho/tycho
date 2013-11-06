@@ -16,6 +16,24 @@
       "revId": "a1796789fc35a496575b689a8600d065f3b6fc78",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_71341c94",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-11-06T12:34:52Z",
+      "side": 1,
+      "message": "What about:\n\n  String suffix \u003d \"; \";\n  if (indentation !\u003d null) {\n    result.append(indentation);\n    suffix \u003d \"\\n\";\n  }\n  appendStatusAndChildren(status, indentation);\n  return appendAndReturnLenght(suffix);\n\n?",
+      "parentUuid": "8748d3a1_91928827",
+      "revId": "a1796789fc35a496575b689a8600d065f3b6fc78",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
