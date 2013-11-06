@@ -52,6 +52,24 @@
       "revId": "a1796789fc35a496575b689a8600d065f3b6fc78",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_ac4f6b8c",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-11-06T13:59:54Z",
+      "side": 1,
+      "message": "The goal by itself is not to make a static analysis happier, but rather to respect rules that were recognized a leading to better code. https://dev.eclipse.org/sonar/drilldown/issues/org.eclipse.tycho:tycho?rids[]\u003d84406\u0026rids[]\u003d84681#\nIf something confuses the static analysis, it can confuse a human, and it can be worth trying to find a less confusing implementation.\nBut in order to go ahead with other fixes, I\u0027ll make a new patch set without that change.",
+      "parentUuid": "8748d3a1_d1ea5015",
+      "revId": "a1796789fc35a496575b689a8600d065f3b6fc78",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
