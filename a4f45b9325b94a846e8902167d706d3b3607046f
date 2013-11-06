@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_e07cdcda",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-11-06T08:19:11Z",
+      "side": 1,
+      "message": "I\u0027ll change the commit message. However, the convention used by Tycho seems different from the one recommended by Wayne at http://waynebeaton.wordpress.com/2013/11/05/mylyn-egit-and-your-commit-message/ . Maybe it would be better for Tycho (and all other Eclipse projects) to adopt the same convention?",
+      "parentUuid": "8748d3a1_644bc905",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_f1bdd9af",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
         "patchSetId": 1
