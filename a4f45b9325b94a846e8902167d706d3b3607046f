@@ -194,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_f1914c24",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-11-06T12:23:42Z",
+      "side": 1,
+      "message": "The argument \"indentation\" is always passed through. This is the intention of this code, and hence this is written this way. Your change makes it harder to see that \"indentation\" is never changed in the recursion.",
+      "parentUuid": "8748d3a1_e41b59fd",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_11afa517",
         "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/ProductExportMojo.java",
         "patchSetId": 1
