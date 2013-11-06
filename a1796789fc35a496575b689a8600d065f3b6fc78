@@ -70,6 +70,24 @@
       "revId": "a1796789fc35a496575b689a8600d065f3b6fc78",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_0cde5f8a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2013-11-06T14:26:16Z",
+      "side": 1,
+      "message": "In fact, Findbugs in right in claiming that this is dodgy code. But your proposed change doesn\u0027t fix the problem.\n\nThe problem is that the indentation parameter transports multiple related properties at once (wrapping policy online vs. multiline, plus the indentation in the multiline case) and abuses a nullable String for this. The proper solution is to introduce a dedicated type for this parameter with methods something like isMultiLine(), getIndentation()).",
+      "parentUuid": "8748d3a1_ac4f6b8c",
+      "revId": "a1796789fc35a496575b689a8600d065f3b6fc78",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
