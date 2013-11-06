@@ -85,7 +85,35 @@ public class MutablePomFileTest {
     }
 
     @Test
-    public void testSetVersionAvoidsExplicitVersion() throws Exception {
+    public void testSetVersionDoesNotIntroduceRedundantVersions() throws Exception {
+        subject = getPom("/poms/inheritedVersion.xml");
+        assertThat(subject.getParentVersion(), is("1.0.2"));
+        assertThat(subject.getVersion(), is("1.0.2"));
+
+        subject.setVersion("3.0.0");
+        subject.setParentVersion("3.0.0");
+
+        assertThat(subject.getVersion(), is("3.0.0"));
+        assertThat(subject.getParentVersion(), is("3.0.0"));
+        assertContent(subject, "/poms/inheritedVersion_changedBothVersions.xml");
+    }
+
+    @Test
+    public void testSetVersionPreservesRedundantVersion() throws Exception {
+        subject = getPom("/poms/inheritedVersionRedundant.xml");
+        assertThat(subject.getParentVersion(), is("1.0.2"));
+        assertThat(subject.getVersion(), is("1.0.2")); // project.version is stated explicitly in the POM, although it could be inherited
+
+        subject.setVersion("3.0.0");
+        subject.setParentVersion("3.0.0");
+
+        assertThat(subject.getVersion(), is("3.0.0"));
+        assertThat(subject.getParentVersion(), is("3.0.0"));
+        assertContent(subject, "/poms/inheritedVersionRedundant_changedBothVersions.xml"); // project.version tag still exists
+    }
+
+    @Test
+    public void testSetVersionPrefersNonRedundantVersionDeclarationIfVersionsWereDifferent() throws Exception {
         subject = getPom("/poms/inheritedVersion_changedProjectVersion.xml");
         assertThat(subject.getParentVersion(), is("1.0.2"));
         assertThat(subject.getVersion(), is("1.1.0-SNAPSHOT"));
@@ -93,11 +121,11 @@ public class MutablePomFileTest {
         subject.setVersion("1.0.2");
 
         assertThat(subject.getVersion(), is("1.0.2"));
-        assertContent(subject, "/poms/inheritedVersion.xml");
+        assertContent(subject, "/poms/inheritedVersion.xml"); // no project.version tag
     }
 
     @Test
-    public void testSetVersionAvoidsExplicitVersion_noFollowingSpaceCornerCase() throws Exception {
+    public void testSetVersion_noFollowingSpaceCornerCase() throws Exception {
         subject = getPom("/poms/inheritedVersion_changedProjectVersionWithoutFollowingSpace.xml");
         subject.setVersion("1.0.2");
         assertContent(subject, "/poms/inheritedVersion.xml");

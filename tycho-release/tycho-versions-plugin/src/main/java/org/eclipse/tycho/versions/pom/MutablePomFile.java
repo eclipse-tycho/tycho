@@ -44,7 +44,9 @@ public class MutablePomFile {
     private Document document;
     private Element project;
 
+    /** The (effective) project version */
     private String version;
+    private final boolean preferExplicitProjectVersion;
 
     public MutablePomFile(Document pom) {
         this.document = pom;
@@ -53,6 +55,9 @@ public class MutablePomFile {
         this.version = this.getExplicitVersionFromXML();
         if (this.version == null) {
             this.version = this.getParentVersion();
+            this.preferExplicitProjectVersion = false;
+        } else {
+            this.preferExplicitProjectVersion = this.version.equals(this.getParentVersion());
         }
     }
 
@@ -95,8 +100,8 @@ public class MutablePomFile {
     }
 
     private void setVersionInXML() {
-        boolean needsExplicitVersion = !version.equals(getParentVersion());
-        if (needsExplicitVersion) {
+        boolean writeProjectVersion = preferExplicitProjectVersion || !version.equals(getParentVersion());
+        if (writeProjectVersion) {
             Element versionElement = project.getChild("version");
             if (versionElement == null) {
                 versionElement = addEmptyVersionElementToXML(project);
