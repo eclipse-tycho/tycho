@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_11baf859",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2013-11-06T12:48:31Z",
+      "side": 1,
+      "message": "I like Wayne\u0027s one and it seems to be the standard he\u0027s trying to push. I\u0027ll probably adopt it for the following reason:\n* It doesn\u0027t contain \"Bug\" in title (save 4 characters)\n* It contains a full link to the bug, which makes it easier to link to bug when using it outside of gerrit.eclipse.org (GitHub for example)\n\nWhat I don\u0027t like, and why I used to prefer Bug XXX is that there is no immediate link to the bug from commit title in Gerrit (bug XXX links, XXX does not, [XXX] neither): https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d421151",
+      "parentUuid": "8748d3a1_71e25c93",
+      "revId": "a4f45b9325b94a846e8902167d706d3b3607046f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_f1bdd9af",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio35/SimpleArtifactRepositoryIO.java",
         "patchSetId": 1
