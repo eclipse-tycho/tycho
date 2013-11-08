@@ -53,6 +53,14 @@ public class Pack200NormalizeMojo extends AbstractMojo {
     private String finalName;
 
     /**
+     * Skip execution.
+     * 
+     * @parameter default-value="false"
+     * @since 0.20.0
+     */
+    private boolean skip;
+
+    /**
      * Project types which this plugin supports.
      * 
      * @parameter
@@ -66,7 +74,7 @@ public class Pack200NormalizeMojo extends AbstractMojo {
     private Pack200Archiver pack200;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (!supportedProjectTypes.contains(project.getPackaging())) {
+        if (this.skip || !supportedProjectTypes.contains(project.getPackaging())) {
             return;
         }
 
