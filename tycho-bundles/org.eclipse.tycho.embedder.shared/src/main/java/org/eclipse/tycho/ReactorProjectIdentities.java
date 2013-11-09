@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,10 @@
 package org.eclipse.tycho;
 
 /**
- * Pointers by which a reactor project can be addressed, like the GAV or the target directory.
+ * All values (GAV or target directory location) by which a reactor project can be uniquely
+ * identified.
  */
-public interface ReactorProjectCoordinates {
+public interface ReactorProjectIdentities {
 
     public String getGroupId();
 
@@ -23,4 +24,5 @@ public interface ReactorProjectCoordinates {
 
     public BuildOutputDirectory getBuildDirectory();
 
+    // TODO equals & hashCode contract
 }

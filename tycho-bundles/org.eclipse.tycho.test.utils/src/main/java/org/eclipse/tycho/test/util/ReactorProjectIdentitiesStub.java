@@ -8,38 +8,38 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.osgi.adapters;
+package org.eclipse.tycho.test.util;
 
-import org.apache.maven.project.MavenProject;
+import java.io.File;
+
 import org.eclipse.tycho.BuildOutputDirectory;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 
-public class MavenReactorProjectCoordinates implements ReactorProjectCoordinates {
+public class ReactorProjectIdentitiesStub implements ReactorProjectIdentities {
 
-    private final MavenProject project;
+    private static final String DUMMY_GROUP_ID = "dummy-group";
+    private static final String DUMMY_ARTIFACT_ID = "dummy-artifact";
+    private static final String DUMMY_VERSION = "0.1.2-SNAPSHOT";
 
-    // derived members
-    private final BuildOutputDirectory targetFolder;
+    private BuildOutputDirectory targetFolder;
 
-    public MavenReactorProjectCoordinates(MavenProject project) {
-        this.project = project;
-        this.targetFolder = new BuildOutputDirectory(project.getBuild().getDirectory());
+    public ReactorProjectIdentitiesStub(File outputFolder) {
+        this.targetFolder = new BuildOutputDirectory(outputFolder);
     }
 
     public String getGroupId() {
-        return project.getGroupId();
+        return DUMMY_GROUP_ID;
     }
 
     public String getArtifactId() {
-        return project.getArtifactId();
+        return DUMMY_ARTIFACT_ID;
     }
 
     public String getVersion() {
-        return project.getVersion();
+        return DUMMY_VERSION;
     }
 
     public BuildOutputDirectory getBuildDirectory() {
         return targetFolder;
     }
-
 }

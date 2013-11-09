@@ -18,12 +18,12 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildOutputDirectory;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
-import org.eclipse.tycho.osgi.adapters.MavenReactorProjectCoordinates;
+import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 import org.eclipse.tycho.p2.tools.BuildContext;
 
 // TODO share between Maven plug-ins?
@@ -51,8 +51,8 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
         return project;
     }
 
-    protected ReactorProjectCoordinates getProjectCoordinates() {
-        return new MavenReactorProjectCoordinates(project);
+    protected ReactorProjectIdentities getProjectIdentities() {
+        return new MavenReactorProjectIdentities(project);
     }
 
     protected MavenSession getSession() {
@@ -64,7 +64,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     }
 
     protected BuildOutputDirectory getBuildDirectory() {
-        return getProjectCoordinates().getBuildDirectory();
+        return getProjectIdentities().getBuildDirectory();
     }
 
     protected EclipseRepositoryProject getEclipseRepositoryProject() {
@@ -84,6 +84,6 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     protected BuildContext getBuildContext() {
         List<TargetEnvironment> environments = TychoProjectUtils.getTargetPlatformConfiguration(project)
                 .getEnvironments();
-        return new BuildContext(getProjectCoordinates(), getQualifier(), environments);
+        return new BuildContext(getProjectIdentities(), getQualifier(), environments);
     }
 }

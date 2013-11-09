@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.registry.facade;
 
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 
 public interface ReactorRepositoryManagerFacade {
 
@@ -18,8 +18,8 @@ public interface ReactorRepositoryManagerFacade {
      * Returns the project's publishing repository.
      * 
      * @param project
-     *            a project in the reactor.
+     *            a reference to a project in the reactor.
      */
-    PublishingRepositoryFacade getPublishingRepository(ReactorProjectCoordinates project);
+    PublishingRepositoryFacade getPublishingRepository(ReactorProjectIdentities project);
 
 }

@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 
 class PublishingRepositoryLoader {
 
@@ -31,9 +31,9 @@ class PublishingRepositoryLoader {
     private static final String BUILD_REPOSITORY_NAME = "";
 
     private final IProvisioningAgent agent;
-    private final ReactorProjectCoordinates project;
+    private final ReactorProjectIdentities project;
 
-    public PublishingRepositoryLoader(IProvisioningAgent agent, ReactorProjectCoordinates project) {
+    public PublishingRepositoryLoader(IProvisioningAgent agent, ReactorProjectIdentities project) {
         this.agent = agent;
         this.project = project;
     }

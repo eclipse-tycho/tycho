@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
 
@@ -46,7 +46,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
         return agent;
     }
 
-    public PublishingRepository getPublishingRepository(ReactorProjectCoordinates project) {
+    public PublishingRepository getPublishingRepository(ReactorProjectIdentities project) {
         return new PublishingRepositoryImpl(agent, project);
     }
 

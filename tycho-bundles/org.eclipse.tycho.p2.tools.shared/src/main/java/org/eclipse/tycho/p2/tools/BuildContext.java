@@ -13,11 +13,11 @@ package org.eclipse.tycho.p2.tools;
 import java.util.List;
 
 import org.eclipse.tycho.BuildOutputDirectory;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 
 public class BuildContext {
-    private final ReactorProjectCoordinates project;
+    private final ReactorProjectIdentities project;
 
     private final String qualifier;
 
@@ -27,7 +27,7 @@ public class BuildContext {
      * Creates a new <code>BuildContext</code> instance.
      * 
      * @param project
-     *            Coordinates and build output directory of the current project
+     *            GAV coordinates and build output directory of the current project
      * @param qualifier
      *            The build qualifier of the current project
      * @param environments
@@ -35,7 +35,7 @@ public class BuildContext {
      * @throws IllegalArgumentException
      *             if no target environment has been specified
      */
-    public BuildContext(ReactorProjectCoordinates project, String qualifier, List<TargetEnvironment> environments)
+    public BuildContext(ReactorProjectIdentities project, String qualifier, List<TargetEnvironment> environments)
             throws IllegalArgumentException {
         if (environments.size() == 0) {
             throw new IllegalArgumentException("List of target environments must not be empty");
@@ -49,7 +49,7 @@ public class BuildContext {
     /**
      * @return a reference to the current project.
      */
-    public ReactorProjectCoordinates getProject() {
+    public ReactorProjectIdentities getProject() {
         return project;
     }
 

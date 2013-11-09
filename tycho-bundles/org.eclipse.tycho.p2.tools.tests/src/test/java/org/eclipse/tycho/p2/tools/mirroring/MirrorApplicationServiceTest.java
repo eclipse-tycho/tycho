@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -37,7 +37,7 @@ import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
+import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -74,7 +74,7 @@ public class MirrorApplicationServiceTest {
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
         File outputFolder = tempFolder.getRoot();
-        ReactorProjectCoordinates currentProject = new ReactorProjectCoordinatesStub(outputFolder);
+        ReactorProjectIdentities currentProject = new ReactorProjectIdentitiesStub(outputFolder);
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         subject = new MirrorApplicationServiceImpl();

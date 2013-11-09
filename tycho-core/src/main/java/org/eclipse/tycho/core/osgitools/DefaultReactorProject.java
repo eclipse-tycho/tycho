@@ -24,7 +24,9 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 import org.osgi.framework.Version;
 
 public class DefaultReactorProject implements ReactorProject {
@@ -81,6 +83,10 @@ public class DefaultReactorProject implements ReactorProject {
 
     public String getVersion() {
         return project.getVersion();
+    }
+
+    public ReactorProjectIdentities getIdentities() {
+        return new MavenReactorProjectIdentities(project);
     }
 
     public File getOutputDirectory() {

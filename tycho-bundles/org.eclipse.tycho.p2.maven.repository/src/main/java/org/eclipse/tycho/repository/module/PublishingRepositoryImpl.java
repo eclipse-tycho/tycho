@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
@@ -30,7 +30,7 @@ public class PublishingRepositoryImpl implements PublishingRepository {
     private final ModuleMetadataRepository metadataRepository;
     private final ModuleArtifactRepository artifactRepository;
 
-    public PublishingRepositoryImpl(IProvisioningAgent agent, ReactorProjectCoordinates project) {
+    public PublishingRepositoryImpl(IProvisioningAgent agent, ReactorProjectIdentities project) {
         PublishingRepositoryLoader loadHelper = new PublishingRepositoryLoader(agent, project);
         this.metadataRepository = loadHelper.getModuleMetadataRepository();
         this.artifactRepository = loadHelper.getModuleArtifactRepository();

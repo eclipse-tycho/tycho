@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,10 @@ import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
-public interface ReactorProject extends ReactorProjectCoordinates {
+/**
+ * A Tycho project in the reactor.
+ */
+public interface ReactorProject {
     /**
      * Conventional key used to store ReactorProject in MavenProject.context
      */
@@ -46,6 +49,8 @@ public interface ReactorProject extends ReactorProjectCoordinates {
     public String getArtifactId();
 
     public String getVersion();
+
+    public ReactorProjectIdentities getIdentities();
 
     // build configuration
 

@@ -11,7 +11,7 @@
 package org.eclipse.tycho.repository.registry;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.tycho.ReactorProjectCoordinates;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
@@ -23,8 +23,8 @@ public interface ReactorRepositoryManager extends ReactorRepositoryManagerFacade
      * Returns the project's publishing repository.
      * 
      * @param project
-     *            a project in the reactor.
+     *            a reference to a project in the reactor.
      */
-    PublishingRepository getPublishingRepository(ReactorProjectCoordinates project);
+    PublishingRepository getPublishingRepository(ReactorProjectIdentities project);
 
 }

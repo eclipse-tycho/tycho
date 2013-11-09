@@ -46,7 +46,7 @@ import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
-import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
+import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.eclipse.tycho.test.util.StubServiceRegistration;
 import org.junit.Before;
 import org.junit.Rule;
@@ -84,13 +84,13 @@ public class PublisherServiceTest {
     public void initSubject() throws Exception {
         outputDirectory = tempManager.newFolder("targetDir");
 
-        BuildContext buildContext = new BuildContext(new ReactorProjectCoordinatesStub(outputDirectory),
+        BuildContext buildContext = new BuildContext(new ReactorProjectIdentitiesStub(outputDirectory),
                 DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         // TODO use a "normal" feature (we don't need the patch here...)
         RepositoryReferences contextRepositories = MirrorApplicationServiceTest.sourceRepos("patch");
 
-        outputRepository = new PublishingRepositoryImpl(p2Context.getAgent(), new ReactorProjectCoordinatesStub(
+        outputRepository = new PublishingRepositoryImpl(p2Context.getAgent(), new ReactorProjectIdentitiesStub(
                 outputDirectory));
         PublisherInfoTemplate publisherConfiguration = new PublisherInfoTemplate(contextRepositories, buildContext,
                 p2Context.getAgent());

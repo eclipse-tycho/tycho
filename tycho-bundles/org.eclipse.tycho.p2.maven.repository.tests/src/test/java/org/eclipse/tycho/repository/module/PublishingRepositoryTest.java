@@ -34,7 +34,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.publishing.WriteSessionContext;
 import org.eclipse.tycho.test.util.P2Context;
-import org.eclipse.tycho.test.util.ReactorProjectCoordinatesStub;
+import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,11 +51,11 @@ public class PublishingRepositoryTest {
     private PublishingRepository subject;
 
     // project the publishing repository belongs to
-    private ReactorProjectCoordinatesStub project;
+    private ReactorProjectIdentitiesStub project;
 
     @Before
     public void initSubject() throws Exception {
-        project = new ReactorProjectCoordinatesStub(tempManager.newFolder("targetDir"));
+        project = new ReactorProjectIdentitiesStub(tempManager.newFolder("targetDir"));
 
         subject = new PublishingRepositoryImpl(p2Context.getAgent(), project);
     }
