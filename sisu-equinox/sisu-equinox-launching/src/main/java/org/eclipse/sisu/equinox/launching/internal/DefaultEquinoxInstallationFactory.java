@@ -177,6 +177,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         } catch (ComponentLookupException e) {
             throw new RuntimeException("Could not lookup required component", e);
         }
+        unzip.setIgnorePermissions(true);
         destination.mkdirs();
         unzip.setSourceFile(source);
         unzip.setDestDirectory(destination);
