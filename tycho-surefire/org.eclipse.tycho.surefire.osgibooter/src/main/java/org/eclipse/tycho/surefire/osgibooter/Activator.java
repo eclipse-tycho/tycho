@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Red Hat Inc.  - Improve message about PlatformAdmin
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
 
@@ -65,7 +66,7 @@ public class Activator implements BundleActivator {
     public static Set<ResolverError> getResolutionErrors(Bundle bundle) {
         Set<ResolverError> errors = new LinkedHashSet<ResolverError>();
         if (platformAdmin == null) {
-            System.err.println("Could not acquire PlatformAdmin server");
+            System.err.println("Could not compute resolution errors (PlatformAdmin service not available)");
             return errors;
         }
         State state = platformAdmin.getState(false /* mutable */);
