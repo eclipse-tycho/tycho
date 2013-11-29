@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Red Hat Inc.  - More flexibility around PlatformAdmin
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
 
@@ -29,9 +30,12 @@ import org.osgi.framework.ServiceReference;
 public class Activator implements BundleActivator {
 
     public static final String PLUGIN_ID = "org.eclipse.tycho.surefire.osgibooter";
-    private static PlatformAdmin platformAdmin;
+
+    public static Activator INSTANCE;
+    private PlatformAdmin platformAdmin;
 
     public Activator() {
+        Activator.INSTANCE = this;
     }
 
     public void start(BundleContext context) throws Exception {
@@ -62,7 +66,7 @@ public class Activator implements BundleActivator {
         return bundle;
     }
 
-    public static Set<ResolverError> getResolutionErrors(Bundle bundle) {
+    public Set<ResolverError> getResolutionErrors(Bundle bundle) {
         Set<ResolverError> errors = new LinkedHashSet<ResolverError>();
         if (platformAdmin == null) {
             System.err.println("Could not acquire PlatformAdmin server");
@@ -79,6 +83,10 @@ public class Activator implements BundleActivator {
         }
         getRelevantErrors(state, errors, description);
         return errors;
+    }
+
+    public boolean canUsePlatformAdmin() {
+        return this.platformAdmin != null;
     }
 
     private static void getRelevantErrors(State state, Set<ResolverError> errors, BundleDescription bundle) {
