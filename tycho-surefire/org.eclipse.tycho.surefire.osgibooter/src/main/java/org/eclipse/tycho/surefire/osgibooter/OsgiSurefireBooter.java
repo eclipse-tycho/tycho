@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG        - port to surefire 2.10
+ *    Red Hat Inc.  - Remove ref to PlatformAdmin
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
 
@@ -22,7 +23,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
 import org.apache.maven.surefire.booter.ProviderConfiguration;
@@ -37,7 +37,6 @@ import org.apache.maven.surefire.util.RunOrder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.osgi.service.resolver.ResolverError;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
@@ -148,16 +147,13 @@ public class OsgiSurefireBooter {
         if (bundle == null) {
             throw new RuntimeException("Bundle " + symbolicName + " is not found");
         }
-
-        Set<ResolverError> errors = Activator.getResolutionErrors(bundle);
-        if (errors.size() > 0) {
-            System.err.println("Resolution errors for " + bundle.toString());
-            for (ResolverError error : errors) {
-                System.err.println("\t" + error.toString());
-            }
+        try {
+            bundle.start();
+        } catch (BundleException ex) {
+            System.err.println("Could not start test bundle: " + bundle.getSymbolicName());
+            ex.printStackTrace();
+            throw ex;
         }
-
-        bundle.start();
 
         return new BundleClassLoader(bundle);
     }
