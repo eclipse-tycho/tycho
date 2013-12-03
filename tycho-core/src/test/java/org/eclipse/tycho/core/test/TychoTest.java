@@ -297,6 +297,87 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("munchy", env.getArch());
     }
 
+    public void testWithValidExplicitTargetEnvironment() throws Exception {
+        File basedir = getBasedir("projects/explicitenvironment/valid");
+
+        List<MavenProject> projects = getSortedProjects(basedir);
+        assertEquals(1, projects.size());
+
+        assertEquals("valid", projects.get(0).getArtifactId());
+
+        DefaultTargetPlatformConfigurationReader resolver = lookup(DefaultTargetPlatformConfigurationReader.class);
+
+        MavenSession session = newMavenSession(projects.get(0), projects);
+
+        TargetPlatformConfiguration configuration;
+        List<TargetEnvironment> environments;
+
+        configuration = resolver.getTargetPlatformConfiguration(session, session.getCurrentProject());
+        environments = configuration.getEnvironments();
+        assertEquals(1, environments.size());
+        TargetEnvironment env = environments.get(0);
+        assertEquals("linux", env.getOs());
+        assertEquals("gtk", env.getWs());
+        assertEquals("arm", env.getArch());
+    }
+
+    public void testWithMissingOsInExplicitTargetEnvironment() throws Exception {
+        try {
+            File basedir = getBasedir("projects/explicitenvironment/missingOs");
+
+            List<MavenProject> projects = getSortedProjects(basedir);
+            assertEquals(1, projects.size());
+
+            assertEquals("missingOs", projects.get(0).getArtifactId());
+
+            DefaultTargetPlatformConfigurationReader resolver = lookup(DefaultTargetPlatformConfigurationReader.class);
+            MavenSession session = newMavenSession(projects.get(0), projects);
+
+            resolver.getTargetPlatformConfiguration(session, session.getCurrentProject());
+            fail("RuntimeException must be thrown when <os> is missing in the target configuration (environment element)");
+        } catch (RuntimeException e) {
+            assertTrue(true);
+        }
+    }
+
+    public void testWithMissingWsInExplicitTargetEnvironment() throws Exception {
+        try {
+            File basedir = getBasedir("projects/explicitenvironment/missingWs");
+
+            List<MavenProject> projects = getSortedProjects(basedir);
+            assertEquals(1, projects.size());
+
+            assertEquals("missingWs", projects.get(0).getArtifactId());
+
+            DefaultTargetPlatformConfigurationReader resolver = lookup(DefaultTargetPlatformConfigurationReader.class);
+            MavenSession session = newMavenSession(projects.get(0), projects);
+
+            resolver.getTargetPlatformConfiguration(session, session.getCurrentProject());
+            fail("RuntimeException must be thrown when <ws> is missing in the target configuration (environment element)");
+        } catch (RuntimeException e) {
+            assertTrue(true);
+        }
+    }
+
+    public void testWithMissingArchInExplicitTargetEnvironment() throws Exception {
+        try {
+            File basedir = getBasedir("projects/explicitenvironment/missingArch");
+
+            List<MavenProject> projects = getSortedProjects(basedir);
+            assertEquals(1, projects.size());
+
+            assertEquals("missingArch", projects.get(0).getArtifactId());
+
+            DefaultTargetPlatformConfigurationReader resolver = lookup(DefaultTargetPlatformConfigurationReader.class);
+            MavenSession session = newMavenSession(projects.get(0), projects);
+
+            resolver.getTargetPlatformConfiguration(session, session.getCurrentProject());
+            fail("RuntimeException must be thrown when <arch> is missing in the target configuration (environment element)");
+        } catch (RuntimeException e) {
+            assertTrue(true);
+        }
+    }
+
     public void testBundleRuntimeExecutionEnvironment() throws Exception {
         File basedir = getBasedir("projects/bree");
 

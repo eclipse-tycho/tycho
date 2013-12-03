@@ -221,7 +221,7 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project, Xpp3Dom configuration) {
-        TargetEnvironment deprecatedTargetEnvironmentSpec = getDeprecatedTargetEnvironment(configuration);
+        TargetEnvironment deprecatedTargetEnvironmentSpec = getDeprecatedTargetEnvironment(configuration, project);
         if (deprecatedTargetEnvironmentSpec != null) {
             result.addEnvironment(deprecatedTargetEnvironmentSpec);
         }
@@ -234,16 +234,16 @@ public class DefaultTargetPlatformConfigurationReader {
                 throw new RuntimeException(message);
             }
             for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
-                result.addEnvironment(newTargetEnvironment(environmentDom));
+                result.addEnvironment(newTargetEnvironment(environmentDom, project));
             }
         }
     }
 
-    protected TargetEnvironment getDeprecatedTargetEnvironment(Xpp3Dom configuration) {
+    protected TargetEnvironment getDeprecatedTargetEnvironment(Xpp3Dom configuration, MavenProject project) {
         Xpp3Dom environmentDom = configuration.getChild("environment");
         if (environmentDom != null) {
             logger.warn("target-platform-configuration <environment> element is deprecated; use <environments> instead");
-            return newTargetEnvironment(environmentDom);
+            return newTargetEnvironment(environmentDom, project);
         }
         return null;
     }
@@ -341,20 +341,26 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private static TargetEnvironment newTargetEnvironment(Xpp3Dom environmentDom) {
+    private static TargetEnvironment newTargetEnvironment(Xpp3Dom environmentDom, MavenProject project) {
         Xpp3Dom osDom = environmentDom.getChild("os");
         if (osDom == null) {
-            return null;
+            String message = "<os> element is missing within target-platform-configuration (element <environment>) "
+                    + project.getId();
+            throw new RuntimeException(message);
         }
 
         Xpp3Dom wsDom = environmentDom.getChild("ws");
         if (wsDom == null) {
-            return null;
+            String message = "<ws> element is missing within target-platform-configuration (element <environment>) "
+                    + project.getId();
+            throw new RuntimeException(message);
         }
 
         Xpp3Dom archDom = environmentDom.getChild("arch");
         if (archDom == null) {
-            return null;
+            String message = "<arch> element is missing within target-platform-configuration (element <environment>) "
+                    + project.getId();
+            throw new RuntimeException(message);
         }
 
         return new TargetEnvironment(osDom.getValue(), wsDom.getValue(), archDom.getValue());
