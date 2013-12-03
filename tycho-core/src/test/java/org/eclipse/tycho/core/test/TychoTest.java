@@ -32,6 +32,7 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
+import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
@@ -295,6 +296,84 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("foo", env.getOs());
         assertEquals("bar", env.getWs());
         assertEquals("munchy", env.getArch());
+    }
+
+    public void testWithValidExplicitTargetEnvironment() throws Exception {
+        File basedir = getBasedir("projects/explicitenvironment/valid");
+
+        List<MavenProject> projects = getSortedProjects(basedir);
+        assertEquals(1, projects.size());
+
+        assertEquals("valid", projects.get(0).getArtifactId());
+
+        DefaultTargetPlatformConfigurationReader resolver = lookup(DefaultTargetPlatformConfigurationReader.class);
+
+        MavenSession session = newMavenSession(projects.get(0), projects);
+
+        TargetPlatformConfiguration configuration;
+        List<TargetEnvironment> environments;
+
+        configuration = resolver.getTargetPlatformConfiguration(session, session.getCurrentProject());
+        environments = configuration.getEnvironments();
+        assertEquals(1, environments.size());
+        TargetEnvironment env = environments.get(0);
+        assertEquals("linux", env.getOs());
+        assertEquals("gtk", env.getWs());
+        assertEquals("arm", env.getArch());
+    }
+
+    public void testWithMissingOsInExplicitTargetEnvironment() throws Exception {
+        File basedir = getBasedir("projects/explicitenvironment/missingOs");
+        try {
+            getSortedProjects(basedir);
+            fail("RuntimeException must be thrown when <os> is missing in the target configuration (environment element)");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains(
+                    "target-platform-configuration error in project explicitenvironment:missingos:eclipse-plugin"));
+            Throwable cause = e;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertTrue(cause instanceof TargetPlatformConfigurationException);
+            assertEquals("<os> element is missing within target-platform-configuration (element <environment>)",
+                    cause.getMessage());
+        }
+    }
+
+    public void testWithMissingWsInExplicitTargetEnvironment() throws Exception {
+        File basedir = getBasedir("projects/explicitenvironment/missingWs");
+        try {
+            getSortedProjects(basedir);
+            fail("RuntimeException must be thrown when <ws> is missing in the target configuration (environment element)");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains(
+                    "target-platform-configuration error in project explicitenvironment:missingws:eclipse-plugin"));
+            Throwable cause = e;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertTrue(cause instanceof TargetPlatformConfigurationException);
+            assertEquals("<ws> element is missing within target-platform-configuration (element <environment>)",
+                    cause.getMessage());
+        }
+    }
+
+    public void testWithMissingArchInExplicitTargetEnvironment() throws Exception {
+        File basedir = getBasedir("projects/explicitenvironment/missingArch");
+        try {
+            getSortedProjects(basedir);
+            fail("RuntimeException must be thrown when <arch> is missing in the target configuration (environment element)");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains(
+                    "target-platform-configuration error in project explicitenvironment:missingarch:eclipse-plugin"));
+            Throwable cause = e;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertTrue(cause instanceof TargetPlatformConfigurationException);
+            assertEquals("<arch> element is missing within target-platform-configuration (element <environment>)",
+                    cause.getMessage());
+        }
     }
 
     public void testBundleRuntimeExecutionEnvironment() throws Exception {

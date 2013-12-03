@@ -221,25 +221,30 @@ public class DefaultTargetPlatformConfigurationReader {
     }
 
     private void addTargetEnvironments(TargetPlatformConfiguration result, MavenProject project, Xpp3Dom configuration) {
-        TargetEnvironment deprecatedTargetEnvironmentSpec = getDeprecatedTargetEnvironment(configuration);
-        if (deprecatedTargetEnvironmentSpec != null) {
-            result.addEnvironment(deprecatedTargetEnvironmentSpec);
-        }
-
-        Xpp3Dom environmentsDom = configuration.getChild("environments");
-        if (environmentsDom != null) {
+        try {
+            TargetEnvironment deprecatedTargetEnvironmentSpec = getDeprecatedTargetEnvironment(configuration);
             if (deprecatedTargetEnvironmentSpec != null) {
-                String message = "Deprecated target-platform-configuration <environment> element must not be combined with new <environments> element; check the (inherited) configuration of "
-                        + project.getId();
-                throw new RuntimeException(message);
+                result.addEnvironment(deprecatedTargetEnvironmentSpec);
             }
-            for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
-                result.addEnvironment(newTargetEnvironment(environmentDom));
+
+            Xpp3Dom environmentsDom = configuration.getChild("environments");
+            if (environmentsDom != null) {
+                if (deprecatedTargetEnvironmentSpec != null) {
+                    String message = "Deprecated target-platform-configuration <environment> element must not be combined with new <environments> element; check the (inherited) configuration of "
+                            + project.getId();
+                    throw new RuntimeException(message);
+                }
+                for (Xpp3Dom environmentDom : environmentsDom.getChildren("environment")) {
+                    result.addEnvironment(newTargetEnvironment(environmentDom));
+                }
             }
+        } catch (TargetPlatformConfigurationException e) {
+            throw new RuntimeException("target-platform-configuration error in project " + project.getId(), e);
         }
     }
 
-    protected TargetEnvironment getDeprecatedTargetEnvironment(Xpp3Dom configuration) {
+    protected TargetEnvironment getDeprecatedTargetEnvironment(Xpp3Dom configuration)
+            throws TargetPlatformConfigurationException {
         Xpp3Dom environmentDom = configuration.getChild("environment");
         if (environmentDom != null) {
             logger.warn("target-platform-configuration <environment> element is deprecated; use <environments> instead");
@@ -341,20 +346,24 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private static TargetEnvironment newTargetEnvironment(Xpp3Dom environmentDom) {
+    private static TargetEnvironment newTargetEnvironment(Xpp3Dom environmentDom)
+            throws TargetPlatformConfigurationException {
         Xpp3Dom osDom = environmentDom.getChild("os");
         if (osDom == null) {
-            return null;
+            String message = "<os> element is missing within target-platform-configuration (element <environment>)";
+            throw new TargetPlatformConfigurationException(message);
         }
 
         Xpp3Dom wsDom = environmentDom.getChild("ws");
         if (wsDom == null) {
-            return null;
+            String message = "<ws> element is missing within target-platform-configuration (element <environment>)";
+            throw new TargetPlatformConfigurationException(message);
         }
 
         Xpp3Dom archDom = environmentDom.getChild("arch");
         if (archDom == null) {
-            return null;
+            String message = "<arch> element is missing within target-platform-configuration (element <environment>)";
+            throw new TargetPlatformConfigurationException(message);
         }
 
         return new TargetEnvironment(osDom.getValue(), wsDom.getValue(), archDom.getValue());
