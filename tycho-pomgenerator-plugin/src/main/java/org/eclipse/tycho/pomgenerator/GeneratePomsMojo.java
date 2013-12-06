@@ -182,20 +182,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         // find all candidate folders
         List<File> candidateDirs = new ArrayList<File>();
         for (File basedir : baseDirs) {
-            getLog().info("Scanning " + toString(basedir) + " basedir");
-            if (isProjectDir(basedir)) {
-                candidateDirs.add(basedir);
-            } else {
-                File[] listFiles = basedir.listFiles();
-                if (listFiles != null) {
-                    for (File file : listFiles) {
-                        if (isProjectDir(file)) {
-                            candidateDirs.add(file);
-                        }
-                    }
-                }
-
-            }
+            findAndAddCandidates(candidateDirs, basedir);
         }
 
         // find all root projects
@@ -289,6 +276,25 @@ public class GeneratePomsMojo extends AbstractMojo {
             addTychoExtension(parent);
             writePom(parentDir, parent);
             generateAggregatorPoms(testSuiteLocation);
+        }
+    }
+
+    private void findAndAddCandidates(List<File> candidateDirs, File basedir) {
+        getLog().info("Scanning " + toString(basedir) + " basedir");
+        if (isProjectDir(basedir)) {
+            candidateDirs.add(basedir);
+        } else {
+            File[] listFiles = basedir.listFiles();
+            if (listFiles != null) {
+                for (File file : listFiles) {
+                    if (isProjectDir(file)) {
+                        candidateDirs.add(file);
+                    } else {
+                        findAndAddCandidates(candidateDirs, file);
+                    }
+                }
+            }
+
         }
     }
 
