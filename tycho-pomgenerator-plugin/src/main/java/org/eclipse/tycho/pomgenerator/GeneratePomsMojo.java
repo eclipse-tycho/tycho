@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,6 +64,13 @@ import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
 
 /**
+ * Traverse the current directory to find eclipse-plugin/bundle, feature, update site (site.xml) or
+ * p2 repository (category.xml) projects and generate corresponding pom.xml's. This goal is intended
+ * to be used by existing projects for generating quick-start pom.xml's when converting their build
+ * to Tycho. The generated pom.xml's are only intended as a starting point and will most probably
+ * require manual refinement. Note that this goal is not intended for automatic pom.xml generation
+ * during build.
+ * 
  * @goal generate-poms
  * @requiresProject false
  */
@@ -73,26 +80,39 @@ public class GeneratePomsMojo extends AbstractMojo {
     private static final String THIS_MODULE = ".";
 
     /**
+     * Tycho version to be used in the generated pom.xml files.
+     * 
      * @parameter default-value="${plugin.version}"
      * @readonly
      */
     private String tychoVersion;
 
     /**
+     * The base directory which will be traversed recursively when searching for projects.
+     * 
      * @parameter expression="${baseDir}" default-value="${basedir}"
      * @required
      */
     private File baseDir;
 
-    /** @parameter expression="${extraDirs} */
+    /**
+     * Additional directories to be traversed recursively when searching for projects.
+     * 
+     * @parameter expression="${extraDirs}
+     */
     private String extraDirs;
 
     /**
+     * Maven groupId to be used in the generated pom.xml files.
+     * 
      * @parameter expression="${groupId}"
      */
     private String groupId;
 
     /**
+     * Maven version to be used in the generated pom.xml files (applies to parent pom and
+     * eclipse-repository/eclipse-update-site only).
+     * 
      * @parameter expression="${version}" default-value="0.0.1-SNAPSHOT"
      */
     private String version;
@@ -182,20 +202,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         // find all candidate folders
         List<File> candidateDirs = new ArrayList<File>();
         for (File basedir : baseDirs) {
-            getLog().info("Scanning " + toString(basedir) + " basedir");
-            if (isProjectDir(basedir)) {
-                candidateDirs.add(basedir);
-            } else {
-                File[] listFiles = basedir.listFiles();
-                if (listFiles != null) {
-                    for (File file : listFiles) {
-                        if (isProjectDir(file)) {
-                            candidateDirs.add(file);
-                        }
-                    }
-                }
-
-            }
+            findAndAddCandidates(candidateDirs, basedir);
         }
 
         // find all root projects
@@ -289,6 +296,25 @@ public class GeneratePomsMojo extends AbstractMojo {
             addTychoExtension(parent);
             writePom(parentDir, parent);
             generateAggregatorPoms(testSuiteLocation);
+        }
+    }
+
+    private void findAndAddCandidates(List<File> candidateDirs, File basedir) {
+        getLog().info("Scanning " + toString(basedir) + " basedir");
+        if (isProjectDir(basedir)) {
+            candidateDirs.add(basedir);
+        } else {
+            File[] listFiles = basedir.listFiles();
+            if (listFiles != null) {
+                for (File file : listFiles) {
+                    if (isProjectDir(file)) {
+                        candidateDirs.add(file);
+                    } else {
+                        findAndAddCandidates(candidateDirs, file);
+                    }
+                }
+            }
+
         }
     }
 

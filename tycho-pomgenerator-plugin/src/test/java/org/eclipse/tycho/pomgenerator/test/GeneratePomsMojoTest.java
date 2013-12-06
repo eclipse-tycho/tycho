@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -136,6 +136,18 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals(5, aggrmodules.size());
         assertEquals("../../base1/p002", aggrmodules.get(1));
         assertEquals("../p005", aggrmodules.get(3));
+    }
+
+    public void testRecursive() throws Exception {
+        File baseDir = getBasedir("projects/multibase");
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("groupId", "group");
+        params.put("version", "1.0.0");
+        params.put("aggregator", Boolean.TRUE);
+        generate(baseDir, new File[] {}, params);
+
+        Model parent = readModel(baseDir, "pom.xml");
+        assertEquals(6, parent.getModules().size());
     }
 
     public void testParent() throws Exception {
