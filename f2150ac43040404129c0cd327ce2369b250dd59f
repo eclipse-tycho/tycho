@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_4de8d773",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-12-09T08:16:39Z",
+      "side": 1,
+      "message": "try block should only cover the code where the exception is expected to be thrown",
+      "revId": "f2150ac43040404129c0cd327ce2369b250dd59f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8748d3a1_2debcb70",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-12-09T08:16:39Z",
+      "side": 1,
+      "message": "might want to check the details here like e.g. the exception message here becuase RuntimeException is very generic and will also catch e.g. NPE",
+      "revId": "f2150ac43040404129c0cd327ce2369b250dd59f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
