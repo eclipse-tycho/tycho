@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -195,11 +196,12 @@ public class BaselineValidator {
         Map<String, ArtifactDelta> result = new LinkedHashMap<String, ArtifactDelta>();
 
         // baseline never includes more artifacts
-        for (String classifier : generatedMetadata.keySet()) {
+        for (Entry<String, IP2Artifact> classifierEntry : generatedMetadata.entrySet()) {
             // the following types of artifacts are produced/consumed by tycho as of 0.16
             // - bundle jar and jar.pack.gz artifacts
             // - feature jar artifacts
             // - feature rootfiles zip artifacts
+            String classifier = classifierEntry.getKey();
 
             if (RepositoryLayoutHelper.PACK200_CLASSIFIER.equals(classifier)) {
                 // in the unlikely event that reactor and baseline pack200 files have different contents
@@ -210,7 +212,7 @@ public class BaselineValidator {
             String deltaKey = classifier != null ? "classifier-" + classifier : "no-classifier";
 
             IP2Artifact baselineArtifact = baselineMetadata.get(classifier);
-            IP2Artifact reactorArtifact = generatedMetadata.get(classifier);
+            IP2Artifact reactorArtifact = classifierEntry.getValue();
 
             if (baselineArtifact == null) {
                 result.put(deltaKey, new MissingArtifactDelta());

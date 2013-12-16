@@ -13,6 +13,7 @@ package org.eclipse.tycho.zipcomparator.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashSet;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -58,8 +59,9 @@ public class PropertiesComparator implements ContentsComparator {
     }
 
     private void addAll(Set<String> names, Properties props) {
-        for (Object key : props.keySet()) {
-            Object value = props.get(key);
+        for (Entry<Object, Object> propEntry : props.entrySet()) {
+            Object key = propEntry.getKey();
+            Object value = propEntry.getValue();
             if (key instanceof String && value instanceof String) {
                 names.add((String) key);
             }
