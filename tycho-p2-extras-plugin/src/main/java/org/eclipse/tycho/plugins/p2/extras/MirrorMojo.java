@@ -63,6 +63,13 @@ public class MirrorMojo extends AbstractMojo {
     private File destination;
 
     /**
+     * The target repository name.
+     *
+     * @parameter
+     */
+    private String name;
+
+    /**
      * (Optional) Which IUs to mirror. If omitted, all IUs available in the source repositories will
      * be mirrored. An IU must specify an id and may specify a version. If version is omitted, the
      * latest available version will be queried. By default, IUs required by the specified IUs will
@@ -166,8 +173,9 @@ public class MirrorMojo extends AbstractMojo {
             }
         }
 
+        if (name == null) { name = ""; }
         final DestinationRepositoryDescriptor destinationDescriptor = new DestinationRepositoryDescriptor(destination,
-                "", compress, mirrorMetadataOnly, append);
+                name, compress, mirrorMetadataOnly, append);
         getLog().info("Mirroring to " + destination + "...");
         try {
             mirrorService.mirrorStandalone(sourceDescriptor, destinationDescriptor, createIUDescriptions(),
