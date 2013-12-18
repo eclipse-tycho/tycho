@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8748d3a1_00110311",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/DirectorMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2013-12-18T10:43:39Z",
+      "side": 1,
+      "message": "additonal IUs should be part of the existing \u003cproduct\u003e configuration. we should allow to configure an (optional) IU version too with syntax \u003cid\u003e[/\u003cversion\u003e]\n\nhttp://help.eclipse.org/kepler/index.jsp?topic\u003d%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html",
+      "revId": "f1d52aa79378caad1533062d71549211517ed294",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
