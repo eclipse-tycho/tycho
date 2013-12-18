@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Hendrik Still - Bug 361722
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
@@ -54,6 +55,13 @@ public final class DirectorMojo extends AbstractProductMojo {
 
     /** @parameter default-value="true" */
     private boolean installFeatures;
+
+    /**
+     * Additional Installation Units. This allows to install root level features into product.
+     *
+     * @parameter
+     */
+    private List<String> additionalIUs;
 
     /**
      * Installation source to be used for the director calls. Can be
@@ -108,6 +116,14 @@ public final class DirectorMojo extends AbstractProductMojo {
                 command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
                 command.setEnvironment(env);
                 command.setInstallFeatures(installFeatures);
+
+                //Add additional IUs to support root level feature(see Bug 361722)
+                if (this.additionalIUs != null) {
+                    for (String additionalUI : this.additionalIUs) {
+                        command.addUnitToInstall(additionalUI);
+                    }
+                }
+
                 getLog().info(
                         "Installing product " + product.getId() + " for environment " + env + " to "
                                 + destination.getAbsolutePath());
