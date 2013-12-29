@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: bundle.optional-dep
+Bundle-SymbolicName: bundle.optional-dep
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.osgi;resolution:=optional

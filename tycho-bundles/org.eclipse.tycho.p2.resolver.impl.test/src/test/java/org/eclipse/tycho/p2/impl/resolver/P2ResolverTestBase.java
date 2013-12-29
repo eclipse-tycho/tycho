@@ -79,13 +79,23 @@ public class P2ResolverTestBase {
         pomDependencies.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
     }
 
-    protected final void addReactorProject(File projectRoot, String packagingType, String artifactId) {
+    /**
+     * Creates a {@link ReactorProject} instance to be added to the target platform and/or to be
+     * used as project to be resolved.
+     */
+    protected final ReactorProject createReactorProject(File projectRoot, String packagingType, String artifactId) {
+        OptionalResolutionAction optionalDependencies = OptionalResolutionAction.REQUIRE;
+        return createReactorProject(projectRoot, packagingType, artifactId, optionalDependencies);
+    }
+
+    protected ReactorProject createReactorProject(File projectRoot, String packagingType, String artifactId,
+            OptionalResolutionAction optionalDependencies) {
         ReactorProjectStub project = new ReactorProjectStub(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
                 packagingType);
         IDependencyMetadata metadata = dependencyGenerator.generateMetadata(new ArtifactMock(project, null),
-                getEnvironments(), OptionalResolutionAction.REQUIRE);
+                getEnvironments(), optionalDependencies);
         project.setDependencyMetadata(metadata);
-        reactorProjects.add(project);
+        return project;
     }
 
 }

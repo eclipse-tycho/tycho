@@ -113,35 +113,6 @@ public class TargetPlatformFactoryTest {
     }
 
     @Test
-    public void test364134_classifiedAttachedArtifactMetadata() throws Exception {
-        ReactorProject reactorProject = createReactorProject(new File(
-                "resources/platformbuilder/classified-attached-artifacts"), new String[] {
-                "org.eclipse.tycho.p2.impl.test.bundle", "org.eclipse.tycho.p2.impl.test.bundle.source" },
-                new String[] { "org.eclipse.tycho.p2.impl.test.bundle.secondary" });
-
-        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                Collections.singletonList(reactorProject), null);
-
-        Collection<IInstallableUnit> units = platform.getInstallableUnits();
-        assertEquals(3, units.size());
-        assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle");
-        assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.source");
-        assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.secondary");
-
-        Collection<IInstallableUnit> projectPrimaryIUs = platform.getReactorProjectIUs(reactorProject.getBasedir(),
-                true);
-
-        assertEquals(2, projectPrimaryIUs.size());
-        assertContainsIU(projectPrimaryIUs, "org.eclipse.tycho.p2.impl.test.bundle");
-        assertContainsIU(projectPrimaryIUs, "org.eclipse.tycho.p2.impl.test.bundle.source");
-
-        Collection<IInstallableUnit> projectSecondaryIUs = platform.getReactorProjectIUs(reactorProject.getBasedir(),
-                false);
-        assertEquals(1, projectSecondaryIUs.size());
-        assertContainsIU(projectSecondaryIUs, "org.eclipse.tycho.p2.impl.test.bundle.secondary");
-    }
-
-    @Test
     public void testReactorProjectFiltering() throws Exception {
         TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
                 CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
@@ -157,10 +128,6 @@ public class TargetPlatformFactoryTest {
         assertEquals(units.toString(), 1, units.size());
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group");
         // assertContainsIU(units, "iu.p2.inf"); removed by the filter
-
-        units = platform.getReactorProjectIUs(projectRoot, true);
-        assertEquals(units.toString(), 1, units.size());
-        assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group");
     }
 
     @Test
