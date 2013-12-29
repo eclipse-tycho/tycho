@@ -337,6 +337,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         for (ReactorProject project : reactorProjects) {
             @SuppressWarnings("unchecked")
             Set<IInstallableUnit> projectIUs = (Set<IInstallableUnit>) project.getDependencyMetadata();
+            if (projectIUs == null)
+                continue;
 
             for (IInstallableUnit iu : projectIUs) {
                 Set<File> locations = reactorUIs.get(iu);

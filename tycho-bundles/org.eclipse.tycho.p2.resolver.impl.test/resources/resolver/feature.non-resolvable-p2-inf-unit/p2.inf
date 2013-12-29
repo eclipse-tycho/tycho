@@ -1,0 +1,12 @@
+#requires.0.namespace = org.eclipse.equinox.p2.iu
+#requires.0.name = nonresolvable.additional.unit
+
+# this unit is not a seed unit but a secondary unit -> resolution doesn't try to resolve this IU
+units.0.id = nonresolvable.additional.unit
+units.0.version = 1.0.0.qualifier
+units.0.provides.0.namespace = org.eclipse.equinox.p2.iu
+units.0.provides.0.name = nonresolvable.additional.unit
+units.0.provides.0.version = 1.0.0.qualifier
+units.0.requires.0.namespace = org.eclipse.equinox.p2.iu
+units.0.requires.0.name = nonexisting.dependency
+units.0.requires.0.range = 0.0.0

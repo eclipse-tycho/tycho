@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -42,14 +42,21 @@ public interface P2Resolver {
     /**
      * Returns list ordered of resolution result, one per requested TargetEnvironment.
      * 
-     * @param reactorProjectLocation
-     *            may be <code>null</code>
+     * @param project
+     *            The reactor project to be resolved. May be <code>null</code>, in which case only
+     *            the additional dependencies are resolved.
+     * 
+     * @see #addDependency(String, String, String)
      * @TODO this should return Map<TargetEnvironment,P2ResolutionResult>
      */
-    public List<P2ResolutionResult> resolveDependencies(TargetPlatform context, File reactorProjectLocation);
+    public List<P2ResolutionResult> resolveDependencies(TargetPlatform context, ReactorProject project);
 
+    /**
+     * @deprecated Only needed for the deprecated eclipse-update-site (see bug 342876)
+     */
+    // TODO 403481 replace the "conflicting dependency aggregation" feature of eclipse-update-site 
     @Deprecated
-    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation);
+    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project);
 
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String executionEnvironmentName);
 

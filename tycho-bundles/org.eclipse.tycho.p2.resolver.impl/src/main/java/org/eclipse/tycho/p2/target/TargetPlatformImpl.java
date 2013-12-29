@@ -90,7 +90,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         this.logger = logger;
     }
 
-    public Collection<IInstallableUnit> getInstallableUnits() {
+    public Set<IInstallableUnit> getInstallableUnits() {
         Set<IInstallableUnit> allius = new LinkedHashSet<IInstallableUnit>();
 
         allius.addAll(getReactorProjectIUs().keySet());
@@ -102,14 +102,18 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         // TODO this should be done by the builder
         allius.addAll(executionEnvironment.getMandatoryUnits());
 
-        return Collections.unmodifiableCollection(allius);
+        return Collections.unmodifiableSet(allius);
     }
 
     public Map<IInstallableUnit, ReactorProject> getReactorProjectIUs() {
         Map<IInstallableUnit, ReactorProject> allius = new LinkedHashMap<IInstallableUnit, ReactorProject>();
 
         for (ReactorProject project : reactorProjects) {
-            for (Object iu : project.getDependencyMetadata()) {
+            Set<?> projectUnits = project.getDependencyMetadata();
+            if (projectUnits == null)
+                continue;
+
+            for (Object iu : projectUnits) {
                 allius.put((IInstallableUnit) iu, project);
             }
         }
@@ -127,25 +131,6 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
     public ExecutionEnvironmentResolutionHints getEEResolutionHints() {
         return executionEnvironment;
-    }
-
-    public Collection<IInstallableUnit> getReactorProjectIUs(File projectRoot, boolean primary) {
-        boolean found = false;
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
-        for (ReactorProject project : reactorProjects) {
-            if (project.getBasedir().equals(projectRoot)) {
-                found = true;
-                @SuppressWarnings("unchecked")
-                Collection<IInstallableUnit> projectIUs = (Collection<IInstallableUnit>) project
-                        .getDependencyMetadata(primary);
-                result.addAll(projectIUs);
-            }
-        }
-        if (!found) {
-            throw new IllegalArgumentException("Not a reactor project: " + projectRoot);
-        }
-        filterUnits(result);
-        return Collections.unmodifiableSet(result);
     }
 
     public ReactorProject lookUpOriginalReactorProject(IInstallableUnit iu) {

@@ -12,6 +12,7 @@ package org.eclipse.tycho.artifacts.p2;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -26,7 +27,7 @@ import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
  */
 public interface P2TargetPlatform extends TargetPlatform {
 
-    Collection<IInstallableUnit> getInstallableUnits();
+    Set<IInstallableUnit> getInstallableUnits();
 
     /**
      * Returns additional information for resolving against the configured execution environment.
@@ -36,9 +37,6 @@ public interface P2TargetPlatform extends TargetPlatform {
     void reportUsedLocalIUs(Collection<IInstallableUnit> usedUnits);
 
     File getLocalArtifactFile(IArtifactKey key);
-
-    // TODO 412416 pass seed units directly to resolver; remove this method
-    Collection<IInstallableUnit> getReactorProjectIUs(File projectLocation, boolean primary);
 
     /**
      * Returns the reactor project which contributed this installable unit to the target platform.
