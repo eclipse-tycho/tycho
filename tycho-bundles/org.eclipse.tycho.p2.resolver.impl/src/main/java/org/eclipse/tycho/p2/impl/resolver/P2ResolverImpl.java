@@ -78,14 +78,14 @@ public class P2ResolverImpl implements P2Resolver {
         this.environments = Collections.singletonList(TargetEnvironment.getRunningEnvironment());
     }
 
-    public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, File projectLocation) {
+    public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project) {
         this.context = (P2TargetPlatform) targetPlatform;
 
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
         usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetEnvironment environment : environments) {
-            results.add(resolveDependencies(projectLocation, new ProjectorResolutionStrategy(logger), environment));
+            results.add(resolveDependencies(project, new ProjectorResolutionStrategy(logger), environment));
         }
 
         context.reportUsedLocalIUs(usedTargetPlatformUnits);
@@ -94,10 +94,9 @@ public class P2ResolverImpl implements P2Resolver {
         return results;
     }
 
-    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, File projectLocation) {
+    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project) {
         this.context = (P2TargetPlatform) context;
-        return resolveDependencies(projectLocation, new DependencyCollector(logger), new TargetEnvironment(null, null,
-                null));
+        return resolveDependencies(project, new DependencyCollector(logger), new TargetEnvironment(null, null, null));
     }
 
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String eeName) {
@@ -116,16 +115,20 @@ public class P2ResolverImpl implements P2Resolver {
         return result;
     }
 
-    protected P2ResolutionResult resolveDependencies(File projectLocation, AbstractResolutionStrategy strategy,
+    @SuppressWarnings("unchecked")
+    protected P2ResolutionResult resolveDependencies(ReactorProject project, AbstractResolutionStrategy strategy,
             TargetEnvironment environment) {
-        Collection<IInstallableUnit> availableUnits = context.getInstallableUnits();
-        strategy.setRootInstallableUnits(getRootIUs(projectLocation));
-        if (projectLocation != null) {
-            Collection<IInstallableUnit> projectSecondaryIUs = context.getReactorProjectIUs(projectLocation, false);
+        Set<IInstallableUnit> availableUnits = context.getInstallableUnits();
+        if (project != null) {
+            strategy.setRootInstallableUnits((Set<IInstallableUnit>) project.getDependencyMetadata(true));
+            Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
+                    .getDependencyMetadata(false);
             if (!projectSecondaryIUs.isEmpty()) {
                 availableUnits = new LinkedHashSet<IInstallableUnit>(availableUnits);
                 availableUnits.addAll(projectSecondaryIUs);
             }
+        } else {
+            strategy.setRootInstallableUnits(Collections.<IInstallableUnit> emptySet());
         }
         strategy.setAdditionalRequirements(additionalRequirements);
         strategy.setAvailableInstallableUnits(availableUnits);
@@ -138,23 +141,23 @@ public class P2ResolverImpl implements P2Resolver {
             usedTargetPlatformUnits.addAll(newState);
         }
 
-        return toResolutionResult(newState);
+        return toResolutionResult(newState, project);
     }
 
-    private Collection<IInstallableUnit> getRootIUs(File projectLocation) {
-        if (projectLocation == null) {
-            return Collections.<IInstallableUnit> emptyList();
-        } else {
-            return context.getReactorProjectIUs(projectLocation, true);
-        }
-    }
-
-    private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState) {
+    @SuppressWarnings("unchecked")
+    private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState, ReactorProject currentProject) {
         DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
         Set<String> missingArtifacts = new TreeSet<String>();
 
+        Set<IInstallableUnit> currentProjectUnits;
+        if (currentProject == null) {
+            currentProjectUnits = Collections.emptySet();
+        } else {
+            currentProjectUnits = (Set<IInstallableUnit>) currentProject.getDependencyMetadata();
+        }
+
         for (IInstallableUnit iu : newState) {
-            addUnit(result, iu, missingArtifacts);
+            addUnit(result, iu, currentProject, currentProjectUnits, missingArtifacts);
         }
 
         // local repository index needs to be saved manually
@@ -163,11 +166,17 @@ public class P2ResolverImpl implements P2Resolver {
         failIfArtifactsMissing(missingArtifacts);
 
         // TODO instead of adding them to the TP, we could also register it in memory as metadata repo
-        collectNonReactorIUs(result, newState);
+        collectNonReactorIUs(result, newState, currentProjectUnits);
         return result;
     }
 
-    private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, Set<String> missingArtifacts) {
+    private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, ReactorProject currentProject,
+            Set<IInstallableUnit> currentProjectUnits, Set<String> missingArtifacts) {
+        if (currentProjectUnits.contains(iu)) {
+            addReactorProject(result, currentProject, iu);
+            return;
+        }
+
         ReactorProject project = context.lookUpOriginalReactorProject(iu);
         if (project != null) {
             addReactorProject(result, project, iu);
@@ -203,9 +212,10 @@ public class P2ResolverImpl implements P2Resolver {
         }
     }
 
-    private void collectNonReactorIUs(DefaultP2ResolutionResult result, Collection<IInstallableUnit> newState) {
+    private void collectNonReactorIUs(DefaultP2ResolutionResult result, Collection<IInstallableUnit> newState,
+            Set<IInstallableUnit> currentProjectUnits) {
         for (IInstallableUnit iu : newState) {
-            if (!isReactorArtifact(iu)) {
+            if (!currentProjectUnits.contains(iu) && context.lookUpOriginalReactorProject(iu) == null) {
                 result.addNonReactorUnit(iu);
             }
         }
@@ -348,6 +358,6 @@ public class P2ResolverImpl implements P2Resolver {
 
         Set<IInstallableUnit> newState = result.toUnmodifiableSet();
 
-        return toResolutionResult(newState);
+        return toResolutionResult(newState, null);
     }
 }

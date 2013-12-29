@@ -191,9 +191,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
         tpConfiguration.setFailOnDuplicateIUs(failOnDuplicateIUs);
 
-        List<ReactorProject> reactorArtifacts = getOtherReactorProjects(project, reactorProjects);
-        reactorArtifacts.add(getThisReactorProject(session, project, configuration));
-
         PomDependencyCollector pomDependencies = null;
         if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
             pomDependencies = collectPomDependencies(project, reactorProjects, session);
@@ -204,7 +201,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         }
 
         for (ArtifactRepository repository : project.getRemoteArtifactRepositories()) {
-            addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration, session);
+            addEntireP2RepositoryToTargetPlatform(repository, tpConfiguration);
         }
 
         tpConfiguration.setEnvironments(configuration.getEnvironments());
@@ -214,7 +211,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
         tpConfiguration.addFilters(configuration.getFilters());
 
-        return resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration, ee, reactorArtifacts,
+        return resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration, ee, reactorProjects,
                 pomDependencies);
     }
 
@@ -240,22 +237,6 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
         };
         return reactorProjet;
-    }
-
-    private List<ReactorProject> getOtherReactorProjects(MavenProject project, List<ReactorProject> reactorProjects) {
-        List<ReactorProject> result = new ArrayList<ReactorProject>();
-
-        for (ReactorProject otherProject : reactorProjects) {
-            if (otherProject.sameProject(project)) {
-                continue;
-            }
-
-            Set<?> dependencyMetadata = otherProject.getDependencyMetadata();
-            if (dependencyMetadata != null) {
-                result.add(otherProject);
-            }
-        }
-        return result;
     }
 
     private PomDependencyCollector collectPomDependencies(MavenProject project, List<ReactorProject> reactorProjects,
@@ -306,7 +287,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     private void addEntireP2RepositoryToTargetPlatform(ArtifactRepository repository,
-            TargetPlatformConfigurationStub resolutionContext, MavenSession session) {
+            TargetPlatformConfigurationStub resolutionContext) {
         try {
             if (repository.getLayout() instanceof P2ArtifactRepositoryLayout) {
                 URI url = new URL(repository.getUrl()).toURI();
@@ -337,11 +318,11 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(new MavenLoggerAdapter(getLogger(), DebugUtils
                 .isDebugEnabled(session, project)));
 
-        return doResolvePlatform(session, project, reactorProjects, resolverConfiguration, resolutionContext,
+        return doResolveDependencies(session, project, reactorProjects, resolverConfiguration, resolutionContext,
                 osgiResolverImpl, configuration);
     }
 
-    protected DependencyArtifacts doResolvePlatform(final MavenSession session, final MavenProject project,
+    private DependencyArtifacts doResolveDependencies(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects, DependencyResolverConfiguration resolverConfiguration,
             TargetPlatform resolutionContext, P2Resolver resolver, TargetPlatformConfiguration configuration) {
 
@@ -360,8 +341,12 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             }
         }
 
+        // get reactor project with prepared optional dependencies // TODO use original IU and have the resolver create the modified IUs
+        ReactorProject optionalDependencyPreparedProject = getThisReactorProject(session, project, configuration);
+
         if (!isAllowConflictingDependencies(project, configuration)) {
-            List<P2ResolutionResult> results = resolver.resolveDependencies(resolutionContext, project.getBasedir());
+            List<P2ResolutionResult> results = resolver.resolveDependencies(resolutionContext,
+                    optionalDependencyPreparedProject);
 
             MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform(
                     DefaultReactorProject.adapt(project));
@@ -371,19 +356,18 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 TargetEnvironment environment = configuration.getEnvironments().get(i);
                 P2ResolutionResult result = results.get(i);
 
-                DefaultTargetPlatform platform = newDefaultTargetPlatform(session,
-                        DefaultReactorProject.adapt(project), projects, result);
-
-                // addProjects( session, platform );
+                DefaultTargetPlatform platform = newDefaultTargetPlatform(DefaultReactorProject.adapt(project),
+                        projects, result);
 
                 multiPlatform.addPlatform(environment, platform);
             }
 
             return multiPlatform;
         } else {
-            P2ResolutionResult result = resolver.collectProjectDependencies(resolutionContext, project.getBasedir());
+            P2ResolutionResult result = resolver.collectProjectDependencies(resolutionContext,
+                    optionalDependencyPreparedProject);
 
-            return newDefaultTargetPlatform(session, DefaultReactorProject.adapt(project), projects, result);
+            return newDefaultTargetPlatform(DefaultReactorProject.adapt(project), projects, result);
         }
     }
 
@@ -402,7 +386,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return false;
     }
 
-    protected DefaultTargetPlatform newDefaultTargetPlatform(MavenSession session, ReactorProject project,
+    protected DefaultTargetPlatform newDefaultTargetPlatform(ReactorProject project,
             Map<File, ReactorProject> projects, P2ResolutionResult result) {
         DefaultTargetPlatform platform = new DefaultTargetPlatform(project);
 
