@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,10 +75,8 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
-import org.eclipse.tycho.p2.facade.internal.ReactorArtifactFacade;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -124,10 +123,14 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         List<TargetEnvironment> environments = configuration.getEnvironments();
         Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, environments,
                 OptionalResolutionAction.OPTIONAL);
+        Set<Object> primaryMetadata = new LinkedHashSet<Object>();
+        Set<Object> secondaryMetadata = new LinkedHashSet<Object>();
         for (Map.Entry<String, IDependencyMetadata> entry : metadata.entrySet()) {
-            reactorProject.setDependencyMetadata(entry.getKey(), true, entry.getValue().getMetadata(true));
-            reactorProject.setDependencyMetadata(entry.getKey(), false, entry.getValue().getMetadata(false));
+            primaryMetadata.addAll(entry.getValue().getMetadata(true));
+            secondaryMetadata.addAll(entry.getValue().getMetadata(false));
         }
+        reactorProject.setDependencyMetadata(true, primaryMetadata);
+        reactorProject.setDependencyMetadata(false, secondaryMetadata);
     }
 
     protected Map<String, IDependencyMetadata> getDependencyMetadata(final MavenSession session,
@@ -188,9 +191,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
         tpConfiguration.setFailOnDuplicateIUs(failOnDuplicateIUs);
 
-        List<IReactorArtifactFacade> reactorArtifacts = getArtifactsOfThisReactorProject(session, project,
-                configuration);
-        reactorArtifacts.addAll(getArtifactsOfOtherReactorProjects(project, reactorProjects));
+        List<ReactorProject> reactorArtifacts = getOtherReactorProjects(project, reactorProjects);
+        reactorArtifacts.add(getThisReactorProject(session, project, configuration));
 
         PomDependencyCollector pomDependencies = null;
         if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
@@ -216,7 +218,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 pomDependencies);
     }
 
-    private List<IReactorArtifactFacade> getArtifactsOfThisReactorProject(MavenSession session, MavenProject project,
+    private ReactorProject getThisReactorProject(MavenSession session, MavenProject project,
             TargetPlatformConfiguration configuration) {
         // 'this' project should obey optionalDependencnies configuration
 
@@ -225,39 +227,32 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 .getOptionalResolutionAction();
         Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
                 optionalAction);
-        final Map<String, Set<Object>> metadata = new LinkedHashMap<String, Set<Object>>();
-        final Map<String, Set<Object>> secondaryMetadata = new LinkedHashMap<String, Set<Object>>();
+        final Set<Object> metadata = new LinkedHashSet<Object>();
+        final Set<Object> secondaryMetadata = new LinkedHashSet<Object>();
         for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
-            metadata.put(entry.getKey(), entry.getValue().getMetadata(true));
-            secondaryMetadata.put(entry.getKey(), entry.getValue().getMetadata(false));
+            metadata.addAll(entry.getValue().getMetadata(true));
+            secondaryMetadata.addAll(entry.getValue().getMetadata(false));
         }
         ReactorProject reactorProjet = new DefaultReactorProject(project) {
             @Override
-            protected Map<String, Set<Object>> getDependencyMetadata(boolean primary) {
+            public Set<?> getDependencyMetadata(boolean primary) {
                 return primary ? metadata : secondaryMetadata;
             }
         };
-        List<IReactorArtifactFacade> result = new ArrayList<IReactorArtifactFacade>();
-        for (String classifier : dependencyMetadata.keySet()) {
-            result.add(new ReactorArtifactFacade(reactorProjet, classifier));
-        }
-        return result;
+        return reactorProjet;
     }
 
-    private List<IReactorArtifactFacade> getArtifactsOfOtherReactorProjects(MavenProject project,
-            List<ReactorProject> reactorProjects) {
-        List<IReactorArtifactFacade> result = new ArrayList<IReactorArtifactFacade>();
+    private List<ReactorProject> getOtherReactorProjects(MavenProject project, List<ReactorProject> reactorProjects) {
+        List<ReactorProject> result = new ArrayList<ReactorProject>();
 
         for (ReactorProject otherProject : reactorProjects) {
             if (otherProject.sameProject(project)) {
                 continue;
             }
 
-            Map<String, Set<Object>> dependencyMetadata = otherProject.getDependencyMetadata();
+            Set<?> dependencyMetadata = otherProject.getDependencyMetadata();
             if (dependencyMetadata != null) {
-                for (String classifier : dependencyMetadata.keySet()) {
-                    result.add(new ReactorArtifactFacade(otherProject, classifier));
-                }
+                result.add(otherProject);
             }
         }
         return result;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
@@ -36,10 +37,25 @@ public interface P2TargetPlatform extends TargetPlatform {
 
     File getLocalArtifactFile(IArtifactKey key);
 
-    // TODO 364134 revise the relationship of target platform and dependency only IUs
+    // TODO 412416 pass seed units directly to resolver; remove this method
     Collection<IInstallableUnit> getReactorProjectIUs(File projectLocation, boolean primary);
 
-    IArtifactFacade getMavenArtifact(IInstallableUnit iu);
+    /**
+     * Returns the reactor project which contributed this installable unit to the target platform.
+     * 
+     * @param iu
+     *            An installable unit from the target platform.
+     */
+    ReactorProject lookUpOriginalReactorProject(IInstallableUnit iu);
+
+    /**
+     * Returns the Maven artifact which contributed this installable unit to the target platform.
+     * 
+     * @param iu
+     *            An installable unit from the target platform.
+     */
+    // TODO make this method include the artifacts from the local Maven repository
+    IArtifactFacade lookUpOriginalMavenArtifact(IInstallableUnit iu);
 
     // TODO 393004 this method should not be necessary
     void saveLocalMavenRepository();

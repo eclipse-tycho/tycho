@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,10 +27,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -155,12 +157,12 @@ public class P2MetadataMojo extends AbstractMojo {
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
+            Set<Object> installableUnits = new LinkedHashSet<Object>();
             for (Map.Entry<String, IP2Artifact> entry : generatedMetadata.entrySet()) {
                 String classifier = entry.getKey();
                 IP2Artifact p2artifact = entry.getValue();
 
-                reactorProject.setDependencyMetadata(classifier, true, p2artifact.getInstallableUnits());
-                reactorProject.setDependencyMetadata(classifier, false, Collections.emptySet());
+                installableUnits.addAll(p2artifact.getInstallableUnits());
 
                 // attach any new classified artifacts, like feature root files for example
                 if (classifier != null && !hasAttachedArtifact(project, classifier)) {
@@ -168,6 +170,10 @@ public class P2MetadataMojo extends AbstractMojo {
                             p2artifact.getLocation());
                 }
             }
+
+            // TODO 353889 distinguish between dependency resolution seed units ("primary") and other units of the project
+            reactorProject.setDependencyMetadata(true, installableUnits);
+            reactorProject.setDependencyMetadata(false, Collections.emptySet());
         } catch (IOException e) {
             throw new MojoExecutionException("Could not generate P2 metadata", e);
         }
