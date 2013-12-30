@@ -15,14 +15,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
@@ -48,7 +49,7 @@ public class P2ResolverTestBase {
     protected P2Resolver impl;
     protected TargetPlatformConfigurationStub tpConfig;
     protected PomDependencyCollectorImpl pomDependencies;
-    protected List<IReactorArtifactFacade> reactorArtifacts = new ArrayList<IReactorArtifactFacade>();
+    protected List<ReactorProject> reactorProjects = new ArrayList<ReactorProject>();
     protected TargetPlatformFactoryImpl tpFactory;
 
     @Before
@@ -79,12 +80,12 @@ public class P2ResolverTestBase {
     }
 
     protected final void addReactorProject(File projectRoot, String packagingType, String artifactId) {
-        ArtifactMock artifact = new ArtifactMock(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
+        ReactorProjectStub project = new ReactorProjectStub(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
                 packagingType);
-        IDependencyMetadata metadata = dependencyGenerator.generateMetadata(artifact, getEnvironments(),
-                OptionalResolutionAction.REQUIRE);
-        artifact.setDependencyMetadata(metadata);
-        reactorArtifacts.add(artifact);
+        IDependencyMetadata metadata = dependencyGenerator.generateMetadata(new ArtifactMock(project, null),
+                getEnvironments(), OptionalResolutionAction.REQUIRE);
+        project.setDependencyMetadata(metadata);
+        reactorProjects.add(project);
     }
 
 }

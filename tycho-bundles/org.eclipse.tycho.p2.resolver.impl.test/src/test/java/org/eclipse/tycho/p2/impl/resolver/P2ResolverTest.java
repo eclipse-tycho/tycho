@@ -22,6 +22,7 @@ import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.standard
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -39,6 +40,7 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
@@ -108,7 +110,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         // conflicting dependency mode only collects included artifacts - the referenced non-reactor unit
         // org.eclipse.osgi is not included
-        Assert.assertEquals(0, result.getNonReactorUnits().size());
+        assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), not(hasItem(unitWithId("org.eclipse.osgi"))));
     }
 
     private static void assertContainLocation(P2ResolutionResult result, File location) {
@@ -162,11 +164,11 @@ public class P2ResolverTest extends P2ResolverTestBase {
         String bundleVersion = "1.0.0-SNAPSHOT";
         addReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId);
 
-        ArtifactMock sb = new ArtifactMock(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN, "sources");
-        DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator().generateMetadata(sb,
-                getEnvironments(), null);
+        ReactorProjectStub sb = new ReactorProjectStub(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN);
+        DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator().generateMetadata(new ArtifactMock(
+                sb, "source"), getEnvironments(), null);
         sb.setDependencyMetadata(metadata);
-        reactorArtifacts.add(sb);
+        reactorProjects.add(sb);
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), feature);
 
@@ -206,10 +208,11 @@ public class P2ResolverTest extends P2ResolverTestBase {
         P2ResolutionResult result = results.get(0);
 
         Assert.assertEquals(3, result.getArtifacts().size()); // the product, bundle01, and the one dependency of bundle01
-        Assert.assertEquals(2, result.getNonReactorUnits().size());
+        Assert.assertEquals(3, result.getNonReactorUnits().size());
 
         assertContainsUnit("org.eclipse.osgi", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.equinox.executable.feature.group", result.getNonReactorUnits());
+        assertContainsUnit("org.eclipse.tycho.p2.impl.resolver.test.bundle01", result.getNonReactorUnits());
     }
 
     @Test
@@ -473,10 +476,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     private P2TargetPlatform getTargetPlatform() {
-        return tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorArtifacts, pomDependencies);
+        return tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, pomDependencies);
     }
 
     private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
-        return tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorArtifacts, pomDependencies);
+        return tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorProjects, pomDependencies);
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2013 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,11 +12,8 @@ package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -129,62 +126,32 @@ public class DefaultReactorProject implements ReactorProject {
         project.setContextValue(key, value);
     }
 
-    public void setDependencyMetadata(String classifier, boolean primary, Set<Object> installableUnits) {
-        Map<String, Set<Object>> metadata = getDependencyMetadata(primary);
-
-        if (metadata == null) {
-            metadata = new HashMap<String, Set<Object>>();
-            project.setContextValue(getDependencyMetadataKey(primary), metadata);
-        }
-
-        metadata.put(classifier, installableUnits);
+    public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
+        project.setContextValue(getDependencyMetadataKey(primary), installableUnits);
     }
 
-    public Map<String, Set<Object>> getDependencyMetadata() {
-        Map<String, Set<Object>> result = getDependencyMetadata(true);
-        Map<String, Set<Object>> secondary = getDependencyMetadata(false);
+    public Set<?> getDependencyMetadata() {
+        Set<?> primary = getDependencyMetadata(true);
+        Set<?> secondary = getDependencyMetadata(false);
 
-        if (result == null) {
+        if (primary == null) {
             return secondary;
+        } else if (secondary == null) {
+            return primary;
         }
 
-        if (secondary != null) {
-            result = new LinkedHashMap<String, Set<Object>>(result);
-
-            for (Map.Entry<String, Set<Object>> entry : secondary.entrySet()) {
-                String classifier = entry.getKey();
-                Set<Object> units = result.get(classifier);
-                if (units != null) {
-                    units = new LinkedHashSet<Object>(units);
-                    units.addAll(entry.getValue());
-                } else {
-                    units = entry.getValue();
-                }
-                result.put(classifier, units);
-            }
-        }
-
+        LinkedHashSet<Object> result = new LinkedHashSet<Object>(primary);
+        result.addAll(secondary);
         return result;
     }
 
-    @SuppressWarnings("unchecked")
-    protected Map<String, Set<Object>> getDependencyMetadata(boolean primary) {
-        Map<String, Set<Object>> metadata = (Map<String, Set<Object>>) project
-                .getContextValue(getDependencyMetadataKey(primary));
+    public Set<?> getDependencyMetadata(boolean primary) {
+        Set<?> metadata = (Set<?>) project.getContextValue(getDependencyMetadataKey(primary));
         return metadata;
     }
 
     private static String getDependencyMetadataKey(boolean primary) {
         return primary ? CTX_DEPENDENCY_METADATA : CTX_SECONDARY_DEPENDENCY_METADATA;
-    }
-
-    public Set<Object> getDependencyMetadata(String classifier, boolean primary) {
-        Map<String, Set<Object>> metadata = getDependencyMetadata(primary);
-
-        if (metadata == null) {
-            return null;
-        }
-        return metadata.get(classifier);
     }
 
     public String getExpandedVersion() {

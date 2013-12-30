@@ -12,15 +12,15 @@ package org.eclipse.tycho.p2.target.facade;
 
 import java.util.List;
 
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 
 // TODO 412416 javadoc
 public interface TargetPlatformFactory {
 
     public TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpParameters,
-            ExecutionEnvironmentConfiguration eeConfiguration, List<IReactorArtifactFacade> reactorProjects,
+            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies);
 
 }
