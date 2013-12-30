@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -42,7 +43,6 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.maven.repository.Activator;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
@@ -113,10 +113,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
-            ExecutionEnvironmentConfiguration eeConfiguration, List<IReactorArtifactFacade> reactorArtifacts,
+            ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies) {
         return createTargetPlatform(tpConfiguration, ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration),
-                reactorArtifacts, pomDependencies);
+                reactorProjects, pomDependencies);
     }
 
     /**
@@ -140,7 +140,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      *      ExecutionEnvironmentConfiguration, List, PomDependencyCollector)
      */
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
-            ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<IReactorArtifactFacade> reactorProjects,
+            ExecutionEnvironmentResolutionHandler eeResolutionHandler, Collection<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies) {
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());
@@ -330,15 +330,14 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent);
     }
 
-    private Set<IInstallableUnit> getReactorProjectUIs(List<IReactorArtifactFacade> reactorProjects,
+    private Set<IInstallableUnit> getReactorProjectUIs(Collection<ReactorProject> reactorProjects,
             boolean failOnDuplicateIUs) throws DuplicateReactorIUsException {
         Map<IInstallableUnit, Set<File>> reactorUIs = new HashMap<IInstallableUnit, Set<File>>();
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<IInstallableUnit, Set<File>>();
 
-        for (IReactorArtifactFacade project : reactorProjects) {
-            LinkedHashSet<IInstallableUnit> projectIUs = new LinkedHashSet<IInstallableUnit>();
-            projectIUs.addAll(toSet(project.getDependencyMetadata(true), IInstallableUnit.class));
-            projectIUs.addAll(toSet(project.getDependencyMetadata(false), IInstallableUnit.class));
+        for (ReactorProject project : reactorProjects) {
+            @SuppressWarnings("unchecked")
+            Set<IInstallableUnit> projectIUs = (Set<IInstallableUnit>) project.getDependencyMetadata();
 
             for (IInstallableUnit iu : projectIUs) {
                 Set<File> locations = reactorUIs.get(iu);
@@ -346,7 +345,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                     locations = new LinkedHashSet<File>();
                     reactorUIs.put(iu, locations);
                 }
-                locations.add(project.getLocation());
+                locations.add(project.getBasedir());
                 if (locations.size() > 1) {
                     duplicateReactorUIs.put(iu, locations);
                 }
@@ -399,18 +398,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             ++result;
         }
         return result;
-    }
-
-    static <T> Set<T> toSet(Collection<Object> collection, Class<T> targetType) {
-        if (collection == null || collection.isEmpty()) {
-            return Collections.emptySet();
-        }
-
-        LinkedHashSet<T> set = new LinkedHashSet<T>();
-        for (Object o : collection) {
-            set.add(targetType.cast(o));
-        }
-        return set;
     }
 
 }

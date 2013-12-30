@@ -60,15 +60,12 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
             } else {
                 String type = getExtension(artifactLocation);
                 projectHelper.attachArtifact(getProject(), type, classifier, artifactLocation);
-
-                // TODO does this still need to be set correctly at this point in the build?
-                reactorProject.setDependencyMetadata(classifier, true, Collections.emptySet());
-                reactorProject.setDependencyMetadata(classifier, false, Collections.emptySet());
             }
         }
 
-        reactorProject.setDependencyMetadata(null, true, publishingRepo.getInstallableUnits());
-        reactorProject.setDependencyMetadata(null, false, Collections.emptySet());
+        // TODO 353889 distinguish between dependency resolution seed units ("primary") and other units of the project
+        reactorProject.setDependencyMetadata(true, publishingRepo.getInstallableUnits());
+        reactorProject.setDependencyMetadata(false, Collections.emptySet());
     }
 
     private static String getExtension(File file) {
