@@ -23,10 +23,10 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.filters.TargetPlatformFilterEvaluator;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
@@ -55,7 +55,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     /**
      * Reactor build projects
      */
-    private final Collection<IReactorArtifactFacade> reactorProjects;
+    private final Collection<ReactorProject> reactorProjects;
 
     // FIXME only used to warn about locally installed artifacts, this logic does not belong here
     private final LocalMetadataRepository localMetadataRepository;
@@ -73,7 +73,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
 
     private boolean includeLocalRepo;
 
-    public TargetPlatformImpl(Collection<IReactorArtifactFacade> reactorProjects, Collection<IInstallableUnit> ius,
+    public TargetPlatformImpl(Collection<ReactorProject> reactorProjects, Collection<IInstallableUnit> ius,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
             LocalMetadataRepository localMetadataRepository, IRawArtifactFileProvider jointArtifacts,
@@ -105,14 +105,11 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return Collections.unmodifiableCollection(allius);
     }
 
-    public Map<IInstallableUnit, IReactorArtifactFacade> getReactorProjectIUs() {
-        Map<IInstallableUnit, IReactorArtifactFacade> allius = new LinkedHashMap<IInstallableUnit, IReactorArtifactFacade>();
+    public Map<IInstallableUnit, ReactorProject> getReactorProjectIUs() {
+        Map<IInstallableUnit, ReactorProject> allius = new LinkedHashMap<IInstallableUnit, ReactorProject>();
 
-        for (IReactorArtifactFacade project : reactorProjects) {
-            for (Object iu : project.getDependencyMetadata(true)) {
-                allius.put((IInstallableUnit) iu, project);
-            }
-            for (Object iu : project.getDependencyMetadata(false)) {
+        for (ReactorProject project : reactorProjects) {
+            for (Object iu : project.getDependencyMetadata()) {
                 allius.put((IInstallableUnit) iu, project);
             }
         }
@@ -135,11 +132,13 @@ public class TargetPlatformImpl implements P2TargetPlatform {
     public Collection<IInstallableUnit> getReactorProjectIUs(File projectRoot, boolean primary) {
         boolean found = false;
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
-        for (IReactorArtifactFacade project : reactorProjects) {
-            if (project.getLocation().equals(projectRoot)) {
+        for (ReactorProject project : reactorProjects) {
+            if (project.getBasedir().equals(projectRoot)) {
                 found = true;
-                result.addAll(TargetPlatformFactoryImpl.toSet(project.getDependencyMetadata(primary),
-                        IInstallableUnit.class));
+                @SuppressWarnings("unchecked")
+                Collection<IInstallableUnit> projectIUs = (Collection<IInstallableUnit>) project
+                        .getDependencyMetadata(primary);
+                result.addAll(projectIUs);
             }
         }
         if (!found) {
@@ -149,18 +148,16 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return Collections.unmodifiableSet(result);
     }
 
-    // TODO rename: this method doesn't include POM dependency Maven artifacts
-    public IArtifactFacade getMavenArtifact(IInstallableUnit iu) {
+    public ReactorProject lookUpOriginalReactorProject(IInstallableUnit iu) {
         // number of reactor projects is not huge, so this should not be a performance problem
-        Map<IInstallableUnit, IReactorArtifactFacade> reactorProjectIUs = getReactorProjectIUs();
+        Map<IInstallableUnit, ReactorProject> reactorProjectIUs = getReactorProjectIUs();
 
-        IArtifactFacade artifact = reactorProjectIUs.get(iu);
+        // TODO 412416 this is a performance bug: return the map instead of having this method called multiple times!
+        return reactorProjectIUs.get(iu);
+    }
 
-        if (artifact == null) {
-            artifact = mavenArtifactIUs.get(iu);
-        }
-
-        return artifact;
+    public IArtifactFacade lookUpOriginalMavenArtifact(IInstallableUnit iu) {
+        return mavenArtifactIUs.get(iu);
     }
 
     public File getLocalArtifactFile(IArtifactKey key) {

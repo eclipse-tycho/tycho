@@ -35,6 +35,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
@@ -42,11 +43,8 @@ import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
-import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
-import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
-import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
+import org.eclipse.tycho.p2.impl.test.ReactorProjectMock;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -81,21 +79,23 @@ public class TargetPlatformFactoryTest {
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";
         String version = "1.0.0-SNAPSHOT";
-        ArtifactMock artifact = new ArtifactMock(
-                new File("resources/platformbuilder/publish-complete-metadata/bundle"), groupId, artifactId, version,
-                ArtifactKey.TYPE_ECLIPSE_PLUGIN, null);
+        ReactorProjectMock project = new ReactorProjectMock(new File(
+                "resources/platformbuilder/publish-complete-metadata/bundle"), groupId, artifactId, version,
+                ArtifactKey.TYPE_ECLIPSE_PLUGIN);
 
         P2GeneratorImpl impl = new P2GeneratorImpl(false);
         impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
         List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
 
-        DependencyMetadata metadata = impl.generateMetadata(artifact, environments);
+        DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(new File(
+                "resources/platformbuilder/publish-complete-metadata/bundle"), groupId, artifactId, version,
+                ArtifactKey.TYPE_ECLIPSE_PLUGIN), environments);
 
-        artifact.setDependencyMetadata(metadata);
+        project.setDependencyMetadata(metadata);
 
-        List<IReactorArtifactFacade> reactorArtifacts = Collections.<IReactorArtifactFacade> singletonList(artifact);
-        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                reactorArtifacts, null);
+        List<ReactorProject> reactorProjects = Collections.<ReactorProject> singletonList(project);
+        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects,
+                null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(1, units.size());
@@ -105,7 +105,7 @@ public class TargetPlatformFactoryTest {
         metadata = impl.generateMetadata(new ArtifactMock(new File(
                 "resources/platformbuilder/publish-complete-metadata/bundle-complete"), groupId, artifactId, version,
                 ArtifactKey.TYPE_ECLIPSE_PLUGIN, null), environments);
-        artifact.setDependencyMetadata(metadata);
+        project.setDependencyMetadata(metadata);
 
         units = platform.getInstallableUnits();
         assertEquals(1, units.size());
@@ -114,40 +114,13 @@ public class TargetPlatformFactoryTest {
 
     @Test
     public void test364134_classifiedAttachedArtifactMetadata() throws Exception {
-        ArtifactMock artifact = new ArtifactMock(new File("resources/platformbuilder/classified-attached-artifacts"),
-                "org.eclipse.tycho.p2.impl.test.bundle", "org.eclipse.tycho.p2.impl.test.bundle", "1.0.0-SNAPSHOT",
-                ArtifactKey.TYPE_ECLIPSE_PLUGIN, null);
-        P2GeneratorImpl generatorImpl = new P2GeneratorImpl(false);
-        generatorImpl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
-        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
-        DependencyMetadata metadata = generatorImpl.generateMetadata(artifact, environments);
-        artifact.setDependencyMetadata(metadata);
+        ReactorProject reactorProject = createReactorProject(new File(
+                "resources/platformbuilder/classified-attached-artifacts"), new String[] {
+                "org.eclipse.tycho.p2.impl.test.bundle", "org.eclipse.tycho.p2.impl.test.bundle.source" },
+                new String[] { "org.eclipse.tycho.p2.impl.test.bundle.secondary" });
 
-        ArtifactMock secondaryArtifact = new ArtifactMock(artifact.getLocation(), artifact.getGroupId(),
-                artifact.getArtifactId(), artifact.getVersion(), ArtifactKey.TYPE_ECLIPSE_PLUGIN, "secondary");
-        DependencyMetadata secondaryMetadata = new DependencyMetadata();
-        secondaryMetadata.setMetadata(true, Collections.<IInstallableUnit> emptyList());
-        secondaryMetadata.setMetadata(
-                false,
-                generatorImpl.generateMetadata(
-                        new ArtifactMock(new File(artifact.getLocation(), "secondary"), artifact.getGroupId(), artifact
-                                .getArtifactId(), artifact.getVersion(), ArtifactKey.TYPE_ECLIPSE_PLUGIN, "secondary"),
-                        environments).getInstallableUnits());
-        secondaryArtifact.setDependencyMetadata(secondaryMetadata);
-
-        ArtifactMock sourceArtifact = new ArtifactMock(artifact.getLocation(), artifact.getGroupId(),
-                artifact.getArtifactId(), artifact.getVersion(), ArtifactKey.TYPE_ECLIPSE_PLUGIN, "sources");
-        DependencyMetadataGenerator sourcesGeneratorImpl = new SourcesBundleDependencyMetadataGenerator();
-        IDependencyMetadata sourcesMetadata = sourcesGeneratorImpl.generateMetadata(sourceArtifact, environments, null);
-        sourceArtifact.setDependencyMetadata(sourcesMetadata);
-
-        List<IReactorArtifactFacade> reactorProjects = new ArrayList<IReactorArtifactFacade>();
-        reactorProjects.add(artifact);
-        reactorProjects.add(secondaryArtifact);
-        reactorProjects.add(sourceArtifact);
-
-        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects,
-                null);
+        P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                Collections.singletonList(reactorProject), null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(3, units.size());
@@ -155,13 +128,15 @@ public class TargetPlatformFactoryTest {
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.source");
         assertContainsIU(units, "org.eclipse.tycho.p2.impl.test.bundle.secondary");
 
-        Collection<IInstallableUnit> projectPrimaryIUs = platform.getReactorProjectIUs(artifact.getLocation(), true);
+        Collection<IInstallableUnit> projectPrimaryIUs = platform.getReactorProjectIUs(reactorProject.getBasedir(),
+                true);
 
         assertEquals(2, projectPrimaryIUs.size());
         assertContainsIU(projectPrimaryIUs, "org.eclipse.tycho.p2.impl.test.bundle");
         assertContainsIU(projectPrimaryIUs, "org.eclipse.tycho.p2.impl.test.bundle.source");
 
-        Collection<IInstallableUnit> projectSecondaryIUs = platform.getReactorProjectIUs(artifact.getLocation(), false);
+        Collection<IInstallableUnit> projectSecondaryIUs = platform.getReactorProjectIUs(reactorProject.getBasedir(),
+                false);
         assertEquals(1, projectSecondaryIUs.size());
         assertContainsIU(projectSecondaryIUs, "org.eclipse.tycho.p2.impl.test.bundle.secondary");
     }
@@ -173,10 +148,10 @@ public class TargetPlatformFactoryTest {
         tpConfig.addFilters(Arrays.asList(filter));
 
         File projectRoot = new File("dummy");
-        IReactorArtifactFacade reactorArtifact = createReactorArtifact(projectRoot,
+        ReactorProject reactorProject = createReactorProject(projectRoot,
                 "org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group", "iu.p2.inf");
         P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                Collections.singletonList(reactorArtifact), null);
+                Collections.singletonList(reactorProject), null);
 
         Collection<IInstallableUnit> units = platform.getInstallableUnits();
         assertEquals(units.toString(), 1, units.size());
@@ -195,9 +170,9 @@ public class TargetPlatformFactoryTest {
         // reactor artifact produces a unit with same ID
         // TODO make produced version more explicit
         File projectRoot = new File("dummy");
-        IReactorArtifactFacade reactorArtifact = createReactorArtifact(projectRoot, MAIN_BUNDLE.getId(), null);
+        ReactorProject reactorProject = createReactorProject(projectRoot, MAIN_BUNDLE.getId(), null);
         P2TargetPlatform platform = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                Collections.singletonList(reactorArtifact), null);
+                Collections.singletonList(reactorProject), null);
 
         assertThat(platform.getInstallableUnits(), hasItem(unit(MAIN_BUNDLE.getId(), "1.0.2"))); // from reactor
         assertThat(platform.getInstallableUnits(),
@@ -245,24 +220,35 @@ public class TargetPlatformFactoryTest {
         return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
     }
 
-    private ArtifactMock createReactorArtifact(File projectRoot, String primaryUnitId, String secondaryUnitId) {
-        // TODO ArtifactMock constructor with less nulls?
-        ArtifactMock result = new ArtifactMock(projectRoot, null, null, null, null);
+    private ReactorProject createReactorProject(File projectRoot, String primaryUnitId, String secondaryUnitId) {
+        return createReactorProject(projectRoot, asArrayUnlessNull(primaryUnitId), asArrayUnlessNull(secondaryUnitId));
+    }
 
-        // TODO DependencyMetadata constructor to make the below a one-liner?
+    private String[] asArrayUnlessNull(String string) {
+        return string == null ? null : new String[] { string };
+    }
+
+    private ReactorProject createReactorProject(File projectRoot, String[] primaryUnitIds, String[] secondaryUnitIds) {
+        // TODO ReactorProjectMock constructor with less nulls?
+        ReactorProjectMock result = new ReactorProjectMock(projectRoot, null, null, null, null);
+
         DependencyMetadata dependencyMetadata = new DependencyMetadata();
-        dependencyMetadata.setMetadata(true, createUnitUnlessNull(primaryUnitId));
-        dependencyMetadata.setMetadata(false, createUnitUnlessNull(secondaryUnitId));
+        dependencyMetadata.setMetadata(true, createUnits(primaryUnitIds));
+        dependencyMetadata.setMetadata(false, createUnits(secondaryUnitIds));
         result.setDependencyMetadata(dependencyMetadata);
 
         return result;
     }
 
-    private static List<IInstallableUnit> createUnitUnlessNull(String unitId) {
-        if (unitId == null) {
-            return Arrays.asList();
+    private static List<IInstallableUnit> createUnits(String[] unitIds) {
+        if (unitIds == null) {
+            return Collections.emptyList();
         } else {
-            return Arrays.asList(InstallableUnitUtil.createIU(unitId, "1.0.2"));
+            List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+            for (String unitId : unitIds) {
+                result.add(InstallableUnitUtil.createIU(unitId, "1.0.2"));
+            }
+            return result;
         }
     }
 

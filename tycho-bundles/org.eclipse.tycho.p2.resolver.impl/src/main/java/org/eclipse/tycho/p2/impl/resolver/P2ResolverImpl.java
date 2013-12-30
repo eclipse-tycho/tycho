@@ -34,13 +34,14 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
+import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.resolver.DependencyCollector;
 import org.eclipse.tycho.p2.resolver.ProjectorResolutionStrategy;
@@ -153,21 +154,7 @@ public class P2ResolverImpl implements P2Resolver {
         Set<String> missingArtifacts = new TreeSet<String>();
 
         for (IInstallableUnit iu : newState) {
-            IArtifactFacade mavenArtifact = context.getMavenArtifact(iu);
-            if (mavenArtifact != null) {
-                addMavenArtifact(result, mavenArtifact, iu);
-            } else {
-                for (IArtifactKey key : iu.getArtifacts()) {
-                    // this downloads artifacts if necessary; TODO parallelize download?
-                    File artifactLocation = context.getLocalArtifactFile(key);
-
-                    if (artifactLocation == null) {
-                        missingArtifacts.add(key.toString());
-                    } else {
-                        addArtifactFile(result, iu, key, artifactLocation);
-                    }
-                }
-            }
+            addUnit(result, iu, missingArtifacts);
         }
 
         // local repository index needs to be saved manually
@@ -178,6 +165,31 @@ public class P2ResolverImpl implements P2Resolver {
         // TODO instead of adding them to the TP, we could also register it in memory as metadata repo
         collectNonReactorIUs(result, newState);
         return result;
+    }
+
+    private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, Set<String> missingArtifacts) {
+        ReactorProject project = context.lookUpOriginalReactorProject(iu);
+        if (project != null) {
+            addReactorProject(result, project, iu);
+            return;
+        }
+
+        IArtifactFacade mavenArtifact = context.lookUpOriginalMavenArtifact(iu);
+        if (mavenArtifact != null) {
+            addExternalMavenArtifact(result, mavenArtifact, iu);
+            return;
+        }
+
+        for (IArtifactKey key : iu.getArtifacts()) {
+            // this downloads artifacts if necessary; TODO parallelize download?
+            File artifactLocation = context.getLocalArtifactFile(key);
+
+            if (artifactLocation == null) {
+                missingArtifacts.add(key.toString());
+            } else {
+                addArtifactFile(result, iu, key, artifactLocation);
+            }
+        }
     }
 
     private void failIfArtifactsMissing(Set<String> missingArtifacts) {
@@ -200,24 +212,22 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     private boolean isReactorArtifact(IInstallableUnit iu) {
-        return context.getMavenArtifact(iu) instanceof IReactorArtifactFacade;
+        return context.lookUpOriginalReactorProject(iu) != null;
     }
 
-    private void addArtifactFile(DefaultP2ResolutionResult platform, IInstallableUnit iu, IArtifactKey key,
+    private void addArtifactFile(DefaultP2ResolutionResult result, IInstallableUnit iu, IArtifactKey key,
             File artifactLocation) {
-        IArtifactFacade reactorArtifact = context.getMavenArtifact(iu);
-
         String id = iu.getId();
         String version = iu.getVersion().toString();
-        String mavenClassifier = reactorArtifact != null ? reactorArtifact.getClassifier() : null;
+        String mavenClassifier = null;
 
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, true, artifactLocation, mavenClassifier,
+            result.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, true, artifactLocation, mavenClassifier,
                     iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                platform.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, true, artifactLocation,
+                result.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, true, artifactLocation,
                         mavenClassifier, iu);
             }
         }
@@ -226,12 +236,30 @@ public class P2ResolverImpl implements P2Resolver {
         // throw new IllegalArgumentException();
     }
 
-    private void addMavenArtifact(DefaultP2ResolutionResult platform, IArtifactFacade mavenArtifact, IInstallableUnit iu) {
-        String type = mavenArtifact.getPackagingType();
+    private void addReactorProject(DefaultP2ResolutionResult result, ReactorProject project, IInstallableUnit iu) {
+        String type = project.getPackaging();
         String id = iu.getId();
         String version = iu.getVersion().toString();
+        String mavenClassifier = iu.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
+        File location = project.getBasedir();
+
+        addMavenArtifact(result, iu, type, id, version, mavenClassifier, location);
+    }
+
+    private void addExternalMavenArtifact(DefaultP2ResolutionResult result, IArtifactFacade mavenArtifact,
+            IInstallableUnit iu) {
+        String type = mavenArtifact.getPackagingType();
+        // TODO what if bundle/IU id and artifactId don't match?
+        String id = iu.getId();
+        String version = iu.getVersion().toString();
+        String mavenClassifier = iu.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
         File location = mavenArtifact.getLocation();
-        String mavenClassifier = mavenArtifact.getClassifier();
+
+        addMavenArtifact(result, iu, type, id, version, mavenClassifier, location);
+    }
+
+    protected void addMavenArtifact(DefaultP2ResolutionResult result, IInstallableUnit iu, String type, String id,
+            String version, String mavenClassifier, File location) {
         boolean primary = false;
 
         if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type)) {
@@ -250,7 +278,7 @@ public class P2ResolverImpl implements P2Resolver {
             primary = true;
         }
 
-        platform.addArtifact(type, id, version, primary, location, mavenClassifier, iu);
+        result.addArtifact(type, id, version, primary, location, mavenClassifier, iu);
     }
 
     private String getFeatureId(IInstallableUnit iu) {

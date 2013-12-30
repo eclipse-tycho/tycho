@@ -26,7 +26,6 @@ import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.metadata.IReactorArtifactFacade;
 import org.osgi.framework.BundleException;
 
 @SuppressWarnings("restriction")
@@ -54,7 +53,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
             Dictionary<String, String> manifest = new Hashtable<String, String>();
             manifest.put("Manifest-Version", "1.0");
             manifest.put("Bundle-ManifestVersion", "2");
-            String sourceBundleSymbolicName = id + IReactorArtifactFacade.SOURCE_BUNDLE_SUFFIX;
+            String sourceBundleSymbolicName = id + ".source";
             manifest.put("Bundle-SymbolicName", sourceBundleSymbolicName);
             manifest.put("Bundle-Version", version);
             manifest.put("Eclipse-SourceBundle", id + ";version=" + version + ";roots:=\".\"");

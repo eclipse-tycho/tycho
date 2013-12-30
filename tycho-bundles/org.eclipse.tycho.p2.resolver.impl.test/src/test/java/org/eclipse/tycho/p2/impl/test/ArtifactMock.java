@@ -49,6 +49,11 @@ public class ArtifactMock implements IArtifactFacade, IReactorArtifactFacade {
         this(location, groupId, artifactId, version, packagingType, null);
     }
 
+    public ArtifactMock(ReactorProjectMock project, String classifier) {
+        this(project.getBasedir(), project.getGroupId(), project.getArtifactId(), project.getVersion(), project
+                .getPackaging(), classifier);
+    }
+
     public File getLocation() {
         return location;
     }
