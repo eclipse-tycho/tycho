@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "8748d3a1_3bc22e00",
+        "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2014-01-03T11:33:31Z",
+      "side": 1,
+      "message": "Although it is not required by code, this bundle is necessary to have test working on Mac, so it is a \"runtime\" dependency and we prefer to make it explicit in MANIFEST.MF. One advantage is that in PDE and PDE/Junit Run Configuration, selecting only this bundle and click \"Include dependencies\" will automatically include this .macosx bundles on macosx.",
+      "parentUuid": "8748d3a1_bbbf5ea6",
+      "revId": "7a7b4bdaf829fe09c69e778f425334635eb47357",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8748d3a1_5f5d744b",
         "filename": "tycho-its/projects/surefire.platformSpecificDependency/pom.xml",
         "patchSetId": 3
