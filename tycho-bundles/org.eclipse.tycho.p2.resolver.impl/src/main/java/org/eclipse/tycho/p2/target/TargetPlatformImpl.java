@@ -134,16 +134,12 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return executionEnvironment;
     }
 
-    public ReactorProjectIdentities lookUpOriginalReactorProject(IInstallableUnit iu) {
-        // number of reactor projects is not huge, so this should not be a performance problem
-        Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs = getReactorProjectIUs();
-
-        // TODO 412416 this is a performance bug: return the map instead of having this method called multiple times!
-        return reactorProjectIUs.get(iu);
+    public Map<IInstallableUnit, ReactorProjectIdentities> getOriginalReactorProjectMap() {
+        return getReactorProjectIUs();
     }
 
-    public IArtifactFacade lookUpOriginalMavenArtifact(IInstallableUnit iu) {
-        return mavenArtifactIUs.get(iu);
+    public Map<IInstallableUnit, IArtifactFacade> getOriginalMavenArtifactMap() {
+        return mavenArtifactIUs;
     }
 
     public File getLocalArtifactFile(IArtifactKey key) {
