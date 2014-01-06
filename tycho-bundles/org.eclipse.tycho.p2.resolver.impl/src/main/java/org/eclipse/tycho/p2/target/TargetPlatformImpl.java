@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -105,8 +106,8 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return Collections.unmodifiableSet(allius);
     }
 
-    public Map<IInstallableUnit, ReactorProject> getReactorProjectIUs() {
-        Map<IInstallableUnit, ReactorProject> allius = new LinkedHashMap<IInstallableUnit, ReactorProject>();
+    public Map<IInstallableUnit, ReactorProjectIdentities> getReactorProjectIUs() {
+        Map<IInstallableUnit, ReactorProjectIdentities> allius = new LinkedHashMap<IInstallableUnit, ReactorProjectIdentities>();
 
         for (ReactorProject project : reactorProjects) {
             Set<?> projectUnits = project.getDependencyMetadata();
@@ -114,7 +115,7 @@ public class TargetPlatformImpl implements P2TargetPlatform {
                 continue;
 
             for (Object iu : projectUnits) {
-                allius.put((IInstallableUnit) iu, project);
+                allius.put((IInstallableUnit) iu, project.getIdentities());
             }
         }
 
@@ -133,9 +134,9 @@ public class TargetPlatformImpl implements P2TargetPlatform {
         return executionEnvironment;
     }
 
-    public ReactorProject lookUpOriginalReactorProject(IInstallableUnit iu) {
+    public ReactorProjectIdentities lookUpOriginalReactorProject(IInstallableUnit iu) {
         // number of reactor projects is not huge, so this should not be a performance problem
-        Map<IInstallableUnit, ReactorProject> reactorProjectIUs = getReactorProjectIUs();
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs = getReactorProjectIUs();
 
         // TODO 412416 this is a performance bug: return the map instead of having this method called multiple times!
         return reactorProjectIUs.get(iu);

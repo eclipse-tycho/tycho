@@ -36,6 +36,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
@@ -176,11 +177,11 @@ public class P2ResolverImpl implements P2Resolver {
     private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, ReactorProject currentProject,
             Set<IInstallableUnit> currentProjectUnits, Set<String> missingArtifacts) {
         if (currentProjectUnits.contains(iu)) {
-            addReactorProject(result, currentProject, iu);
+            addReactorProject(result, currentProject.getIdentities(), iu);
             return;
         }
 
-        ReactorProject project = context.lookUpOriginalReactorProject(iu);
+        ReactorProjectIdentities project = context.lookUpOriginalReactorProject(iu);
         if (project != null) {
             addReactorProject(result, project, iu);
             return;
@@ -245,7 +246,8 @@ public class P2ResolverImpl implements P2Resolver {
         // throw new IllegalArgumentException();
     }
 
-    private void addReactorProject(DefaultP2ResolutionResult result, ReactorProject project, IInstallableUnit iu) {
+    private void addReactorProject(DefaultP2ResolutionResult result, ReactorProjectIdentities project,
+            IInstallableUnit iu) {
         String id = iu.getId();
         String version = iu.getVersion().toString();
         String mavenClassifier = iu.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,10 +21,14 @@ public class ReactorProjectIdentitiesStub implements ReactorProjectIdentities {
     private static final String DUMMY_ARTIFACT_ID = "dummy-artifact";
     private static final String DUMMY_VERSION = "0.1.2-SNAPSHOT";
 
+    private File projectRoot;
     private BuildOutputDirectory targetFolder;
 
-    public ReactorProjectIdentitiesStub(File outputFolder) {
-        this.targetFolder = new BuildOutputDirectory(outputFolder);
+    public ReactorProjectIdentitiesStub(File projectRoot) {
+        this.projectRoot = projectRoot;
+        this.targetFolder = new BuildOutputDirectory(new File(projectRoot, "target"));
+
+        this.targetFolder.getLocation().mkdirs();
     }
 
     public String getGroupId() {
@@ -39,7 +43,12 @@ public class ReactorProjectIdentitiesStub implements ReactorProjectIdentities {
         return DUMMY_VERSION;
     }
 
+    public File getBasedir() {
+        return projectRoot;
+    }
+
     public BuildOutputDirectory getBuildDirectory() {
         return targetFolder;
     }
+
 }
