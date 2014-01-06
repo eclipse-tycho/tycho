@@ -69,7 +69,11 @@ public class P2ResolverImpl implements P2Resolver {
     private final List<IRequirement> additionalRequirements = new ArrayList<IRequirement>();
 
     private TargetPlatformFactoryImpl targetPlatformFactory;
+
     private P2TargetPlatform context;
+    private Set<IInstallableUnit> currentProjectUnits;
+    private Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup;
+    private Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup;
 
     private Set<IInstallableUnit> usedTargetPlatformUnits;
 
@@ -80,8 +84,21 @@ public class P2ResolverImpl implements P2Resolver {
         this.environments = Collections.singletonList(TargetEnvironment.getRunningEnvironment());
     }
 
+    @SuppressWarnings("unchecked")
+    private void setContext(TargetPlatform targetPlatform, ReactorProject currentProject) {
+        context = (P2TargetPlatform) targetPlatform;
+
+        if (currentProject == null) {
+            currentProjectUnits = Collections.emptySet();
+        } else {
+            currentProjectUnits = (Set<IInstallableUnit>) currentProject.getDependencyMetadata();
+        }
+        reactorProjectLookup = context.getOriginalReactorProjectMap();
+        mavenArtifactLookup = context.getOriginalMavenArtifactMap();
+    }
+
     public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project) {
-        this.context = (P2TargetPlatform) targetPlatform;
+        setContext(targetPlatform, project);
 
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
         usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
@@ -96,8 +113,8 @@ public class P2ResolverImpl implements P2Resolver {
         return results;
     }
 
-    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project) {
-        this.context = (P2TargetPlatform) context;
+    public P2ResolutionResult collectProjectDependencies(TargetPlatform targetPlatform, ReactorProject project) {
+        setContext(targetPlatform, project);
         return resolveDependencies(project, new DependencyCollector(logger), new TargetEnvironment(null, null, null));
     }
 
@@ -146,20 +163,12 @@ public class P2ResolverImpl implements P2Resolver {
         return toResolutionResult(newState, project);
     }
 
-    @SuppressWarnings("unchecked")
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState, ReactorProject currentProject) {
         DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
         Set<String> missingArtifacts = new TreeSet<String>();
 
-        Set<IInstallableUnit> currentProjectUnits;
-        if (currentProject == null) {
-            currentProjectUnits = Collections.emptySet();
-        } else {
-            currentProjectUnits = (Set<IInstallableUnit>) currentProject.getDependencyMetadata();
-        }
-
         for (IInstallableUnit iu : newState) {
-            addUnit(result, iu, currentProject, currentProjectUnits, missingArtifacts);
+            addUnit(result, iu, currentProject, missingArtifacts);
         }
         // remove entries for which there were only "additional" IUs, but none with a recognized type
         result.removeEntriesWithUnknownType();
@@ -170,24 +179,25 @@ public class P2ResolverImpl implements P2Resolver {
         failIfArtifactsMissing(missingArtifacts);
 
         // TODO 372780 remove; no longer needed when aggregation uses frozen target platform as source
-        collectNonReactorIUs(result, newState, currentProjectUnits);
+        collectNonReactorIUs(result, newState);
         return result;
     }
 
     private void addUnit(DefaultP2ResolutionResult result, IInstallableUnit iu, ReactorProject currentProject,
-            Set<IInstallableUnit> currentProjectUnits, Set<String> missingArtifacts) {
+            Set<String> missingArtifacts) {
+
         if (currentProjectUnits.contains(iu)) {
             addReactorProject(result, currentProject.getIdentities(), iu);
             return;
         }
 
-        ReactorProjectIdentities project = context.lookUpOriginalReactorProject(iu);
-        if (project != null) {
-            addReactorProject(result, project, iu);
+        ReactorProjectIdentities otherProject = reactorProjectLookup.get(iu);
+        if (otherProject != null) {
+            addReactorProject(result, otherProject, iu);
             return;
         }
 
-        IArtifactFacade mavenArtifact = context.lookUpOriginalMavenArtifact(iu);
+        IArtifactFacade mavenArtifact = mavenArtifactLookup.get(iu);
         if (mavenArtifact != null) {
             addExternalMavenArtifact(result, mavenArtifact, iu);
             return;
@@ -216,10 +226,9 @@ public class P2ResolverImpl implements P2Resolver {
         }
     }
 
-    private void collectNonReactorIUs(DefaultP2ResolutionResult result, Collection<IInstallableUnit> newState,
-            Set<IInstallableUnit> currentProjectUnits) {
+    private void collectNonReactorIUs(DefaultP2ResolutionResult result, Collection<IInstallableUnit> newState) {
         for (IInstallableUnit iu : newState) {
-            if (!currentProjectUnits.contains(iu) && context.lookUpOriginalReactorProject(iu) == null) {
+            if (!currentProjectUnits.contains(iu) && reactorProjectLookup.get(iu) == null) {
                 result.addNonReactorUnit(iu);
             }
         }
@@ -351,10 +360,10 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     // TODO 412416 this should be a method on the class TargetPlatform
-    public P2ResolutionResult resolveInstallableUnit(TargetPlatform context, String id, String versionRange) {
-        this.context = (P2TargetPlatform) context;
+    public P2ResolutionResult resolveInstallableUnit(TargetPlatform targetPlatform, String id, String versionRange) {
+        setContext(targetPlatform, null);
 
-        QueryableCollection queriable = new QueryableCollection(((P2TargetPlatform) context).getInstallableUnits());
+        QueryableCollection queriable = new QueryableCollection(context.getInstallableUnits());
 
         VersionRange range = new VersionRange(versionRange);
         IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null,

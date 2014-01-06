@@ -12,6 +12,7 @@ package org.eclipse.tycho.artifacts.p2;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -39,21 +40,27 @@ public interface P2TargetPlatform extends TargetPlatform {
     File getLocalArtifactFile(IArtifactKey key);
 
     /**
-     * Returns the reactor project which contributed this installable unit to the target platform.
+     * Returns the map from target platform installable units back to the contributing reactor
+     * project.
      * 
-     * @param iu
-     *            An installable unit from the target platform.
+     * <p>
+     * Note: The map may contain additional installable units as keys, i.e. not all keys are
+     * necessarily part of the target platform.
+     * </p>
      */
-    ReactorProjectIdentities lookUpOriginalReactorProject(IInstallableUnit iu);
+    Map<IInstallableUnit, ReactorProjectIdentities> getOriginalReactorProjectMap();
 
     /**
-     * Returns the Maven artifact which contributed this installable unit to the target platform.
+     * Returns the map from target platform installable units back to the contributing Maven
+     * artifacts.
      * 
-     * @param iu
-     *            An installable unit from the target platform.
+     * <p>
+     * Note: The map may contain additional installable units as keys, i.e. not all keys are
+     * necessarily part of the target platform.
+     * </p>
      */
-    // TODO make this method include the artifacts from the local Maven repository
-    IArtifactFacade lookUpOriginalMavenArtifact(IInstallableUnit iu);
+    // TODO make this method include the artifacts from the local Maven repository?
+    Map<IInstallableUnit, IArtifactFacade> getOriginalMavenArtifactMap();
 
     // TODO 393004 this method should not be necessary
     void saveLocalMavenRepository();
