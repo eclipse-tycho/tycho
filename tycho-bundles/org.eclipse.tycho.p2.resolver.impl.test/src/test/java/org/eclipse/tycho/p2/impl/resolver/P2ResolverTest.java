@@ -94,15 +94,14 @@ public class P2ResolverTest extends P2ResolverTestBase {
         File[] projects = new File[] { resourceFile("siteresolver/bundle342"), //
                 resourceFile("siteresolver/bundle352"), //
                 resourceFile("siteresolver/feature342"), // 
-                resourceFile("siteresolver/feature352"), // 
-                resourceFile("siteresolver/site") };
+                resourceFile("siteresolver/feature352") };
 
         addContextProject(projects[0], TYPE_ECLIPSE_PLUGIN);
         addContextProject(projects[1], TYPE_ECLIPSE_PLUGIN);
         addContextProject(projects[2], TYPE_ECLIPSE_FEATURE);
         addContextProject(projects[3], TYPE_ECLIPSE_FEATURE);
 
-        projectToResolve = createReactorProject(projects[4], TYPE_ECLIPSE_UPDATE_SITE, "site");
+        projectToResolve = createReactorProject(resourceFile("siteresolver/site"), TYPE_ECLIPSE_UPDATE_SITE, "site");
 
         P2ResolutionResult result = impl.collectProjectDependencies(getTargetPlatform(), projectToResolve);
 
@@ -110,6 +109,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         for (File project : projects) {
             assertContainLocation(result, project);
         }
+        // TODO the eclipse-update-site module itself is not in the resolution result; is this needed?
 
         // conflicting dependency mode only collects included artifacts - the referenced non-reactor unit
         // org.eclipse.osgi is not included

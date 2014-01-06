@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -159,6 +160,8 @@ public class P2ResolverImpl implements P2Resolver {
         for (IInstallableUnit iu : newState) {
             addUnit(result, iu, currentProject, currentProjectUnits, missingArtifacts);
         }
+        // remove entries for which there were only "additional" IUs, but none with a recognized type
+        result.removeEntriesWithUnknownType();
 
         // local repository index needs to be saved manually
         context.saveLocalMavenRepository();
@@ -167,6 +170,7 @@ public class P2ResolverImpl implements P2Resolver {
 
         // TODO 372780 remove; no longer needed when aggregation uses frozen target platform as source
         collectNonReactorIUs(result, newState, currentProjectUnits);
+
         return result;
     }
 
@@ -227,13 +231,13 @@ public class P2ResolverImpl implements P2Resolver {
         String version = iu.getVersion().toString();
         String mavenClassifier = null;
 
+        // TODO infer type from IU capabilities/properties (like this is done for content from Maven artifacts/projects)?
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            result.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, true, artifactLocation, mavenClassifier,
-                    iu);
+            result.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, artifactLocation, mavenClassifier, iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                result.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, true, artifactLocation,
+                result.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, artifactLocation,
                         mavenClassifier, iu);
             }
         }
@@ -243,47 +247,50 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     private void addReactorProject(DefaultP2ResolutionResult result, ReactorProject project, IInstallableUnit iu) {
-        String type = project.getPackaging();
         String id = iu.getId();
         String version = iu.getVersion().toString();
         String mavenClassifier = iu.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
         File location = project.getBasedir();
 
-        addMavenArtifact(result, iu, type, id, version, mavenClassifier, location);
+        addMavenArtifact(result, iu, id, version, mavenClassifier, location);
     }
 
     private void addExternalMavenArtifact(DefaultP2ResolutionResult result, IArtifactFacade mavenArtifact,
             IInstallableUnit iu) {
-        String type = mavenArtifact.getPackagingType();
         String id = iu.getId();
         String version = iu.getVersion().toString();
         String mavenClassifier = iu.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
         File location = mavenArtifact.getLocation();
 
-        addMavenArtifact(result, iu, type, id, version, mavenClassifier, location);
+        addMavenArtifact(result, iu, id, version, mavenClassifier, location);
     }
 
-    protected void addMavenArtifact(DefaultP2ResolutionResult result, IInstallableUnit iu, String type, String id,
-            String version, String mavenClassifier, File location) {
-        boolean primary = false;
+    protected void addMavenArtifact(DefaultP2ResolutionResult result, IInstallableUnit iu, String id, String version,
+            String mavenClassifier, File location) {
+        final String contributingArtifactType;
+        final String contributingArtifactId;
 
-        if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type)) {
-            primary = isBundleOrFragmentWithId(iu, id);
-        } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
+        // TODO 353889 infer the type from the p2 artifact (as this is done for content from p2 repositories)?
+        if (isBundleOrFragmentWithId(iu, id)) {
+            contributingArtifactType = ArtifactKey.TYPE_ECLIPSE_PLUGIN;
+            contributingArtifactId = id;
+        } else {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
+                contributingArtifactType = ArtifactKey.TYPE_ECLIPSE_FEATURE;
                 // feature can have additional IUs injected via p2.inf
-                id = featureId;
-                primary = true;
+                contributingArtifactId = featureId;
+            } else if (isProduct(iu)) {
+                contributingArtifactType = ArtifactKey.TYPE_ECLIPSE_PRODUCT;
+                contributingArtifactId = id;
+            } else {
+                // additional IU of an artifact/project -> will be added to the artifact/project by its location
+                contributingArtifactType = null;
+                contributingArtifactId = null;
             }
-        } else if ("jar".equals(type)) {
-            // this must be an OSGi bundle coming from a maven repository
-            // TODO check if iu actually provides CAPABILITY_NS_OSGI_BUNDLE capability
-            type = ArtifactKey.TYPE_ECLIPSE_PLUGIN;
-            primary = true;
         }
 
-        result.addArtifact(type, id, version, primary, location, mavenClassifier, iu);
+        result.addArtifact(contributingArtifactType, contributingArtifactId, version, location, mavenClassifier, iu);
     }
 
     private String getFeatureId(IInstallableUnit iu) {
@@ -303,6 +310,10 @@ public class P2ResolverImpl implements P2Resolver {
             }
         }
         return false;
+    }
+
+    private boolean isProduct(IInstallableUnit iu) {
+        return Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PRODUCT));
     }
 
     public void setEnvironments(List<TargetEnvironment> environments) {

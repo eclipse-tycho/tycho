@@ -17,7 +17,7 @@ import java.util.Set;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry {
-    private final String type;
+    private String type;
 
     private String id;
 
@@ -66,6 +66,10 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     public String getClassifier() {
         return classifier;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setId(String id) {
