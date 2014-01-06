@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@ package org.eclipse.tycho.p2.impl.publisher;
 
 import java.io.File;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
@@ -21,21 +20,18 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
 
 @SuppressWarnings("restriction")
 public class ProductDependenciesAction extends AbstractDependenciesAction {
     private final IProductDescriptor product;
 
-    private final List<TargetEnvironment> environments;
-
-    public ProductDependenciesAction(IProductDescriptor product, List<TargetEnvironment> environments) {
+    public ProductDependenciesAction(IProductDescriptor product) {
         this.product = product;
-        this.environments = environments;
     }
 
     @Override
@@ -53,7 +49,7 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
         Set<IRequirement> required = new LinkedHashSet<IRequirement>();
 
         if (product.useFeatures()) {
-            for (IVersionedId feature : (List<IVersionedId>) product.getFeatures()) {
+            for (IVersionedId feature : product.getFeatures()) {
                 String id = feature.getId() + FEATURE_GROUP_IU_SUFFIX; //$NON-NLS-1$
                 Version version = feature.getVersion();
 
@@ -93,5 +89,10 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
         if (advice.containsAdvice()) {
             publisherInfo.addAdvice(advice);
         }
+    }
+
+    @Override
+    protected void addProperties(InstallableUnitDescription iud) {
+        iud.setProperty(InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.toString(true));
     }
 }

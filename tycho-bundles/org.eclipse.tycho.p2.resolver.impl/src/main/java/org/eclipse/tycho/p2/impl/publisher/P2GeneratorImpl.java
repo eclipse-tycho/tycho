@@ -212,7 +212,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             try {
                 IProductDescriptor productDescriptor = new ProductFile2(product);
                 if (dependenciesOnly) {
-                    actions.add(new ProductDependenciesAction(productDescriptor, environments));
+                    actions.add(new ProductDependenciesAction(productDescriptor));
                 } else {
                     actions.add(new ProductAction(product, productDescriptor, null, null));
                 }
@@ -235,7 +235,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                     throw new RuntimeException("Unable to parse the product file " + product, e);
                 }
                 if (dependenciesOnly) {
-                    actions.add(new ProductDependenciesAction(productDescriptor, environments));
+                    actions.add(new ProductDependenciesAction(productDescriptor));
                 }
             }
             for (File categoryFile : getCategoryFiles(location)) {

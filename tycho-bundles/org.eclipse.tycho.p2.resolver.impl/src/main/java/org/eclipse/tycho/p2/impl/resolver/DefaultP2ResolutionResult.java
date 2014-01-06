@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.impl.resolver;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
         return entries.values();
     }
 
-    public void addArtifact(String type, String id, String version, boolean primary, File location, String classifier,
+    public void addArtifact(String type, String id, String version, File location, String classifier,
             IInstallableUnit installableUnit) {
         // (location,classifier) is not null, but can have multiple associated IUs
 
@@ -47,15 +48,24 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
             entries.put(key, entry);
         } else {
             // bug 375715: entry may have been created for extra IUs from a p2.inf
-            if (primary) {
-                // set correct id/version for this entry
+            if (type != null) {
+                // type, id, and version for the artifact/project location is only known now -> update in entry
+                entry.setType(type);
                 entry.setId(id);
                 entry.setVersion(version);
             }
-
         }
 
         entry.addInstallableUnit(installableUnit);
+    }
+
+    public void removeEntriesWithUnknownType() {
+        for (Iterator<java.util.Map.Entry<ClassifiedLocation, Entry>> iterator = entries.entrySet().iterator(); iterator
+                .hasNext();) {
+            if (iterator.next().getValue().getType() == null) {
+                iterator.remove();
+            }
+        }
     }
 
     public void addNonReactorUnit(Object/* IInstallableUnit */installableUnit) {
