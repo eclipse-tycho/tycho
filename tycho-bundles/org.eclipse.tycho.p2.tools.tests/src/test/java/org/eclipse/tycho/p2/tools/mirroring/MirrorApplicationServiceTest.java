@@ -73,8 +73,8 @@ public class MirrorApplicationServiceTest {
     public void initTestContext() throws Exception {
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest"), DEFAULT_NAME);
 
-        File outputFolder = tempFolder.getRoot();
-        ReactorProjectIdentities currentProject = new ReactorProjectIdentitiesStub(outputFolder);
+        File projectFolder = tempFolder.getRoot();
+        ReactorProjectIdentities currentProject = new ReactorProjectIdentitiesStub(projectFolder);
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         subject = new MirrorApplicationServiceImpl();

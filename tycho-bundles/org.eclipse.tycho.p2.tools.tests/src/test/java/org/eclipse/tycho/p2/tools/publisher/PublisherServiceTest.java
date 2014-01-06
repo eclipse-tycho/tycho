@@ -77,21 +77,19 @@ public class PublisherServiceTest {
 
     private PublisherService subject;
 
-    private File outputDirectory;
     private PublishingRepository outputRepository;
 
     @Before
     public void initSubject() throws Exception {
-        outputDirectory = tempManager.newFolder("targetDir");
-
-        BuildContext buildContext = new BuildContext(new ReactorProjectIdentitiesStub(outputDirectory),
+        File projectDirectory = tempManager.newFolder("projectDir");
+        BuildContext buildContext = new BuildContext(new ReactorProjectIdentitiesStub(projectDirectory),
                 DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
         // TODO use a "normal" feature (we don't need the patch here...)
         RepositoryReferences contextRepositories = MirrorApplicationServiceTest.sourceRepos("patch");
 
         outputRepository = new PublishingRepositoryImpl(p2Context.getAgent(), new ReactorProjectIdentitiesStub(
-                outputDirectory));
+                projectDirectory));
         PublisherInfoTemplate publisherConfiguration = new PublisherInfoTemplate(contextRepositories, buildContext,
                 p2Context.getAgent());
         subject = new PublisherServiceImpl(buildContext, publisherConfiguration, outputRepository,
@@ -113,6 +111,7 @@ public class PublisherServiceTest {
 //        openFolderAndSleep(outputDirectory);
     }
 
+    @SuppressWarnings("restriction")
     @Test
     public void testProfilePublishing() throws Exception {
         File customProfile = resolveTestResource("resources/publishers/virgo-1.6.profile");

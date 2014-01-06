@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho;
 
+import java.io.File;
+
 /**
- * All values (GAV or target directory location) by which a reactor project can be uniquely
- * identified.
+ * All values (GAV, project base directory, and target directory) by which a Tycho reactor project
+ * can be uniquely identified.
  */
 public interface ReactorProjectIdentities {
 
@@ -21,6 +23,8 @@ public interface ReactorProjectIdentities {
     public String getArtifactId();
 
     public String getVersion();
+
+    public File getBasedir();
 
     public BuildOutputDirectory getBuildDirectory();
 

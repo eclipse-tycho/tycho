@@ -55,7 +55,7 @@ public class PublishingRepositoryTest {
 
     @Before
     public void initSubject() throws Exception {
-        project = new ReactorProjectIdentitiesStub(tempManager.newFolder("targetDir"));
+        project = new ReactorProjectIdentitiesStub(tempManager.newFolder("projectDir"));
 
         subject = new PublishingRepositoryImpl(p2Context.getAgent(), project);
     }
