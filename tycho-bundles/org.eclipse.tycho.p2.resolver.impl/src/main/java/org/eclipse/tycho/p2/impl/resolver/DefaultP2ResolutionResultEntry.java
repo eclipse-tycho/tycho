@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import java.util.Set;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry {
-    private final String type;
+    private String type;
 
     private String id;
 
@@ -66,6 +66,10 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     public String getClassifier() {
         return classifier;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setId(String id) {
