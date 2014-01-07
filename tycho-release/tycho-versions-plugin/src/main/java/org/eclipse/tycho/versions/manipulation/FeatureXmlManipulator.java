@@ -36,6 +36,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
                             + change.getNewVersion());
                     feature.setVersion(change.getNewVersion());
                 }
+                changeLicenseFeature(change, feature);
                 // could be included feature
                 changeIncludedFeatures(change, feature);
             } else if (isBundle(change.getProject())) {
@@ -53,6 +54,15 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
             }
         }
         return null;
+    }
+
+    private void changeLicenseFeature(VersionChange change, Feature feature) {
+        if (change.getArtifactId().equals(feature.getLicenseFeature())
+                && change.getVersion().equals(feature.getLicenseFeatureVersion())) {
+            logger.info("  feature.xml//feature/@license-feature='" + feature.getLicenseFeature()
+                    + "'/@license-feature-version: " + change.getVersion() + " => " + change.getNewVersion());
+            feature.setLicenseFeatureVersion(change.getNewVersion());
+        }
     }
 
     private void changeIncludedFeatures(VersionChange change, Feature feature) {
