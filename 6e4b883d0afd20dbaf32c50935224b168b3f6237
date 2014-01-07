@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67591f73_a9f89b71",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2014-01-07T18:26:59Z",
+      "side": 1,
+      "message": "I assume there is a utility method converting one version into the other, but I couldn\u0027t find it. Would be worth using here, though.",
+      "revId": "6e4b883d0afd20dbaf32c50935224b168b3f6237",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67591f73_c9f50f7b",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2014-01-07T18:26:59Z",
+      "side": 1,
+      "message": "Not sure whether it is OK to simply recycle the test project of Bug 368985 here. Any objections?",
+      "revId": "6e4b883d0afd20dbaf32c50935224b168b3f6237",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
