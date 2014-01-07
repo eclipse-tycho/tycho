@@ -7,6 +7,7 @@
       <item name="P2 Extras Plugin" href="tycho-p2-extras-plugin/plugin-info.html"/>
       <item name="Target Platform Validation Plugin" href="target-platform-validation-plugin/plugin-info.html"/>
       <item name="Eclipserun Plugin" href="tycho-eclipserun-plugin/plugin-info.html"/>
+      <item name="Document Bundle Plugin" href="tycho-document-bundle-plugin/plugin-info.html"/>
       <item name="Source Feature Generation Plugin" href="tycho-source-feature-plugin/plugin-info.html"/>
       <item name="Pack200 Plugins" href="tycho-pack200/index.html">
         <item name="Normalization Plugin" href="tycho-pack200/tycho-pack200a-plugin/plugin-info.html"/>

@@ -1,0 +1,13 @@
+org.osgi.framework
+org.osgi.framework.hooks.bundle
+org.osgi.framework.hooks.resolver
+org.osgi.framework.hooks.service
+org.osgi.framework.hooks.weaving
+org.osgi.framework.launch
+org.osgi.framework.startlevel
+org.osgi.framework.wiring
+org.osgi.service.condpermadmin
+org.osgi.service.packageadmin
+org.osgi.service.permissionadmin
+org.osgi.service.startlevel
+org.osgi.service.url
