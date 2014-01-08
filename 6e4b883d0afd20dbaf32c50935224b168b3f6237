@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "67591f73_7d547a9a",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-01-08T09:19:37Z",
+      "side": 1,
+      "message": "please correct copyright statement",
+      "revId": "6e4b883d0afd20dbaf32c50935224b168b3f6237",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67591f73_ddbae659",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-01-08T09:19:37Z",
+      "side": 1,
+      "message": "please correct contribution statement",
+      "revId": "6e4b883d0afd20dbaf32c50935224b168b3f6237",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67591f73_a9f89b71",
         "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
         "patchSetId": 1
@@ -19,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "67591f73_dda14628",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-01-08T09:19:37Z",
+      "side": 1,
+      "message": "no util I know of. I agree it\u0027s OK to hardcode the version here.",
+      "parentUuid": "67591f73_a9f89b71",
+      "revId": "6e4b883d0afd20dbaf32c50935224b168b3f6237",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67591f73_c9f50f7b",
         "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
         "patchSetId": 1
@@ -30,6 +82,41 @@
       "writtenOn": "2014-01-07T18:26:59Z",
       "side": 1,
       "message": "Not sure whether it is OK to simply recycle the test project of Bug 368985 here. Any objections?",
+      "revId": "6e4b883d0afd20dbaf32c50935224b168b3f6237",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67591f73_5d637683",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-01-08T09:19:37Z",
+      "side": 1,
+      "message": "we have a maven profile for running ITs in parallel (which speeds up a lot). However this only works (kind of) reliably if distinct tests are using distinct test resources. So it would be better to use separate test resources specific for this test here.",
+      "parentUuid": "67591f73_c9f50f7b",
+      "revId": "6e4b883d0afd20dbaf32c50935224b168b3f6237",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67591f73_5daed61d",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-01-08T09:19:37Z",
+      "side": 1,
+      "message": "I wonder if the -Dartifacts parameter is actually neded here?",
       "revId": "6e4b883d0afd20dbaf32c50935224b168b3f6237",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
