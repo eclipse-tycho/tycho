@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67591f73_80b5a1b4",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/bug424945_setLicenseFeatureVersion/SetLicenseFeatureVersionTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2014-01-08T10:10:56Z",
+      "side": 1,
+      "message": "My current employer.",
+      "revId": "99ed0774a74994c263735be60875cc8d413b5095",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
