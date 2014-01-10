@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67591f73_36a32688",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-01-10T14:36:49Z",
+      "side": 1,
+      "message": "What eclipse version introduced BundleException#getType? I think it is relatively recent addition, so at very least we\u0027ll have to document the new minimal version requirement.",
+      "revId": "f3098cc8e6ceca35623d3a6aeec44626825c9385",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
