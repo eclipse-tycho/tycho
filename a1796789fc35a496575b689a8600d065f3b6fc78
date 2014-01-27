@@ -88,6 +88,24 @@
       "revId": "a1796789fc35a496575b689a8600d065f3b6fc78",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67591f73_f173b507",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/util/StatusTool.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-01-27T12:01:01Z",
+      "side": 1,
+      "message": "Introducing a dedicated type for this parameter was the right approach. On top of fixing this explicit use of null variable problem, I could also get rid of all the ifs in the append* methods.\n\nSee https://git.eclipse.org/r/#/c/21131/",
+      "parentUuid": "8748d3a1_0cde5f8a",
+      "revId": "a1796789fc35a496575b689a8600d065f3b6fc78",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
