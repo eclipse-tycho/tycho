@@ -17,63 +17,82 @@ public class StatusTool {
     private static class StatusStringBuilder {
         private StringBuilder result = new StringBuilder();
 
-        void appendStatusAndChildren(IStatus status, String indentation) {
-            appendStatusMessage(status);
+        void appendStatusAndChildren(IStatus status, HierarchyFormatter formatter) {
+            appendStatusMessage(status, formatter);
 
             if (hasChildren(status)) {
-                appendChildren(status, indentation);
+                appendChildren(status, formatter);
             }
         }
 
-        private void appendStatusMessage(IStatus status) {
+        private void appendStatusMessage(IStatus status, HierarchyFormatter formatter) {
+            result.append(formatter.indentationString);
             result.append(status.getMessage());
         }
 
-        private void appendChildren(IStatus status, String indentation) {
-
-            if (indentation == null) {
-                result.append(": [");
-                appendChildList(status.getChildren(), null);
-                result.append("]");
-
-            } else {
-                result.append(":\n");
-                appendChildList(status.getChildren(), indentation + "   ");
-            }
+        private void appendChildren(IStatus status, HierarchyFormatter formatter) {
+            result.append(formatter.childrenStartString);
+            appendStatusList(status.getChildren(), formatter.getChildLevelFormatter());
+            result.append(formatter.childrenEndString);
         }
 
-        private void appendChildList(IStatus[] children, String indentation) {
-            int trailingSeparatorChars = 0;
+        private void appendStatusList(IStatus[] statusList, HierarchyFormatter formatter) {
+            boolean trailingSeparator = false;
 
-            for (IStatus childStatus : children) {
-                if (!childStatus.isOK()) {
-                    trailingSeparatorChars = appendChild(childStatus, indentation);
+            for (IStatus status : statusList) {
+                if (!status.isOK()) {
+                    appendStatusAndChildren(status, formatter);
+
+                    result.append(formatter.listSeparatorString);
+                    trailingSeparator = true;
                 }
             }
-            result.setLength(result.length() - trailingSeparatorChars);
-        }
 
-        private int appendChild(IStatus status, String indentation) {
-
-            if (indentation == null) {
-                appendStatusAndChildren(status, indentation);
-                return appendAndReturnLength("; ");
-
-            } else {
-                result.append(indentation);
-                appendStatusAndChildren(status, indentation);
-                return appendAndReturnLength("\n");
+            if (trailingSeparator) {
+                result.setLength(result.length() - formatter.listSeparatorString.length());
             }
-        }
-
-        private int appendAndReturnLength(String string) {
-            result.append(string);
-            return string.length();
         }
 
         @Override
         public String toString() {
             return result.toString();
+        }
+    }
+
+    private static class HierarchyFormatter {
+
+        final private String indentationIncrement;
+        final String indentationString;
+
+        final String childrenStartString;
+        final String childrenEndString;
+
+        final String listSeparatorString;
+
+        HierarchyFormatter(String childrenStart, String indentationIncrement, String listSeparator, String childrenEnd) {
+            this("", childrenStart, indentationIncrement, listSeparator, childrenEnd);
+        }
+
+        private HierarchyFormatter(String indentation, String childrenStart, String indentationIncrement,
+                String listSeparator, String childrenEnd) {
+            this.indentationString = indentation;
+            this.indentationIncrement = indentationIncrement;
+
+            this.childrenStartString = childrenStart;
+            this.childrenEndString = childrenEnd;
+
+            this.listSeparatorString = listSeparator;
+        }
+
+        public HierarchyFormatter getChildLevelFormatter() {
+            if (indentationIncrement == null) {
+                // child level is formatted in the same way as current level
+                return this;
+            } else {
+                // return formatter with increased indentation
+                return new HierarchyFormatter(indentationString + indentationIncrement, childrenStartString,
+                        indentationIncrement, listSeparatorString, childrenEndString);
+            }
         }
     }
 
@@ -99,8 +118,12 @@ public class StatusTool {
         }
 
         StatusStringBuilder builder = new StatusStringBuilder();
-        String indentation = multiLine ? "" : null;
-        builder.appendStatusAndChildren(status, indentation);
+        HierarchyFormatter formatter;
+        if (multiLine)
+            formatter = new HierarchyFormatter(":\n", "   ", "\n", "");
+        else
+            formatter = new HierarchyFormatter(": [", null, "; ", "]");
+        builder.appendStatusAndChildren(status, formatter);
         return builder.toString();
     }
 
