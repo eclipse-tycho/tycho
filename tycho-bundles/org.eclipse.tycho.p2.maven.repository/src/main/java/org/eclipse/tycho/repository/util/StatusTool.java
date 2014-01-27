@@ -17,11 +17,11 @@ public class StatusTool {
     private static class StatusStringBuilder {
         private StringBuilder result = new StringBuilder();
 
-        void appendStatusAndChildren(IStatus status, String indentation) {
+        void appendStatusAndChildren(IStatus status, HierarchyFormatter formatter) {
             appendStatusMessage(status);
 
             if (hasChildren(status)) {
-                appendChildren(status, indentation);
+                appendChildren(status, formatter);
             }
         }
 
@@ -29,51 +29,70 @@ public class StatusTool {
             result.append(status.getMessage());
         }
 
-        private void appendChildren(IStatus status, String indentation) {
-
-            if (indentation == null) {
-                result.append(": [");
-                appendChildList(status.getChildren(), null);
-                result.append("]");
-
-            } else {
-                result.append(":\n");
-                appendChildList(status.getChildren(), indentation + "   ");
-            }
+        private void appendChildren(IStatus status, HierarchyFormatter formatter) {
+            result.append(formatter.childrenStartString);
+            appendChildList(status.getChildren(), formatter.getChildLevelFormatter());
+            result.append(formatter.childrenEndString);
         }
 
-        private void appendChildList(IStatus[] children, String indentation) {
+        private void appendChildList(IStatus[] children, HierarchyFormatter formatter) {
             int trailingSeparatorChars = 0;
 
             for (IStatus childStatus : children) {
                 if (!childStatus.isOK()) {
-                    trailingSeparatorChars = appendChild(childStatus, indentation);
+                    appendChild(childStatus, formatter);
+                    trailingSeparatorChars = formatter.listSeparatorString.length();
                 }
             }
             result.setLength(result.length() - trailingSeparatorChars);
         }
 
-        private int appendChild(IStatus status, String indentation) {
-
-            if (indentation == null) {
-                appendStatusAndChildren(status, indentation);
-                return appendAndReturnLength("; ");
-
-            } else {
-                result.append(indentation);
-                appendStatusAndChildren(status, indentation);
-                return appendAndReturnLength("\n");
-            }
-        }
-
-        private int appendAndReturnLength(String string) {
-            result.append(string);
-            return string.length();
+        protected void appendChild(IStatus status, HierarchyFormatter formatter) {
+            result.append(formatter.indentationString);
+            appendStatusAndChildren(status, formatter);
+            result.append(formatter.listSeparatorString);
         }
 
         @Override
         public String toString() {
             return result.toString();
+        }
+    }
+
+    private static class HierarchyFormatter {
+
+        final private String indentationIncrement;
+        final String indentationString;
+
+        final String childrenStartString;
+        final String childrenEndString;
+
+        final String listSeparatorString;
+
+        HierarchyFormatter(String childrenStart, String indentationIncrement, String listSeparator, String childrenEnd) {
+            this("", childrenStart, indentationIncrement, listSeparator, childrenEnd);
+        }
+
+        private HierarchyFormatter(String indentation, String childrenStart, String indentationIncrement,
+                String listSeparator, String childrenEnd) {
+            this.indentationString = indentation;
+            this.indentationIncrement = indentationIncrement;
+
+            this.childrenStartString = childrenStart;
+            this.childrenEndString = childrenEnd;
+
+            this.listSeparatorString = listSeparator;
+        }
+
+        public HierarchyFormatter getChildLevelFormatter() {
+            if (indentationIncrement == null) {
+                // child level is formatted in the same way as current level
+                return this;
+            } else {
+                // return formatter with increased indentation
+                return new HierarchyFormatter(indentationString + indentationIncrement, childrenStartString,
+                        indentationIncrement, listSeparatorString, childrenEndString);
+            }
         }
     }
 
@@ -99,8 +118,12 @@ public class StatusTool {
         }
 
         StatusStringBuilder builder = new StatusStringBuilder();
-        String indentation = multiLine ? "" : null;
-        builder.appendStatusAndChildren(status, indentation);
+        HierarchyFormatter formatter;
+        if (multiLine)
+            formatter = new HierarchyFormatter(":\n", "   ", "\n", "");
+        else
+            formatter = new HierarchyFormatter(": [", null, "; ", "]");
+        builder.appendStatusAndChildren(status, formatter);
         return builder.toString();
     }
 
