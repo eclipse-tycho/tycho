@@ -53,6 +53,8 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         targetAliases.put("6.0", "1.6");
         targetAliases.put("7", "1.7");
         targetAliases.put("7.0", "1.7");
+        targetAliases.put("8", "1.8");
+        targetAliases.put("8.0", "1.8");
         TARGET_ALIASES = Collections.unmodifiableMap(targetAliases);
     }
 
