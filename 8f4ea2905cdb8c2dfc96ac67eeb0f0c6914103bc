@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67591f73_98e34e94",
+        "filename": "tycho-bundles/tycho-bundles-target/tycho-bundles-target.target",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-01-31T13:15:41Z",
+      "side": 1,
+      "message": "This version is still too old for the Java 8 support. It doesn\u0027t include Jan\u0027s fix for p2 bug 426841 yet.",
+      "revId": "8f4ea2905cdb8c2dfc96ac67eeb0f0c6914103bc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
