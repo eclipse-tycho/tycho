@@ -15,6 +15,9 @@
    <features>
       <feature id="org.eclipse.rcp" version="0.0.0"/>
       <feature id="pi.example.feature"/>
+
+      <!-- installed at root level in the distribution so it can be updated or uninstalled independently of product -->
+      <feature id="pi.root-level-installed-feature" installMode="root"/>
    </features>
 
    <configurations>

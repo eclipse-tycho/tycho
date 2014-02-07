@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
@@ -104,6 +105,9 @@ public final class DirectorMojo extends AbstractProductMojo {
                 command.addMetadataSources(sources.getMetadataRepositories());
                 command.addArtifactSources(sources.getArtifactRepositories());
                 command.addUnitToInstall(product.getId());
+                for (DependencySeed seed : product.getAdditionalInstallationSeeds()) {
+                    command.addUnitToInstall(seed);
+                }
                 command.setDestination(destination);
                 command.setProfileName(ProfileName.getNameForEnvironment(env, profileNames, profile));
                 command.setEnvironment(env);

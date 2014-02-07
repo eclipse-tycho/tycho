@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
+import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
@@ -90,6 +91,29 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
         int repositoryArtifacts = 1;
         assertTotalZipArtifacts(verifier, publishedArtifacts + distributionArtifacts + repositoryArtifacts);
+    }
+
+    @Test
+    public void testRootLevelInstalledFeatures() throws Exception {
+        P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir(),
+                MODULE));
+
+        // product IU must not reference the feature IU
+        assertThat(p2Repository.getUniqueIU("main.product.id").getRequiredIds(),
+                not(hasItem("pi.root-level-installed-feature.feature.group")));
+
+        /*
+         * Indirectly test root level installation in product (from the p2 director output). This
+         * avoids having to read the p2 installation profile.
+         */
+        verifier.verifyTextInLog("Installing pi.root-level-installed-feature");
+
+        /*
+         * Test that feature installed at root level in the product is assembled into the p2
+         * repository although there is no dependency from the product IU.
+         */
+        File rootFeatureInRepo = p2Repository.findFeatureArtifact("pi.root-level-installed-feature");
+        assertThat(rootFeatureInRepo, isFile());
     }
 
     static private void assertProductIUs(P2RepositoryTool p2Repository, Product product, Environment env)

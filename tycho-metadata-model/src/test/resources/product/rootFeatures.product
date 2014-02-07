@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="product.with.root.features" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.rcp" version="4.4.0.v20140128" installMode="include"/>
+      <feature id="org.eclipse.e4.rcp"/>  <!-- "include" is the default -->
+      <feature id="org.eclipse.help" version="2.0.102.v20140128" installMode="root"/>
+      <feature id="org.eclipse.egit" installMode="root"/>
+   </features>
+
+</product>
