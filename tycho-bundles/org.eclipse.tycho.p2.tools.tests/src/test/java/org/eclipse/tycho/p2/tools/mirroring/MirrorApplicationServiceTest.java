@@ -36,6 +36,7 @@ import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2.tools.publisher.DependencySeedUtil;
 import org.eclipse.tycho.p2.tools.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
@@ -146,7 +147,7 @@ public class MirrorApplicationServiceTest {
             InstallableUnitDescription seedDescriptor = new InstallableUnitDescription();
             seedDescriptor.setId("iu-requiring." + unit.getId());
             seedDescriptor.addRequirements(strictRequirementTo(unit));
-            result.add(new DependencySeed(MetadataFactory.createInstallableUnit(seedDescriptor)));
+            result.add(DependencySeedUtil.createSeed(null, MetadataFactory.createInstallableUnit(seedDescriptor)));
         }
         return result;
     }

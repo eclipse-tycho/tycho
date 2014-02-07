@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,45 +13,45 @@ package org.eclipse.tycho.plugins.p2.director;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.util.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.junit.Test;
 
 public class ProductConfigTest {
-    private File tempDir;
 
     private ProductConfig subject;
 
-    @Before
-    public void setUp() throws IOException {
-        tempDir = createTempDir(getClass().getSimpleName());
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        FileUtils.deleteDirectory(tempDir);
-    }
+    private List<DependencySeed> projectSeeds = new ArrayList<DependencySeed>();
 
     @Test
-    public void testNoProductDefault() throws Exception {
-        subject = new ProductConfig(null, tempDir);
+    public void testNoConfigAndNothingPublished() throws Exception {
+        subject = new ProductConfig(null, projectSeeds);
+
         assertEquals(Collections.emptyList(), subject.getProducts());
     }
 
     @Test
-    public void testProductDefault() throws Exception {
-        new File(tempDir, "product.id.1").mkdirs();
-        new File(tempDir, "product.id.2").mkdirs();
+    public void testNoConfigAndNoProductPublished() throws Exception {
+        projectSeeds.add(otherSeed("feature.id", ArtifactKey.TYPE_ECLIPSE_FEATURE));
 
-        subject = new ProductConfig(null, tempDir);
+        subject = new ProductConfig(null, projectSeeds);
+
+        assertEquals(Collections.emptyList(), subject.getProducts());
+    }
+
+    @Test
+    public void testNoConfigDefaultsToPublishedProducts() throws Exception {
+        projectSeeds.add(productSeed("product.id.1"));
+        projectSeeds.add(productSeed("product.id.2"));
+        projectSeeds.add(otherSeed("feature.id", ArtifactKey.TYPE_ECLIPSE_FEATURE));
+
+        subject = new ProductConfig(null, projectSeeds);
 
         List<Product> products = subject.getProducts();
         assertEquals(2, products.size());
@@ -61,11 +61,11 @@ public class ProductConfigTest {
 
     @Test
     public void testExplicitProduct() throws Exception {
-        new File(tempDir, "product.id.1").mkdirs();
-        new File(tempDir, "product.id.2").mkdirs();
+        projectSeeds.add(productSeed("product.id.1"));
+        projectSeeds.add(productSeed("product.id.2"));
         List<Product> userConfig = Collections.singletonList(new Product("product.id.1"));
 
-        subject = new ProductConfig(userConfig, tempDir);
+        subject = new ProductConfig(userConfig, projectSeeds);
 
         List<Product> expected = Arrays.asList(new Product("product.id.1"));
         assertEquals(expected, subject.getProducts());
@@ -73,66 +73,57 @@ public class ProductConfigTest {
 
     @Test(expected = MojoFailureException.class)
     public void testNonExistingExplicitProduct() throws Exception {
-        new File(tempDir, "product.id.1").mkdirs();
-        new File(tempDir, "product.id.2").mkdirs();
+        projectSeeds.add(productSeed("product.id.1"));
+        projectSeeds.add(productSeed("product.id.2"));
         List<Product> userConfig = Collections.singletonList(new Product("product.id.3"));
 
-        subject = new ProductConfig(userConfig, tempDir);
+        subject = new ProductConfig(userConfig, projectSeeds);
     }
 
     @Test(expected = MojoFailureException.class)
     public void testProductWithoutId() throws Exception {
         List<Product> userConfig = Collections.singletonList(new Product());
-        subject = new ProductConfig(userConfig, tempDir);
+        subject = new ProductConfig(userConfig, projectSeeds);
     }
 
     @Test
     public void testUniqueAttachIds() throws Exception {
-        new File(tempDir, "product.id.1").mkdirs();
-        new File(tempDir, "product.id.2").mkdirs();
-        new File(tempDir, "product.id.3").mkdirs();
+        projectSeeds.add(productSeed("product.id.1"));
+        projectSeeds.add(productSeed("product.id.2"));
+        projectSeeds.add(productSeed("product.id.3"));
         List<Product> userConfig = Arrays.asList(new Product("product.id.2"), new Product("product.id.3", "extra"));
 
-        subject = new ProductConfig(userConfig, tempDir);
+        subject = new ProductConfig(userConfig, projectSeeds);
         assertEquals(true, subject.uniqueAttachIds());
     }
 
     @Test
     public void testDuplicateAttachId() throws Exception {
-        new File(tempDir, "product.id.1").mkdirs();
-        new File(tempDir, "product.id.2").mkdirs();
+        projectSeeds.add(productSeed("product.id.1"));
+        projectSeeds.add(productSeed("product.id.2"));
 
-        subject = new ProductConfig(null, tempDir);
+        subject = new ProductConfig(null, projectSeeds);
         assertEquals(false, subject.uniqueAttachIds());
     }
 
     @Test
     public void testDuplicateExplicitAttachId() throws Exception {
-        new File(tempDir, "product.id.1").mkdirs();
-        new File(tempDir, "product.id.2").mkdirs();
-        new File(tempDir, "product.id.3").mkdirs();
+        projectSeeds.add(productSeed("product.id.1"));
+        projectSeeds.add(productSeed("product.id.2"));
+        projectSeeds.add(productSeed("product.id.3"));
         List<Product> userConfig = Arrays.asList(new Product("product.id.1", "attach"), new Product("product.id.2"),
                 new Product("product.id.3", "attach"));
 
-        subject = new ProductConfig(userConfig, tempDir);
+        subject = new ProductConfig(userConfig, projectSeeds);
         assertEquals(false, subject.uniqueAttachIds());
     }
 
-    @Test
-    public void testNotExistingProductsDir() throws Exception {
-        // https://bugs.eclipse.org/bugs/show_bug.cgi?id=356716
-        subject = new ProductConfig(null, new File(tempDir, "aNotExstistingFolder"));
-        assertTrue(subject.getProducts().isEmpty());
+    private static DependencySeed productSeed(String id) {
+        return new DependencySeed(ArtifactKey.TYPE_ECLIPSE_PRODUCT, id, "1.0.0.20140207", null);
     }
 
-    private File createTempDir(String prefix) throws IOException {
-        File directory = File.createTempFile(prefix, "");
-        if (directory.delete()) {
-            directory.mkdirs();
-            return directory;
-        } else {
-            throw new IOException("Could not create temp directory at: " + directory.getAbsolutePath());
-        }
+    private static DependencySeed otherSeed(String id, String type) {
+        return new DependencySeed(type, id, "1.0.0.20140207", null);
     }
 
 }
