@@ -12,6 +12,7 @@
 		<module>target-definition</module>
 		<module>example-bundle</module>
 		<module>example-feature</module>
+		<module>root-level-installed-feature</module>
 	</modules>
 
 	<build>

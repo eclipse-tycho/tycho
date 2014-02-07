@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.model;
 
+import java.util.Arrays;
+
 import de.pdark.decentxml.Element;
 
 public class FeatureRef {
+
+    public enum InstallMode {
+        include, root
+    }
 
     protected final Element dom;
 
@@ -67,6 +73,23 @@ public class FeatureRef {
 
     public void setWS(String value) {
         dom.setAttribute("ws", value);
+    }
+
+    public InstallMode getInstallMode() throws ModelFileSyntaxException {
+        String installModeString = dom.getAttributeValue("installMode");
+
+        if (installModeString == null) {
+            // default
+            return InstallMode.include;
+
+        } else {
+            try {
+                return InstallMode.valueOf(installModeString);
+            } catch (IllegalArgumentException e) {
+                throw new ModelFileSyntaxException("Invalid installMode \"" + installModeString + "\" in feature \""
+                        + getId() + "\"; supported values are " + Arrays.toString(InstallMode.values()));
+            }
+        }
     }
 
     public Element getDom() {

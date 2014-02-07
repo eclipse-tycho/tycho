@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.io.File;
 import java.net.URI;
 
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 /**
  * A runtime environment of the p2 director application.
@@ -30,6 +31,8 @@ public interface DirectorRuntime {
         void addArtifactSources(Iterable<URI> artifactRepositories);
 
         void addUnitToInstall(String id);
+
+        void addUnitToInstall(DependencySeed seed);
 
         void setProfileName(String profileName);
 

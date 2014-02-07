@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 /**
  * Base class for calling a p2 director via command line arguments.
@@ -46,7 +48,18 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
 
     public final void addUnitToInstall(String id) {
         this.unitsToInstall.append(id);
+    }
 
+    public final void addUnitToInstall(DependencySeed dependency) {
+        final String uid;
+        if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(dependency.getType())) {
+            uid = dependency.getId() + ".feature.group";
+        } else {
+            uid = dependency.getId();
+        }
+        // format understood by VersionedId.parse(String)
+        // TODO 372780 once installing from the TP, we need to explicitly pick a version here
+        this.unitsToInstall.append(uid /* + "/" + dependency.getVersion() */);
     }
 
     public final void setProfileName(String profileName) {
