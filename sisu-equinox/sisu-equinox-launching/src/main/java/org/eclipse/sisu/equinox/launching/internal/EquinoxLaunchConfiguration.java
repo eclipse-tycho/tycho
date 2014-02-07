@@ -65,21 +65,13 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
      * Fully equivalent to <code>addProgramArguments(false, vmargs)</code>
      */
     public void addProgramArguments(String... args) {
-        addProgramArguments(false, args);
+        addArguments(this.args, args);
     }
 
-    public void addProgramArguments(boolean escape, String... args) {
-        addArguments(this.args, escape, args);
-    }
-
-    private void addArguments(List<Argument> to, boolean escape, String... args) {
+    private void addArguments(List<Argument> to, String... args) {
         for (String str : args) {
             Argument arg = new Argument();
-            if (escape) {
-                arg.setValue(str);
-            } else {
-                arg.setLine(str);
-            }
+            arg.setLine(str);
             to.add(arg);
         }
     }
@@ -102,11 +94,7 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
      * Fully equivalent to <code>addVMArguments(false, vmargs)</code>
      */
     public void addVMArguments(String... vmargs) {
-        this.addVMArguments(false, vmargs);
-    }
-
-    public void addVMArguments(boolean escape, String... vmargs) {
-        addArguments(this.vmargs, escape, vmargs);
+        this.addArguments(this.vmargs, vmargs);
     }
 
     public String[] getVMArguments() {
