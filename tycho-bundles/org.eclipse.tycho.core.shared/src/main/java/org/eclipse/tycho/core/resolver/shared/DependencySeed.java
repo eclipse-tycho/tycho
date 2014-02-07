@@ -21,8 +21,13 @@ public class DependencySeed {
     // not using ArtifactKey here because we don't have the same invariants
     private final String type;
     private final String id;
-    private final String version;
+    // TODO 372780 add this member, so that a dependency seed uniquely identifies a unit
+//    private final String version;
+
+    // TODO 372780 disallow null; the UI should be obtained as well when looking up the version
     private final Object installableUnit;
+
+    private final Filter addOnFilter;
 
     /**
      * @param type
@@ -33,13 +38,32 @@ public class DependencySeed {
      * @param version
      *            Exact version (i.e. qualified) version of the unit.
      * @param installableUnit
-     *            The seed unit as IInstallableUnit. Contains the dependency information.
+     *            The seed unit as IInstallableUnit, which contains the dependency information. May
+     *            be <code>null</code>.
      */
-    public DependencySeed(String type, String id, String version, Object installableUnit) {
+    public DependencySeed(String type, String id, /* String version, */Object installableUnit) {
+        this(type, id, installableUnit, null);
+    }
+
+    /**
+     * @param type
+     *            The type of the seed unit. See {@link ArtifactKey} for known types. May be
+     *            <code>null</code>.
+     * @param id
+     *            Identifier of the seed unit.
+     * @param version
+     *            Exact version (i.e. qualified) version of the unit.
+     * @param installableUnit
+     *            The seed unit as IInstallableUnit, which contains the dependency information. May
+     *            be <code>null</code>.
+     * @param isAddOnFor
+     *            Filter used to answer calls to {@link #isAddOnFor(String, String)}
+     */
+    public DependencySeed(String type, String id, /* String version, */Object installableUnit, Filter isAddOnFor) {
         this.type = type;
         this.id = id;
-        this.version = version;
         this.installableUnit = installableUnit;
+        this.addOnFilter = isAddOnFor;
     }
 
     /**
@@ -58,10 +82,43 @@ public class DependencySeed {
     }
 
     /**
-     * @return the seed unit as IInstallableUnit.
+     * @return the (qualified) version of the unit.
+     */
+//    public String getVersion() {
+//        return version;
+//    }
+
+    /**
+     * @return the seed unit as IInstallableUnit. May be <code>null</code>.
      */
     public/* IInstallableUnit */Object getInstallableUnit() {
         return installableUnit;
     }
 
+    /**
+     * Returns <code>true</code> if this dependency is an add-on for the given other dependency
+     * seed. This is used to identify features which shall be installed at root level together with
+     * products.
+     * 
+     * @param otherType
+     *            Type of the other dependency seed (as returned by {@link #getType()})
+     * @param otherId
+     *            Identifier of the other dependency see (as returned by {@link #getId()})
+     * @return <code>true</code> if this dependency is an add-on for the other dependency seed. The
+     *         default is <code>false</code>.
+     */
+    public boolean isAddOnFor(String otherType, String otherId) {
+        if (addOnFilter == null) {
+            return false;
+        } else {
+            return addOnFilter.isAddOnFor(otherType, otherId);
+        }
+    }
+
+    public interface Filter {
+        /**
+         * Returns <code>true</code> if this dependency is an add-on for the given dependency seed.
+         */
+        boolean isAddOnFor(String type, String id);
+    }
 }

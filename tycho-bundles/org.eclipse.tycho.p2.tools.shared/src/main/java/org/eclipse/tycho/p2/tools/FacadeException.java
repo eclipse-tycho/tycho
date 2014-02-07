@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.tools;
 /**
  * Wrapper for checked exceptions from the OSGi world.
  */
+// TODO should be a runtime exception, a generic checked exception doesn't make any sense
 public class FacadeException extends Exception {
     private static final long serialVersionUID = 1864994424422146579L;
 

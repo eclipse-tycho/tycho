@@ -16,7 +16,7 @@ import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 public class DependencySeedUtil {
 
     public static DependencySeed createSeed(String type, IInstallableUnit unit) {
-        return new DependencySeed(type, unit.getId(), unit.getVersion().toString(), unit);
+        return new DependencySeed(type, unit.getId(), /* unit.getVersion().toString(), */unit);
     }
 
 }

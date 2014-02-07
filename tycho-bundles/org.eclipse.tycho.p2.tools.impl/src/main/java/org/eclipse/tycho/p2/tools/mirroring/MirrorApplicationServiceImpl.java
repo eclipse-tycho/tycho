@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.tools.mirroring;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -86,8 +88,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         return slicingOptions;
     }
 
-    private List<IInstallableUnit> querySourceIus(Collection<IUDescription> sourceIUs, IMetadataRepository repository,
-            RepositoryReferences sources) throws FacadeException {
+    private static List<IInstallableUnit> querySourceIus(Collection<IUDescription> sourceIUs,
+            IMetadataRepository repository, RepositoryReferences sources) throws FacadeException {
         if (sourceIUs == null || sourceIUs.isEmpty()) {
             return null;
         }
@@ -106,7 +108,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         return result;
     }
 
-    private IQuery<IInstallableUnit> createQuery(IUDescription iu) {
+    private static IQuery<IInstallableUnit> createQuery(IUDescription iu) {
         String id = iu.getId();
         String version = iu.getVersion();
         if (iu.getQueryMatchExpression() != null) {
@@ -128,7 +130,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, includePacked);
 
             // mirror scope: seed units...
-            mirrorApp.setSourceIUs(toInstallableUnitList(projectSeeds));
+            mirrorApp.setSourceIUs(toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(),
+                    sources));
 
             // TODO the p2 mirror tool should support mirroring multiple environments at once
             for (TargetEnvironment environment : context.getEnvironments()) {
@@ -214,10 +217,24 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
-    private static List<IInstallableUnit> toInstallableUnitList(Collection<DependencySeed> seeds) {
+    private static List<IInstallableUnit> toInstallableUnitList(Collection<DependencySeed> seeds,
+            IMetadataRepository sourceRepository, RepositoryReferences sourceRepositoryNames) throws FacadeException {
         List<IInstallableUnit> result = new ArrayList<IInstallableUnit>(seeds.size());
+
         for (DependencySeed seed : seeds) {
-            result.add((IInstallableUnit) seed.getInstallableUnit());
+            if (seed.getInstallableUnit() == null) {
+                // TODO 372780 drop this when getInstallableUnit can no longer be null
+                String unitId = seed.getId()
+                        + (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(seed.getType()) ? ".feature.group" : "");
+                result.addAll(querySourceIus(Collections.singletonList(new IUDescription(unitId, null)),
+                        sourceRepository, sourceRepositoryNames));
+            } else {
+                result.add((IInstallableUnit) seed.getInstallableUnit());
+            }
+        }
+
+        if (result.isEmpty()) {
+            throw new IllegalArgumentException("List of seed units for repository aggregation must not be empty");
         }
         return result;
     }

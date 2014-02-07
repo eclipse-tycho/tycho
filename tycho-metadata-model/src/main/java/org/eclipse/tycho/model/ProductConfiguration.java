@@ -31,6 +31,7 @@ import org.codehaus.plexus.util.IOUtil;
 import de.pdark.decentxml.Attribute;
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
+import de.pdark.decentxml.Node;
 import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
@@ -109,6 +110,25 @@ public class ProductConfiguration {
             throw new ModelFileSyntaxException("Invalid child element \"" + featureDom.getName() + "\" in \"features\"");
         }
         return new FeatureRef(featureDom);
+    }
+
+    // TODO 428889 remove once p2 handles installMode="root" features
+    public void removeRootInstalledFeatures() {
+        Element featuresDom = dom.getChild("features");
+        if (featuresDom != null) {
+
+            for (int childIx = featuresDom.getNodes().size() - 1; childIx > 0; --childIx) {
+                Node nodeDom = featuresDom.getNode(childIx);
+
+                if (nodeDom instanceof Element) {
+                    Element elementDom = (Element) nodeDom;
+
+                    if (parseFeature(elementDom).getInstallMode() == FeatureRef.InstallMode.root) {
+                        featuresDom.removeNode(childIx);
+                    }
+                }
+            }
+        }
     }
 
     public String getId() {

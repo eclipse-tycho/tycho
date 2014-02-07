@@ -84,6 +84,14 @@ public class MirrorApplicationServiceTest {
         subject.setMavenContext(mavenContext);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testMirrorNothing() throws Exception {
+        // make sure that this unsupported case is detected; the mirror application would just mirror everything
+        Collection<DependencySeed> emptyList = Collections.<DependencySeed> emptyList();
+
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, emptyList, context, false, false, null);
+    }
+
     @Test
     public void testMirrorFeatureWithContent() throws Exception {
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context,
@@ -129,6 +137,20 @@ public class MirrorApplicationServiceTest {
                 null);
 
         logVerifier.expectWarning(not(is("")));
+    }
+
+    @Test
+    public void testMirrorForSeedWithNullIU() throws Exception {
+        /**
+         * While it is hard to get an IU from the target platform (cf. bug 412416, bug 372780), we
+         * need to allow {@link DependencySeed} instances with null IU.
+         */
+        List<DependencySeed> seeds = Collections.singletonList(new DependencySeed(null, "org.eclipse.core.runtime",
+                null));
+
+        subject.mirrorReactor(sourceRepos("e342"), destinationRepo, seeds, context, false, false, null);
+
+        assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
     }
 
     public static RepositoryReferences sourceRepos(String... repoIds) {

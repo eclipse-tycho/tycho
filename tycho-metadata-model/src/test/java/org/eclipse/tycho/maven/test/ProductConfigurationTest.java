@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,19 +10,23 @@
  *******************************************************************************/
 package org.eclipse.tycho.maven.test;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.eclipse.tycho.model.BundleConfiguration;
 import org.eclipse.tycho.model.FeatureRef;
+import org.eclipse.tycho.model.FeatureRef.InstallMode;
 import org.eclipse.tycho.model.Launcher;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class ProductConfigurationParseTest {
+public class ProductConfigurationTest {
 
     @Test
     public void testProductConfigurationParse() throws Exception {
@@ -110,4 +114,39 @@ public class ProductConfigurationParseTest {
 
     }
 
+    @Test
+    public void testFeatureInstallMode() throws Exception {
+        ProductConfiguration config = ProductConfiguration.read(getClass().getResourceAsStream(
+                "/product/rootFeatures.product"));
+
+        Map<String, InstallMode> modes = getInstallModes(config);
+
+        assertThat(modes.get("org.eclipse.rcp"), is(InstallMode.include));
+        assertThat(modes.get("org.eclipse.e4.rcp"), is(InstallMode.include));
+        assertThat(modes.get("org.eclipse.help"), is(InstallMode.root));
+        assertThat(modes.get("org.eclipse.egit"), is(InstallMode.root));
+        assertThat(modes.size(), is(4));
+    }
+
+    @Test
+    public void testRemoveRootFeatures() throws Exception {
+        ProductConfiguration config = ProductConfiguration.read(getClass().getResourceAsStream(
+                "/product/rootFeatures.product"));
+
+        config.removeRootInstalledFeatures();
+
+        Map<String, InstallMode> modes = getInstallModes(config);
+
+        assertThat(modes.get("org.eclipse.rcp"), is(InstallMode.include));
+        assertThat(modes.get("org.eclipse.e4.rcp"), is(InstallMode.include));
+        assertThat(modes.size(), is(2));
+    }
+
+    private static Map<String, InstallMode> getInstallModes(ProductConfiguration config) {
+        Map<String, InstallMode> modes = new HashMap<String, InstallMode>();
+        for (FeatureRef featureRef : config.getFeatures()) {
+            modes.put(featureRef.getId(), featureRef.getInstallMode());
+        }
+        return modes;
+    }
 }

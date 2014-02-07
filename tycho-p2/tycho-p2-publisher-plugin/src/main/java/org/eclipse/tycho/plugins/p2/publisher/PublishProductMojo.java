@@ -82,7 +82,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Override
     protected Collection<DependencySeed> publishContent(PublisherService publisherService)
             throws MojoExecutionException, MojoFailureException {
-        List<DependencySeed> productIUs = new ArrayList<DependencySeed>();
+        List<DependencySeed> result = new ArrayList<DependencySeed>();
         for (File producFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(producFile);
@@ -92,12 +92,13 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 }
                 qualifyVersions(productConfiguration, getQualifier());
                 interpolateProperties(productConfiguration, newInterpolator());
+                extractRootFeatures(productConfiguration, result);
 
                 final File preparedProductFile = writeProductForPublishing(producFile, productConfiguration,
                         getBuildDirectory());
                 Collection<DependencySeed> seeds = publisherService.publishProduct(preparedProductFile,
                         productConfiguration.includeLaunchers() ? getEquinoxExecutableFeature() : null, flavor);
-                productIUs.addAll(seeds);
+                result.addAll(seeds);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Exception while publishing product " + producFile.getAbsolutePath(),
                         e);
@@ -106,7 +107,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                         "I/O exception while writing product definition or copying launcher icons", e);
             }
         }
-        return productIUs;
+        return result;
     }
 
     /**
@@ -227,6 +228,24 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 }
             }
         }
+    }
+
+    static void extractRootFeatures(ProductConfiguration product, List<DependencySeed> seeds) {
+        final String productId = product.getId();
+
+        // add root features as special dependency seed which are marked as "add-on" for the product
+        DependencySeed.Filter filter = new DependencySeed.Filter() {
+            public boolean isAddOnFor(String type, String id) {
+                return ArtifactKey.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
+            }
+        };
+        for (FeatureRef feature : product.getFeatures()) {
+            if (feature.getInstallMode() == FeatureRef.InstallMode.root) {
+                // TODO 372780 get feature version from target platform that matches the specification; picking any version will no longer work once the the director installs from the target platform instead of from the resolved dependencies
+                seeds.add(new DependencySeed(ArtifactKey.TYPE_ECLIPSE_FEATURE, feature.getId(), null, filter));
+            }
+        }
+        product.removeRootInstalledFeatures();
     }
 
     /**
