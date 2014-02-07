@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
@@ -79,9 +80,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     private FileLockService fileLockService;
 
     @Override
-    protected Collection<?> publishContent(PublisherService publisherService) throws MojoExecutionException,
-            MojoFailureException {
-        List<Object> productIUs = new ArrayList<Object>();
+    protected Collection<DependencySeed> publishContent(PublisherService publisherService)
+            throws MojoExecutionException, MojoFailureException {
+        List<DependencySeed> productIUs = new ArrayList<DependencySeed>();
         for (File producFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(producFile);
@@ -89,9 +90,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 final Product buildProduct = prepareBuildProduct(producFile, productConfiguration, getBuildDirectory(),
                         getQualifier(), newInterpolator());
 
-                Collection<?> ius = publisherService.publishProduct(buildProduct.productFile,
+                Collection<DependencySeed> seeds = publisherService.publishProduct(buildProduct.productFile,
                         productConfiguration.includeLaunchers() ? getEquinoxExecutableFeature() : null, flavor);
-                productIUs.addAll(ius);
+                productIUs.addAll(seeds);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Exception while publishing product " + producFile.getAbsolutePath(),
                         e);
@@ -115,6 +116,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     static Product prepareBuildProduct(File productFile, ProductConfiguration productConfiguration,
             BuildOutputDirectory targetDir, String qualifier, Interpolator interpolator) throws MojoExecutionException,
             IOException {
+        // TODO is this necessary? if this code was on the OSGi classloader side, we could simply test that the published IU is correct... 
         qualifyVersions(productConfiguration, qualifier);
 
         List<ConfigurationProperty> properties = productConfiguration.getConfigurationProperties();

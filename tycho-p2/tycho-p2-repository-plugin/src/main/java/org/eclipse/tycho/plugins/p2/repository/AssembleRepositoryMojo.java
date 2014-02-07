@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,11 +16,9 @@ import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.logging.LogEnabled;
-import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -42,7 +40,7 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  * @goal assemble-repository
  */
 // TODO the goal should be called "aggregate-repository"
-public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements LogEnabled {
+public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     /**
      * By default, this goal creates a p2 repository. Set this to <code>false</code> if only a p2
      * metadata repository (without the artifact files) shall be created.
@@ -87,15 +85,13 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements Lo
     /** @component */
     private EquinoxServiceFactory p2;
 
-    private Logger logger;
-
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             File destination = getAssemblyRepositoryLocation();
             destination.mkdirs();
 
-            Collection<?> rootIUs = (Collection<?>) getProject().getContextValue(TychoConstants.CTX_PUBLISHED_ROOT_IUS);
-            if (rootIUs == null || rootIUs.size() == 0) {
+            Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
+            if (projectSeeds.size() == 0) {
                 throw new MojoFailureException("No content specified for p2 repository");
             }
 
@@ -106,7 +102,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements Lo
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
             DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
                     destination, repositoryName, compress, !createArtifactRepository, true);
-            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, rootIUs, getBuildContext(),
+            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
@@ -118,7 +114,4 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo implements Lo
         return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
     }
 
-    public void enableLogging(Logger logger) {
-        this.logger = logger;
-    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -120,14 +121,14 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?> seedUnits, BuildContext context, boolean includeAllDependencies, boolean includePacked,
-            Map<String, String> filterProperties) throws FacadeException {
+            Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
+            boolean includePacked, Map<String, String> filterProperties) throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, includePacked);
 
             // mirror scope: seed units...
-            mirrorApp.setSourceIUs(toInstallableUnitList(seedUnits));
+            mirrorApp.setSourceIUs(toInstallableUnitList(projectSeeds));
 
             // TODO the p2 mirror tool should support mirroring multiple environments at once
             for (TargetEnvironment environment : context.getEnvironments()) {
@@ -213,10 +214,10 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
-    private static List<IInstallableUnit> toInstallableUnitList(Collection<?> units) {
-        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>(units.size());
-        for (Object unit : units) {
-            result.add((IInstallableUnit) unit);
+    private static List<IInstallableUnit> toInstallableUnitList(Collection<DependencySeed> seeds) {
+        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>(seeds.size());
+        for (DependencySeed seed : seeds) {
+            result.add((IInstallableUnit) seed.getInstallableUnit());
         }
         return result;
     }
