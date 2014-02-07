@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -85,7 +85,7 @@ public class PublishProductMojoUnitTest {
         ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
         BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
         Product buildProduct = PublishProductMojo.prepareBuildProduct(productFile, productConfiguration, buildBasedir,
-                "buildQualifier", null);
+                "buildQualifier", null, null);
 
         Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
         Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
@@ -114,7 +114,7 @@ public class PublishProductMojoUnitTest {
         ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
         BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
         Product buildProduct = PublishProductMojo.prepareBuildProduct(productFile, productConfiguration, buildBasedir,
-                "", null);
+                "", null, null);
 
         Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
         Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());

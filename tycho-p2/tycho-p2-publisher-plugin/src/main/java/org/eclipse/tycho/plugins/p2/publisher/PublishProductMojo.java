@@ -38,6 +38,7 @@ import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed.Filter;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
@@ -82,17 +83,17 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Override
     protected Collection<DependencySeed> publishContent(PublisherService publisherService)
             throws MojoExecutionException, MojoFailureException {
-        List<DependencySeed> productIUs = new ArrayList<DependencySeed>();
+        List<DependencySeed> result = new ArrayList<DependencySeed>();
         for (File producFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(producFile);
 
                 final Product buildProduct = prepareBuildProduct(producFile, productConfiguration, getBuildDirectory(),
-                        getQualifier(), newInterpolator());
+                        getQualifier(), newInterpolator(), result);
 
                 Collection<DependencySeed> seeds = publisherService.publishProduct(buildProduct.productFile,
                         productConfiguration.includeLaunchers() ? getEquinoxExecutableFeature() : null, flavor);
-                productIUs.addAll(seeds);
+                result.addAll(seeds);
             } catch (FacadeException e) {
                 throw new MojoExecutionException("Exception while publishing product " + producFile.getAbsolutePath(),
                         e);
@@ -101,7 +102,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                         "I/O exception while writing product definition or copying launcher icons", e);
             }
         }
-        return productIUs;
+        return result;
     }
 
     /**
@@ -114,8 +115,8 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * </p>
      */
     static Product prepareBuildProduct(File productFile, ProductConfiguration productConfiguration,
-            BuildOutputDirectory targetDir, String qualifier, Interpolator interpolator) throws MojoExecutionException,
-            IOException {
+            BuildOutputDirectory targetDir, String qualifier, Interpolator interpolator, List<DependencySeed> seeds)
+            throws MojoExecutionException, IOException {
         // TODO is this necessary? if this code was on the OSGi classloader side, we could simply test that the published IU is correct... 
         qualifyVersions(productConfiguration, qualifier);
 
@@ -137,6 +138,8 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                     + " does not contain the mandatory attribute 'uid'");
         }
 
+        extractRootFeatures(productConfiguration, seeds);
+
         File buildProductDir = targetDir.getChild("products/" + productId);
         buildProductDir.mkdirs();
         final Product buildProduct = new Product(new File(buildProductDir, productFile.getName()), new File(
@@ -145,6 +148,23 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         copyP2Inf(getSourceP2InfFile(productFile), buildProduct.p2infFile);
         copyReferencedFiles(productConfiguration, productFile.getParentFile(), buildProductDir);
         return buildProduct;
+    }
+
+    // TODO 361722 unit test
+    private static void extractRootFeatures(ProductConfiguration product, List<DependencySeed> seeds) {
+        final String productId = product.getId();
+        Filter filter = new Filter() {
+            public boolean isApplicableFor(String type, String id) {
+                return ArtifactKey.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
+            }
+        };
+        for (FeatureRef feature : product.getFeatures()) {
+            if ("root".equals(feature.getInstallMode())) {
+                // TODO 361722 query target platform for matching feature (to extract version and IU)
+                seeds.add(new DependencySeed(ArtifactKey.TYPE_ECLIPSE_FEATURE, feature.getId(), null, null, filter));
+            }
+        }
+        product.removeRootInstalledFeatures();
     }
 
     private static void copyReferencedFiles(ProductConfiguration productConfiguration, File sourceDir, File targetDir)

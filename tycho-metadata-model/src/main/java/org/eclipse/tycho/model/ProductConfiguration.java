@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import org.codehaus.plexus.util.IOUtil;
 import de.pdark.decentxml.Attribute;
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
+import de.pdark.decentxml.Node;
 import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
@@ -101,6 +102,23 @@ public class ProductConfiguration {
             features.add(new FeatureRef(pluginDom));
         }
         return Collections.unmodifiableList(features);
+    }
+
+    // TODO 361722 test
+    public void removeRootInstalledFeatures() {
+        Element featuresDom = dom.getChild("features");
+        if (featuresDom != null) {
+
+            for (int childIx = featuresDom.getNodes().size() - 1; childIx > 0; --childIx) {
+                Node childDom = featuresDom.getNode(childIx);
+                if (childDom instanceof Element && "feature".equals(((Element) childDom).getName())) {
+                    // TODO 361722 enum
+                    if ("root".equals(new FeatureRef((Element) childDom).getInstallMode())) {
+                        featuresDom.removeNode(childIx);
+                    }
+                }
+            }
+        }
     }
 
     public String getId() {

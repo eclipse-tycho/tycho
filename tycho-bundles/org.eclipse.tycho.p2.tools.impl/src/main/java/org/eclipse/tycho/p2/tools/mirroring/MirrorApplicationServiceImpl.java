@@ -217,7 +217,9 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     private static List<IInstallableUnit> toInstallableUnitList(Collection<DependencySeed> seeds) {
         List<IInstallableUnit> result = new ArrayList<IInstallableUnit>(seeds.size());
         for (DependencySeed seed : seeds) {
-            result.add((IInstallableUnit) seed.getInstallableUnit());
+            // XXX 361722 IU must never be null
+            if (seed.getInstallableUnit() != null)
+                result.add((IInstallableUnit) seed.getInstallableUnit());
         }
         return result;
     }

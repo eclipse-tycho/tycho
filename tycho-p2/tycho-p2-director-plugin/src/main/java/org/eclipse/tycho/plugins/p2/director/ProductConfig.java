@@ -40,8 +40,9 @@ class ProductConfig {
             }
         } else {
             // no product ID specified -> if a product has been published, use that one
-            products = usePublishedProduct(projectSeeds);
+            products = getPublishedProduct(projectSeeds);
         }
+        fillInInstallationRoots(products, projectSeeds);
     }
 
     private static void checkConfiguredProductsExist(Product configuredProduct, Collection<DependencySeed> projectSeeds)
@@ -64,7 +65,7 @@ class ProductConfig {
         }
     }
 
-    private static List<Product> usePublishedProduct(Collection<DependencySeed> projectSeeds) {
+    private static List<Product> getPublishedProduct(Collection<DependencySeed> projectSeeds) {
         List<Product> result = new ArrayList<Product>(1);
 
         // publishing results are added to the dependency seeds of the project, so we can find the products there
@@ -76,6 +77,16 @@ class ProductConfig {
             }
         }
         return result;
+    }
+
+    private void fillInInstallationRoots(List<Product> products, Collection<DependencySeed> projectSeeds) {
+        for (Product product : products) {
+            for (DependencySeed seed : projectSeeds) {
+                if (seed.isApplicableFor(ArtifactKey.TYPE_ECLIPSE_PRODUCT, product.getId())) {
+                    product.addInstallationSeed(seed);
+                }
+            }
+        }
     }
 
     public boolean uniqueAttachIds() {

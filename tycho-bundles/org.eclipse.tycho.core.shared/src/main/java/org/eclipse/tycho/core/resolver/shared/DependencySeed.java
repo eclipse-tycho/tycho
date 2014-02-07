@@ -22,7 +22,10 @@ public class DependencySeed {
     private final String type;
     private final String id;
     private final String version;
+
     private final Object installableUnit;
+
+    private final Filter filter;
 
     /**
      * @param type
@@ -36,10 +39,28 @@ public class DependencySeed {
      *            The seed unit as IInstallableUnit. Contains the dependency information.
      */
     public DependencySeed(String type, String id, String version, Object installableUnit) {
+        this(type, id, version, installableUnit, null);
+    }
+
+    /**
+     * @param type
+     *            The type of the seed unit. See {@link ArtifactKey} for known types. May be
+     *            <code>null</code>.
+     * @param id
+     *            Identifier of the seed unit.
+     * @param version
+     *            Exact version (i.e. qualified) version of the unit.
+     * @param installableUnit
+     *            The seed unit as IInstallableUnit. Contains the dependency information.
+     * @param filter
+     *            TODO javadoc
+     */
+    public DependencySeed(String type, String id, String version, Object installableUnit, Filter filter) {
         this.type = type;
         this.id = id;
         this.version = version;
         this.installableUnit = installableUnit;
+        this.filter = filter;
     }
 
     /**
@@ -58,10 +79,29 @@ public class DependencySeed {
     }
 
     /**
+     * @return the (qualified) version of the unit.
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
      * @return the seed unit as IInstallableUnit.
      */
     public/* IInstallableUnit */Object getInstallableUnit() {
         return installableUnit;
     }
 
+    // TODO add action? ("assembly", "dependencyResolution", ...)
+    public boolean isApplicableFor(String otherType, String otherId) {
+        if (filter == null) {
+            return false;
+        } else {
+            return filter.isApplicableFor(otherType, otherId);
+        }
+    }
+
+    public interface Filter {
+        boolean isApplicableFor(String type, String id);
+    }
 }

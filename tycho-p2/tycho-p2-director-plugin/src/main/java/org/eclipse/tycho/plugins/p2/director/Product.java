@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 /**
  * Value object for the configuration of this Maven plug-in. Used to select products to be
@@ -48,6 +53,12 @@ public final class Product {
      */
     private String archiveFileName;
 
+    /**
+     * List of units to be installed on root level together with the product.
+     */
+    // TODO 361722 can this be set in the POM?
+    private List<DependencySeed> extraInstallationSeeds;
+
     public Product() {
     }
 
@@ -80,11 +91,22 @@ public final class Product {
         }
     }
 
-    /**
-     * @return An archive file name without extension
-     */
     public String getArchiveFileName() {
         return archiveFileName;
+    }
+
+    public void addInstallationSeed(DependencySeed seed) {
+        if (extraInstallationSeeds == null) {
+            extraInstallationSeeds = new ArrayList<DependencySeed>();
+        }
+        extraInstallationSeeds.add(seed);
+    }
+
+    public List<DependencySeed> getAdditionalInstallationSeeds() {
+        if (extraInstallationSeeds == null) {
+            return Collections.emptyList();
+        }
+        return extraInstallationSeeds;
     }
 
     @Override
@@ -123,7 +145,4 @@ public final class Product {
             return left.equals(right);
     }
 
-    public void setArchiveFileName(String anArchiveFileName) {
-        this.archiveFileName = anArchiveFileName;
-    }
 }
