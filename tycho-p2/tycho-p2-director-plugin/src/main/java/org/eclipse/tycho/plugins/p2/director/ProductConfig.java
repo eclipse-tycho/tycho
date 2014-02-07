@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 /**
  * Effective product configuration for this Maven plug-in. This is the configuration provided by the
@@ -31,36 +32,50 @@ import org.apache.maven.plugin.MojoFailureException;
 class ProductConfig {
     private List<Product> products;
 
-    public ProductConfig(List<Product> userConfig, File baseDir) throws MojoFailureException {
+    public ProductConfig(List<Product> userConfig, Collection<DependencySeed> projectSeeds) throws MojoFailureException {
         if (userConfig != null) {
             products = userConfig;
             for (Product product : products) {
-                if (product.getId() == null) {
-                    throw new MojoFailureException("Attribute 'id' is required in POM product configuration");
-                } else if (!new File(baseDir, product.getId()).isDirectory()) {
-                    throw new MojoFailureException("Product id '" + product.getId() + "' not found");
-                }
+                checkConfiguredProductsExist(product, projectSeeds);
             }
         } else {
-            /*
-             * We assume that the tycho-p2-publisher-plugin has created folders named after the
-             * product IDs (see
-             * org.eclipse.tycho.plugins.p2.publisher.PublishProductMojo.prepareBuildProduct). This
-             * is currently a limitation of this Maven plug-in - it can only be added to an
-             * eclipse-repository module (which calls the tycho-p2-publisher-plugin).
-             */
-            if (baseDir.exists()) {
-                File[] productIDs = baseDir.listFiles();
-                products = new ArrayList<Product>(productIDs.length);
-                for (File file : productIDs) {
-                    products.add(new Product(file.getName()));
+            // no product ID specified -> if a product has been published, use that one
+            products = usePublishedProduct(projectSeeds);
+        }
+    }
+
+    private static void checkConfiguredProductsExist(Product configuredProduct, Collection<DependencySeed> projectSeeds)
+            throws MojoFailureException {
+
+        if (configuredProduct.getId() == null) {
+            throw new MojoFailureException("Attribute 'id' is required in POM product configuration");
+
+        } else {
+            // look for product with the configured ID in the publishing result
+            // TODO also look in the target platform
+            for (DependencySeed seed : projectSeeds) {
+                if (ArtifactKey.TYPE_ECLIPSE_PRODUCT.equals(seed.getType())
+                        && configuredProduct.getId().equals(seed.getId())) {
+                    return;
                 }
-            } else {
-                // the product publisher did not create the basedir. So there was no project definition file. Nothing to do.
-                // https://bugs.eclipse.org/bugs/show_bug.cgi?id=356716
-                products = Collections.emptyList();
+            }
+            throw new MojoFailureException("Product with id '" + configuredProduct.getId()
+                    + "' does not exist in the project"); // TODO "... in the target platform"
+        }
+    }
+
+    private static List<Product> usePublishedProduct(Collection<DependencySeed> projectSeeds) {
+        List<Product> result = new ArrayList<Product>(1);
+
+        // publishing results are added to the dependency seeds of the project, so we can find the products there
+        for (DependencySeed seed : projectSeeds) {
+
+            if (ArtifactKey.TYPE_ECLIPSE_PRODUCT.equals(seed.getType())) {
+                result.add(new Product(seed.getId()));
+                // if there is more than one published product, the uniqueAttachIds() check will fail later on
             }
         }
+        return result;
     }
 
     public boolean uniqueAttachIds() {

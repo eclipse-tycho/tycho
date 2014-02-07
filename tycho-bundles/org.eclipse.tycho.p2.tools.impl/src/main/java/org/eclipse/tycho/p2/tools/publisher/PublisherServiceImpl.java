@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
+import static org.eclipse.tycho.p2.tools.publisher.DependencySeedUtil.createSeed;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +33,7 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
@@ -74,7 +77,8 @@ class PublisherServiceImpl implements PublisherService {
          */
         Collection<IInstallableUnit> allIUs = executePublisher(categoryXMLAction,
                 publishingRepository.getMetadataRepository(), publishingRepository.getArtifactRepository());
-        return toSeeds(allIUs);
+        // TODO introduce type "eclipse-category"?
+        return toSeeds(null, allIUs);
     }
 
     public Collection<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor)
@@ -93,7 +97,8 @@ class PublisherServiceImpl implements PublisherService {
                 .getArtifactRepositoryForWriting(new ProductBinariesWriteSession(productDescriptor.getId()));
         Collection<IInstallableUnit> allIUs = executePublisher(action, metadataRepository, artifactRepository);
 
-        return selectUnit(allIUs, productDescriptor.getId());
+        return Collections.singletonList(createSeed(ArtifactKey.TYPE_ECLIPSE_PRODUCT,
+                selectUnit(allIUs, productDescriptor.getId())));
     }
 
     public Collection<DependencySeed> publishEEProfile(File profileFile) throws FacadeException {
@@ -101,7 +106,7 @@ class PublisherServiceImpl implements PublisherService {
         IPublisherAction jreAction = new JREAction(profileFile);
         Collection<IInstallableUnit> allIUs = executePublisher(jreAction, publishingRepository.getMetadataRepository(),
                 publishingRepository.getArtifactRepository());
-        return toSeeds(allIUs);
+        return toSeeds(null, allIUs);
     }
 
     void validateProfile(File profileFile) throws FacadeException {
@@ -171,19 +176,19 @@ class PublisherServiceImpl implements PublisherService {
         }
     }
 
-    private static Collection<DependencySeed> selectUnit(Collection<IInstallableUnit> units, String id) {
+    private static IInstallableUnit selectUnit(Collection<IInstallableUnit> units, String id) {
         for (IInstallableUnit unit : units) {
             if (id.equals(unit.getId())) {
-                return Collections.singleton(new DependencySeed(unit));
+                return unit;
             }
         }
         throw new AssertionFailedException("Publisher did not produce expected IU");
     }
 
-    private static Collection<DependencySeed> toSeeds(Collection<IInstallableUnit> units) {
+    private static Collection<DependencySeed> toSeeds(String type, Collection<IInstallableUnit> units) {
         Collection<DependencySeed> result = new ArrayList<DependencySeed>(units.size());
         for (IInstallableUnit unit : units) {
-            result.add(new DependencySeed(unit));
+            result.add(DependencySeedUtil.createSeed(type, unit));
         }
         return result;
     }
