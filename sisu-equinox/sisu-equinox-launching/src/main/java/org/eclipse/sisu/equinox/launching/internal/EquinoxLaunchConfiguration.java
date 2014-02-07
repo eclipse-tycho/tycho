@@ -61,25 +61,14 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
         return workingDirectory;
     }
 
-    /**
-     * Fully equivalent to <code>addProgramArguments(false, vmargs)</code>
-     */
     public void addProgramArguments(String... args) {
-        addProgramArguments(false, args);
+        addArguments(this.args, args);
     }
 
-    public void addProgramArguments(boolean escape, String... args) {
-        addArguments(this.args, escape, args);
-    }
-
-    private void addArguments(List<Argument> to, boolean escape, String... args) {
+    private void addArguments(List<Argument> to, String... args) {
         for (String str : args) {
             Argument arg = new Argument();
-            if (escape) {
-                arg.setValue(str);
-            } else {
-                arg.setLine(str);
-            }
+            arg.setValue(str);
             to.add(arg);
         }
     }
@@ -98,15 +87,21 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
         return result.toArray(new String[result.size()]);
     }
 
-    /**
-     * Fully equivalent to <code>addVMArguments(false, vmargs)</code>
-     */
     public void addVMArguments(String... vmargs) {
-        this.addVMArguments(false, vmargs);
+        addArguments(this.vmargs, vmargs);
     }
 
-    public void addVMArguments(boolean escape, String... vmargs) {
-        addArguments(this.vmargs, escape, vmargs);
+    /**
+     * Adds a line of argument(s) to the VM arguments.
+     * 
+     * @param argLine
+     *            will be split into arguments separated by space(s). Single and double quotes can
+     *            be used to protect arguments from being split.
+     */
+    public void addVMArgumentLine(String argLine) {
+        Argument arg = new Argument();
+        arg.setLine(argLine);
+        vmargs.add(arg);
     }
 
     public String[] getVMArguments() {

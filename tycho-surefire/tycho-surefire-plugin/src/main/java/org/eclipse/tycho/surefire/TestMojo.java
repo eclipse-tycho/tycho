@@ -1003,17 +1003,17 @@ public class TestMojo extends AbstractMojo {
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
         addCustomProfileArg(cli);
-        addVMArgs(cli, argLine);
+        addVMArgLine(cli, argLine);
 
         for (Map.Entry<String, String> entry : getMergedSystemProperties().entrySet()) {
-            cli.addVMArguments(true, "-D" + entry.getKey() + "=" + entry.getValue());
+            cli.addVMArguments("-D" + entry.getKey() + "=" + entry.getValue());
         }
 
         if (getLog().isDebugEnabled() || showEclipseLog) {
             cli.addProgramArguments("-debug", "-consolelog");
         }
 
-        addProgramArgs(true, cli, "-data", osgiDataDirectory.getAbsolutePath(), //
+        addProgramArgs(cli, "-data", osgiDataDirectory.getAbsolutePath(), //
                 "-install", testRuntime.getLocation().getAbsolutePath(), //
                 "-configuration", new File(work, "configuration").getAbsolutePath(), //
                 "-application", getTestApplication(testRuntime.getInstallationDescription()), //
@@ -1027,7 +1027,7 @@ public class TestMojo extends AbstractMojo {
         if (useUIHarness && !useUIThread) {
             cli.addProgramArguments("-nouithread");
         }
-        addProgramArgs(false, cli, appArgLine);
+        addProgramArgs(cli, appArgLine);
         if (environmentVariables != null) {
             cli.addEnvironmentVariables(environmentVariables);
         }
@@ -1059,19 +1059,19 @@ public class TestMojo extends AbstractMojo {
         }
     }
 
-    void addProgramArgs(boolean escape, EquinoxLaunchConfiguration cli, String... arguments) {
+    void addProgramArgs(EquinoxLaunchConfiguration cli, String... arguments) {
         if (arguments != null) {
             for (String argument : arguments) {
                 if (argument != null) {
-                    cli.addProgramArguments(escape, argument);
+                    cli.addProgramArguments(argument);
                 }
             }
         }
     }
 
-    void addVMArgs(EquinoxLaunchConfiguration cli, String argLine) {
+    void addVMArgLine(EquinoxLaunchConfiguration cli, String argLine) {
         if (argLine != null) {
-            cli.addVMArguments(false, argLine);
+            cli.addVMArgumentLine(argLine);
         }
     }
 
