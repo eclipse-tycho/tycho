@@ -395,7 +395,7 @@ public class SourceFeatureMojo extends AbstractMojo {
      */
     private static String validateValue(String fieldValue, Properties sourceFeatureProperties)
             throws MojoExecutionException {
-        if (fieldValue.charAt(0) == '%') {
+        if (fieldValue.startsWith("%")) {
             String key = fieldValue.substring(1);
             if (!sourceFeatureProperties.containsKey(key)) {
                 throw new MojoExecutionException("Source feature depends on '" + FEATURE_TEMPLATE_DIR
