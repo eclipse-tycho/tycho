@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -35,7 +33,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
 
     public final void execute() throws MojoExecutionException, MojoFailureException {
         PublisherService publisherService = createPublisherService();
-        Collection<?> units = publishContent(publisherService);
+        Collection<DependencySeed> units = publishContent(publisherService);
         postPublishedIUs(units);
     }
 
@@ -45,7 +43,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
      * @param publisherService
      * @return the list of root installable units that has been published
      */
-    protected abstract Collection<?/* IInstallableUnit */> publishContent(PublisherService publisherService)
+    protected abstract Collection<DependencySeed> publishContent(PublisherService publisherService)
             throws MojoExecutionException, MojoFailureException;
 
     private PublisherService createPublisherService() throws MojoExecutionException, MojoFailureException {
@@ -65,14 +63,7 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
      * eventually uses the units in that list as entry-points for mirroring content into the
      * assembly p2 repository.
      */
-    private void postPublishedIUs(Collection<?> units) {
-        final MavenProject project = getProject();
-        // TODO use own type for this
-        List<Object> publishedIUs = (List<Object>) project.getContextValue(TychoConstants.CTX_PUBLISHED_ROOT_IUS);
-        if (publishedIUs == null) {
-            publishedIUs = new ArrayList<Object>();
-            project.setContextValue(TychoConstants.CTX_PUBLISHED_ROOT_IUS, publishedIUs);
-        }
-        publishedIUs.addAll(units);
+    private void postPublishedIUs(Collection<DependencySeed> units) {
+        TychoProjectUtils.getDependencySeeds(getProject()).addAll(units);
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -36,14 +37,14 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
     @Override
-    protected Collection<?> publishContent(PublisherService publisherService) throws MojoExecutionException,
-            MojoFailureException {
+    protected Collection<DependencySeed> publishContent(PublisherService publisherService)
+            throws MojoExecutionException, MojoFailureException {
         try {
-            List<Object> categoryIUs = new ArrayList<Object>();
+            List<DependencySeed> categoryIUs = new ArrayList<DependencySeed>();
             for (Category category : getCategories()) {
                 final File buildCategoryFile = prepareBuildCategory(category, getBuildDirectory());
 
-                Collection<?> ius = publisherService.publishCategories(buildCategoryFile);
+                Collection<DependencySeed> ius = publisherService.publishCategories(buildCategoryFile);
                 categoryIUs.addAll(ius);
             }
             return categoryIUs;

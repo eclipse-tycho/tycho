@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 public class TychoProjectUtils {
     private static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
@@ -72,5 +76,19 @@ public class TychoProjectUtils {
             throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
         }
         return storedConfig;
+    }
+
+    /**
+     * Returns the (editable) list of {@link DependencySeed}s for the given project.
+     */
+    @SuppressWarnings("unchecked")
+    public static List<DependencySeed> getDependencySeeds(MavenProject project) {
+        List<DependencySeed> dependencySeeds = (List<DependencySeed>) project
+                .getContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS);
+        if (dependencySeeds == null) {
+            dependencySeeds = new ArrayList<DependencySeed>();
+            project.setContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS, dependencySeeds);
+        }
+        return dependencySeeds;
     }
 }

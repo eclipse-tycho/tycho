@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -32,11 +33,12 @@ public interface MirrorApplicationService {
      * @param destination
      *            The p2 repository that shall be written to. The location must be a directory,
      *            which may be empty. Existing content is not overwritten but is appended to.
-     * @param seedUnits
-     *            A set of installable units that span the content to be copied. Note that the given
-     *            installable units are written into the destination p2 repository without checking
-     *            if they are actually present in the source repositories. Therefore only units from
-     *            the source repositories should be passed via this parameter.
+     * @param seeds
+     *            The dependency seeds that span the content to be copied. Note that the installable
+     *            units obtained from the seeds are written into the destination p2 repository
+     *            without checking if they are actually present in the source repositories.
+     *            Therefore only units from the source repositories should be passed via this
+     *            parameter.
      * @param context
      *            Build context information; in particular this parameter defines a filter for
      *            environment specific installable units
@@ -51,7 +53,7 @@ public interface MirrorApplicationService {
      *             if a checked exception occurs while mirroring
      */
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<?/* IInstallableUnit */> seedUnits, BuildContext context, boolean includeAllDependencies,
+            Collection<DependencySeed> seeds, BuildContext context, boolean includeAllDependencies,
             boolean includePacked, Map<String, String> filterProperties) throws FacadeException;
 
     /**

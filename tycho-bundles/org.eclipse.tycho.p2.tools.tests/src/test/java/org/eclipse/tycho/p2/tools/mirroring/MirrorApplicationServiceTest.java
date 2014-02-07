@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP AG and others.
+ * Copyright (c) 2011, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -138,14 +139,14 @@ public class MirrorApplicationServiceTest {
         return result;
     }
 
-    private static Collection<IInstallableUnit> seedFor(VersionedId... units) {
-        ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+    private static Collection<DependencySeed> seedFor(VersionedId... units) {
+        Collection<DependencySeed> result = new ArrayList<DependencySeed>();
 
         for (VersionedId unit : units) {
             InstallableUnitDescription seedDescriptor = new InstallableUnitDescription();
             seedDescriptor.setId("iu-requiring." + unit.getId());
             seedDescriptor.addRequirements(strictRequirementTo(unit));
-            result.add(MetadataFactory.createInstallableUnit(seedDescriptor));
+            result.add(new DependencySeed(MetadataFactory.createInstallableUnit(seedDescriptor)));
         }
         return result;
     }

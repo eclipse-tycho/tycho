@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -100,13 +101,13 @@ public class PublisherServiceTest {
     public void testCategoryPublishing() throws Exception {
         File categoryDefinition = resolveTestResource("resources/publishers/category.xml");
 
-        Collection<?> rootUnits = subject.publishCategories(categoryDefinition);
+        Collection<DependencySeed> seeds = subject.publishCategories(categoryDefinition);
 
-        assertThat(rootUnits.size(), is(1));
-        Object rootUnit = rootUnits.iterator().next();
+        assertThat(seeds.size(), is(1));
+        DependencySeed seed = seeds.iterator().next();
 
         Set<Object> publishedUnits = outputRepository.getInstallableUnits();
-        assertThat(publishedUnits, hasItem(rootUnit));
+        assertThat(publishedUnits, hasItem(seed.getInstallableUnit()));
 
 //        openFolderAndSleep(outputDirectory);
     }
@@ -115,12 +116,12 @@ public class PublisherServiceTest {
     @Test
     public void testProfilePublishing() throws Exception {
         File customProfile = resolveTestResource("resources/publishers/virgo-1.6.profile");
-        Collection<?> rootUnits = subject.publishEEProfile(customProfile);
-        assertEquals(2, rootUnits.size());
+        Collection<DependencySeed> seeds = subject.publishEEProfile(customProfile);
+        assertEquals(2, seeds.size());
         Map<String, IInstallableUnit> resultMap = new HashMap<String, IInstallableUnit>();
-        for (Object object : rootUnits) {
-            IInstallableUnit unit = (IInstallableUnit) object;
-            resultMap.put(unit.getId(), unit);
+        for (DependencySeed seed : seeds) {
+            IInstallableUnit iu = (IInstallableUnit) seed.getInstallableUnit();
+            resultMap.put(iu.getId(), iu);
         }
         IInstallableUnit virgoProfileIU = resultMap.get("a.jre.virgo");
         assertNotNull(virgoProfileIU);
@@ -154,13 +155,13 @@ public class PublisherServiceTest {
         File productDefinition = resolveTestResource("resources/publishers/test.product");
         File launcherBinaries = resolveTestResource("resources/launchers/");
 
-        Collection<?> rootUnits = subject.publishProduct(productDefinition, launcherBinaries, DEFAULT_FLAVOR);
+        Collection<DependencySeed> seeds = subject.publishProduct(productDefinition, launcherBinaries, DEFAULT_FLAVOR);
 
-        assertThat(rootUnits.size(), is(1));
-        Object rootUnit = rootUnits.iterator().next();
+        assertThat(seeds.size(), is(1));
+        DependencySeed seed = seeds.iterator().next();
 
         Set<Object> publishedUnits = outputRepository.getInstallableUnits();
-        assertThat(publishedUnits, hasItem(rootUnit));
+        assertThat(publishedUnits, hasItem(seed.getInstallableUnit()));
 
         // test for launcher artifact
         Map<String, File> artifactLocations = outputRepository.getArtifactLocations();

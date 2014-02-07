@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.tools.publisher;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
@@ -31,6 +32,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -54,7 +56,7 @@ class PublisherServiceImpl implements PublisherService {
         this.logger = logger;
     }
 
-    public Collection<IInstallableUnit> publishCategories(File categoryDefinition) throws FacadeException,
+    public Collection<DependencySeed> publishCategories(File categoryDefinition) throws FacadeException,
             IllegalStateException {
 
         /*
@@ -72,10 +74,10 @@ class PublisherServiceImpl implements PublisherService {
          */
         Collection<IInstallableUnit> allIUs = executePublisher(categoryXMLAction,
                 publishingRepository.getMetadataRepository(), publishingRepository.getArtifactRepository());
-        return allIUs;
+        return toSeeds(allIUs);
     }
 
-    public Collection<IInstallableUnit> publishProduct(File productDefinition, File launcherBinaries, String flavor)
+    public Collection<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor)
             throws FacadeException, IllegalStateException {
 
         IProductDescriptor productDescriptor = null;
@@ -94,12 +96,12 @@ class PublisherServiceImpl implements PublisherService {
         return selectUnit(allIUs, productDescriptor.getId());
     }
 
-    public Collection<?> publishEEProfile(File profileFile) throws FacadeException {
+    public Collection<DependencySeed> publishEEProfile(File profileFile) throws FacadeException {
         validateProfile(profileFile);
         IPublisherAction jreAction = new JREAction(profileFile);
         Collection<IInstallableUnit> allIUs = executePublisher(jreAction, publishingRepository.getMetadataRepository(),
                 publishingRepository.getArtifactRepository());
-        return allIUs;
+        return toSeeds(allIUs);
     }
 
     void validateProfile(File profileFile) throws FacadeException {
@@ -169,12 +171,20 @@ class PublisherServiceImpl implements PublisherService {
         }
     }
 
-    private Collection<IInstallableUnit> selectUnit(Collection<IInstallableUnit> units, String id) {
+    private static Collection<DependencySeed> selectUnit(Collection<IInstallableUnit> units, String id) {
         for (IInstallableUnit unit : units) {
             if (id.equals(unit.getId())) {
-                return Collections.singleton(unit);
+                return Collections.singleton(new DependencySeed(unit));
             }
         }
         throw new AssertionFailedException("Publisher did not produce expected IU");
+    }
+
+    private static Collection<DependencySeed> toSeeds(Collection<IInstallableUnit> units) {
+        Collection<DependencySeed> result = new ArrayList<DependencySeed>(units.size());
+        for (IInstallableUnit unit : units) {
+            result.add(new DependencySeed(unit));
+        }
+        return result;
     }
 }
