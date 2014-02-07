@@ -118,7 +118,7 @@ public class P2ApplicationLauncher {
                 EquinoxLaunchConfiguration launchConfiguration = new EquinoxLaunchConfiguration(installation);
                 launchConfiguration.setWorkingDirectory(workingDirectory);
 
-                launchConfiguration.addProgramArguments(true, "-configuration", installation.getConfigurationLocation()
+                launchConfiguration.addProgramArguments("-configuration", installation.getConfigurationLocation()
                         .getAbsolutePath());
 
                 // logging
@@ -132,7 +132,7 @@ public class P2ApplicationLauncher {
 
                 launchConfiguration.addProgramArguments("-nosplash", "-application", applicationName);
 
-                launchConfiguration.addProgramArguments(true, args.toArray(new String[args.size()]));
+                launchConfiguration.addProgramArguments(args.toArray(new String[args.size()]));
 
                 return launcher.execute(launchConfiguration, forkedProcessTimeoutInSeconds);
             } finally {
