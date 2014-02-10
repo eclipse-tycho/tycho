@@ -97,9 +97,12 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
         ERROR, WARNING, IGNORE;
 
         public static DirtyBehavior getDirtyWorkingTreeBehaviour(MojoExecution execution) {
-            Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
-            Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild("jgit.dirtyWorkingTree");
             final DirtyBehavior defaultBehaviour = ERROR;
+            Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
+            if (pluginConfiguration == null) {
+                return defaultBehaviour;
+            }
+            Xpp3Dom dirtyWorkingTreeDom = pluginConfiguration.getChild("jgit.dirtyWorkingTree");
             if (dirtyWorkingTreeDom == null) {
                 return defaultBehaviour;
             }
@@ -187,6 +190,9 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
 
     private static String getIgnoreFilter(MojoExecution execution) {
         Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
+        if (pluginConfiguration == null) {
+            return null;
+        }
         Xpp3Dom ignoreDom = pluginConfiguration.getChild("jgit.ignore");
         if (ignoreDom == null) {
             return null;
