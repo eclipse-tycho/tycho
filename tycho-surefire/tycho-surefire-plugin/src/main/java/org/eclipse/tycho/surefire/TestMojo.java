@@ -161,9 +161,8 @@ public class TestMojo extends AbstractMojo {
     /**
      * <p>
      * List of patterns (separated by commas) used to specify the tests that should be excluded in
-     * testing. When not specified and whent the <code>test</code> parameter is not specified, the
-     * default excludes will be
-     * <code>**&#47;Abstract*Test.java  **&#47;Abstract*TestCase.java **&#47;*$*</code>
+     * testing. When not specified and when the <code>test</code> parameter is not specified, the
+     * default excludes will be <code>**&#47;*$*</code> (which excludes all inner classes).
      * </p>
      * 
      * @parameter
@@ -880,8 +879,7 @@ public class TestMojo extends AbstractMojo {
             } else {
                 p.put("includes", includes != null ? getIncludesExcludes(includes)
                         : "**/Test*.class,**/*Test.class,**/*TestCase.class");
-                p.put("excludes", excludes != null ? getIncludesExcludes(excludes)
-                        : "**/Abstract*Test.class,**/Abstract*TestCase.class,**/*$*");
+                p.put("excludes", excludes != null ? getIncludesExcludes(excludes) : "**/*$*");
             }
         }
         p.put("failifnotests", String.valueOf(failIfNoTests));
