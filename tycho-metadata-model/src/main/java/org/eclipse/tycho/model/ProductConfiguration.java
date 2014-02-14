@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,17 +90,25 @@ public class ProductConfiguration {
         return dom.getAttributeValue("application");
     }
 
-    public List<FeatureRef> getFeatures() {
+    public List<FeatureRef> getFeatures() throws ModelFileSyntaxException {
         Element featuresDom = dom.getChild("features");
         if (featuresDom == null) {
             return Collections.emptyList();
         }
 
         ArrayList<FeatureRef> features = new ArrayList<FeatureRef>();
-        for (Element pluginDom : featuresDom.getChildren("feature")) {
-            features.add(new FeatureRef(pluginDom));
+        for (Element featureDom : featuresDom.getChildren()) {
+            features.add(parseFeature(featureDom));
         }
         return Collections.unmodifiableList(features);
+    }
+
+    private static FeatureRef parseFeature(Element featureDom) throws ModelFileSyntaxException {
+        // knowing the name of the parent element is useful for the error message, so we check the name here
+        if (!"feature".equals(featureDom.getName())) {
+            throw new ModelFileSyntaxException("Invalid child element \"" + featureDom.getName() + "\" in \"features\"");
+        }
+        return new FeatureRef(featureDom);
     }
 
     public String getId() {
