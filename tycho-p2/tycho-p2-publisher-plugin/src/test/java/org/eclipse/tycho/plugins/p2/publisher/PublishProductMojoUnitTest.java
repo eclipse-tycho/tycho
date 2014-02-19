@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,85 +10,70 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 
-import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.plugins.p2.publisher.PublishProductMojo.Product;
-import org.eclipse.tycho.testing.TestUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class PublishProductMojoUnitTest {
-    private File tempDir;
 
-    private File sourceDirectory;
+    @Rule
+    public final TemporaryFolder tempFolder = new TemporaryFolder();
 
-    private File targetDirectory;
-
-    @Before
-    public void setUp() throws IOException {
-        tempDir = createTempDir(getClass().getSimpleName());
-        sourceDirectory = new File(tempDir, "source");
-        sourceDirectory.mkdirs();
-        targetDirectory = new File(tempDir, "target");
-        targetDirectory.mkdirs();
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        FileUtils.deleteDirectory(tempDir);
-    }
+    private final File testResources = new File("src/test/resources/unitTestResources");
 
     @Test
     public void testQualifyVersions() throws IOException {
-        File basedir = TestUtil.getBasedir("unitTestResources");
-        File productFile = new File(basedir, "test.product");
-        ProductConfiguration product = ProductConfiguration.read(productFile);
+        ProductConfiguration product = ProductConfiguration.read(new File(testResources, "test.product"));
+
         PublishProductMojo.qualifyVersions(product, "20100623");
 
-        Assert.assertEquals("0.1.0.20100623", product.getVersion());
-        Assert.assertEquals("0.1.0.20100623", product.getFeatures().get(0).getVersion());
-        Assert.assertEquals("0.1.0.qual", product.getFeatures().get(1).getVersion());
-        Assert.assertEquals("0.1.0.20100623", product.getPlugins().get(0).getVersion());
-        Assert.assertEquals("0.1.0.qual", product.getPlugins().get(1).getVersion());
+        assertEquals("0.1.0.20100623", product.getVersion());
+        assertEquals("0.1.0.20100623", product.getFeatures().get(0).getVersion());
+        assertEquals("0.1.0.qual", product.getFeatures().get(1).getVersion());
+        assertEquals("0.1.0.20100623", product.getPlugins().get(0).getVersion());
+        assertEquals("0.1.0.qual", product.getPlugins().get(1).getVersion());
     }
 
     @Test
     public void testQualifyVersionsNoVersions() throws IOException {
-        File basedir = TestUtil.getBasedir("unitTestResources");
-        File productFile = new File(basedir, "noVersion.product");
-        ProductConfiguration product = ProductConfiguration.read(productFile);
+        ProductConfiguration product = ProductConfiguration.read(new File(testResources, "noVersion.product"));
+
         PublishProductMojo.qualifyVersions(product, "20100623");
 
-        Assert.assertNull(product.getVersion());
+        assertNull(product.getVersion());
     }
 
     @Test
     public void testQualifyVersionsEmptyVersions() throws IOException {
-        File basedir = TestUtil.getBasedir("unitTestResources");
-        File productFile = new File(basedir, "emptyVersion.product");
-        ProductConfiguration product = ProductConfiguration.read(productFile);
+        ProductConfiguration product = ProductConfiguration.read(new File(testResources, "emptyVersion.product"));
+
         PublishProductMojo.qualifyVersions(product, "20100623");
 
-        Assert.assertEquals("", product.getVersion());
+        assertEquals("", product.getVersion());
     }
 
+    // TODO test through the right interface: we should do assertions on the resulting IUs rather making assumptions on the obscure behaviour of p2's ProductAction
     @Test
-    public void testPrepareBuildProduct() throws Exception {
-        File basedir = TestUtil.getBasedir("unitTestResources");
-        File productFile = new File(basedir, "test.product");
+    public void testCopyFilesAndWriteQualifiedVersions() throws Exception {
+        File productFile = new File(testResources, "test.product");
         ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
-        BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
-        Product buildProduct = PublishProductMojo.prepareBuildProduct(productFile, productConfiguration, buildBasedir,
-                "buildQualifier", null);
+        BuildOutputDirectory buildBasedir = new BuildOutputDirectory(tempFolder.newFolder("buildBasedir"));
 
-        Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
-        Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
+        PublishProductMojo.qualifyVersions(productConfiguration, "buildQualifier");
+        File preparedProduct = PublishProductMojo.writeProductForPublishing(productFile, productConfiguration,
+                buildBasedir);
+
+        assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
 
         File buildProductRootDir = buildBasedir.getChild("products/testproduct");
         assertFileExists("icons/linux.xpm", buildProductRootDir);
@@ -99,54 +84,46 @@ public class PublishProductMojoUnitTest {
         assertFileExists("configs/config_macosx.ini", buildProductRootDir);
         assertFileExists("configs/config_win32.ini", buildProductRootDir);
         assertFileExists("configs/config_solaris.ini", buildProductRootDir);
-        ProductConfiguration buildProductConfiguration = ProductConfiguration.read(buildProduct.getProductFile());
-        Assert.assertEquals("0.1.0.buildQualifier", buildProductConfiguration.getVersion());
+        ProductConfiguration buildProductConfiguration = ProductConfiguration.read(preparedProduct);
+        assertEquals("0.1.0.buildQualifier", buildProductConfiguration.getVersion());
     }
 
     private void assertFileExists(String relativePath, File dir) {
-        Assert.assertTrue(new File(dir, relativePath).isFile());
+        assertTrue(new File(dir, relativePath).isFile());
     }
 
     @Test
-    public void testPrepareBuildProductEmptyQualifier() throws Exception {
-        File basedir = TestUtil.getBasedir("unitTestResources");
-        File productFile = new File(basedir, "test.product");
+    public void testQualifyVersionsWithEmptyQualifier() throws Exception {
+        File productFile = new File(testResources, "test.product");
         ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
-        BuildOutputDirectory buildBasedir = new BuildOutputDirectory(new File(tempDir, "buildBasedir"));
-        Product buildProduct = PublishProductMojo.prepareBuildProduct(productFile, productConfiguration, buildBasedir,
-                "", null);
+        BuildOutputDirectory buildBasedir = new BuildOutputDirectory(tempFolder.newFolder("buildBasedir"));
 
-        Assert.assertEquals(buildBasedir.getChild("products/testproduct/p2.inf"), buildProduct.getP2infFile());
-        Assert.assertTrue(buildBasedir.getChild("products/testproduct/p2.inf").exists());
+        PublishProductMojo.qualifyVersions(productConfiguration, "");
+        File preparedProduct = PublishProductMojo.writeProductForPublishing(productFile, productConfiguration,
+                buildBasedir);
 
-        ProductConfiguration buildProductConfiguration = ProductConfiguration.read(buildProduct.getProductFile());
-        Assert.assertEquals("0.1.0", buildProductConfiguration.getVersion());
+        ProductConfiguration buildProductConfiguration = ProductConfiguration.read(preparedProduct);
+        assertEquals("0.1.0", buildProductConfiguration.getVersion());
     }
 
     @Test
     public void testCopyMissingP2Inf() throws IOException {
+        File sourceDirectory = tempFolder.newFolder("source");
+        File targetDirectory = tempFolder.newFolder("target");
+
         File productFile = new File(sourceDirectory, "test.product");
         productFile.createNewFile();
 
         File p2InfTarget = new File(targetDirectory, "p2.inf");
         PublishProductMojo.copyP2Inf(PublishProductMojo.getSourceP2InfFile(productFile), p2InfTarget);
-        Assert.assertFalse(p2InfTarget.exists());
+
+        assertFalse(p2InfTarget.exists());
     }
 
     @Test
     public void testGetSourceP2InfFile() throws IOException {
         String p2InfFile = PublishProductMojo.getSourceP2InfFile(new File("./test/test.product")).getCanonicalPath();
-        Assert.assertEquals(new File("./test/test.p2.inf").getCanonicalPath(), p2InfFile);
-    }
-
-    private File createTempDir(String prefix) throws IOException {
-        File directory = File.createTempFile(prefix, "");
-        if (directory.delete()) {
-            directory.mkdirs();
-            return directory;
-        } else {
-            throw new IOException("Could not create temp directory at: " + directory.getAbsolutePath());
-        }
+        assertEquals(new File("./test/test.p2.inf").getCanonicalPath(), p2InfFile);
     }
 
 }
