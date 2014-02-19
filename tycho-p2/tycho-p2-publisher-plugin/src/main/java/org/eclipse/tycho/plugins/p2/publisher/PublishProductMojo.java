@@ -86,11 +86,16 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         for (File producFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(producFile);
+                if (productConfiguration.getId() == null) {
+                    throw new MojoExecutionException("The product file " + producFile.getName()
+                            + " does not contain the mandatory attribute 'uid'");
+                }
+                qualifyVersions(productConfiguration, getQualifier());
+                interpolateProperties(productConfiguration, newInterpolator());
 
-                final Product buildProduct = prepareBuildProduct(producFile, productConfiguration, getBuildDirectory(),
-                        getQualifier(), newInterpolator());
-
-                Collection<DependencySeed> seeds = publisherService.publishProduct(buildProduct.productFile,
+                final File preparedProductFile = writeProductForPublishing(producFile, productConfiguration,
+                        getBuildDirectory());
+                Collection<DependencySeed> seeds = publisherService.publishProduct(preparedProductFile,
                         productConfiguration.includeLaunchers() ? getEquinoxExecutableFeature() : null, flavor);
                 productIUs.addAll(seeds);
             } catch (FacadeException e) {
@@ -105,46 +110,21 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     }
 
     /**
-     * Prepare the product file for the Eclipse publisher application.
-     * <p>
-     * Copies the product file and, if present, corresponding p2 advice file and other files
+     * Writes the product file and, if present, corresponding p2 advice file and other files
      * referenced in the .product file via relative path to a working directory. The folder is named
      * after the product ID (stored in the 'uid' attribute!), and the p2 advice file is renamed to
      * "p2.inf" so that the publisher application finds it.
-     * </p>
      */
-    static Product prepareBuildProduct(File productFile, ProductConfiguration productConfiguration,
-            BuildOutputDirectory targetDir, String qualifier, Interpolator interpolator) throws MojoExecutionException,
-            IOException {
-        // TODO is this necessary? if this code was on the OSGi classloader side, we could simply test that the published IU is correct...
-        qualifyVersions(productConfiguration, qualifier);
-
-        List<ConfigurationProperty> properties = productConfiguration.getConfigurationProperties();
-        if (properties != null && interpolator != null) {
-            for (ConfigurationProperty property : properties) {
-                try {
-                    property.setValue(interpolator.interpolate(property.getValue()));
-                } catch (InterpolationException e) {
-                    throw new MojoExecutionException("Could not interpolate product configuration property "
-                            + property.getName(), e);
-                }
-            }
-        }
-
-        final String productId = productConfiguration.getId();
-        if (productId == null) {
-            throw new MojoExecutionException("The product file " + productFile.getName()
-                    + " does not contain the mandatory attribute 'uid'");
-        }
-
-        File buildProductDir = targetDir.getChild("products/" + productId);
+    // TODO since we call the product publisher in process (and no longer via the publisher application), writing to disk would no longer be needed...
+    static File writeProductForPublishing(File originalProductFile, ProductConfiguration productConfiguration,
+            BuildOutputDirectory targetDir) throws IOException {
+        File buildProductDir = targetDir.getChild("products/" + productConfiguration.getId());
         buildProductDir.mkdirs();
-        final Product buildProduct = new Product(new File(buildProductDir, productFile.getName()), new File(
-                buildProductDir, "p2.inf"));
-        ProductConfiguration.write(productConfiguration, buildProduct.productFile);
-        copyP2Inf(getSourceP2InfFile(productFile), buildProduct.p2infFile);
-        copyReferencedFiles(productConfiguration, productFile.getParentFile(), buildProductDir);
-        return buildProduct;
+        File preparedProductFile = new File(buildProductDir, originalProductFile.getName());
+        ProductConfiguration.write(productConfiguration, preparedProductFile);
+        copyP2Inf(getSourceP2InfFile(originalProductFile), new File(buildProductDir, "p2.inf"));
+        copyReferencedFiles(productConfiguration, originalProductFile.getParentFile(), buildProductDir);
+        return preparedProductFile;
     }
 
     private static void copyReferencedFiles(ProductConfiguration productConfiguration, File sourceDir, File targetDir)
@@ -186,33 +166,6 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     }
 
     /**
-     * Value class identifying a product file (and optionally an associated p2.inf file) for the
-     * {@link PublishProductMojo}.
-     */
-    static class Product {
-        private final File productFile;
-
-        private final File p2infFile;
-
-        public Product(File productFile) {
-            this(productFile, getSourceP2InfFile(productFile));
-        }
-
-        public Product(File productFile, File p2infFile) {
-            this.productFile = productFile;
-            this.p2infFile = p2infFile;
-        }
-
-        public File getProductFile() {
-            return productFile;
-        }
-
-        public File getP2infFile() {
-            return p2infFile;
-        }
-    }
-
-    /**
      * We expect an p2 advice file called "xx.p2.inf" next to a product file "xx.product".
      */
     static File getSourceP2InfFile(File productFile) {
@@ -225,6 +178,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
     static void qualifyVersions(ProductConfiguration productConfiguration, String buildQualifier) {
         // we need to expand the version otherwise the published artifact still has the '.qualifier'
+        // TODO is this still necessary? if this code was on the OSGi class loader side, we could have a unit test verify that the published IU is correct...
         String productVersion = productConfiguration.getVersion();
         if (productVersion != null) {
             productVersion = replaceQualifier(productVersion, buildQualifier);
@@ -258,6 +212,21 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             }
         }
         return replaceVersion;
+    }
+
+    private static void interpolateProperties(ProductConfiguration productConfiguration, Interpolator interpolator)
+            throws MojoExecutionException {
+        List<ConfigurationProperty> properties = productConfiguration.getConfigurationProperties();
+        if (properties != null && interpolator != null) {
+            for (ConfigurationProperty property : properties) {
+                try {
+                    property.setValue(interpolator.interpolate(property.getValue()));
+                } catch (InterpolationException e) {
+                    throw new MojoExecutionException("Could not interpolate product configuration property "
+                            + property.getName(), e);
+                }
+            }
+        }
     }
 
     /**
