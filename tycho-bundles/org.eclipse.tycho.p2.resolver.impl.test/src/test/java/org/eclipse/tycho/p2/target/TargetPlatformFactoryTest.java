@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -36,6 +37,7 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityPattern;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
@@ -45,14 +47,17 @@ import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
+import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
+import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.LogVerifier;
+import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -111,6 +116,68 @@ public class TargetPlatformFactoryTest {
         assertEquals(1, units.size());
         assertEquals("1.0.0.123abc", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion().toString());
     }
+
+    @Test
+    public void testFinalTargetPlatformNotContainsPreliminaryReactorIU() throws Exception {
+        List<ReactorProject> preliminaryReactor = Arrays.asList(createReactorProject(new File("dummy"), "reactor.id",
+                null));
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
+                preliminaryReactor, null);
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("reactor.id"))));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsExternalRepoIU() throws Exception {
+        tpConfig.addP2Repository(ResourceUtil.resourceFile("repositories/launchers").toURI());
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("org.eclipse.equinox.launcher")));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsPomDependencyIU() throws Exception {
+        PomDependencyCollector pomDependencies = subject.newPomDependencyCollector();
+        pomDependencies.addArtifactWithExistingMetadata(PomDependencyCollectorTest.artifactWithClassifier(null),
+                PomDependencyCollectorTest.existingMetadata());
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
+                pomDependencies);
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("test.ui")));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsExecutionEnvironmentIU() throws Exception {
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig,
+                ExecutionEnvironmentTestUtils.standardEEResolutionHintProvider("J2SE-1.4"), null, null);
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unit("a.jre.j2se", "1.4.0")));
+    }
+
+    @Test
+    public void testFinalTargetPlatformContainsFinalMetadata() throws Exception {
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
+
+        ReactorProjectIdentities project = new ReactorProjectIdentitiesStub(null);
+        Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections.singletonMap(
+                InstallableUnitUtil.createIU("bundle", "1.2.0"), project);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits);
+
+        assertThat(finalTP.getInstallableUnits(), hasItem(unit("bundle", "1.2.0")));
+        // TODO 412416 test that reactor filters external
+    }
+
+    // TODO 412416 test explicit filters
+    // TODO 396999 test filter on POM dependencies
+    // TODO 372035 test logging for potential bugs in the explicit filters configuration
 
     @Test
     public void testReactorProjectFiltering() throws Exception {
@@ -196,8 +263,7 @@ public class TargetPlatformFactoryTest {
     }
 
     private ReactorProject createReactorProject(File projectRoot, String[] primaryUnitIds, String[] secondaryUnitIds) {
-        // TODO ReactorProjectMock constructor with less nulls?
-        ReactorProjectStub result = new ReactorProjectStub(projectRoot, null, null, null, null);
+        ReactorProjectStub result = new ReactorProjectStub(projectRoot);
 
         DependencyMetadata dependencyMetadata = new DependencyMetadata();
         dependencyMetadata.setMetadata(true, createUnits(primaryUnitIds));

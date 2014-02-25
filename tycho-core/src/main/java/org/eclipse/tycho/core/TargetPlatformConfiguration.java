@@ -26,7 +26,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public static final String POM_DEPENDENCIES_CONSIDER = "consider";
 
-    private String resolver;
+    private String resolver = "p2";
 
     private List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
 

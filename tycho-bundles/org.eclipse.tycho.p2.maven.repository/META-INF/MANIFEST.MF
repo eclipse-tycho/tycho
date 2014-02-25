@@ -16,7 +16,7 @@ Export-Package: org.eclipse.tycho.p2.maven.repository,
  org.eclipse.tycho.p2.maven.repository.xmlio,
  org.eclipse.tycho.repository.local,
  org.eclipse.tycho.repository.local.index;x-friends:="org.eclipse.tycho.test.utils",
- org.eclipse.tycho.repository.module;x-friends:="org.eclipse.tycho.p2.tools.tests",
+ org.eclipse.tycho.repository.module,
  org.eclipse.tycho.repository.p2base.artifact.provider,
  org.eclipse.tycho.repository.p2base.artifact.provider.formats,
  org.eclipse.tycho.repository.p2base.artifact.provider.streaming,
@@ -32,5 +32,4 @@ Import-Package: org.eclipse.osgi.util,
  org.eclipse.tycho.repository.registry.facade,
  org.osgi.framework
 Bundle-Activator: org.eclipse.tycho.p2.maven.repository.Activator
-Service-Component: OSGI-INF/reactorRepoManager.xml,
- OSGI-INF/localRepoP2Indices.xml
+Service-Component: OSGI-INF/localRepoP2Indices.xml
