@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product uid="product.uid" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
+<product uid="psl.product" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
 
    <configIni use="default">
    </configIni>

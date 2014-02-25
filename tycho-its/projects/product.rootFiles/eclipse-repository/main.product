@@ -13,7 +13,7 @@
    </plugins>
 
    <features>
-      <feature id="tycho465.feature"/>
+      <feature id="prf.feature"/>
    </features>
 
 </product>

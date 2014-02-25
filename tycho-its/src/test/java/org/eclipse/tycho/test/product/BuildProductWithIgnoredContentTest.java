@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.product.fileFormat;
+package org.eclipse.tycho.test.product;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
@@ -26,6 +26,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
+// TODO make this a unit test?
 public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegrationTest {
 
     private static final String BUNDLE_IN_PRODUCT_FILE = "org.example.toBeIgnored";
@@ -38,14 +39,14 @@ public class BuildProductWithIgnoredContentTest extends AbstractTychoIntegration
          * false. The current (Indigo) product editor produces such a file when changing the mode in
          * which the content is defined from features to bundles.
          */
-        Verifier verifier = getVerifier("product.fileFormat", false);
+        Verifier verifier = getVerifier("product.sourceFile.leftovers", false);
         verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
 
         // check product IU
         P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir()));
-        IU product = p2Repository.getUniqueIU("product.uid");
+        IU product = p2Repository.getUniqueIU("psl.product");
         assertThat(product.getRequiredIds(), not(hasItem(BUNDLE_IN_PRODUCT_FILE)));
         assertThat(product.getRequiredIds(), hasItem(FEATURE_IN_PRODUCT_FILE));
 

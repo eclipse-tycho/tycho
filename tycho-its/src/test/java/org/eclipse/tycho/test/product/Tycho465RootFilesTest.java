@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO465RootFiles;
+package org.eclipse.tycho.test.product;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,7 +35,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testProductBuild() throws Exception {
-        Verifier verifier = getVerifier("/TYCHO465RootFiles", false);
+        Verifier verifier = getVerifier("product.rootFiles", false);
 
         verifier.getSystemProperties().setProperty("forceContextQualifier", Tycho465RootFilesTest.QUALIFIER.toString());
         verifier.getSystemProperties().setProperty("p2.repo", P2Repositories.ECLIPSE_342.toString());
@@ -57,7 +57,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
         // re-build the repository project only (incl. products) to ensure that the created root file zips were attached
         // to the project and are available from the local repository
         final boolean ignoreLocallyInstalledArtifacts = false;
-        Verifier eclipseRepoProjectVerifier = getVerifier("/TYCHO465RootFiles/eclipse-repository", false,
+        Verifier eclipseRepoProjectVerifier = getVerifier("product.rootFiles/eclipse-repository", false,
                 ignoreLocallyInstalledArtifacts);
 
         eclipseRepoProjectVerifier.getSystemProperties().setProperty("forceContextQualifier",
@@ -75,8 +75,8 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
     private void assertBuildProductAndRepository(File targetDir, File repositoryTargetDirectory, Document contentXml)
             throws IOException {
         Tycho465RootFilesTest.assertCategoryIU(contentXml, Tycho465RootFilesTest.QUALIFIER + ".category.id",
-                "tycho465.feature.feature.group");
-        Tycho465RootFilesTest.assertFeatureIU(contentXml, repositoryTargetDirectory, "tycho465.feature");
+                "prf.feature.feature.group");
+        Tycho465RootFilesTest.assertFeatureIU(contentXml, repositoryTargetDirectory, "prf.feature");
 
         Tycho465RootFilesTest.assertRootIuMetaData(contentXml);
         Tycho465RootFilesTest.assertInstalledWinConfigRootFile(targetDir);
@@ -205,7 +205,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
     }
 
     static void assertRootIuMetaData(Document contentXml) {
-        String featureId = "tycho465.feature";
+        String featureId = "prf.feature";
         String featureIuId = featureId + ".feature.group";
         Set<Element> featureIus = Util.findIU(contentXml, featureIuId);
 
@@ -234,7 +234,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
     static void assertRootIuPermissionsMetaData(Document contentXml) {
         // permission defined in build.properties: root.permissions.755 = file5.txt
-        Set<Element> featureRootIus = Util.findIU(contentXml, "tycho465.feature_root");
+        Set<Element> featureRootIus = Util.findIU(contentXml, "prf.feature_root");
 
         String expectedTouchpointDataInstruction = "chmod(targetDir:${installFolder}, targetFile:file5.txt, permissions:755);";
 
@@ -242,7 +242,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
                 "Expected chmod touchpointData instruction '" + expectedTouchpointDataInstruction + "' not found.",
                 Util.iuHasTouchpointDataInstruction(featureRootIus.iterator().next(), expectedTouchpointDataInstruction));
         // permission defined in build.properties: root.linux.gtk.x86_64.permissions.555 = **/*.so
-        Element linuxRootIu = Util.findIU(contentXml, "tycho465.feature_root.gtk.linux.x86_64").iterator().next();
+        Element linuxRootIu = Util.findIU(contentXml, "prf.feature_root.gtk.linux.x86_64").iterator().next();
 
         String chmod555Instruction = "chmod(targetDir:${installFolder}, targetFile:dir/test.so, permissions:555);";
 
@@ -252,7 +252,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
 
     static void assertRootIuLinksMetaData(Document contentXml) {
         // global link defined in build.properties: root.link = dir/file6.txt,alias_file6.txt
-        Set<Element> globalFeatureRootIus = Util.findIU(contentXml, "tycho465.feature_root");
+        Set<Element> globalFeatureRootIus = Util.findIU(contentXml, "prf.feature_root");
 
         String expectedGlobalTouchpointDataInstruction = "ln(linkTarget:dir/file6.txt,targetDir:${installFolder},linkName:alias_file6.txt);";
 
@@ -261,7 +261,7 @@ public class Tycho465RootFilesTest extends AbstractTychoIntegrationTest {
                 expectedGlobalTouchpointDataInstruction));
 
         // specific link defined in build.properties: root.linux.gtk.x86_64.link = file1.txt,alias_file1.txt
-        Set<Element> specificRootfeatureIus = Util.findIU(contentXml, "tycho465.feature_root.gtk.linux.x86_64");
+        Set<Element> specificRootfeatureIus = Util.findIU(contentXml, "prf.feature_root.gtk.linux.x86_64");
 
         String expectedSpecificTouchpointDataInstruction = "ln(linkTarget:file1.txt,targetDir:${installFolder},linkName:alias_file1.txt);";
 

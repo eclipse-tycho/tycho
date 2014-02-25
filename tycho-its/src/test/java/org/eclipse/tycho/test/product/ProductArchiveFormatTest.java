@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug368079_productArchiveFormat;
+package org.eclipse.tycho.test.product;
 
 import java.io.File;
 import java.util.Arrays;
@@ -21,9 +21,9 @@ import org.junit.Test;
 public class ProductArchiveFormatTest extends AbstractTychoIntegrationTest {
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("/368079_productArchiveFormat", false);
+        Verifier verifier = getVerifier("/product.archiveFormat", false);
         verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoals(Arrays.asList("clean", "install"));
+        verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
 
         File basedir = new File(verifier.getBasedir());

@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.product.crosstalk;
+package org.eclipse.tycho.test.product;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
@@ -22,6 +22,7 @@ import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
+// TODO make this a unit test
 public class ProductDefinitionCrosstalkTest extends AbstractTychoIntegrationTest {
 
     private static final String BUNDLE_ONLY_IN_PRODUCT_A = "org.eclipse.equinox.registry";

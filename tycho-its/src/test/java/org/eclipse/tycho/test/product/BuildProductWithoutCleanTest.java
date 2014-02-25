@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.product.clean;
+package org.eclipse.tycho.test.product;
 
 import static org.junit.Assert.assertTrue;
 
@@ -21,7 +21,7 @@ import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
-public class PublishProductWithoutCleanTest extends AbstractTychoIntegrationTest {
+public class BuildProductWithoutCleanTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testProductUnitsAreCleaned() throws Exception {
