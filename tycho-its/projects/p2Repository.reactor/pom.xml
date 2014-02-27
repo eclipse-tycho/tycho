@@ -3,12 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<version>1.0.0-SNAPSHOT</version>
-	<groupId>org.eclipse.tycho.tychoits.TYCHO491PublishFeaturesAndCategories</groupId>
-	<artifactId>parent</artifactId>
+	<groupId>tycho-its-project.p2Repository.reactor</groupId>
+	<artifactId>prr.parent</artifactId>
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
 		<forceContextQualifier>20101116-forcedQualifier</forceContextQualifier>
 	</properties>
 
@@ -24,7 +23,7 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>${tycho-groupid}</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
@@ -32,9 +31,8 @@
 					<target>
 						<artifact>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>target-definition</artifactId>
+							<artifactId>prr.target-definition</artifactId>
 							<version>${project.version}</version>
-							<classifier>helios</classifier>
 						</artifact>
 					</target>
 					<ignoreTychoRepositories>true</ignoreTychoRepositories>
@@ -53,7 +51,7 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>${tycho-groupid}</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>

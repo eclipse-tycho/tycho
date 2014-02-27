@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="eclipse 3.6M7">
+	<locations>
+		<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+			<unit id="org.eclipse.core.contenttype" version="0.0.0" />
+			<!--<unit id="org.eclipse.equinox.executable.feature.group" version="3.4.0.v20100524-7M7K-FIhIez-egBko15H73" />-->
+			<repository location="../../../repositories/e352" />
+		</location>
+	</locations>
+</target>

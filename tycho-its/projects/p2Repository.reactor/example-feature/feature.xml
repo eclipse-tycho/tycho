@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="example.included.feature"
-      label="Example Included Feature"
+      id="prr.example.feature"
+      label="Example Feature"
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
@@ -16,10 +16,21 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="prr.example.included.feature"
+         version="0.0.0"/>
+
    <plugin
-         id="example.included.bundle"
+         id="prr.example.bundle"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.core.contenttype"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

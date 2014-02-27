@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO491PublishFeaturesAndCategories;
+package org.eclipse.tycho.test.p2Repository;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,17 +24,18 @@ import org.codehaus.plexus.archiver.zip.ZipEntry;
 import org.codehaus.plexus.archiver.zip.ZipFile;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.TYCHO188P2EnabledRcp.Util;
+import org.eclipse.tycho.test.util.TargetDefinitionUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 
-public class Tycho491PublishFeaturesAndCategoriesTest extends AbstractTychoIntegrationTest {
+public class PublishFeaturesAndCategoriesITest extends AbstractTychoIntegrationTest {
 
     private static final String MODULE = "eclipse-repository";
 
-    private static final String ARTIFACT_ID = "example-eclipse-repository";
+    private static final String ARTIFACT_ID = "prr.example-eclipse-repository";
 
     private static final String PROJECT_VERSION = "1.0.0-SNAPSHOT";
 
@@ -42,7 +43,10 @@ public class Tycho491PublishFeaturesAndCategoriesTest extends AbstractTychoInteg
 
     @Test
     public void testEclipseRepositoryWithIncludedFeatures() throws Exception {
-        Verifier verifier = getVerifier("/TYCHO491PublishFeaturesAndCategories", false);
+        Verifier verifier = getVerifier("p2Repository.reactor", false);
+        TargetDefinitionUtil.makeURLsAbsolute(new File(verifier.getBasedir(),
+                "target-definition/prr.target-definition.target"), new File(
+                "projects/p2Repository.reactor/target-definition"));
 
         /*
          * Do not execute "install" to ensure that features and bundles can be included directly
@@ -57,15 +61,15 @@ public class Tycho491PublishFeaturesAndCategoriesTest extends AbstractTychoInteg
 
         Document contentXml = Util.openXmlFromZip(contentJar, "content.xml");
 
-        assertCategoryIU(contentXml, QUALIFIER + ".example.category", "example.feature.feature.group");
+        assertCategoryIU(contentXml, QUALIFIER + ".example.category", "prr.example.feature.feature.group");
 
-        assertFeatureIuAndArtifact(verifier, contentXml, "example.feature", "example.included.feature.feature.group",
-                "example.bundle");
-        assertBundleIuAndArtifact(verifier, contentXml, "example.bundle");
-        assertBundleIuAndArtifact(verifier, contentXml, "org.eclipse.core.contenttype", "3.4.100.v20100505-1235"); // a bundle from the target platform
+        assertFeatureIuAndArtifact(verifier, contentXml, "prr.example.feature",
+                "prr.example.included.feature.feature.group", "prr.example.bundle");
+        assertBundleIuAndArtifact(verifier, contentXml, "prr.example.bundle");
+        assertBundleIuAndArtifact(verifier, contentXml, "org.eclipse.core.contenttype", "3.4.1.R35x_v20090826-0451"); // a bundle from the target platform
 
-        assertFeatureIuAndArtifact(verifier, contentXml, "example.included.feature", "example.included.bundle");
-        assertBundleIuAndArtifact(verifier, contentXml, "example.included.bundle");
+        assertFeatureIuAndArtifact(verifier, contentXml, "prr.example.included.feature", "prr.example.included.bundle");
+        assertBundleIuAndArtifact(verifier, contentXml, "prr.example.included.bundle");
 
     }
 
