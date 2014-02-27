@@ -41,6 +41,7 @@ import org.apache.maven.surefire.suite.RunResult;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
@@ -1003,7 +1004,7 @@ public class TestMojo extends AbstractMojo {
                 "-Dosgi.ws=" + PlatformPropertiesUtils.getWS(properties), //
                 "-Dosgi.arch=" + PlatformPropertiesUtils.getArch(properties));
         addCustomProfileArg(cli);
-        addVMArgLine(cli, argLine);
+        cli.addVMArguments(splitArgLine(argLine));
 
         for (Map.Entry<String, String> entry : getMergedSystemProperties().entrySet()) {
             cli.addVMArguments("-D" + entry.getKey() + "=" + entry.getValue());
@@ -1027,7 +1028,7 @@ public class TestMojo extends AbstractMojo {
         if (useUIHarness && !useUIThread) {
             cli.addProgramArguments("-nouithread");
         }
-        addProgramArgs(cli, appArgLine);
+        cli.addProgramArguments(splitArgLine(appArgLine));
         if (environmentVariables != null) {
             cli.addEnvironmentVariables(environmentVariables);
         }
@@ -1069,9 +1070,11 @@ public class TestMojo extends AbstractMojo {
         }
     }
 
-    void addVMArgLine(EquinoxLaunchConfiguration cli, String argLine) {
-        if (argLine != null) {
-            cli.addVMArgumentLine(argLine);
+    String[] splitArgLine(String argLine) throws MojoExecutionException {
+        try {
+            return CommandLineUtils.translateCommandline(argLine);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error while parsing commandline: " + e.getMessage(), e);
         }
     }
 

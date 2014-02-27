@@ -91,19 +91,6 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
         addArguments(this.vmargs, vmargs);
     }
 
-    /**
-     * Adds a line of argument(s) to the VM arguments.
-     * 
-     * @param argLine
-     *            will be split into arguments separated by space(s). Single and double quotes can
-     *            be used to protect arguments from being split.
-     */
-    public void addVMArgumentLine(String argLine) {
-        Argument arg = new Argument();
-        arg.setLine(argLine);
-        vmargs.add(arg);
-    }
-
     public String[] getVMArguments() {
         return toStringArray(vmargs);
     }

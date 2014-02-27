@@ -10,23 +10,41 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertThat;
 import junit.framework.TestCase;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 
 public class TestMojoTest extends TestCase {
 
-    public void testVMArgLineMultipleArgs() throws Exception {
-        EquinoxLaunchConfiguration cli = createEquinoxConfiguration();
+    public void testSplitArgLineNull() throws Exception {
         TestMojo testMojo = new TestMojo();
-        testMojo.addVMArgLine(cli, " -Dfoo=bar -Dkey2=value2 \"-Dkey3=spacy value\"  ");
-        String[] vmArguments = cli.getVMArguments();
-        assertEquals(3, vmArguments.length);
-        assertEquals("-Dfoo=bar", vmArguments[0]);
-        assertEquals("-Dkey2=value2", vmArguments[1]);
-        assertEquals("-Dkey3=spacy value", vmArguments[2]);
+        String[] parts = testMojo.splitArgLine(null);
+        assertNotNull(parts);
+        assertEquals(0, parts.length);
+    }
+
+    public void testSplitArgLineMultipleArgs() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        String[] parts = testMojo.splitArgLine(" -Dfoo=bar -Dkey2=value2 \"-Dkey3=spacy value\"");
+        assertEquals(3, parts.length);
+        assertEquals("-Dfoo=bar", parts[0]);
+        assertEquals("-Dkey2=value2", parts[1]);
+        assertEquals("-Dkey3=spacy value", parts[2]);
+    }
+
+    public void testSplitArgLineUnbalancedQuotes() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        try {
+            testMojo.splitArgLine("\"'missing closing double-quote'");
+            fail("unreachable code");
+        } catch (MojoExecutionException e) {
+            assertThat(e.getMessage(), containsString("unbalanced quotes"));
+        }
     }
 
     public void testAddProgramArgsWithSpaces() throws Exception {
