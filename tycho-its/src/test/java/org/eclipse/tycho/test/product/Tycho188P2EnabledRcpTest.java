@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO188P2EnabledRcp;
+package org.eclipse.tycho.test.product;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +25,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.TYCHO188P2EnabledRcp.Util;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,11 +35,8 @@ import de.pdark.decentxml.Document;
 public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
     private static final String MODULE = "eclipse-repository";
-
-    private static final String GROUP_ID = "org.eclipse.tycho.tychoits.TYCHO188";
-
-    private static final String ARTIFACT_ID = "example-eclipse-repository";
-
+    private static final String GROUP_ID = "tycho-its-project.product.installation";
+    private static final String ARTIFACT_ID = "pi.eclipse-repository";
     private static final String VERSION = "1.0.0-SNAPSHOT";
 
     private static final List<Product> TEST_PRODUCTS = Arrays.asList(new Product("main.product.id", "", false, true),
@@ -52,7 +50,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
     @BeforeClass
     public static void buildProduct() throws Exception {
-        verifier = new Tycho188P2EnabledRcpTest().getVerifier("/TYCHO188P2EnabledRcp", false);
+        verifier = new Tycho188P2EnabledRcpTest().getVerifier("product.installation", false);
 
         verifier.getCliOptions().add("-Pbuild-products");
         verifier.executeGoal("install");
@@ -146,8 +144,8 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
             assertRootFolder(installedProductArchive, product.getRootFolderName());
 
             if (product.hasLocalFeature()) {
-                assertContainsEntry(installedProductArchive, rootFolder + "features/example.feature_1.0.0.");
-                assertContainsEntry(installedProductArchive, rootFolder + "plugins/example.bundle_1.0.0.");
+                assertContainsEntry(installedProductArchive, rootFolder + "features/pi.example.feature_1.0.0.");
+                assertContainsEntry(installedProductArchive, rootFolder + "plugins/pi.example.bundle_1.0.0.");
             }
         }
     }

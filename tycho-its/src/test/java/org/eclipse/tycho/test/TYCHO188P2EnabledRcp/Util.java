@@ -43,7 +43,7 @@ public class Util {
         }
     }
 
-    static Properties openPropertiesFromZip(File zipFile, String propertyFile) throws IOException, ZipException {
+    public static Properties openPropertiesFromZip(File zipFile, String propertyFile) throws IOException, ZipException {
         ZipFile zip = new ZipFile(zipFile);
         Properties configIni = new Properties();
         try {

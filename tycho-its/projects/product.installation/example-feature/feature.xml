@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="example.feature"
+      id="pi.example.feature"
       label="Example Feature"
       version="1.0.0.qualifier">
 
@@ -22,7 +22,7 @@
    </url>
 
    <plugin
-         id="example.bundle"
+         id="pi.example.bundle"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

@@ -14,7 +14,7 @@
 
    <features>
       <feature id="org.eclipse.rcp" version="0.0.0"/>
-      <feature id="example.feature"/>
+      <feature id="pi.example.feature"/>
    </features>
 
    <configurations>
