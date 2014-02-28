@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,27 +10,28 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.product;
 
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
+import java.util.Set;
 
 import org.apache.maven.it.Verifier;
+import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.TYCHO188P2EnabledRcp.Util;
-import org.junit.Assert;
+import org.eclipse.tycho.test.util.ArchiveContentUtil;
+import org.eclipse.tycho.test.util.P2RepositoryTool;
+import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import de.pdark.decentxml.Document;
 
 public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
@@ -52,7 +53,6 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
     public static void buildProduct() throws Exception {
         verifier = new Tycho188P2EnabledRcpTest().getVerifier("product.installation", false);
 
-        verifier.getCliOptions().add("-Pbuild-products");
         verifier.executeGoal("install");
         verifier.verifyErrorFreeLog();
     }
@@ -68,7 +68,14 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testPublishedProducts() throws Exception {
-        validatePublishedProducts(verifier, getContentXml(verifier));
+        P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir(),
+                MODULE));
+
+        for (Product product : TEST_PRODUCTS) {
+            for (Environment env : TEST_ENVIRONMENTS) {
+                assertProductIUs(p2Repository, product, env);
+            }
+        }
     }
 
     @Test
@@ -85,30 +92,15 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
         assertTotalZipArtifacts(verifier, publishedArtifacts + distributionArtifacts + repositoryArtifacts);
     }
 
-    private static void validatePublishedProducts(Verifier verifier, Document contentXml) throws IOException,
-            ZipException {
-        for (Product product : TEST_PRODUCTS) {
-            for (Environment env : TEST_ENVIRONMENTS) {
-                assertProductIUs(contentXml, product, env);
-            }
+    static private void assertProductIUs(P2RepositoryTool p2Repository, Product product, Environment env)
+            throws Exception {
+        IU productIU = p2Repository.getUniqueIU(product.unitId);
+        assertThat(productIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+        if (product.p2InfProperty) {
+            assertThat(productIU.getProperties(), hasItem("p2.inf.added-property=true"));
+        } else {
+            assertThat(productIU.getProperties(), not(hasItem("p2.inf.added-property=true")));
         }
-    }
-
-    private static Document getContentXml(Verifier verifier) throws IOException, ZipException {
-        File repoDir = new File(verifier.getBasedir(), MODULE + "/target/repository");
-        File contentJar = new File(repoDir, "content.jar");
-        assertTrue("content.jar not found \n" + contentJar.getAbsolutePath(), contentJar.isFile());
-        Document contentXml = Util.openXmlFromZip(contentJar, "content.xml");
-        return contentXml;
-    }
-
-    static private void assertProductIUs(Document contentXml, Product product, Environment env) {
-        assertTrue(product.unitId + " IU with org.eclipse.equinox.p2.type.product property value true does not exist",
-                Util.containsIUWithProperty(contentXml, product.unitId, "org.eclipse.equinox.p2.type.product", "true"));
-
-        final String p2InfAdded = "p2.inf.added-property";
-        assertEquals("Property " + p2InfAdded + " in " + product.unitId, product.p2InfProperty,
-                Util.containsIUWithProperty(contentXml, product.unitId, p2InfAdded, "true"));
 
         /*
          * This only works if the context repositories are configured correctly. If the
@@ -116,11 +108,10 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
          * generated.
          */
         String simpleConfiguratorIU = "tooling" + env.toWsOsArch() + "org.eclipse.equinox.simpleconfigurator";
-        assertTrue(simpleConfiguratorIU + " IU does not exist", Util.containsIU(contentXml, simpleConfiguratorIU));
+        assertThat(p2Repository.getAllUnitIds(), hasItem(simpleConfiguratorIU));
     }
 
-    static private void assertProductArtifacts(Verifier verifier, Product product, Environment env) throws IOException,
-            ZipException {
+    static private void assertProductArtifacts(Verifier verifier, Product product, Environment env) throws Exception {
         if (product.isMaterialized()) {
             File artifactDirectory = new File(verifier.getArtifactPath(GROUP_ID, ARTIFACT_ID, VERSION, "zip"))
                     .getParentFile();
@@ -130,7 +121,7 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
 
             String rootFolder = product.getRootFolderName() != null ? product.getRootFolderName() + "/" : "";
 
-            Properties configIni = Util.openPropertiesFromZip(installedProductArchive, rootFolder
+            Properties configIni = openPropertiesFromZip(installedProductArchive, rootFolder
                     + "configuration/config.ini");
             String bundleConfiguration = configIni.getProperty("osgi.bundles");
             assertTrue("Installation is not configured to use the simpleconfigurator",
@@ -150,40 +141,19 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
         }
     }
 
-    private static void assertContainsEntry(File file, String prefix) throws IOException {
-        ZipFile zipFile = new ZipFile(file);
-
-        try {
-            for (final Enumeration<?> entries = zipFile.entries(); entries.hasMoreElements();) {
-                final ZipEntry entry = (ZipEntry) entries.nextElement();
-                if (entry.getName().startsWith(prefix)) {
-                    if (entry.getName().endsWith("qualifier")) {
-                        Assert.fail("replacement of build qualifier missing in " + file + ", zip entry: "
-                                + entry.getName());
-                    }
-                    return;
-                }
+    private static void assertContainsEntry(File file, String prefix) throws Exception {
+        for (String archiveFile : ArchiveContentUtil.getFilesInZip(file)) {
+            if (archiveFile.startsWith(prefix)) {
+                assertThat(archiveFile, not(endsWith("qualifier")));
             }
-
-            Assert.fail("missing entry " + prefix + "* in product archive " + file);
-        } finally {
-            zipFile.close();
         }
     }
 
-    private static void assertRootFolder(File file, String rootFolderName) throws IOException {
+    private static void assertRootFolder(File file, String rootFolderName) throws Exception {
         if (rootFolderName != null) {
-            ZipFile zipFile = new ZipFile(file);
-            try {
-                rootFolderName += "/";
-                Assert.assertNotNull(file.getName() + " does not contain the rootfolder \"" + rootFolderName + "\"",
-                        zipFile.getEntry(rootFolderName));
-                String entry = rootFolderName + "configuration/config.ini";
-                Assert.assertNotNull(file.getName() + " does not contain path in the rootfolder \"" + entry + "\"",
-                        zipFile.getEntry(entry));
-            } finally {
-                zipFile.close();
-            }
+            Set<String> archiveFiles = ArchiveContentUtil.getFilesInZip(file);
+            assertThat(archiveFiles, hasItem(rootFolderName + "/"));
+            assertThat(archiveFiles, hasItem(rootFolderName + "/configuration/config.ini"));
         }
     }
 
@@ -203,6 +173,13 @@ public class Tycho188P2EnabledRcpTest extends AbstractTychoIntegrationTest {
             }
         }
         assertEquals(expectedArtifacts, zipArtifacts);
+    }
+
+    public static Properties openPropertiesFromZip(File zipFile, String propertyFile) throws Exception {
+        Properties configIni = new Properties();
+        configIni.load(new ByteArrayInputStream(IOUtil.toByteArray(ArchiveContentUtil.getFileContent(zipFile,
+                propertyFile))));
+        return configIni;
     }
 
     static class Environment {

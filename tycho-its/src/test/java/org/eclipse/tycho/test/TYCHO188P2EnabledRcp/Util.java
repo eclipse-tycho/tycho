@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipException;
 
@@ -26,6 +25,10 @@ import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
 
+/**
+ * @deprecated use {@link org.eclipse.tycho.test.util.P2RepositoryTool} instead
+ */
+@Deprecated
 public class Util {
     public static Document openXmlFromZip(File zipFile, String xmlFile) throws IOException, ZipException {
         XMLParser parser = new XMLParser();
@@ -43,50 +46,8 @@ public class Util {
         }
     }
 
-    public static Properties openPropertiesFromZip(File zipFile, String propertyFile) throws IOException, ZipException {
-        ZipFile zip = new ZipFile(zipFile);
-        Properties configIni = new Properties();
-        try {
-            ZipEntry configIniEntry = zip.getEntry(propertyFile);
-            InputStream entryStream = zip.getInputStream(configIniEntry);
-            try {
-                configIni.load(entryStream);
-            } finally {
-                entryStream.close();
-            }
-        } finally {
-            zip.close();
-        }
-        return configIni;
-    }
-
     static public boolean containsIU(Document contentXML, String iuId) {
         return containsIUWithProperty(contentXML, iuId, null, null);
-    }
-
-    static int countIUWithProperty(Document contentXML, String iuId) {
-        return countIUWithProperty(contentXML, iuId, null, null);
-    }
-
-    static int countIUWithProperty(Document contentXML, String iuId, String propName, String propValue) {
-        int foundIUCounter = 0;
-
-        Element repository = contentXML.getRootElement();
-        for (Element unit : repository.getChild("units").getChildren("unit")) {
-            if (iuId.equals(unit.getAttributeValue("id"))) {
-                if (propName != null) {
-                    for (Element property : unit.getChild("properties").getChildren("property")) {
-                        if (propName.equals(property.getAttributeValue("name"))
-                                && propValue.equals((property.getAttributeValue("value")))) {
-                            foundIUCounter++;
-                        }
-                    }
-                } else {
-                    foundIUCounter++;
-                }
-            }
-        }
-        return foundIUCounter;
     }
 
     static public boolean containsIUWithProperty(Document contentXML, String iuId, String propName, String propValue) {
