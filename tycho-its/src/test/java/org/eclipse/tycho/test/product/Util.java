@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.TYCHO188P2EnabledRcp;
+package org.eclipse.tycho.test.product;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import de.pdark.decentxml.XMLParser;
  * @deprecated use {@link org.eclipse.tycho.test.util.P2RepositoryTool} instead
  */
 @Deprecated
-public class Util {
+class Util {
     public static Document openXmlFromZip(File zipFile, String xmlFile) throws IOException, ZipException {
         XMLParser parser = new XMLParser();
         ZipFile zip = new ZipFile(zipFile);
@@ -44,10 +44,6 @@ public class Util {
         } finally {
             zip.close();
         }
-    }
-
-    static public boolean containsIU(Document contentXML, String iuId) {
-        return containsIUWithProperty(contentXML, iuId, null, null);
     }
 
     static public boolean containsIUWithProperty(Document contentXML, String iuId, String propName, String propValue) {

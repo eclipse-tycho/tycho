@@ -20,7 +20,6 @@ import java.util.zip.ZipException;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.TYCHO188P2EnabledRcp.Util;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Assert;
 import org.junit.Test;
