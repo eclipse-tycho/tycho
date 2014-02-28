@@ -27,6 +27,7 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -205,8 +206,8 @@ public class EclipseRunMojo extends AbstractMojo {
         for (Repository repository : repositories) {
             tpConfiguration.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
         }
-        TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
-                new ExecutionEnvironmentConfigurationStub(executionEnvironment), null, null);
+        TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(
+                tpConfiguration, new ExecutionEnvironmentConfigurationStub(executionEnvironment), null, null);
         P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
         for (Dependency dependency : dependencies) {
             resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
@@ -243,7 +244,8 @@ public class EclipseRunMojo extends AbstractMojo {
         }
     }
 
-    LaunchConfiguration createCommandLine(EquinoxInstallation runtime) throws MalformedURLException {
+    LaunchConfiguration createCommandLine(EquinoxInstallation runtime) throws MalformedURLException,
+            MojoExecutionException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(runtime);
 
         String executable = null;
@@ -255,14 +257,12 @@ public class EclipseRunMojo extends AbstractMojo {
         cli.setJvmExecutable(executable);
         cli.setWorkingDirectory(project.getBasedir());
 
-        if (argLine != null) {
-            cli.addVMArguments(false, argLine);
-        }
+        cli.addVMArguments(splitArgLine(argLine));
 
-        addProgramArgs(true, cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration", new File(work,
+        addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration", new File(work,
                 "configuration").getAbsolutePath());
 
-        addProgramArgs(false, cli, appArgLine);
+        cli.addProgramArguments(splitArgLine(appArgLine));
 
         if (environmentVariables != null) {
             cli.addEnvironmentVariables(environmentVariables);
@@ -271,11 +271,19 @@ public class EclipseRunMojo extends AbstractMojo {
         return cli;
     }
 
-    private void addProgramArgs(boolean escape, EquinoxLaunchConfiguration cli, String... arguments) {
+    private String[] splitArgLine(String argumentLine) throws MojoExecutionException {
+        try {
+            return CommandLineUtils.translateCommandline(argumentLine);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Error parsing commandline: " + e.getMessage(), e);
+        }
+    }
+
+    private void addProgramArgs(EquinoxLaunchConfiguration cli, String... arguments) {
         if (arguments != null) {
             for (String argument : arguments) {
                 if (argument != null) {
-                    cli.addProgramArguments(escape, argument);
+                    cli.addProgramArguments(argument);
                 }
             }
         }
