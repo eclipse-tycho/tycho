@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="18">
+<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="19">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20140117-1004"/>
-<unit id="org.eclipse.sdk.ide" version="4.3.2.M20140206-1000"/>
-<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.1.v20140129-1405"/>
+<unit id="org.eclipse.sdk.ide" version="4.3.2.M20140221-1700"/>
+<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.8.1.v20140221-1852"/>
 <unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.8.0.v20140114-1344"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.3-M-builds/M20140206-1000/"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.3"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.mockito" version="1.8.4.v201303031500"/>
