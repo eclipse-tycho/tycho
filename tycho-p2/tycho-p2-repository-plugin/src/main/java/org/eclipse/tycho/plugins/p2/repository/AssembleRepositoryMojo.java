@@ -33,8 +33,9 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  * <p>
  * The aggregation runs recursively: it starts with the content published in the current module, and
  * traverses all artifacts that are marked as <em>included</em> in already aggregated artifacts.
- * (The following artifacts can <em>include</em> other artifacts: categories, products, and
- * features.)
+ * (The following artifacts can include other artifacts: categories, products, and features. Note:
+ * Dependencies with a strict version range, i.e. a range which only matches exactly one version of
+ * an artifact, are also considered as inclusions.)
  * </p>
  * 
  * @goal assemble-repository
