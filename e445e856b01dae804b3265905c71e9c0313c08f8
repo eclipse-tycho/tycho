@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "475c1b64_1c41d962",
+        "filename": "project.config",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-03-05T13:21:06Z",
+      "side": 0,
+      "message": "Huh, I don\u0027t actively change this attribute. Maybe it is omitted because \"active\" is the default?",
+      "revId": "e445e856b01dae804b3265905c71e9c0313c08f8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
