@@ -16,6 +16,24 @@
       "revId": "e445e856b01dae804b3265905c71e9c0313c08f8",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "475c1b64_bcd42db7",
+        "filename": "project.config",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 957
+      },
+      "writtenOn": "2014-03-05T16:12:06Z",
+      "side": 0,
+      "message": "You\u0027re probably right. I can double check when we submit this change though.",
+      "parentUuid": "475c1b64_1c41d962",
+      "revId": "e445e856b01dae804b3265905c71e9c0313c08f8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
