@@ -39,8 +39,8 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  * </p>
  * 
  * @goal assemble-repository
+ * @phase package
  */
-// TODO the goal should be called "aggregate-repository"
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     /**
      * <p>

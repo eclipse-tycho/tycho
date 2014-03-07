@@ -94,7 +94,9 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     /**
      * @parameter default-value="${project.basedir}"
+     * @deprecated This parameter is deprecated and may be removed in future versions of Tycho.
      */
+    // TODO this should not be configurable
     protected File baseDir;
 
     /**
@@ -114,6 +116,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     /**
      * @parameter expression="${mojoExecution}"
+     * @readonly
      */
     protected MojoExecution execution;
 

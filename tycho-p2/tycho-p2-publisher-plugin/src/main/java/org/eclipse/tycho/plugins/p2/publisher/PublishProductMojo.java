@@ -58,6 +58,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
  * 
  * @see http://wiki.eclipse.org/Equinox/p2/Publisher
  * @goal publish-products
+ * @phase package
  */
 public final class PublishProductMojo extends AbstractPublishMojo {
 

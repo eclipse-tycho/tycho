@@ -25,6 +25,7 @@ import org.codehaus.plexus.archiver.ArchiverException;
  * </p>
  * 
  * @goal archive-repository
+ * @phase package
  */
 public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
 
