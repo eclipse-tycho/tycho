@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2753a756_0c5a47c9",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/test/java/org/eclipse/tycho/plugins/p2/director/EnvironmentSpecificConfigurationsTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-03-07T12:47:43Z",
+      "side": 1,
+      "message": "Shouldn\u0027t the last match? See https://jira.codehaus.org/browse/MNG-5474",
+      "revId": "09401677d735bc439e27b115ad9e4951ce45ad96",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
