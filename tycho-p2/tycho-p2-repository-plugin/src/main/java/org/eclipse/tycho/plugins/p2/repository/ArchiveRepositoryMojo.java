@@ -21,7 +21,7 @@ import org.codehaus.plexus.archiver.ArchiverException;
 
 /**
  * <p>
- * Archives the aggregated p2 repository.
+ * Creates a zip archive with the aggregated p2 repository.
  * </p>
  * 
  * @goal archive-repository

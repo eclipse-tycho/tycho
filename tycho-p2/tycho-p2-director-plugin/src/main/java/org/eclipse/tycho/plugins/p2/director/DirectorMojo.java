@@ -25,9 +25,14 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFactory;
 
 /**
+ * <p>
+ * Creates product installations for the products defined in the project.
+ * </p>
+ * 
  * @phase package
  * @goal materialize-products
  */
+// TODO 348586 should be called assemble-product
 public final class DirectorMojo extends AbstractProductMojo {
 
     public enum InstallationSource {
@@ -47,25 +52,39 @@ public final class DirectorMojo extends AbstractProductMojo {
     /** @component */
     private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
 
-    /** @parameter default-value="DefaultProfile" */
+    // TODO rename to profileName
+    /**
+     * <p>
+     * The name of the p2 profile to be created.
+     * </p>
+     * 
+     * @parameter default-value="DefaultProfile"
+     */
     private String profile;
 
+    // TODO 405785 the syntax of this parameter doesn't work well with configuration inheritance; replace with new generic envSpecificConfiguration parameter syntax 
     /** @parameter */
     private List<ProfileName> profileNames;
 
-    /** @parameter default-value="true" */
+    /**
+     * <p>
+     * Include the feature JARs in installation. (Technically, this sets the property
+     * <tt>org.eclipse.update.install.features</tt> to <tt>true</tt> in the p2 profile.)
+     * </p>
+     * 
+     * @parameter default-value="true"
+     */
     private boolean installFeatures;
 
     /**
      * <p>
-     * Installation source to be used for the director calls. Can be
+     * Source repositories to be used in the director calls. Can be
      * <ul>
      * <li><code>targetPlatform</code> - to use the target platform as source (default)</li>
      * <li><code>repository</code> - to use the p2 repository in <tt>target/repository/</tt> as
-     * source. This ensures that it is possible to install the product from that repository using an
-     * (external) director application.
+     * source. With this option, the build implicitly verifies that it would also be possible to
+     * install the product from that repository with an external director application.
      * </ul>
-     * </p>
      * 
      * @parameter default-value="targetPlatform"
      */
@@ -73,7 +92,7 @@ public final class DirectorMojo extends AbstractProductMojo {
 
     /**
      * <p>
-     * Runtime context in which the director application is executed. Can be
+     * Runtime in which the director application is executed. Can be
      * <ul>
      * <li><code>internal</code> - to use the director application from Tycho's embedded OSGi
      * runtime (default)</li>
@@ -82,7 +101,6 @@ public final class DirectorMojo extends AbstractProductMojo {
      * meta-requirements (e.g. to a non-standard touchpoint action). Requires that the
      * <code>source</code> parameter is set to <code>repository</code>.
      * </ul>
-     * </p>
      * 
      * @parameter default-value="internal"
      */
