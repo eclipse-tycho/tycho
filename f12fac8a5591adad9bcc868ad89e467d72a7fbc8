@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2753a756_2c6bcb11",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/DirectorMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-03-07T14:23:06Z",
+      "side": 1,
+      "message": "In the meanwhile, I\u0027ve found out that a closing \u003c/p\u003e after an \u003c/ul\u003e is actually not a good idea because this inserts an extra blank line.\n\nI have this fixed with a subsequent commit.",
+      "revId": "f12fac8a5591adad9bcc868ad89e467d72a7fbc8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
