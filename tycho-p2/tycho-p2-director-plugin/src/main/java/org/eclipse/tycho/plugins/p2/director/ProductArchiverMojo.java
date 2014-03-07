@@ -43,6 +43,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     private final Map<String, ProductArchiver> productArchivers;
 
     /**
+     * <p>
      * Maps os to format. By default a zip file will be created.
      * 
      * For example, the following configuration will create tar.gz product archives for Linux
@@ -61,6 +62,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
      * </ul>
      * 
      * The future versions can introduce support for other file formats and multiple formats per-os.
+     * </p>
      * 
      * @parameter
      */

@@ -57,6 +57,7 @@ public final class DirectorMojo extends AbstractProductMojo {
     private boolean installFeatures;
 
     /**
+     * <p>
      * Installation source to be used for the director calls. Can be
      * <ul>
      * <li><code>targetPlatform</code> - to use the target platform as source (default)</li>
@@ -64,12 +65,14 @@ public final class DirectorMojo extends AbstractProductMojo {
      * source. This ensures that it is possible to install the product from that repository using an
      * (external) director application.
      * </ul>
+     * </p>
      * 
      * @parameter default-value="targetPlatform"
      */
     private InstallationSource source;
 
     /**
+     * <p>
      * Runtime context in which the director application is executed. Can be
      * <ul>
      * <li><code>internal</code> - to use the director application from Tycho's embedded OSGi
@@ -79,6 +82,7 @@ public final class DirectorMojo extends AbstractProductMojo {
      * meta-requirements (e.g. to a non-standard touchpoint action). Requires that the
      * <code>source</code> parameter is set to <code>repository</code>.
      * </ul>
+     * </p>
      * 
      * @parameter default-value="internal"
      */

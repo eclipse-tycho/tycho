@@ -25,22 +25,26 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.osgi.framework.Version;
 
 /**
+ * <p>
  * This mojo calculates build timestamp as the latest timestamp of the project itself and timestamps
  * of bundles and features directly included in the project. This is meant to work with custom
  * timestamp providers and generate build qualifier based on build contents, i.e. the source code,
  * and not the time the build was started; rebuilding the same source code will result in the same
  * version qualifier.
+ * </p>
  * <p>
  * Timestamp of included bundles and features is determined by parsing their respective version
  * qualifiers. Qualifiers that cannot be parsed are silently ignored, which can result in old
  * version qualifier used even when aggregator project contents actually changed. In this case
  * aggregator project timestamp will have to be increased manually, using artificial SCM commit for
  * example.
+ * </p>
  * <p>
  * Qualifier aggregation is enabled only for projects with custom timestamp provider, i.e.
- * &lt;timestampProvider&gt; is set in pom.xlm to a value other than "default". The default build
+ * &lt;timestampProvider&gt; is set in pom.xml to a value other than "default". The default build
  * timestamp provider uses build start time as build timestamp, which should be newer or equal than
  * timestamp of any included bundle/feature project, which makes qualifier aggregation redundant.
+ * </p>
  * 
  * @goal build-qualifier-aggregator
  * @phase validate

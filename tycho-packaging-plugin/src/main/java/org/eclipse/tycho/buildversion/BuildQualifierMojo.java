@@ -25,45 +25,46 @@ import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.osgi.framework.Version;
 
 /**
- * This mojo generates build qualifier according to the rules outlined in
- * http://help.eclipse.org/ganymede/topic/org.eclipse.pde.doc.user/tasks/pde_version_qualifiers.htm
+ * <p>
+ * This mojo generates the build qualifier according to the <a href=
+ * "http://help.eclipse.org/kepler/topic/org.eclipse.pde.doc.user/tasks/pde_version_qualifiers.htm"
+ * >rules described in the PDE documentation</a>:
  * <ol>
- * <li>explicit -DforceContextQualifier command line parameter</li>
+ * <li>Explicit -DforceContextQualifier command line parameter</li>
  * <li>forceContextQualifier from ${project.baseDir}/build.properties</li>
- * <li>a time stamp in the form YYYYMMDDHHMM (ie 200605121600)</li>
+ * <li>A time stamp in the form YYYYMMDDHHMM (e.g. 200605121600)</li>
  * </ol>
- * 
+ * </p>
  * <p>
- * The generated qualifier is assigned to <code>buildQualifier</code> project property. Unqualified
- * project version is assigned to <code>unqualifiedVersion</code> project property. Unqualified
- * version is calculated based on <code>${project.version}</code> and can be used for any Tycho
- * project (eclipse-update-site, eclipse-application, etc) and regular maven project. Different
- * projects can use different formats to expand the timestamp, however (highly not recommended but
- * possible).
- * 
+ * The generated qualifier is assigned to <code>buildQualifier</code> project property. The
+ * unqualified project version is assigned to <code>unqualifiedVersion</code> project property. The
+ * unqualified version is calculated based on <code>${project.version}</code> and can be used for
+ * any Tycho project and regular Maven project. Different projects can use different formats to
+ * expand the timestamp (not recommended).
+ * </p>
  * <p>
- * Starting with version 0.16, it is now possible to use custom build timestamp generation logic.
- * The primary usecase is to generate build version qualifier based on the timestamp of the last
- * project commit. Here is example pom.xml snippet that enables custom timestamp generation logic
+ * The timestamp generation logic is extensible. The primary use case is to generate build version
+ * qualifier based on the timestamp of the last project commit. Here is example pom.xml snippet that
+ * enables custom timestamp generation logic
  * 
  * <pre>
- *      ...
- *      &lt;plugin>
- *         &lt;groupId>org.eclipse.tycho&lt;/groupId>
- *         &lt;artifactId>tycho-packaging-plugin&lt;/artifactId>
- *         &lt;version>${tycho-version}&lt;/version>
- *         &lt;dependencies>
- *           &lt;dependency>
- *             &lt;groupId>timestamp-provider-groupid&lt;/groupId>
- *             &lt;artifactId>timestamp-provider-artifactid&lt;/artifactId>
- *             &lt;version>timestamp-provider-version&lt;/version>
- *           &lt;/dependency>
- *         &lt;/dependencies>
- *         &lt;configuration>
- *           &lt;timestampProvider>custom&lt;/timestampProvider>
- *         &lt;/configuration>
- *      &lt;/plugin>
- *      ...
+ * ...
+ * &lt;plugin>
+ *    &lt;groupId>org.eclipse.tycho&lt;/groupId>
+ *    &lt;artifactId>tycho-packaging-plugin&lt;/artifactId>
+ *    &lt;version>${tycho-version}&lt;/version>
+ *    &lt;dependencies>
+ *      &lt;dependency>
+ *        &lt;groupId>timestamp-provider-groupid&lt;/groupId>
+ *        &lt;artifactId>timestamp-provider-artifactid&lt;/artifactId>
+ *        &lt;version>timestamp-provider-version&lt;/version>
+ *      &lt;/dependency>
+ *    &lt;/dependencies>
+ *    &lt;configuration>
+ *      &lt;timestampProvider>custom&lt;/timestampProvider>
+ *    &lt;/configuration>
+ * &lt;/plugin>
+ * ...
  * 
  * </pre>
  * 
@@ -83,7 +84,9 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     protected MavenSession session;
 
     /**
+     * <p>
      * Specify a date format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
+     * </p>
      * 
      * @parameter default-value="yyyyMMddHHmm"
      */
@@ -100,8 +103,11 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     protected String forceContextQualifier;
 
     /**
+     * <p>
      * Role hint of a custom build timestamp provider.
+     * </p>
      * 
+     * @since 0.16.0
      * @parameter
      */
     protected String timestampProvider;
