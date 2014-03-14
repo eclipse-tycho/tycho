@@ -16,11 +16,8 @@ with Maven.
   * [How to Contribute](http://wiki.eclipse.org/Tycho/Contributor_Guide)
   * [Contact Us](https://dev.eclipse.org/mailman/listinfo/tycho-user)
 
-Building Tycho from sources
----------------------------
+Building Tycho from sources:
 
-~~~
-mvn clean install
-~~~
+    mvn clean install
 
 For more details, see [Developing Tycho](http://wiki.eclipse.org/Developing_Tycho)
