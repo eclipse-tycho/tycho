@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Sonatype Inc. - initial API and implementation
+ *    SAP AG - added tests; re-write of all previously existing tests
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -21,7 +21,6 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
@@ -45,8 +43,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilter.CapabilityType;
 import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
-import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
-import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.impl.resolver.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -56,7 +53,6 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
-import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.junit.Before;
@@ -80,44 +76,6 @@ public class TargetPlatformFactoryTest {
 
         tpConfig = new TargetPlatformConfigurationStub();
         tpConfig.setEnvironments(Collections.singletonList(new TargetEnvironment(null, null, null))); // dummy value for target file resolution
-    }
-
-    @Test
-    public void test364134_publishFinalMetadata() throws Exception {
-        String groupId = "org.eclipse.tycho.p2.impl.test";
-        String artifactId = "bundle";
-        String version = "1.0.0-SNAPSHOT";
-        ReactorProjectStub project = new ReactorProjectStub(new File(
-                "resources/platformbuilder/publish-complete-metadata/bundle"), groupId, artifactId, version,
-                ArtifactKey.TYPE_ECLIPSE_PLUGIN);
-
-        P2GeneratorImpl impl = new P2GeneratorImpl(false);
-        impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
-        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
-
-        DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(new File(
-                "resources/platformbuilder/publish-complete-metadata/bundle"), groupId, artifactId, version,
-                ArtifactKey.TYPE_ECLIPSE_PLUGIN), environments);
-
-        project.setDependencyMetadata(metadata);
-
-        List<ReactorProject> reactorProjects = Collections.<ReactorProject> singletonList(project);
-        P2TargetPlatform mutableTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
-                reactorProjects, null);
-
-        Collection<IInstallableUnit> units = mutableTP.getInstallableUnits();
-        assertEquals(1, units.size());
-        assertEquals("1.0.0.qualifier", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion().toString());
-
-        // publish "complete" metedata
-        metadata = impl.generateMetadata(new ArtifactMock(new File(
-                "resources/platformbuilder/publish-complete-metadata/bundle-complete"), groupId, artifactId, version,
-                ArtifactKey.TYPE_ECLIPSE_PLUGIN, null), environments);
-        project.setDependencyMetadata(metadata);
-
-        units = mutableTP.getInstallableUnits();
-        assertEquals(1, units.size());
-        assertEquals("1.0.0.123abc", getIU(units, "org.eclipse.tycho.p2.impl.test.bundle").getVersion().toString());
     }
 
     @Test
@@ -290,6 +248,14 @@ public class TargetPlatformFactoryTest {
         assertThat(tp.getInstallableUnits(), hasItem(unitWithIdAndVersion(REFERENCED_BUNDLE_V2)));
     }
 
+    @Test(expected = DuplicateReactorIUsException.class)
+    public void testDuplicateReactorUnits() throws Exception {
+        List<ReactorProject> reactorProjects = new ArrayList<ReactorProject>();
+        reactorProjects.add(createReactorProject(new File("location1"), "unit.a", "unit.b"));
+        reactorProjects.add(createReactorProject(new File("location2"), "unit.b", null));
+        subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, null);
+    }
+
     private static TargetDefinition plannerTargetDefinition(TestRepositories repository, IVersionedId unit) {
         TargetDefinition.Location location = new TargetDefinitionResolverIncludeModeTests.PlannerLocationStub(
                 repository, unit);
@@ -330,16 +296,6 @@ public class TargetPlatformFactoryTest {
             }
             return result;
         }
-    }
-
-    private IInstallableUnit getIU(Collection<IInstallableUnit> units, String id) {
-        for (IInstallableUnit unit : units) {
-            if (id.equals(unit.getId())) {
-                return unit;
-            }
-        }
-        fail("Missing installable unit with id " + id);
-        return null;
     }
 
 }
