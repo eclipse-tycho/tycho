@@ -39,7 +39,7 @@ public class TargetPlatformFilterEvaluator {
         this.filters = Collections.unmodifiableList(new ArrayList<TargetPlatformFilter>(filters));
         this.logger = logger;
 
-        // TODO enable debug logging; currently the filtering is done repeatedly on subsets of the target platform, leading to excessive amount of debug output 
+        // TODO 372035 enable debug logging; currently the filtering is done repeatedly on subsets of the target platform, leading to excessive amount of debug output
 //        if (this.logger.isDebugEnabled())
 //            this.filterLogger = new DebugFilterLogger();
 //        else
@@ -63,6 +63,7 @@ public class TargetPlatformFilterEvaluator {
         }
     }
 
+    // TODO change filter strategy so that a stream of units can be filtered
     private void applyFilter(TargetPlatformFilter filter, Collection<IInstallableUnit> targetPlatformUnits) {
         switch (filter.getAction()) {
         case REMOVE_ALL:

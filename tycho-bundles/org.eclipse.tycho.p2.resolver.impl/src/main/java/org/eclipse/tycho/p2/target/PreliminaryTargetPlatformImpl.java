@@ -13,16 +13,13 @@
 package org.eclipse.tycho.p2.target;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -35,15 +32,10 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFilePro
 public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     /**
-     * IInstallableUnits available from p2 repositories, either directly or via .target files, and
-     * from local maven repository
+     * IInstallableUnits available from reactor-external sources, i.e. POM p2 repositories, target
+     * files, POM dependencies, and the local Maven repository
      */
     private final Collection<IInstallableUnit> externalIUs;
-
-    /**
-     * Reactor build projects
-     */
-    private final Collection<ReactorProject> reactorProjects;
 
     // TODO 412416 only used to warn about locally installed artifacts, this logic does not belong here
     private final LocalMetadataRepository localMetadataRepository;
@@ -57,59 +49,32 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
     private final boolean includeLocalRepo;
 
-    public PreliminaryTargetPlatformImpl(Collection<ReactorProject> reactorProjects, Collection<IInstallableUnit> ius,
-            Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
+    public PreliminaryTargetPlatformImpl(Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
+            Collection<IInstallableUnit> externalIUs, Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
             LocalMetadataRepository localMetadataRepository, IRawArtifactFileProvider jointArtifacts,
             LocalArtifactRepository localArtifactRepository, boolean includeLocalRepo, MavenLogger logger) {
-        super(executionEnvironment, jointArtifacts, localArtifactRepository, mavenArtifactIUs);
-        this.reactorProjects = reactorProjects;
-        this.externalIUs = ius;
+        super(collectAllInstallableUnits(reactorProjectIUs, externalIUs, executionEnvironment), executionEnvironment,
+                jointArtifacts, localArtifactRepository, reactorProjectIUs, mavenArtifactIUs);
+        this.externalIUs = externalIUs;
         this.filter = filter;
         this.localMetadataRepository = localMetadataRepository;
         this.includeLocalRepo = includeLocalRepo;
         this.logger = logger;
     }
 
-    public Set<IInstallableUnit> getInstallableUnits() {
-        Set<IInstallableUnit> allius = new LinkedHashSet<IInstallableUnit>();
+    public static LinkedHashSet<IInstallableUnit> collectAllInstallableUnits(
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
+            Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment) {
+        LinkedHashSet<IInstallableUnit> allius = new LinkedHashSet<IInstallableUnit>();
 
-        allius.addAll(getReactorProjectIUs().keySet());
+        allius.addAll(reactorProjectIUs.keySet());
 
         allius.addAll(externalIUs);
 
-        // TODO this should be done by the builder
         allius.addAll(executionEnvironment.getMandatoryUnits());
 
-        return Collections.unmodifiableSet(allius);
-    }
-
-    public Map<IInstallableUnit, ReactorProjectIdentities> getReactorProjectIUs() {
-        Map<IInstallableUnit, ReactorProjectIdentities> allius = new LinkedHashMap<IInstallableUnit, ReactorProjectIdentities>();
-
-        for (ReactorProject project : reactorProjects) {
-            Set<?> projectUnits = project.getDependencyMetadata();
-            if (projectUnits == null)
-                continue;
-
-            for (Object iu : projectUnits) {
-                allius.put((IInstallableUnit) iu, project.getIdentities());
-            }
-        }
-
-        applyConfiguredFilter(allius.keySet());
-
-        return Collections.unmodifiableMap(allius);
-    }
-
-    private void applyConfiguredFilter(Collection<IInstallableUnit> keySet) {
-        if (filter != null) {
-            filter.filterUnits(keySet);
-        }
-    }
-
-    public Map<IInstallableUnit, ReactorProjectIdentities> getOriginalReactorProjectMap() {
-        return getReactorProjectIUs();
+        return allius;
     }
 
     public void reportUsedLocalIUs(Collection<IInstallableUnit> usedUnits) {
@@ -137,6 +102,7 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     public LinkedHashSet<IInstallableUnit> getExternalUnits() {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
         result.addAll(externalIUs);
+        // TODO are these "external units"?
         result.addAll(executionEnvironment.getMandatoryUnits());
         return result;
     }
