@@ -11,8 +11,8 @@
 package org.eclipse.tycho.p2.target;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -23,29 +23,17 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFilePro
 
 public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
 
-    private final Set<IInstallableUnit> installableUnits;
-    private final Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup;
-
-    public FinalTargetPlatformImpl(Set<IInstallableUnit> installableUnits,
+    public FinalTargetPlatformImpl(LinkedHashSet<IInstallableUnit> installableUnits,
             ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider jointArtifacts,
             LocalArtifactRepository localArtifactRepository,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup,
             Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup) {
-        super(executionEnvironment, jointArtifacts, localArtifactRepository, mavenArtifactLookup);
-        this.installableUnits = installableUnits;
-        this.reactorProjectLookup = reactorProjectLookup;
-    }
-
-    public Set<IInstallableUnit> getInstallableUnits() {
-        return installableUnits;
+        super(installableUnits, executionEnvironment, jointArtifacts, localArtifactRepository, reactorProjectLookup,
+                mavenArtifactLookup);
     }
 
     public void reportUsedLocalIUs(Collection<IInstallableUnit> usedUnits) {
         // not needed; already done during dependency resolution with the preliminary TP
-    }
-
-    public Map<IInstallableUnit, ReactorProjectIdentities> getOriginalReactorProjectMap() {
-        return reactorProjectLookup;
     }
 
 }

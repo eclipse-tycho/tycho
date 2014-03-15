@@ -171,23 +171,22 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         Set<MavenRepositoryLocation> completeRepositories = tpConfiguration.getP2Repositories();
         registerRepositoryIDs(completeRepositories);
 
+        // collect & process metadata
         boolean includeLocalMavenRepo = shouldIncludeLocallyInstalledUnits(tpConfiguration);
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
                 targetFileContent, pomDependenciesContent, includeLocalMavenRepo);
 
-        if (reactorProjects == null) {
-            reactorProjects = Collections.emptyList();
-        }
-        Set<IInstallableUnit> reactorProjectUIs = getReactorProjectUIs(reactorProjects,
-                tpConfiguration.getFailOnDuplicateIUs());
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
+                reactorProjects, tpConfiguration.getFailOnDuplicateIUs());
 
         List<TargetPlatformFilter> iuFilters = tpConfiguration.getFilters();
         TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters,
                 logger) : null;
 
-        applyFilters(filter, externalUIs, reactorProjectUIs, eeResolutionHandler.getResolutionHints());
+        applyConfiguredFilter(filter, reactorProjectUIs.keySet());
+        applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints());
 
-        PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjects,//
+        PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs,//
                 externalUIs, //
                 pomDependenciesContent.getMavenInstallableUnits(), //
                 eeResolutionHandler.getResolutionHints(), //
@@ -338,9 +337,13 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent);
     }
 
-    private Set<IInstallableUnit> getReactorProjectUIs(List<ReactorProject> reactorProjects, boolean failOnDuplicateIUs)
-            throws DuplicateReactorIUsException {
-        Map<IInstallableUnit, Set<File>> reactorUIs = new HashMap<IInstallableUnit, Set<File>>();
+    private Map<IInstallableUnit, ReactorProjectIdentities> getPreliminaryReactorProjectUIs(
+            List<ReactorProject> reactorProjects, boolean failOnDuplicateIUs) throws DuplicateReactorIUsException {
+        if (reactorProjects == null) {
+            return Collections.emptyMap();
+        }
+
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorUIs = new HashMap<IInstallableUnit, ReactorProjectIdentities>();
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<IInstallableUnit, Set<File>>();
 
         for (ReactorProject project : reactorProjects) {
@@ -350,14 +353,16 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 continue;
 
             for (IInstallableUnit iu : projectIUs) {
-                Set<File> locations = reactorUIs.get(iu);
-                if (locations == null) {
-                    locations = new LinkedHashSet<File>();
-                    reactorUIs.put(iu, locations);
-                }
-                locations.add(project.getBasedir());
-                if (locations.size() > 1) {
-                    duplicateReactorUIs.put(iu, locations);
+                ReactorProjectIdentities otherOrigin = reactorUIs.put(iu, project.getIdentities());
+
+                if (otherOrigin != null && !otherOrigin.equals(project.getIdentities())) {
+                    Set<File> duplicateLocations = duplicateReactorUIs.get(iu);
+                    if (duplicateLocations == null) {
+                        duplicateLocations = new LinkedHashSet<File>();
+                        duplicateReactorUIs.put(iu, duplicateLocations);
+                    }
+                    duplicateLocations.add(otherOrigin.getBasedir());
+                    duplicateLocations.add(project.getBasedir());
                 }
             }
         }
@@ -367,10 +372,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             throw new DuplicateReactorIUsException(duplicateReactorUIs);
         }
 
-        return reactorUIs.keySet();
+        return reactorUIs;
     }
 
-    private void applyFilters(TargetPlatformFilterEvaluator filter, LinkedHashSet<IInstallableUnit> units,
+    private void applyFilters(TargetPlatformFilterEvaluator filter, Collection<IInstallableUnit> collectionToModify,
             Set<IInstallableUnit> reactorProjectUIs, ExecutionEnvironmentResolutionHints eeResolutionHints) {
 
         Set<String> reactorIUIDs = new HashSet<String>();
@@ -381,20 +386,24 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         // a.jre/config.a.jre installable units
         // partial installable units
         // installable units shadowed by reactor projects
-        Iterator<IInstallableUnit> iter = units.iterator();
+        Iterator<IInstallableUnit> iter = collectionToModify.iterator();
         while (iter.hasNext()) {
             IInstallableUnit unit = iter.next();
             if (eeResolutionHints.isNonApplicableEEUnit(unit) || isPartialIU(unit)
                     || reactorIUIDs.contains(unit.getId())) {
-                // TODO log
+                // TODO debug log output?
                 iter.remove();
                 continue;
             }
         }
 
-        // configured filters
+        applyConfiguredFilter(filter, collectionToModify);
+    }
+
+    private static void applyConfiguredFilter(TargetPlatformFilterEvaluator filter,
+            Collection<IInstallableUnit> collectionToModify) {
         if (filter != null) {
-            filter.filterUnits(units);
+            filter.filterUnits(collectionToModify);
         }
     }
 
