@@ -188,10 +188,7 @@ public class TargetPlatformFactoryTest {
         assertThat(finalTP.getInstallableUnits(), hasItem(unit("bundle", "1.2.0")));
     }
 
-    // TODO 396999 test filter on POM dependencies
     // TODO 372035 test logging for potential bugs in the explicit filters configuration
-
-    // TODO 412416 test configured filters on external content
 
     @Test
     public void testConfiguredFiltersOnReactorIUsInPreliminaryTP() throws Exception {
@@ -222,6 +219,24 @@ public class TargetPlatformFactoryTest {
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("test.feature.feature.group")));
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("iu.p2.inf"))));
+    }
+
+    @Test
+    public void testConfiguredFiltersOnPomDependencies() throws Exception {
+        PomDependencyCollector pomDependencies = subject.newPomDependencyCollector();
+        pomDependencies.addArtifactWithExistingMetadata(PomDependencyCollectorTest.artifactWithClassifier(null),
+                PomDependencyCollectorTest.existingMetadata());
+
+        TargetPlatformFilter filter = TargetPlatformFilter.removeAllFilter(CapabilityPattern.patternWithoutVersion(
+                CapabilityType.P2_INSTALLABLE_UNIT, "test.unit"));
+        tpConfig.addFilters(Arrays.asList(filter));
+
+        P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
+                pomDependencies);
+        assertThat(preliminaryTP.getInstallableUnits(), not(hasItem(unitWithId("test.unit"))));
+
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+        assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("test.unit"))));
     }
 
     @Test
@@ -315,10 +330,6 @@ public class TargetPlatformFactoryTest {
             }
             return result;
         }
-    }
-
-    private void assertContainsIU(Collection<IInstallableUnit> units, String id) {
-        assertThat(units, hasItem(unitWithId(id)));
     }
 
     private IInstallableUnit getIU(Collection<IInstallableUnit> units, String id) {

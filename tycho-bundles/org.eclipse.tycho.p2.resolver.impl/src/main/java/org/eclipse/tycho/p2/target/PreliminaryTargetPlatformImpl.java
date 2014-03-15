@@ -78,8 +78,6 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
 
         allius.addAll(externalIUs);
 
-        allius.addAll(mavenArtifactLookup.keySet());
-
         // TODO this should be done by the builder
         allius.addAll(executionEnvironment.getMandatoryUnits());
 
@@ -139,7 +137,6 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     public LinkedHashSet<IInstallableUnit> getExternalUnits() {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
         result.addAll(externalIUs);
-        result.addAll(mavenArtifactLookup.keySet());
         result.addAll(executionEnvironment.getMandatoryUnits());
         return result;
     }
