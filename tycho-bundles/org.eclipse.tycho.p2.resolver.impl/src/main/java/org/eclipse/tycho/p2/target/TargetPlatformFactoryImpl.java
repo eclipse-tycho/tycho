@@ -173,7 +173,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         boolean includeLocalMavenRepo = shouldIncludeLocallyInstalledUnits(tpConfiguration);
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
-                targetFileContent, includeLocalMavenRepo);
+                targetFileContent, pomDependenciesContent, includeLocalMavenRepo);
 
         if (reactorProjects == null) {
             reactorProjects = Collections.emptyList();
@@ -186,10 +186,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 logger) : null;
 
         applyFilters(filter, externalUIs, reactorProjectUIs, eeResolutionHandler.getResolutionHints());
-
-        // TODO 396999 mavenIUs is never read after filtering
-        LinkedHashSet<IInstallableUnit> mavenIUs = pomDependenciesContent.gatherMavenInstallableUnits();
-        applyFilters(filter, mavenIUs, reactorProjectUIs, eeResolutionHandler.getResolutionHints());
 
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjects,//
                 externalUIs, //
@@ -265,7 +261,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      */
     private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
             Set<MavenRepositoryLocation> completeRepositories, List<TargetDefinitionContent> targetDefinitionsContent,
-            boolean includeLocalMavenRepo) {
+            PomDependencyCollectorImpl pomDependenciesContent, boolean includeLocalMavenRepo) {
         LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
@@ -284,6 +280,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.ALL_UNITS, monitor);
             result.addAll(matches.toUnmodifiableSet());
         }
+
+        result.addAll(pomDependenciesContent.gatherMavenInstallableUnits());
 
         if (includeLocalMavenRepo && logger.isDebugEnabled()) {
             IQueryResult<IInstallableUnit> locallyInstalledIUs = localMetadataRepository.query(QueryUtil.ALL_UNITS,
