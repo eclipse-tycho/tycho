@@ -55,7 +55,7 @@ public class PomDependencyCollectorTest {
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
         Collection<IInstallableUnit> units = getTargetPlatformUnits();
-        assertThat(units, hasItem(unitWithId("test.ui.source")));
+        assertThat(units, hasItem(unitWithId("test.unit.source")));
         assertThat(units.size(), is(1));
     }
 
@@ -67,7 +67,7 @@ public class PomDependencyCollectorTest {
         subject.addArtifactWithExistingMetadata(artifact, existingMetadata());
 
         Collection<IInstallableUnit> units = getTargetPlatformUnits();
-        assertThat(units, hasItem(unitWithId("test.ui")));
+        assertThat(units, hasItem(unitWithId("test.unit")));
         assertThat(units.size(), is(1));
     }
 

@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.testutil;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.hamcrest.Description;
@@ -48,6 +49,10 @@ public class InstallableUnitMatchers {
                 return id.equals(item.getId()) && parsedVersion.equals(item.getVersion());
             }
         };
+    }
+
+    public static Matcher<IInstallableUnit> unitWithIdAndVersion(IVersionedId versionedId) {
+        return unit(versionedId.getId(), versionedId.getVersion().toString());
     }
 
     public static Matcher<IInstallableUnit> hasGAV(String groupId, String artifactId, String version) {

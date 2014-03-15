@@ -16,6 +16,7 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCE
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.REFERENCED_BUNDLE_V2;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unit;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithIdAndVersion;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
@@ -172,8 +173,8 @@ public class TargetPlatformFactoryTest {
         P2TargetPlatform tp = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
         // platforms must have been resolved in two planner calls because otherwise the singleton bundles would have collided
 
-        assertThat(versionedIdsOf(tp), hasItem(REFERENCED_BUNDLE_V1));
-        assertThat(versionedIdsOf(tp), hasItem(REFERENCED_BUNDLE_V2));
+        assertThat(tp.getInstallableUnits(), hasItem(unitWithIdAndVersion(REFERENCED_BUNDLE_V1)));
+        assertThat(tp.getInstallableUnits(), hasItem(unitWithIdAndVersion(REFERENCED_BUNDLE_V2)));
     }
 
     private static TargetDefinition plannerTargetDefinition(TestRepositories repository, IVersionedId unit) {
@@ -233,11 +234,4 @@ public class TargetPlatformFactoryTest {
         return null;
     }
 
-    static Collection<IVersionedId> versionedIdsOf(P2TargetPlatform platform) {
-        Collection<IVersionedId> result = new ArrayList<IVersionedId>();
-        for (IInstallableUnit unit : platform.getInstallableUnits()) {
-            result.add(new VersionedId(unit.getId(), unit.getVersion()));
-        }
-        return result;
-    }
 }
