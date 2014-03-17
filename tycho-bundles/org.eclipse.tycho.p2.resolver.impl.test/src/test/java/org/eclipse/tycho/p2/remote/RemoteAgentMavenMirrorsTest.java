@@ -14,13 +14,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -37,7 +32,6 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.test.util.HttpServer;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,29 +59,6 @@ public class RemoteAgentMavenMirrorsTest {
 
         mavenRepositorySettings = new MavenRepositorySettingsStub();
         subject = new RemoteAgent(mavenContext, mavenRepositorySettings, OFFLINE);
-        executeNetStat();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        executeNetStat();
-    }
-
-    /* debug output to help track down bug 425196 */
-    private void executeNetStat() throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder(Arrays.asList("netstat", "-anp"));
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
-        InputStream in = process.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line = null;
-        System.out.println("Debug output for bug 425196");
-        System.out.println("netstat -anp");
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
-        }
-        // wait but ignore result
-        process.waitFor();
     }
 
     @Test
