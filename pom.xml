@@ -143,7 +143,7 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 		<jdtAptVersion>1.0.600.v20130530-1010</jdtAptVersion>
 
 		<!-- version of tycho used by this build -->
-		<tychoBootstrapVersion>0.18.1</tychoBootstrapVersion>
+		<tychoBootstrapVersion>0.20.0</tychoBootstrapVersion>
 
 	</properties>
 
