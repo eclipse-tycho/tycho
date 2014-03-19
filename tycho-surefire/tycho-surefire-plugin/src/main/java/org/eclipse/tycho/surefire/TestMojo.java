@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -1036,7 +1036,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private Map<String, String> getMergedSystemProperties() {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new LinkedHashMap<String, String>();
         // bug 415489: use osgi.clean=true by default
         result.put("osgi.clean", "true");
         if (systemProperties != null) {
