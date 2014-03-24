@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2753a756_8e6aab8c",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 513
+      },
+      "writtenOn": "2014-03-24T05:38:04Z",
+      "side": 1,
+      "message": "typo tychp-surefire-plugin",
+      "revId": "4f94593f6271cf9d9dd59405a9503e5226aa3055",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
