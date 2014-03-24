@@ -384,7 +384,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
         if (includes.isEmpty() && excludes.isEmpty()) {
             includes = Collections.singleton("**/*." + inputFileEnding);
-            scanner = new SimpleSourceInclusionScanner(includes, Collections.EMPTY_SET);
+            scanner = new SimpleSourceInclusionScanner(includes, Collections.<String> emptySet());
         } else {
             if (includes.isEmpty()) {
                 includes.add("**/*." + inputFileEnding);
@@ -496,7 +496,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private DefaultJavaToolChain findMatchingJavaToolChain(final ExecutionEnvironment environment)
             throws MojoExecutionException {
         try {
-            final Map requirements = Collections.singletonMap("id", environment.getProfileName());
+            final Map<String, String> requirements = Collections.singletonMap("id", environment.getProfileName());
             for (ToolchainPrivate javaToolChain : toolChainManager.getToolchainsForType("jdk", session)) {
                 if (javaToolChain.matchesRequirements(requirements)) {
                     if (javaToolChain instanceof DefaultJavaToolChain) {
