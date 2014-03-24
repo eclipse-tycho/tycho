@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2753a756_0965f510",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/remote/RemoteAgentMetadataRepositoryCacheTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-03-24T11:11:26Z",
+      "side": 1,
+      "message": "This is not specific enough, the test will succeed if first \"loadHttpRepository\" throws ProvisionException, for example.\n\nAlso need to check exception message has enough information to explain what happened.",
+      "revId": "e2b5efbfb28b80e1d90c72fcc39a974deead79d8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2753a756_2937190a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/remote/RemoteRepositoryCacheManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-03-24T11:11:26Z",
+      "side": 1,
+      "message": "I would move mavenContext.getSessionProperties() call to constructor.",
+      "revId": "e2b5efbfb28b80e1d90c72fcc39a974deead79d8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
