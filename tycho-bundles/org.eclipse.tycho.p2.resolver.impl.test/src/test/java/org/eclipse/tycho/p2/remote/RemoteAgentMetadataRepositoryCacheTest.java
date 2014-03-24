@@ -102,6 +102,20 @@ public class RemoteAgentMetadataRepositoryCacheTest {
     }
 
     @Test(expected = ProvisionException.class)
+    public void testOnlineLoadingFailsIfPropertySetEvenIfLocalCacheIsAvailables() throws Exception {
+        RemoteAgent onlineAgent1 = newOnlineAgent();
+        loadHttpRepository(onlineAgent1);
+
+        // server becomes unavailable
+        localServer.stop();
+
+        Properties properties = new Properties();
+        properties.put("tycho.failsOnRepoAccess", "true");
+        RemoteAgent onlineAgent2 = newOnlineAgent(properties);
+        loadHttpRepository(onlineAgent2);
+    }
+
+    @Test(expected = ProvisionException.class)
     public void testOnlineLoadingFailsFastIfNoSourceAvailable() throws Exception {
         // server unavailable and no cache entry
         localServer.stop();
@@ -127,6 +141,10 @@ public class RemoteAgentMetadataRepositoryCacheTest {
     private RemoteAgent newOnlineAgent() throws Exception {
         return new RemoteAgent(new MavenContextImpl(localMavenRepository, false, logVerifier.getLogger(),
                 new Properties()));
+    }
+
+    private RemoteAgent newOnlineAgent(Properties properties) throws Exception {
+        return new RemoteAgent(new MavenContextImpl(localMavenRepository, false, logVerifier.getLogger(), properties));
     }
 
     private RemoteAgent newOfflineAgent() throws Exception {

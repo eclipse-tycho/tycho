@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,12 +35,15 @@ class RemoteRepositoryCacheManager extends CacheManager {
 
     private final MavenLogger logger;
 
+    private final MavenContext mavenContext;
+
     public RemoteRepositoryCacheManager(Transport transport, MavenContext mavenContext) {
         super(null, transport);
 
         this.localRepositoryLocation = mavenContext.getLocalRepositoryRoot();
         this.offline = mavenContext.isOffline();
         this.logger = mavenContext.getLogger();
+        this.mavenContext = mavenContext;
         if (logger == null)
             throw new NullPointerException();
     }
@@ -74,13 +77,19 @@ class RemoteRepositoryCacheManager extends CacheManager {
 
     private <T extends Exception> File handleCreateCacheException(File cacheFile, URI repositoryLocation, T e) throws T {
         if (cacheFile != null) {
+            final String failOnUnavailableRemoteRepository = "tycho.failsOnRepoAccess";
             String message = "Failed to access p2 repository " + repositoryLocation.toASCIIString()
-                    + ", use local cache.";
+                    + ", use local cache.\n Use " + failOnUnavailableRemoteRepository
+                    + " if you want to fail the build in this case.";
             if (logger.isDebugEnabled()) {
                 logger.warn(message, e);
             } else {
                 message += " " + e.getMessage();
                 logger.warn(message);
+            }
+            if ("true".equals(mavenContext.getSessionProperties().getProperty(failOnUnavailableRemoteRepository))) {
+                throw new IllegalStateException(repositoryLocation.toASCIIString() + "is not available and "
+                        + failOnUnavailableRemoteRepository + " has been set to true so fail the build.");
             }
             // original exception has been already logged
             return cacheFile;
