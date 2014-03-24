@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +151,6 @@ public class JDTCompiler extends AbstractCompiler {
         // Set the class and source paths
         // ----------------------------------------------------------------------
 
-        @SuppressWarnings("unchecked")
         List<String> classpathEntries = config.getClasspathEntries();
         if (classpathEntries != null && !classpathEntries.isEmpty()) {
             args.add("-classpath");
@@ -160,7 +160,6 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(cp);
         }
 
-        @SuppressWarnings("unchecked")
         List<String> sourceLocations = config.getSourceLocations();
         if (sourceLocations != null && !sourceLocations.isEmpty() && (sourceFiles.length == 0)) {
             args.add("-sourcepath");
@@ -168,9 +167,7 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(getPathString(sourceLocations));
         }
 
-        for (int i = 0; i < sourceFiles.length; i++) {
-            args.add(sourceFiles[i]);
-        }
+        args.addAll(Arrays.asList(sourceFiles));
 
         if (config.isOptimize()) {
             args.add("-O");
@@ -227,8 +224,7 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(config.getSourceEncoding());
         }
 
-        @SuppressWarnings("unchecked")
-        Map<String, String> customCompilerArguments = config.getCustomCompilerArguments();
+        Map<String, String> customCompilerArguments = config.getCustomCompilerArgumentsAsMap();
         for (Map.Entry<String, String> entry : customCompilerArguments.entrySet()) {
 
             String key = (String) entry.getKey();
