@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2753a756_494d2d93",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/ProductExportMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-03-24T11:15:58Z",
+      "side": 1,
+      "message": "I prefer try/finally around props.store(), i.e.\n\n  try {\n    props.store(fos, \"Eclipse Product File\");\n  } finally {\n    IOUtil.close(fos);\n  }\n\n\nThis way you won\u0027t need to check for fos\u003d\u003dnull and have duplicate exception handle/rethrow logic.",
+      "revId": "1e664a40209625e931bb76cf4c96b8e70daef7fd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
