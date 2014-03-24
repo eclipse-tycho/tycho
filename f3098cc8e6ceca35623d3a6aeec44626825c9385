@@ -16,6 +16,24 @@
       "revId": "f3098cc8e6ceca35623d3a6aeec44626825c9385",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2753a756_6e63d7bc",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 513
+      },
+      "writtenOn": "2014-03-24T19:21:30Z",
+      "side": 1,
+      "message": "It was introduced with OSGi Framework package 1.5 http://www.osgi.org/javadoc/r4v42/org/osgi/framework/BundleException.html#getType()\nThe dependency on this version of org.osgi.framework package was already set in Eclipse 3.5 https://eclipse.googlesource.com/equinox/rt.equinox.framework/+/R3_5_maintenance/bundles/org.eclipse.osgi/META-INF/MANIFEST.MF",
+      "parentUuid": "67591f73_36a32688",
+      "revId": "f3098cc8e6ceca35623d3a6aeec44626825c9385",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
