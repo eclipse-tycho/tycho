@@ -355,7 +355,7 @@ public class SimpleArtifactRepositoryIO {
             public MappingRulesHandler(AbstractHandler parentHandler, Attributes attributes) {
                 super(parentHandler, MAPPING_RULES_ELEMENT);
                 String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-                mappingRules = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+                mappingRules = (size != null ? new ArrayList(Integer.parseInt(size)) : new ArrayList(4));
             }
 
             public String[][] getMappingRules() {
@@ -398,7 +398,7 @@ public class SimpleArtifactRepositoryIO {
             public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
                 super(parentHandler, ARTIFACTS_ELEMENT);
                 String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-                artifacts = (size != null ? new LinkedHashSet(new Integer(size).intValue()) : new LinkedHashSet(4));
+                artifacts = (size != null ? new LinkedHashSet(Integer.parseInt(size)) : new LinkedHashSet(4));
             }
 
             public Set getArtifacts() {
