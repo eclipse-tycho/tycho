@@ -225,7 +225,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                 getLog().warn("ignoring unsupported archive forced = false parameter.");
                 archive.setForced(true);
             }
-            archiver.createArchive(project, archive);
+            archiver.createArchive(session, project, archive);
             return pluginFile;
         } catch (IOException e) {
             throw new MojoExecutionException("Error assembling JAR", e);

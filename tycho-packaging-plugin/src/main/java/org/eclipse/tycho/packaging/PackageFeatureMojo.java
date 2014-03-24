@@ -147,7 +147,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
             if (featureProperties != null) {
                 archiver.getArchiver().addFile(featureProperties, FEATURE_PROPERTIES);
             }
-            archiver.createArchive(project, archive);
+            archiver.createArchive(session, project, archive);
         } catch (Exception e) {
             throw new MojoExecutionException("Error creating feature package", e);
         }
