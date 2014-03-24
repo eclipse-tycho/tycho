@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2753a756_be551a28",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/ProductExportMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-03-24T19:40:00Z",
+      "side": 1,
+      "message": "No, this is not what I meant. Why pollute the code with null initialization and checks?\n\ntry {\n  FileOutputStream fos \u003d new FileOutputStream(eclipseproduct);\n  try {\n    props.store(fos, \"Eclipse Product File\");\n  } finally {\n    IOUtil.close(fos);\n  }\n} catch (IOException e) {\n  throw new MojoExecutionException(\"Error creating .eclipseproduct file.\", e);\n}\n\nCleaner and easier to follow. Will be easier to convert to try-with-resources too.",
+      "revId": "4da9ed3274439488364e556c91765eced7777a6b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
