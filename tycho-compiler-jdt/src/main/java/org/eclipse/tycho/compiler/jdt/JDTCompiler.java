@@ -173,9 +173,7 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(getPathString(sourceLocations));
         }
 
-        for (int i = 0; i < sourceFiles.length; i++) {
-            args.add(sourceFiles[i]);
-        }
+        args.addAll(Arrays.asList(sourceFiles));
 
         if (config.isOptimize()) {
             args.add("-O");
@@ -232,7 +230,7 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(config.getSourceEncoding());
         }
 
-        Map<String, String> customCompilerArguments = config.getCustomCompilerArguments();
+        Map<String, String> customCompilerArguments = config.getCustomCompilerArgumentsAsMap();
         for (Map.Entry<String, String> entry : customCompilerArguments.entrySet()) {
 
             String key = (String) entry.getKey();
