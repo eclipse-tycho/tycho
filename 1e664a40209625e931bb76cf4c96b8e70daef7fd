@@ -16,6 +16,24 @@
       "revId": "1e664a40209625e931bb76cf4c96b8e70daef7fd",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2753a756_ded72e32",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/ProductExportMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 513
+      },
+      "writtenOn": "2014-03-24T19:21:56Z",
+      "side": 1,
+      "message": "I use IOUtil but still need to check for fos !\u003d null because new FileOutputStream can throw FileNotFoundException. Otherwise I need to have several layers of try catch",
+      "parentUuid": "2753a756_494d2d93",
+      "revId": "1e664a40209625e931bb76cf4c96b8e70daef7fd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
