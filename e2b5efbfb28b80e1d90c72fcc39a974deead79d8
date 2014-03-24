@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "2753a756_fbe20491",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-03-24T16:51:09Z",
+      "side": 1,
+      "message": "Please use a shorter summary so that it fits on one line.",
+      "revId": "e2b5efbfb28b80e1d90c72fcc39a974deead79d8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2753a756_3bfc7c32",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-03-24T16:51:09Z",
+      "side": 1,
+      "message": "Please add\n\nBug: 410698\n\nas first footer line.",
+      "revId": "e2b5efbfb28b80e1d90c72fcc39a974deead79d8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2753a756_0965f510",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/remote/RemoteAgentMetadataRepositoryCacheTest.java",
         "patchSetId": 1
