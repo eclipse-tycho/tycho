@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2753a756_1bd258c9",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/locking/facade/LockTimeoutException.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-03-24T16:42:11Z",
+      "side": 1,
+      "message": "Wrong syntax, should be 2011, 2014\n\nsee http://www.eclipse.org/legal/copyrightandlicensenotice.php",
+      "revId": "713fb1989551a4840d5dedd4ed8c7290e307f003",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
