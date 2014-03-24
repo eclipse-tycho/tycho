@@ -441,12 +441,20 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         setPropertyIfNotNull(props, "id", productConfiguration.getId());
 
         File eclipseproduct = new File(target, ".eclipseproduct");
+        FileOutputStream fos = null;
         try {
-            FileOutputStream fos = new FileOutputStream(eclipseproduct);
+            fos = new FileOutputStream(eclipseproduct);
             props.store(fos, "Eclipse Product File");
-            fos.close();
         } catch (IOException e) {
             throw new MojoExecutionException("Error creating .eclipseproduct file.", e);
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Error closing stream on .eclipseproduct file.", e);
+                }
+            }
         }
     }
 
