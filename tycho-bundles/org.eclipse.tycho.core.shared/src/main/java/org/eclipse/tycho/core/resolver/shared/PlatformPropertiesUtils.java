@@ -33,6 +33,7 @@ public class PlatformPropertiesUtils {
 
     public static final String ARCH_X86 = "x86";//$NON-NLS-1$
     public static final String ARCH_X86_64 = "x86_64";//$NON-NLS-1$
+    public static final String ARCH_PPC = "ppc";//$NON-NLS-1$
 
     public final static String OSGI_WS = "osgi.ws"; //$NON-NLS-1$
     public final static String OSGI_OS = "osgi.os"; //$NON-NLS-1$

@@ -134,10 +134,10 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
 
                 String id;
 
-                // for Mac OS X there is no org.eclipse.equinox.launcher.carbon.macosx.x86 folder,
+                // for Mac OS X there is no org.eclipse.equinox.launcher.carbon.macosx.x86 or org.eclipse.equinox.launcher.carbon.macosx.ppc folder,
                 // only a org.eclipse.equinox.launcher.carbon.macosx folder.
                 // see http://jira.codehaus.org/browse/MNGECLIPSE-1075
-                if (PlatformPropertiesUtils.OS_MACOSX.equals(os) && PlatformPropertiesUtils.ARCH_X86.equals(arch)) {
+                if (PlatformPropertiesUtils.OS_MACOSX.equals(os) && (PlatformPropertiesUtils.ARCH_X86.equals(arch) || PlatformPropertiesUtils.ARCH_PPC.equals(arch))) {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os;
                 } else {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os + "." + arch;
