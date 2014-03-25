@@ -65,7 +65,7 @@ import org.junit.Test;
 
 public class TargetPlatformFactoryTest {
 
-    private static final ReactorProjectIdentities DUMMY_PROJECT = new ReactorProjectIdentitiesStub(null);
+    private static final ReactorProjectIdentities DUMMY_PROJECT = new ReactorProjectIdentitiesStub(new File("dummy"));
 
     @Rule
     public LogVerifier logVerifier = new LogVerifier();

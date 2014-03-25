@@ -16,7 +16,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProjectIdentities;
 
-public class MavenReactorProjectIdentities implements ReactorProjectIdentities {
+public class MavenReactorProjectIdentities extends ReactorProjectIdentities {
 
     private final MavenProject project;
 
@@ -28,22 +28,27 @@ public class MavenReactorProjectIdentities implements ReactorProjectIdentities {
         this.targetFolder = new BuildOutputDirectory(project.getBuild().getDirectory());
     }
 
+    @Override
     public String getGroupId() {
         return project.getGroupId();
     }
 
+    @Override
     public String getArtifactId() {
         return project.getArtifactId();
     }
 
+    @Override
     public String getVersion() {
         return project.getVersion();
     }
 
+    @Override
     public File getBasedir() {
         return project.getBasedir();
     }
 
+    @Override
     public BuildOutputDirectory getBuildDirectory() {
         return targetFolder;
     }

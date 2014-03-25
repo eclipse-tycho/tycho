@@ -22,7 +22,7 @@ import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
 
 // TODO use interface with a subset of methods to ease stubbing?
-public class ReactorProjectStub implements ReactorProject, ReactorProjectIdentities {
+public class ReactorProjectStub extends ReactorProjectIdentities implements ReactorProject {
 
     private File basedir;
 
@@ -49,7 +49,7 @@ public class ReactorProjectStub implements ReactorProject, ReactorProjectIdentit
     }
 
     public ReactorProjectStub(File basedir) {
-        this(basedir, null, null, null, null);
+        this(basedir, "testgroup", basedir.getName(), "0.0.20-SNAPSHOT", null);
     }
 
     private static <T> T unlessNull(T value) {
@@ -59,18 +59,22 @@ public class ReactorProjectStub implements ReactorProject, ReactorProjectIdentit
             return value;
     }
 
+    @Override
     public File getBasedir() {
         return unlessNull(basedir);
     }
 
+    @Override
     public String getGroupId() {
         return unlessNull(groupId);
     }
 
+    @Override
     public String getArtifactId() {
         return unlessNull(artifactId);
     }
 
+    @Override
     public String getVersion() {
         return unlessNull(version);
     }
@@ -120,6 +124,7 @@ public class ReactorProjectStub implements ReactorProject, ReactorProjectIdentit
         return new File(getBasedir(), "target");
     }
 
+    @Override
     public BuildOutputDirectory getBuildDirectory() {
         return new BuildOutputDirectory(getOutputDirectory());
     }

@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -58,7 +59,7 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
     public void testTargetPlatformComputationInIntegration() throws Exception {
         subject = getService(ReactorRepositoryManagerFacade.class);
 
-        ReactorProject currentProject = new ReactorProjectStub(null);
+        ReactorProject currentProject = new ReactorProjectStub(new File("dummy"));
 
         TargetPlatformConfigurationStub tpConfig = new TargetPlatformConfigurationStub();
         tpConfig.addP2Repository(new MavenRepositoryLocation(null, ResourceUtil.resourceFile("repositories/launchers")
