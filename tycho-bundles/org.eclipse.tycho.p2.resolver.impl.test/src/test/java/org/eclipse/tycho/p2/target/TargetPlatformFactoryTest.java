@@ -65,7 +65,7 @@ import org.junit.Test;
 
 public class TargetPlatformFactoryTest {
 
-    private static final ReactorProjectIdentities DUMMY_PROJECT = new ReactorProjectIdentitiesStub(null);
+    private static final ReactorProjectIdentities DUMMY_PROJECT = new ReactorProjectIdentitiesStub("dummy-artifact");
 
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
@@ -122,8 +122,7 @@ public class TargetPlatformFactoryTest {
 
     @Test
     public void testFinalTargetPlatformNotContainsPreliminaryReactorIU() throws Exception {
-        List<ReactorProject> preliminaryReactor = Arrays.asList(createReactorProject(new File("dummy"), "reactor.id",
-                null));
+        List<ReactorProject> preliminaryReactor = Arrays.asList(createReactorProject("artifactId", "reactor.id", null));
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 preliminaryReactor, null);
 
@@ -196,8 +195,7 @@ public class TargetPlatformFactoryTest {
                 CapabilityType.P2_INSTALLABLE_UNIT, "iu.p2.inf"));
         tpConfig.addFilters(Arrays.asList(filter));
 
-        ReactorProject reactorProject = createReactorProject(new File("dummy"), "test.feature.feature.group",
-                "iu.p2.inf");
+        ReactorProject reactorProject = createReactorProject("artifactId", "test.feature.feature.group", "iu.p2.inf");
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 Collections.singletonList(reactorProject), null);
 
@@ -245,7 +243,7 @@ public class TargetPlatformFactoryTest {
         tpConfig.addP2Repository(ResourceUtil.resourceFile("targetresolver/v1_content").toURI());
 
         // reactor artifact produces a unit with same ID
-        ReactorProject reactorProject = createReactorProject(new File("dummy"), "trt.bundle/1.5.5.qualifier", null);
+        ReactorProject reactorProject = createReactorProject("artifactId", "trt.bundle/1.5.5.qualifier", null);
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER,
                 Collections.singletonList(reactorProject), null);
 
@@ -301,16 +299,17 @@ public class TargetPlatformFactoryTest {
         return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
     }
 
-    private ReactorProject createReactorProject(File projectRoot, String primaryUnitId, String secondaryUnitId) {
-        return createReactorProject(projectRoot, asArrayUnlessNull(primaryUnitId), asArrayUnlessNull(secondaryUnitId));
+    private ReactorProject createReactorProject(String artifactId, String primaryUnitId, String secondaryUnitId) {
+        return createReactorProject(artifactId, asArrayUnlessNull(primaryUnitId), asArrayUnlessNull(secondaryUnitId));
     }
 
     private String[] asArrayUnlessNull(String string) {
         return string == null ? null : new String[] { string };
     }
 
-    private ReactorProject createReactorProject(File projectRoot, String[] primaryUnitIds, String[] secondaryUnitIds) {
-        ReactorProjectStub result = new ReactorProjectStub(projectRoot);
+    private ReactorProject createReactorProject(String artifactId, String[] primaryUnitIds, String[] secondaryUnitIds) {
+        File basedir = new File("tychotestdummy"); // not dereferenced in the code under test, so the path doesn't need to exist
+        ReactorProjectStub result = new ReactorProjectStub(basedir, artifactId);
 
         DependencyMetadata dependencyMetadata = new DependencyMetadata();
         dependencyMetadata.setMetadata(true, createUnits(primaryUnitIds));

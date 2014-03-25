@@ -58,7 +58,7 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
     public void testTargetPlatformComputationInIntegration() throws Exception {
         subject = getService(ReactorRepositoryManagerFacade.class);
 
-        ReactorProject currentProject = new ReactorProjectStub(null);
+        ReactorProject currentProject = new ReactorProjectStub("reactor-artifact");
 
         TargetPlatformConfigurationStub tpConfig = new TargetPlatformConfigurationStub();
         tpConfig.addP2Repository(new MavenRepositoryLocation(null, ResourceUtil.resourceFile("repositories/launchers")
