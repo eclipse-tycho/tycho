@@ -193,21 +193,44 @@ public class JavadocRunner {
     }
 
     protected String getExecutable() {
+        log.debug("Find javadoc executable");
+
         if (this.options.getExecutable() != null) {
             // prefer the specific one
+            log.debug("Using specified javadoc: " + options.getExecutable());
             return this.options.getExecutable();
         }
+
+        log.debug("Toolchain manager: " + toolchainManager);
 
         if (this.toolchainManager != null) {
             // try the toolchain
             final Toolchain tc = this.toolchainManager.getToolchainFromBuildContext("jdk", this.session);
+            log.debug("Toolchain: " + tc);
+
             if (tc != null) {
                 final String exe = tc.findTool("javadoc");
+                log.debug("Toolchain Tool: " + exe);
                 if (exe != null) {
                     return exe;
                 }
             }
         }
+
+        String javadocFromJavaHome = System.getProperty("java.home") + File.separator + "bin" + File.separator
+                + "javadoc";
+
+        if (SystemHelper.isWindows()) {
+            javadocFromJavaHome += ".exe";
+        }
+
+        log.debug("Testing javadoc from java.home = " + javadocFromJavaHome);
+
+        if (new File(javadocFromJavaHome).canExecute()) {
+            return javadocFromJavaHome;
+        }
+
+        log.debug("Using path fallback");
 
         // fall back
         return "javadoc";
