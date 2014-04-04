@@ -24,6 +24,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.osgi.internal.resolver.StateImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.eclipse.osgi.service.resolver.HostSpecification;
@@ -141,8 +142,7 @@ public class EquinoxResolver {
 
         // Put Equinox OSGi resolver into development mode.
         // See http://www.nabble.com/Re:-resolving-partially-p18449054.html
-        properties.put(org.eclipse.osgi.framework.internal.core.Constants.OSGI_RESOLVER_MODE,
-                org.eclipse.osgi.framework.internal.core.Constants.DEVELOPMENT_MODE);
+        properties.put(StateImpl.OSGI_RESOLVER_MODE, StateImpl.DEVELOPMENT_MODE);
         return properties;
     }
 
@@ -188,8 +188,7 @@ public class EquinoxResolver {
 
         // force our system.bundle
         Hashtable<Object, Object> platformProperties = new Hashtable<Object, Object>(properties);
-        platformProperties.put(org.eclipse.osgi.framework.internal.core.Constants.STATE_SYSTEM_BUNDLE,
-                state.getBundle(SYSTEM_BUNDLE_ID).getSymbolicName());
+        platformProperties.put(StateImpl.STATE_SYSTEM_BUNDLE, state.getBundle(SYSTEM_BUNDLE_ID).getSymbolicName());
         state.setPlatformProperties(platformProperties);
 
         return state;
@@ -250,15 +249,14 @@ public class EquinoxResolver {
     }
 
     private Dictionary<String, String> getSystemBundleManifest(Properties properties) {
-        String systemPackages = properties.getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES);
+        String systemPackages = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
 
         Dictionary<String, String> systemBundleManifest = new Hashtable<String, String>();
-        systemBundleManifest.put(org.eclipse.osgi.framework.internal.core.Constants.BUNDLE_SYMBOLICNAME,
-                SYSTEM_BUNDLE_SYMBOLIC_NAME);
-        systemBundleManifest.put(org.eclipse.osgi.framework.internal.core.Constants.BUNDLE_VERSION, "0.0.0");
-        systemBundleManifest.put(org.eclipse.osgi.framework.internal.core.Constants.BUNDLE_MANIFESTVERSION, "2");
+        systemBundleManifest.put(Constants.BUNDLE_SYMBOLICNAME, SYSTEM_BUNDLE_SYMBOLIC_NAME);
+        systemBundleManifest.put(Constants.BUNDLE_VERSION, "0.0.0");
+        systemBundleManifest.put(Constants.BUNDLE_MANIFESTVERSION, "2");
         if (systemPackages != null && systemPackages.trim().length() > 0) {
-            systemBundleManifest.put(org.eclipse.osgi.framework.internal.core.Constants.EXPORT_PACKAGE, systemPackages);
+            systemBundleManifest.put(Constants.EXPORT_PACKAGE, systemPackages);
         } else {
             logger.warn("Undefined or empty org.osgi.framework.system.packages system property, system.bundle does not export any packages.");
         }
