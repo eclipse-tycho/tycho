@@ -18,7 +18,8 @@ public class EEVersion implements Comparable<EEVersion> {
     public enum EEType {
 
         // order is significant for comparison
-        OSGI_MINIMUM("OSGi/Minimum"), CDC_FOUNDATION("CDC/Foundation"), JRE("JRE"), JAVA_SE("JavaSE");
+        OSGI_MINIMUM("OSGi/Minimum"), CDC_FOUNDATION("CDC/Foundation"), JRE("JRE"), JAVA_SE("JavaSE"), JAVA_SE_COMPACT1(
+                "JavaSE/compact1"), JAVA_SE_COMPACT2("JavaSE/compact2"), JAVA_SE_COMPACT3("JavaSE/compact3");
 
         private final String profileName;
 
@@ -50,6 +51,14 @@ public class EEVersion implements Comparable<EEVersion> {
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     public int compareTo(EEVersion other) {
+        // JavaSE/compact{1..3} > JavaSE-N except when N = 1.8
+        final Version JAVA8 = Version.parseVersion("1.8");
+        if (type.equals(EEType.JAVA_SE) && version.equals(JAVA8) && other.type.profileName.contains("JavaSE/compact")) {
+            return 1;
+        } else if (other.type.equals(EEType.JAVA_SE) && other.version.equals(JAVA8)
+                && type.profileName.contains("JavaSE/compact")) {
+            return -1;
+        }
         int result = type.compareTo(other.type);
         if (result != 0) {
             return result;

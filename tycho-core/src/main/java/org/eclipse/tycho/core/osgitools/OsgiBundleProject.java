@@ -29,8 +29,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.osgi.framework.internal.core.Constants;
-import org.eclipse.osgi.framework.internal.core.FilterImpl;
+import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
+import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -441,7 +441,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project) {
-        String filterStr = getManifestValue(Constants.ECLIPSE_PLATFORMFILTER, project);
+        String filterStr = getManifestValue(EclipsePlatformNamespace.ECLIPSE_PLATFORM_FILTER_HEADER, project);
 
         if (filterStr != null) {
             try {
