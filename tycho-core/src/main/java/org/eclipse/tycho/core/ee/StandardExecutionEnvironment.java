@@ -100,7 +100,10 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                     version = Collections.max(osgiVersions);
                 }
                 String execEnv = systemCapValues[i].getAttribute("osgi.ee");
-                eeVersions.add(new EEVersion(version, EEType.fromName(execEnv)));
+                EEType eeType = EEType.fromName(execEnv);
+                if (eeType != null) {
+                    eeVersions.add(new EEVersion(version, eeType));
+                }
             }
             return Collections.max(eeVersions);
         } catch (BundleException e) {

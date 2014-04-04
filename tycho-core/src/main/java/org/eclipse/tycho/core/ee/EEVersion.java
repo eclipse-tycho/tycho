@@ -32,7 +32,8 @@ public class EEVersion implements Comparable<EEVersion> {
                     return type;
                 }
             }
-            throw new IllegalArgumentException(profileName);
+            // TODO 437923 add support for JavaSE/compact* execution profiles
+            return null;
         }
     }
 

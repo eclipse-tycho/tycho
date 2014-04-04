@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
@@ -41,7 +42,7 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
         setOsgiSystemCapabilities(systemCapabilities);
 
         // osgi.java.profile.name is not needed at runtime AFAIK but let's make it explicit that this is a custom profile
-        properties.setProperty(org.eclipse.osgi.framework.internal.core.Constants.OSGI_JAVA_PROFILE_NAME, profileName);
+        properties.setProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME, profileName);
     }
 
     private void setSystemPackages(List<SystemCapability> systemCapabilities) {

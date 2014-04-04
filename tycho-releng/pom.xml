@@ -93,10 +93,6 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/releases/kepler</url>
-							<layout>p2</layout>
-						</repository>
-						<repository>
 							<url>http://download.eclipse.org/releases/luna</url>
 							<layout>p2</layout>
 						</repository>
@@ -109,6 +105,14 @@
 						<iu>
 							<id>org.eclipse.osgi.source</id>
 							<version>${equinoxVersion}</version>
+						</iu>
+						<iu>
+							<id>org.eclipse.osgi.compatibility.state</id>
+							<version>${equinoxCompatVersion}</version>
+						</iu>
+						<iu>
+							<id>org.eclipse.osgi.compatibility.state.source</id>
+							<version>${equinoxCompatVersion}</version>
 						</iu>
 						<iu>
 							<id>org.eclipse.jdt.core</id>
@@ -189,7 +193,7 @@
 		<profile>
 			<id>deploy-equinox-snapshots</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<build>
 				<plugins>
@@ -207,6 +211,18 @@
 									<file>${downloaded}/org.eclipse.osgi_${equinoxVersion}.jar</file>
 									<sources>${downloaded}/org.eclipse.osgi.source_${equinoxVersion}.jar</sources>
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.pom</pomFile>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-equinox-compat</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${downloaded}/org.eclipse.osgi.compatibility.state_${equinoxCompatVersion}.jar</file>
+									<sources>${downloaded}/org.eclipse.osgi.compatibility.state.source_${equinoxCompatVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.compatibility.state.pom</pomFile>
 								</configuration>
 							</execution>
 						</executions>
@@ -261,6 +277,18 @@
 									<file>${downloaded}/org.eclipse.osgi_${equinoxVersion}.jar</file>
 									<sources>${downloaded}/org.eclipse.osgi.source_${equinoxVersion}.jar</sources>
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.pom</pomFile>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-equinox-compat</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>sign-and-deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${downloaded}/org.eclipse.osgi.compatibility.state_${equinoxCompatVersion}.jar</file>
+									<sources>${downloaded}/org.eclipse.osgi.compatibility.state.source_${equinoxCompatVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.compatibility.state.pom</pomFile>
 								</configuration>
 							</execution>
 						</executions>
