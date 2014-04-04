@@ -72,6 +72,16 @@
 							<version>${project.version}</version>
 						</artifact>
 					</target>
+					<dependency-resolution>
+						<extraRequirements>
+							<!-- p2 currently uses the Equinox compatibility fragment -->
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.osgi.compatibility.state</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+						</extraRequirements>
+					</dependency-resolution>
 				</configuration>
 			</plugin>
 		</plugins>
