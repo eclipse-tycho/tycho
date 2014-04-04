@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire.provisioning;
 
-import static org.eclipse.osgi.framework.adaptor.FrameworkAdaptor.FRAMEWORK_SYMBOLICNAME;
 import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN;
 
 import java.io.File;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.osgi.framework.adaptor.FrameworkAdaptor;
+import org.eclipse.osgi.internal.framework.EquinoxContainer;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.tycho.ArtifactDescriptor;
@@ -51,21 +50,21 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
         File pluginsDir = new File(location, "plugins");
         File[] systemBundles = pluginsDir.listFiles(new FileFilter() {
             public boolean accept(File file) {
-                return file.isFile() && file.getName().startsWith(FrameworkAdaptor.FRAMEWORK_SYMBOLICNAME + "_");
+                return file.isFile() && file.getName().startsWith(EquinoxContainer.NAME + "_");
             }
         });
         File systemBundle;
         if (systemBundles.length == 0) {
-            throw new IllegalArgumentException("No framework bundle " + FrameworkAdaptor.FRAMEWORK_SYMBOLICNAME
-                    + " found in " + pluginsDir);
+            throw new IllegalArgumentException("No framework bundle " + EquinoxContainer.NAME + " found in "
+                    + pluginsDir);
         } else if (systemBundles.length > 1) {
-            throw new IllegalArgumentException("Multiple versions of the framework bundle "
-                    + FrameworkAdaptor.FRAMEWORK_SYMBOLICNAME + " found in " + pluginsDir);
+            throw new IllegalArgumentException("Multiple versions of the framework bundle " + EquinoxContainer.NAME
+                    + " found in " + pluginsDir);
         } else {
             systemBundle = systemBundles[0];
         }
         String version = bundleReader.loadManifest(systemBundle).getBundleVersion();
-        ArtifactKey systemBundleKey = new DefaultArtifactKey(TYPE_ECLIPSE_PLUGIN, FRAMEWORK_SYMBOLICNAME, version);
+        ArtifactKey systemBundleKey = new DefaultArtifactKey(TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME, version);
         systemBundleDescriptor = new DefaultArtifactDescriptor(systemBundleKey, systemBundle, null, null, null);
         return systemBundleDescriptor;
     }

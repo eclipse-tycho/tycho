@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.osgi.framework.adaptor.FrameworkAdaptor;
+import org.eclipse.osgi.internal.framework.EquinoxContainer;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
@@ -68,8 +68,7 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
     }
 
     public ArtifactDescriptor getSystemBundle() {
-        return bundles.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN,
-                FrameworkAdaptor.FRAMEWORK_SYMBOLICNAME, null);
+        return bundles.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME, null);
     }
 
     public void addBundle(ArtifactDescriptor artifact) {

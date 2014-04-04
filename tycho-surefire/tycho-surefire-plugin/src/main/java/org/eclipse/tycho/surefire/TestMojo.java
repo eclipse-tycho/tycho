@@ -42,7 +42,7 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.eclipse.osgi.framework.internal.core.Constants;
+import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
@@ -1052,7 +1052,7 @@ public class TestMojo extends AbstractMojo {
             File profileFile = new File(new File(project.getBuild().getDirectory()), "custom.profile");
             storeProperties(customProfileProps, profileFile);
             try {
-                cli.addVMArguments("-D" + Constants.OSGI_JAVA_PROFILE + "=" + profileFile.toURL());
+                cli.addVMArguments("-D" + EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE + "=" + profileFile.toURL());
             } catch (MalformedURLException e) {
                 // should not happen
                 throw new RuntimeException(e);

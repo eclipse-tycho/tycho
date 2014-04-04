@@ -14,7 +14,7 @@ package org.eclipse.tycho.core.locking;
 import java.io.File;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.core.runtime.internal.adaptor.BasicLocation;
+import org.eclipse.osgi.internal.location.BasicLocation;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
@@ -25,7 +25,7 @@ public class FileLockServiceImpl implements FileLockService {
     private Location anyLocation;
 
     public FileLockServiceImpl() {
-        anyLocation = new BasicLocation(null, null, false, null);
+        anyLocation = new BasicLocation(null, null, false, null, null);
     }
 
     /*

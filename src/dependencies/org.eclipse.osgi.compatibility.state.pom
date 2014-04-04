@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2011, 2014 Sonatype Inc. and others.
+ - Copyright (c) 2014 SAP AG and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
  - http://www.eclipse.org/legal/epl-v10.html
  -
  - Contributors:
- -    Sonatype Inc. - initial API and implementation
- -->
-
-<!-- 
-This pom.xml is needed to satisfy Maven Central repository deployment requirements. 
+ -    SAP AG - initial API and implementation
  -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
@@ -19,11 +15,11 @@ This pom.xml is needed to satisfy Maven Central repository deployment requiremen
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.eclipse.tycho</groupId>
-  <artifactId>org.eclipse.osgi</artifactId>
-  <version>3.10.0.v20140305-1523</version>
+  <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
+  <version>1.0.0.v20140217-1923</version>
 
-  <name>Tycho org.eclipse.osgi dependency (Incubation)</name>
-  <description>This is org.eclipse.osgi jar used by Tycho</description>
+  <name>Tycho org.eclipse.osgi.compatibility.state dependency (Incubation)</name>
+  <description>This is org.eclipse.osgi.compatibility.state jar used by Tycho</description>
   <url>http://www.eclipse.org/tycho/</url>
 
   <licenses>
@@ -44,4 +40,12 @@ This pom.xml is needed to satisfy Maven Central repository deployment requiremen
       <name>Tycho Development Team</name>
     </developer>
   </developers>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.tycho</groupId>
+      <artifactId>org.eclipse.osgi</artifactId>
+      <version>3.10.0.v20140305-1523</version>
+    </dependency>
+  </dependencies>
 </project>
