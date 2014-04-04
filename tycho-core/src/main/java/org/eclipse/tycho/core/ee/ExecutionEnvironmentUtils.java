@@ -17,9 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.eclipse.osgi.framework.internal.core.Constants;
+import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.osgi.framework.BundleActivator;
+import org.osgi.framework.Constants;
 
 /**
  * Creative copy&paste from org.eclipse.osgi.framework.internal.core.Framework
@@ -90,20 +91,20 @@ public class ExecutionEnvironmentUtils {
                 properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES, systemExports);
         }
         // set the org.osgi.framework.bootdelegation property according to the java profile
-        String type = properties.getProperty(Constants.OSGI_JAVA_PROFILE_BOOTDELEGATION); // a null value means ignore
+        String type = properties.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_BOOTDELEGATION); // a null value means ignore
         String profileBootDelegation = profileProps.getProperty(Constants.FRAMEWORK_BOOTDELEGATION);
-        if (Constants.OSGI_BOOTDELEGATION_OVERRIDE.equals(type)) {
+        if (EquinoxConfiguration.PROP_OSGI_BOOTDELEGATION_OVERRIDE.equals(type)) {
             if (profileBootDelegation == null)
                 properties.remove(Constants.FRAMEWORK_BOOTDELEGATION); // override with a null value
             else
                 properties.put(Constants.FRAMEWORK_BOOTDELEGATION, profileBootDelegation); // override with the profile value
-        } else if (Constants.OSGI_BOOTDELEGATION_NONE.equals(type))
+        } else if (EquinoxConfiguration.PROP_OSGI_BOOTDELEGATION_NONE.equals(type))
             properties.remove(Constants.FRAMEWORK_BOOTDELEGATION); // remove the bootdelegation property in case it was set
         // set the org.osgi.framework.executionenvironment property according to the java profile
         if (properties.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT) == null) {
             // get the ee from the java profile; if no ee is defined then try the java profile name
             String ee = profileProps.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT,
-                    profileProps.getProperty(Constants.OSGI_JAVA_PROFILE_NAME));
+                    profileProps.getProperty(EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE_NAME));
             if (ee != null)
                 properties.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, ee);
         }
