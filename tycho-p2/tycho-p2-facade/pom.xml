@@ -31,11 +31,6 @@
 
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
