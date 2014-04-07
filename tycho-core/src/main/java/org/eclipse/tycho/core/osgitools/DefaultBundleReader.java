@@ -26,8 +26,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.util.IOUtil;
-import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
-import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.tycho.core.facade.LRUCache;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
@@ -80,59 +78,26 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         try {
             ZipEntry manifestEntry = jar.getEntry(JarFile.MANIFEST_NAME);
             if (manifestEntry != null) {
-                try {
-                    InputStream stream = jar.getInputStream(manifestEntry);
-                    return OsgiManifest.parse(stream, bundleLocation.getAbsolutePath() + "!/" + JarFile.MANIFEST_NAME);
-                } catch (InvalidOSGiManifestException e) {
-                    // jar with a non-OSGi MANIFEST - fall through
-                }
+                InputStream stream = jar.getInputStream(manifestEntry);
+                return OsgiManifest.parse(stream, bundleLocation.getAbsolutePath() + "!/" + JarFile.MANIFEST_NAME);
             }
         } finally {
             jar.close();
         }
-        // it is a jar, does not have OSGi bundle manifest, let's try plugin.xml/fragment.xml
-        File generatedManifest = convertPluginManifest(bundleLocation);
-        return loadManifestFile(generatedManifest);
+        throw new OsgiManifestParserException(bundleLocation.getAbsolutePath(),
+                "Manifest file not found in JAR archive");
     }
 
     private OsgiManifest loadManifestFromDirectory(File directory) throws IOException {
         File manifestFile = new File(directory, JarFile.MANIFEST_NAME);
         if (!manifestFile.isFile()) {
-            manifestFile = convertPluginManifest(directory);
+            throw new OsgiManifestParserException(manifestFile.getAbsolutePath(), "Manifest file not found");
         }
         return loadManifestFile(manifestFile);
     }
 
     private OsgiManifest loadManifestFile(File manifestFile) throws IOException, OsgiManifestParserException {
         return OsgiManifest.parse(new FileInputStream(manifestFile), manifestFile.getAbsolutePath());
-    }
-
-    private File convertPluginManifest(File bundleLocation) throws OsgiManifestParserException {
-        PluginConverter converter = new StandalonePluginConverter();
-        String name = bundleLocation.getName();
-        if (name.endsWith(".jar")) {
-            name = name.substring(0, name.length() - 4);
-        }
-        File manifestFile = new File(cacheDir, name + "/META-INF/MANIFEST.MF");
-        manifestFile.getParentFile().mkdirs();
-        try {
-            converter.convertManifest(bundleLocation, manifestFile, false /* compatibility */, "3.2" /*
-                                                                                                      * target
-                                                                                                      * version
-                                                                                                      */, true /*
-                                                                                                                * analyse
-                                                                                                                * jars
-                                                                                                                * to
-                                                                                                                * set
-                                                                                                                * export
-                                                                                                                * -
-                                                                                                                * package
-                                                                                                                */,
-                    null /* devProperties */);
-        } catch (PluginConversionException e) {
-            throw new OsgiManifestParserException(bundleLocation.getAbsolutePath(), e);
-        }
-        return manifestFile;
     }
 
     public void setLocationRepository(File basedir) {

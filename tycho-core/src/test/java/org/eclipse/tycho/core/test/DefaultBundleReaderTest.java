@@ -106,18 +106,6 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
         assertEquals("org.eclipse.tycho.test", manifest.getBundleSymbolicName());
     }
 
-    public void testLoadManifestFromDirPre30() throws Exception {
-        File dir = new File("src/test/resources/targetplatforms/pre-3.0/plugins/testdir_1.0.0");
-        OsgiManifest manifest = bundleReader.loadManifest(dir);
-        assertEquals("testdir", manifest.getBundleSymbolicName());
-    }
-
-    public void testLoadManifestFromJarPre30() throws Exception {
-        File jar = new File("src/test/resources/targetplatforms/pre-3.0/plugins/testjar_1.0.0.jar");
-        OsgiManifest manifest = bundleReader.loadManifest(jar);
-        assertEquals("testjar", manifest.getBundleSymbolicName());
-    }
-
     public void testLoadManifestFromInvalidDir() throws Exception {
         // dir has no META-INF/MANIFEST.MF nor plugin.xml/fragment.xml
         File dir = new File("src/test/resources/bundlereader/invalid");
@@ -125,7 +113,7 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
             bundleReader.loadManifest(dir);
             fail();
         } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("Could not find a META-INF/MANIFEST.MF, plugin.xml or a fragment.xml"));
+            assertTrue(e.getMessage().contains("Manifest file not found"));
         }
     }
 
@@ -155,7 +143,8 @@ public class DefaultBundleReaderTest extends AbstractTychoMojoTestCase {
             bundleReader.loadManifest(plainJar);
             fail();
         } catch (OsgiManifestParserException e) {
-            assertTrue(e.getMessage().contains("Could not find a META-INF/MANIFEST.MF, plugin.xml or a fragment.xml"));
+            assertTrue(e.getMessage().contains("MANIFEST header"));
+            assertTrue(e.getMessage().contains("not found"));
         }
     }
 

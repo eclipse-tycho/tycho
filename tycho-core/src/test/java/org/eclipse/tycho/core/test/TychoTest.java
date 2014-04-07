@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
@@ -29,7 +28,6 @@ import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.resolver.DefaultTargetPlatformConfigurationReader;
 import org.eclipse.tycho.core.resolver.TargetPlatformConfigurationException;
@@ -164,25 +162,6 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("fragment", clientDependencies.get(1).getArtifactId());
         assertEquals("dep", clientDependencies.get(2).getArtifactId());
         assertEquals("fragment2", clientDependencies.get(3).getArtifactId());
-    }
-
-    public void testPre30() throws Exception {
-        File basedir = getBasedir("projects/dummy");
-
-        MavenExecutionRequest request = newMavenExecutionRequest(new File(basedir, "pom.xml"));
-        File platformLocation = new File("src/test/resources/targetplatforms/pre-3.0");
-        MavenProject project = getSortedProjects(basedir, platformLocation).get(0);
-
-        TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
-        DependencyArtifacts platform = projectType.getDependencyArtifacts(project);
-
-        assertNotNull(platform.getArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, "testjar", "1.0.0"));
-        assertNotNull(platform.getArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, "testdir", "1.0.0"));
-
-        File cacheDir = new File(request.getLocalRepository().getBasedir(), DefaultBundleReader.CACHE_PATH);
-
-        assertTrue(new File(cacheDir, "testdir_1.0.0/META-INF/MANIFEST.MF").canRead());
-        assertTrue(new File(cacheDir, "testjar_1.0.0/META-INF/MANIFEST.MF").canRead());
     }
 
     public void testMNGECLIPSE942() throws Exception {
