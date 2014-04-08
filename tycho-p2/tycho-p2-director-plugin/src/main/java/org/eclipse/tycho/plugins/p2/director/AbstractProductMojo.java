@@ -109,6 +109,18 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * @parameter
      */
     private List<Product> products;
+    
+	/**
+	 * Kill the forked process after a certain number of seconds. If set to
+	 * 0, wait forever for the process, never timing out.
+	 * 
+	 * @parameter expression="${p2.timeout}" default-value="0"
+	 */
+	private int forkedProcessTimeoutInSeconds;
+
+	int getForkedProcessTimeoutInSeconds() {
+		return forkedProcessTimeoutInSeconds;
+	}
 
     MavenProject getProject() {
         return project;

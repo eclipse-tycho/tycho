@@ -157,7 +157,7 @@ public final class DirectorMojo extends AbstractProductMojo {
         case standalone:
             // separate director installation in the target folder
             return standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
-                    getSession().getLocalRepository());
+                    getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
 
         default:
             throw new MojoFailureException("Unsupported value for attribute 'directorRuntime': \"" + directorRuntime
