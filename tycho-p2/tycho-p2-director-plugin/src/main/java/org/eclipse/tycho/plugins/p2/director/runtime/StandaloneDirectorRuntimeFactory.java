@@ -44,10 +44,10 @@ public class StandaloneDirectorRuntimeFactory {
     private Logger logger;
 
     public StandaloneDirectorRuntime createStandaloneDirector(File installLocation,
-            ArtifactRepository localMavenRepository) throws MojoExecutionException {
+            ArtifactRepository localMavenRepository, int forkedProcessTimeoutInSeconds) throws MojoExecutionException {
 
         installStandaloneDirector(installLocation, localMavenRepository);
-        return new StandaloneDirectorRuntime(installLocation, launchHelper, logger);
+        return new StandaloneDirectorRuntime(installLocation, launchHelper, forkedProcessTimeoutInSeconds, logger);
     }
 
     private void installStandaloneDirector(File installLocation, ArtifactRepository localMavenRepository)
