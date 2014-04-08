@@ -32,11 +32,14 @@ public class StandaloneDirectorRuntime implements DirectorRuntime {
     private final File runtimeLocation;
     private final EquinoxLauncher launchHelper;
     private Logger logger;
+    private final int forkedProcessTimeoutInSeconds;
 
-    StandaloneDirectorRuntime(File runtimeLocation, EquinoxLauncher launchHelper, Logger logger) {
+    StandaloneDirectorRuntime(File runtimeLocation, EquinoxLauncher launchHelper, int forkedProcessTimeoutInSeconds,
+            Logger logger) {
         this.runtimeLocation = runtimeLocation;
         this.launchHelper = launchHelper;
         this.logger = logger;
+        this.forkedProcessTimeoutInSeconds = forkedProcessTimeoutInSeconds;
     }
 
     public Command newInstallCommand() {
@@ -53,7 +56,7 @@ public class StandaloneDirectorRuntime implements DirectorRuntime {
                         programArguments);
 
                 logger.info("Using the standalone p2 Director to install the product...");
-                int exitCode = launchHelper.execute(launch, 60);
+                int exitCode = launchHelper.execute(launch, forkedProcessTimeoutInSeconds);
                 if (exitCode != 0) {
                     throw new DirectorCommandException("Call to p2 director application failed with exit code "
                             + exitCode + ". Program arguments were: " + programArguments + ".");
