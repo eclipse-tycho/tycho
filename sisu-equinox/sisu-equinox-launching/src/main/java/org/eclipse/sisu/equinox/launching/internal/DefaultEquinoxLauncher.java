@@ -12,6 +12,7 @@ package org.eclipse.sisu.equinox.launching.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.exec.CommandLine;
@@ -19,6 +20,7 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -63,12 +65,7 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
         executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
         executor.setWorkingDirectory(configuration.getWorkingDirectory());
         try {
-            Map<String, String> environment = configuration.getEnvironment();
-            if (environment.isEmpty()) {
-                // null means use the current environment
-                environment = null;
-            }
-            return executor.execute(cli, environment);
+            return executor.execute(cli, getMergedEnvironment(configuration));
         } catch (ExecuteException e) {
             if (watchdog != null && watchdog.killedProcess()) {
                 log.error("Timeout " + forkedProcessTimeoutInSeconds + " s exceeded. Process was killed.");
@@ -77,6 +74,12 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
         } catch (IOException e) {
             throw new EquinoxLaunchingException(e);
         }
+    }
+
+    private static Map<String, String> getMergedEnvironment(LaunchConfiguration configuration) throws IOException {
+        Map<String, String> currentEnv = new HashMap<String, String>(EnvironmentUtils.getProcEnvironment());
+        currentEnv.putAll(configuration.getEnvironment());
+        return currentEnv;
     }
 
     private String getCanonicalPath(File file) throws EquinoxLaunchingException {
