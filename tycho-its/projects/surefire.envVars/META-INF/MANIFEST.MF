@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: tycho.431793
+Bundle-Version: 0.0.1.qualifier
+Require-Bundle: org.junit;bundle-version="4.0.0"
