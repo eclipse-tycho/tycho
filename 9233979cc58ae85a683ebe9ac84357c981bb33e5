@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0756a345_acad1772",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/AbstractProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-04-09T06:40:40Z",
+      "side": 1,
+      "message": "formatting is off, please use eclipse and let it format on save (as per checked-in project settings)",
+      "revId": "9233979cc58ae85a683ebe9ac84357c981bb33e5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_0cbb63aa",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/runtime/StandaloneDirectorRuntime.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-04-09T06:40:40Z",
+      "side": 1,
+      "message": "should be final",
+      "revId": "9233979cc58ae85a683ebe9ac84357c981bb33e5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
