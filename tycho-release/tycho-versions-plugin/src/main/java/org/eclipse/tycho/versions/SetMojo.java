@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,31 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 
 /**
- * @author igor
+ * <p>
+ * Sets the version of the current project and child projects with the same version, and updates
+ * references as necessary.
+ * </p>
+ * <p>
+ * The set-version goal implements a version refactoring for a Tycho reactor: When updating the
+ * version of a project, it consistently updates the version strings in the project's configuration
+ * files (e.g. pom.xml and META-INF/MANIFEST.MF) and all references to that project (e.g. in a
+ * feature.xml).
+ * </p>
+ * <p>
+ * In many cases, the set-version goal changes the version of multiple projects or entities at once.
+ * In addition to the current project, child projects with the same version are also changed. The
+ * set of version changes is determined according to the following rules:
+ * </p>
+ * <ul>
+ * <li>When the parent project of a project is changed and the project has the same version as the
+ * parent project, the project is also changed.</li>
+ * <li>When an <tt>eclipse-plugin</tt> project is changed and the plugin exports a package with a
+ * version which is the same as the unqualified project version, the version of the package is also
+ * changed.
+ * <li>When an <tt>eclipse-repository</tt> project is changed and a product file in the project has
+ * an equivalent version, the version in the product file is also changed.</li>
+ * </ul>
+ * 
  * @goal set-version
  * @aggregator
  * @requiresProject true
@@ -29,7 +53,10 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
  */
 public class SetMojo extends AbstractVersionsMojo {
     /**
-     * The new version number to set.
+     * <p>
+     * The new version to set to the current project and other entities which have the same version
+     * as the current project.
+     * </p>
      * 
      * @parameter expression="${newVersion}"
      * @required
@@ -37,19 +64,24 @@ public class SetMojo extends AbstractVersionsMojo {
     private String newVersion;
 
     /**
-     * Comma separated list of artifact ids to set the new version to.
-     * <p/>
-     * By default, the new version will be set on the current project and all references to the
-     * project, including all <parent/> elements if the project is a parent pom.
+     * <p>
+     * Initial list of of projects to be changed. From these projects, the full list of projects to
+     * be changed is derived according to the rules described above. If set, this parameter needs to
+     * be specified as a comma separated list of artifactIds.
+     * </p>
      * 
      * @parameter expression="${artifacts}" default-value="${project.artifactId}"
      */
     private String artifacts;
 
     /**
-     * Comma separated list of names of pom properties to set the new version to. Properties are
-     * changed in projects identified by {@link #artifacts} parameter only.
+     * <p>
+     * Comma separated list of names of POM properties to set the new version to. Note that
+     * properties are only changed in the projects explicitly listed by the {@link #artifacts}
+     * parameter.
+     * </p>
      * 
+     * @since 0.18.0
      * @parameter expression="${properties}"
      */
     private String properties;
