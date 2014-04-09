@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0756a345_60a783c5",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/main/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxLauncher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-04-09T10:10:02Z",
+      "side": 1,
+      "message": "Does order matter here?",
+      "revId": "eace91c94758c47cbfb0f82730578ab837ae82d6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
