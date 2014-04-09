@@ -16,6 +16,24 @@
       "revId": "eace91c94758c47cbfb0f82730578ab837ae82d6",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_e0bef3aa",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/main/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxLauncher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-04-09T11:29:13Z",
+      "side": 1,
+      "message": "if you mean key order inside the map: I don\u0027t think so. However on windows, it\u0027s a TreeMap with case-insensitive keys so I should rather re-use the (copied) map from (EnvironmentUtils.getProcEnvironment() instead of creating a copy.\n\nIf you mean precedence of inherited from process vs. configured in pom: Explicitly configured must win I think.",
+      "parentUuid": "0756a345_60a783c5",
+      "revId": "eace91c94758c47cbfb0f82730578ab837ae82d6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
