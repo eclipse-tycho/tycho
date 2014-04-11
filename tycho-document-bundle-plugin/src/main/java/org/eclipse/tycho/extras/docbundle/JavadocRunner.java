@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Set;
 
+import org.apache.commons.exec.OS;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -217,10 +218,18 @@ public class JavadocRunner {
             }
         }
 
-        String javadocFromJavaHome = System.getProperty("java.home") + File.separator + "bin" + File.separator
-                + "javadoc";
+        String javaHome = System.getProperty("java.home");
+        String javadocFromJavaHome;
 
-        if (SystemHelper.isWindows()) {
+        // derive path to javac from java.home similar to org.codehaus.plexus.compiler.javac.JavacCompiler.getJavacExecutable() in plexus-compiler-javac
+        if (OS.isFamilyMac()) {
+            javadocFromJavaHome = javaHome + File.separator + "bin" + File.separator + "javadoc";
+        } else {
+            javadocFromJavaHome = javaHome + File.separator + ".." + File.separator + "bin" + File.separator
+                    + "javadoc";
+        }
+
+        if (OS.isFamilyWindows()) {
             javadocFromJavaHome += ".exe";
         }
 
