@@ -21,10 +21,11 @@ public final class ConfigSpec {
     private final String arch;
 
     public static ConfigSpec createFromWsOsArch(String wsOsArchDotSeparated) {
-        if (wsOsArchDotSeparated.equals(""))
+        if (wsOsArchDotSeparated.equals("")) {
             return GLOBAL;
-        else
+        } else {
             return new ConfigSpec(wsOsArchDotSeparated.split("\\."));
+        }
     }
 
     public static ConfigSpec createFromOsWsArchArray(String[] segments, int beginIndex) {
@@ -55,8 +56,9 @@ public final class ConfigSpec {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
         if (obj instanceof ConfigSpec) {
             ConfigSpec other = (ConfigSpec) obj;
             return equals(ws, other.ws) && equals(os, other.os) && equals(arch, other.arch);
@@ -65,10 +67,12 @@ public final class ConfigSpec {
     }
 
     private <T> boolean equals(T left, T right) {
-        if (left == right)
+        if (left == right) {
             return true;
-        if (left == null)
+        }
+        if (left == null) {
             return false;
+        }
         return left.equals(right);
     }
 
@@ -77,8 +81,9 @@ public final class ConfigSpec {
     }
 
     public String toStringForAdvice() {
-        if (this.equals(GLOBAL))
+        if (this.equals(GLOBAL)) {
             return "";
+        }
         return ws + '.' + os + '.' + arch;
     }
 
