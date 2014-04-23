@@ -57,6 +57,11 @@
 			<version>${project.version}</version>
 			<type>zip</type>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.7</version>
+		</dependency>
 	</dependencies>
 
 	<build>
