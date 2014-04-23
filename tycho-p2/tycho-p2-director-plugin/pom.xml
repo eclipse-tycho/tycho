@@ -57,6 +57,18 @@
 			<version>${project.version}</version>
 			<type>zip</type>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.7</version>
+		</dependency>
+		<!-- for crypto reasons, we have to include sources, see https://dev.eclipse.org/ipzilla/show_bug.cgi?id=8090  -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.7</version>
+			<classifier>sources</classifier>
+		</dependency>
 	</dependencies>
 
 	<build>
