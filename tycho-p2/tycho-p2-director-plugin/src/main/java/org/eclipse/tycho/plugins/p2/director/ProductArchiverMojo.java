@@ -24,6 +24,7 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.plugins.tar.TarGzArchiver;
 
 /**
  * <p>
@@ -87,6 +88,8 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
      */
     private MavenProjectHelper helper;
 
+    private static final boolean HAS_JAVA_NIO = checkForJavaNio();
+
     public ProductArchiverMojo() {
         productArchivers = new HashMap<String, ProductArchiver>();
 
@@ -111,6 +114,14 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
             }
         });
 
+    }
+
+    private static boolean checkForJavaNio() {
+        try {
+            return Class.forName("java.nio.file.Files") != null;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -141,10 +152,17 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                         + getOsWsArch(env, '.') + "." + format);
 
                 try {
-                    Archiver archiver = productArchiver.getArchiver();
-                    archiver.setDestFile(productArchive);
-                    archiver.addDirectory(getProductMaterializeDirectory(product, env));
-                    archiver.createArchive();
+                    final File sourceDir = getProductMaterializeDirectory(product, env);
+                    if (HAS_JAVA_NIO && "tar.gz".equals(format)
+                            && !"plexus".equals(getSession().getUserProperties().getProperty("tycho.tar"))) {
+                        getLog().debug("Using commons-compress tar");
+                        createCommonsCompressTarGz(productArchive, sourceDir);
+                    } else {
+                        Archiver archiver = productArchiver.getArchiver();
+                        archiver.setDestFile(productArchive);
+                        archiver.addDirectory(sourceDir);
+                        archiver.createArchive();
+                    }
                 } catch (ArchiverException e) {
                     throw new MojoExecutionException("Error packing product", e);
                 } catch (IOException e) {
@@ -155,6 +173,14 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 helper.attachArtifact(getProject(), format, artifactClassifier, productArchive);
             }
         }
+    }
+
+    private void createCommonsCompressTarGz(File productArchive, File sourceDir) throws IOException {
+        TarGzArchiver archiver = new TarGzArchiver();
+        archiver.setLog(getLog());
+        archiver.addDirectory(sourceDir);
+        archiver.setDestFile(productArchive);
+        archiver.createArchive();
     }
 
     static String getArchiveFileName(Product product) {
