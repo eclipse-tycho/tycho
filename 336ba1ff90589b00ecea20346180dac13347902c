@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0756a345_5f894d31",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/tar/FilePermissionHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-04-25T12:00:57Z",
+      "side": 1,
+      "message": "Definitely not a major problem, but IMHO readability could be improved by adding some prefix to the constants defined here.",
+      "revId": "336ba1ff90589b00ecea20346180dac13347902c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
