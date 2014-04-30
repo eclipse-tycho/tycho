@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0756a345_33248860",
+        "filename": "tycho-p2/tycho-p2-director-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-04-30T14:10:30Z",
+      "side": 1,
+      "message": "This does not include commons-compress sources either into Tycho source tree or in packaged binaries we distribute. Looks quite pointless to me.",
+      "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_9366349f",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/ProductArchiverMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-04-30T14:10:30Z",
+      "side": 1,
+      "message": "Nitpicking, I\u0027d add \"final\"",
+      "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_f374d042",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/tar/TarGzArchiver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-04-30T14:10:30Z",
+      "side": 1,
+      "message": "This code requires java 7 already, I suggest using try-with-resource",
+      "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
