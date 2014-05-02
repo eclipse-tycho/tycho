@@ -104,6 +104,24 @@
       "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_8b06f891",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/tar/TarGzArchiver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-05-02T11:11:34Z",
+      "side": 1,
+      "message": "yes, agree, I was not thinking clearly when I reviewed this.",
+      "parentUuid": "0756a345_cb7d9059",
+      "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
