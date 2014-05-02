@@ -75,6 +75,7 @@ public class ProductConfigurationTest {
         Assert.assertEquals("32-8", launcher.getWindowsIcon().get(Launcher.ICON_WINDOWS_MEDIUM_LOW));
         Assert.assertEquals("48-32", launcher.getWindowsIcon().get(Launcher.ICON_WINDOWS_LARGE_HIGH));
         Assert.assertEquals("48-8", launcher.getWindowsIcon().get(Launcher.ICON_WINDOWS_LARGE_LOW));
+        Assert.assertEquals("256-32", launcher.getWindowsIcon().get(Launcher.ICON_WINDOWS_EXTRA_LARGE_HIGH));
 
         List<PluginRef> plugins = config.getPlugins();
         Assert.assertNotNull(plugins);

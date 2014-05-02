@@ -24,6 +24,8 @@ public class Launcher {
 
     public static final String ICON_WINDOWS_ICO_PATH = "path";
 
+    public static final String ICON_WINDOWS_EXTRA_LARGE_HIGH = "winExtraLargeHigh";
+
     public static final String ICON_WINDOWS_LARGE_LOW = "winLargeLow";
 
     public static final String ICON_WINDOWS_LARGE_HIGH = "winLargeHigh";
@@ -116,6 +118,8 @@ public class Launcher {
                 putIfNotNull(windows, ICON_WINDOWS_MEDIUM_LOW, bmp.getAttributeValue(ICON_WINDOWS_MEDIUM_LOW));
                 putIfNotNull(windows, ICON_WINDOWS_LARGE_HIGH, bmp.getAttributeValue(ICON_WINDOWS_LARGE_HIGH));
                 putIfNotNull(windows, ICON_WINDOWS_LARGE_LOW, bmp.getAttributeValue(ICON_WINDOWS_LARGE_LOW));
+                putIfNotNull(windows, ICON_WINDOWS_EXTRA_LARGE_HIGH,
+                        bmp.getAttributeValue(ICON_WINDOWS_EXTRA_LARGE_HIGH));
             }
         }
         return Collections.unmodifiableMap(windows);

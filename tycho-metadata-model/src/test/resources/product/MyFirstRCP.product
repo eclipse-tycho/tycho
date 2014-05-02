@@ -46,7 +46,8 @@
             winMediumHigh="32-32"
             winMediumLow="32-8"
             winLargeHigh="48-32"
-            winLargeLow="48-8"/>
+            winLargeLow="48-8"
+            winExtraLargeHigh="256-32"/>
       </win>
    </launcher>
    
