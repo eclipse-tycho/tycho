@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0756a345_cb5470d1",
+        "filename": "tycho-p2/tycho-p2-director-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-05-02T07:07:10Z",
+      "side": 1,
+      "message": "depending on classifier \"sources\" causes the source jar to be downloaded to local maven repo as soon as you use this tycho module. I think this is as close as I can get to the requirement from eclipse IP department \"must ship commons-compress sources with Tycho\".  I don\u0027t want to package commons-compress sources into tycho binaries - they don\u0027t belong there.  I simply make sure you get the sources along with the binary as soon as you use tycho - that\u0027s enough from my point of view to satisfy the legal requirement.",
+      "parentUuid": "0756a345_33248860",
+      "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0756a345_9366349f",
         "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/ProductArchiverMojo.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "0756a345_2b640cc3",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/ProductArchiverMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-05-02T07:07:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0756a345_9366349f",
+      "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0756a345_f374d042",
         "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/tar/TarGzArchiver.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2014-04-30T14:10:30Z",
       "side": 1,
       "message": "This code requires java 7 already, I suggest using try-with-resource",
+      "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_cb7d9059",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/tar/TarGzArchiver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-05-02T07:07:10Z",
+      "side": 1,
+      "message": "this would require changing both compiler source \u0026 target level to 1.7 for the whole module. The rest of the code must still run on Java 6, so I can\u0027t use Java 7 source constructs here. To do this, I would have to move out only the Java 7 code to a separate module which I would find kind of over-engineered.",
+      "parentUuid": "0756a345_f374d042",
       "revId": "983ac0c8071db2fbfbf49c1d586a9ef5e972790a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
