@@ -1,0 +1,9 @@
+Code-Review+2: Jan Sievers <jan.sievers@sap.com>
+Verified+1: Jan Sievers <jan.sievers@sap.com>
+Verified+1: Hudson CI
+Code-Review+1: Igor Fedorenko <igor@ifedorenko.com>
+Submitted-by: Jan Sievers <jan.sievers@sap.com>
+Submitted-at: Mon, 05 May 2014 07:51:29 -0400
+Reviewed-on: https://git.eclipse.org/r/25798
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
