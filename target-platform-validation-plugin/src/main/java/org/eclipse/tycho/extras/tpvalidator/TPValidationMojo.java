@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Red Hat, Inc and others.
+ * Copyright (c) 2012, 2014 Red Hat, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,9 +22,11 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
-import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 /**
@@ -49,6 +51,17 @@ public class TPValidationMojo extends AbstractMojo {
      */
     private boolean failOnError;
 
+    /**
+     * Check that, for each artifact from the target file, the dependencies of the artifact are also
+     * contained in the target file. Also check that there are no conflicting artifacts, i.e.
+     * artifact which could not be installed together. When this check passes, none of the artifacts
+     * should lead to dependency resolution problems when used in a Tycho project.
+     * 
+     * @parameter default-value="false"
+     * @since 0.21.0
+     */
+    private boolean checkDependencies;
+
     /** @parameter default-value="JavaSE-1.6" */
     private String executionEnvironment;
 
@@ -59,11 +72,9 @@ public class TPValidationMojo extends AbstractMojo {
     private Logger logger;
 
     private P2ResolverFactory factory;
-    protected P2Resolver p2;
 
     public void execute() throws MojoExecutionException {
         this.factory = this.equinox.getService(P2ResolverFactory.class);
-        this.p2 = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));
 
         List<TPError> errors = new ArrayList<TPError>();
         for (File targetFile : this.targetFiles) {
@@ -103,12 +114,24 @@ public class TPValidationMojo extends AbstractMojo {
             // create resolver
             this.logger.info("Validating " + targetFile + "...");
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
+            tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 
             TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
-
-            tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
             tpConfiguration.addTargetDefinition(targetDefinition);
-            P2ResolutionResult result = this.p2.resolveMetadata(tpConfiguration, executionEnvironment);
+
+            P2Resolver resolver = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));
+            if (checkDependencies) {
+                for (Location location : targetDefinition.getLocations()) {
+                    if (location instanceof InstallableUnitLocation) {
+                        InstallableUnitLocation p2Loc = (InstallableUnitLocation) location;
+                        for (Unit unit : p2Loc.getUnits()) {
+                            // make dependency resolver resolve everything simultaneously
+                            resolver.addDependency(P2Resolver.TYPE_INSTALLABLE_UNIT, unit.getId(), unit.getVersion());
+                        }
+                    }
+                }
+                resolver.resolveMetadata(tpConfiguration, executionEnvironment);
+            }
         } catch (Exception ex) {
             throw new TPError(targetFile, ex);
         }
