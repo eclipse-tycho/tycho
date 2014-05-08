@@ -122,6 +122,27 @@ public class TarGzArchiverTest {
     }
 
     @Test
+    public void testRelativeSymbolicLinkWithinArchivePreserved() throws Exception {
+        createSymbolicLink(new File(archiveRoot, "dir2/testSymLink"), Paths.get("../", "test.sh"));
+        archiver.createArchive();
+        TarArchiveEntry symLinkEntry = getTarEntries().get("dir2/testSymLink");
+        assertTrue(symLinkEntry.isSymbolicLink());
+        assertEquals("../test.sh", symLinkEntry.getLinkName());
+    }
+
+    @Test
+    public void testSymbolicLinkAbsoluteTargetConvertedToRelative() throws Exception {
+        // use absolute path as symlink target
+        Path absoluteLinkTarget = new File(archiveRoot, "dir2/dir3/test.sh").getAbsoluteFile().toPath();
+        createSymbolicLink(new File(archiveRoot, "dir2/testSymLink"), absoluteLinkTarget);
+        archiver.createArchive();
+        TarArchiveEntry symLinkEntry = getTarEntries().get("dir2/testSymLink");
+        assertTrue(symLinkEntry.isSymbolicLink());
+        final String relativeLinkTarget = "dir3/test.sh";
+        assertEquals(relativeLinkTarget, symLinkEntry.getLinkName());
+    }
+
+    @Test
     public void testSymbolicLinkOutsideArchiveInlined() throws Exception {
         File linkTargetFile = tempFolder.newFile("linkTargetOutsideArchiveRoot");
         FileUtils.fileWrite(linkTargetFile, "testContent");

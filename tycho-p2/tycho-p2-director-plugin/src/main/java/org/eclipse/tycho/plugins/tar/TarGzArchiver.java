@@ -121,7 +121,7 @@ public class TarGzArchiver {
         if (isSymbolicLink(source) && resolvesBelow(source, tarRootDir)) {
             // only create symlink entry if link target is inside archive
             tarEntry = new TarArchiveEntry(pathInTar, TarArchiveEntry.LF_SYMLINK);
-            tarEntry.setLinkName(slashify(getRelativeSymLinkTarget(source, tarRootDir)));
+            tarEntry.setLinkName(slashify(getRelativeSymLinkTarget(source, source.getParentFile())));
         } else {
             tarEntry = new TarArchiveEntry(source, pathInTar);
         }
