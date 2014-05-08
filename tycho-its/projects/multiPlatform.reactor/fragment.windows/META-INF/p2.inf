@@ -1,0 +1,5 @@
+# add some other provided capability; this caused an NPE - see bug 433522
+
+provides.0.namespace=some-other-namespace
+provides.0.name=fragment.for.mpr.bundle
+provides.0.version=0.0.1.$qualifier$
