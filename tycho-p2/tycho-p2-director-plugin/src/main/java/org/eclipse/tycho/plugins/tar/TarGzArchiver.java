@@ -118,10 +118,10 @@ public class TarGzArchiver {
         String pathInTar = slashify(tarRootDir.toPath().relativize(source.toPath()));
         log.debug("Adding entry " + pathInTar);
         TarArchiveEntry tarEntry;
-        if (isSymbolicLink(source) && resolvesBelow(source, tarRootDir)) {
+        if (isSymbolicLink(source) && resolvesBelow(source.toPath(), tarRootDir.toPath())) {
             // only create symlink entry if link target is inside archive
             tarEntry = new TarArchiveEntry(pathInTar, TarArchiveEntry.LF_SYMLINK);
-            tarEntry.setLinkName(slashify(getRelativeSymLinkTarget(source, tarRootDir)));
+            tarEntry.setLinkName(slashify(getRelativeSymLinkTarget(source.toPath(), tarRootDir.toPath())));
         } else {
             tarEntry = new TarArchiveEntry(source, pathInTar);
         }
@@ -168,19 +168,32 @@ public class TarGzArchiver {
         }
     }
 
-    private boolean resolvesBelow(File source, File baseDir) throws IOException {
-        return !getRelativeSymLinkTarget(source, baseDir).startsWith("..");
+    private boolean resolvesBelow(Path source, Path baseDir) throws IOException {
+        return ! resolvedLinkTargetIsOutside(resolveLinkTarget(source), baseDir);
     }
 
-    private Path getRelativeSymLinkTarget(File source, File baseDir) throws IOException {
-        Path sourcePath = source.toPath();
-        Path linkTarget = Files.readSymbolicLink(sourcePath);
+    private Path getRelativeSymLinkTarget(Path source, Path baseDir) throws IOException {
         // link target may be relative, so we resolve it first
-        Path resolvedLinkTarget = sourcePath.getParent().resolve(linkTarget);
-        Path relative = baseDir.toPath().relativize(resolvedLinkTarget);
-        Path normalizedSymLinkPath = relative.normalize();
-        log.debug("Detected relative symlink target " + slashify(normalizedSymLinkPath) + " for " + source);
-        return normalizedSymLinkPath;
+        Path resolvedLinkTarget = resolveLinkTarget(source);
+        if (resolvedLinkTargetIsOutside(resolvedLinkTarget, baseDir)) {
+       	    Path relative = baseDir.relativize(resolvedLinkTarget);
+            log.debug("Detected symlink target outside of tar file: " + slashify(relative) + " for " + source);
+	    return relative;
+        }
+        return resolveRelativeLinkTarget(source);
+    }
+
+    private Path resolveLinkTarget(Path source) throws IOException {
+        Path linkTarget = resolveRelativeLinkTarget(source);
+        return source.getParent().resolve(linkTarget);
+    }
+
+    private Path resolveRelativeLinkTarget(Path source) throws IOException {
+        return Files.readSymbolicLink(source);
+    }
+
+    private boolean resolvedLinkTargetIsOutside(Path resolved, Path baseDir) {
+        return ! resolved.startsWith(baseDir);
     }
 
     private static boolean isSymbolicLink(File file) {
