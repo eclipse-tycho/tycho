@@ -314,8 +314,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     private boolean isBundleOrFragmentWithId(IInstallableUnit iu, String id) {
         for (IProvidedCapability provided : iu.getProvidedCapabilities()) {
-            if (BundlesAction.CAPABILITY_NS_OSGI_BUNDLE.equals(provided.getNamespace())
-                    || BundlesAction.CAPABILITY_NS_OSGI_FRAGMENT.equals(provided.getNamespace())) {
+            if (BundlesAction.CAPABILITY_NS_OSGI_BUNDLE.equals(provided.getNamespace())) {
                 return id.equals(provided.getName());
             }
         }
