@@ -121,7 +121,7 @@ public class TarGzArchiver {
         if (isSymbolicLink(source) && resolvesBelow(source, tarRootDir)) {
             // only create symlink entry if link target is inside archive
             tarEntry = new TarArchiveEntry(pathInTar, TarArchiveEntry.LF_SYMLINK);
-            tarEntry.setLinkName(slashify(getRelativeSymLinkTarget(source, tarRootDir)));
+            tarEntry.setLinkName(slashify(getRelativeSymLinkTarget(source, source.getParentFile())));
         } else {
             tarEntry = new TarArchiveEntry(source, pathInTar);
         }
@@ -179,7 +179,8 @@ public class TarGzArchiver {
         Path resolvedLinkTarget = sourcePath.getParent().resolve(linkTarget);
         Path relative = baseDir.toPath().relativize(resolvedLinkTarget);
         Path normalizedSymLinkPath = relative.normalize();
-        log.debug("Detected relative symlink target " + slashify(normalizedSymLinkPath) + " for " + source);
+        log.debug("Computed symlink target path " + slashify(normalizedSymLinkPath) + " for symlink " + source
+                + " relative to " + baseDir);
         return normalizedSymLinkPath;
     }
 
