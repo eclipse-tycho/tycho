@@ -16,6 +16,24 @@
       "revId": "e95aee03d922426f83ea5f33557d8ddc3bc64af9",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_bb2a137c",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-05-09T14:14:01Z",
+      "side": 1,
+      "message": "eclipse platform. See\n\nhttp://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/tree/eclipse-platform-parent/pom.xml#n59\n\nAnyway this is temporary only in order to get early feedback and will be removed before we release. Do you know a better maven repo for JDT binaries?",
+      "parentUuid": "0756a345_9b0e2f40",
+      "revId": "e95aee03d922426f83ea5f33557d8ddc3bc64af9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
