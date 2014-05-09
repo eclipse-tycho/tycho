@@ -139,7 +139,8 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 		 -->
 
 		<equinoxVersion>3.9.1.v20130814-1242</equinoxVersion>
-		<jdtVersion>3.9.1.v20130905-0837</jdtVersion>
+		<!-- JDT version from Luna M7 -->
+		<jdtVersion>3.10.0.v20140430-2322</jdtVersion>
 		<jdtAptVersion>1.0.600.v20130530-1010</jdtAptVersion>
 
 		<!-- version of tycho used by this build -->
@@ -147,6 +148,22 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 
 	</properties>
 
+<!-- temporarily use preview release of Luna Java8-capable JDT compiler -->
+<!-- TODO 430986 remove these repositories before we release 0.21.0 -->
+	<repositories>
+		<repository>
+			<id>jdt.java8.staging</id>
+			<url>https://repo.eclipse.org/content/repositories/eclipse-staging/</url>
+		</repository>
+	</repositories>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>jdt.java8.staging</id>
+			<url>https://repo.eclipse.org/content/repositories/eclipse-staging/</url>
+		</pluginRepository>
+	</pluginRepositories>
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -237,11 +254,17 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 				<artifactId>org.eclipse.osgi</artifactId>
 				<version>${equinoxVersion}</version>
 			</dependency>
+			<!-- TODO 430986 use JDT from Luna final -->
 			<dependency>
-				<groupId>org.eclipse.tycho</groupId>
+				<groupId>org.eclipse.jdt</groupId>
 				<artifactId>org.eclipse.jdt.core</artifactId>
 				<version>${jdtVersion}</version>
 			</dependency>
+<!-- 			<dependency> -->
+<!-- 				<groupId>org.eclipse.tycho</groupId> -->
+<!-- 				<artifactId>org.eclipse.jdt.core</artifactId> -->
+<!-- 				<version>${jdtVersion}</version> -->
+<!-- 			</dependency> -->
 			<dependency>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
