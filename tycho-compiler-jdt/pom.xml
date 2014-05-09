@@ -33,10 +33,15 @@
 	</build>
 
 	<dependencies>
+		<!-- TODO 430986 use JDT from Luna final -->
 		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
+			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.core</artifactId>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.eclipse.tycho</groupId> -->
+<!-- 			<artifactId>org.eclipse.jdt.core</artifactId> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
