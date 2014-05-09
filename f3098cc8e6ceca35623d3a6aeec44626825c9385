@@ -34,6 +34,24 @@
       "revId": "f3098cc8e6ceca35623d3a6aeec44626825c9385",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_7b099b36",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-05-09T14:07:24Z",
+      "side": 1,
+      "message": "I can confirm that this code compiles on Eclipse 3.5 (Galileo)",
+      "parentUuid": "2753a756_6e63d7bc",
+      "revId": "f3098cc8e6ceca35623d3a6aeec44626825c9385",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
