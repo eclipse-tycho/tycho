@@ -69,7 +69,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             }
             fail("Restricted package access");
         } catch (MojoFailureException e) {
-            assertTrue(e.getLongMessage().contains("P001Impl is not accessible"));
+            assertTrue(e.getLongMessage().contains("The type 'P001Impl' is not API"));
         }
     }
 
