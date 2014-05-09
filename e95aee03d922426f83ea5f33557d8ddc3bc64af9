@@ -52,6 +52,24 @@
       "revId": "e95aee03d922426f83ea5f33557d8ddc3bc64af9",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_9bb2afcc",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-05-09T14:25:04Z",
+      "side": 1,
+      "message": "I know. APT binaries are not there.\n\nAPT integration test still succeeds so I assume this \"still mostly works\". In short, good enough for an early preview from my PoV.",
+      "parentUuid": "0756a345_dbca6742",
+      "revId": "e95aee03d922426f83ea5f33557d8ddc3bc64af9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
