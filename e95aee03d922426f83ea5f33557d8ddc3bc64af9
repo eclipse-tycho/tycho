@@ -34,6 +34,24 @@
       "revId": "e95aee03d922426f83ea5f33557d8ddc3bc64af9",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_dbca6742",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-05-09T14:16:49Z",
+      "side": 1,
+      "message": "I was mostly curious why some JDT binaries are taken from this new repository while other (compiler.apt) still come from the old place.",
+      "parentUuid": "0756a345_bb2a137c",
+      "revId": "e95aee03d922426f83ea5f33557d8ddc3bc64af9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
