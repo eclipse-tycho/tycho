@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0756a345_9b0e2f40",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-05-09T14:08:05Z",
+      "side": 1,
+      "message": "Who maintains this artifact?",
+      "revId": "e95aee03d922426f83ea5f33557d8ddc3bc64af9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
