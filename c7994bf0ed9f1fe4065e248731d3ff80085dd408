@@ -16,6 +16,24 @@
       "revId": "c7994bf0ed9f1fe4065e248731d3ff80085dd408",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_e45b4ccb",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-05-12T08:20:28Z",
+      "side": 1,
+      "message": "I tried it out, but errors.size() \u003e 0 is more readable",
+      "parentUuid": "0756a345_84f8903e",
+      "revId": "c7994bf0ed9f1fe4065e248731d3ff80085dd408",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
