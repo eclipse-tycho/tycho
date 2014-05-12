@@ -130,8 +130,8 @@ public class TPValidationMojo extends AbstractMojo {
                         }
                     }
                 }
-                resolver.resolveMetadata(tpConfiguration, executionEnvironment);
             }
+            resolver.resolveMetadata(tpConfiguration, executionEnvironment);
         } catch (Exception ex) {
             throw new TPError(targetFile, ex);
         }
