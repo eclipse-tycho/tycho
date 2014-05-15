@@ -17,65 +17,54 @@ import java.net.MalformedURLException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 
 public abstract class AbstractP2MetadataMojo extends AbstractMojo {
-    /**
-     * @parameter expression="${project}"
-     * @required
-     */
+
+    @Parameter(property = "project", required = true, readonly = true)
     protected MavenProject project;
 
     /**
      * Metadata repository name
-     * 
-     * @parameter default-value="${project.name}"
-     * @required
      */
+    @Parameter(defaultValue = "${project.name}", required = true)
     protected String metadataRepositoryName;
 
     /**
      * Generated update site location (must match update-site mojo configuration)
-     * 
-     * @parameter expression="${project.build.directory}/site"
      */
+    @Parameter(defaultValue = "${project.build.directory}/site")
     protected File target;
 
     /**
      * Artifact repository name
-     * 
-     * @parameter default-value="${project.name} Artifacts"
-     * @required
      */
+    @Parameter(defaultValue = "${project.name} Artifacts", required = true)
     protected String artifactRepositoryName;
 
     /**
      * Kill the forked test process after a certain number of seconds. If set to 0, wait forever for
      * the process, never timing out.
-     * 
-     * @parameter expression="${p2.timeout}"
      */
+    @Parameter(property = "p2.timeout")
     private int forkedProcessTimeoutInSeconds;
 
     /**
      * Arbitrary JVM options to set on the command line.
-     * 
-     * @parameter
      */
+    @Parameter
     private String argLine;
 
-    /**
-     * @parameter default-value="true"
-     */
+    @Parameter(defaultValue = "true")
     protected boolean generateP2Metadata;
 
-    /**
-     * @parameter default-value="true"
-     */
+    @Parameter(defaultValue = "true")
     private boolean compressRepository;
 
-    /** @component */
+    @Component
     private P2ApplicationLauncher launcher;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

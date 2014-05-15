@@ -2,15 +2,14 @@ package org.eclipse.tycho.buildversion;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.tycho.ArtifactKey;
 
 /**
  * Validates that project Maven and OSGi ids match.
- * 
- * @goal validate-id
- * @phase validate
  */
-
+@Mojo(name = "validate-id", defaultPhase = LifecyclePhase.VALIDATE)
 public class ValidateIdMojo extends AbstractVersionMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {

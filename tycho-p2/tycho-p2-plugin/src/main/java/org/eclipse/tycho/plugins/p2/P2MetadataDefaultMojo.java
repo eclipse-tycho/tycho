@@ -12,20 +12,19 @@ package org.eclipse.tycho.plugins.p2;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * P2 metadata generation goal bound to default artifact build lifecycle. For explicit binding use
  * p2-metadata goal. The idea is to avoid double p2 metadata generation for projects that generate
  * additional artifacts or post process standard artifacts using custom goals bound to package
  * phase.
- * 
- * @goal p2-metadata-default
  */
+@Mojo(name = "p2-metadata-default")
 public class P2MetadataDefaultMojo extends P2MetadataMojo {
 
-    /**
-     * @parameter default-value="true"
-     */
+    @Parameter(defaultValue = "true")
     private boolean defaultP2Metadata;
 
     @Override

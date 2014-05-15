@@ -16,8 +16,9 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-release</artifactId>
+		<artifactId>tycho-plugins-parent</artifactId>
 		<version>0.21.0-SNAPSHOT</version>
+		<relativePath>../../tycho-plugins-parent</relativePath>
 	</parent>
 
 	<artifactId>tycho-versions-plugin</artifactId>
@@ -27,28 +28,20 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-plugin-api</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>de.pdark</groupId>
 			<artifactId>decentxml</artifactId>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-testing-harness</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>

@@ -21,6 +21,10 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.osgi.framework.Version;
 
@@ -68,40 +72,33 @@ import org.osgi.framework.Version;
  * 
  * </pre>
  * 
- * @goal build-qualifier
- * @phase validate
  */
+@Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE)
 public class BuildQualifierMojo extends AbstractVersionMojo {
 
     public static final String BUILD_QUALIFIER_PROPERTY = "buildQualifier";
 
     public static final String UNQUALIFIED_VERSION_PROPERTY = "unqualifiedVersion";
 
-    /**
-     * @parameter expression="${session}"
-     * @readonly
-     */
+    @Parameter(property = "session", readonly = true)
     protected MavenSession session;
 
     /**
      * <p>
      * Specify a date format as specified by java.text.SimpleDateFormat. Timezone used is UTC.
      * </p>
-     * 
-     * @parameter default-value="yyyyMMddHHmm"
      */
+    @Parameter(defaultValue = "yyyyMMddHHmm")
     protected SimpleDateFormat format;
 
     /**
-     * @parameter default-value="${project.basedir}"
      * @deprecated This parameter is deprecated and may be removed in future versions of Tycho.
      */
     // TODO this should not be configurable
+    @Parameter(property = "project.basedir")
     protected File baseDir;
 
-    /**
-     * @parameter expression="${forceContextQualifier}"
-     */
+    @Parameter(property = "forceContextQualifier")
     protected String forceContextQualifier;
 
     /**
@@ -110,24 +107,17 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
      * </p>
      * 
      * @since 0.16.0
-     * @parameter
      */
+    @Parameter
     protected String timestampProvider;
 
-    /**
-     * @parameter expression="${mojoExecution}"
-     * @readonly
-     */
+    @Parameter(property = "mojoExecution", readonly = true)
     protected MojoExecution execution;
 
-    /**
-     * @component
-     */
+    @Component
     protected BuildPropertiesParser buildPropertiesParser;
 
-    /**
-     * @component role="org.eclipse.tycho.buildversion.BuildTimestampProvider"
-     */
+    @Component(role = BuildTimestampProvider.class)
     protected Map<String, BuildTimestampProvider> timestampProviders;
 
     // setter is needed to make sure we always use UTC

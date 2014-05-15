@@ -21,6 +21,10 @@ import java.util.Properties;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.archiver.ArchiverException;
@@ -57,9 +61,8 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
  * </p>
  * 
  * @see http://wiki.eclipse.org/Equinox/p2/Publisher
- * @goal publish-products
- * @phase package
  */
+@Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE)
 public final class PublishProductMojo extends AbstractPublishMojo {
 
     /**
@@ -70,14 +73,14 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      * 
      * @deprecated This parameter has no useful effect and may be removed in a future version of
      *             Tycho.
-     * @parameter default-value="tooling"
      */
+    @Parameter(defaultValue = "tooling")
     private String flavor;
 
-    /** @component role="org.codehaus.plexus.archiver.UnArchiver" role-hint="zip" */
+    @Component(role = UnArchiver.class, hint = "zip")
     private UnArchiver deflater;
 
-    /** @component */
+    @Component
     private FileLockService fileLockService;
 
     @Override

@@ -18,6 +18,10 @@ import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
@@ -30,10 +34,8 @@ import org.eclipse.tycho.plugins.tar.TarGzArchiver;
  * <p>
  * Creates archives with the product installations.
  * </p>
- * 
- * @goal archive-products
- * @phase package
  */
+@Mojo(name = "archive-products", defaultPhase = LifecyclePhase.PACKAGE)
 public final class ProductArchiverMojo extends AbstractProductMojo {
 
     static final String DEFAULT_ARCHIVE_FORMAT = "zip";
@@ -68,24 +70,17 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
      * 
      * The future versions can introduce support for other file formats and multiple formats per-os.
      * </p>
-     * 
-     * @parameter
      */
+    @Parameter
     private Map<String, String> formats;
 
-    /**
-     * @component role="org.codehaus.plexus.archiver.Archiver" role-hint="zip"
-     */
+    @Component(role = Archiver.class, hint = "zip")
     private Archiver zipArchiver;
 
-    /**
-     * @component role="org.codehaus.plexus.archiver.Archiver" role-hint="tar"
-     */
+    @Component(role = Archiver.class, hint = "tar")
     private TarArchiver tarArchiver;
 
-    /**
-     * @component
-     */
+    @Component
     private MavenProjectHelper helper;
 
     private static final boolean HAS_JAVA_NIO = checkForJavaNio();

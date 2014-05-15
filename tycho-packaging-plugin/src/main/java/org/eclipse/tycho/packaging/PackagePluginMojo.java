@@ -26,6 +26,10 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
@@ -41,28 +45,24 @@ import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 
 /**
  * Creates a jar-based plugin and attaches it as an artifact
- * 
- * @goal package-plugin
  */
+@Mojo(name = "package-plugin")
 public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     /**
      * The output directory of the jar file
      * 
      * By default this is the Maven "target/" directory.
-     * 
-     * @parameter expression="${project.build.directory}"
-     * @required
      */
+    @Parameter(property = "project.build.directory", required = true)
     protected File buildDirectory;
 
     protected EclipsePluginProject pdeProject;
 
     /**
      * The Jar archiver.
-     * 
-     * parameter expression="${component.org.codehaus.plexus.archiver.Archiver#jar}" required
      */
+    @Component(role = Archiver.class, hint = "jar")
     private JarArchiver jarArchiver = new JarArchiver();
 
     /**
@@ -82,23 +82,20 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
      * &lt;/additionalFileSets&gt;
      * </pre>
      * 
-     * @parameter
      */
+    @Parameter
     private DefaultFileSet[] additionalFileSets;
 
     /**
      * Name of the generated JAR.
-     * 
-     * @parameter alias="jarName" expression="${project.build.finalName}"
-     * @required
      */
+    @Parameter(property = "project.build.finalName", alias = "jarName", required = true)
     protected String finalName;
 
     /**
      * The maven archiver to use.
-     * 
-     * @parameter
      */
+    @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     /**
@@ -124,14 +121,11 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
      *           &lt;customValue&gt;scm:myscm:customSourceReferenceValue&lt;/customValue&gt;
      *         &lt;/sourceReferences&gt;
      * </pre>
-     * 
-     * @parameter
      */
+    @Parameter
     private SourceReferences sourceReferences = new SourceReferences();
 
-    /**
-     * @component
-     */
+    @Component
     private SourceReferenceComputer soureReferenceComputer;
 
     public void execute() throws MojoExecutionException {

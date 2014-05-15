@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -45,10 +47,8 @@ import org.osgi.framework.Version;
  * timestamp provider uses build start time as build timestamp, which should be newer or equal than
  * timestamp of any included bundle/feature project, which makes qualifier aggregation redundant.
  * </p>
- * 
- * @goal build-qualifier-aggregator
- * @phase validate
  */
+@Mojo(name = "build-qualifier-aggregator", defaultPhase = LifecyclePhase.VALIDATE)
 public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
     @Override
     protected Date getBuildTimestamp() throws MojoExecutionException {
