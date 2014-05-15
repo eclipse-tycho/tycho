@@ -12,24 +12,24 @@ package org.eclipse.tycho.buildversion;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.ArtifactKey;
 
 /**
  * Validates project Maven and OSGi versions. For SNAPSHOT versions, OSGi version qualifier must be
  * ".qualifier" and unqualified Maven and OSGi versions must be equal. For RELEASE versions, OSGi
  * and Maven versions must be equal.
- * 
- * @goal validate-version
- * @phase validate
  */
+@Mojo(name = "validate-version", defaultPhase = LifecyclePhase.VALIDATE)
 public class ValidateVersionMojo extends AbstractVersionMojo {
     /**
      * If <code>true</code> (the default) will fail the build if Maven and OSGi project versions do
      * not match. If <code>false</code> will issue a warning but will not fail the build if Maven
      * and OSGi project versions do not match.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean strictVersions = true;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

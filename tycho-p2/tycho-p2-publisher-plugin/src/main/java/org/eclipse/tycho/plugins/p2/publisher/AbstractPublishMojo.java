@@ -14,6 +14,7 @@ import java.util.Collection;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -25,10 +26,10 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
 
-    /** @component */
+    @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory osgiServices;
 
     public final void execute() throws MojoExecutionException, MojoFailureException {

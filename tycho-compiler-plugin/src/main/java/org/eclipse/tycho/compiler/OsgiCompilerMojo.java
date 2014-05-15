@@ -16,12 +16,14 @@
 
 package org.eclipse.tycho.compiler;
 
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+
 /**
- * @goal compile
- * @phase compile
- * @requiresDependencyResolution compile
- * @description Compiles application sources with eclipse plugin dependencies
+ * Compiles application sources with eclipse plugin dependencies
  */
+@Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class OsgiCompilerMojo extends AbstractOsgiCompilerMojo {
 
 }

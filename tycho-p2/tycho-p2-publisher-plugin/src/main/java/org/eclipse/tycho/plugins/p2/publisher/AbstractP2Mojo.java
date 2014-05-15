@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.tycho.ArtifactKey;
@@ -29,22 +30,13 @@ import org.eclipse.tycho.p2.tools.BuildContext;
 // TODO share between Maven plug-ins?
 public abstract class AbstractP2Mojo extends AbstractMojo {
 
-    /**
-     * @parameter expression="${session}"
-     * @readonly
-     */
+    @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    /**
-     * @parameter expression="${project}"
-     * @readonly
-     */
+    @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    /**
-     * @parameter expression="${buildQualifier}"
-     * @readonly
-     */
+    @Parameter(property = "buildQualifier", readonly = true)
     private String qualifier;
 
     protected MavenProject getProject() {

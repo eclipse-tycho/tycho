@@ -16,6 +16,7 @@ import java.util.List;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
@@ -24,16 +25,10 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 abstract class AbstractProductMojo extends AbstractMojo {
 
-    /**
-     * @parameter expression="${project}"
-     * @readonly
-     */
+    @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    /**
-     * @parameter expression="${session}"
-     * @readonly
-     */
+    @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
     /**
@@ -106,16 +101,15 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * other OS supported by p2. Since 0.18.0</li>
      * </ul>
      * 
-     * @parameter
      */
+    @Parameter
     private List<Product> products;
 
     /**
      * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the
      * process, never timing out.
-     * 
-     * @parameter expression="${p2.timeout}" default-value="0"
      */
+    @Parameter(property = "p2.timeout", defaultValue = "0")
     private int forkedProcessTimeoutInSeconds;
 
     int getForkedProcessTimeoutInSeconds() {

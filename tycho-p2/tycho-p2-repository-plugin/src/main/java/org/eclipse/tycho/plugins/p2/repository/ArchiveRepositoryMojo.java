@@ -16,6 +16,10 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 
@@ -23,22 +27,19 @@ import org.codehaus.plexus.archiver.ArchiverException;
  * <p>
  * Creates a zip archive with the aggregated p2 repository.
  * </p>
- * 
- * @goal archive-repository
- * @phase package
  */
+@Mojo(name = "archive-repository", defaultPhase = LifecyclePhase.PACKAGE)
 public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
 
-    /** @component role="org.codehaus.plexus.archiver.Archiver" role-hint="zip" */
+    @Component(role = Archiver.class, hint = "zip")
     private Archiver inflater;
 
     /**
      * <p>
      * Name of the generated zip file (without extension).
      * </p>
-     * 
-     * @parameter expression="${project.build.finalName}"
      */
+    @Parameter(property = "project.build.finalName")
     private String finalName;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

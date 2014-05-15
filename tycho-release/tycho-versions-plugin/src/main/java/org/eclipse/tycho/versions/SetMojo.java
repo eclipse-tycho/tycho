@@ -17,6 +17,8 @@ import java.util.StringTokenizer;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 import org.eclipse.tycho.versions.engine.VersionsEngine;
 
@@ -46,21 +48,16 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
  * an equivalent version, the version in the product file is also changed.</li>
  * </ul>
  * 
- * @goal set-version
- * @aggregator
- * @requiresProject true
- * @requiresDirectInvocation true
  */
+@Mojo(name = "set-version", aggregator = true, requiresDirectInvocation = true)
 public class SetMojo extends AbstractVersionsMojo {
     /**
      * <p>
      * The new version to set to the current project and other entities which have the same version
      * as the current project.
      * </p>
-     * 
-     * @parameter expression="${newVersion}"
-     * @required
      */
+    @Parameter(property = "newVersion", required = true)
     private String newVersion;
 
     /**
@@ -69,9 +66,8 @@ public class SetMojo extends AbstractVersionsMojo {
      * be changed is derived according to the rules described above. If set, this parameter needs to
      * be specified as a comma separated list of artifactIds.
      * </p>
-     * 
-     * @parameter expression="${artifacts}" default-value="${project.artifactId}"
      */
+    @Parameter(property = "artifacts", defaultValue = "${project.artifactId}")
     private String artifacts;
 
     /**
@@ -82,8 +78,8 @@ public class SetMojo extends AbstractVersionsMojo {
      * </p>
      * 
      * @since 0.18.0
-     * @parameter expression="${properties}"
      */
+    @Parameter(property = "properties")
     private String properties;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
