@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0756a345_a99e40b2",
+        "filename": "tycho-plugins-parent/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-05-15T15:38:01Z",
+      "side": 1,
+      "message": "Both maven-plugin-plugin and maven-plugin-annotations are built from the same sources and part of the same release cycle. Probably not a hard requirement, but I would use ${plugin-tools.version} property (or something like that) to use consistent version of the two.",
+      "revId": "b43136c157d27962f55e1105fd67da7f143cfd70",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
