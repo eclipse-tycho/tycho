@@ -38,6 +38,9 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -71,9 +74,8 @@ import org.osgi.framework.BundleException;
  * require manual refinement. Note that this goal is not intended for automatic pom.xml generation
  * during build.
  * 
- * @goal generate-poms
- * @requiresProject false
  */
+@Mojo(name = "generate-poms", requiresProject = false)
 public class GeneratePomsMojo extends AbstractMojo {
 
     /** reference to real pom.xml in aggregator poma.xml */
@@ -81,63 +83,53 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     /**
      * Tycho version to be used in the generated pom.xml files.
-     * 
-     * @parameter default-value="${plugin.version}"
-     * @readonly
      */
+    @Parameter(property = "plugin.version", readonly = true)
     private String tychoVersion;
 
     /**
      * The base directory which will be traversed recursively when searching for projects.
-     * 
-     * @parameter expression="${baseDir}" default-value="${basedir}"
-     * @required
      */
+    @Parameter(property = "baseDir", defaultValue = "${basedir}", required = true)
     private File baseDir;
 
     /**
      * Additional directories to be traversed recursively when searching for projects.
-     * 
-     * @parameter expression="${extraDirs}
      */
+    @Parameter(property = "extraDirs")
     private String extraDirs;
 
     /**
      * Maven groupId to be used in the generated pom.xml files.
-     * 
-     * @parameter expression="${groupId}"
      */
+    @Parameter(property = "groupId")
     private String groupId;
 
     /**
      * Maven version to be used in the generated pom.xml files (applies to parent pom and
      * eclipse-repository/eclipse-update-site only).
-     * 
-     * @parameter expression="${version}" default-value="0.0.1-SNAPSHOT"
      */
+    @Parameter(property = "version", defaultValue = "0.0.1-SNAPSHOT")
     private String version;
 
     /**
      * If true (the default), additional aggregator poma.xml pom file will be generated for update
      * site projects. This poma.xml file can be used to build update site and all its dependencies.
-     * 
-     * @parameter expression="${aggregator}" default-value="true"
      */
+    @Parameter(property = "aggregator", defaultValue = "true")
     private boolean aggregator;
 
     /**
      * Suffix used to determine test bundles to add to update site aggregator pom.
-     * 
-     * @parameter expression="${testSuffix}" default-value=".tests"
      */
+    @Parameter(property = "testSuffix", defaultValue = ".tests")
     private String testSuffix;
 
     /**
      * Bundle-SymbolicName of the test suite, a special bundle that knows how to locate and execute
      * all relevant tests.
-     * 
-     * @parameter expression="${testSuite}"
      */
+    @Parameter(property = "testSuite")
     private String testSuite;
 
     /**
@@ -146,38 +138,28 @@ public class GeneratePomsMojo extends AbstractMojo {
      * does not exist.
      * 
      * See src/main/resources/templates for the list of supported template files.
-     * 
-     * @parameter expression="${templatesDir}" default-value="${basedir}/pom-templates"
      */
+    @Parameter(property = "templatesDir", defaultValue = "${basedir}/pom-templates")
     private File templatesDir;
 
     /**
      * Comma separated list of root project folders. If specified, generated pom.xml files will only
      * include root projects and projects directly and indirectly referenced by the root projects.
-     * 
-     * @parameter expression="${rootProjects}"
      */
+    @Parameter(property = "rootProjects")
     private String rootProjects;
 
     // TODO what is the effect of this parameter?
-    /**
-     * @parameter default-value="J2SE-1.5"
-     */
+    @Parameter(defaultValue = "J2SE-1.5")
     private String executionEnvironment;
 
-    /**
-     * @component role="org.eclipse.tycho.core.osgitools.BundleReader"
-     */
+    @Component(role = BundleReader.class)
     private BundleReader bundleReader;
 
-    /**
-     * @component role="org.eclipse.tycho.core.osgitools.EquinoxResolver"
-     */
+    @Component(role = EquinoxResolver.class)
     private EquinoxResolver resolver;
 
-    /**
-     * @component role="org.eclipse.tycho.core.osgitools.DependencyComputer"
-     */
+    @Component(role = DependencyComputer.class)
     private DependencyComputer dependencyComputer;
 
     MavenXpp3Reader modelReader = new MavenXpp3Reader();

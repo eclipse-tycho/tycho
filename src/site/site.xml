@@ -9,15 +9,15 @@
 				TODO add mojo parameters which are actually used to the mojo so the docs are generated? -->
 <!-- 			<item name="Platform Configuration" href="target-platform-configuration/plugin-info.html" /> -->
 
-			<item name="Compiler Plugin" href="tycho-compiler-plugin/plugin-info.html" />
-			<item name="Packaging Plugin" href="tycho-packaging-plugin/plugin-info.html" />
+			<item name="Compiler Plugin" href="tycho-plugins-parent/tycho-compiler-plugin/plugin-info.html" />
+			<item name="Packaging Plugin" href="tycho-plugins-parent/tycho-packaging-plugin/plugin-info.html" />
 			<item name="Surefire Plugin" href="tycho-surefire/tycho-surefire-plugin/plugin-info.html" />
-			<item name="p2 Publisher Plugin" href="tycho-p2/tycho-p2-publisher-plugin/plugin-info.html" />
-			<item name="p2 Repository Plugin" href="tycho-p2/tycho-p2-repository-plugin/plugin-info.html" />
-			<item name="p2 Director Plugin" href="tycho-p2/tycho-p2-director-plugin/plugin-info.html" />
-			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
-			<item name="Versions Plugin" href="tycho-release/tycho-versions-plugin/plugin-info.html" />
-			<item name="POM Generator Plugin" href="tycho-pomgenerator-plugin/plugin-info.html" />
+			<item name="p2 Publisher Plugin" href="tycho-plugins-parent/tycho-p2-publisher-plugin/plugin-info.html" />
+			<item name="p2 Repository Plugin" href="tycho-plugins-parent/tycho-p2-repository-plugin/plugin-info.html" />
+			<item name="p2 Director Plugin" href="tycho-plugins-parent/tycho-p2-director-plugin/plugin-info.html" />
+			<item name="Source Plugin" href="tycho-plugins-parent/tycho-source-plugin/plugin-info.html" />
+			<item name="Versions Plugin" href="tycho-plugins-parent/tycho-versions-plugin/plugin-info.html" />
+			<item name="POM Generator Plugin" href="tycho-plugins-parent/tycho-pomgenerator-plugin/plugin-info.html" />
 		</menu>
 		<links>
 			<item name="This content is PRELIMINARY API and still subject to change"

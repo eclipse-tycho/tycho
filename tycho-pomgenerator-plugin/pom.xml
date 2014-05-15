@@ -16,8 +16,9 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho</artifactId>
+		<artifactId>tycho-plugins-parent</artifactId>
 		<version>0.21.0-SNAPSHOT</version>
+		<relativePath>../tycho-plugins-parent</relativePath>
 	</parent>
 
 	<artifactId>tycho-pomgenerator-plugin</artifactId>
@@ -27,10 +28,6 @@
 	<description>The tycho-pomgenerator-plugin provides tools for integrating Maven, Eclipse and OSGi.</description>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-plugin-api</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-utils</artifactId>

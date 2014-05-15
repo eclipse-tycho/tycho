@@ -19,6 +19,8 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -32,9 +34,8 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
  * </p>
  * 
  * @see http://wiki.eclipse.org/Equinox/p2/Publisher
- * @goal publish-categories
- * @phase package
  */
+@Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE)
 public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
     @Override

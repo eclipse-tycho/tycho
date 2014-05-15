@@ -37,6 +37,10 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.IOUtil;
@@ -54,12 +58,8 @@ import org.osgi.framework.Version;
 
 /**
  * Goal to create a JAR-package containing all the source files of a osgi project.
- * 
- * @extendsPlugin source
- * @extendsGoal jar
- * @goal plugin-source
- * @phase prepare-package
  */
+@Mojo(name = "plugin-source", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     private static final String GOAL = "plugin-source";
@@ -76,9 +76,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     /**
      * Whether the source jar should be an Eclipse source bundle.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean sourceBundle;
 
     /**
@@ -88,51 +87,44 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      * <code>foosrc/</code>. Otherwise all sources for all jars, nested or not, will go into the
      * root of the source jar (this is the default as it provides interoperability with maven source
      * jars).
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean distinctSourceRoots;
 
     /**
      * The suffix to be added to the symbolic name of the bundle to construct the symbolic name of
      * the Eclipse source bundle.
-     * 
-     * @parameter expression="${sourceBundleSuffix}" default-value=".source"
      */
+    @Parameter(property = "sourceBundleSuffix", defaultValue = ".source")
     private String sourceBundleSuffix;
 
     /**
      * Build qualifier. Recommended way to set this parameter is using build-qualifier goal. Only
      * used when creating a source bundle.
-     * 
-     * @parameter expression="${buildQualifier}"
      */
+    @Parameter(property = "buildQualifier")
     private String qualifier;
 
     /**
      * Whether default source excludes for SCM files defined in {@see
      * AbstractScanner#DEFAULTEXCLUDES} should be used.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     protected boolean useDefaultSourceExcludes;
 
     /**
      * Whether source folders are required or not. If not required (the default), projects without
      * source folders/source includes will be silently ignored.
-     * 
-     * @parameter default-value="false"
-     * @readonly
      */
+    @Parameter(defaultValue = "false", readonly = true)
     protected boolean requireSourceRoots;
 
     /**
      * If set to <code>true</code> (the default), missing build.properties src.includes will cause
      * build failure. If set to <code>false</code>, missing build.properties src.includes will be
      * reported as warnings but the build will not fail.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     protected boolean strictSrcIncludes;
 
     /**
@@ -151,28 +143,20 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      *  &lt;/fileSet&gt;     
      * &lt;/additionalFileSets&gt;
      * </pre>
-     * 
-     * @parameter
      */
+    @Parameter
     private DefaultFileSet[] additionalFileSets;
-    /**
-     * @component role="org.eclipse.tycho.core.TychoProject"
-     */
+
+    @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
-    /**
-     * @component
-     */
+    @Component
     BuildPropertiesParser buildPropertiesParser;
 
-    /**
-     * @component
-     */
+    @Component
     private IncludeValidationHelper includeValidationHelper;
 
-    /**
-     * @component
-     */
+    @Component
     private BundleReader bundleReader;
 
     /** {@inheritDoc} */

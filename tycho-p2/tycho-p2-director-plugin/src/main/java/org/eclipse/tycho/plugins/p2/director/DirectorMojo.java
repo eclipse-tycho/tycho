@@ -15,6 +15,10 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -28,11 +32,9 @@ import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFa
  * <p>
  * Creates product installations for the products defined in the project.
  * </p>
- * 
- * @phase package
- * @goal materialize-products
  */
 // TODO 348586 should be called assemble-product
+@Mojo(name = "materialize-products", defaultPhase = LifecyclePhase.PACKAGE)
 public final class DirectorMojo extends AbstractProductMojo {
 
     public enum InstallationSource {
@@ -43,13 +45,13 @@ public final class DirectorMojo extends AbstractProductMojo {
         internal, standalone
     }
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory osgiServices;
 
-    /** @component */
+    @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    /** @component */
+    @Component
     private StandaloneDirectorRuntimeFactory standaloneDirectorFactory;
 
     // TODO rename to profileName
@@ -57,13 +59,12 @@ public final class DirectorMojo extends AbstractProductMojo {
      * <p>
      * The name of the p2 profile to be created.
      * </p>
-     * 
-     * @parameter default-value="DefaultProfile"
      */
+    @Parameter(defaultValue = "DefaultProfile")
     private String profile;
 
-    // TODO 405785 the syntax of this parameter doesn't work well with configuration inheritance; replace with new generic envSpecificConfiguration parameter syntax 
-    /** @parameter */
+    // TODO 405785 the syntax of this parameter doesn't work well with configuration inheritance; replace with new generic envSpecificConfiguration parameter syntax
+    @Parameter
     private List<ProfileName> profileNames;
 
     /**
@@ -71,9 +72,8 @@ public final class DirectorMojo extends AbstractProductMojo {
      * Include the feature JARs in installation. (Technically, this sets the property
      * <tt>org.eclipse.update.install.features</tt> to <tt>true</tt> in the p2 profile.)
      * </p>
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean installFeatures;
 
     /**
@@ -85,9 +85,8 @@ public final class DirectorMojo extends AbstractProductMojo {
      * source. With this option, the build implicitly verifies that it would also be possible to
      * install the product from that repository with an external director application.
      * </ul>
-     * 
-     * @parameter default-value="targetPlatform"
      */
+    @Parameter(defaultValue = "targetPlatform")
     private InstallationSource source;
 
     /**
@@ -101,9 +100,8 @@ public final class DirectorMojo extends AbstractProductMojo {
      * meta-requirements (e.g. to a non-standard touchpoint action). Requires that the
      * <code>source</code> parameter is set to <code>repository</code>.
      * </ul>
-     * 
-     * @parameter default-value="internal"
      */
+    @Parameter(defaultValue = "internal")
     private DirectorRuntimeType directorRuntime;
 
     // TODO extract methods

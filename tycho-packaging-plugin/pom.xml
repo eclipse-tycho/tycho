@@ -16,8 +16,9 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho</artifactId>
+		<artifactId>tycho-plugins-parent</artifactId>
 		<version>0.21.0-SNAPSHOT</version>
+		<relativePath>../tycho-plugins-parent</relativePath>
 	</parent>
 
 	<artifactId>tycho-packaging-plugin</artifactId>
@@ -53,10 +54,6 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-plugin-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>

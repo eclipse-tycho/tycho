@@ -16,27 +16,24 @@ import java.io.IOException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
-/**
- * @goal update-site-packaging
- */
+@Mojo(name = "update-site-packaging")
 public class PackageUpdateSiteMojo extends AbstractMojo {
-    /**
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
+
+    @Parameter(property = "project", required = true, readonly = true)
     protected MavenProject project;
 
     /**
      * Generated update site location (must match update-site mojo configuration)
-     * 
-     * @parameter expression="${project.build.directory}/site"
      */
+    @Parameter(defaultValue = "${project.build.directory}/site")
     private File target;
 
     /**
@@ -47,16 +44,14 @@ public class PackageUpdateSiteMojo extends AbstractMojo {
      * repository is a zip only containing the site.xml. However, if this parameter is set to true
      * an additional result file classified as 'assembly' containing a full packaged update site
      * will be created and installed.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean archiveSite;
 
     /**
      * Used for attaching assembled update site to the project.
-     * 
-     * @component
      */
+    @Component
     private MavenProjectHelper projectHelper;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
