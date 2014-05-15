@@ -32,6 +32,8 @@ import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
 import org.apache.maven.repository.RepositorySystem;
@@ -83,10 +85,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private static final Set<String> MATCH_ALL = Collections.singleton("**/*");
 
-    /**
-     * @parameter expression="${project}"
-     * @readonly
-     */
+    @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
     /**
@@ -97,18 +96,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * Useful when OSGi runtime classpath contains elements not defined using normal dependency
      * mechanisms. For example, when Eclipse Equinox is started from application server with
      * -Dosgi.parentClassloader=fwk parameter.
-     * 
-     * @parameter
      */
+    @Parameter
     private Dependency[] extraClasspathElements;
 
-    /**
-     * @parameter expression="${session}"
-     * @readonly
-     */
+    @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    /** @component */
+    @Component
     private RepositorySystem repositorySystem;
 
     /**
@@ -155,35 +150,30 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * &lt;/configuration&gt;
      * </pre>
      * 
-     * 
-     * 
-     * @parameter default-value="SYSTEM"
      */
+    @Parameter(defaultValue = "SYSTEM")
     private JDKUsage useJDK;
 
-    /** @component */
+    @Component
     private ToolchainManagerPrivate toolChainManager;
 
     /**
      * A list of inclusion filters for the compiler.
-     * 
-     * @parameter
      */
+    @Parameter
     private Set<String> includes = new HashSet<String>();
 
     /**
      * A list of exclusion filters for the compiler.
-     * 
-     * @parameter
      */
+    @Parameter
     private Set<String> excludes = new HashSet<String>();
 
     /**
      * A list of exclusion filters for non-java resource files which should not be copied to the
      * output directory.
-     * 
-     * @parameter
      */
+    @Parameter
     private Set<String> excludeResources = new HashSet<String>();
 
     /**
@@ -191,18 +181,16 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * the design-time equivalent to the equinox runtime option <a
      * href="http://wiki.eclipse.org/Equinox_Boot_Delegation#The_solution"
      * >osgi.compatibility.bootdelegation</a>.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean requireJREPackageImports;
 
     /**
      * If set to <code>false</code> (the default) issue a warning if effective compiler target level
      * is incompatible with bundle minimal execution environment. If set to <code>true</code> will
      * fail the build if effective compiler target and minimal BREE are incompatible.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean strictCompilerTarget;
 
     /**
@@ -210,9 +198,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      */
     private BuildOutputJar outputJar;
 
-    /**
-     * @component role="org.eclipse.tycho.core.TychoProject"
-     */
+    @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
     public void execute() throws MojoExecutionException, CompilationFailureException {
