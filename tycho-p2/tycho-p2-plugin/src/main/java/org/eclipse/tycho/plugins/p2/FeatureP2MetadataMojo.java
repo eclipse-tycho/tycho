@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2;
 
-/**
- * @goal feature-p2-metadata
- */
+import org.apache.maven.plugins.annotations.Mojo;
+
+@Mojo(name = "feature-p2-metadata")
 public class FeatureP2MetadataMojo extends AbstractP2MetadataMojo {
     @Override
     protected String getPublisherApplication() {

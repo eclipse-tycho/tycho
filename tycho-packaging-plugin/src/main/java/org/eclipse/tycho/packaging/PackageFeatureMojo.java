@@ -27,6 +27,11 @@ import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -36,71 +41,51 @@ import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.model.Feature;
 
-/**
- * @phase package
- * @goal package-feature
- * @requiresProject
- * @requiresDependencyResolution runtime
- */
+@Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     private static final String FEATURE_PROPERTIES = "feature.properties";
 
     /**
      * The maven archiver to use.
-     * 
-     * @parameter
      */
+    @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     /**
      * The output directory of the jar file
      * 
      * By default this is the Maven <tt>target/</tt> directory.
-     * 
-     * @parameter expression="${project.build.directory}"
      */
+    @Parameter(property = "project.build.directory")
     private File outputDirectory;
 
-    /**
-     * @parameter expression="${project.basedir}"
-     */
+    @Parameter(property = "project.basedir")
     private File basedir;
 
     /**
      * Name of the generated JAR.
-     * 
-     * @parameter alias="jarName" expression="${project.build.finalName}"
-     * @required
      */
+    @Parameter(property = "project.build.finalName", alias = "jarName", required = true)
     private String finalName;
 
     /**
      * If set to <code>true</code>, standard eclipse update site directory with feature content will
      * be created under target folder.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean deployableFeature = false;
 
-    /**
-     * @parameter expression="${project.build.directory}/site"
-     */
+    @Parameter(defaultValue = "${project.build.directory}/site")
     private File target;
 
-    /**
-     * @component
-     */
+    @Component
     private FeatureXmlTransformer featureXmlTransformer;
 
-    /**
-     * @component
-     */
+    @Component
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    /**
-     * @component
-     */
+    @Component
     private BuildPropertiesParser buildPropertiesParser;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

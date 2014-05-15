@@ -16,8 +16,9 @@
 
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho</artifactId>
+		<artifactId>tycho-plugins-parent</artifactId>
 		<version>0.21.0-SNAPSHOT</version>
+		<relativePath>../tycho-plugins-parent</relativePath>
 	</parent>
 
 	<artifactId>tycho-source-plugin</artifactId>

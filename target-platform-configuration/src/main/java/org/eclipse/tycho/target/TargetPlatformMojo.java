@@ -20,6 +20,9 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
@@ -29,19 +32,14 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
-/**
- * @goal target-platform
- */
+@Mojo(name = "target-platform")
 public class TargetPlatformMojo extends AbstractMojo {
 
     // TODO site doc (including steps & parameters handled in afterProjectsRead?)
-    /**
-     * @parameter expression="${project}"
-     * @readonly
-     */
+    @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory osgiServices;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

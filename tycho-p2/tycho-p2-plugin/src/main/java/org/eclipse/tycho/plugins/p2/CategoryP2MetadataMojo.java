@@ -14,19 +14,19 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 
 /**
  * Adds category IUs to existing metadata repository.
  * http://help.eclipse.org/galileo/index.jsp?topic
  * =/org.eclipse.platform.doc.isv/guide/p2_publisher.html
- * 
- * @goal category-p2-metadata
  */
+@Mojo(name = "category-p2-metadata")
 public class CategoryP2MetadataMojo extends AbstractP2MetadataMojo {
-    /**
-     * @parameter default-value="${project.basedir}/category.xml"
-     */
+
+    @Parameter(defaultValue = "${project.basedir}/category.xml")
     private File categoryDefinition;
 
     @Override

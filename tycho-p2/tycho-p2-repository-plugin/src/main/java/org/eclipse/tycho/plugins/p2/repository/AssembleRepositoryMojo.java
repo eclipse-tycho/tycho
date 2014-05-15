@@ -16,6 +16,10 @@ import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -38,18 +42,16 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  * an artifact, are also considered as inclusions.)
  * </p>
  * 
- * @goal assemble-repository
- * @phase package
  */
+@Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE)
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     /**
      * <p>
      * By default, this goal creates a p2 repository. Set this to <code>false</code> if only a p2
      * metadata repository (without the artifact files) shall be created.
      * </p>
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean createArtifactRepository;
 
     /**
@@ -58,42 +60,38 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
      * Set this parameter to <code>true</code> to aggregate <em>all transitive dependencies</em>,
      * making the resulting p2 repository self-contained.
      * </p>
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean includeAllDependencies;
 
     /**
      * <p>
      * Compress the repository index files <tt>content.xml</tt> and <tt>artifacts.xml</tt>.
      * </p>
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean compress;
 
     /**
      * <p>
      * The name attribute stored in the created p2 repository.
      * </p>
-     * 
-     * @parameter default-value="${project.name}"
      */
+    @Parameter(defaultValue = "${project.name}")
     private String repositoryName;
 
     /**
      * <p>
      * Additional properties against which p2 filters are evaluated while aggregating.
      * </p>
-     * 
-     * @parameter
      */
+    @Parameter
     private Map<String, String> profileProperties;
 
-    /** @component */
+    @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory p2;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
