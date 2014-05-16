@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2011 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,26 +64,20 @@ public class Activator implements BundleActivator {
 
     public static Set<ResolverError> getResolutionErrors(Bundle bundle) {
         Set<ResolverError> errors = new LinkedHashSet<ResolverError>();
-        try {
-            if (platformAdmin == null) {
-                System.err
-                        .println("Could not compute diagnostic information for the test bundle resolution problems - PlatformAdmin service is not available");
-                return errors;
-            }
-            State state = platformAdmin.getState(false /* mutable */);
-            if (state == null) {
-                System.err.println("Resolver state is null");
-                return errors;
-            }
-            BundleDescription description = state.getBundle(bundle.getBundleId());
-            if (description == null) {
-                System.err.println("Could not determine BundleDescription for " + bundle.toString());
-            }
-            getRelevantErrors(state, errors, description);
-        } catch (RuntimeException e) {
-            System.err.println("Error while computing diagnostic information for the test bundle resolution problems");
-            e.printStackTrace();
+        if (platformAdmin == null) {
+            System.err.println("Could not acquire PlatformAdmin server");
+            return errors;
         }
+        State state = platformAdmin.getState(false /* mutable */);
+        if (state == null) {
+            System.err.println("Resolver state is null");
+            return errors;
+        }
+        BundleDescription description = state.getBundle(bundle.getBundleId());
+        if (description == null) {
+            System.err.println("Could not determine BundleDescription for " + bundle.toString());
+        }
+        getRelevantErrors(state, errors, description);
         return errors;
     }
 
