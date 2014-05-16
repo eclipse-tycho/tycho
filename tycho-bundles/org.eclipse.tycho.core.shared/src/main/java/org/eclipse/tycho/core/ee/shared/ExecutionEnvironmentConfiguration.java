@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,9 +50,20 @@ public interface ExecutionEnvironmentConfiguration {
     public void setProfileConfiguration(String profileName, String configurationOrigin) throws IllegalStateException;
 
     /**
+     * Sets the profile to be used for the dependency resolver. If called, this configuration takes
+     * precedence in the dependency resolution over all other configuration.
+     */
+    public void overrideProfileConfigurationForResolver(String profileName);
+
+    /**
      * Returns the name of the configured profile.
      */
     public String getProfileName();
+
+    /**
+     * Returns the name of the profile to be used for dependency resolution.
+     */
+    public String getProfileNameForResolver();
 
     /**
      * Returns <code>true</code> if the configured profile is not one of the known standard
@@ -80,5 +91,10 @@ public interface ExecutionEnvironmentConfiguration {
      * @see ExecutionEnvironment
      */
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException;
+
+    /**
+     * Returns the execution environment specification to be used for the dependency resolver.
+     */
+    public ExecutionEnvironment getFullSpecificationForResolver();
 
 }

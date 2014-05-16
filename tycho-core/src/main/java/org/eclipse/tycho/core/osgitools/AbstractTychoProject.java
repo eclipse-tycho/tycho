@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -99,6 +99,11 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         if (configuredDefaultProfile != null) {
             sink.setProfileConfiguration(configuredDefaultProfile,
                     "target-platform-configuration <executionEnvironmentDefault>");
+        }
+
+        String resolverProfile = tpConfiguration.getResolverExecutionEnvironment();
+        if (resolverProfile != null) {
+            sink.overrideProfileConfigurationForResolver(resolverProfile);
         }
     }
 

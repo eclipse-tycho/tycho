@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private String executionEnvironment;
 
     private String executionEnvironmentDefault;
+
+    private String resolverExecutionEnvironment;
 
     private List<TargetPlatformFilter> filters;
 
@@ -114,6 +116,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         this.executionEnvironment = executionEnvironment;
     }
 
+    public void setResolverExecutionEnvironment(String resolverEE) {
+        this.resolverExecutionEnvironment = resolverEE;
+    }
+
+    public String getResolverExecutionEnvironment() {
+        return resolverExecutionEnvironment;
+    }
+
     public String getExecutionEnvironmentDefault() {
         return executionEnvironmentDefault;
     }
@@ -171,4 +181,5 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     public void addProfileProperty(String key, String value) {
         resolverProfileProperties.put(key, value);
     }
+
 }

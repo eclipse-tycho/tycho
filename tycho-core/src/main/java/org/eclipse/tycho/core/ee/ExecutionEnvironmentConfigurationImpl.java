@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     private final ProfileConfiguration[] configurations = new ProfileConfiguration[2];
 
     private String effectiveProfileName = null;
+    private String resolverProfileName = null;
     private CustomExecutionEnvironment customExecutionEnvironment;
 
     public ExecutionEnvironmentConfigurationImpl(Logger logger) {
@@ -52,6 +53,20 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         }
 
         this.configurations[SECONDARY] = new ProfileConfiguration(profileName, configurationOrigin);
+    }
+
+    public void overrideProfileConfigurationForResolver(String profileName) {
+        checkConfigurationMutable();
+        // TODO what happens if this is a custom profile?
+        this.resolverProfileName = profileName;
+    }
+
+    public String getProfileNameForResolver() {
+        if (resolverProfileName != null) {
+            return resolverProfileName;
+        } else {
+            return getProfileName();
+        }
     }
 
     private void checkConfigurationMutable() throws IllegalStateException {
@@ -115,6 +130,14 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         }
 
         return ExecutionEnvironmentUtils.getExecutionEnvironment(getProfileName());
+    }
+
+    public ExecutionEnvironment getFullSpecificationForResolver() {
+        if (resolverProfileName == null) {
+            return getFullSpecification();
+        } else {
+            return ExecutionEnvironmentUtils.getExecutionEnvironment(resolverProfileName);
+        }
     }
 
     private static class ProfileConfiguration {

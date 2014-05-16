@@ -116,5 +116,17 @@ public class CustomEEResolutionHandlerTest {
             return null;
         }
 
+        public String getProfileNameForResolver() {
+            return null;
+        }
+
+        public void overrideProfileConfigurationForResolver(String profileName) throws IllegalStateException {
+            // not needed
+        }
+
+        public ExecutionEnvironment getFullSpecificationForResolver() {
+            return null;
+        }
+
     }
 }

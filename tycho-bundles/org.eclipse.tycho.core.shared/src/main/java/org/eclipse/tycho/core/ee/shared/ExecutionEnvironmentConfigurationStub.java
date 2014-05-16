@@ -12,7 +12,6 @@ package org.eclipse.tycho.core.ee.shared;
 
 import java.util.List;
 
-
 /**
  * {@link ExecutionEnvironmentConfiguration} instance usable for additional calls of the target
  * platform computation and dependency resolution.
@@ -39,6 +38,10 @@ public class ExecutionEnvironmentConfigurationStub implements ExecutionEnvironme
         return profileName;
     }
 
+    public String getProfileNameForResolver() {
+        return getProfileName();
+    }
+
     public boolean isCustomProfile() {
         return false;
     }
@@ -53,12 +56,22 @@ public class ExecutionEnvironmentConfigurationStub implements ExecutionEnvironme
         throw new UnsupportedOperationException();
     }
 
+    public void overrideProfileConfigurationForResolver(String profileName) {
+        // not needed
+        throw new UnsupportedOperationException();
+    }
+
     public void setFullSpecificationForCustomProfile(List<SystemCapability> systemCapabilities) {
         // not needed
         throw new UnsupportedOperationException();
     }
 
     public ExecutionEnvironment getFullSpecification() {
+        // not needed
+        throw new UnsupportedOperationException();
+    }
+
+    public ExecutionEnvironment getFullSpecificationForResolver() {
         // not needed
         throw new UnsupportedOperationException();
     }

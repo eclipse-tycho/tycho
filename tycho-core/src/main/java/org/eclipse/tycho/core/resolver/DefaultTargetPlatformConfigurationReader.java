@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,6 +123,14 @@ public class DefaultTargetPlatformConfigurationReader {
         return result;
     }
 
+    private void setResolverExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        String value = getStringValue(configuration.getChild("executionEnvironment"));
+        if (value == null) {
+            return;
+        }
+        result.setResolverExecutionEnvironment(value);
+    }
+
     private void setIncludePackedArtifacts(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         String value = getStringValue(configuration.getChild("includePackedArtifacts"));
 
@@ -141,6 +149,7 @@ public class DefaultTargetPlatformConfigurationReader {
         setOptionalDependencies(result, resolverDom);
         readExtraRequirements(result, resolverDom);
         readProfileProperties(result, resolverDom);
+        setResolverExecutionEnvironment(result, resolverDom);
 
     }
 
