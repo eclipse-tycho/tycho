@@ -70,4 +70,15 @@ public class Java7ResolutionTest extends AbstractTychoIntegrationTest {
         List<String> jreUnitVersions = productRepo.getUnitVersions("a.jre.javase");
         assertThat(jreUnitVersions, hasItem("1.7.0"));
     }
+
+    @Test
+    public void testP2ResolutionWithLoerBREEThanRequiredBundle() throws Exception {
+        Verifier verifier = getVerifier("eeProfile.java7/bundle2", false);
+        verifier.getCliOptions().add("-Dp2.repo.url=" + new File(buildResult, "repository1/target/repository").toURI());
+        verifier.executeGoal("verify");
+
+        // with bug 434959, p2 resolver would fail
+        verifier.verifyErrorFreeLog();
+    }
+
 }
