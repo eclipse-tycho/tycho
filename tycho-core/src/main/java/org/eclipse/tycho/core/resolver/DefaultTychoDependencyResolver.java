@@ -26,7 +26,7 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TargetPlatformResolver;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
@@ -83,7 +83,7 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
         dr.readExecutionEnvironmentConfiguration(project, eeConfiguration);
         project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, eeConfiguration);
 
-        TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
+        DependencyResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
         resolver.setupProjects(session, project, reactorProject);
     }
 
@@ -93,7 +93,7 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
             return;
         }
 
-        TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
+        DependencyResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
         logger.info("Computing target platform for " + project);
         TargetPlatform preliminaryTargetPlatform = resolver.computePreliminaryTargetPlatform(session, project,

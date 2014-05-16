@@ -20,8 +20,7 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 
-// TODO 364134 rename this class
-public class DefaultTargetPlatform extends BasicDependencyArtifacts implements DependencyArtifacts {
+public class DefaultDependencyArtifacts extends ArtifactCollection implements DependencyArtifacts {
 
     /**
      * ArtifactKey cache used to correlate equal instances to reduce memory usage
@@ -44,11 +43,11 @@ public class DefaultTargetPlatform extends BasicDependencyArtifacts implements D
      */
     protected final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<Object>();
 
-    public DefaultTargetPlatform() {
+    public DefaultDependencyArtifacts() {
         this(null);
     }
 
-    public DefaultTargetPlatform(ReactorProject project) {
+    public DefaultDependencyArtifacts(ReactorProject project) {
         this.project = project;
     }
 

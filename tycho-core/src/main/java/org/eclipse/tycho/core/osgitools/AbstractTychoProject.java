@@ -21,8 +21,8 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
-import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
+import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
+import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
@@ -34,8 +34,8 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     public DependencyArtifacts getDependencyArtifacts(MavenProject project, TargetEnvironment environment) {
         DependencyArtifacts platform = getDependencyArtifacts(project);
 
-        if (environment != null && platform instanceof MultiEnvironmentTargetPlatform) {
-            platform = ((MultiEnvironmentTargetPlatform) platform).getPlatform(environment);
+        if (environment != null && platform instanceof MultiEnvironmentDependencyArtifacts) {
+            platform = ((MultiEnvironmentDependencyArtifacts) platform).getPlatform(environment);
 
             if (platform == null) {
                 throw new IllegalStateException("Unsupported runtime environment " + environment.toString()
@@ -56,7 +56,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     }
 
     /**
-     * @deprecated Only needed for {@link LocalTargetPlatformResolver}; p2 resolver checks
+     * @deprecated Only needed for {@link LocalDependencyResolver}; p2 resolver checks
      *             consistency itself
      */
     @Deprecated

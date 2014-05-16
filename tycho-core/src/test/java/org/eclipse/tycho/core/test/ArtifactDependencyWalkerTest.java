@@ -28,10 +28,10 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
-import org.eclipse.tycho.core.TargetPlatformResolver;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.AbstractArtifactDependencyWalker;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
+import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
@@ -88,8 +88,8 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
     }
 
     protected DependencyArtifacts getTargetPlatform() throws Exception {
-        LocalTargetPlatformResolver resolver = (LocalTargetPlatformResolver) lookup(TargetPlatformResolver.class,
-                LocalTargetPlatformResolver.ROLE_HINT);
+        LocalDependencyResolver resolver = (LocalDependencyResolver) lookup(DependencyResolver.class,
+                LocalDependencyResolver.ROLE_HINT);
 
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
         request.setLocalRepository(new StubArtifactRepository(System.getProperty("java.io.tmpdir")));

@@ -11,11 +11,11 @@
 package org.eclipse.tycho.core.testcomponents;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.core.TargetPlatformResolver;
-import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
+import org.eclipse.tycho.core.DependencyResolver;
+import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
 
 // TODO romove me as part of TYCHO-527
-@Component(role = TargetPlatformResolver.class, hint = "p2", instantiationStrategy = "per-lookup")
-public class StubP2TargetPlatformResolver extends LocalTargetPlatformResolver {
+@Component(role = DependencyResolver.class, hint = "p2", instantiationStrategy = "per-lookup")
+public class StubP2TargetPlatformResolver extends LocalDependencyResolver {
 
 }

@@ -19,7 +19,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
-import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
+import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
@@ -47,7 +47,7 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
 
     public void test_noSystemBundle() throws BundleException {
         Properties properties = subject.getPlatformProperties(new Properties(), null, DUMMY_EE);
-        State state = subject.newState(new DefaultTargetPlatform(), properties);
+        State state = subject.newState(new DefaultDependencyArtifacts(), properties);
 
         BundleDescription[] bundles = state.getBundles("system.bundle");
 

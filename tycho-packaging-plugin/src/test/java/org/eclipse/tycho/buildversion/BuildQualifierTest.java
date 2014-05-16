@@ -28,7 +28,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
+import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
@@ -217,7 +217,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         MavenProject project = getProject(projects, "attachedfeature");
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
-        DefaultTargetPlatform dependencyArtifacts = (DefaultTargetPlatform) TychoProjectUtils
+        DefaultDependencyArtifacts dependencyArtifacts = (DefaultDependencyArtifacts) TychoProjectUtils
                 .getDependencyArtifacts(project);
 
         // replace target platform dependencies with fake attached feature and bundle atrifacts

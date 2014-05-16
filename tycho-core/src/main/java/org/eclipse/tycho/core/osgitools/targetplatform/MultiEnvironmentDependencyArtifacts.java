@@ -18,19 +18,18 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 
-// TODO 364134 revise this class
-public class MultiEnvironmentTargetPlatform extends DefaultTargetPlatform {
+public class MultiEnvironmentDependencyArtifacts extends DefaultDependencyArtifacts {
     public Map<TargetEnvironment, DependencyArtifacts> platforms = new LinkedHashMap<TargetEnvironment, DependencyArtifacts>();
 
-    public MultiEnvironmentTargetPlatform() {
+    public MultiEnvironmentDependencyArtifacts() {
         this(null);
     }
 
-    public MultiEnvironmentTargetPlatform(ReactorProject project) {
+    public MultiEnvironmentDependencyArtifacts(ReactorProject project) {
         super(project);
     }
 
-    public void addPlatform(TargetEnvironment environment, DefaultTargetPlatform platform) {
+    public void addPlatform(TargetEnvironment environment, DefaultDependencyArtifacts platform) {
         platforms.put(environment, platform);
 
         for (ArtifactDescriptor artifact : platform.artifacts.values()) {

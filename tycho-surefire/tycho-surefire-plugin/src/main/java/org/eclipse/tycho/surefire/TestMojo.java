@@ -63,7 +63,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TargetPlatformResolver;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -685,7 +685,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
-        TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
+        DependencyResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
         final List<Dependency> extraDependencies = getExtraDependencies();
         List<ReactorProject> reactorProjects = getReactorProjects();
 

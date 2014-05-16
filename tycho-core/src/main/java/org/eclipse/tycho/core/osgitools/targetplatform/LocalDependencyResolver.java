@@ -30,6 +30,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -39,7 +40,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TargetPlatformResolver;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyCollector;
@@ -51,11 +52,10 @@ import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.model.Feature;
 
 /**
- * Creates target platform based on local eclipse installation.
+ * Creates target platform based on local Eclipse installation.
  */
-//TODO 364134 revise the role of this class
-@Component(role = TargetPlatformResolver.class, hint = LocalTargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
-public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver implements TargetPlatformResolver {
+@Component(role = DependencyResolver.class, hint = LocalDependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
+public class LocalDependencyResolver extends AbstractLogEnabled implements DependencyResolver {
 
     public static final String ROLE_HINT = "local";
 
@@ -78,7 +78,7 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
         return child.getAbsolutePath().startsWith(parent.getAbsolutePath());
     }
 
-    private void addProjects(MavenSession session, DefaultTargetPlatform platform) {
+    private void addProjects(MavenSession session, DefaultDependencyArtifacts platform) {
         File parentDir = null;
 
         for (MavenProject project : session.getProjects()) {
@@ -98,6 +98,10 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
         }
     }
 
+    public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject) {
+        // everything is done in resolveDependencies
+    }
+
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects) {
         // everything is done in resolveDependencies
@@ -107,7 +111,7 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
-        DefaultTargetPlatform platform = new DefaultTargetPlatform(DefaultReactorProject.adapt(project));
+        DefaultDependencyArtifacts platform = new DefaultDependencyArtifacts(DefaultReactorProject.adapt(project));
 
         for (File site : layout.getSites()) {
             for (File plugin : layout.getPlugins(site)) {
@@ -137,7 +141,7 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
         return platform;
     }
 
-    private void addDependencies(MavenSession session, MavenProject project, DefaultTargetPlatform platform) {
+    private void addDependencies(MavenSession session, MavenProject project, DefaultDependencyArtifacts platform) {
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
                 .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
 
@@ -230,11 +234,6 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
 
     public void setLocation(File location) throws IOException {
         layout.setLocation(location.getAbsoluteFile());
-    }
-
-    public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject) {
-        // TODO Auto-generated method stub
-
     }
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,

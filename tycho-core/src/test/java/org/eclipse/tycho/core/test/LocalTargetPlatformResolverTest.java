@@ -27,9 +27,9 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.core.TargetPlatformResolver;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.targetplatform.LocalTargetPlatformResolver;
+import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
@@ -47,8 +47,8 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
     }
 
     protected DependencyArtifacts getTargetPlatform(File location) throws Exception, IOException {
-        LocalTargetPlatformResolver resolver = (LocalTargetPlatformResolver) lookup(TargetPlatformResolver.class,
-                LocalTargetPlatformResolver.ROLE_HINT);
+        LocalDependencyResolver resolver = (LocalDependencyResolver) lookup(DependencyResolver.class,
+                LocalDependencyResolver.ROLE_HINT);
 
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
         request.setLocalRepository(new StubArtifactRepository(location.getAbsolutePath()));
