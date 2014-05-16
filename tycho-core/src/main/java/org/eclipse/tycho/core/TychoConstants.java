@@ -17,7 +17,7 @@ public interface TychoConstants {
 
     static final String CTX_BASENAME = TychoConstants.class.getName();
 
-    static final String CTX_TARGET_PLATFORM = CTX_BASENAME + "/targetPlatform";
+    // static final String CTX_TARGET_PLATFORM -> moved to TargetPlatform.FINAL_TARGET_PLATFORM_KEY;
     static final String CTX_DEPENDENCY_ARTIFACTS = CTX_BASENAME + "/dependencyArtifacts";
     static final String CTX_ECLIPSE_PLUGIN_PROJECT = CTX_BASENAME + "/eclipsePluginProject";
     static final String CTX_ECLIPSE_PLUGIN_CLASSPATH = CTX_BASENAME + "/eclipsePluginClasspath";

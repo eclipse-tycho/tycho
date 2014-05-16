@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,18 +23,37 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFilePro
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
 
 /**
- * {@link RepositoryArtifactProvider} implementation which adds file capabilities. Currently only
- * needed in tests.
+ * {@link RepositoryArtifactProvider} implementation which adds file access capabilities.
  */
 public class FileRepositoryArtifactProvider extends RepositoryArtifactProvider implements IRawArtifactFileProvider {
+
+    public FileRepositoryArtifactProvider(List<IFileArtifactRepository> repositories,
+            ArtifactTransferPolicy transferPolicy) {
+        super(repositories, transferPolicy);
+    }
 
     public FileRepositoryArtifactProvider(List<URI> artifactRepositories, ArtifactTransferPolicy transferPolicy,
             IProvisioningAgent agent) {
         super(artifactRepositories, transferPolicy, agent);
     }
 
+    FileRepositoryArtifactProvider(RepositoryLoader repositoryLoader, ArtifactTransferPolicy transferPolicy) {
+        super(repositoryLoader, transferPolicy);
+    }
+
+    @Override
+    protected void repositoriesLoaded() {
+        for (IArtifactRepository repository : repositories) {
+            if (!(repository instanceof IFileArtifactRepository)) {
+                throw new IllegalArgumentException("Repository loaded from \"" + repository.getLocation()
+                        + "\" is not a file system based artifact repository.");
+            }
+        }
+    }
+
     @Override
     public File getArtifactFile(IArtifactKey key) {
+        init();
         for (IArtifactRepository repository : repositories) {
             if (repository.contains(key)) {
                 return ((IFileArtifactRepository) repository).getArtifactFile(key);
@@ -45,6 +64,7 @@ public class FileRepositoryArtifactProvider extends RepositoryArtifactProvider i
 
     @Override
     public File getArtifactFile(IArtifactDescriptor descriptor) {
+        init();
         for (IArtifactRepository repository : repositories) {
             if (repository.contains(descriptor)) {
                 return ((IFileArtifactRepository) repository).getArtifactFile(descriptor);

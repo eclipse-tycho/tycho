@@ -10,16 +10,57 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_FEATURE;
+import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_PLUGIN;
+
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 
 @SuppressWarnings("restriction")
 public class ArtifactTypeHelper {
+
+    // p2 installable units
+
+    /**
+     * Returns a query matching the installable units representing the specified Eclipse
+     * artifact(s).
+     * 
+     * @param type
+     *            Eclipse artifact type as defined in Tycho's {@link ArtifactType}
+     * @throws IllegalArtifactReferenceException
+     *             if the given artifact type is unknown
+     */
+    public static IQuery<IInstallableUnit> createQueryFor(String type, String id, VersionRange versionRange)
+            throws IllegalArtifactReferenceException {
+
+        if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(type)) {
+            return QueryUtil.createMatchQuery(createBundleRequirement(id, versionRange).getMatches());
+
+        } else if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(type)) {
+            return QueryUtil.createPipeQuery(QueryUtil.createIUQuery(id + ".feature.group", versionRange),
+                    QueryUtil.createIUGroupQuery());
+
+        } else if (ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type)) {
+            return QueryUtil.createPipeQuery(QueryUtil.createIUQuery(id, versionRange),
+                    QueryUtil.createIUProductQuery());
+
+        } else if (ArtifactType.TYPE_INSTALLABLE_UNIT.equals(type)) {
+            return QueryUtil.createIUQuery(id, versionRange);
+
+        } else {
+            throw new IllegalArtifactReferenceException("Unknown artifact type \"" + type + "\"");
+        }
+    }
 
     public static IRequirement createRequirementFor(String type, String id, VersionRange versionRange)
             throws IllegalArtifactReferenceException {
@@ -58,6 +99,26 @@ public class ArtifactTypeHelper {
 
     private static IRequirement createIURequirement(String id, VersionRange versionRange) {
         return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, versionRange, null, false, true);
+    }
+
+    // p2 artifacts
+
+    public static IArtifactKey toP2ArtifactKey(org.eclipse.tycho.ArtifactKey artifact) {
+        if (TYPE_ECLIPSE_PLUGIN.equals(artifact.getType())) {
+            return createP2ArtifactKey(PublisherHelper.OSGI_BUNDLE_CLASSIFIER, artifact);
+
+        } else if (TYPE_ECLIPSE_FEATURE.equals(artifact.getType())) {
+            return createP2ArtifactKey(PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER, artifact);
+
+        } else {
+            // other artifacts don't have files that can be referenced by their Eclipse coordinates
+            return null;
+        }
+    }
+
+    private static IArtifactKey createP2ArtifactKey(String type, org.eclipse.tycho.ArtifactKey artifact) {
+        return new org.eclipse.equinox.internal.p2.metadata.ArtifactKey(type, artifact.getId(),
+                Version.parseVersion(artifact.getVersion()));
     }
 
 }

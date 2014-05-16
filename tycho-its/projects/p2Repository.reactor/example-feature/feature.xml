@@ -2,29 +2,17 @@
 <feature
       id="prr.example.feature"
       label="Example Feature"
-      version="1.0.0.qualifier">
-
-   <description url="http://www.example.com/description">
-      A description of an example feature
-   </description>
-
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
-   </copyright>
-
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
-   </license>
+      version="1.2.0.qualifier">
 
    <includes
          id="prr.example.included.feature"
-         version="0.0.0"/>
+         version="1.0.0.qualifier"/>
 
    <plugin
          id="prr.example.bundle"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.2.0.qualifier"/>
 
    <plugin
          id="org.eclipse.core.contenttype"

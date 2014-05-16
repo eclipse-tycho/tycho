@@ -1,6 +1,6 @@
 <site>
    <category-def name="example.category" label="Example Category"/>
-   <feature url="features/prr.example.feature_1.0.0.qualifier.jar" id="prr.example.feature" version="1.0.0.qualifier">
+   <feature url="features/prr.example.feature_1.2.0.qualifier.jar" id="prr.example.feature" version="1.2.0.qualifier">
       <category name="example.category"/>
    </feature>
 </site>

@@ -14,8 +14,10 @@ import java.io.File;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 
 /**
@@ -30,7 +32,9 @@ public interface PublishingRepository extends PublishingRepositoryFacade {
 
     public IMetadataRepository getMetadataRepository();
 
-    public IArtifactRepository getArtifactRepository();
+    public IRawArtifactFileProvider getArtifacts();
+
+    public IFileArtifactRepository getArtifactRepository();
 
     /**
      * Returns a view onto the project's artifact repository which allows writing new artifacts.

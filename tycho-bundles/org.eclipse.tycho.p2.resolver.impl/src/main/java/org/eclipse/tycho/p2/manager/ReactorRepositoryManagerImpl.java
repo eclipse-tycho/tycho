@@ -38,8 +38,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
     private static final String PRELIMINARY_TARGET_PLATFORM_KEY = ReactorRepositoryManagerImpl.class.getName()
             + "/dependencyOnlyTargetPlatform";
-    // see org.eclipse.tycho.core.TychoConstants.CTX_TARGET_PLATFORM // TODO delete the value in TychoConstants
-    private static final String FINAL_TARGET_PLATFORM_KEY = "org.eclipse.tycho.core.TychoConstants/targetPlatform";
+    private static final String FINAL_TARGET_PLATFORM_KEY = TargetPlatform.FINAL_TARGET_PLATFORM_KEY;
 
     private IProvisioningAgentProvider agentFactory;
     private File agentDir;

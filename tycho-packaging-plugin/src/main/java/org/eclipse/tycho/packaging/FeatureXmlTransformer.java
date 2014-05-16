@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,14 +16,14 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.ArtifactDependencyVisitor;
-import org.eclipse.tycho.core.ArtifactDependencyWalker;
-import org.eclipse.tycho.core.FeatureDescription;
-import org.eclipse.tycho.core.PluginDescription;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.Feature;
@@ -40,71 +40,72 @@ public class FeatureXmlTransformer {
     @Requirement
     private FileLockService fileLockService;
 
-    public Feature transform(final ReactorProject reactorProject, Feature source, ArtifactDependencyWalker dependencies) {
+    public FeatureXmlTransformer() {
+    }
 
-        Feature feature = new Feature(source);
+    public FeatureXmlTransformer(Logger log, FileLockService fileLockService) {
+        this.log = log;
+        this.fileLockService = fileLockService;
+    }
 
-        dependencies.traverseFeature(reactorProject.getBasedir(), feature, new ArtifactDependencyVisitor() {
-            public void visitPlugin(PluginDescription plugin) {
-                PluginRef pluginRef = plugin.getPluginRef();
+    /**
+     * Replaces references in the feature model with versions from the target platform.
+     * 
+     * @param feature
+     *            The feature model to have plug-in and feature references completed.
+     */
+    public Feature expandReferences(Feature feature, TargetPlatform targetPlatform) throws MojoFailureException {
 
-                if (pluginRef == null) {
-                    // can't really happen
-                    return;
-                }
+        for (PluginRef pluginRef : feature.getPlugins()) {
+            ArtifactKey plugin = resolvePluginReference(targetPlatform, pluginRef);
+            pluginRef.setVersion(plugin.getVersion());
 
-                File location = plugin.getLocation();
+            File location = targetPlatform.getArtifactLocation(plugin);
+            setDownloadAndInstallSize(pluginRef, location);
+        }
 
-                ReactorProject bundleProject = plugin.getMavenProject();
-                if (bundleProject != null) {
-                    location = bundleProject.getArtifact(plugin.getClassifier());
-                    if (location == null) {
-                        throw new IllegalStateException(bundleProject.getId()
-                                + " does not provide an artifact with classifier '" + plugin.getClassifier() + "'");
-                    }
-                    if (location.isDirectory()) {
-                        throw new IllegalStateException("At least ``package'' phase execution is required");
-                    }
-                    pluginRef.setVersion(bundleProject.getExpandedVersion());
-                } else {
-                    // use version from target platform
-                    pluginRef.setVersion(plugin.getKey().getVersion());
-                }
-
-                long downloadSize = 0;
-                long installSize = 0;
-                if (location.isFile()) {
-                    installSize = getInstallSize(location);
-                    downloadSize = location.length();
-                } else {
-                    log.info("Download/install size is not calculated for directory based bundle " + pluginRef.getId());
-                }
-
-                pluginRef.setDownloadSize(downloadSize / KBYTE);
-                pluginRef.setInstallSize(installSize / KBYTE);
-            }
-
-            public boolean visitFeature(FeatureDescription feature) {
-                FeatureRef featureRef = feature.getFeatureRef();
-                if (featureRef == null) {
-                    // this feature
-                    feature.getFeature().setVersion(reactorProject.getExpandedVersion());
-                    return true; // keep visiting
-                } else {
-                    // included feature
-                    ReactorProject otherProject = feature.getMavenProject();
-                    if (otherProject != null) {
-                        featureRef.setVersion(otherProject.getExpandedVersion());
-                    } else {
-                        featureRef.setVersion(feature.getKey().getVersion());
-                    }
-                }
-
-                return false; // do not traverse included features
-            }
-        });
+        for (FeatureRef featureRef : feature.getIncludedFeatures()) {
+            ArtifactKey includedFeature = resolveFeatureReference(targetPlatform, featureRef);
+            featureRef.setVersion(includedFeature.getVersion());
+        }
 
         return feature;
+    }
+
+    private ArtifactKey resolvePluginReference(TargetPlatform targetPlatform, PluginRef pluginRef)
+            throws MojoFailureException {
+        try {
+            return targetPlatform.resolveReference(ArtifactType.TYPE_ECLIPSE_PLUGIN, pluginRef.getId(),
+                    pluginRef.getVersion());
+        } catch (IllegalArtifactReferenceException e) {
+            throw new MojoFailureException("Invalid reference to plug-in \"" + pluginRef.getId() + "\" with version \""
+                    + pluginRef.getVersion() + "\": " + e.getMessage(), e);
+        }
+    }
+
+    private ArtifactKey resolveFeatureReference(TargetPlatform targetPlatform, FeatureRef featureRef)
+            throws MojoFailureException {
+        try {
+            return targetPlatform.resolveReference(ArtifactType.TYPE_ECLIPSE_FEATURE, featureRef.getId(),
+                    featureRef.getVersion());
+        } catch (IllegalArtifactReferenceException e) {
+            throw new MojoFailureException("Invalid reference to feature \"" + featureRef.getId()
+                    + "\" with version \"" + featureRef.getVersion() + "\": " + e.getMessage(), e);
+        }
+    }
+
+    private void setDownloadAndInstallSize(PluginRef pluginRefToEdit, File artifact) {
+        long downloadSize = 0;
+        long installSize = 0;
+        if (artifact.isFile()) {
+            installSize = getInstallSize(artifact);
+            downloadSize = artifact.length();
+        } else {
+            log.info("Download/install size is not calculated for directory based bundle " + pluginRefToEdit.getId());
+        }
+
+        pluginRefToEdit.setDownloadSize(downloadSize / KBYTE);
+        pluginRefToEdit.setInstallSize(installSize / KBYTE);
     }
 
     protected long getInstallSize(File location) {
@@ -117,7 +118,7 @@ public class FeatureXmlTransformer {
                 try {
                     Enumeration<JarEntry> entries = jar.entries();
                     while (entries.hasMoreElements()) {
-                        JarEntry entry = (JarEntry) entries.nextElement();
+                        JarEntry entry = entries.nextElement();
                         long entrySize = entry.getSize();
                         if (entrySize > 0) {
                             installSize += entrySize;
