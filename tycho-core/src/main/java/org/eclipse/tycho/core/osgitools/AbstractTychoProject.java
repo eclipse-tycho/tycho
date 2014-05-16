@@ -100,6 +100,11 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
             sink.setProfileConfiguration(configuredDefaultProfile,
                     "target-platform-configuration <executionEnvironmentDefault>");
         }
+
+        String resolverProfile = tpConfiguration.getResolverExecutionEnvironment();
+        if (resolverProfile != null) {
+            sink.setResolverProfileName(resolverProfile);
+        }
     }
 
 }

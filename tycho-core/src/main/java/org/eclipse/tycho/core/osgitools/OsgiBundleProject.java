@@ -45,6 +45,7 @@ import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -245,8 +246,15 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     private State getResolverState(MavenProject project, DependencyArtifacts artifacts) {
         try {
-            ExecutionEnvironment executionEnvironment = TychoProjectUtils.getExecutionEnvironmentConfiguration(project)
-                    .getFullSpecification();
+            ExecutionEnvironmentConfiguration eeConfiguration = TychoProjectUtils
+                    .getExecutionEnvironmentConfiguration(project);
+            ExecutionEnvironment executionEnvironment;
+            if (eeConfiguration.getResolverProfileName() != null) {
+                executionEnvironment = ExecutionEnvironmentUtils.getExecutionEnvironment(eeConfiguration
+                        .getResolverProfileName());
+            } else {
+                executionEnvironment = eeConfiguration.getFullSpecification();
+            }
             return resolver.newResolvedState(project, executionEnvironment, artifacts);
         } catch (BundleException e) {
             throw new RuntimeException(e);

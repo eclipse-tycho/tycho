@@ -49,6 +49,8 @@ public interface ExecutionEnvironmentConfiguration {
      */
     public void setProfileConfiguration(String profileName, String configurationOrigin) throws IllegalStateException;
 
+    public void setResolverProfileName(String profileName) throws IllegalStateException;
+
     /**
      * Returns the name of the configured profile.
      */
@@ -80,5 +82,7 @@ public interface ExecutionEnvironmentConfiguration {
      * @see ExecutionEnvironment
      */
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException;
+
+    public String getResolverProfileName();
 
 }

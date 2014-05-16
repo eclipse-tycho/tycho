@@ -78,6 +78,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 setExecutionEnvironment(result, configuration);
                 setExecutionEnvironmentDefault(result, configuration);
+                setResolverExecutionEnvironment(result, configuration);
 
                 readFilters(result, configuration);
 
@@ -121,6 +122,15 @@ public class DefaultTargetPlatformConfigurationReader {
         }
 
         return result;
+    }
+
+    private void setResolverExecutionEnvironment(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        String value = getStringValue(configuration.getChild("resolverExecutionEnvironment"));
+
+        if (value == null) {
+            return;
+        }
+        result.setResolverExecutionEnvironment(value);
     }
 
     private void setIncludePackedArtifacts(TargetPlatformConfiguration result, Xpp3Dom configuration) {
