@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -35,6 +37,15 @@ public class FinalTargetPlatformImpl extends TargetPlatformBaseImpl {
     @Override
     public void reportUsedLocalIUs(Collection<IInstallableUnit> usedUnits) {
         // not needed; already done during dependency resolution with the preliminary TP
+    }
+
+    @Override
+    public File getArtifactLocation(org.eclipse.tycho.ArtifactKey artifact) {
+        IArtifactKey p2Artifact = ArtifactTypeHelper.toP2ArtifactKey(artifact);
+        if (p2Artifact != null) {
+            return artifacts.getArtifactFile(p2Artifact);
+        }
+        return null;
     }
 
 }

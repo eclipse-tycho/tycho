@@ -25,6 +25,7 @@ public interface ReactorRepositoryManager extends ReactorRepositoryManagerFacade
      * @param project
      *            a reference to a project in the reactor.
      */
+    @Override
     PublishingRepository getPublishingRepository(ReactorProjectIdentities project);
 
 }

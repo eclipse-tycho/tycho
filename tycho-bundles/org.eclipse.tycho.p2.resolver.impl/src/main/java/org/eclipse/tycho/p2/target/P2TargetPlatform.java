@@ -23,8 +23,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 /**
- * Specialization of the {@link TargetPlatform} interface for a target platform which includes p2
- * metadata.
+ * Extension of the {@link TargetPlatform} interface by methods which depend on p2.
  */
 public interface P2TargetPlatform extends TargetPlatform {
 

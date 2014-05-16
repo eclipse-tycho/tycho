@@ -51,6 +51,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.repository.local.LocalMetadataRepository;
+import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.junit.Before;
@@ -60,6 +61,9 @@ import org.junit.Test;
 public class TargetPlatformFactoryTest {
 
     private static final ReactorProjectIdentities DUMMY_PROJECT = new ReactorProjectIdentitiesStub("dummy-artifact");
+
+    // the joint artifact provider is tested in integration
+    private static final List<IRawArtifactFileProvider> REACTOR_ARTIFACTS = Collections.emptyList();
 
     @Rule
     public LogVerifier logVerifier = new LogVerifier();
@@ -83,7 +87,8 @@ public class TargetPlatformFactoryTest {
                 preliminaryReactor, null);
 
         // final TP without any reactor content
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
+                REACTOR_ARTIFACTS);
 
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("reactor.id"))));
     }
@@ -93,7 +98,8 @@ public class TargetPlatformFactoryTest {
         tpConfig.addP2Repository(ResourceUtil.resourceFile("repositories/launchers").toURI());
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
 
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
+                REACTOR_ARTIFACTS);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("org.eclipse.equinox.launcher")));
     }
@@ -103,7 +109,8 @@ public class TargetPlatformFactoryTest {
         tpConfig.addTargetDefinition(targetDefinition(TestRepositories.V1_AND_V2, MAIN_BUNDLE));
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
 
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
+                REACTOR_ARTIFACTS);
 
         assertThat(finalTP.getInstallableUnits(),
                 hasItem(unit(MAIN_BUNDLE.getId(), MAIN_BUNDLE.getVersion().toString())));
@@ -117,7 +124,8 @@ public class TargetPlatformFactoryTest {
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null,
                 pomDependencies);
 
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
+                REACTOR_ARTIFACTS);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("test.unit")));
     }
@@ -127,7 +135,8 @@ public class TargetPlatformFactoryTest {
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig,
                 ExecutionEnvironmentTestUtils.standardEEResolutionHintProvider("J2SE-1.4"), null, null);
 
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
+                REACTOR_ARTIFACTS);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unit("a.jre.j2se", "1.4.0")));
     }
@@ -138,7 +147,8 @@ public class TargetPlatformFactoryTest {
 
         Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections.singletonMap(
                 InstallableUnitUtil.createIU("bundle", "1.2.0"), DUMMY_PROJECT);
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits,
+                REACTOR_ARTIFACTS);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unit("bundle", "1.2.0")));
     }
@@ -169,7 +179,8 @@ public class TargetPlatformFactoryTest {
         Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = new HashMap<IInstallableUnit, ReactorProjectIdentities>();
         finalUnits.put(InstallableUnitUtil.createIU("test.feature.feature.group"), DUMMY_PROJECT);
         finalUnits.put(InstallableUnitUtil.createIU("iu.p2.inf"), DUMMY_PROJECT);
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits,
+                REACTOR_ARTIFACTS);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unitWithId("test.feature.feature.group")));
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("iu.p2.inf"))));
@@ -189,7 +200,8 @@ public class TargetPlatformFactoryTest {
                 pomDependencies);
         assertThat(preliminaryTP.getInstallableUnits(), not(hasItem(unitWithId("test.unit"))));
 
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, null,
+                REACTOR_ARTIFACTS);
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unitWithId("test.unit"))));
     }
 
@@ -208,7 +220,8 @@ public class TargetPlatformFactoryTest {
 
         Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = Collections.singletonMap(
                 InstallableUnitUtil.createIU("trt.bundle", "1.5.5.20140216"), reactorProject.getIdentities());
-        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits);
+        P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits,
+                REACTOR_ARTIFACTS);
 
         assertThat(finalTP.getInstallableUnits(), hasItem(unit("trt.bundle", "1.5.5.20140216")));
         assertThat(finalTP.getInstallableUnits(), not(hasItem(unit("trt.bundle", "1.0.0.201108051343"))));

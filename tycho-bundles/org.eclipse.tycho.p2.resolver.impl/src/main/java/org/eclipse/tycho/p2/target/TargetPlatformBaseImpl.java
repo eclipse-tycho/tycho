@@ -18,6 +18,7 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
@@ -56,12 +57,12 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
      */
     final ExecutionEnvironmentResolutionHints executionEnvironment;
 
-    final IRawArtifactFileProvider jointArtifacts;
+    final IRawArtifactFileProvider artifacts;
     @Deprecated
     private LocalArtifactRepository localArtifactRepository;
 
     public TargetPlatformBaseImpl(LinkedHashSet<IInstallableUnit> installableUnits,
-            ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider jointArtifacts,
+            ExecutionEnvironmentResolutionHints executionEnvironment, IRawArtifactFileProvider artifacts,
             LocalArtifactRepository localArtifactRepository,
             Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup,
             Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup) {
@@ -69,13 +70,20 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         this.executionEnvironment = executionEnvironment;
         this.reactorProjectLookup = reactorProjectLookup;
         this.mavenArtifactLookup = mavenArtifactLookup;
-        this.jointArtifacts = jointArtifacts;
+        this.artifacts = artifacts;
         this.localArtifactRepository = localArtifactRepository;
     }
 
     @Override
     public final Set<IInstallableUnit> getInstallableUnits() {
         return installableUnits;
+    }
+
+    @Override
+    public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, String version)
+            throws IllegalArtifactReferenceException {
+        LinkedHashSet<IInstallableUnit> candidateUnits = installableUnits;
+        return ArtifactMatcher.resolveReference(type, id, version, candidateUnits);
     }
 
     @Override
@@ -95,7 +103,7 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
 
     @Override
     public final File getLocalArtifactFile(IArtifactKey key) {
-        return jointArtifacts.getArtifactFile(key);
+        return artifacts.getArtifactFile(key);
     }
 
     @Override

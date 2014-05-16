@@ -135,7 +135,7 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
     }
 
     /**
-     * @see org.eclipse.tycho.TargetPlatform.getArtifact(String, String, String)
+     * @see org.eclipse.tycho.artifacts.DependencyArtifacts.getArtifact(String, String, String)
      */
     protected VersionRange getVersionRange(Version version) {
         if (version == null || OSGi_versionMin.equals(version)) {

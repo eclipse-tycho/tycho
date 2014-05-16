@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -20,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -52,10 +54,10 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     public PreliminaryTargetPlatformImpl(Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
             Collection<IInstallableUnit> externalIUs, Map<IInstallableUnit, IArtifactFacade> mavenArtifactIUs,
             ExecutionEnvironmentResolutionHints executionEnvironment, TargetPlatformFilterEvaluator filter,
-            LocalMetadataRepository localMetadataRepository, IRawArtifactFileProvider jointArtifacts,
+            LocalMetadataRepository localMetadataRepository, IRawArtifactFileProvider externalArtifacts,
             LocalArtifactRepository localArtifactRepository, boolean includeLocalRepo, MavenLogger logger) {
         super(collectAllInstallableUnits(reactorProjectIUs, externalIUs, executionEnvironment), executionEnvironment,
-                jointArtifacts, localArtifactRepository, reactorProjectIUs, mavenArtifactIUs);
+                externalArtifacts, localArtifactRepository, reactorProjectIUs, mavenArtifactIUs);
         this.externalIUs = externalIUs;
         this.filter = filter;
         this.localMetadataRepository = localMetadataRepository;
@@ -112,8 +114,14 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
         return filter;
     }
 
-    public IRawArtifactFileProvider getJointArtifacts() {
-        return jointArtifacts;
+    public IRawArtifactFileProvider getExternalArtifacts() {
+        return artifacts;
+    }
+
+    @Override
+    public File getArtifactLocation(ArtifactKey artifact) {
+        // the preliminary TP lacks the reactor artifacts so this method doesn't make sense
+        throw new UnsupportedOperationException();
     }
 
 }
