@@ -12,7 +12,6 @@ package org.eclipse.tycho.core.ee.shared;
 
 import java.util.List;
 
-
 /**
  * {@link ExecutionEnvironmentConfiguration} instance usable for additional calls of the target
  * platform computation and dependency resolution.
@@ -61,6 +60,18 @@ public class ExecutionEnvironmentConfigurationStub implements ExecutionEnvironme
     public ExecutionEnvironment getFullSpecification() {
         // not needed
         throw new UnsupportedOperationException();
+    }
+
+    public String getResolverProfileName() {
+        return null;
+    }
+
+    public void setResolverProfileName(String profileName) throws IllegalStateException {
+        // not needed
+    }
+
+    public ExecutionEnvironment getResolverExecutionEnvironment() {
+        return null;
     }
 
 }

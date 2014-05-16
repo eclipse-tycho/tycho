@@ -42,6 +42,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private String executionEnvironmentDefault;
 
+    private String resolverExecutionEnvironment;
+
     private List<TargetPlatformFilter> filters;
 
     private OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
@@ -114,6 +116,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         this.executionEnvironment = executionEnvironment;
     }
 
+    public void setResolverExecutionEnvironment(String resolverEE) {
+        this.resolverExecutionEnvironment = resolverEE;
+    }
+
+    public String getResolverExecutionEnvironment() {
+        return resolverExecutionEnvironment;
+    }
+
     public String getExecutionEnvironmentDefault() {
         return executionEnvironmentDefault;
     }
@@ -171,4 +181,5 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     public void addProfileProperty(String key, String value) {
         resolverProfileProperties.put(key, value);
     }
+
 }

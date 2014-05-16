@@ -29,6 +29,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     private final ProfileConfiguration[] configurations = new ProfileConfiguration[2];
 
     private String effectiveProfileName = null;
+    private String resolverProfileName = null;
     private CustomExecutionEnvironment customExecutionEnvironment;
 
     public ExecutionEnvironmentConfigurationImpl(Logger logger) {
@@ -52,6 +53,18 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         }
 
         this.configurations[SECONDARY] = new ProfileConfiguration(profileName, configurationOrigin);
+    }
+
+    public void setResolverProfileName(String profileName) {
+        this.resolverProfileName = profileName;
+    }
+
+    public String getResolverProfileName() {
+        if (resolverProfileName != null) {
+            return resolverProfileName;
+        } else {
+            return getProfileName();
+        }
     }
 
     private void checkConfigurationMutable() throws IllegalStateException {
@@ -115,6 +128,14 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         }
 
         return ExecutionEnvironmentUtils.getExecutionEnvironment(getProfileName());
+    }
+
+    public ExecutionEnvironment getResolverExecutionEnvironment() {
+        if (resolverProfileName == null) {
+            return getFullSpecification();
+        } else {
+            return ExecutionEnvironmentUtils.getExecutionEnvironment(resolverProfileName);
+        }
     }
 
     private static class ProfileConfiguration {

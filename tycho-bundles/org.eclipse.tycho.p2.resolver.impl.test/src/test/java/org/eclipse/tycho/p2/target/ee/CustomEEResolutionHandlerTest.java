@@ -116,5 +116,17 @@ public class CustomEEResolutionHandlerTest {
             return null;
         }
 
+        public String getResolverProfileName() {
+            return null;
+        }
+
+        public void setResolverProfileName(String profileName) throws IllegalStateException {
+            // not needed
+        }
+
+        public ExecutionEnvironment getResolverExecutionEnvironment() {
+            return null;
+        }
+
     }
 }

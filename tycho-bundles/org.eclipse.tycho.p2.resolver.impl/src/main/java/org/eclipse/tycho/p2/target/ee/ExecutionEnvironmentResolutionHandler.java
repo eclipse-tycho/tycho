@@ -22,7 +22,7 @@ public abstract class ExecutionEnvironmentResolutionHandler {
         if (eeConfiguration.isCustomProfile()) {
             return new CustomEEResolutionHandler(eeConfiguration);
         } else {
-            return new StandardEEResolutionHandler(eeConfiguration.getProfileName());
+            return new StandardEEResolutionHandler(eeConfiguration.getResolverProfileName());
         }
     }
 
