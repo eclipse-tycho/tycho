@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -117,8 +117,16 @@ public class PluginRef {
         dom.setAttribute("unpack", Boolean.toString(unpack));
     }
 
-    public void setDownloadSide(long size) {
+    public long getDownloadSize() {
+        return Long.parseLong(dom.getAttributeValue("download-size"));
+    }
+
+    public void setDownloadSize(long size) {
         dom.setAttribute("download-size", Long.toString(size));
+    }
+
+    public long getInstallSize() {
+        return Long.parseLong(dom.getAttributeValue("install-size"));
     }
 
     public void setInstallSize(long size) {

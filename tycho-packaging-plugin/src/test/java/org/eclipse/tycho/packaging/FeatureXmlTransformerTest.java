@@ -1,0 +1,106 @@
+/*******************************************************************************
+ * Copyright (c) 2014 SAP SE and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP SE - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.tycho.packaging;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+
+import org.apache.maven.plugin.testing.SilentLog;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.model.FeatureRef;
+import org.eclipse.tycho.model.PluginRef;
+import org.eclipse.tycho.test.util.NoopFileLockService;
+import org.eclipse.tycho.testing.TestUtil;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+public class FeatureXmlTransformerTest {
+    private static ArtifactKey rcpFeatureInTP;
+    private static ArtifactKey junit4InTP;
+    private static File junit4JarLocation;
+
+    private FeatureXmlTransformer subject;
+
+    @BeforeClass
+    public static void initTestResources() throws Exception {
+        rcpFeatureInTP = new DefaultArtifactKey("eclipse-feature", "org.eclipse.rcp", "4.5.0.v20140918");
+        junit4InTP = new DefaultArtifactKey("eclipse-plugin", "org.junit4", "4.8.1.v20100302");
+        junit4JarLocation = TestUtil.getTestResourceLocation("eclipse/plugins/org.junit4_4.8.1.v20100302.jar");
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testExpandReferences() throws Exception {
+        subject = new FeatureXmlTransformer(new SilentLog(), new NoopFileLockService());
+        Feature feature = Feature.read(new File(TestUtil.getBasedir("projects/featureXmlVersionExpansion/"),
+                "feature.xml"));
+
+        // TODO enter non-0.0.0 in test data, but need to add match policy parameter first -> see analysis in bugzilla
+        TargetPlatform tp = mock(TargetPlatform.class);
+        when(tp.resolveReference("eclipse-feature", "org.eclipse.rcp", "0.0.0")).thenReturn(rcpFeatureInTP);
+        when(tp.resolveReference("eclipse-plugin", "org.junit4", "0.0.0")).thenReturn(junit4InTP);
+        when(tp.getArtifactLocation(junit4InTP)).thenReturn(junit4JarLocation);
+
+        subject.expandReferences(feature, tp);
+
+        assertThat(feature.getIncludedFeatures(), hasItem(feature("org.eclipse.rcp", "4.5.0.v20140918")));
+
+        assertThat(feature.getPlugins(), hasItem(plugin("org.junit4", "4.8.1.v20100302")));
+        PluginRef plugin = feature.getPlugins().get(0);
+        assertThat(plugin.getId(), is("org.junit4"));
+        assertThat(plugin.getDownloadSize(), is(1L)); // 1720 bytes rounded to kiB
+        assertThat(plugin.getInstallSize(), is(2L)); // 2419 bytes rounded to kiB // TODO shouldn't installSize=downloadSize for unpack=false? 
+        assertThat(plugin.isUnpack(), is(false));
+    }
+
+    private Matcher<FeatureRef> feature(final String id, final String version) {
+        return new TypeSafeMatcher<FeatureRef>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("feature ref to " + id + "_" + version);
+
+            }
+
+            @Override
+            protected boolean matchesSafely(FeatureRef item) {
+                return id.equals(item.getId()) && version.equals(item.getVersion());
+            }
+        };
+    }
+
+    private static Matcher<PluginRef> plugin(final String id, final String version) {
+        return new TypeSafeMatcher<PluginRef>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("plugin ref to " + id + "_" + version);
+            }
+
+            @Override
+            protected boolean matchesSafely(PluginRef item) {
+                return id.equals(item.getId()) && version.equals(item.getVersion());
+            }
+        };
+    }
+
+}

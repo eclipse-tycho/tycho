@@ -65,11 +65,22 @@ public class TychoProjectUtils {
      * Returns the final target platform of the given project.
      */
     public static TargetPlatform getTargetPlatform(MavenProject project) {
-        TargetPlatform targetPlatform = (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);
+        TargetPlatform targetPlatform = getTargetPlatformIfAvailable(project);
         if (targetPlatform == null) {
             throw new IllegalStateException(TYCHO_NOT_CONFIGURED + project.toString());
         }
         return targetPlatform;
+    }
+
+    /**
+     * Returns the final target platform of the given project, or <code>null</code> if the target
+     * platform is not available.
+     * 
+     * Projects with -Dtycho.targetPlatform use the legacy LocalDependencyResolver, which doesn't
+     * provide the {@link TargetPlatform} interface.
+     */
+    public static TargetPlatform getTargetPlatformIfAvailable(MavenProject project) {
+        return (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);
     }
 
     public static ExecutionEnvironmentConfiguration getExecutionEnvironmentConfiguration(MavenProject project) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,13 +32,16 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 
 @Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME)
@@ -119,7 +122,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
         File featureXml = new File(outputDirectory, Feature.FEATURE_XML);
         try {
-            feature = expandVersionQualifiers(feature);
+            expandVersionQualifiers(feature);
             Feature.write(feature, featureXml);
         } catch (IOException e) {
             throw new MojoExecutionException("Error updating feature.xml", e);
@@ -161,7 +164,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         project.getArtifact().setFile(outputJar);
 
         if (deployableFeature) {
-            assembleDeployableFeature(feature);
+            assembleDeployableFeature();
         }
     }
 
@@ -234,18 +237,26 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
         return getFileSet(basedir, buildProperties.getBinIncludes(), binExcludes);
     }
 
-    private void assembleDeployableFeature(Feature feature) throws MojoExecutionException {
+    private void assembleDeployableFeature() throws MojoExecutionException {
         UpdateSiteAssembler assembler = new UpdateSiteAssembler(session, target);
         getDependencyWalker().walk(assembler);
     }
 
-    private Feature expandVersionQualifiers(Feature feature) throws MojoExecutionException, IOException {
-        return featureXmlTransformer.transform(DefaultReactorProject.adapt(project), feature, getDependencyWalker());
+    private void expandVersionQualifiers(Feature feature) throws MojoExecutionException, IOException {
+        TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatformIfAvailable(project);
+        if (targetPlatform == null) {
+            getLog().warn(
+                    "Skipping version reference expansion in eclipse-feature project using the deprecated -Dtycho.targetPlatform configuration");
+            return;
+        }
+        // XXX integration test this
+        feature.setVersion(DefaultReactorProject.adapt(project).getExpandedVersion());
+        featureXmlTransformer.expandReferences(feature, targetPlatform);
     }
 
     private JarArchiver getJarArchiver() throws MojoExecutionException {
         try {
-            return (JarArchiver) plexus.lookup(JarArchiver.ROLE, "jar");
+            return (JarArchiver) plexus.lookup(Archiver.ROLE, "jar");
         } catch (ComponentLookupException e) {
             throw new MojoExecutionException("Unable to get JarArchiver", e);
         }

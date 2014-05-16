@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,14 +46,9 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         private IArtifactRepositoryManager repositoryManager;
         private List<URI> repositoryURLs;
 
-        RepositoryLoader(List<URI> repositoryURLs, IProvisioningAgent agent) {
+        RepositoryLoader(List<URI> repositoryURLs, IArtifactRepositoryManager repositoryManager) {
             this.repositoryURLs = repositoryURLs;
-            this.repositoryManager = (IArtifactRepositoryManager) agent
-                    .getService(IArtifactRepositoryManager.SERVICE_NAME);
-
-            if (this.repositoryManager == null) {
-                throw new IllegalArgumentException("IArtifactRepositoryManager in p2 agent " + agent);
-            }
+            this.repositoryManager = repositoryManager;
         }
 
         List<IArtifactRepository> loadRepositories() {
@@ -76,25 +71,47 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
     }
 
     private final RepositoryLoader repositoryLoader;
-    List<IArtifactRepository> repositories;
+    List<? extends IArtifactRepository> repositories;
 
     final ArtifactTransferPolicy transferPolicy;
 
+    public RepositoryArtifactProvider(List<? extends IArtifactRepository> repositories,
+            ArtifactTransferPolicy transferPolicy) {
+        this.repositories = repositories;
+        this.repositoryLoader = null;
+        this.transferPolicy = transferPolicy;
+    }
+
     public RepositoryArtifactProvider(List<URI> artifactRepositories, ArtifactTransferPolicy transferPolicy,
             IProvisioningAgent agent) {
-        this(new RepositoryLoader(artifactRepositories, agent), transferPolicy);
-
+        this(new RepositoryLoader(artifactRepositories, getRepositoryManager(agent)), transferPolicy);
     }
 
     RepositoryArtifactProvider(RepositoryLoader repositoryLoader, ArtifactTransferPolicy transferPolicy) {
+        this.repositories = null;
         this.repositoryLoader = repositoryLoader;
         this.transferPolicy = transferPolicy;
     }
 
-    private void init() {
+    private static IArtifactRepositoryManager getRepositoryManager(IProvisioningAgent agent) {
+        IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent
+                .getService(IArtifactRepositoryManager.SERVICE_NAME);
+
+        if (repositoryManager == null) {
+            throw new IllegalArgumentException("IArtifactRepositoryManager in p2 agent " + agent);
+        }
+        return repositoryManager;
+    }
+
+    protected void init() {
         if (repositories == null) {
             repositories = repositoryLoader.loadRepositories();
+            repositoriesLoaded();
         }
+    }
+
+    protected void repositoriesLoaded() {
+        // nothing to do here
     }
 
     @Override
