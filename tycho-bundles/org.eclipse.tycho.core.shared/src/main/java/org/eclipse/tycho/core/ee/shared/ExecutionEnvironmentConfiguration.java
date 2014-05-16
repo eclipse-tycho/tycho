@@ -50,6 +50,16 @@ public interface ExecutionEnvironmentConfiguration {
     public void setProfileConfiguration(String profileName, String configurationOrigin) throws IllegalStateException;
 
     /**
+     * Sets the custom profile name to be used for p2 and Equinox resolver.
+     */
+    public void setResolverProfileName(String profileName);
+
+    /**
+     * @return the profile name to be used for p2 and Equinox resolver
+     */
+    public String getResolverProfileName();
+
+    /**
      * Returns the name of the configured profile.
      */
     public String getProfileName();
@@ -80,5 +90,10 @@ public interface ExecutionEnvironmentConfiguration {
      * @see ExecutionEnvironment
      */
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException;
+
+    /**
+     * Returns the execution environment specification to be used for the p2 and Equinox resolver.
+     */
+    public ExecutionEnvironment getResolverExecutionEnvironment();
 
 }
