@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
+import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_FEATURE;
+import static org.eclipse.tycho.ArtifactType.TYPE_ECLIPSE_PLUGIN;
+
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -17,6 +20,13 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
@@ -77,6 +87,46 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         return installableUnits;
     }
 
+    public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, String version) {
+        Version parsedVersion = Version.parseVersion(version);
+        // TODO check is OSGi
+        // TODO share code with AbstractDependenciesAction.getVersionRange(Version)?
+
+        IQuery<IInstallableUnit> query = getQueryToResolve(id, parsedVersion);
+
+        IQueryResult<IInstallableUnit> matchingIUs = query.perform(installableUnits.iterator());
+        if (matchingIUs.isEmpty()) {
+            throw new RuntimeException("Cannot resolve reference to " + type + " with ID " + id + " and version "
+                    + version);
+        }
+
+        return new DefaultArtifactKey(type, id, matchingIUs.iterator().next().getVersion().toString());
+    }
+
+    private IQuery<IInstallableUnit> getQueryToResolve(String id, Version version) {
+        IQuery<IInstallableUnit> query;
+        if (version.getSegmentCount() > 3 && "qualifier".equals(version.getSegment(3))) {
+            VersionRange range = getRangeOfEquivalentVersions(version);
+            query = QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id, range));
+        } else {
+            query = QueryUtil.createIUQuery(id, version);
+        }
+        return query;
+    }
+
+    /**
+     * Returns a version range which includes "equivalent" versions, i.e. versions with the same
+     * major, minor, and micro version.
+     */
+    private VersionRange getRangeOfEquivalentVersions(Version version) {
+        Integer major = (Integer) version.getSegment(0);
+        Integer minor = (Integer) version.getSegment(1);
+        Integer micro = (Integer) version.getSegment(2);
+        VersionRange range = new VersionRange(Version.createOSGi(major, minor, micro), true, Version.createOSGi(major,
+                minor, micro + 1), false);
+        return range;
+    }
+
     public final ExecutionEnvironmentResolutionHints getEEResolutionHints() {
         return executionEnvironment;
     }
@@ -89,8 +139,37 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         return mavenArtifactLookup;
     }
 
+    // TODO make name match with getArtifactLocation?
     public final File getLocalArtifactFile(IArtifactKey key) {
         return jointArtifacts.getArtifactFile(key);
+    }
+
+    // TODO test
+    public File getArtifactLocation(org.eclipse.tycho.ArtifactKey artifact) {
+        IArtifactKey p2Artifact = toP2ArtifactKey(artifact);
+        if (p2Artifact != null) {
+            return jointArtifacts.getArtifactFile(p2Artifact);
+        }
+        return null;
+    }
+
+    // TODO share?
+    @SuppressWarnings("restriction")
+    private static IArtifactKey toP2ArtifactKey(org.eclipse.tycho.ArtifactKey artifact) {
+        if (TYPE_ECLIPSE_PLUGIN.equals(artifact.getType())) {
+            return createP2ArtifactKey(PublisherHelper.OSGI_BUNDLE_CLASSIFIER, artifact);
+        } else if (TYPE_ECLIPSE_FEATURE.equals(artifact.getType())) {
+            return createP2ArtifactKey(PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER, artifact);
+        } else {
+            // other artifacts don't have files that can be referenced by their Eclipse coordinates
+            return null;
+        }
+    }
+
+    @SuppressWarnings("restriction")
+    private static IArtifactKey createP2ArtifactKey(String type, org.eclipse.tycho.ArtifactKey artifact) {
+        return new org.eclipse.equinox.internal.p2.metadata.ArtifactKey(type, artifact.getId(),
+                Version.parseVersion(artifact.getVersion()));
     }
 
     public final void saveLocalMavenRepository() {

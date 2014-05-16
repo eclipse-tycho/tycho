@@ -12,6 +12,7 @@ package org.eclipse.tycho.p2.testutil;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
@@ -24,6 +25,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 
 @SuppressWarnings({ "restriction", "nls" })
 public class InstallableUnitUtil {
@@ -44,11 +46,16 @@ public class InstallableUnitUtil {
         return MetadataFactory.createInstallableUnit(description);
     }
 
-    public static IInstallableUnit createIUCapability(String id, String version, String capabilityId,
-            String capabilityVersion) {
-        InstallableUnitDescription description = createIuDescription(id, version);
-        description.addProvidedCapabilities(Arrays.<IProvidedCapability> asList(new ProvidedCapability(
-                IInstallableUnit.NAMESPACE_IU_ID, capabilityId, Version.create(capabilityVersion))));
+    public static IInstallableUnit createBundleIU(String bundleId, String version) {
+        InstallableUnitDescription description = createIuDescription(bundleId, version);
+        description.addProvidedCapabilities(createProvidedCapability(BundlesAction.CAPABILITY_NS_OSGI_BUNDLE, bundleId,
+                version));
+        return MetadataFactory.createInstallableUnit(description);
+    }
+
+    public static IInstallableUnit createProductIU(String productId, String version) {
+        InstallableUnitDescription description = createIuDescription(productId, version);
+        description.setProperty(InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.toString(true));
         return MetadataFactory.createInstallableUnit(description);
     }
 
@@ -81,5 +88,9 @@ public class InstallableUnitUtil {
         description.setId(id);
         description.setVersion(Version.create(version));
         return description;
+    }
+
+    private static List<IProvidedCapability> createProvidedCapability(String namespace, String name, String version) {
+        return Arrays.<IProvidedCapability> asList(new ProvidedCapability(namespace, name, Version.create(version)));
     }
 }
