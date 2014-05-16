@@ -59,7 +59,7 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
 import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
-import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
+import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
@@ -167,7 +167,7 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private Map<File, Model> updateSites = new LinkedHashMap<File, Model>();
 
-    private DefaultTargetPlatform platform = new DefaultTargetPlatform();
+    private DefaultDependencyArtifacts platform = new DefaultDependencyArtifacts();
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         List<File> baseDirs = getBaseDirs();

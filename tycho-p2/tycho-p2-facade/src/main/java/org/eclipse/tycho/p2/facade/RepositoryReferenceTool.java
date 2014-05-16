@@ -30,9 +30,9 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TargetPlatformResolver;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
+import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.metadata.MetadataSerializable;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -54,7 +54,7 @@ public class RepositoryReferenceTool {
     private EquinoxServiceFactory osgiServices;
 
     @Requirement
-    private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
+    private DefaultDependencyResolverFactory dependencyResolverLocator;
 
     /**
      * Returns the list of visible p2 repositories for the build of the current module. The list
@@ -115,7 +115,7 @@ public class RepositoryReferenceTool {
 
                 TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(project);
 
-                TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
+                DependencyResolver resolver = dependencyResolverLocator.lookupDependencyResolver(project);
 
                 TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 

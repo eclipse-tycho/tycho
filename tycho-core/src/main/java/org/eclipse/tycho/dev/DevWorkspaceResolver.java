@@ -37,7 +37,7 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
-import org.eclipse.tycho.core.osgitools.targetplatform.BasicDependencyArtifacts;
+import org.eclipse.tycho.core.osgitools.targetplatform.ArtifactCollection;
 
 @Component(role = DevWorkspaceResolver.class)
 public class DevWorkspaceResolver implements Initializable {
@@ -66,7 +66,7 @@ public class DevWorkspaceResolver implements Initializable {
      * All workspace project and target platform bundles, as reported by PDE. Workspace projects are
      * expected to shadow target platform bundles with the same Bundle-SymbolicName.
      */
-    private BasicDependencyArtifacts workspaceBundles;
+    private ArtifactCollection workspaceBundles;
 
     /**
      * Maps bundle location to dev.properties entries of the bundle
@@ -81,7 +81,7 @@ public class DevWorkspaceResolver implements Initializable {
     public void initialize() throws InitializationException {
         Map<File, String> workspaceDeventries = new HashMap<File, String>();
         Map<File, File> workspaceBasedirs = new HashMap<File, File>();
-        BasicDependencyArtifacts workspaceBundles = new BasicDependencyArtifacts();
+        ArtifactCollection workspaceBundles = new ArtifactCollection();
 
         String stateLocation = System.getProperty(SYSPROP_STATELOCATION);
         if (stateLocation != null) {

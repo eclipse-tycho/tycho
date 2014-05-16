@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,11 +21,10 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 
 /**
- * Target platform content resolver. TODO This interface and its implementations require further
- * refinement. I need to decide if new resolver instance is required for each project.
+ * Resolves project dependencies against the content of the target platform.
  */
-// TODO 364134 revise name
-public interface TargetPlatformResolver {
+public interface DependencyResolver {
+
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject);
 
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,

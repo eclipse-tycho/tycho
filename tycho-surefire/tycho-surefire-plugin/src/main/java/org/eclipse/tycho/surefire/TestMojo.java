@@ -63,14 +63,14 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TargetPlatformResolver;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
-import org.eclipse.tycho.core.resolver.DefaultTargetPlatformResolverFactory;
+import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -402,7 +402,7 @@ public class TestMojo extends AbstractMojo {
     private ResolutionErrorHandler resolutionErrorHandler;
 
     @Component
-    private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
+    private DefaultDependencyResolverFactory dependencyResolverLocator;
 
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
@@ -685,7 +685,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
-        TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
+        DependencyResolver platformResolver = dependencyResolverLocator.lookupDependencyResolver(project);
         final List<Dependency> extraDependencies = getExtraDependencies();
         List<ReactorProject> reactorProjects = getReactorProjects();
 

@@ -34,7 +34,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.osgi.framework.Version;
 
-public class BasicDependencyArtifacts {
+public class ArtifactCollection {
     private static final Version VERSION_0_0_0 = new Version("0.0.0");
 
     protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<ArtifactKey, ArtifactDescriptor>();

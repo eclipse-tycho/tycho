@@ -24,18 +24,18 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
-import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
+import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
+import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DefaultTargetPlatformTest {
+public class DefaultDependencyArtifactsTest {
     @Test
     public void testVersionMatch() {
         String type = "foo";
         String id = "foo";
 
-        DefaultTargetPlatform tp = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         addArtifact(tp, type, id, "1.1.0");
         addArtifact(tp, type, id, "1.2.3");
@@ -72,14 +72,14 @@ public class DefaultTargetPlatformTest {
         Assert.assertNull(tp.getArtifact(type, id, "9.9.9.qualifier"));
     }
 
-    private void addArtifact(DefaultTargetPlatform tp, String type, String id, String version) {
+    private void addArtifact(DefaultDependencyArtifacts tp, String type, String id, String version) {
         ArtifactKey key = new DefaultArtifactKey(type, id, version);
         tp.addArtifactFile(key, new File(version), null);
     }
 
     @Test
     public void testRelativePath() throws IOException {
-        DefaultTargetPlatform tp = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         File relative = new File("relative.xml");
         File canonical = new File("canonical.xml");
@@ -93,7 +93,7 @@ public class DefaultTargetPlatformTest {
 
     @Test
     public void testEqualArtifacts() {
-        DefaultTargetPlatform tp = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
         File location = new File("location");
@@ -106,7 +106,7 @@ public class DefaultTargetPlatformTest {
 
     @Test
     public void testInconsistentArtifacts() {
-        DefaultTargetPlatform tp = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
         File location = new File("location");
@@ -125,13 +125,13 @@ public class DefaultTargetPlatformTest {
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
         File location = new File("location");
 
-        DefaultTargetPlatform tpA = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tpA = new DefaultDependencyArtifacts();
         tpA.addArtifactFile(key, location, asSet("a"));
 
-        DefaultTargetPlatform tpB = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tpB = new DefaultDependencyArtifacts();
         tpB.addArtifactFile(key, location, asSet("a", "b"));
 
-        MultiEnvironmentTargetPlatform tp = new MultiEnvironmentTargetPlatform();
+        MultiEnvironmentDependencyArtifacts tp = new MultiEnvironmentDependencyArtifacts();
 
         tp.addPlatform(new TargetEnvironment("a", "a", "a"), tpA);
         tp.addPlatform(new TargetEnvironment("b", "b", "b"), tpB);
@@ -156,7 +156,7 @@ public class DefaultTargetPlatformTest {
 
     @Test
     public void testInstallableUnits() {
-        DefaultTargetPlatform tp = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tp = new DefaultDependencyArtifacts();
 
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
         File location = new File("location");
@@ -178,10 +178,10 @@ public class DefaultTargetPlatformTest {
         ArtifactKey key = new DefaultArtifactKey("type", "id", "version");
         File location = new File("location");
 
-        DefaultTargetPlatform tp1 = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tp1 = new DefaultDependencyArtifacts();
         tp1.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, asSet(new FunnyEquals("id", "a"))));
 
-        DefaultTargetPlatform tp2 = new DefaultTargetPlatform();
+        DefaultDependencyArtifacts tp2 = new DefaultDependencyArtifacts();
         tp2.addArtifact(new DefaultArtifactDescriptor(key, location, project, null, asSet(new FunnyEquals("id", "b"))));
 
         Assert.assertEquals("a", //

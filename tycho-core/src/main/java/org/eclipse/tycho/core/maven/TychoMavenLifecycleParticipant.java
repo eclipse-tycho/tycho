@@ -34,7 +34,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.resolver.TychoDependencyResolver;
+import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
@@ -49,7 +49,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     private BundleReader bundleReader;
 
     @Requirement
-    private TychoDependencyResolver resolver;
+    private TychoResolver resolver;
 
     @Requirement
     private PlexusContainer plexus;

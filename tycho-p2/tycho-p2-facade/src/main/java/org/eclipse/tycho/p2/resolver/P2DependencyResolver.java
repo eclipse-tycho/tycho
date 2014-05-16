@@ -43,6 +43,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.ComponentDependency;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -53,9 +54,9 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -67,9 +68,8 @@ import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.targetplatform.AbstractTargetPlatformResolver;
-import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
-import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentTargetPlatform;
+import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
+import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
@@ -86,10 +86,8 @@ import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
-// TODO 364134 rename this class
-@Component(role = TargetPlatformResolver.class, hint = P2TargetPlatformResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
-public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver implements TargetPlatformResolver,
-        Initializable {
+@Component(role = DependencyResolver.class, hint = P2DependencyResolver.ROLE_HINT, instantiationStrategy = "per-lookup")
+public class P2DependencyResolver extends AbstractLogEnabled implements DependencyResolver, Initializable {
 
     public static final String ROLE_HINT = "p2";
 
@@ -354,7 +352,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             List<P2ResolutionResult> results = resolver.resolveDependencies(targetPlatform,
                     optionalDependencyPreparedProject);
 
-            MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform(
+            MultiEnvironmentDependencyArtifacts multiPlatform = new MultiEnvironmentDependencyArtifacts(
                     DefaultReactorProject.adapt(project));
 
             // FIXME this is just wrong
@@ -362,7 +360,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
                 TargetEnvironment environment = configuration.getEnvironments().get(i);
                 P2ResolutionResult result = results.get(i);
 
-                DefaultTargetPlatform platform = newDefaultTargetPlatform(DefaultReactorProject.adapt(project),
+                DefaultDependencyArtifacts platform = newDefaultTargetPlatform(DefaultReactorProject.adapt(project),
                         projects, result);
 
                 multiPlatform.addPlatform(environment, platform);
@@ -392,9 +390,9 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return false;
     }
 
-    protected DefaultTargetPlatform newDefaultTargetPlatform(ReactorProject project,
+    protected DefaultDependencyArtifacts newDefaultTargetPlatform(ReactorProject project,
             Map<File, ReactorProject> projects, P2ResolutionResult result) {
-        DefaultTargetPlatform platform = new DefaultTargetPlatform(project);
+        DefaultDependencyArtifacts platform = new DefaultDependencyArtifacts(project);
 
         platform.addNonReactorUnits(result.getNonReactorUnits());
 

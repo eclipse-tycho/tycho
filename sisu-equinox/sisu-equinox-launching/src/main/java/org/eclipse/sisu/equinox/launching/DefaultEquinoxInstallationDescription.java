@@ -22,7 +22,7 @@ import org.eclipse.osgi.internal.framework.EquinoxContainer;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
+import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 
 public class DefaultEquinoxInstallationDescription implements EquinoxInstallationDescription {
     private static final Map<String, BundleStartLevel> DEFAULT_START_LEVEL = new HashMap<String, BundleStartLevel>();
@@ -40,7 +40,7 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
         DEFAULT_START_LEVEL.put(id, new BundleStartLevel(id, level, true));
     }
 
-    protected final DefaultTargetPlatform bundles = new DefaultTargetPlatform();
+    protected final DefaultDependencyArtifacts bundles = new DefaultDependencyArtifacts();
 
     private final Map<String, BundleStartLevel> startLevel = new HashMap<String, BundleStartLevel>(DEFAULT_START_LEVEL);
 
