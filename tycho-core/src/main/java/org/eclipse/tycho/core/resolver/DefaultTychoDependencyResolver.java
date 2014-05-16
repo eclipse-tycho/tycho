@@ -96,15 +96,16 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
         TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
         logger.info("Computing target platform for " + project);
-        TargetPlatform targetPlatform = resolver.computeTargetPlatform(session, project, reactorProjects, true);
+        TargetPlatform preliminaryTargetPlatform = resolver.computePreliminaryTargetPlatform(session, project,
+                reactorProjects);
 
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
         DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
         logger.info("Resolving dependencies of " + project);
-        DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
-                reactorProjects, resolverConfiguration);
+        DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
+                preliminaryTargetPlatform, reactorProjects, resolverConfiguration);
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder();

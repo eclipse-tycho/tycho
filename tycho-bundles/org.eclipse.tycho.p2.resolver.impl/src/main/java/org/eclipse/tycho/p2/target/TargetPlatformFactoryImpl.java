@@ -176,8 +176,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         LinkedHashSet<IInstallableUnit> externalUIs = gatherExternalInstallableUnits(completeRepositories,
                 targetFileContent, pomDependenciesContent, includeLocalMavenRepo);
 
-        Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
-                reactorProjects, tpConfiguration.getFailOnDuplicateIUs());
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(reactorProjects);
 
         List<TargetPlatformFilter> iuFilters = tpConfiguration.getFilters();
         TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty() ? new TargetPlatformFilterEvaluator(iuFilters,
@@ -338,7 +337,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     private Map<IInstallableUnit, ReactorProjectIdentities> getPreliminaryReactorProjectUIs(
-            List<ReactorProject> reactorProjects, boolean failOnDuplicateIUs) throws DuplicateReactorIUsException {
+            List<ReactorProject> reactorProjects) throws DuplicateReactorIUsException {
         if (reactorProjects == null) {
             return Collections.emptyMap();
         }
@@ -367,7 +366,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
         }
 
-        if (failOnDuplicateIUs && !duplicateReactorUIs.isEmpty()) {
+        if (!duplicateReactorUIs.isEmpty()) {
             // TODO 392320 we should only fail if IUs with same id and version but different content are found
             throw new DuplicateReactorIUsException(duplicateReactorUIs);
         }

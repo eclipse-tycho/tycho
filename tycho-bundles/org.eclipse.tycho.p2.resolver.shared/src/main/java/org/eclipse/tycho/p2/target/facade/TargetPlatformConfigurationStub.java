@@ -31,8 +31,6 @@ public class TargetPlatformConfigurationStub {
     private final List<TargetDefinition> targetDefinitions = new ArrayList<TargetDefinition>();
     private boolean forceIgnoreLocalArtifacts = false;
 
-    private boolean failOnDuplicateIUs = true;
-
     public void setEnvironments(List<TargetEnvironment> environments) {
         this.environments = environments;
     }
@@ -76,14 +74,6 @@ public class TargetPlatformConfigurationStub {
 
     public List<TargetDefinition> getTargetDefinitions() {
         return targetDefinitions;
-    }
-
-    public void setFailOnDuplicateIUs(boolean failOnDuplicateIUs) {
-        this.failOnDuplicateIUs = failOnDuplicateIUs;
-    }
-
-    public boolean getFailOnDuplicateIUs() {
-        return failOnDuplicateIUs;
     }
 
     public void setForceIgnoreLocalArtifacts(boolean forceIgnoreLocalArtifacts) {

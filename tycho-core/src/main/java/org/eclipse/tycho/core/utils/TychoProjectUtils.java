@@ -61,6 +61,9 @@ public class TychoProjectUtils {
         return targetPlatformConfiguration;
     }
 
+    /**
+     * Returns the final target platform of the given project.
+     */
     public static TargetPlatform getTargetPlatform(MavenProject project) {
         TargetPlatform targetPlatform = (TargetPlatform) project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM);
         if (targetPlatform == null) {

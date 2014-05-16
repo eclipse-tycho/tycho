@@ -185,14 +185,13 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         return false;
     }
 
-    public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects, boolean failOnDuplicateIUs) {
+    public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
+            List<ReactorProject> reactorProjects) {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
 
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
         tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
-        tpConfiguration.setFailOnDuplicateIUs(failOnDuplicateIUs);
 
         PomDependencyCollector pomDependencies = null;
         if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
@@ -311,8 +310,11 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     }
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
-            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
+            TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
+        if (targetPlatform == null) {
+            targetPlatform = TychoProjectUtils.getTargetPlatform(project);
+        }
 
         // TODO 364134 For compatibility reasons, target-platform-configuration includes settings for the dependency resolution
         // --> split this information logically, e.g. through two distinct interfaces
@@ -321,13 +323,13 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         P2Resolver osgiResolverImpl = resolverFactory.createResolver(new MavenLoggerAdapter(getLogger(), DebugUtils
                 .isDebugEnabled(session, project)));
 
-        return doResolveDependencies(session, project, reactorProjects, resolverConfiguration, resolutionContext,
+        return doResolveDependencies(session, project, reactorProjects, resolverConfiguration, targetPlatform,
                 osgiResolverImpl, configuration);
     }
 
     private DependencyArtifacts doResolveDependencies(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects, DependencyResolverConfiguration resolverConfiguration,
-            TargetPlatform resolutionContext, P2Resolver resolver, TargetPlatformConfiguration configuration) {
+            TargetPlatform targetPlatform, P2Resolver resolver, TargetPlatformConfiguration configuration) {
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 
@@ -348,7 +350,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
         ReactorProject optionalDependencyPreparedProject = getThisReactorProject(session, project, configuration);
 
         if (!isAllowConflictingDependencies(project, configuration)) {
-            List<P2ResolutionResult> results = resolver.resolveDependencies(resolutionContext,
+            List<P2ResolutionResult> results = resolver.resolveDependencies(targetPlatform,
                     optionalDependencyPreparedProject);
 
             MultiEnvironmentTargetPlatform multiPlatform = new MultiEnvironmentTargetPlatform(
@@ -367,7 +369,7 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
 
             return multiPlatform;
         } else {
-            P2ResolutionResult result = resolver.collectProjectDependencies(resolutionContext,
+            P2ResolutionResult result = resolver.collectProjectDependencies(targetPlatform,
                     optionalDependencyPreparedProject);
 
             return newDefaultTargetPlatform(DefaultReactorProject.adapt(project), projects, result);

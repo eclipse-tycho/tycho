@@ -28,11 +28,16 @@ import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 public interface TargetPlatformResolver {
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject);
 
-    public TargetPlatform computeTargetPlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects, boolean failOnDuplicateIUs);
+    public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
+            List<ReactorProject> reactorProjects);
 
+    /**
+     * @param targetPlatform
+     *            The candidate artifacts which may be used to resolve dependencies. If
+     *            <code>null</code>, the final target platform of the project will be used.
+     */
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
-            TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
+            TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration);
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,

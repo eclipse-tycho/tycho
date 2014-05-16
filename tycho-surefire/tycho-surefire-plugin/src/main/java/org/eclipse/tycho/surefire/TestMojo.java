@@ -54,7 +54,6 @@ import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
@@ -731,9 +730,6 @@ public class TestMojo extends AbstractMojo {
         TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
         final List<Dependency> extraDependencies = getExtraDependencies();
         List<ReactorProject> reactorProjects = getReactorProjects();
-        // TODO 364134 re-use target platform from dependency resolution
-        TargetPlatform targetPlatform = platformResolver
-                .computeTargetPlatform(session, project, reactorProjects, false);
 
         final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
             public OptionalResolutionAction getOptionalResolutionAction() {
@@ -745,8 +741,8 @@ public class TestMojo extends AbstractMojo {
             }
         };
 
-        DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project,
-                targetPlatform, reactorProjects, resolverConfiguration);
+        DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null,
+                reactorProjects, resolverConfiguration);
 
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");
