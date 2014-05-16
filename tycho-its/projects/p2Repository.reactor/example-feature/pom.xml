@@ -3,14 +3,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>prr.example.feature</artifactId>
-	<packaging>eclipse-feature</packaging>
-	<name>Example Feature</name>
-
 	<parent>
 		<version>1.0.0-SNAPSHOT</version>
 		<groupId>tycho-its-project.p2Repository.reactor</groupId>
 		<artifactId>prr.parent</artifactId>
 	</parent>
-</project>
 
+	<artifactId>prr.example.feature</artifactId>
+	<version>1.2.0-SNAPSHOT</version>
+	<packaging>eclipse-feature</packaging>
+
+	<properties>
+		<forceContextQualifier>20141230-qualifierOfFeature</forceContextQualifier>
+	</properties>
+
+</project>

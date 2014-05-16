@@ -72,6 +72,18 @@ public class P2RepositoryTool {
         return getValues(contentXml, "/repository/units/unit/@id");
     }
 
+    public List<IdAndVersion> getAllUnits() throws Exception {
+        loadMetadata();
+
+        List<Node> units = getNodes(contentXml, "/repository/units/unit");
+
+        List<IdAndVersion> result = new ArrayList<IdAndVersion>();
+        for (Node node : units) {
+            result.add(new IdAndVersion(getAttribute(node, "@id"), getAttribute(node, "@version")));
+        }
+        return result;
+    }
+
     public List<String> getUnitVersions(String unitId) throws Exception {
         loadMetadata();
 
@@ -79,9 +91,8 @@ public class P2RepositoryTool {
     }
 
     /**
-     * Returns the unique IUs with the given ID.
+     * Returns the unique IU with the given ID.
      * 
-     * @return the IU with the given ID. Never <code>null</code>.
      * @throws AssertionError
      *             unless there is exactly one IU with the given <tt>unitId</tt>.
      */
@@ -96,6 +107,29 @@ public class P2RepositoryTool {
             return new IU(nodes.get(0));
         else
             Assert.fail("Found more than one IU with id '" + unitId + "'");
+
+        // this point is never reached
+        throw new RuntimeException();
+    }
+
+    /**
+     * Returns the IU with the given ID and version.
+     * 
+     * @throws AssertionError
+     *             if there is no IU with the given attributes.
+     */
+    public IU getIU(String unitId, String version) throws Exception {
+        loadMetadata();
+
+        List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "' and @version='" + version
+                + "']");
+
+        if (nodes.size() == 0)
+            Assert.fail("Could not find IU with id '" + unitId + "' and version '" + version + "'");
+        else if (nodes.size() == 1)
+            return new IU(nodes.get(0));
+        else
+            Assert.fail("Found more than one IU with id '" + unitId + "' and version '" + version + "'");
 
         // this point is never reached
         throw new RuntimeException();
@@ -160,6 +194,20 @@ public class P2RepositoryTool {
         return strictVersionRangePattern.matcher(range).matches();
     }
 
+    String getLowerBound(String range) {
+        int begin;
+        if (range.charAt(0) == '[' || range.charAt(0) == '(') {
+            begin = 1;
+        } else {
+            begin = 0;
+        }
+        int end = range.indexOf(',', begin);
+        if (end < 0) {
+            end = range.length();
+        }
+        return range.substring(begin, end);
+    }
+
     public class IU {
 
         private final Node unitElement;
@@ -213,5 +261,70 @@ public class P2RepositoryTool {
 
             return result;
         }
+
+        /**
+         * Returns units required with strict version range.
+         */
+        public List<IdAndVersion> getInclusions() throws Exception {
+            List<IdAndVersion> result = new ArrayList<IdAndVersion>();
+
+            List<Node> requires = getNodes(unitElement, "requires/required");
+            for (Node require : requires) {
+                String range = getAttribute(require, "@range");
+
+                if (range != null && isStrictRange(range)) {
+                    result.add(new IdAndVersion(getAttribute(require, "@name"), getLowerBound(range)));
+                }
+            }
+
+            return result;
+        }
     }
+
+    public static final class IdAndVersion {
+        public final String id;
+        public final String version;
+
+        public IdAndVersion(String id, String version) {
+            this.id = id;
+            this.version = version;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((id == null) ? 0 : id.hashCode());
+            result = prime * result + ((version == null) ? 0 : version.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            } else if (!(obj instanceof IdAndVersion)) {
+                return false;
+            }
+
+            IdAndVersion other = (IdAndVersion) obj;
+            return eq(id, other.id) && eq(version, other.version);
+        }
+
+    }
+
+    public static IdAndVersion withIdAndVersion(String id, String version) {
+        return new IdAndVersion(id, version);
+    }
+
+    static boolean eq(String left, String right) {
+        if (left == right) {
+            return true;
+        } else if (left == null) {
+            return false;
+        } else {
+            return left.equals(right);
+        }
+    }
+
 }

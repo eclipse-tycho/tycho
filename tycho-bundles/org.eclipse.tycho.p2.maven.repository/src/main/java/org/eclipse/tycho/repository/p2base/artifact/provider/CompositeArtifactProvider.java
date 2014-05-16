@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.tycho.repository.p2base.artifact.provider;
 import static org.eclipse.tycho.repository.util.internal.BundleConstants.BUNDLE_ID;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +38,17 @@ public class CompositeArtifactProvider extends CompositeArtifactProviderBaseImpl
 
     public CompositeArtifactProvider(IRawArtifactFileProvider... components) {
         this.components = Arrays.asList(components);
+    }
+
+    public CompositeArtifactProvider(List<IRawArtifactFileProvider> providers) {
+        this.components = new ArrayList<IRawArtifactFileProvider>(providers);
+    }
+
+    public CompositeArtifactProvider(List<IRawArtifactFileProvider> providers1,
+            List<IRawArtifactFileProvider> providers2) {
+        this.components = new ArrayList<IRawArtifactFileProvider>(providers1.size() + providers2.size());
+        this.components.addAll(providers1);
+        this.components.addAll(providers2);
     }
 
     @Override

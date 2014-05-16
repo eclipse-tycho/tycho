@@ -191,7 +191,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 eeResolutionHandler.getResolutionHints(), //
                 filter, //
                 localMetadataRepository, //
-                createJointArtifactProvider(completeRepositories, targetFileContent, pomDependencyArtifactRepo,
+                createExternalArtifactProvider(completeRepositories, targetFileContent, pomDependencyArtifactRepo,
                         tpConfiguration.getIncludePackedArtifacts()), //
                 localArtifactRepository, //
                 includeLocalMavenRepo, //
@@ -199,7 +199,6 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         eeResolutionHandler.readFullSpecification(targetPlatform.getInstallableUnits());
 
-        // TODO 372780 make jointArtifacts accessible in repo manager and use instead of local artifact repository
         return targetPlatform;
     }
 
@@ -305,7 +304,10 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
     }
 
-    private IRawArtifactFileProvider createJointArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
+    /**
+     * Provider for all target platform artifacts from outside the reactor.
+     */
+    private IRawArtifactFileProvider createExternalArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
             List<TargetDefinitionContent> targetDefinitionsContent,
             IRawArtifactFileProvider pomDependencyArtifactRepository, boolean includePackedArtifacts) {
 
@@ -319,6 +321,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         return jointArtifactsProvider;
     }
 
+    /**
+     * Provider for the target platform artifacts not yet available in the local Maven repository.
+     */
     private RepositoryArtifactProvider createRemoteArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
             List<TargetDefinitionContent> targetDefinitionsContent) {
         List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
@@ -421,22 +426,24 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     public P2TargetPlatform createTargetPlatformWithUpdatedReactorContent(TargetPlatform baseTargetPlatform,
             List<PublishingRepository> upstreamProjectResults) {
         return createTargetPlatformWithUpdatedReactorUnits(baseTargetPlatform,
-                extractProjectResultIUs(upstreamProjectResults));
+                extractProjectResultIUs(upstreamProjectResults), getProjectArtifactProviders(upstreamProjectResults));
     }
 
     P2TargetPlatform createTargetPlatformWithUpdatedReactorUnits(TargetPlatform baseTargetPlatform,
-            Map<IInstallableUnit, ReactorProjectIdentities> reactorUnits) {
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorUnits,
+            List<IRawArtifactFileProvider> reactorArtifacts) {
         if (!(baseTargetPlatform instanceof PreliminaryTargetPlatformImpl)) {
             throw new IllegalArgumentException(
                     "Base target platform must be an instance of PreliminaryTargetPlatformImpl; was: "
                             + baseTargetPlatform);
         }
         return createTargetPlatformWithUpdatedReactorUnits((PreliminaryTargetPlatformImpl) baseTargetPlatform,
-                reactorUnits);
+                reactorUnits, reactorArtifacts);
     }
 
     P2TargetPlatform createTargetPlatformWithUpdatedReactorUnits(PreliminaryTargetPlatformImpl preliminaryTP,
-            Map<IInstallableUnit, ReactorProjectIdentities> reactorUnitsMap) {
+            Map<IInstallableUnit, ReactorProjectIdentities> reactorUnitsMap,
+            List<IRawArtifactFileProvider> reactorArtifacts) {
 
         LinkedHashSet<IInstallableUnit> allUnits = preliminaryTP.getExternalUnits();
 
@@ -451,12 +458,17 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             allUnits.addAll(reactorUnits);
         }
 
-        // TODO 372780 create an artifact provider which includes the reactor artifacts 
-        IRawArtifactFileProvider jointArtifacts = preliminaryTP.getJointArtifacts();
+        IRawArtifactFileProvider jointArtifacts = createJointArtifactProvider(reactorArtifacts,
+                preliminaryTP.getExternalArtifacts());
 
         return new FinalTargetPlatformImpl(allUnits, preliminaryTP.getEEResolutionHints(), jointArtifacts,
                 localArtifactRepository, preliminaryTP.getOriginalMavenArtifactMap(), reactorUnitsMap);
+    }
 
+    private CompositeArtifactProvider createJointArtifactProvider(List<IRawArtifactFileProvider> reactorArtifacts,
+            IRawArtifactFileProvider externalArtifacts) {
+        // prefer artifacts from the reactor
+        return new CompositeArtifactProvider(reactorArtifacts, Collections.singletonList(externalArtifacts));
     }
 
     private static Map<IInstallableUnit, ReactorProjectIdentities> extractProjectResultIUs(
@@ -471,5 +483,14 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
         }
         return reactorUnits;
+    }
+
+    private static List<IRawArtifactFileProvider> getProjectArtifactProviders(
+            List<PublishingRepository> upstreamProjectResults) {
+        List<IRawArtifactFileProvider> artifactProviders = new ArrayList<IRawArtifactFileProvider>();
+        for (PublishingRepository upstreamProject : upstreamProjectResults) {
+            artifactProviders.add(upstreamProject.getArtifacts());
+        }
+        return artifactProviders;
     }
 }

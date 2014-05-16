@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -49,7 +48,6 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.CompositeArtifactPr
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy;
-import org.eclipse.tycho.repository.p2base.artifact.repository.RepositoryArtifactProvider.RepositoryLoader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -142,7 +140,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
                 .thenReturn(errorWithRetry("mirror 1 failure")) //
                 .thenReturn(errorWithRetry("mirror 2 failure")) //
                 .thenReturn(Status.OK_STATUS);
-        subject = new RepositoryArtifactProvider(loaderFor(failingMirrorsRepository), TRANSFER_POLICY);
+        subject = new RepositoryArtifactProvider(Collections.singletonList(failingMirrorsRepository), TRANSFER_POLICY);
 
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);
         status = subject.getArtifact(testSink, null);
@@ -162,7 +160,7 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
                 failingMirrorsRepository.getArtifact(argThat(is(canonicalDescriptorFor(BUNDLE_A_KEY))),
                         any(OutputStream.class), any(IProgressMonitor.class))).thenReturn(
                 errorWithRetry("mirror failure"));
-        subject = new RepositoryArtifactProvider(loaderFor(failingMirrorsRepository), TRANSFER_POLICY);
+        subject = new RepositoryArtifactProvider(Collections.singletonList(failingMirrorsRepository), TRANSFER_POLICY);
 
         testSink = newArtifactSinkFor(BUNDLE_A_KEY);
         status = subject.getArtifact(testSink, null); // should give up if all mirrors fail
@@ -183,15 +181,6 @@ public class RepositoryArtifactProviderTest extends CompositeArtifactProviderTes
 
     private static IStatus errorWithRetry(String message) {
         return new Status(IStatus.ERROR, "test", IArtifactRepository.CODE_RETRY, "Stub error: " + message, null);
-    }
-
-    private RepositoryLoader loaderFor(final IArtifactRepository repository) throws Exception {
-        return new RepositoryLoader(null, p2Context.getAgent()) {
-            @Override
-            List<IArtifactRepository> loadRepositories() {
-                return Collections.singletonList(repository);
-            }
-        };
     }
 
 }
