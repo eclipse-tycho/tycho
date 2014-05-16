@@ -28,7 +28,7 @@ public class RequireJREPackagesImportTest extends AbstractTychoIntegrationTest {
             fail();
         } catch (VerificationException e) {
             // expected
-            verifier.verifyTextInLog("[ERROR] Access restriction: The type 'InitialContext' is not API");
+            verifier.verifyTextInLog("[ERROR] Access restriction: The type Context is not accessible due to restriction on classpath entry");
         }
     }
 }
