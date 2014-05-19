@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0756a345_3c5f07f4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-05-19T08:17:21Z",
+      "side": 1,
+      "message": "Same here: It would be good to summarize the use case in the commit message, so that you can see it in git blame without having to follow the reference to the bug number.",
+      "revId": "e55a42b383a803930c16b2c817ab471ab2a27e6d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
