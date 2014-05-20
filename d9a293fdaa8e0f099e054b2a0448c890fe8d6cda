@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0756a345_d9141804",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/ExecutionEnvironmentResolutionHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-05-20T14:13:42Z",
+      "side": 1,
+      "message": "This seems wrong: A custom profile would override the dependency-resolution/executionEnvironment configuration, although that configuration would otherwise always has precedence.",
+      "revId": "d9a293fdaa8e0f099e054b2a0448c890fe8d6cda",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0756a345_191fb01e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/ExecutionEnvironmentConfigurationImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-05-20T14:13:42Z",
+      "side": 1,
+      "message": "-1: What happens in case of custom profiles needs to be clarified.",
+      "revId": "d9a293fdaa8e0f099e054b2a0448c890fe8d6cda",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
