@@ -17,6 +17,10 @@ import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -31,24 +35,19 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 /**
  * Validates that specified target platforms (.target files) contents can be resolved.
- * 
- * @goal validate-target-platform
- * @phase validate
  */
+@Mojo(name = "validate-target-platform", defaultPhase = LifecyclePhase.VALIDATE)
 public class TPValidationMojo extends AbstractMojo {
     /**
      * .target files to validate
-     * 
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     private File[] targetFiles;
 
     /**
      * whether to fail build or just print a warning when a validation fails
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean failOnError;
 
     /**
@@ -57,18 +56,18 @@ public class TPValidationMojo extends AbstractMojo {
      * artifact which could not be installed together. When this check passes, none of the artifacts
      * should lead to dependency resolution problems when used in a Tycho project.
      * 
-     * @parameter default-value="false"
      * @since 0.21.0
      */
+    @Parameter(defaultValue = "false")
     private boolean checkDependencies;
 
-    /** @parameter default-value="JavaSE-1.6" */
+    @Parameter(defaultValue = "JavaSE-1.6")
     private String executionEnvironment;
 
-    /** @component */
+    @Component
     protected EquinoxServiceFactory equinox;
 
-    /** @component */
+    @Component
     private Logger logger;
 
     private P2ResolverFactory factory;

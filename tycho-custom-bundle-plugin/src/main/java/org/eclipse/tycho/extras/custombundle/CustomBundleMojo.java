@@ -27,8 +27,12 @@ import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
@@ -37,67 +41,50 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
 /**
  * Builds OSGi bundle
- * 
- * @goal custom-bundle
  */
+@Mojo(name = "custom-bundle")
 public class CustomBundleMojo extends AbstractMojo {
 
     /**
      * Location of OSGi bundle, must have META-INF/MANIFEST.MF bundle manifest file.
-     * 
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     private File bundleLocation;
 
     /**
      * Classifier of attached artifact.
-     * 
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     private String classifier;
 
     /**
      * File patterns to include from bundleLocation. Include everything by default.
-     * 
-     * @parameter
      */
+    @Parameter
     private String[] includes = new String[] { "**/*.*" };
 
     /**
      * File patterns to exclude from bundleLocation.
-     * 
-     * @parameter
      */
+    @Parameter
     private String[] excludes;
 
     /**
      * Additional files to be included in the generated bundle.
-     * 
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     private List<DefaultFileSet> fileSets;
 
-    /**
-     * @parameter default-value="${project}"
-     */
+    @Parameter(property = "project")
     private MavenProject project;
 
-    /**
-     * @parameter
-     */
+    @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
-    /**
-     * @component role="org.codehaus.plexus.archiver.Archiver" roleHint="jar"
-     */
+    @Component(role = Archiver.class, hint = "jar")
     private JarArchiver jarArchiver;
 
-    /**
-     * @component
-     */
+    @Component
     private MavenProjectHelper projectHelper;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

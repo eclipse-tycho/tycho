@@ -20,57 +20,49 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.extras.pack200.Pack200Archiver;
 
 /**
  * Performs pack200 normalization, {@link Packer} for theory behind this.
- * 
- * @goal normalize
- * @phase package
- * @requiresProject
  */
+@Mojo(name = "normalize", defaultPhase = LifecyclePhase.PACKAGE)
 public class Pack200NormalizeMojo extends AbstractMojo {
 
-    /**
-     * @parameter expression="${project}"
-     * @required
-     */
+    @Parameter(property = "project", required = true)
     private MavenProject project;
 
-    /**
-     * @parameter expression="${project.build.directory}"
-     * @required
-     */
+    @Parameter(property = "project.build.directory", required = true)
     private File buildDirectory;
 
     /**
      * Name of the normalized JAR.
-     * 
-     * @parameter alias="jarName" expression="${project.build.finalName}"
-     * @required
      */
+    @Parameter(alias = "jarName", property = "project.build.finalName", required = true)
     private String finalName;
 
     /**
      * Skip execution.
      * 
-     * @parameter default-value="false"
      * @since 0.20.0
      */
+    @Parameter(defaultValue = "false")
     private boolean skip;
 
     /**
      * Project types which this plugin supports.
-     * 
-     * @parameter
      */
+    @Parameter
     private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin", "jar");
 
-    /** @parameter expression="${plugin.artifacts}" */
+    @Parameter(property = "plugin.artifacts")
     private List<Artifact> pluginArtifacts;
 
-    /** @component */
+    @Component
     private Pack200Archiver pack200;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

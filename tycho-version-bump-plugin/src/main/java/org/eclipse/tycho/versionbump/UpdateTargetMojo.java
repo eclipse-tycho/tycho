@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile.IULocation;
@@ -27,14 +29,11 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 /**
  * Quick&dirty way to update .target file to use latest versions of IUs available from specified
  * metadata repositories.
- * 
- * @goal update-target
  */
+@Mojo(name = "update-target")
 public class UpdateTargetMojo extends AbstractUpdateMojo {
 
-    /**
-     * @parameter expression="${target}"
-     */
+    @Parameter(property = "target")
     private File targetFile;
 
     @Override

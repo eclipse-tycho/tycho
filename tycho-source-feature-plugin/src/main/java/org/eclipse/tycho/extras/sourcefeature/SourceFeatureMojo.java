@@ -26,8 +26,13 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
@@ -72,9 +77,8 @@ import de.pdark.decentxml.Element;
  * values in this file override values of respective keys in
  * <code>&lt;originalFeature&gt;/feature.properties</code>.
  * 
- * @goal source-feature
- * @phase package
  */
+@Mojo(name = "source-feature", defaultPhase = LifecyclePhase.PACKAGE)
 public class SourceFeatureMojo extends AbstractMojo {
 
     public static final String FEATURE_TEMPLATE_DIR = "sourceTemplateFeature";
@@ -85,35 +89,29 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     private static final String GEN_DIR = "sources-feature";
 
-    /**
-     * @parameter default-value="${project}"
-     * @readonly
-     */
+    @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
     /**
      * Whether to skip source feature generation.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean skip;
 
     /**
      * Whether to add an include dependency from the source feature to the corresponding binary
      * feature. If <code>true</code>, this ensures the version of the installed sources matches the
      * binaries.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean includeBinaryFeature;
 
     /**
      * Source feature label suffix. Unless explicitly provided in
      * <code>sourceTemplateFeature/feature.properties</code>, this suffix will be appended to the
      * original feature label to construct the source feature label.
-     * 
-     * @parameter default-value=" Developer Resources"
      */
+    @Parameter(defaultValue = " Developer Resources")
     private String labelSuffix;
 
     /**
@@ -121,17 +119,15 @@ public class SourceFeatureMojo extends AbstractMojo {
      * "http://help.eclipse.org/juno/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Feditors%2Ffeature_editor%2Ffeature_editor.htm"
      * branding plugin attribute</a> of the generated source feature (overrides
      * {@link #reuseBrandingPlugin}).
-     * 
-     * @parameter
      */
+    @Parameter
     private String brandingPlugin;
 
     /**
      * Whether to reuse an explicit branding plugin from the binary feature for the generated source
      * feature.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean reuseBrandingPlugin;
 
     /**
@@ -144,9 +140,9 @@ public class SourceFeatureMojo extends AbstractMojo {
      * &lt;/excludes&gt;
      * </pre>
      * 
-     * @parameter
      */
     @SuppressWarnings("unused")
+    @Parameter
     private PlexusConfiguration excludes;
 
     /**
@@ -158,15 +154,12 @@ public class SourceFeatureMojo extends AbstractMojo {
      * <strong>WARNING</strong> This experimental parameter may be removed from future
      * source-feature mojo versions without prior notice.
      * 
-     * @parameter
      */
     @SuppressWarnings("unused")
+    @Parameter
     private PlexusConfiguration plugins;
 
-    /**
-     * @parameter default-value="${session}"
-     * @readonly
-     */
+    @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
     private final Set<String> excludedPlugins = new HashSet<String>();
@@ -175,38 +168,29 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     private final Set<PluginRef> extraPlugins = new HashSet<PluginRef>();
 
-    /**
-     * @parameter
-     */
+    @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     /**
      * The filename to be used for the generated archive file. For the source-feature goal,
      * "-sources-feature" is appended to this filename.
-     * 
-     * @parameter default-value="${project.build.finalName}"
      */
+    @Parameter(property = "project.build.finalName")
     private String finalName;
 
-    /**
-     * @component role="org.codehaus.plexus.archiver.Archiver" roleHint="jar"
-     */
+    @Component(role = Archiver.class, hint = "jar")
     private JarArchiver jarArchiver;
 
-    /**
-     * @component
-     */
+    @Component
     private MavenProjectHelper projectHelper;
 
-    /**
-     * @component
-     */
+    @Component
     private LicenseFeatureHelper licenseFeatureHelper;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory equinox;
 
-    /** @component */
+    @Component
     private Logger logger;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

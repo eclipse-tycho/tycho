@@ -18,6 +18,9 @@ import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
@@ -26,8 +29,8 @@ import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
  * This goal invokes the feature and bundle publisher on a folder.
  * 
  * @see http://wiki.eclipse.org/Equinox/p2/Publisher#Features_And_Bundles_Publisher_Application
- * @goal publish-features-and-bundles
  */
+@Mojo(name = "publish-features-and-bundles")
 public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
     private static String CONTENT_PUBLISHER_APP_NAME = "org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher";
 
@@ -35,9 +38,8 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
      * Location of the metadata repository to write. The AssembleRepositoryMojo of
      * tycho-p2-repository-plugin will only work with the predefined default
      * ${project.build.directory}/repository.
-     * 
-     * @parameter default-value="${project.build.directory}/repository"
      */
+    @Parameter(defaultValue = "${project.build.directory}/repository")
     private String metadataRepositoryLocation;
 
     /**
@@ -45,65 +47,58 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
      * tycho-p2-repository-plugin will only work with the predefined default
      * ${project.build.directory}/repository.
      * 
-     * @parameter default-value="${project.build.directory}/repository"
      */
+    @Parameter(defaultValue = "${project.build.directory}/repository")
     private String artifactRepositoryLocation;
 
     /**
      * Location with features and/or plugins directories on which the features and bundles publisher
      * shall be called.
-     * 
-     * @parameter default-value="${project.build.directory}/source"
      */
+    @Parameter(defaultValue = "${project.build.directory}/source")
     private String sourceLocation;
 
     /**
      * Create compressed jars rather than plain xml
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean compress;
 
     /**
      * Optional flag to append artifacts to an existing repository
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean append;
 
     /**
      * Publish artifacts to repository
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean publishArtifacts;
 
     /**
      * Optional flag to include .pack.gz files
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean reusePack200Files;
 
     /**
      * Optional line of additional arguments passed to the p2 application launcher.
-     * 
-     * @parameter default-value=""
      */
+    @Parameter(defaultValue = "")
     private String additionalArgs;
 
     /**
      * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the
      * process, never timing out.
-     * 
-     * @parameter expression="${p2.timeout}" default-value="0"
      */
+    @Parameter(property = "p2.timeout", defaultValue = "0")
     private int forkedProcessTimeoutInSeconds;
 
-    /** @parameter expression="${project}" */
+    @Parameter(property = "project")
     private MavenProject project;
 
-    /** @component */
+    @Component
     private P2ApplicationLauncher launcher;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
@@ -30,18 +32,14 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 /**
  * Quick&dirty way to update .product file to use latest versions of IUs available from specified
  * metadata repositories.
- * 
- * @goal update-product
  */
+@Mojo(name = "update-product")
 public class UpdateProductMojo extends AbstractUpdateMojo {
-    /**
-     * @parameter expression="${project.artifactId}.product"
-     */
+
+    @Parameter(defaultValue = "${project.artifactId}.product")
     private File productFile;
 
-    /**
-     * @parameter expression="${project}"
-     */
+    @Parameter(property = "project")
     private MavenProject project;
 
     @Override

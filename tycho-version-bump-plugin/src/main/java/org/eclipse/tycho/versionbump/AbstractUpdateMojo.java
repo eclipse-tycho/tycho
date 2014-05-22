@@ -17,6 +17,8 @@ import java.net.URISyntaxException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -26,13 +28,13 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public abstract class AbstractUpdateMojo extends AbstractMojo {
 
-    /** @component */
+    @Component
     protected EquinoxServiceFactory equinox;
 
-    /** @component */
+    @Component
     private Logger logger;
 
-    /** @parameter default-value="JavaSE-1.6" */
+    @Parameter(defaultValue = "JavaSE-1.6")
     protected String executionEnvironment;
 
     protected P2Resolver p2;

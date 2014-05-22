@@ -19,6 +19,10 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.tycho.extras.pack200.Pack200Archiver;
@@ -26,39 +30,29 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 /**
  * Performs pack200 pack.
- * 
- * @goal pack
- * @phase package
- * @requiresProject
  */
+@Mojo(name = "pack", defaultPhase = LifecyclePhase.PACKAGE)
 public class Pack200PackMojo extends AbstractMojo {
 
-    /**
-     * @parameter expression="${project}"
-     * @required
-     */
+    @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
 
-    /**
-     * @parameter expression="${project.build.directory}"
-     * @required
-     */
+    @Parameter(property = "project.build.directory", required = true)
     private File buildDirectory;
 
     /**
      * Project types which this plugin supports.
-     * 
-     * @parameter
      */
+    @Parameter
     private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin", "jar");
 
-    /** @parameter expression="${plugin.artifacts}" */
+    @Parameter(property = "plugin.artifacts")
     private List<Artifact> pluginArtifacts;
 
-    /** @component */
+    @Component
     private Pack200Archiver pack200;
 
-    /** @component */
+    @Component
     protected MavenProjectHelper projectHelper;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

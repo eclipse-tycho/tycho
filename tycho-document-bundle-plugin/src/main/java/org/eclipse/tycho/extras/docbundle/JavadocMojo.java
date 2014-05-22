@@ -21,6 +21,11 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
@@ -34,105 +39,76 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
  * this project has. As dependency you can specify any other maven project, for example the feature
  * project that references you other bundles. Included features will be added to the list.
  * 
- * @goal javadoc
- * @phase process-classes
- * @requiresDependencyResolution compile+runtime
- * @threadSafe false
  * @since 0.20.0
- * 
  */
+@Mojo(name = "javadoc", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false)
 public class JavadocMojo extends AbstractMojo {
     /**
      * The directory where the javadoc content will be generated
      * 
-     * @parameter expression="${outputDirectory}"
-     *            default-value="${project.build.directory}/reference/api"
-     * @required
      */
+    @Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/reference/api", required = true)
     private File outputDirectory;
 
     /**
      * The base output directory
-     * 
-     * @parameter expression="${basedir}"
-     * @required
-     * @readonly
      */
+    @Parameter(property = "basedir", required = true, readonly = true)
     private File basedir;
 
     /**
      * The build directory where temporary build files will be placed
-     * 
-     * @parameter expression="${project.build.directory}"
-     * @required
      */
+    @Parameter(property = "project.build.directory", required = true)
     private File buildDirectory;
 
     /**
      * An option to clean out the whole outputDirectory first.
-     * 
-     * @parameter expression="${cleanFirst}" default-value="true"
      */
+    @Parameter(property = "cleanFirst", defaultValue = "true")
     private boolean cleanFirst;
 
-    /**
-     * @component
-     */
+    @Component
     private ToolchainManager toolchainManager;
 
-    /**
-     * @parameter expression="${session}"
-     * @required
-     * @readonly
-     */
+    @Parameter(property = "session", required = true, readonly = true)
     private MavenSession session;
 
-    /**
-     * @parameter expression="${reactorProjects}"
-     * @required
-     * @readonly
-     */
+    @Parameter(property = "reactorProjects", required = true, readonly = true)
     protected List<MavenProject> reactorProjects;
 
     /**
      * The scopes that the dependencies must have in order to be included
-     * 
-     * @parameter default-value="compile,provided" expression="${scopes}"
      */
+    @Parameter(property = "scopes", defaultValue = "compile,provided")
     private Set<String> scopes = new HashSet<String>();
 
     /**
      * Maven module types that will be used to include the source
-     * 
-     * @parameter default-value="eclipse-plugin" expression="${sourceTypes}"
      */
+    @Parameter(property = "sourceTypes", defaultValue = "eclipse-plugin")
     private Set<String> sourceTypes = new HashSet<String>();
 
     /**
      * Options for calling the javadoc application
-     * 
-     * @parameter expression="${javadocOptions}"
      */
+    @Parameter(property = "javadocOptions")
     private JavadocOptions javadocOptions = new JavadocOptions();
 
     /**
      * Options for creating the toc files.
-     * 
-     * @parameter expression="${tocOptions}"
      */
+    @Parameter(property = "tocOptions")
     private TocOptions tocOptions = new TocOptions();
 
     /**
      * The output location of the toc file.<br/>
      * This file will be overwritten.
-     * 
-     * @parameter default-value="${project.build.directory}/tocjavadoc.xml" expression="${tocFile}"
      */
+    @Parameter(property = "tocFile", defaultValue = "${project.build.directory}/tocjavadoc.xml")
     private File tocFile;
 
-    /**
-     * @component
-     */
+    @Component
     private BundleReader bundleReader;
 
     public void setTocOptions(TocOptions tocOptions) {

@@ -21,6 +21,9 @@ import java.util.Map;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.BuildOutputDirectory;
@@ -36,37 +39,32 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorOptions;
  * Intended as a replacement for the <a href=
  * "http://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_repositorytasks.htm"
  * >p2.mirror ant task</a>.
- * 
- * @goal mirror
  */
+@Mojo(name = "mirror")
 public class MirrorMojo extends AbstractMojo {
 
-    /** @parameter expression="${project}" */
+    @Parameter(property = "project")
     private MavenProject project;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory p2;
 
     /**
      * Source repositori(es) to mirror from.
-     * 
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     private List<Repository> source;
 
     /**
      * The destination directory to mirror to.
-     * 
-     * @parameter default-value="${project.build.directory}/repository"
      */
+    @Parameter(defaultValue = "${project.build.directory}/repository")
     private File destination;
 
     /**
      * The target repository name.
-     *
-     * @parameter
      */
+    @Parameter
     private String name;
 
     /**
@@ -75,9 +73,8 @@ public class MirrorMojo extends AbstractMojo {
      * latest available version will be queried. By default, IUs required by the specified IUs will
      * also be mirrored. See also {@link #followStrictOnly}, {@link #followOnlyFilteredRequirements}
      * , {@link #includeOptional}, {@link #includeNonGreedy}, {@link #includeFeatures}.
-     * 
-     * @parameter
      */
+    @Parameter
     private List<Iu> ius;
 
     /**
@@ -85,79 +82,72 @@ public class MirrorMojo extends AbstractMojo {
      * a version range only including exactly one version (e.g. [1.0.0.v2009, 1.0.0.v2009]). In
      * particular, plugins/features included in a feature are normally required via a strict
      * dependency from the feature to the included plugin/feature.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean followStrictOnly;
+
     /**
      * Whether or not to include features.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean includeFeatures;
 
     /**
      * Whether or not to include pack200 artifacts.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean includePacked;
 
     /**
      * Whether or not to follow optional requirements.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean includeOptional;
+
     /**
      * Whether or not to follow non-greedy requirements.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean includeNonGreedy;
+
     /**
      * Filter properties. In particular, a platform filter can be specified by using keys
      * <code>osgi.os, osgi.ws, osgi.arch</code>.
-     * 
-     * @parameter
      */
+    @Parameter
     private Map<String, String> filter = new HashMap<String, String>();
+
     /**
      * Follow only requirements which match the filter specified.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean followOnlyFilteredRequirements;
 
     /**
      * Set to <code>true</code> to filter the resulting set of IUs to only include the latest
      * version of each Installable Unit only. By default, all versions satisfying dependencies are
      * included.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean latestVersionOnly;
 
     /**
      * Whether to mirror metadata only (no artifacts).
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean mirrorMetadataOnly;
 
     /**
      * Whether to compress the destination repository metadata files (artifacts.xml, content.xml).
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean compress;
 
     /**
      * Whether to append to an existing destination repository. Note that appending an IU which
      * already exists in the destination repository will cause the mirror operation to fail.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean append;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -173,7 +163,9 @@ public class MirrorMojo extends AbstractMojo {
             }
         }
 
-        if (name == null) { name = ""; }
+        if (name == null) {
+            name = "";
+        }
         final DestinationRepositoryDescriptor destinationDescriptor = new DestinationRepositoryDescriptor(destination,
                 name, compress, mirrorMetadataOnly, append);
         getLog().info("Mirroring to " + destination + "...");

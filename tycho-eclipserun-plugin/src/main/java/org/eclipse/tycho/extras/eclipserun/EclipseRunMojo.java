@@ -22,6 +22,9 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
@@ -52,19 +55,14 @@ import org.eclipse.tycho.plugins.p2.extras.Repository;
 /**
  * Launch an eclipse process with arbitrary commandline arguments. The eclipse installation is
  * defined by the dependencies to bundles specified.
- * 
- * @goal eclipse-run
  */
+@Mojo(name = "eclipse-run")
 public class EclipseRunMojo extends AbstractMojo {
 
-    /**
-     * @parameter default-value="${project.build.directory}/eclipserun-work"
-     */
+    @Parameter(defaultValue = "${project.build.directory}/eclipserun-work")
     private File work;
 
-    /**
-     * @parameter expression="${project}"
-     */
+    @Parameter(property = "project")
     private MavenProject project;
 
     /**
@@ -78,24 +76,21 @@ public class EclipseRunMojo extends AbstractMojo {
      *  &lt;/dependency&gt;
      * &lt;/dependencies&gt;
      * </pre>
-     * 
-     * @parameter
      */
+    @Parameter
     private List<Dependency> dependencies = new ArrayList<Dependency>();
 
     /**
      * Whether to add default dependencies to bundles org.eclipse.equinox.launcher, org.eclipse.osgi
      * and org.eclipse.core.runtime.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean addDefaultDependencies;
 
     /**
      * Execution environment profile name used to resolve dependencies.
-     * 
-     * @parameter default-value="JavaSE-1.6"
      */
+    @Parameter(defaultValue = "JavaSE-1.6")
     private String executionEnvironment;
 
     /**
@@ -110,68 +105,57 @@ public class EclipseRunMojo extends AbstractMojo {
      *  &lt;/repository&gt;
      * &lt;/repositories&gt;
      * </pre>
-     * 
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     private List<Repository> repositories;
 
-    /**
-     * @parameter expression="${session}"
-     * @readonly
-     * @required
-     */
+    @Parameter(property = "session", readonly = true, required = true)
     private MavenSession session;
 
     /**
      * Arbitrary JVM options to set on the command line.
-     * 
-     * @parameter
      */
+    @Parameter
     private String argLine;
 
     /**
      * Whether to skip mojo execution.
-     * 
-     * @parameter expression="${eclipserun.skip}" default-value="false"
      */
+    @Parameter(property = "eclipserun.skip", defaultValue = "false")
     private boolean skip;
 
     /**
      * Arbitrary applications arguments to set on the command line.
-     * 
-     * @parameter
      */
+    @Parameter
     private String appArgLine;
 
     /**
      * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the
      * process, never timing out.
-     * 
-     * @parameter expression="${eclipserun.timeout}"
      */
+    @Parameter(property = "eclipserun.timeout")
     private int forkedProcessTimeoutInSeconds;
 
     /**
      * Additional environments to set for the forked JVM.
-     * 
-     * @parameter
      */
+    @Parameter
     private Map<String, String> environmentVariables;
 
-    /** @component */
+    @Component
     private EquinoxInstallationFactory installationFactory;
 
-    /** @component */
+    @Component
     private EquinoxLauncher launcher;
 
-    /** @component */
+    @Component
     private ToolchainManager toolchainManager;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory equinox;
 
-    /** @component */
+    @Component
     private Logger logger;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
