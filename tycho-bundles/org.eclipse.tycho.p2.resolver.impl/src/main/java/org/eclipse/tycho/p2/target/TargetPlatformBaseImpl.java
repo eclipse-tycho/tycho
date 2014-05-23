@@ -74,7 +74,7 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         this.localArtifactRepository = localArtifactRepository;
     }
 
-    public Set<IInstallableUnit> getInstallableUnits() {
+    public final Set<IInstallableUnit> getInstallableUnits() {
         return installableUnits;
     }
 
@@ -82,7 +82,7 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         return executionEnvironment;
     }
 
-    public Map<IInstallableUnit, ReactorProjectIdentities> getOriginalReactorProjectMap() {
+    public final Map<IInstallableUnit, ReactorProjectIdentities> getOriginalReactorProjectMap() {
         return reactorProjectLookup;
     }
 

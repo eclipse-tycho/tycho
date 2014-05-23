@@ -72,8 +72,6 @@ public class P2ResolverImpl implements P2Resolver {
 
     private P2TargetPlatform context;
     private Set<IInstallableUnit> currentProjectUnits;
-    private Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup;
-    private Map<IInstallableUnit, IArtifactFacade> mavenArtifactLookup;
 
     private Set<IInstallableUnit> usedTargetPlatformUnits;
 
@@ -93,8 +91,6 @@ public class P2ResolverImpl implements P2Resolver {
         } else {
             currentProjectUnits = (Set<IInstallableUnit>) currentProject.getDependencyMetadata();
         }
-        reactorProjectLookup = context.getOriginalReactorProjectMap();
-        mavenArtifactLookup = context.getOriginalMavenArtifactMap();
     }
 
     public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project) {
@@ -191,13 +187,13 @@ public class P2ResolverImpl implements P2Resolver {
             return;
         }
 
-        ReactorProjectIdentities otherProject = reactorProjectLookup.get(iu);
+        ReactorProjectIdentities otherProject = context.getOriginalReactorProjectMap().get(iu);
         if (otherProject != null) {
             addReactorProject(result, otherProject, iu);
             return;
         }
 
-        IArtifactFacade mavenArtifact = mavenArtifactLookup.get(iu);
+        IArtifactFacade mavenArtifact = context.getOriginalMavenArtifactMap().get(iu);
         if (mavenArtifact != null) {
             addExternalMavenArtifact(result, mavenArtifact, iu);
             return;
@@ -227,6 +223,8 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     private void collectNonReactorIUs(DefaultP2ResolutionResult result, Collection<IInstallableUnit> newState) {
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectLookup = context.getOriginalReactorProjectMap();
+
         for (IInstallableUnit iu : newState) {
             if (!currentProjectUnits.contains(iu) && reactorProjectLookup.get(iu) == null) {
                 result.addNonReactorUnit(iu);
