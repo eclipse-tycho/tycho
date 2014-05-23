@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.tycho.versions.engine.PomVersionUpdater;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 
@@ -21,11 +22,8 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
  * Update pom.xml version to match corresponding Eclipse/OSGi metadata.
  * 
  * @author igor
- * @goal update-pom
- * @aggregator
- * @requiresProject true
- * @requiresDirectInvocation true
  */
+@Mojo(name = "update-pom", aggregator = true, requiresDirectInvocation = true)
 public class UpdatePomMojo extends AbstractVersionsMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException {

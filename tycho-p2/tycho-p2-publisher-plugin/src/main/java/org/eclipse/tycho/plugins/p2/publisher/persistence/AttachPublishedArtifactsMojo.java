@@ -17,6 +17,8 @@ import java.util.Map.Entry;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
@@ -31,15 +33,14 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFaca
  * the full build results are available in the local Maven repository, e.g. for builds of parts of a
  * reactor.
  * </p>
- * 
- * @goal attach-artifacts
  */
+@Mojo(name = "attach-artifacts")
 public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
 
-    /** @component */
+    @Component
     private MavenProjectHelper projectHelper;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory osgiServices;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

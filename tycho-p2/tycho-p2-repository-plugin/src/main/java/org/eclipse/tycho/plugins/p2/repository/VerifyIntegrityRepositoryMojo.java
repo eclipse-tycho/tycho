@@ -15,6 +15,9 @@ import java.net.URI;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
@@ -26,14 +29,12 @@ import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
  * Checks the consistency of the aggregated p2 repository.
  * </p>
  * 
- * @goal verify-repository
- * 
- * @phase verify
  */
+@Mojo(name = "verify-repository", defaultPhase = LifecyclePhase.VERIFY)
 public class VerifyIntegrityRepositoryMojo extends AbstractRepositoryMojo implements LogEnabled {
     private Logger logger;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory p2;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

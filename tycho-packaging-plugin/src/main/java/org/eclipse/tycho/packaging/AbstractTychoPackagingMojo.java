@@ -20,6 +20,8 @@ import java.util.Set;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.PlexusContainer;
@@ -33,55 +35,41 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 
-/**
- * @requiresProject
- */
 public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
-    /**
-     * @parameter expression="${session}"
-     * @readonly
-     */
+
+    @Parameter(property = "session", readonly = true)
     protected MavenSession session;
 
-    /**
-     * @parameter expression="${project}"
-     * @readonly
-     */
+    @Parameter(property = "project", readonly = true)
     protected MavenProject project;
 
-    /** @parameter default-value="true" */
+    @Parameter(defaultValue = "true")
     protected boolean useDefaultExcludes;
 
     /**
      * Build qualifier. Recommended way to set this parameter is using build-qualifier goal.
-     * 
-     * @parameter expression="${buildQualifier}"
      */
+    @Parameter(property = "buildQualifier")
     protected String qualifier;
 
     /**
      * If set to <code>true</code> (the default), missing build.properties bin.includes will cause
      * build failure. If set to <code>false</code>, missing build.properties bin.includes will be
      * reported as warnings but the build will not fail.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     protected boolean strictBinIncludes;
 
-    /** @component */
+    @Component
     protected PlexusContainer plexus;
 
-    /** @component */
+    @Component
     protected MavenProjectHelper projectHelper;
 
-    /**
-     * @component role="org.eclipse.tycho.core.TychoProject"
-     */
+    @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
-    /**
-     * @component
-     */
+    @Component
     private IncludeValidationHelper includeValidationHelper;
 
     /**

@@ -38,6 +38,9 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
@@ -48,27 +51,25 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 
-/**
- * @goal p2-metadata
- */
+@Mojo(name = "p2-metadata")
 public class P2MetadataMojo extends AbstractMojo {
-    /** @parameter expression="${project}" */
+
+    @Parameter(property = "project")
     protected MavenProject project;
 
-    /** @parameter default-value="true" */
+    @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
 
-    /** @component */
+    @Component
     protected MavenProjectHelper projectHelper;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory equinox;
 
     /**
      * Project types which this plugin supports.
-     * 
-     * @parameter
      */
+    @Parameter
     private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin",
             "eclipse-feature");
 
@@ -78,28 +79,23 @@ public class P2MetadataMojo extends AbstractMojo {
      * P2 assumes that the same artifact type, id and version represent the same artifact. If
      * baselineRepositories parameter is specified, this assumption is validated and optionally
      * enforced.
-     * 
-     * @parameter
      */
+    @Parameter
     private List<Repository> baselineRepositories;
 
     /**
      * What happens when build artifact does not match baseline version.
-     * 
-     * @parameter expression="${tycho.baseline}" default=value="fail"
      */
+    @Parameter(property = "tycho.baseline", defaultValue = "warn")
     private BaselineMode baselineMode;
 
     /**
      * Whether to replace build artifacts with baseline version or use reactor version.
-     * 
-     * @parameter expression="${tycho.baseline.replace}" default-value="all"
      */
+    @Parameter(property = "tycho.baseline.replace", defaultValue = "all")
     private BaselineReplace baselineReplace;
 
-    /**
-     * @component
-     */
+    @Component
     private BaselineValidator baselineValidator;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.compiler.Compiler;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
 import org.codehaus.plexus.compiler.CompilerException;
@@ -65,120 +67,104 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     /**
      * Whether to include debugging information in the compiled class files. The default value is
      * true.
-     * 
-     * @parameter expression="${maven.compiler.debug}" default-value="true"
      */
+    @Parameter(property = "maven.compiler.debug", defaultValue = "true")
     private boolean debug;
 
     /**
      * Whether to output messages about what the compiler is doing
-     * 
-     * @parameter expression="${maven.compiler.verbose}" default-value="false"
      */
+    @Parameter(property = "maven.compiler.verbose", defaultValue = "false")
     private boolean verbose;
 
     /**
      * Output source locations where deprecated APIs are used
-     * 
-     * @parameter expression="${maven.compiler.showDeprecation}" default-value="false"
      */
+    @Parameter(property = "maven.compiler.showDeprecation", defaultValue = "false")
     private boolean showDeprecation;
 
     /**
      * Optimize compiled code using the compiler's optimization methods
-     * 
-     * @parameter expression="${maven.compiler.optimize}" default-value="false"
      */
+    @Parameter(property = "maven.compiler.optimize", defaultValue = "false")
     private boolean optimize;
 
     /**
      * Output warnings
-     * 
-     * @parameter expression="${maven.compiler.showWarnings}" default-value="false"
      */
+    @Parameter(property = "maven.compiler.showWarnings", defaultValue = "false")
     private boolean showWarnings;
 
     /**
      * The -source argument for the Java compiler
-     * 
-     * @parameter expression="${maven.compiler.source}"
      */
+    @Parameter(property = "maven.compiler.source")
     protected String source;
 
     /**
      * The -target argument for the Java compiler
-     * 
-     * @parameter expression="${maven.compiler.target}"
      */
+    @Parameter(property = "maven.compiler.target")
     protected String target;
 
     /**
      * The -encoding argument for the Java compiler (kept for backwards compatibility)
      * 
-     * @parameter expression="${maven.compiler.encoding}"
-     * @readonly
      * @deprecated use {@link #encoding}
      */
+    @Parameter(property = "maven.compiler.encoding", readonly = true)
     private String mavenCompilerEncoding;
 
     /**
      * The -encoding argument for the Java compiler
-     * 
-     * @parameter expression="${project.build.sourceEncoding}"
      */
+    @Parameter(property = "project.build.sourceEncoding")
     private String encoding;
 
     /**
      * The granularity in milliseconds of the last modification date for testing whether a source
      * needs recompilation
-     * 
-     * @parameter expression="${lastModGranularityMs}" default-value="0"
      */
+    @Parameter(property = "lastModGranularityMs", defaultValue = "0")
     private int staleMillis;
 
     /**
      * The compiler id of the compiler to use.
-     * 
-     * @parameter expression="${maven.compiler.compilerId}" default-value="jdt"
      */
+    @Parameter(property = "maven.compiler.compilerId", defaultValue = "jdt")
     private String compilerId;
 
     /**
      * Version of the compiler to use, ex. "1.3", "1.5", if fork is set to true
-     * 
-     * @parameter expression="${maven.compiler.compilerVersion}"
      */
+    @Parameter(property = "maven.compiler.compilerVersion")
     private String compilerVersion;
 
     /**
      * Allows running the compiler in a separate process. If "false" it uses the built in compiler,
      * while if "true" it will use an executable.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean fork;
 
     /**
      * Initial size, in megabytes, of the memory allocation pool, ex. "64", "64m" if fork is set to
      * true
-     * 
-     * @parameter expression="${maven.compiler.meminitial}"
      */
+    @Parameter(property = "maven.compiler.meminitial")
     private String meminitial;
 
     /**
      * maximum size, in megabytes, of the memory allocation pool, ex. "128", "128m" if fork is set
      * to true
-     * 
-     * @parameter expression="${maven.compiler.maxmem}"
      */
+    @Parameter(property = "maven.compiler.maxmem")
     private String maxmem;
 
     /**
      * The executable of the compiler to use when fork is true.
-     * 
-     * @parameter expression="${maven.compiler.executable}"
      */
+    @Parameter(property = "maven.compiler.executable")
     private String executable;
 
     /**
@@ -189,9 +175,9 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      * speed compilation if annotation processing is not required. This parameter requires a 1.6 VM
      * or above and is used only if the compliance is 1.6
      * 
-     * @parameter
      * @since 0.16.0
      */
+    @Parameter
     private String proc;
 
     /**
@@ -200,18 +186,18 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      * >normal processor discovery process</a> will be skipped. This parameter requires a 1.6 VM or
      * above and is used only if the compliance is 1.6
      * 
-     * @parameter
      * @since 0.16.0
      */
+    @Parameter
     private String[] annotationProcessors;
 
     /**
      * The directory where source files generated by annotation processors will be created. This
      * parameter requires a 1.6 VM or above and is used only if the compliance is 1.6.
      * 
-     * @parameter default-value="${project.build.directory}/generated-sources/annotations"
      * @since 0.16.0
      */
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/annotations")
     private File generatedSourcesDirectory;
 
     /**
@@ -224,16 +210,16 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      * </p>
      * 
      * @deprecated use {@link #compilerArgs} instead.
-     * @parameter
      */
+    @Parameter
     private Map compilerArguments;
 
     /**
      * Arguments to be passed to the compiler.
      * 
-     * @parameter
      * @since 0.17.0
      */
+    @Parameter
     private List<String> compilerArgs;
 
     /**
@@ -244,16 +230,14 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      * This is because the list of valid arguments passed to a Java compiler varies based on the
      * compiler version.
      * </p>
-     * 
-     * @parameter
      */
+    @Parameter
     private String compilerArgument;
 
     /**
      * Used to control the name of the output file when compiling a set of sources to a single file.
-     * 
-     * @parameter expression="${project.build.finalName}"
      */
+    @Parameter(property = "project.build.finalName")
     private String outputFileName;
 
     // ----------------------------------------------------------------------
@@ -262,27 +246,20 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
     /**
      * The directory to run the compiler from if fork is true.
-     * 
-     * @parameter expression="${basedir}"
-     * @required
-     * @readonly
      */
+    @Parameter(property = "basedir", required = true, readonly = true)
     private File basedir;
 
     /**
      * The target directory of the compiler if fork is true.
-     * 
-     * @parameter expression="${project.build.directory}"
-     * @required
-     * @readonly
      */
+    @Parameter(property = "project.build.directory", readonly = true, required = true)
     private File buildDirectory;
 
     /**
      * Plexus compiler manager.
-     * 
-     * @component
      */
+    @Component
     private CompilerManager compilerManager;
 
     protected abstract SourceInclusionScanner getSourceInclusionScanner(int staleMillis);

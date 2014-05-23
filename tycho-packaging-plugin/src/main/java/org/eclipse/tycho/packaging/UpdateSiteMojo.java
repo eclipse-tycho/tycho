@@ -15,6 +15,8 @@ import java.io.IOException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -23,18 +25,16 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 
-/**
- * @goal update-site
- */
+@Mojo(name = "update-site")
 public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
 
-    /** @parameter expression="${project.build.directory}/site" */
+    @Parameter(defaultValue = "${project.build.directory}/site")
     private File target;
 
-    /** @parameter expression="${project.basedir}" */
+    @Parameter(property = "project.basedir")
     private File basedir;
 
-    /** @parameter */
+    @Parameter
     private boolean inlineArchives;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

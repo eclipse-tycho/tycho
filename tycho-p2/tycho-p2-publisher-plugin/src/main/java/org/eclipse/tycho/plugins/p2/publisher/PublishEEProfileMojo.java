@@ -15,6 +15,9 @@ import java.util.Collection;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
@@ -24,20 +27,17 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
  * Publishes a custom execution environment profile.
  * </p>
  * 
- * @goal publish-ee-profile
- * @phase prepare-package
  * @since 0.16.0
  */
+@Mojo(name = "publish-ee-profile", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public final class PublishEEProfileMojo extends AbstractPublishMojo {
 
     /**
      * <p>
      * The profile file containing the execution environment definition.
      * </p>
-     * 
-     * @parameter
-     * @required
      */
+    @Parameter(required = true)
     private File profileFile;
 
     @Override

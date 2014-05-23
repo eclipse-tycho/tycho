@@ -15,21 +15,22 @@ import java.io.IOException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
-/**
- * @goal update-local-index
- */
+@Mojo(name = "update-local-index")
 public class UpdateLocalIndexMojo extends AbstractMojo {
 
-    /** @parameter expression="${project}" */
+    @Parameter(property = "project", readonly = true, required = true)
     private MavenProject project;
 
-    /** @component */
+    @Component
     private EquinoxServiceFactory serviceFactory;
 
     public void execute() throws MojoExecutionException, MojoFailureException {

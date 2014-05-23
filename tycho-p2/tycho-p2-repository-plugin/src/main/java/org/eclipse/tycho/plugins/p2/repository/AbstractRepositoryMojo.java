@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -24,22 +25,14 @@ import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 import org.eclipse.tycho.p2.tools.BuildContext;
 
 public abstract class AbstractRepositoryMojo extends AbstractMojo {
-    /**
-     * @parameter expression="${session}"
-     * @readonly
-     */
+
+    @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    /**
-     * @parameter expression="${project}"
-     * @readonly
-     */
+    @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
-    /**
-     * @parameter expression="${buildQualifier}"
-     * @readonly
-     */
+    @Parameter(property = "buildQualifier", readonly = true)
     private String qualifier;
 
     protected MavenProject getProject() {

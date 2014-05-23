@@ -36,6 +36,9 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.util.ArchiveEntryUtils;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
@@ -61,29 +64,22 @@ import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.BundleConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration;
 
-/**
- * @goal product-export
- */
+@Mojo(name = "product-export")
 public class ProductExportMojo extends AbstractTychoPackagingMojo {
     /**
      * The product configuration, a .product file. This file manages all aspects of a product
      * definition from its constituent plug-ins to configuration files to branding.
-     * 
-     * @parameter expression="${productConfiguration}"
-     *            default-value="${project.basedir}/${project.artifactId}.product"
      */
+    @Parameter(property = "productConfiguration", defaultValue = "${project.basedir}/${project.artifactId}.product")
     private File productConfigurationFile;
 
-    /**
-     * @parameter expression="${productConfiguration}/../p2.inf"
-     */
+    @Parameter(defaultValue = "${productConfiguration}/../p2.inf")
     private File p2inf;
 
     /**
      * Location of generated .product file with all versions replaced with their expanded values.
-     * 
-     * @parameter expression="${project.build.directory}/${project.artifactId}.product"
      */
+    @Parameter(defaultValue = "${project.build.directory}/${project.artifactId}.product")
     private File expandedProductFile;
 
     /**
@@ -92,50 +88,38 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     private ProductConfiguration productConfiguration;
 
     /**
-     * @parameter
      * @deprecated use target-platform-configuration <environments/> element
      */
+    @Parameter
     private TargetEnvironment[] environments;
 
-    /**
-     * @parameter expression="${tycho.product.createArchive}" default-value="true"
-     */
+    @Parameter(property = "tycho.product.createArchive", defaultValue = "true")
     private boolean createProductArchive;
 
-    /**
-     * @parameter default-value="false"
-     */
+    @Parameter(defaultValue = "false")
     private boolean includeSources;
 
     /**
      * If true (the default), produce separate directory structure for each supported runtime
      * environment.
-     * 
-     * @parameter default-value="true"
      */
+    @Parameter(defaultValue = "true")
     private boolean separateEnvironments = true;
 
     /**
      * If true, all included features and bundles will be packed. If false (the default), all
      * features will be unpacked and bundles will honour unpack value of <plugin/> element.
-     * 
-     * @parameter default-value="false"
      */
+    @Parameter(defaultValue = "false")
     private boolean forcePackedDependencies;
 
-    /**
-     * @component
-     */
+    @Component
     private BundleReader manifestReader;
 
-    /**
-     * @component
-     */
+    @Component
     private Logger logger;
 
-    /**
-     * @component
-     */
+    @Component
     private FileLockService fileLockService;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
