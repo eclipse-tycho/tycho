@@ -22,7 +22,6 @@ import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;

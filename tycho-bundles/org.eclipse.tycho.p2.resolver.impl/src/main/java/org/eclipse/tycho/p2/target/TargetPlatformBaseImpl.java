@@ -18,7 +18,6 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;

@@ -36,7 +36,6 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.artifacts.p2.P2TargetPlatform;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
@@ -45,6 +44,8 @@ import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
+import org.eclipse.tycho.p2.target.DuplicateReactorIUsException;
+import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Assert;

@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2.target;
 
 import java.io.File;
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
-public class DuplicateReactorIUsException extends P2ResolutionException {
+public class DuplicateReactorIUsException extends RuntimeException {
     private static final long serialVersionUID = 4233143438452165535L;
 
     private final Map<IInstallableUnit, Set<File>> duplicateReactorUIs;
