@@ -8,9 +8,9 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.resolver;
+package org.eclipse.tycho.p2.util.resolution;
 
-import static org.eclipse.tycho.p2.resolver.ResolverDebugUtils.toDebugString;
+import static org.eclipse.tycho.p2.util.resolution.ResolverDebugUtils.toDebugString;
 
 import java.util.ArrayList;
 import java.util.Collection;

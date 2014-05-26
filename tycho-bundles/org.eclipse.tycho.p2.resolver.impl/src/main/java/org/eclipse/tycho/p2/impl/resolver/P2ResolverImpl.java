@@ -44,14 +44,14 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
-import org.eclipse.tycho.p2.resolver.AbstractResolutionStrategy;
-import org.eclipse.tycho.p2.resolver.DependencyCollector;
-import org.eclipse.tycho.p2.resolver.ProjectorResolutionStrategy;
-import org.eclipse.tycho.p2.resolver.QueryableCollection;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
+import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
+import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
+import org.eclipse.tycho.p2.util.resolution.QueryableCollection;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 @SuppressWarnings("restriction")

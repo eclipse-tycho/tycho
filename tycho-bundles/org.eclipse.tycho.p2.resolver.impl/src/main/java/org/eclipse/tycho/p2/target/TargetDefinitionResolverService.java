@@ -19,8 +19,8 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
-import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
+import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 /**
  * Service instance for resolving target definitions. Results are cached so that there is no

@@ -21,7 +21,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.ee.shared.SystemCapability.Type;
-import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
+import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 class CustomEEResolutionHandler extends ExecutionEnvironmentResolutionHandler {
 

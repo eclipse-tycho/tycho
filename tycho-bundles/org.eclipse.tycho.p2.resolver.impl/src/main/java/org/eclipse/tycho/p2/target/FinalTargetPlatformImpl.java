@@ -17,7 +17,7 @@ import java.util.Map;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
+import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 

@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.resolver.ExecutionEnvironmentResolutionHints;
+import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 /**
  * Specialization of the {@link TargetPlatform} interface for a target platform which includes p2
