@@ -54,7 +54,6 @@ import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
-import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
@@ -202,8 +201,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             if (isPluginProject(dir)) {
                 try {
                     OsgiManifest mf = bundleReader.loadManifest(dir);
-                    ArtifactKey key = DefaultArtifactKey.fromManifest(mf);
-                    platform.addArtifactFile(key, dir, null);
+                    platform.addArtifactFile(mf.toArtifactKey(), dir, null);
                 } catch (OsgiManifestParserException e) {
                     getLog().debug("Invalid bundle manifest " + dir.getAbsolutePath());
                 }

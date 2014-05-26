@@ -218,12 +218,12 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
         } catch (OsgiManifestParserException e) {
             return null;
         }
-        return DefaultArtifactKey.fromManifest(mf);
+        return mf.toArtifactKey();
     }
 
     public ArtifactKey getArtifactKey(MavenSession session, File plugin) {
         OsgiManifest mf = manifestReader.loadManifest(plugin);
-        ArtifactKey key = DefaultArtifactKey.fromManifest(mf);
+        ArtifactKey key = mf.toArtifactKey();
         return key;
     }
 

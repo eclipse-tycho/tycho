@@ -135,7 +135,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     public ArtifactKey readArtifactKey(File location) {
         OsgiManifest mf = bundleReader.loadManifest(location);
-        return DefaultArtifactKey.fromManifest(mf);
+        return mf.toArtifactKey();
     }
 
     public String getManifestValue(String key, MavenProject project) {

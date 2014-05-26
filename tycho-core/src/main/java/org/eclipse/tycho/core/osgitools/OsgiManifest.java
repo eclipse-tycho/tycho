@@ -9,6 +9,7 @@ import org.eclipse.osgi.framework.util.Headers;
 import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
@@ -116,6 +117,13 @@ public class OsgiManifest {
 
     public String getBundleVersion() {
         return bundleVersion;
+    }
+
+    /**
+     * Returns the bundle's key in the Eclipse artifact coordinate system.
+     */
+    public ArtifactKey toArtifactKey() {
+        return new DefaultArtifactKey(ArtifactKey.TYPE_ECLIPSE_PLUGIN, getBundleSymbolicName(), getBundleVersion());
     }
 
     public String[] getBundleClasspath() {
