@@ -9,7 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - apply DRY principle
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.resolver;
 
 import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_FEATURE;
 import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN;

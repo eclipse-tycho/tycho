@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0">
-   <implementation class="org.eclipse.tycho.p2.impl.resolver.P2ResolverFactoryImpl"/>
+   <implementation class="org.eclipse.tycho.p2.resolver.P2ResolverFactoryImpl"/>
    <service>
       <provide interface="org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory"/>
    </service>

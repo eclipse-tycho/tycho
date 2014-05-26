@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.impl.resolver;
+package org.eclipse.tycho.p2.resolver;
 
 public abstract class P2ResolutionException extends RuntimeException {
     private static final long serialVersionUID = 4777222946987138665L;
