@@ -26,10 +26,10 @@ import java.util.TreeMap;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
-import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 import org.osgi.framework.Version;
 
 public class BasicDependencyArtifacts {

@@ -35,7 +35,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
-import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.targetplatform.BasicDependencyArtifacts;
 
 @Component(role = DevWorkspaceResolver.class)

@@ -8,9 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.osgitools;
-
-import org.eclipse.tycho.ArtifactKey;
+package org.eclipse.tycho;
 
 public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
     private final String type;

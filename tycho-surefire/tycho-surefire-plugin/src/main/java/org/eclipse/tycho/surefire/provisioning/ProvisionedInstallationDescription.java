@@ -25,9 +25,9 @@ import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
-import org.eclipse.tycho.core.osgitools.DefaultArtifactKey;
 
 /**
  * A "read-only" equinox installation (no bundles can be added, nothing configured). All

@@ -10,6 +10,7 @@ import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.UnknownEnvironmentException;
