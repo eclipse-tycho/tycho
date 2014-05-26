@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.p2.impl.resolver.ClassifiedLocation;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -59,12 +58,12 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     public void publishAndAddArtifactIfBundleArtifact(IArtifactFacade artifact) {
         IInstallableUnit bundleIU = bundlesPublisher.attemptToPublishBundle(artifact);
         if (bundleIU != null)
-            addMavenArtifact(new ClassifiedLocation(artifact), artifact, Collections.singleton(bundleIU));
+            addMavenArtifact(artifact, Collections.singleton(bundleIU));
     }
 
     public void addArtifactWithExistingMetadata(IArtifactFacade artifact, IArtifactFacade p2MetadataFile) {
         try {
-            addMavenArtifact(new ClassifiedLocation(artifact), artifact, readUnits(p2MetadataFile));
+            addMavenArtifact(artifact, readUnits(p2MetadataFile));
         } catch (IOException e) {
             throw new RuntimeException("failed to read p2 metadata", e);
         }
@@ -80,10 +79,10 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         }
     }
 
-    public void addMavenArtifact(ClassifiedLocation key, IArtifactFacade artifact, Set<IInstallableUnit> units) {
+    public void addMavenArtifact(IArtifactFacade artifact, Set<IInstallableUnit> units) {
         for (IInstallableUnit unit : units) {
             String classifier = unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
-            if (classifier == null ? key.getClassifier() == null : classifier.equals(key.getClassifier())) {
+            if (classifier == null ? artifact.getClassifier() == null : classifier.equals(artifact.getClassifier())) {
                 mavenInstallableUnits.put(unit, artifact);
                 if (logger.isDebugEnabled()) {
                     logger.debug("P2Resolver: artifact "

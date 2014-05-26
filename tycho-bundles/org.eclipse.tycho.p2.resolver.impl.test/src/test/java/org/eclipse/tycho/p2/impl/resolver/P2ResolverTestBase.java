@@ -76,7 +76,7 @@ public class P2ResolverTestBase {
 
         DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments());
 
-        pomDependencies.addMavenArtifact(new ClassifiedLocation(artifact), artifact, metadata.getInstallableUnits());
+        pomDependencies.addMavenArtifact(artifact, metadata.getInstallableUnits());
     }
 
     /**
