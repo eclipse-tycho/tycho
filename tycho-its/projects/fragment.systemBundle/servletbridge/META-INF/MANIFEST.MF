@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: TS Servletbridge Extensionbundle
+Bundle-SymbolicName: fsb.servletbridge.extensionbundle
+Bundle-Version: 1.2.0.qualifier
+Bundle-Vendor: TS
+Fragment-Host: system.bundle; extension:=framework
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+X-Deploy-Export-Package: javax.servlet;version="3.0",
+ javax.servlet.http;version ="3.0",
+ javax.servlet.resources;version="3.0",
+ javax.servlet.annotation;version="3.0",
+ org.eclipse.equinox.servletbridge;version="1.1"
