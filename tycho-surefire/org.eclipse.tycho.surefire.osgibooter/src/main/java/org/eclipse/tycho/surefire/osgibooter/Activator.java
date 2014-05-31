@@ -25,11 +25,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.log.LogService;
 
 public class Activator implements BundleActivator {
 
     public static final String PLUGIN_ID = "org.eclipse.tycho.surefire.osgibooter";
     private static PlatformAdmin platformAdmin;
+    private static LogService log;
 
     public Activator() {
     }
@@ -38,6 +40,10 @@ public class Activator implements BundleActivator {
         ServiceReference platformAdminRef = context.getServiceReference(PlatformAdmin.class.getName());
         if (platformAdminRef != null) {
             platformAdmin = (PlatformAdmin) context.getService(platformAdminRef);
+        }
+        ServiceReference logServiceRef = context.getServiceReference(LogService.class.getName());
+        if (logServiceRef != null) {
+            log = (LogService) context.getService(logServiceRef);
         }
     }
 
@@ -103,4 +109,7 @@ public class Activator implements BundleActivator {
         }
     }
 
+    public static LogService getLog() {
+        return log;
+    }
 }

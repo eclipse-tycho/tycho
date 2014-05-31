@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.testing.ITestHarness;
 import org.eclipse.ui.testing.TestableObject;
+import org.osgi.service.log.LogService;
 
 public abstract class AbstractUITestApplication implements ITestHarness {
 
@@ -110,8 +111,23 @@ public abstract class AbstractUITestApplication implements ITestHarness {
             fArgs = args;
         fTestableObject = PlatformUI.getTestableObject();
         fTestableObject.setTestHarness(this);
-        Object application = getApplication(args);
-        runApplication(application, args);
+        try {
+            Object application = getApplication(args);
+            runApplication(application, args);
+        } catch (Exception e) {
+            if (fTestRunnerResult == -1) {
+                throw e;
+            }
+            // the exception was thrown after test runner returned. this is most likely in Eclipse Platform
+            // see for example, https://bugs.eclipse.org/bugs/show_bug.cgi?id=436159
+            // there is no point to fail the build because of this, just log and ignore
+            LogService log = Activator.getLog();
+            if (log != null) {
+                log.log(LogService.LOG_ERROR, "Caught unexpected exception during test framework shutdown", e);
+            } else {
+                e.printStackTrace();
+            }
+        }
         return Integer.valueOf(fTestRunnerResult);
     }
 
