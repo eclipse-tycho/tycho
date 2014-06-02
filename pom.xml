@@ -155,7 +155,7 @@ $CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
 		 -->
 
 		<equinoxVersion>3.9.1.v20130814-1242</equinoxVersion>
-		<jdtVersion>3.10.0.v20140514-2138-SNAPSHOT</jdtVersion>
+		<jdtVersion>3.10.0.v20140522-1230-SNAPSHOT</jdtVersion>
 		<jdtAptVersion>1.1.0.v20140509-1235-SNAPSHOT</jdtAptVersion>
 
 		<!-- version of tycho used by this build -->
