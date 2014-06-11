@@ -11,6 +11,7 @@
 package org.eclipse.tycho.pomgenerator;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -77,6 +78,12 @@ import org.osgi.framework.BundleException;
  */
 @Mojo(name = "generate-poms", requiresProject = false)
 public class GeneratePomsMojo extends AbstractMojo {
+
+    private static final class DirectoryFilter implements FileFilter {
+        public boolean accept(File fileToTest) {
+            return fileToTest.isDirectory();
+        }
+    }
 
     /** reference to real pom.xml in aggregator poma.xml */
     private static final String THIS_MODULE = ".";
@@ -284,7 +291,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         if (isProjectDir(basedir)) {
             candidateDirs.add(basedir);
         } else {
-            File[] listFiles = basedir.listFiles();
+            File[] listFiles = basedir.listFiles(new DirectoryFilter());
             if (listFiles != null) {
                 for (File file : listFiles) {
                     if (isProjectDir(file)) {
