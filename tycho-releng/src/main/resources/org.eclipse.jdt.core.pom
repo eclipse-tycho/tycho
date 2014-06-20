@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2011 Sonatype Inc. and others.
+ - Copyright (c) 2011,2014 Sonatype Inc. and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ This pom.xml is needed to satisfy Maven Central repository deployment requiremen
 
   <groupId>org.eclipse.tycho</groupId>
   <artifactId>org.eclipse.jdt.core</artifactId>
-  <version>3.9.1.v20130905-0837</version>
+  <version>${jdtVersion}</version>
 
   <name>Tycho org.eclipse.jdt.core dependency (Incubation)</name>
   <description>This is org.eclipse.jdt.core jar used by Tycho</description>

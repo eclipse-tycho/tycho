@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright (c) 2014 SAP AG and others.
+ - All rights reserved. This program and the accompanying materials
+ - are made available under the terms of the Eclipse Public License v1.0
+ - which accompanies this distribution, and is available at
+ - http://www.eclipse.org/legal/epl-v10.html
+ -
+ - Contributors:
+ -    SAP AG - initial API and implementation
+ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>tycho</artifactId>
+		<groupId>org.eclipse.tycho</groupId>
+		<version>0.21.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>tycho-releng</artifactId>
+	<packaging>pom</packaging>
+
+	<name>Tycho Releng (Incubation)</name>
+	<description>Helper pom for deploying various eclipse artifacts Tycho depends on and which are not available from a maven repository</description>
+
+	<!-- 
+	To update eclipse artifacts used by Tycho:
+	
+	1. Update ${p2.repo.prefix} from where to get the artifacts below 
+	2. Update equinox and jdt/apt versions: 
+	   ${equinox[Orig]Version}, ${jdt[Orig]Version}, ${jdtApt[Orig]Version} in parent pom
+	3a. For deploying snapshots (milestones/nightlies not officially released by eclipse yet):
+	    - In tycho-releng/, execute 
+	      mvn clean deploy -Pdeploy-snapshots -DforgeSnapshotUrl=https://oss.sonatype.org/content/repositories/snapshots -DforgeSnapshotId=forge-snapshots
+	3b. For deploying releases (officially released as part of the annual eclipse release train):
+	    - Prerequisite: you need to have GPG properly set up, see https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven
+	    - Make sure to remove '-SNAPSHOT' suffix from ${jdtVersion}, ${jdtAptVersion}, ${equinoxVersion} in parent pom
+	    - In tycho-releng/, execute 
+	      mvn clean deploy -Pdeploy-releases -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=forge-releases -Dgpg.passphrase=<your_passphrase>
+	    - Close and release staged artifacts into repository 'Releases'
+	-->
+	<properties>
+		<p2.repo.prefix>http://download.eclipse.org/releases/luna/201405300900/plugins</p2.repo.prefix>
+		<downloads.dir>${project.build.directory}/downloads</downloads.dir>
+		<!-- don't deploy this helper pom  -->
+		<maven.deploy.skip>true</maven.deploy.skip>
+	</properties>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.pom</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/*.pom</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>filter-resources</id>
+						<goals>
+							<goal>resources</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>download-eclipse-artifacts</id>
+						<phase>validate</phase>
+						<configuration>
+							<tasks>
+								<setproxy proxyhost="${settings.activeProxy.host}"
+									proxyport="${settings.activeProxy.port}" nonproxyhosts="${settings.activeProxy.nonProxyHosts}" />
+								<mkdir dir="${downloads.dir}" />
+								<get
+									src="${p2.repo.prefix}/org.eclipse.jdt.core_${jdtOrigVersion}.jar"
+									dest="${downloads.dir}/org.eclipse.jdt.core_${jdtOrigVersion}.jar" />
+								<get
+									src="${p2.repo.prefix}/org.eclipse.jdt.core.source_${jdtOrigVersion}.jar"
+									dest="${downloads.dir}/org.eclipse.jdt.core.source_${jdtOrigVersion}.jar" />
+								<get
+									src="${p2.repo.prefix}/org.eclipse.jdt.compiler.apt_${jdtAptOrigVersion}.jar"
+									dest="${downloads.dir}/org.eclipse.jdt.compiler.apt_${jdtAptOrigVersion}.jar" />
+								<get
+									src="${p2.repo.prefix}/org.eclipse.jdt.compiler.apt.source_${jdtAptOrigVersion}.jar"
+									dest="${downloads.dir}/org.eclipse.jdt.compiler.apt.source_${jdtAptOrigVersion}.jar" />
+								<get
+									src="${p2.repo.prefix}/org.eclipse.osgi_${equinoxOrigVersion}.jar"
+									dest="${downloads.dir}/org.eclipse.osgi_${equinoxOrigVersion}.jar" />
+								<get
+									src="${p2.repo.prefix}/org.eclipse.osgi.source_${equinoxOrigVersion}.jar"
+									dest="${downloads.dir}/org.eclipse.osgi.source_${equinoxOrigVersion}.jar" />
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-nodeps</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>deploy-snapshots</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<configuration>
+							<url>${forgeSnapshotUrl}</url>
+							<repositoryId>${forgeSnapshotId}</repositoryId>
+						</configuration>
+						<executions>
+							<execution>
+								<id>deploy-jdt-core</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${downloads.dir}/org.eclipse.jdt.core_${jdtOrigVersion}.jar</file>
+									<sources>${downloads.dir}/org.eclipse.jdt.core.source_${jdtOrigVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-jdt-apt</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${downloads.dir}/org.eclipse.jdt.compiler.apt_${jdtAptOrigVersion}.jar</file>
+									<sources>${downloads.dir}/org.eclipse.jdt.compiler.apt.source_${jdtAptOrigVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-equinox</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${downloads.dir}/org.eclipse.osgi_${equinoxOrigVersion}.jar</file>
+									<sources>${downloads.dir}/org.eclipse.osgi.source_${equinoxOrigVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.pom</pomFile>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>deploy-releases</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.4</version>
+						<configuration>
+							<repositoryId>${forgeReleaseId}</repositoryId>
+							<url>${forgeReleaseUrl}</url>
+						</configuration>
+						<executions>
+							<execution>
+								<id>deploy-jdt-core</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>sign-and-deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${downloads.dir}/org.eclipse.jdt.core_${jdtOrigVersion}.jar</file>
+									<sources>${downloads.dir}/org.eclipse.jdt.core.source_${jdtOrigVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-jdt-apt</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>sign-and-deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${downloads.dir}/org.eclipse.jdt.compiler.apt_${jdtAptOrigVersion}.jar</file>
+									<sources>${downloads.dir}/org.eclipse.jdt.compiler.apt.source_${jdtAptOrigVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
+								</configuration>
+							</execution>
+							<execution>
+								<id>deploy-equinox</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>sign-and-deploy-file</goal>
+								</goals>
+								<configuration>
+									<file>${downloads.dir}/org.eclipse.osgi_${equinoxOrigVersion}.jar</file>
+									<sources>${downloads.dir}/org.eclipse.osgi.source_${equinoxOrigVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.pom</pomFile>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
