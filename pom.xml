@@ -103,60 +103,20 @@
 		<wagonVersion>2.4</wagonVersion>
 		<pluginToolsVersion>3.3</pluginToolsVersion>
 		<maven-version>3.0</maven-version>
-
 		<!--
-            This is total pain in the neck, but I can't find a better/easier way to satisfy Maven Central guards,
-            so updating Tycho Eclipse dependencies is quite cumbersome.
-
-            1. Unzip desired version of Eclipse SDK to /tmp, you should see equinox and jdt bundles under /tmp/eclipse/plugins folder.
-
-            2. Update equinox and jdt/apt versions in 4 (FOUR!!!) places
-            2a. EQUINOX_VERSION, JDT_VERSION, JDT_APT_VERSION shell copy&paste source below
-            2b. <equinoxVersion/>, <jdtVersion/>, <jdtAptVersion/> pom properties below
-            2c. src/dependencies/org.eclipse.osgi.pom (equinox version only)
-            2d. src/dependencies/org.eclipse.jdt.core.pom (jdt version only)
-            2e. src/dependencies/org.eclipse.jdt.compiler.apt.pom (jdt.compiler.apt version only)
-
-            3. Execute the following shell copy&paste snippets to install and/or deploy Tycho Eclipse dependencies
-               These snippets MUST be executed from src/dependencies directory
-            3a. To deploy to oss.sonatype.org you need to setup gpg keys as explained in
-                https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven
-
-            4. Close and release staged artifacts into repository 'Releases'
-
-# Versions correspond to the Eclipse Kepler
-EQUINOX_VERSION=3.9.1.v20130814-1242
-JDT_VERSION=3.9.1.v20130905-0837
-JDT_APT_VERSION=1.0.600.v20130530-1010
-
-# Location of unpacked Eclipse SDK
-PLUGINS=/tmp/eclipse/plugins
-
-# install command
-CMD="mvn install:install-file -Dpackaging=jar"
-
-# deploy command
-CMD="mvn gpg:sign-and-deploy-file -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=forge-releases"
-
-# equinox
-$CMD -DpomFile=org.eclipse.osgi.pom \
-  -Dfile=$PLUGINS/org.eclipse.osgi_$EQUINOX_VERSION.jar \
-  -Dsources=$PLUGINS/org.eclipse.osgi.source_$EQUINOX_VERSION.jar
-
-#  jdt
-$CMD -DpomFile=org.eclipse.jdt.core.pom \
-  -Dfile=$PLUGINS/org.eclipse.jdt.core_$JDT_VERSION.jar \
-  -Dsources=$PLUGINS/org.eclipse.jdt.core.source_$JDT_VERSION.jar
-
-#  jdt.apt
-$CMD -DpomFile=org.eclipse.jdt.compiler.apt.pom \
-  -Dfile=$PLUGINS/org.eclipse.jdt.compiler.apt_$JDT_APT_VERSION.jar \
-  -Dsources=$PLUGINS/org.eclipse.jdt.compiler.apt.source_$JDT_APT_VERSION.jar
-		 -->
-
-		<equinoxVersion>3.9.1.v20130814-1242</equinoxVersion>
-		<jdtVersion>3.10.0.v20140522-1230-SNAPSHOT</jdtVersion>
-		<jdtAptVersion>1.1.0.v20140509-1235-SNAPSHOT</jdtAptVersion>
+		To udate Tycho Eclipse dependencies (JDT/APT, Equinox properties below) , refer to instructions in tycho-releng/pom.xml
+		-->
+		<equinoxOrigVersion>3.10.0.v20140528-2014</equinoxOrigVersion>
+		<equinoxVersion>${equinoxOrigVersion}-SNAPSHOT</equinoxVersion>
+		
+		<equinoxCompatOrigVersion>1.0.0.v20140403-1907</equinoxCompatOrigVersion>
+		<equinoxCompatVersion>${equinoxOrigVersion}-SNAPSHOT</equinoxCompatVersion>
+		
+		<jdtOrigVersion>3.10.0.v20140528-1959</jdtOrigVersion>
+		<jdtVersion>${jdtOrigVersion}-SNAPSHOT</jdtVersion>
+		
+		<jdtAptOrigVersion>1.1.0.v20140509-1235</jdtAptOrigVersion>
+		<jdtAptVersion>${jdtAptOrigVersion}-SNAPSHOT</jdtAptVersion>
 
 		<!-- version of tycho used by this build -->
 		<tychoBootstrapVersion>0.20.0</tychoBootstrapVersion>
