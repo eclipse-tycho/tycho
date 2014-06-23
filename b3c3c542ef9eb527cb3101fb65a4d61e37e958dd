@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e76c2f17_bab6cd23",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/ExecutionEnvironmentUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-06-23T14:13:08Z",
+      "side": 1,
+      "message": "To decouple this change from the compact profile support, we could temporarily filter them from the list.",
+      "revId": "b3c3c542ef9eb527cb3101fb65a4d61e37e958dd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
