@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e76c2f17_b08eef80",
+        "filename": "pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-06-23T14:00:42Z",
+      "side": 1,
+      "message": "In addition, the tycho-releng should be listed as module (in a profile?) so that it is updated by the tycho-versions-plugin.",
+      "revId": "084d63199d2d94e843d105f97e92b4cac885e00e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e76c2f17_f06fc71e",
+        "filename": "tycho-releng/src/main/resources/org.eclipse.jdt.compiler.apt.pom",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-06-23T14:00:42Z",
+      "side": 1,
+      "message": "IANAL, but adding a copyright header which doesn\u0027t match the copyright of the artifact this pom.xml belongs to feels wrong.\nI\u0027d simply omit it.",
+      "revId": "084d63199d2d94e843d105f97e92b4cac885e00e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e76c2f17_90665347",
+        "filename": "tycho-releng/src/main/resources/org.eclipse.jdt.compiler.apt.pom",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-06-23T14:00:42Z",
+      "side": 1,
+      "message": "This comment is about Tycho\u0027s project setup. It shouldn\u0027t end up in Maven central. Currently it does. So I\u0027d delete it.",
+      "revId": "084d63199d2d94e843d105f97e92b4cac885e00e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
