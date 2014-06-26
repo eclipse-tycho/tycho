@@ -69,21 +69,6 @@
 	<name>Tycho (Incubation)</name>
 	<description>Tycho integrates Maven with Eclipse and OSGi</description>
 
-	<!-- temporarily use preview release of Luna Java8-capable JDT compiler -->
-	<!-- TODO 430986 remove these repositories before we release 0.21.0 -->
-		<repositories>
-			<repository>
-				<id>oss.sonatype.org</id>
-				<url>https://oss.sonatype.org/content/groups/public/</url>
-			</repository>
-		</repositories>
-		<pluginRepositories>
-			<pluginRepository>
-				<id>oss.sonatype.org</id>
-				<url>https://oss.sonatype.org/content/groups/public/</url>
-			</pluginRepository>
-		</pluginRepositories>
-		
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -105,14 +90,14 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
-		<equinoxVersion>3.10.0.v20140528-2014</equinoxVersion>
-		<equinoxVersionMaven>${equinoxVersion}-SNAPSHOT</equinoxVersionMaven>
+		<equinoxVersion>3.10.0.v20140606-1445</equinoxVersion>
+		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.0.0.v20140403-1907</equinoxCompatVersion>
-		<equinoxCompatVersionMaven>${equinoxCompatVersion}-SNAPSHOT</equinoxCompatVersionMaven>
-		<jdtVersion>3.10.0.v20140528-1959</jdtVersion>
-		<jdtVersionMaven>${jdtVersion}-SNAPSHOT</jdtVersionMaven>
+		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
+		<jdtVersion>3.10.0.v20140604-1726</jdtVersion>
+		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
 		<jdtAptVersion>1.1.0.v20140509-1235</jdtAptVersion>
-		<jdtAptVersionMaven>${jdtAptVersion}-SNAPSHOT</jdtAptVersionMaven>
+		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
 
 		<!-- version of Tycho used by this build -->
 		<tychoBootstrapVersion>0.20.0</tychoBootstrapVersion>
