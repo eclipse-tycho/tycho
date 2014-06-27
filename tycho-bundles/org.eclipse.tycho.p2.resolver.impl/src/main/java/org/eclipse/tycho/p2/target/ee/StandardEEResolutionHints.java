@@ -77,7 +77,12 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
      */
     private static Map<VersionedId, IInstallableUnit> computeAdditionalUnits(String executionEnvironment) {
         Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<VersionedId, IInstallableUnit>();
+        addIUsFromEnvironment(executionEnvironment, units);
+        ensureEEWasKnownToJREAction(executionEnvironment, units.values());
+        return units;
+    }
 
+    static void addIUsFromEnvironment(String executionEnvironment, Map<VersionedId, IInstallableUnit> units) {
         // generate real IUs that represent requested execution environment
         PublisherResult results = new PublisherResult();
         new JREAction(executionEnvironment).perform(new PublisherInfo(), results, null);
@@ -86,9 +91,6 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         while (iterator.hasNext()) {
             put(units, iterator.next());
         }
-
-        ensureEEWasKnownToJREAction(executionEnvironment, units.values());
-        return units;
     }
 
     private static void ensureEEWasKnownToJREAction(String executionEnvironment, Collection<IInstallableUnit> eeUnits) {
@@ -113,7 +115,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return Collections.emptyList();
     }
 
-    private static Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(
+    static Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(
             Map<VersionedId, IInstallableUnit> additionalUnits) {
         Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<VersionedId, IInstallableUnit>();
 

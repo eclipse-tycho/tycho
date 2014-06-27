@@ -13,7 +13,9 @@ package org.eclipse.tycho.core.ee;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -80,6 +82,10 @@ public class ExecutionEnvironmentUtils {
             throw new UnknownEnvironmentException(profileName);
         }
         return executionEnvironment;
+    }
+
+    public static List<String> getProfileNames() {
+        return new ArrayList<String>(executionEnvironmentsMap.keySet());
     }
 
     public static void applyProfileProperties(Properties properties, Properties profileProps) {

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.eclipse.jface.databinding
+Bundle-Version: 1.6.200.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.swt;bundle-version="[3.2.0,4.0.0)"
+Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
+ J2SE-1.3

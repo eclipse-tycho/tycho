@@ -31,6 +31,8 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     private String effectiveProfileName = null;
     private CustomExecutionEnvironment customExecutionEnvironment;
 
+    private boolean ignoredByResolver = false;
+
     public ExecutionEnvironmentConfigurationImpl(Logger logger) {
         this.logger = logger;
     }
@@ -126,6 +128,16 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             this.origin = origin;
         }
 
+    }
+
+    @Override
+    public boolean isIgnoredByResolver() {
+        return ignoredByResolver;
+    }
+
+    @Override
+    public void setIgnoredByResolver(boolean ignore) {
+        ignoredByResolver = ignore;
     }
 
 }
