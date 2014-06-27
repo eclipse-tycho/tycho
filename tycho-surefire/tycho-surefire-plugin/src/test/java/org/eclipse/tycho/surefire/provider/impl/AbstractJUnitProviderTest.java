@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotSame;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
@@ -50,7 +50,7 @@ public abstract class AbstractJUnitProviderTest {
             assertNotSame(-1, colonIndex);
             String id = entry.substring(0, colonIndex);
             String version = entry.substring(colonIndex + 1);
-            result.add(new DefaultClasspathEntry(null, new DefaultArtifactKey(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id,
+            result.add(new DefaultClasspathEntry(null, new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, id,
                     version), null, null));
         }
         return result;

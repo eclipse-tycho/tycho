@@ -26,7 +26,9 @@ import java.util.TreeMap;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
@@ -156,9 +158,9 @@ public class BasicDependencyArtifacts {
 
     protected ArtifactKey normalizePluginType(ArtifactKey key) {
         // normalize eclipse-test-plugin... after all, a bundle is a bundle.
-        if (org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(key.getType())) {
-            key = new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, key.getId(),
-                    key.getVersion());
+        // TODO ArtifactKey should never use packaging types
+        if (PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(key.getType())) {
+            key = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, key.getId(), key.getVersion());
         }
         return key;
     }

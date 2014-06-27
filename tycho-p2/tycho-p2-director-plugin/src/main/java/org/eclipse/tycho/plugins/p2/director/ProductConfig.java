@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoFailureException;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 /**
@@ -56,7 +56,7 @@ class ProductConfig {
             // look for product with the configured ID in the publishing result
             // TODO also look in the target platform
             for (DependencySeed seed : projectSeeds) {
-                if (ArtifactKey.TYPE_ECLIPSE_PRODUCT.equals(seed.getType())
+                if (ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(seed.getType())
                         && configuredProduct.getId().equals(seed.getId())) {
                     return;
                 }
@@ -72,7 +72,7 @@ class ProductConfig {
         // publishing results are added to the dependency seeds of the project, so we can find the products there
         for (DependencySeed seed : projectSeeds) {
 
-            if (ArtifactKey.TYPE_ECLIPSE_PRODUCT.equals(seed.getType())) {
+            if (ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(seed.getType())) {
                 result.add(new Product(seed.getId()));
                 // if there is more than one published product, the uniqueAttachIds() check will fail later on
             }
@@ -83,7 +83,7 @@ class ProductConfig {
     private void fillInInstallationRoots(List<Product> products, Collection<DependencySeed> projectSeeds) {
         for (Product product : products) {
             for (DependencySeed seed : projectSeeds) {
-                if (seed.isAddOnFor(ArtifactKey.TYPE_ECLIPSE_PRODUCT, product.getId())) {
+                if (seed.isAddOnFor(ArtifactType.TYPE_ECLIPSE_PRODUCT, product.getId())) {
                     product.addInstallationSeed(seed);
                 }
             }

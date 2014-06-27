@@ -4,7 +4,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 
 /**
  * Validates that project Maven and OSGi ids match.
@@ -19,7 +19,7 @@ public class ValidateIdMojo extends AbstractVersionMojo {
     }
 
     private void failBuildDueToIdMismatch() throws MojoExecutionException {
-        if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
+        if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
             throw new MojoExecutionException(mismatchMessageFor("feature ID"));
         } else {
             throw new MojoExecutionException(mismatchMessageFor("bundle symbolic name"));

@@ -37,7 +37,7 @@ import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
@@ -240,13 +240,13 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         // add root features as special dependency seed which are marked as "add-on" for the product
         DependencySeed.Filter filter = new DependencySeed.Filter() {
             public boolean isAddOnFor(String type, String id) {
-                return ArtifactKey.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
+                return ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
             }
         };
         for (FeatureRef feature : product.getFeatures()) {
             if (feature.getInstallMode() == FeatureRef.InstallMode.root) {
                 // TODO 372780 get feature version from target platform that matches the specification; picking any version will no longer work once the the director installs from the target platform instead of from the resolved dependencies
-                seeds.add(new DependencySeed(ArtifactKey.TYPE_ECLIPSE_FEATURE, feature.getId(), null, filter));
+                seeds.add(new DependencySeed(ArtifactType.TYPE_ECLIPSE_FEATURE, feature.getId(), null, filter));
             }
         }
         product.removeRootInstalledFeatures();
@@ -259,7 +259,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     private File getEquinoxExecutableFeature() throws MojoExecutionException, MojoFailureException {
         // TODO 364134 take the executable feature from the target platform instead
         DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getProject());
-        ArtifactDescriptor artifact = dependencyArtifacts.getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
+        ArtifactDescriptor artifact = dependencyArtifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
                 "org.eclipse.equinox.executable", null);
 
         if (artifact == null) {

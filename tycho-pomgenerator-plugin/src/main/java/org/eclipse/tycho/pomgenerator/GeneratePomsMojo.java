@@ -51,6 +51,7 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -211,8 +212,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         // testSuite
         File testSuiteLocation = null;
         if (testSuite != null) {
-            ArtifactDescriptor bundle = platform.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN,
-                    testSuite, null);
+            ArtifactDescriptor bundle = platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, testSuite, null);
             if (bundle != null) {
                 testSuiteLocation = bundle.getLocation();
             }

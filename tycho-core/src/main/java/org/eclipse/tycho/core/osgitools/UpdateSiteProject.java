@@ -17,6 +17,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
@@ -24,14 +25,14 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.model.UpdateSite;
 
-@Component(role = TychoProject.class, hint = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE)
+@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_UPDATE_SITE)
 public class UpdateSiteProject extends AbstractArtifactBasedProject {
 
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final UpdateSite site = loadSite(project);
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(project,
-                environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
+                project, environment)) {
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseUpdateSite(site, visitor);
             }
@@ -48,7 +49,8 @@ public class UpdateSiteProject extends AbstractArtifactBasedProject {
     }
 
     public ArtifactKey getArtifactKey(ReactorProject project) {
-        return new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE, project.getArtifactId(),
+        // TODO this is an invalid type constant for an ArtifactKey
+        return new DefaultArtifactKey(PackagingType.TYPE_ECLIPSE_UPDATE_SITE, project.getArtifactId(),
                 getOsgiVersion(project));
     }
 }

@@ -34,7 +34,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -125,7 +125,7 @@ public class P2ResolverImpl implements P2Resolver {
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
         for (IInstallableUnit iu : strategy.multiPlatformResolve(environments, monitor)) {
-            result.addArtifact(TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
+            result.addArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
         }
         return result;
     }
@@ -240,11 +240,11 @@ public class P2ResolverImpl implements P2Resolver {
 
         // TODO infer type from IU capabilities/properties (like this is done for content from Maven artifacts/projects)?
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
-            result.addArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, id, version, artifactLocation, mavenClassifier, iu);
+            result.addArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version, artifactLocation, mavenClassifier, iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                result.addArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE, featureId, version, artifactLocation,
+                result.addArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, featureId, version, artifactLocation,
                         mavenClassifier, iu);
             }
         }
@@ -280,16 +280,16 @@ public class P2ResolverImpl implements P2Resolver {
 
         // TODO 353889 infer the type from the p2 artifact (as this is done for content from p2 repositories)?
         if (isBundleOrFragmentWithId(iu, id)) {
-            contributingArtifactType = ArtifactKey.TYPE_ECLIPSE_PLUGIN;
+            contributingArtifactType = ArtifactType.TYPE_ECLIPSE_PLUGIN;
             contributingArtifactId = id;
         } else {
             String featureId = getFeatureId(iu);
             if (featureId != null) {
-                contributingArtifactType = ArtifactKey.TYPE_ECLIPSE_FEATURE;
+                contributingArtifactType = ArtifactType.TYPE_ECLIPSE_FEATURE;
                 // feature can have additional IUs injected via p2.inf
                 contributingArtifactId = featureId;
             } else if (isProduct(iu)) {
-                contributingArtifactType = ArtifactKey.TYPE_ECLIPSE_PRODUCT;
+                contributingArtifactType = ArtifactType.TYPE_ECLIPSE_PRODUCT;
                 contributingArtifactId = id;
             } else {
                 // additional IU of an artifact/project -> will be added to the artifact/project by its location
@@ -338,13 +338,13 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     public void addDependency(String type, String id, String versionRange) {
-        if (P2Resolver.TYPE_INSTALLABLE_UNIT.equals(type)) {
+        if (ArtifactType.TYPE_INSTALLABLE_UNIT.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id,
                     new VersionRange(versionRange), null, false, true));
-        } else if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type)) {
+        } else if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, id,
                     new VersionRange(versionRange), null, false, true));
-        } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
+        } else if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id
                     + ".feature.group", new VersionRange(versionRange), null, false, true));
             // TODO make ".feature.group" a constant in FeaturesAction

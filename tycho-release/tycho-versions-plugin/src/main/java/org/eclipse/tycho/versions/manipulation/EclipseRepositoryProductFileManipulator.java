@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProductConfigurations;
@@ -61,7 +61,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
     }
 
     private boolean isEclipseRepository(ProjectMetadata project) {
-        return ArtifactKey.TYPE_ECLIPSE_REPOSITORY.equals(project.getMetadata(MutablePomFile.class).getPackaging());
+        return PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(project.getMetadata(MutablePomFile.class).getPackaging());
     }
 
     public void writeMetadata(ProjectMetadata project) throws IOException {

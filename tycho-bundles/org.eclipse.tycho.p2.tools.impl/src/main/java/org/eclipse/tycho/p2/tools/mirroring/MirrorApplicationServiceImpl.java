@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
@@ -225,7 +225,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             if (seed.getInstallableUnit() == null) {
                 // TODO 372780 drop this when getInstallableUnit can no longer be null
                 String unitId = seed.getId()
-                        + (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(seed.getType()) ? ".feature.group" : "");
+                        + (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(seed.getType()) ? ".feature.group" : "");
                 result.addAll(querySourceIus(Collections.singletonList(new IUDescription(unitId, null)),
                         sourceRepository, sourceRepositoryNames));
             } else {

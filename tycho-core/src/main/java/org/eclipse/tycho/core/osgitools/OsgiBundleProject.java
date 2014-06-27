@@ -35,6 +35,8 @@ import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.service.resolver.State;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry;
@@ -63,7 +65,7 @@ import org.eclipse.tycho.model.UpdateSite;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 
-@Component(role = TychoProject.class, hint = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN)
+@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
 public class OsgiBundleProject extends AbstractTychoProject implements BundleProject {
 
     private static final String CTX_ARTIFACT_KEY = TychoConstants.CTX_BASENAME + "/osgiBundle/artifactKey";
@@ -363,8 +365,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                         path = null;
                     }
 
-                    ArtifactDescriptor matchingBundle = artifacts.getArtifact(
-                            org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, bundleId, null);
+                    ArtifactDescriptor matchingBundle = artifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                            bundleId, null);
                     if (matchingBundle != null) {
                         List<File> locations;
                         if (matchingBundle.getMavenProject() != null) {

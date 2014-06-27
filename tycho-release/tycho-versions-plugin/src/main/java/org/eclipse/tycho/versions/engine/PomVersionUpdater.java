@@ -19,7 +19,7 @@ import java.util.Map;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
@@ -53,17 +53,17 @@ public class PomVersionUpdater {
                 return manifest.getVersion();
             }
         };
-        updaters.put(ArtifactKey.TYPE_ECLIPSE_PLUGIN, bundleVersionAdaptor);
-        updaters.put(ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN, bundleVersionAdaptor);
+        updaters.put(PackagingType.TYPE_ECLIPSE_PLUGIN, bundleVersionAdaptor);
+        updaters.put(PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, bundleVersionAdaptor);
 
-        updaters.put(ArtifactKey.TYPE_ECLIPSE_FEATURE, new VersionAdaptor() {
+        updaters.put(PackagingType.TYPE_ECLIPSE_FEATURE, new VersionAdaptor() {
             public String getVersion(ProjectMetadata project) throws IOException {
                 Feature feature = Feature.read(new File(project.getBasedir(), Feature.FEATURE_XML));
                 return feature.getVersion();
             }
         });
 
-        updaters.put(ArtifactKey.TYPE_ECLIPSE_APPLICATION, new VersionAdaptor() {
+        updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, new VersionAdaptor() {
             public String getVersion(ProjectMetadata project) throws IOException {
                 MutablePomFile pom = project.getMetadata(MutablePomFile.class);
                 ProductConfiguration product = ProductConfiguration.read(new File(project.getBasedir(), pom

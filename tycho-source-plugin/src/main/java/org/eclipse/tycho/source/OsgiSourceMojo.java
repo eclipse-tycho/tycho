@@ -46,6 +46,7 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.BuildProperties;
@@ -392,8 +393,8 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     protected static boolean isRelevantProjectImpl(MavenProject project, BuildPropertiesParser buildPropertiesParser) {
         String packaging = project.getPackaging();
-        boolean relevant = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging)
-                || org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
+        boolean relevant = PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
+                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging);
         if (!relevant) {
             return false;
         }

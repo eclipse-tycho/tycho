@@ -21,6 +21,7 @@ import java.util.Set;
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
 
 public class DefaultEquinoxInstallationDescription implements EquinoxInstallationDescription {
@@ -60,15 +61,15 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
     }
 
     public ArtifactDescriptor getBundle(String symbolicName, String highestVersion) {
-        return bundles.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, symbolicName, highestVersion);
+        return bundles.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, symbolicName, highestVersion);
     }
 
     public List<ArtifactDescriptor> getBundles() {
-        return bundles.getArtifacts(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+        return bundles.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
     }
 
     public ArtifactDescriptor getSystemBundle() {
-        return bundles.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME, null);
+        return bundles.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME, null);
     }
 
     public void addBundle(ArtifactDescriptor artifact) {

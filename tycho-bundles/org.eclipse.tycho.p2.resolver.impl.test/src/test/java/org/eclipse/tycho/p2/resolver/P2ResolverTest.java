@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
-import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_FEATURE;
-import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN;
-import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_REPOSITORY;
-import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE;
+import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_FEATURE;
+import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_PLUGIN;
+import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_REPOSITORY;
+import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_UPDATE_SITE;
 import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.customEEResolutionHintProvider;

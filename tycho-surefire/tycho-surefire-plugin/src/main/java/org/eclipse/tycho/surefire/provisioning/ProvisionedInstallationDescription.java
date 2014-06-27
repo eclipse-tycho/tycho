@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.tycho.surefire.provisioning;
 
-import static org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Collections;
@@ -24,6 +22,7 @@ import org.eclipse.sisu.equinox.launching.BundleStartLevel;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultArtifactDescriptor;
@@ -64,7 +63,8 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
             systemBundle = systemBundles[0];
         }
         String version = bundleReader.loadManifest(systemBundle).getBundleVersion();
-        ArtifactKey systemBundleKey = new DefaultArtifactKey(TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME, version);
+        ArtifactKey systemBundleKey = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME,
+                version);
         systemBundleDescriptor = new DefaultArtifactDescriptor(systemBundleKey, systemBundle, null, null, null);
         return systemBundleDescriptor;
     }

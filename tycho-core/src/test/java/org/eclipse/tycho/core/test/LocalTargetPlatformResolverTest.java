@@ -25,6 +25,7 @@ import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -36,8 +37,7 @@ public class LocalTargetPlatformResolverTest extends AbstractTychoMojoTestCase {
     public void testBundleIdParsing() throws Exception {
         DependencyArtifacts platform = getTargetPlatform(new File("src/test/resources/targetplatforms/basic"));
 
-        ArtifactDescriptor artifact = platform.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN,
-                "bundle01", null);
+        ArtifactDescriptor artifact = platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, "bundle01", null);
         ArtifactKey key = artifact.getKey();
         assertEquals("bundle01", key.getId());
         assertEquals("0.0.1", key.getVersion());

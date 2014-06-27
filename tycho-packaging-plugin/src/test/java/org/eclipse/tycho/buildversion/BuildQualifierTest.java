@@ -24,11 +24,12 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultTargetPlatform;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class BuildQualifierTest extends AbstractTychoMojoTestCase {
@@ -216,16 +217,16 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         MavenProject project = getProject(projects, "attachedfeature");
         ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
-        TychoProject projectType = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_FEATURE);
-        DefaultTargetPlatform dependencyArtifacts = (DefaultTargetPlatform) projectType.getDependencyArtifacts(project);
+        DefaultTargetPlatform dependencyArtifacts = (DefaultTargetPlatform) TychoProjectUtils
+                .getDependencyArtifacts(project);
 
         // replace target platform dependencies with fake attached feature and bundle atrifacts
-        ArtifactDescriptor attachedFeature = dependencyArtifacts.getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
+        ArtifactDescriptor attachedFeature = dependencyArtifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
                 "attachedfeature.attached.feature", null);
         dependencyArtifacts.removeAll(attachedFeature.getKey().getType(), attachedFeature.getKey().getId());
         dependencyArtifacts.addReactorArtifact(attachedFeature.getKey(), reactorProject, "attached-feature",
                 attachedFeature.getInstallableUnits());
-        ArtifactDescriptor attachedBundle = dependencyArtifacts.getArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN,
+        ArtifactDescriptor attachedBundle = dependencyArtifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN,
                 "attachedfeature.attached.bundle", null);
         dependencyArtifacts.removeAll(attachedBundle.getKey().getType(), attachedBundle.getKey().getId());
         dependencyArtifacts.addReactorArtifact(attachedBundle.getKey(), reactorProject, "attached-bundle",

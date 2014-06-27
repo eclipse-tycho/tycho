@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
@@ -52,7 +52,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
 
     public final void addUnitToInstall(DependencySeed dependency) {
         final String uid;
-        if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(dependency.getType())) {
+        if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(dependency.getType())) {
             uid = dependency.getId() + ".feature.group";
         } else {
             uid = dependency.getId();

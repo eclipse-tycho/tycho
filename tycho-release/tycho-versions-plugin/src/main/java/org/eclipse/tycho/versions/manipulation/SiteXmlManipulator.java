@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
@@ -81,7 +81,7 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
     }
 
     private boolean isSite(String packaging) {
-        return ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging);
+        return PackagingType.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging);
     }
 
     public void writeMetadata(ProjectMetadata project) throws IOException {
