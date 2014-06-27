@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e76c2f17_c4c123fd",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-06-27T12:15:28Z",
+      "side": 1,
+      "message": "unrelated to this change, but MNG-5346 was fixed in just released maven 3.2.2. worth upgrading at some point in the future.",
+      "revId": "d178d124c27cbc6ae63c5c99697ebe40792ac6a7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e76c2f17_04ccbb31",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2014-06-27T12:15:28Z",
+      "side": 1,
+      "message": "not strictly related to this change and not a big deal, but this adds new maven-plugin-plugin:descriptor invocation, i.e. the goal will run twice during the build. use \u003cid\u003edefault-descriptor\u003c/id\u003e to change configuration of the execution inherited from default lifecycle.",
+      "revId": "d178d124c27cbc6ae63c5c99697ebe40792ac6a7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
