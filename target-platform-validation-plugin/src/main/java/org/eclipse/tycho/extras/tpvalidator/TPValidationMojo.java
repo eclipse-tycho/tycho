@@ -23,6 +23,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
@@ -125,7 +126,7 @@ public class TPValidationMojo extends AbstractMojo {
                         InstallableUnitLocation p2Loc = (InstallableUnitLocation) location;
                         for (Unit unit : p2Loc.getUnits()) {
                             // make dependency resolver resolve everything simultaneously
-                            resolver.addDependency(P2Resolver.TYPE_INSTALLABLE_UNIT, unit.getId(), unit.getVersion());
+                            resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, unit.getId(), unit.getVersion());
                         }
                     }
                 }

@@ -22,7 +22,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.model.PluginRef;
@@ -55,7 +55,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
         ProductConfiguration product = ProductConfiguration.read(productFile);
 
         for (PluginRef plugin : product.getPlugins()) {
-            p2.addDependency(ArtifactKey.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
+            p2.addDependency(ArtifactType.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
         }
 
         P2ResolutionResult result = p2.resolveMetadata(resolutionContext, executionEnvironment);

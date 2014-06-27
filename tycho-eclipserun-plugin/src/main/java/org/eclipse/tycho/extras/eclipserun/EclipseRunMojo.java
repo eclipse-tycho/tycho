@@ -38,7 +38,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
@@ -170,7 +170,7 @@ public class EclipseRunMojo extends AbstractMojo {
     private Dependency newBundleDependency(String bundleId) {
         Dependency dependency = new Dependency();
         dependency.setArtifactId(bundleId);
-        dependency.setType(ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+        dependency.setType(ArtifactType.TYPE_ECLIPSE_PLUGIN);
         return dependency;
     }
 
@@ -204,8 +204,8 @@ public class EclipseRunMojo extends AbstractMojo {
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
         for (P2ResolutionResult result : resolver.resolveDependencies(targetPlatform, null)) {
             for (Entry entry : result.getArtifacts()) {
-                if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
-                    installationDesc.addBundle(new DefaultArtifactKey(ArtifactKey.TYPE_ECLIPSE_PLUGIN, entry.getId(),
+                if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
+                    installationDesc.addBundle(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getId(),
                             entry.getVersion()), entry.getLocation());
                 }
             }

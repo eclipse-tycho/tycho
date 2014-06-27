@@ -26,7 +26,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.model.Feature;
@@ -53,7 +53,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
 
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
-        if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
+        if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
             return null;
         }
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-source-feature-plugin");

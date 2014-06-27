@@ -39,7 +39,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -194,7 +194,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     private Logger logger;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
+        if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
             return;
         }
         try {
