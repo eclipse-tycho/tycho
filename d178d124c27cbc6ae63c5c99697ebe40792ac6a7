@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "e76c2f17_248f37b6",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-06-27T13:14:39Z",
+      "side": 1,
+      "message": "thanks for notifying, yes I saw Jason fixed it. Just not sure if it\u0027s worth hard requiring maven \u003e\u003d 3.2.2 because of this",
+      "parentUuid": "e76c2f17_c4c123fd",
+      "revId": "d178d124c27cbc6ae63c5c99697ebe40792ac6a7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e76c2f17_04ccbb31",
         "filename": "pom.xml",
         "patchSetId": 1
@@ -47,6 +65,24 @@
       "writtenOn": "2014-06-27T12:15:28Z",
       "side": 1,
       "message": "not strictly related to this change and not a big deal, but this adds new maven-plugin-plugin:descriptor invocation, i.e. the goal will run twice during the build. use \u003cid\u003edefault-descriptor\u003c/id\u003e to change configuration of the execution inherited from default lifecycle.",
+      "revId": "d178d124c27cbc6ae63c5c99697ebe40792ac6a7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e76c2f17_848c4bc0",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-06-27T13:14:39Z",
+      "side": 1,
+      "message": "done, thanks for the hint!",
+      "parentUuid": "e76c2f17_04ccbb31",
       "revId": "d178d124c27cbc6ae63c5c99697ebe40792ac6a7",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
