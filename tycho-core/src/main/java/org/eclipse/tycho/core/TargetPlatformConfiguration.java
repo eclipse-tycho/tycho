@@ -56,6 +56,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private Map<String, String> resolverProfileProperties = new HashMap<String, String>();
 
+    private boolean ignoreBREE = false;
+
     /**
      * Returns the list of configured target environments, or the running environment if no
      * environments have been specified explicitly.
@@ -182,5 +184,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void addProfileProperty(String key, String value) {
         resolverProfileProperties.put(key, value);
+    }
+
+    @Override
+    public boolean isIgnoreBREE() {
+        return ignoreBREE;
+    }
+
+    public void setIgnoreBREE(boolean ignore) {
+        this.ignoreBREE = ignore;
     }
 }

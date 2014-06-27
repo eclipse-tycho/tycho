@@ -715,6 +715,11 @@ public class TestMojo extends AbstractMojo {
             public List<Dependency> getExtraRequirements() {
                 return extraDependencies;
             }
+
+            @Override
+            public boolean isIgnoreBREE() {
+                return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).isIgnoredByResolver();
+            }
         };
 
         DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null,

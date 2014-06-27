@@ -47,7 +47,7 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
 
     public void test_noSystemBundle() throws BundleException {
         Properties properties = subject.getPlatformProperties(new Properties(), null, DUMMY_EE);
-        State state = subject.newState(new DefaultDependencyArtifacts(), properties);
+        State state = subject.newState(new DefaultDependencyArtifacts(), properties, false);
 
         BundleDescription[] bundles = state.getBundles("system.bundle");
 

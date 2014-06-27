@@ -11,11 +11,13 @@
 package org.eclipse.tycho.core.osgitools;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -60,11 +62,11 @@ public class EquinoxResolver {
     @Requirement
     private Logger logger;
 
-    public State newResolvedState(MavenProject project, ExecutionEnvironment ee, DependencyArtifacts artifacts)
-            throws BundleException {
+    public State newResolvedState(MavenProject project, ExecutionEnvironment ee, boolean ignoreEE,
+            DependencyArtifacts artifacts) throws BundleException {
         Properties properties = getPlatformProperties(project, ee);
 
-        State state = newState(artifacts, properties);
+        State state = newState(artifacts, properties, ignoreEE);
 
         resolveState(state);
 
@@ -79,7 +81,7 @@ public class EquinoxResolver {
             throws BundleException {
         Properties properties = getPlatformProperties(new Properties(), null, ee);
 
-        State state = newState(artifacts, properties);
+        State state = newState(artifacts, properties, false);
 
         resolveState(state);
 
@@ -146,7 +148,8 @@ public class EquinoxResolver {
         return properties;
     }
 
-    protected State newState(DependencyArtifacts artifacts, Properties properties) throws BundleException {
+    protected State newState(DependencyArtifacts artifacts, Properties properties, boolean ignoreEE)
+            throws BundleException {
         State state = factory.createState(true);
 
         Map<File, Dictionary<String, String>> systemBundles = new LinkedHashMap<File, Dictionary<String, String>>();
@@ -186,10 +189,28 @@ public class EquinoxResolver {
             addBundle(state, id++, entry.getKey(), entry.getValue(), true/* override */);
         }
 
+        List<Dictionary<Object, Object>> allProps = new ArrayList<Dictionary<Object, Object>>();
+
         // force our system.bundle
         Hashtable<Object, Object> platformProperties = new Hashtable<Object, Object>(properties);
         platformProperties.put(StateImpl.STATE_SYSTEM_BUNDLE, state.getBundle(SYSTEM_BUNDLE_ID).getSymbolicName());
-        state.setPlatformProperties(platformProperties);
+        allProps.add(platformProperties);
+        if (ignoreEE) {
+            // ignoring EE by adding all known EEs
+            for (String profile : ExecutionEnvironmentUtils.getProfileNames()) {
+                Properties envProps = ExecutionEnvironmentUtils.getExecutionEnvironment(profile).getProfileProperties();
+                String systemPackages = envProps.getProperty("org.osgi.framework.system.packages");
+                String execEnv = envProps.getProperty("org.osgi.framework.executionenvironment");
+                Dictionary<Object, Object> prop = new Hashtable<Object, Object>();
+                prop.put("org.osgi.framework.system.packages", systemPackages);
+                prop.put("org.osgi.framework.executionenvironment", execEnv);
+                allProps.add(prop);
+            }
+        }
+
+        Dictionary<Object, Object>[] stateProperties = allProps.toArray(new Dictionary[allProps.size()]);
+
+        state.setPlatformProperties(stateProperties);
 
         return state;
     }
