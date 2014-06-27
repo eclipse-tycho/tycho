@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.core.ee.shared;
 
@@ -75,10 +75,12 @@ public interface ExecutionEnvironmentConfiguration {
      * Returns the execution environment specification with information needed for the build.
      * 
      * @throws IllegalStateException
-     *             if a custom execution enviromnent profile has been configure, and
+     *             if a custom execution environment profile has been configure, and
      *             {@link #setFullSpecificationForCustomProfile(List)} has not been called.
      * @see ExecutionEnvironment
      */
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException;
+
+    public boolean isIgnoredByResolver();
 
 }

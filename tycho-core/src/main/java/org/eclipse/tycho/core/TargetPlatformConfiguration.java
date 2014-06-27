@@ -45,6 +45,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private String executionEnvironment;
     private String executionEnvironmentDefault;
     private BREEHeaderSelectionPolicy breeHeaderSelectionPolicy = BREEHeaderSelectionPolicy.first;
+    private boolean resolveWithEEConstraints = true;
 
     private List<TargetPlatformFilter> filters;
 
@@ -134,6 +135,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         this.breeHeaderSelectionPolicy = breeHeaderSelectionPolicy;
     }
 
+    public boolean isResolveWithEEConstraints() {
+        return resolveWithEEConstraints;
+    }
+
+    public void setResolveWithEEContraints(boolean value) {
+        this.resolveWithEEConstraints = value;
+    }
+
     public void setFilters(List<TargetPlatformFilter> filters) {
         this.filters = filters;
     }
@@ -183,4 +192,5 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     public void addProfileProperty(String key, String value) {
         resolverProfileProperties.put(key, value);
     }
+
 }

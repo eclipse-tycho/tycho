@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
+import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.junit.Before;
@@ -33,11 +34,13 @@ public class ExecutionEnvironmentConfigurationTest {
     private static final String STANDARD_PROFILE = "OSGi/Minimum-1.1";
     private static final String OTHER_STANDARD_PROFILE = "OSGi/Minimum-1.2";
 
+    ConsoleLogger logger = new ConsoleLogger(Logger.LEVEL_DISABLED, "no-op logger");
+
     ExecutionEnvironmentConfiguration subject;
 
     @Before
     public void initSubject() {
-        subject = new ExecutionEnvironmentConfigurationImpl(new ConsoleLogger(Logger.LEVEL_DISABLED, "no-op logger"));
+        subject = new ExecutionEnvironmentConfigurationImpl(logger, false);
     }
 
     @Test
@@ -84,6 +87,14 @@ public class ExecutionEnvironmentConfigurationTest {
 
         assertThat(subject.getFullSpecification(), is(instanceOf(CustomExecutionEnvironment.class)));
         assertThat(subject.getFullSpecification().getProfileName(), is(CUSTOM_PROFILE));
+    }
+
+    @Test(expected = BuildFailureException.class)
+    public void testMustNotIgnoreEEWhenUsingCustomProfile() {
+        subject = new ExecutionEnvironmentConfigurationImpl(logger, true);
+        subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
+
+        subject.isCustomProfile();
     }
 
     // BEGIN fail fast if methods are called in unexpected order

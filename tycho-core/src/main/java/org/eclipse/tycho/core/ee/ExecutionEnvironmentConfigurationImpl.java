@@ -1,18 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.core.ee;
 
 import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
+import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
@@ -31,8 +32,11 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
     private String effectiveProfileName = null;
     private CustomExecutionEnvironment customExecutionEnvironment;
 
-    public ExecutionEnvironmentConfigurationImpl(Logger logger) {
+    private final boolean ignoredByResolver;
+
+    public ExecutionEnvironmentConfigurationImpl(Logger logger, boolean ignoredByResolver) {
         this.logger = logger;
+        this.ignoredByResolver = ignoredByResolver;
     }
 
     @Override
@@ -92,6 +96,10 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             ExecutionEnvironmentUtils.getExecutionEnvironment(profileName);
             return false;
         } catch (UnknownEnvironmentException e) {
+            if (ignoredByResolver) {
+                throw new BuildFailureException(
+                        "When using a custom execution environment profile, resolveWithExecutionEnvironmentConstraints must not be set to false");
+            }
             return true;
         }
     }
@@ -132,6 +140,11 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             this.origin = origin;
         }
 
+    }
+
+    @Override
+    public boolean isIgnoredByResolver() {
+        return ignoredByResolver;
     }
 
 }

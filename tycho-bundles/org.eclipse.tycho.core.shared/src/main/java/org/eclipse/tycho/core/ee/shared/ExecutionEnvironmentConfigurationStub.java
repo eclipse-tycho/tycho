@@ -12,7 +12,6 @@ package org.eclipse.tycho.core.ee.shared;
 
 import java.util.List;
 
-
 /**
  * {@link ExecutionEnvironmentConfiguration} instance usable for additional calls of the target
  * platform computation and dependency resolution.
@@ -67,6 +66,11 @@ public class ExecutionEnvironmentConfigurationStub implements ExecutionEnvironme
     public ExecutionEnvironment getFullSpecification() {
         // not needed
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isIgnoredByResolver() {
+        return false;
     }
 
 }

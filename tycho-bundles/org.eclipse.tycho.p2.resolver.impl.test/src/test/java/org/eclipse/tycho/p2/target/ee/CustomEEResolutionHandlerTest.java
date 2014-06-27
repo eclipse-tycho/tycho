@@ -122,5 +122,10 @@ public class CustomEEResolutionHandlerTest {
             return null;
         }
 
+        @Override
+        public boolean isIgnoredByResolver() {
+            return false;
+        }
+
     }
 }
