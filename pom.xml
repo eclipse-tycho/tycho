@@ -361,6 +361,9 @@
 					<version>${pluginToolsVersion}</version>
 					<configuration>
 						<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+						<extractors>
+							<extractor>java-annotations</extractor>
+						</extractors>
 					</configuration>
 					<executions>
 						<execution>
