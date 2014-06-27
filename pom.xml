@@ -354,17 +354,20 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!-- workaround for http://jira.codehaus.org/browse/MNG-5346 -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-plugin-plugin</artifactId>
 					<version>${pluginToolsVersion}</version>
+					<!-- workaround for http://jira.codehaus.org/browse/MNG-5346 -->
 					<configuration>
 						<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+						<extractors>
+							<extractor>java-annotations</extractor>
+						</extractors>
 					</configuration>
 					<executions>
 						<execution>
-							<id>mojo-descriptor</id>
+							<id>default-descriptor</id>
 							<goals>
 								<goal>descriptor</goal>
 							</goals>
