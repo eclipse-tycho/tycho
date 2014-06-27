@@ -22,6 +22,7 @@ import java.util.Stack;
 
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -121,7 +122,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         Set<String> bundles = new HashSet<String>();
         for (ArtifactDescriptor artifact : visited.getVisited()) {
             ArtifactKey key = artifact.getKey();
-            if (org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(key.getType())) {
+            if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(key.getType())) {
                 bundles.add(key.getId());
             }
         }
@@ -137,7 +138,9 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
                 // for Mac OS X there is no org.eclipse.equinox.launcher.carbon.macosx.x86 or org.eclipse.equinox.launcher.carbon.macosx.ppc folder,
                 // only a org.eclipse.equinox.launcher.carbon.macosx folder.
                 // see http://jira.codehaus.org/browse/MNGECLIPSE-1075
-                if (PlatformPropertiesUtils.OS_MACOSX.equals(os) && (PlatformPropertiesUtils.ARCH_X86.equals(arch) || PlatformPropertiesUtils.ARCH_PPC.equals(arch))) {
+                if (PlatformPropertiesUtils.OS_MACOSX.equals(os)
+                        && (PlatformPropertiesUtils.ARCH_X86.equals(arch) || PlatformPropertiesUtils.ARCH_PPC
+                                .equals(arch))) {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os;
                 } else {
                     id = "org.eclipse.equinox.launcher." + ws + "." + os + "." + arch;
@@ -157,8 +160,8 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
     }
 
     protected void traverseFeature(FeatureRef ref, ArtifactDependencyVisitor visitor, WalkbackPath visited) {
-        ArtifactDescriptor artifact = artifacts.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_FEATURE,
-                ref.getId(), ref.getVersion());
+        ArtifactDescriptor artifact = artifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, ref.getId(),
+                ref.getVersion());
 
         if (artifact != null) {
             if (visited.visited(artifact.getKey())) {
@@ -184,8 +187,8 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             return;
         }
 
-        ArtifactDescriptor artifact = artifacts.getArtifact(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_PLUGIN,
-                ref.getId(), ref.getVersion());
+        ArtifactDescriptor artifact = artifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, ref.getId(),
+                ref.getVersion());
 
         if (artifact != null) {
             ArtifactKey key = artifact.getKey();

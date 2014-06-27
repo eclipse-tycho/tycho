@@ -24,7 +24,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -134,9 +134,9 @@ public class RepositoryReferenceTool {
                     if (otherProject == null) {
                         continue; // can't really happen
                     }
-                    if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(otherProject.getPackaging())
-                            || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(otherProject.getPackaging())
-                            || ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(otherProject.getPackaging())) {
+                    if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(otherProject.getPackaging())
+                            || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(otherProject.getPackaging())
+                            || PackagingType.TYPE_ECLIPSE_FEATURE.equals(otherProject.getPackaging())) {
                         File artifactXml = otherProject.getArtifact(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
                         if (artifactXml == null || !artifactXml.isFile()) {
                             throw new MojoFailureException("Missing required file \""

@@ -26,7 +26,7 @@ import org.codehaus.plexus.archiver.ArchivedFileSet;
 import org.codehaus.plexus.archiver.util.DefaultArchivedFileSet;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.facade.BuildPropertiesImpl;
@@ -59,7 +59,7 @@ public class LicenseFeatureHelper {
         }
 
         ArtifactDescriptor licenseFeature = TychoProjectUtils.getDependencyArtifacts(mavenProject).getArtifact(
-                ArtifactKey.TYPE_ECLIPSE_FEATURE, id, feature.getLicenseFeatureVersion());
+                ArtifactType.TYPE_ECLIPSE_FEATURE, id, feature.getLicenseFeatureVersion());
 
         if (licenseFeature == null) {
             throw new IllegalStateException("License feature with id " + id

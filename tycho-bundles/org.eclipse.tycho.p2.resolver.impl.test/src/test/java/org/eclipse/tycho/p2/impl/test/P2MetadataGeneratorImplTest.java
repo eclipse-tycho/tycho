@@ -18,7 +18,7 @@ import junit.framework.Assert;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
@@ -37,7 +37,7 @@ public class P2MetadataGeneratorImplTest {
         String version = "1.0.0-SNAPSHOT";
         List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
         DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(location, groupId, artifactId, version,
-                ArtifactKey.TYPE_ECLIPSE_PLUGIN), environments);
+                PackagingType.TYPE_ECLIPSE_PLUGIN), environments);
 
         List<IInstallableUnit> units = new ArrayList<IInstallableUnit>(metadata.getInstallableUnits());
         List<IArtifactDescriptor> artifacts = new ArrayList<IArtifactDescriptor>(metadata.getArtifactDescriptors());

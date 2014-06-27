@@ -35,6 +35,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.core.osgitools.targetplatform.BasicDependencyArtifacts;
 
@@ -147,7 +148,7 @@ public class DevWorkspaceResolver implements Initializable {
     }
 
     public DevBundleInfo getBundleInfo(String symbolicName, String version) {
-        ArtifactDescriptor descriptor = workspaceBundles.getArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, symbolicName,
+        ArtifactDescriptor descriptor = workspaceBundles.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, symbolicName,
                 version);
         return newBundleInfo(descriptor);
     }

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver.shared;
 
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 
 /**
  * Handle on a unit which defines dependencies of a project. There may be more than one dependency
@@ -31,7 +31,7 @@ public class DependencySeed {
 
     /**
      * @param type
-     *            The type of the seed unit. See {@link ArtifactKey} for known types. May be
+     *            The type of the seed unit. See {@link ArtifactType} for known types. May be
      *            <code>null</code>.
      * @param id
      *            Identifier of the seed unit.
@@ -47,7 +47,7 @@ public class DependencySeed {
 
     /**
      * @param type
-     *            The type of the seed unit. See {@link ArtifactKey} for known types. May be
+     *            The type of the seed unit. See {@link ArtifactType} for known types. May be
      *            <code>null</code>.
      * @param id
      *            Identifier of the seed unit.
@@ -67,7 +67,7 @@ public class DependencySeed {
     }
 
     /**
-     * @return the type of the seed unit. See {@link ArtifactKey} for known types. May be
+     * @return the type of the seed unit. See {@link ArtifactType} for known types. May be
      *         <code>null</code>.
      */
     public String getType() {

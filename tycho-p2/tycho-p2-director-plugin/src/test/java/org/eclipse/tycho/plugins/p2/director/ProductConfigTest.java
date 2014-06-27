@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ public class ProductConfigTest {
 
     @Test
     public void testNoConfigAndNoProductPublished() throws Exception {
-        projectSeeds.add(otherSeed("feature.id", ArtifactKey.TYPE_ECLIPSE_FEATURE));
+        projectSeeds.add(otherSeed("feature.id", ArtifactType.TYPE_ECLIPSE_FEATURE));
 
         subject = new ProductConfig(null, projectSeeds);
 
@@ -49,7 +49,7 @@ public class ProductConfigTest {
     public void testNoConfigDefaultsToPublishedProducts() throws Exception {
         projectSeeds.add(productSeed("product.id.1"));
         projectSeeds.add(productSeed("product.id.2"));
-        projectSeeds.add(otherSeed("feature.id", ArtifactKey.TYPE_ECLIPSE_FEATURE));
+        projectSeeds.add(otherSeed("feature.id", ArtifactType.TYPE_ECLIPSE_FEATURE));
 
         subject = new ProductConfig(null, projectSeeds);
 
@@ -119,7 +119,7 @@ public class ProductConfigTest {
     }
 
     private static DependencySeed productSeed(String id) {
-        return new DependencySeed(ArtifactKey.TYPE_ECLIPSE_PRODUCT, id, "1.0.0.20140207", null);
+        return new DependencySeed(ArtifactType.TYPE_ECLIPSE_PRODUCT, id, "1.0.0.20140207", null);
     }
 
     private static DependencySeed otherSeed(String id, String type) {

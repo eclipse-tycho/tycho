@@ -33,7 +33,7 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
@@ -97,7 +97,7 @@ class PublisherServiceImpl implements PublisherService {
                 .getArtifactRepositoryForWriting(new ProductBinariesWriteSession(productDescriptor.getId()));
         Collection<IInstallableUnit> allIUs = executePublisher(action, metadataRepository, artifactRepository);
 
-        return Collections.singletonList(createSeed(ArtifactKey.TYPE_ECLIPSE_PRODUCT,
+        return Collections.singletonList(createSeed(ArtifactType.TYPE_ECLIPSE_PRODUCT,
                 selectUnit(allIUs, productDescriptor.getId())));
     }
 

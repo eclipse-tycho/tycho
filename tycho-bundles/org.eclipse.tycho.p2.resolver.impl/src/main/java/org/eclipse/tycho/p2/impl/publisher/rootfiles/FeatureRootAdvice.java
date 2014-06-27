@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.facade.BuildProperties;
 import org.eclipse.tycho.core.facade.BuildPropertiesParser;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -80,7 +80,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
      *         assumptions, otherwise null
      */
     public static File getProjectBaseDir(IArtifactFacade featureArtifact) {
-        if (!ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(featureArtifact.getPackagingType())) {
+        if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(featureArtifact.getPackagingType())) {
             return null;
         }
 

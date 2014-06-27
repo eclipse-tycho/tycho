@@ -32,6 +32,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
@@ -119,8 +120,8 @@ public class LocalTargetPlatformResolver extends AbstractTargetPlatformResolver 
 
             for (File feature : layout.getFeatures(site)) {
                 Feature desc = Feature.loadFeature(feature);
-                ArtifactKey key = new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_FEATURE,
-                        desc.getId(), desc.getVersion());
+                ArtifactKey key = new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, desc.getId(),
+                        desc.getVersion());
 
                 platform.addArtifactFile(key, feature, null);
             }

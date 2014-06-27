@@ -34,7 +34,7 @@ import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.osgi.service.resolver.VersionConstraint;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
@@ -153,7 +153,7 @@ public class EquinoxResolver {
         Map<File, Dictionary<String, String>> externalBundles = new LinkedHashMap<File, Dictionary<String, String>>();
         Map<File, Dictionary<String, String>> projects = new LinkedHashMap<File, Dictionary<String, String>>();
 
-        for (ArtifactDescriptor artifact : artifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
+        for (ArtifactDescriptor artifact : artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
             File location = artifact.getLocation();
             Dictionary<String, String> mf = loadManifest(location);
             if (isFrameworkImplementation(location, mf)) {

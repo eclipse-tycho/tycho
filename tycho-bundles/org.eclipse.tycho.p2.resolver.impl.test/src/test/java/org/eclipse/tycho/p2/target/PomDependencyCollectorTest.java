@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
@@ -84,12 +84,12 @@ public class PomDependencyCollectorTest {
     static ArtifactMock artifactWithClassifier(String classifier) throws Exception {
         return new ArtifactMock(new File(
                 "resources/platformbuilder/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"), "groupId",
-                "artifactId", "1", ArtifactKey.TYPE_ECLIPSE_PLUGIN, classifier);
+                "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, classifier);
     }
 
     static ArtifactMock existingMetadata() {
         return new ArtifactMock(new File("resources/platformbuilder/pom-dependencies/existing-p2-metadata.xml"),
-                "groupId", "artifactId", "1", ArtifactKey.TYPE_ECLIPSE_PLUGIN, "p2metadata");
+                "groupId", "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, "p2metadata");
     }
 
     private Collection<IInstallableUnit> getTargetPlatformUnits() {

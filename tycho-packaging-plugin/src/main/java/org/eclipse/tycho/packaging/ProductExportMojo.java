@@ -51,7 +51,8 @@ import org.codehaus.plexus.util.SelectorUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.eclipse.pde.internal.swt.tools.IconExe;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.PluginDescription;
@@ -218,7 +219,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private ArtifactDependencyWalker getDependencyWalker(TargetEnvironment environment) {
-        return getTychoProjectFacet(ArtifactKey.TYPE_ECLIPSE_APPLICATION).getDependencyWalker(project, environment);
+        return getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_APPLICATION).getDependencyWalker(project, environment);
     }
 
     private List<TargetEnvironment> getEnvironments() {
@@ -533,7 +534,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             MojoFailureException {
         getLog().debug("Creating launcher");
 
-        ArtifactDescriptor artifact = getDependencyArtifacts().getArtifact(ArtifactKey.TYPE_ECLIPSE_FEATURE,
+        ArtifactDescriptor artifact = getDependencyArtifacts().getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
                 "org.eclipse.equinox.executable", null);
 
         if (artifact == null) {

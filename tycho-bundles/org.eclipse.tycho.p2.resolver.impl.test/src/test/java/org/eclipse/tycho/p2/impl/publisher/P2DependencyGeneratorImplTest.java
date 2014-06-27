@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -62,7 +62,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void bundle() throws Exception {
-        generateDependencies("bundle", ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+        generateDependencies("bundle", PackagingType.TYPE_ECLIPSE_PLUGIN);
 
         assertEquals(1, units.size());
         IInstallableUnit unit = units.get(0);
@@ -78,7 +78,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void bundle_with_p2_inf() throws Exception {
-        generateDependencies("bundle-p2-inf", ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+        generateDependencies("bundle-p2-inf", PackagingType.TYPE_ECLIPSE_PLUGIN);
 
         assertEquals(2, units.size());
 
@@ -106,7 +106,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void feature() throws Exception {
-        generateDependencies("feature", ArtifactKey.TYPE_ECLIPSE_FEATURE);
+        generateDependencies("feature", PackagingType.TYPE_ECLIPSE_FEATURE);
 
         // no feature.jar IU because dependencyOnly=true
         assertEquals(1, units.size());
@@ -132,7 +132,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void feature_with_p2_inf() throws Exception {
-        generateDependencies("feature-p2-inf", ArtifactKey.TYPE_ECLIPSE_FEATURE);
+        generateDependencies("feature-p2-inf", PackagingType.TYPE_ECLIPSE_FEATURE);
 
         List<IInstallableUnit> units = new ArrayList<IInstallableUnit>(this.units);
 
@@ -157,7 +157,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void site() throws Exception {
-        generateDependencies("site", ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE);
+        generateDependencies("site", PackagingType.TYPE_ECLIPSE_UPDATE_SITE);
 
         assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();
@@ -171,7 +171,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcpBundle() throws Exception {
-        generateDependencies("rcp-bundle", ArtifactKey.TYPE_ECLIPSE_APPLICATION);
+        generateDependencies("rcp-bundle", PackagingType.TYPE_ECLIPSE_APPLICATION);
 
         assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();
@@ -192,7 +192,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcp_with_p2_inf() throws Exception {
-        generateDependencies("rcp-p2-inf", ArtifactKey.TYPE_ECLIPSE_APPLICATION);
+        generateDependencies("rcp-p2-inf", PackagingType.TYPE_ECLIPSE_APPLICATION);
 
         assertEquals(2, units.size());
         IInstallableUnit unit = getUnitWithId("org.eclipse.tycho.p2.impl.test.rcp-p2-inf", units);
@@ -225,7 +225,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcpFeature() throws Exception {
-        generateDependencies("rcp-feature", ArtifactKey.TYPE_ECLIPSE_APPLICATION);
+        generateDependencies("rcp-feature", PackagingType.TYPE_ECLIPSE_APPLICATION);
 
         assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();
@@ -240,7 +240,7 @@ public class P2DependencyGeneratorImplTest {
 
     @Test
     public void rcpNoLaunchers() throws Exception {
-        generateDependencies("rcp-no-launchers", ArtifactKey.TYPE_ECLIPSE_APPLICATION);
+        generateDependencies("rcp-no-launchers", PackagingType.TYPE_ECLIPSE_APPLICATION);
 
         assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();

@@ -17,8 +17,8 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -60,7 +60,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     }
 
     protected EclipseRepositoryProject getEclipseRepositoryProject() {
-        return (EclipseRepositoryProject) getTychoProjectFacet(ArtifactKey.TYPE_ECLIPSE_REPOSITORY);
+        return (EclipseRepositoryProject) getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_REPOSITORY);
     }
 
     private TychoProject getTychoProjectFacet(String packaging) {

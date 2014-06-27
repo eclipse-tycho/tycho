@@ -19,6 +19,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
@@ -31,7 +32,7 @@ import org.eclipse.tycho.model.ProductConfiguration;
 /**
  * An eclipse repository project produces a p2 repository where a set of products are published.
  */
-@Component(role = TychoProject.class, hint = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_REPOSITORY)
+@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
 public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
 
     /**
@@ -42,15 +43,16 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
         String id = project.getArtifactId();
         String version = getOsgiVersion(project);
 
-        return new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_REPOSITORY, id, version);
+        // TODO this is an invalid type constant for an ArtifactKey
+        return new DefaultArtifactKey(PackagingType.TYPE_ECLIPSE_REPOSITORY, id, version);
     }
 
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final List<ProductConfiguration> products = loadProducts(project);
         final List<Category> categories = loadCategories(project);
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(project,
-                environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
+                project, environment)) {
             public void walk(ArtifactDependencyVisitor visitor) {
                 WalkbackPath visited = new WalkbackPath();
                 for (ProductConfiguration product : products) {

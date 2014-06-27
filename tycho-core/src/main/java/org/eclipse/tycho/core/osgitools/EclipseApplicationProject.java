@@ -17,6 +17,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
@@ -24,13 +25,13 @@ import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.model.ProductConfiguration;
 
-@Component(role = TychoProject.class, hint = org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_APPLICATION)
+@Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_APPLICATION)
 public class EclipseApplicationProject extends AbstractArtifactBasedProject {
     @Override
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         final ProductConfiguration product = loadProduct(DefaultReactorProject.adapt(project));
-        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(project,
-                environment)) {
+        return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
+                project, environment)) {
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseProduct(product, visitor);
             }
@@ -51,6 +52,7 @@ public class EclipseApplicationProject extends AbstractArtifactBasedProject {
         String id = product.getId() != null ? product.getId() : project.getArtifactId();
         String version = product.getVersion() != null ? product.getVersion() : getOsgiVersion(project);
 
-        return new DefaultArtifactKey(org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_APPLICATION, id, version);
+        // TODO this is an invalid type constant for an ArtifactKey
+        return new DefaultArtifactKey(PackagingType.TYPE_ECLIPSE_APPLICATION, id, version);
     }
 }

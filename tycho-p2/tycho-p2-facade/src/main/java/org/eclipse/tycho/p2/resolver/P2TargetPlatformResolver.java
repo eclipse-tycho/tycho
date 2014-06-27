@@ -49,6 +49,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -379,8 +380,8 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
     private boolean isAllowConflictingDependencies(MavenProject project, TargetPlatformConfiguration configuration) {
         String packaging = project.getPackaging();
 
-        if (org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)
-                || org.eclipse.tycho.ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
+        if (PackagingType.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)
+                || PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Boolean allow = configuration.getAllowConflictingDependencies();
             if (allow != null) {
                 return allow.booleanValue();

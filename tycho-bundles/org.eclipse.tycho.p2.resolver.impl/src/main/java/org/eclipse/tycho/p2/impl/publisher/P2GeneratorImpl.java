@@ -40,7 +40,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
@@ -56,10 +56,10 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 @SuppressWarnings("restriction")
 public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Generator {
-    private static final String[] SUPPORTED_TYPES = { ArtifactKey.TYPE_ECLIPSE_PLUGIN,
-            ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN, ArtifactKey.TYPE_ECLIPSE_FEATURE,
-            ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE, ArtifactKey.TYPE_ECLIPSE_APPLICATION,
-            ArtifactKey.TYPE_ECLIPSE_REPOSITORY };
+    private static final String[] SUPPORTED_TYPES = { PackagingType.TYPE_ECLIPSE_PLUGIN,
+            PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, PackagingType.TYPE_ECLIPSE_FEATURE,
+            PackagingType.TYPE_ECLIPSE_UPDATE_SITE, PackagingType.TYPE_ECLIPSE_APPLICATION,
+            PackagingType.TYPE_ECLIPSE_REPOSITORY };
 
     /**
      * Whether we need full p2 metadata (false) or just required capabilities.
@@ -85,7 +85,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             DependencyMetadata metadata;
 
             // meta data handling for root files
-            if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(artifact.getPackagingType())) {
+            if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(artifact.getPackagingType())) {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH
                         | IPublisherInfo.A_NO_MD5);
                 FeatureRootfileArtifactRepository artifactsRepository = new FeatureRootfileArtifactRepository(
@@ -193,13 +193,14 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
         String packaging = artifact.getPackagingType();
         File location = artifact.getLocation();
-        if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(packaging) || ArtifactKey.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
+        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(packaging)
+                || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(packaging)) {
             if (dependenciesOnly && optionalAction != null) {
                 actions.add(new BundleDependenciesAction(location, optionalAction));
             } else {
                 actions.add(new BundlesAction(new File[] { location }));
             }
-        } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
+        } else if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging)) {
             Feature feature = new FeatureParser().parse(location);
             feature.setLocation(location.getAbsolutePath());
             if (dependenciesOnly) {
@@ -207,7 +208,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             } else {
                 actions.add(new FeaturesAction(new Feature[] { feature }));
             }
-        } else if (ArtifactKey.TYPE_ECLIPSE_APPLICATION.equals(packaging)) {
+        } else if (PackagingType.TYPE_ECLIPSE_APPLICATION.equals(packaging)) {
             String product = new File(location, artifact.getArtifactId() + ".product").getAbsolutePath();
             try {
                 IProductDescriptor productDescriptor = new ProductFile2(product);
@@ -219,13 +220,13 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        } else if (ArtifactKey.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)) {
+        } else if (PackagingType.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging)) {
             if (dependenciesOnly) {
                 actions.add(new SiteDependenciesAction(location, artifact.getArtifactId(), artifact.getVersion()));
             } else {
                 actions.add(new SiteXMLAction(location.toURI(), null));
             }
-        } else if (ArtifactKey.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
+        } else if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
             for (File productFile : getProductFiles(location)) {
                 String product = productFile.getAbsolutePath();
                 IProductDescriptor productDescriptor;

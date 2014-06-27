@@ -23,6 +23,8 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.BundleReader;
@@ -83,7 +85,7 @@ public final class MavenDependencyInjector {
             return NO_DEPENDENCIES;
         }
         List<Dependency> result = new ArrayList<Dependency>();
-        if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
+        if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
             for (String classpathElement : getClasspathElements(location)) {
                 if (".".equals(classpathElement)) {
                     result.add(createSystemScopeDependency(artifact.getKey(), location));
@@ -136,7 +138,8 @@ public final class MavenDependencyInjector {
         if (!artifact.getMavenProject().sameProject(project)) {
             result.add(createProvidedScopeDependency(dependentMavenProjectProxy));
         }
-        if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(dependentMavenProjectProxy.getPackaging())) {
+        // TODO treat eclipse-test-plugins in the same way?
+        if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(dependentMavenProjectProxy.getPackaging())) {
             for (String classpathElement : getClasspathElements(dependentMavenProjectProxy.getBasedir())) {
                 if (".".equals(classpathElement)) {
                     // covered by provided-scope dependency above

@@ -11,30 +11,17 @@
 package org.eclipse.tycho;
 
 /**
- * Eclipse/OSGi artifact key (a.k.a "coordinates"), that uniquely identify artifacts in project
- * build target platform.
+ * Eclipse/OSGi artifact key. Contains the "coordinates" which identify an artifact in the Eclipse
+ * universe.
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ArtifactKey {
 
-    public static final String TYPE_ECLIPSE_PLUGIN = "eclipse-plugin";
-
-    public static final String TYPE_ECLIPSE_TEST_PLUGIN = "eclipse-test-plugin";
-
-    public static final String TYPE_ECLIPSE_FEATURE = "eclipse-feature";
-
-    public static final String TYPE_ECLIPSE_UPDATE_SITE = "eclipse-update-site";
-
-    public static final String TYPE_ECLIPSE_APPLICATION = "eclipse-application";
-
-    public static final String TYPE_ECLIPSE_REPOSITORY = "eclipse-repository";
-
-    public static final String TYPE_ECLIPSE_PRODUCT = "eclipse-product";
-
     /**
-     * Artifact type. One of TYPE_* constants above.
+     * Artifact type. Should be one of the {@link ArtifactType} constants.
      */
+    // TODO really restrict to ArtifactType values; currently may also be a value from PackagingType
     public String getType();
 
     /**

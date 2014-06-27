@@ -44,6 +44,7 @@ public interface TychoProject {
     public DependencyArtifacts getDependencyArtifacts(MavenProject project, TargetEnvironment environment);
 
     // implementation must not depend on target platform
+    // TODO this method is not well-defined for some packaging types; some of them don't produce artifacts addressable via Eclipse coordinates
     public ArtifactKey getArtifactKey(ReactorProject project);
 
     /**

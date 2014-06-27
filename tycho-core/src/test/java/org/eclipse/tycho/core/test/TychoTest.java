@@ -22,7 +22,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
@@ -172,8 +172,8 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         TychoProject projectType = lookup(TychoProject.class, project.getPackaging());
         DependencyArtifacts platform = projectType.getDependencyArtifacts(project);
 
-        assertEquals(2, platform.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN).size());
-        assertNotNull(platform.getArtifact(ArtifactKey.TYPE_ECLIPSE_PLUGIN, "org.junit4.nl_ru", null));
+        assertEquals(2, platform.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN).size());
+        assertNotNull(platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, "org.junit4.nl_ru", null));
     }
 
     public void testMissingClasspathEntries() throws Exception {

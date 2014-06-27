@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
@@ -74,7 +74,7 @@ public class EclipseApplicationProductFileManipulator extends ProductFileManipul
     }
 
     private boolean isEclipseApplication(String packaging) {
-        return ArtifactKey.TYPE_ECLIPSE_APPLICATION.equals(packaging);
+        return PackagingType.TYPE_ECLIPSE_APPLICATION.equals(packaging);
     }
 
     public void writeMetadata(ProjectMetadata project) throws IOException {

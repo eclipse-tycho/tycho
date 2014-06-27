@@ -57,6 +57,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.BundleProject;
@@ -77,7 +78,6 @@ import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
-import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.surefire.provider.impl.ProviderHelper;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
@@ -671,9 +671,9 @@ public class TestMojo extends AbstractMojo {
         for (Dependency extraDependency : TychoProjectUtils.getTargetPlatformConfiguration(project)
                 .getDependencyResolverConfiguration().getExtraRequirements()) {
             String type = extraDependency.getType();
-            if (ArtifactKey.TYPE_ECLIPSE_PLUGIN.equals(type) || P2Resolver.TYPE_INSTALLABLE_UNIT.equals(type)) {
+            if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(type) || ArtifactType.TYPE_INSTALLABLE_UNIT.equals(type)) {
                 iusToInstall.add(extraDependency.getArtifactId());
-            } else if (ArtifactKey.TYPE_ECLIPSE_FEATURE.equals(type)) {
+            } else if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(type)) {
                 iusToInstall.add(extraDependency.getArtifactId() + ".feature.group");
             }
         }
@@ -720,7 +720,7 @@ public class TestMojo extends AbstractMojo {
         TestFrameworkProvider provider = providerHelper.selectProvider(getProjectType().getClasspath(project),
                 getMergedProviderProperties(), providerHint);
         createSurefireProperties(provider);
-        for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactKey.TYPE_ECLIPSE_PLUGIN)) {
+        for (ArtifactDescriptor artifact : testRuntimeArtifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
             // note that this project is added as directory structure rooted at project basedir.
             // project classes and test-classes are added via dev.properties file (see #createDevProperties())
             // all other projects are added as bundle jars.
@@ -811,7 +811,7 @@ public class TestMojo extends AbstractMojo {
     protected Dependency newBundleDependency(String bundleId) {
         Dependency ideapp = new Dependency();
         ideapp.setArtifactId(bundleId);
-        ideapp.setType(ArtifactKey.TYPE_ECLIPSE_PLUGIN);
+        ideapp.setType(ArtifactType.TYPE_ECLIPSE_PLUGIN);
         return ideapp;
     }
 

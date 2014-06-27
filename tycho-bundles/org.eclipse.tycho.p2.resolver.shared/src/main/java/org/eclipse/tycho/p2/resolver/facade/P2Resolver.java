@@ -13,20 +13,12 @@ package org.eclipse.tycho.p2.resolver.facade;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public interface P2Resolver {
-    /**
-     * Pseudo artifact type used to denote P2 installable unit dependencies
-     * 
-     * @see ArtifactKey
-     */
-    public static final String TYPE_INSTALLABLE_UNIT = "p2-installable-unit";
-
     public static final String ANY_QUALIFIER = "qualifier";
 
     public void setEnvironments(List<TargetEnvironment> environments);

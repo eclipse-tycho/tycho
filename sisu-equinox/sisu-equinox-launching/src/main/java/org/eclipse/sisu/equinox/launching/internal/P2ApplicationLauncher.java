@@ -29,6 +29,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallationFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 
@@ -51,7 +52,7 @@ public class P2ApplicationLauncher {
     @Requirement
     private EquinoxRuntimeLocator runtimeLocator;
 
-    @Requirement(role = TychoProject.class, hint = ArtifactKey.TYPE_ECLIPSE_PLUGIN)
+    @Requirement(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_PLUGIN)
     private OsgiBundleProject osgiBundle;
 
     private File workingDirectory;
