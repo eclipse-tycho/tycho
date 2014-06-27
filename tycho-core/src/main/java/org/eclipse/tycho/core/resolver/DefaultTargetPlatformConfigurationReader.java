@@ -82,6 +82,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 setExecutionEnvironment(result, configuration);
                 setExecutionEnvironmentDefault(result, configuration);
                 setBREEHeaderSelectionPolicy(result, configuration);
+                setResolveWithEEContraints(result, configuration);
 
                 readFilters(result, configuration);
 
@@ -233,6 +234,21 @@ public class DefaultTargetPlatformConfigurationReader {
             throw new RuntimeException("Illegal value of <breeHeaderSelectionPolicy> target platform parameter: "
                     + value);
         }
+    }
+
+    /**
+     * Take the constraints of the configured execution environment into account when resolving
+     * dependencies or target definitions. These constraints include the list of system packages and
+     * the <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the dependency resolution
+     * verifies that the bundle and all required bundles can be used in an OSGi container with the
+     * configured execution environment.
+     */
+    private void setResolveWithEEContraints(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
+        String value = getStringValue(resolverDom.getChild("resolveWithExecutionEnvironmentConstraints"));
+        if (value == null) {
+            return;
+        }
+        result.setResolveWithEEContraints(Boolean.valueOf(value));
     }
 
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {
