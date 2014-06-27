@@ -56,8 +56,8 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     }
 
     /**
-     * @deprecated Only needed for {@link LocalDependencyResolver}; p2 resolver checks
-     *             consistency itself
+     * @deprecated Only needed for {@link LocalDependencyResolver}; p2 resolver checks consistency
+     *             itself
      */
     @Deprecated
     public void checkForMissingDependencies(MavenProject project) {
@@ -88,7 +88,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
 
     public void readExecutionEnvironmentConfiguration(MavenProject project, ExecutionEnvironmentConfiguration sink) {
         TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-
+        sink.setIgnoredByResolver(tpConfiguration.isIgnoreBREE());
         String configuredForcedProfile = tpConfiguration.getExecutionEnvironment();
         if (configuredForcedProfile != null) {
             sink.overrideProfileConfiguration(configuredForcedProfile,

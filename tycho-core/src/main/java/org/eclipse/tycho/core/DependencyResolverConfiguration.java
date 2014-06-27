@@ -21,4 +21,6 @@ public interface DependencyResolverConfiguration {
 
     OptionalResolutionAction getOptionalResolutionAction();
 
+    boolean isIgnoreBREE();
+
 }

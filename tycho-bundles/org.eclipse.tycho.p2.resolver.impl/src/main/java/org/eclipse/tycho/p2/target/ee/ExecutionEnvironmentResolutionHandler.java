@@ -19,10 +19,12 @@ import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 public abstract class ExecutionEnvironmentResolutionHandler {
 
     public static ExecutionEnvironmentResolutionHandler adapt(ExecutionEnvironmentConfiguration eeConfiguration) {
-        if (eeConfiguration.isCustomProfile()) {
+        if (eeConfiguration.isIgnoredByResolver()) {
+            return new StandardEEResolutionHandler(new AllKnownEEsResolutionHints());
+        } else if (eeConfiguration.isCustomProfile()) {
             return new CustomEEResolutionHandler(eeConfiguration);
         } else {
-            return new StandardEEResolutionHandler(eeConfiguration.getProfileName());
+            return new StandardEEResolutionHandler(new StandardEEResolutionHints(eeConfiguration.getProfileName()));
         }
     }
 

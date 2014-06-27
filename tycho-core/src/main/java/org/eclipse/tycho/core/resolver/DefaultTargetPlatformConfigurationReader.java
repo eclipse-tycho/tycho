@@ -143,7 +143,16 @@ public class DefaultTargetPlatformConfigurationReader {
         setOptionalDependencies(result, resolverDom);
         readExtraRequirements(result, resolverDom);
         readProfileProperties(result, resolverDom);
+        readIgnoreBREE(result, resolverDom);
 
+    }
+
+    private void readIgnoreBREE(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
+        String value = getStringValue(resolverDom.getChild("ignoreBREE"));
+        if (value == null) {
+            return;
+        }
+        result.setIgnoreBREE(Boolean.valueOf(value));
     }
 
     private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {

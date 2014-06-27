@@ -81,4 +81,8 @@ public interface ExecutionEnvironmentConfiguration {
      */
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException;
 
+    public boolean isIgnoredByResolver();
+
+    public void setIgnoredByResolver(boolean ignore);
+
 }
