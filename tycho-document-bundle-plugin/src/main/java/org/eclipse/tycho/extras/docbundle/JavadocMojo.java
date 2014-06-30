@@ -144,6 +144,9 @@ public class JavadocMojo extends AbstractMojo {
         runner.setToolchainManager(this.toolchainManager);
         runner.setSession(this.session);
 
+        final GatherManifestVisitor gmv = new GatherManifestVisitor();
+        visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, gmv);
+
         final GatherSourcesVisitor gsv = new GatherSourcesVisitor();
         visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, gsv);
 
@@ -165,6 +168,7 @@ public class JavadocMojo extends AbstractMojo {
 
         runner.setBundleReader(this.bundleReader);
         runner.setOptions(this.javadocOptions);
+        runner.setManifestFiles(gmv.getManifestFiles());
         runner.setSourceFolders(gsv.getSourceFolders());
         runner.setClassPath(cp);
 
@@ -231,6 +235,20 @@ public class JavadocMojo extends AbstractMojo {
 
         public Set<File> getSourceFolders() {
             return this.sourceFolders;
+        }
+    }
+
+    private class GatherManifestVisitor implements ProjectVisitor {
+        private final Set<File> manifestFiles = new HashSet<File>();
+
+        public void visit(final MavenProject project) {
+            if (JavadocMojo.this.sourceTypes.contains(project.getPackaging())) {
+                this.manifestFiles.add(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
+            }
+        }
+
+        public Set<File> getManifestFiles() {
+            return manifestFiles;
         }
     }
 

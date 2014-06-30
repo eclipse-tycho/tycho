@@ -37,6 +37,8 @@ public class JavadocRunner {
 
     private Set<File> sourceFolders;
 
+    private Set<File> manifestFiles;
+
     private Log log;
 
     private JavadocOptions options;
@@ -136,8 +138,7 @@ public class JavadocRunner {
     private int addPackages(final PrintStream ps) throws Exception {
         int count = 0;
 
-        for (final File base : this.sourceFolders) {
-            final File manifestFile = new File(base.getParent(), "META-INF/MANIFEST.MF");
+        for (final File manifestFile : this.manifestFiles) {
             if (!manifestFile.canRead()) {
                 this.log.debug("No readable manifest: " + manifestFile);
                 continue;
@@ -255,5 +256,9 @@ public class JavadocRunner {
 
     public void setClassPath(final Collection<String> classPath) {
         this.classPath = classPath;
+    }
+
+    public void setManifestFiles(Set<File> manifestFiles) {
+        this.manifestFiles = manifestFiles;
     }
 }
