@@ -23,6 +23,8 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -48,7 +50,6 @@ import org.eclipse.tycho.p2.target.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.test.util.LogVerifier;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -80,11 +81,11 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(2, result.getArtifacts().size());
-        Assert.assertEquals(1, result.getNonReactorUnits().size());
+        assertEquals(2, result.getArtifacts().size());
+        assertEquals(1, result.getNonReactorUnits().size());
     }
 
     @SuppressWarnings({ "unchecked", "deprecation" })
@@ -106,7 +107,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         P2ResolutionResult result = impl.collectProjectDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(projects.length, result.getArtifacts().size());
+        assertEquals(projects.length, result.getArtifacts().size());
         for (File project : projects) {
             assertContainLocation(result, project);
         }
@@ -115,15 +116,6 @@ public class P2ResolverTest extends P2ResolverTestBase {
         // conflicting dependency mode only collects included artifacts - the referenced non-reactor unit
         // org.eclipse.osgi is not included
         assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), not(hasItem(unitWithId("org.eclipse.osgi"))));
-    }
-
-    private static void assertContainLocation(P2ResolutionResult result, File location) {
-        for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
-            if (entry.getLocation().equals(location)) {
-                return;
-            }
-        }
-        Assert.fail();
     }
 
     @Test
@@ -154,7 +146,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
         assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
@@ -168,12 +160,12 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(1, result.getArtifacts().size());
-        Assert.assertEquals(1, result.getArtifacts().iterator().next().getInstallableUnits().size());
-        Assert.assertEquals(0, result.getNonReactorUnits().size());
+        assertEquals(1, result.getArtifacts().size());
+        assertEquals(1, result.getArtifacts().iterator().next().getInstallableUnits().size());
+        assertEquals(0, result.getNonReactorUnits().size());
     }
 
     @Test
@@ -195,10 +187,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(3, result.getArtifacts().size());
+        assertEquals(3, result.getArtifacts().size());
         List<P2ResolutionResult.Entry> entries = new ArrayList<P2ResolutionResult.Entry>(result.getArtifacts());
         Collections.sort(entries, new Comparator<Entry>() {
 
@@ -206,12 +198,12 @@ public class P2ResolverTest extends P2ResolverTestBase {
                 return entry1.getId().compareTo(entry2.getId());
             }
         });
-        Assert.assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01", entries.get(0).getId());
-        Assert.assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01.source", entries.get(1).getId());
-        Assert.assertEquals("org.eclipse.tycho.p2.impl.resolver.test.feature01", entries.get(2).getId());
-        Assert.assertEquals(bundle, entries.get(0).getLocation());
-        Assert.assertEquals(bundle, entries.get(1).getLocation());
-        Assert.assertEquals("sources", entries.get(1).getClassifier());
+        assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01", entries.get(0).getId());
+        assertEquals("org.eclipse.tycho.p2.impl.resolver.test.bundle01.source", entries.get(1).getId());
+        assertEquals("org.eclipse.tycho.p2.impl.resolver.test.feature01", entries.get(2).getId());
+        assertEquals(bundle, entries.get(0).getLocation());
+        assertEquals(bundle, entries.get(1).getLocation());
+        assertEquals("sources", entries.get(1).getClassifier());
     }
 
     @Test
@@ -227,11 +219,11 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(3, result.getArtifacts().size()); // the product, bundle01, and the one dependency of bundle01
-        Assert.assertEquals(3, result.getNonReactorUnits().size());
+        assertEquals(3, result.getArtifacts().size()); // the product, bundle01, and the one dependency of bundle01
+        assertEquals(3, result.getNonReactorUnits().size());
 
         assertContainsUnit("org.eclipse.osgi", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.equinox.executable.feature.group", result.getNonReactorUnits());
@@ -247,11 +239,11 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(3, result.getArtifacts().size());
-        Assert.assertEquals(2, result.getNonReactorUnits().size());
+        assertEquals(3, result.getArtifacts().size());
+        assertEquals(2, result.getNonReactorUnits().size());
 
         assertContainsUnit("org.eclipse.swt", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.swt.gtk.linux.x86_64", result.getNonReactorUnits());
@@ -266,10 +258,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(1, result.getArtifacts().size());
+        assertEquals(1, result.getArtifacts().size());
         assertContainLocation(result, swt);
     }
 
@@ -283,11 +275,11 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(2, result.getArtifacts().size());
-        Assert.assertEquals(0, result.getNonReactorUnits().size());
+        assertEquals(2, result.getArtifacts().size());
+        assertEquals(0, result.getNonReactorUnits().size());
 
         assertContainLocation(result, swtFragment);
         assertContainLocation(result, swt);
@@ -303,29 +295,14 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(2, result.getArtifacts().size());
-        Assert.assertEquals(1, result.getNonReactorUnits().size());
+        assertEquals(2, result.getArtifacts().size());
+        assertEquals(1, result.getNonReactorUnits().size());
 
         assertContainLocation(result, swtFragment);
         assertContainsUnit("org.eclipse.swt", result.getNonReactorUnits());
-    }
-
-    private static void assertContainsUnit(String unitID, Set<?> units) {
-        Assert.assertFalse("Unit " + unitID + " not found", getInstallableUnits(unitID, units).isEmpty());
-    }
-
-    private static List<IInstallableUnit> getInstallableUnits(String unitID, Set<?> units) {
-        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
-        for (Object unitObject : units) {
-            IInstallableUnit unit = (IInstallableUnit) unitObject;
-            if (unitID.equals(unit.getId())) {
-                result.add(unit);
-            }
-        }
-        return result;
     }
 
     @Test
@@ -340,14 +317,14 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(2, result.getArtifacts().size());
-        Assert.assertEquals(0, result.getNonReactorUnits().size());
+        assertEquals(2, result.getArtifacts().size());
+        assertEquals(0, result.getNonReactorUnits().size());
 
         for (Entry entry : result.getArtifacts()) {
-            Assert.assertEquals("1.0.0.qualifier", entry.getVersion());
+            assertEquals("1.0.0.qualifier", entry.getVersion());
         }
     }
 
@@ -361,12 +338,12 @@ public class P2ResolverTest extends P2ResolverTestBase {
         List<P2ResolutionResult> results = impl.resolveDependencies(
                 getTargetPlatform(standardEEResolutionHintProvider("CDC-1.0/Foundation-1.0")), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(2, result.getArtifacts().size());
+        assertEquals(2, result.getArtifacts().size());
 
-        Assert.assertEquals(3, result.getNonReactorUnits().size());
+        assertEquals(3, result.getNonReactorUnits().size());
         assertContainsUnit("javax.xml", result.getNonReactorUnits());
         assertContainsUnit("a.jre.cdc", result.getNonReactorUnits());
         assertContainsUnit("config.a.jre.cdc", result.getNonReactorUnits());
@@ -382,12 +359,12 @@ public class P2ResolverTest extends P2ResolverTestBase {
         List<P2ResolutionResult> results = impl.resolveDependencies(
                 getTargetPlatform(standardEEResolutionHintProvider("J2SE-1.5")), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertEquals(1, result.getArtifacts().size());
+        assertEquals(1, result.getArtifacts().size());
 
-        Assert.assertEquals(2, result.getNonReactorUnits().size());
+        assertEquals(2, result.getNonReactorUnits().size());
         assertContainsUnit("a.jre.j2se", result.getNonReactorUnits());
         assertContainsUnit("config.a.jre.j2se", result.getNonReactorUnits());
     }
@@ -439,19 +416,19 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(2, results.size());
+        assertEquals(2, results.size());
 
         P2ResolutionResult linux = results.get(0);
         List<Entry> linuxEntries = new ArrayList<Entry>(linux.getArtifacts());
-        Assert.assertEquals(1, linuxEntries.size());
-        Assert.assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
-        Assert.assertEquals(0, linux.getNonReactorUnits().size());
+        assertEquals(1, linuxEntries.size());
+        assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
+        assertEquals(0, linux.getNonReactorUnits().size());
 
         P2ResolutionResult macosx = results.get(1);
         List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
-        Assert.assertEquals(1, macosxEntries.size());
-        Assert.assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
-        Assert.assertEquals(0, macosx.getNonReactorUnits().size());
+        assertEquals(1, macosxEntries.size());
+        assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
+        assertEquals(0, macosx.getNonReactorUnits().size());
     }
 
     @Test
@@ -467,19 +444,19 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(2, results.size());
+        assertEquals(2, results.size());
 
         P2ResolutionResult linux = results.get(0);
         List<Entry> linuxEntries = new ArrayList<Entry>(linux.getArtifacts());
-        Assert.assertEquals(1, linuxEntries.size());
-        Assert.assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
-        Assert.assertEquals(0, linux.getNonReactorUnits().size());
+        assertEquals(1, linuxEntries.size());
+        assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
+        assertEquals(0, linux.getNonReactorUnits().size());
 
         P2ResolutionResult macosx = results.get(1);
         List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
-        Assert.assertEquals(1, macosxEntries.size());
-        Assert.assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
-        Assert.assertEquals(0, macosx.getNonReactorUnits().size());
+        assertEquals(1, macosxEntries.size());
+        assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
+        assertEquals(0, macosx.getNonReactorUnits().size());
     }
 
     @SuppressWarnings("unchecked")
@@ -494,10 +471,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
         impl.setAdditionalFilterProperties(Collections.singletonMap("org.example.custom.option", "true"));
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
+        assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
     }
 
     @Test
@@ -508,10 +485,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
         impl.addDependency(TYPE_ECLIPSE_PLUGIN, "org.eclipse.osgi", "0.0.0");
         List<P2ResolutionResult> results = impl.resolveDependencies(getTargetPlatform(), projectToResolve);
 
-        Assert.assertEquals(1, results.size());
+        assertEquals(1, results.size());
         P2ResolutionResult result = results.get(0);
 
-        Assert.assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
+        assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
     }
 
     @Test
@@ -533,4 +510,29 @@ public class P2ResolverTest extends P2ResolverTestBase {
     private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
         return tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorProjects, pomDependencies);
     }
+
+    private static void assertContainsUnit(String unitID, Set<?> units) {
+        assertFalse("Unit " + unitID + " not found", getInstallableUnits(unitID, units).isEmpty());
+    }
+
+    private static List<IInstallableUnit> getInstallableUnits(String unitID, Set<?> units) {
+        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+        for (Object unitObject : units) {
+            IInstallableUnit unit = (IInstallableUnit) unitObject;
+            if (unitID.equals(unit.getId())) {
+                result.add(unit);
+            }
+        }
+        return result;
+    }
+
+    private static void assertContainLocation(P2ResolutionResult result, File location) {
+        for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
+            if (entry.getLocation().equals(location)) {
+                return;
+            }
+        }
+        fail();
+    }
+
 }
