@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e76c2f17_95a597b8",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-06-30T07:22:53Z",
+      "side": 0,
+      "message": "ouch. seems I introduced a duplicate property declaration. Good find.",
+      "revId": "eaac3b478b966f200a9eb0e53dad94a9d0178c34",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
