@@ -49,6 +49,14 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
         } else {
             // bug 375715: entry may have been created for extra IUs from a p2.inf
             if (type != null) {
+                if (entry.getType() != null && classifier == null) {
+                    // bug 430728: prevent that p2.inf "artifacts" overwrite the type of the main artifact
+                    throw new RuntimeException(
+                            "Cannot determine type of the main artifact in the project at "
+                                    + location
+                                    + ". Make sure that additional units added via p2.inf specify a 'maven-classifier' property.");
+                }
+
                 // type, id, and version for the artifact/project location is only known now -> update in entry
                 entry.setType(type);
                 entry.setId(id);
