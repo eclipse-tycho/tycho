@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class DefaultP2ResolutionResult implements P2ResolutionResult {
@@ -49,6 +50,25 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
         } else {
             // bug 375715: entry may have been created for extra IUs from a p2.inf
             if (type != null) {
+                if (ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(entry.getType())
+                        && ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type)) {
+                    /*
+                     * TODO 348586 For eclipse-repository projects containing products, we currently
+                     * create an eclipse-product entry using ID&version of one of the products at
+                     * random. This seems wrong - with eclipse-product there should be only one
+                     * product per project, or additional product should be required to specify a
+                     * classifier.
+                     */
+                    // skip overwrite check
+
+                } else if (entry.getType() != null && classifier == null) {
+                    // bug 430728: prevent that p2.inf "artifacts" overwrite the type of the main artifact
+                    throw new RuntimeException(
+                            "Cannot determine type of the main artifact in the project at "
+                                    + location
+                                    + ". Make sure that additional units added via p2.inf specify a 'maven-classifier' property.");
+                }
+
                 // type, id, and version for the artifact/project location is only known now -> update in entry
                 entry.setType(type);
                 entry.setId(id);
