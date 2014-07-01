@@ -98,10 +98,9 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
             throw new IllegalStateException(
                     "Cannot set full specification when a standard execution environment is configured");
         }
-        // TODO this is not possible while the target platform is still computed multiple times
-//        if (this.customExecutionEnvironment != null) {
-//            throw new IllegalStateException("Cannot set full specification for a custom profile more than once");
-//        }
+        if (this.customExecutionEnvironment != null) {
+            throw new IllegalStateException("Cannot set full specification for a custom profile more than once");
+        }
 
         this.customExecutionEnvironment = new CustomExecutionEnvironment(getProfileName(), systemCapabilities);
     }

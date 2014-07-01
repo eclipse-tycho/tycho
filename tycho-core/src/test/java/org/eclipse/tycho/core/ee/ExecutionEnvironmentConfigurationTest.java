@@ -108,13 +108,12 @@ public class ExecutionEnvironmentConfigurationTest {
         subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
     }
 
-    // TODO this is not possible while the target platform is still computed multiple times
-//    @Test(expected = IllegalStateException.class)
-//    public void disallowMultipleSetCustomProfileSpecification() throws Exception {
-//        subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
-//        subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
-//        subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
-//    }
+    @Test(expected = IllegalStateException.class)
+    public void disallowMultipleSetCustomProfileSpecification() throws Exception {
+        subject.setProfileConfiguration(CUSTOM_PROFILE, DUMMY_ORIGIN);
+        subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
+        subject.setFullSpecificationForCustomProfile(DUMMY_CUSTOM_PROFILE_SPEC);
+    }
 
     @Test(expected = IllegalStateException.class)
     public void testGetMissingFullSpecificationForCustomProfile() {
