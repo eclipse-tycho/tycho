@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.tycho.osgicompiler.test;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
@@ -386,7 +387,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         getMojo(projects, project).execute();
     }
 
-    public void test386278_breeCompilerTargetCompatibility() throws Exception {
+    public void testBreeCompilerTargetCompatibilityIsChecked() throws Exception {
         File basedir = getBasedir("projects/bree-target-compatibility");
         List<MavenProject> projects = getSortedProjects(basedir, null);
 
@@ -395,10 +396,14 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             getMojo(projects, project).execute();
             fail();
         } catch (MojoExecutionException e) {
-            assertTrue(
-                    "Unexpected exception message " + e.getMessage(),
-                    e.getMessage().contains(
-                            "Effective compiler target 1.5 is incompatible with OSGi profile 'J2SE-1.2'"));
+            // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one) 
+            assertThat(
+                    e.getMessage(),
+                    containsString("The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
+            assertThat(e.getMessage(), containsString("J2SE-1.2"));
+            assertThat(e.getMessage(), containsString("CDC-1.0/Foundation-1.0"));
+            assertThat(e.getMessage(), containsString("OSGi/Minimum-1.2"));
+            assertThat(e.getMessage(), not(containsString("JavaSE-1.6")));
         }
     }
 

@@ -19,6 +19,7 @@ package org.eclipse.tycho.compiler;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +57,9 @@ import org.eclipse.tycho.classpath.SourcepathEntry;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -201,21 +204,19 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Component
+    private BundleReader bundleReader;
+
+    @Override
     public void execute() throws MojoExecutionException, CompilationFailureException {
-        ExecutionEnvironment minimalBREE = getBundleProject().getManifestMinimalEE(project);
-        getLog().debug("Manifest minimal BREE: " + (minimalBREE != null ? minimalBREE.toString() : "<null>"));
+        StandardExecutionEnvironment[] manifestBREEs = bundleReader.loadManifest(project.getBasedir())
+                .getExecutionEnvironments();
+        getLog().debug("Manifest BREEs: " + Arrays.toString(manifestBREEs));
         getLog().debug("Effective EE: " + getTargetExecutionEnvironment());
         String effectiveTargetLevel = getTargetLevel();
         getLog().debug("Effective source/target: " + getSourceLevel() + "/" + effectiveTargetLevel);
 
-        if (minimalBREE != null && !minimalBREE.isCompatibleCompilerTargetLevel(effectiveTargetLevel)) {
-            String message = "Effective compiler target " + effectiveTargetLevel + " is incompatible with "
-                    + minimalBREE + " @ " + project;
-            if (strictCompilerTarget) {
-                throw new MojoExecutionException(message);
-            }
-            getLog().warn(message);
-        }
+        checkTargetLevelCompatibleWithManifestBREEs(effectiveTargetLevel, manifestBREEs);
 
         for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
             this.outputJar = jar;
@@ -276,6 +277,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return outputJar.getOutputDirectory();
     }
 
+    @Override
     public List<String> getClasspathElements() throws MojoExecutionException {
         final List<String> classpath = new ArrayList<String>();
         for (ClasspathEntry cpe : getClasspath()) {
@@ -315,6 +317,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return result.toString();
     }
 
+    @Override
     protected final List<String> getCompileSourceRoots() throws MojoExecutionException {
         ArrayList<String> roots = new ArrayList<String>();
         for (File folder : outputJar.getSourceFolders()) {
@@ -351,6 +354,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return entries;
     }
 
+    @Override
     protected SourceInclusionScanner getSourceInclusionScanner(int staleMillis) {
         SourceInclusionScanner scanner = null;
 
@@ -365,12 +369,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return scanner;
     }
 
+    @Override
     protected SourceInclusionScanner getSourceInclusionScanner(String inputFileEnding) {
         SourceInclusionScanner scanner = null;
 
         if (includes.isEmpty() && excludes.isEmpty()) {
             includes = Collections.singleton("**/*." + inputFileEnding);
-            scanner = new SimpleSourceInclusionScanner(includes, Collections.EMPTY_SET);
+            scanner = new SimpleSourceInclusionScanner(includes, Collections.<String> emptySet());
         } else {
             if (includes.isEmpty()) {
                 includes.add("**/*." + inputFileEnding);
@@ -408,7 +413,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                 accessRules.add(new DefaultAccessRule(pkg.trim().replace('.', '/') + "/*", false));
             }
             // now add packages exported by framework extension bundles
-            accessRules.addAll(((BundleProject) getBundleProject()).getBootClasspathExtraAccessRules(project));
+            accessRules.addAll(getBundleProject().getBootClasspathExtraAccessRules(project));
         }
         if (accessRules.size() > 0) {
             compilerConfiguration
@@ -416,6 +421,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         }
     }
 
+    @SuppressWarnings("unchecked")
     private List<AccessRule> getStrictBootClasspathAccessRules() throws MojoExecutionException {
         return (List<AccessRule>) project
                 .getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES);
@@ -482,7 +488,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     private DefaultJavaToolChain findMatchingJavaToolChain(final ExecutionEnvironment environment)
             throws MojoExecutionException {
         try {
-            final Map requirements = Collections.singletonMap("id", environment.getProfileName());
+            final Map<String, String> requirements = Collections.singletonMap("id", environment.getProfileName());
             for (ToolchainPrivate javaToolChain : toolChainManager.getToolchainsForType("jdk", session)) {
                 if (javaToolChain.matchesRequirements(requirements)) {
                     if (javaToolChain instanceof DefaultJavaToolChain) {
@@ -597,6 +603,25 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         }
 
         return DEFAULT_TARGET_VERSION;
+    }
+
+    private void checkTargetLevelCompatibleWithManifestBREEs(String effectiveTargetLevel,
+            StandardExecutionEnvironment[] manifestBREEs) throws MojoExecutionException {
+        List<String> incompatibleBREEs = new ArrayList<String>();
+        for (StandardExecutionEnvironment ee : manifestBREEs) {
+            if (!ee.isCompatibleCompilerTargetLevel(effectiveTargetLevel)) {
+                incompatibleBREEs.add(ee.getProfileName() + " (assumes " + ee.getCompilerTargetLevelDefault() + ")");
+            }
+        }
+        if (!incompatibleBREEs.isEmpty()) {
+            String message = "The effective compiler target level " + effectiveTargetLevel
+                    + " is incompatible with the following OSGi execution environments: " + incompatibleBREEs + " @ "
+                    + project;
+            if (strictCompilerTarget) {
+                throw new MojoExecutionException(message);
+            }
+            getLog().warn(message);
+        }
     }
 
     public <T> T getAdapter(Class<T> adapter) {
