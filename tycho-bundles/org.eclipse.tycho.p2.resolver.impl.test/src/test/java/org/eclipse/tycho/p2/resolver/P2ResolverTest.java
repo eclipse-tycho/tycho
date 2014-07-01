@@ -33,10 +33,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
@@ -93,7 +95,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         File[] projects = new File[] { resourceFile("siteresolver/bundle342"), //
                 resourceFile("siteresolver/bundle352"), //
-                resourceFile("siteresolver/feature342"), // 
+                resourceFile("siteresolver/feature342"), //
                 resourceFile("siteresolver/feature352") };
 
         addContextProject(projects[0], TYPE_ECLIPSE_PLUGIN);
@@ -366,6 +368,33 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     @Test
+    public void testP2InfUnclassifiedBundleUnitDoesntOverwriteMainArtifact() throws Exception {
+        // project with feature.xml and p2.inf contributing a bundle IU -> type of main artifact cannot be determined
+        projectToResolve = createReactorProject(resourceFile("resolver/p2Inf.conflicting-main-artifact"),
+                TYPE_ECLIPSE_FEATURE, "p2Inf.conflicting-main-artifact");
+
+        // bug 430728: explicit detect this conflict and throw an exception
+        expectedException.expectMessage("classifier");
+        result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
+
+        // ... or the p2.inf "artifact" could also just be omitted
+        assertThat(getClassifiedArtifact(result, null).getType(), is(ArtifactType.TYPE_ECLIPSE_FEATURE));
+        assertThat(result.getArtifacts().size(), is(1));
+    }
+
+    @Test
+    public void testP2InfClassifiedBundleUnitDoesntOverwriteMainArtifact() throws Exception {
+        // bug 430728: correct way to add the bundle IU via p2.inf in the the feature project
+        projectToResolve = createReactorProject(resourceFile("resolver/p2Inf.additional-artifact"),
+                TYPE_ECLIPSE_FEATURE, "p2Inf.additional-artifact");
+        result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
+
+        assertThat(getClassifiedArtifact(result, null).getType(), is(ArtifactType.TYPE_ECLIPSE_FEATURE));
+        // this is the current behaviour, but the p2.inf "artifact" could also be omitted
+        //assertThat(getClassifiedArtifact(result, "p2inf").getType(), is(ArtifactType.TYPE_ECLIPSE_PLUGIN));
+    }
+
+    @Test
     public void testFeatureMultienvP2Inf() throws Exception {
         List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
@@ -472,6 +501,19 @@ public class P2ResolverTest extends P2ResolverTestBase {
         return results.get(0);
     }
 
+    private static P2ResolutionResult.Entry getClassifiedArtifact(P2ResolutionResult resolutionResult, String classifier) {
+        Set<String> availableClassifiers = new HashSet<String>();
+        P2ResolutionResult.Entry selectedEntry = null;
+        for (Entry entry : resolutionResult.getArtifacts()) {
+            availableClassifiers.add(entry.getClassifier());
+            if (eq(classifier, entry.getClassifier())) {
+                selectedEntry = entry;
+            }
+        }
+        assertThat(availableClassifiers, hasItem(classifier));
+        return selectedEntry;
+    }
+
     private static void assertContainsUnit(String unitID, Set<?> units) {
         assertFalse("Unit " + unitID + " not found", getInstallableUnits(unitID, units).isEmpty());
     }
@@ -494,6 +536,16 @@ public class P2ResolverTest extends P2ResolverTestBase {
             }
         }
         fail();
+    }
+
+    private static boolean eq(String left, String right) {
+        if (left == right) {
+            return true;
+        } else if (left == null) {
+            return false;
+        } else {
+            return left.equals(right);
+        }
     }
 
 }

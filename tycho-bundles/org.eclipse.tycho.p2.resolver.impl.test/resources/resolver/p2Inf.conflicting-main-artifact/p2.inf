@@ -1,0 +1,15 @@
+units.1.id=org.maven.ide.eclipse
+units.1.properties.0.name=org.eclipse.equinox.p2.name
+units.1.properties.0.value=This version of m2eclipse cannot be installed on top of the already installed m2eclipse. Uninstall the previous version of m2eclipse and try the install again.
+units.1.version=$version$
+units.1.singleton=true
+
+# this capability makes this additional IU look like a bundle IU, so it is  
+# unclear whether the main artifact of this project is a feature or a bundle
+units.1.provides.0.namespace=osgi.bundle
+units.1.provides.0.name=org.maven.ide.eclipse
+units.1.provides.0.version=$version$
+
+requires.0.namespace=osgi.bundle
+requires.0.name=org.maven.ide.eclipse
+requires.0.range=[$version$, $version$]

@@ -238,7 +238,6 @@ public class P2ResolverImpl implements P2Resolver {
         String version = iu.getVersion().toString();
         String mavenClassifier = null;
 
-        // TODO infer type from IU capabilities/properties (like this is done for content from Maven artifacts/projects)?
         if (PublisherHelper.OSGI_BUNDLE_CLASSIFIER.equals(key.getClassifier())) {
             result.addArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, id, version, artifactLocation, mavenClassifier, iu);
         } else if (PublisherHelper.ECLIPSE_FEATURE_CLASSIFIER.equals(key.getClassifier())) {
