@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
@@ -78,6 +79,7 @@ public class DefaultTargetPlatformConfigurationReader {
 
                 setExecutionEnvironment(result, configuration);
                 setExecutionEnvironmentDefault(result, configuration);
+                setBREEHeaderSelectionPolicy(result, configuration);
 
                 readFilters(result, configuration);
 
@@ -202,6 +204,20 @@ public class DefaultTargetPlatformConfigurationReader {
             return;
         }
         result.setExecutionEnvironmentDefault(value);
+    }
+
+    private void setBREEHeaderSelectionPolicy(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        String value = getStringValue(configuration.getChild("breeHeaderSelectionPolicy"));
+
+        if (value == null) {
+            return;
+        }
+        try {
+            result.setBREEHeaderSelectionPolicy(BREEHeaderSelectionPolicy.valueOf(value));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Illegal value of <breeHeaderSelectionPolicy> target platform parameter: "
+                    + value);
+        }
     }
 
     private void setDisableP2Mirrors(TargetPlatformConfiguration result, Xpp3Dom configuration) {

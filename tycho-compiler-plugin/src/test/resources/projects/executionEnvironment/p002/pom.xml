@@ -21,6 +21,15 @@
           <compilerId>jdt</compilerId>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <!-- TODO 438743 also make the compiler use the minimal compliance without this header? -->
+          <breeHeaderSelectionPolicy>minimal</breeHeaderSelectionPolicy>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
