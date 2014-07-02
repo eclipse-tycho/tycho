@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -362,19 +362,23 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         properties.put("tycho-version", TychoVersion.getTychoVersion());
 
         List<MavenProject> projects = getSortedProjects(basedir, properties, null);
-        assertEquals(5, projects.size());
+        assertEquals(6, projects.size());
+        int i = 0;
 
-        assertEquals("executionenvironment.manifest", projects.get(1).getArtifactId());
-        assertEquals("CDC-1.0/Foundation-1.0", getActiveEEProfile(projects.get(1)));
+        assertEquals("executionenvironment.manifest", projects.get(++i).getArtifactId());
+        assertEquals("CDC-1.1/Foundation-1.1", getActiveEEProfile(projects.get(i)));
 
-        assertEquals("executionenvironment.pom-hard", projects.get(2).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(2)));
+        assertEquals("executionenvironment.manifest-minimal", projects.get(++i).getArtifactId());
+        assertEquals("CDC-1.0/Foundation-1.0", getActiveEEProfile(projects.get(i)));
 
-        assertEquals("executionenvironment.buildproperties", projects.get(3).getArtifactId());
-        assertEquals("OSGi/Minimum-1.1", getActiveEEProfile(projects.get(3)));
+        assertEquals("executionenvironment.pom-hard", projects.get(++i).getArtifactId());
+        assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(i)));
 
-        assertEquals("executionenvironment.pom-default", projects.get(4).getArtifactId());
-        assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(4)));
+        assertEquals("executionenvironment.buildproperties", projects.get(++i).getArtifactId());
+        assertEquals("OSGi/Minimum-1.1", getActiveEEProfile(projects.get(i)));
+
+        assertEquals("executionenvironment.pom-default", projects.get(++i).getArtifactId());
+        assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(i)));
     }
 
     private static String getActiveEEProfile(MavenProject project) {

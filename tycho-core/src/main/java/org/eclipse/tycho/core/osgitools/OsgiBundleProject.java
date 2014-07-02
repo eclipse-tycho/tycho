@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
 import org.eclipse.tycho.core.PluginDescription;
+import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
@@ -493,20 +494,24 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
         } else {
             // ... derived from BREE in bundle manifest
-            ExecutionEnvironment manifestMinimalEE = getManifestMinimalEE(project);
-            if (manifestMinimalEE != null) {
-                sink.setProfileConfiguration(manifestMinimalEE.getProfileName(), "Bundle-RequiredExecutionEnvironment");
+            StandardExecutionEnvironment[] manifestBREEs = getManifest(project).getExecutionEnvironments();
+            if (manifestBREEs.length > 0) {
+                TargetPlatformConfiguration tpConfiguration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+
+                switch (tpConfiguration.getBREEHeaderSelectionPolicy()) {
+                case first:
+                    sink.setProfileConfiguration(manifestBREEs[0].getProfileName(),
+                            "Bundle-RequiredExecutionEnvironment (first entry)");
+                    break;
+
+                case minimal:
+                    ExecutionEnvironment manifestMinimalEE = Collections.min(Arrays.asList(manifestBREEs));
+                    sink.setProfileConfiguration(manifestMinimalEE.getProfileName(),
+                            "Bundle-RequiredExecutionEnvironment (minimal entry)");
+                }
+
             }
         }
-    }
-
-    public ExecutionEnvironment getManifestMinimalEE(MavenProject project) {
-        List<StandardExecutionEnvironment> envs = new ArrayList<StandardExecutionEnvironment>(
-                Arrays.asList(getManifest(project).getExecutionEnvironments()));
-        if (envs.isEmpty()) {
-            return null;
-        }
-        return Collections.min(envs);
     }
 
 }

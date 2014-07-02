@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,10 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 
 public class TargetPlatformConfiguration implements DependencyResolverConfiguration {
 
+    public enum BREEHeaderSelectionPolicy {
+        first, minimal
+    }
+
     public static final String POM_DEPENDENCIES_CONSIDER = "consider";
 
     private String resolver;
@@ -39,8 +43,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private Boolean allowConflictingDependencies;
 
     private String executionEnvironment;
-
     private String executionEnvironmentDefault;
+    private BREEHeaderSelectionPolicy breeHeaderSelectionPolicy = BREEHeaderSelectionPolicy.first;
 
     private List<TargetPlatformFilter> filters;
 
@@ -120,6 +124,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void setExecutionEnvironmentDefault(String executionEnvironment) {
         this.executionEnvironmentDefault = executionEnvironment;
+    }
+
+    public BREEHeaderSelectionPolicy getBREEHeaderSelectionPolicy() {
+        return breeHeaderSelectionPolicy;
+    }
+
+    public void setBREEHeaderSelectionPolicy(BREEHeaderSelectionPolicy breeHeaderSelectionPolicy) {
+        this.breeHeaderSelectionPolicy = breeHeaderSelectionPolicy;
     }
 
     public void setFilters(List<TargetPlatformFilter> filters) {
