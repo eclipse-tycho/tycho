@@ -68,6 +68,16 @@ public class MutableBundleManifestTest {
     }
 
     @Test
+    public void setExportedVersionDoesNotReformatIfNotNecessary() throws Exception {
+        MutableBundleManifest mf = getManifest("/manifests/setExportedPackage.mf");
+
+        // change nothing: the version 2.0.0 does not exist as package version 
+        mf.setExportedPackageVersion("2.0.0", "1.0.0");
+        // expect that nothing is changed (that is the formatting remains intact)
+        assertContents(mf, "/manifests/setExportedPackage.mf");
+    }
+
+    @Test
     public void addAttribute() throws Exception {
         MutableBundleManifest mf = getManifest("/manifests/addheader.mf");
         mf.add(new ManifestAttribute("header", "value"));

@@ -208,8 +208,11 @@ public class MutableBundleManifest {
         String oldBaseVersion = Versions.toBaseVersion(oldVersion);
         String newBaseVersion = Versions.toBaseVersion(newVersion);
 
-        String newExportedPackage = attr.getValue().replaceAll(";version=\"" + Pattern.quote(oldBaseVersion) + "\"",
+        String oldExportedPackage = attr.getValue();
+        String newExportedPackage = oldExportedPackage.replaceAll(";version=\"" + Pattern.quote(oldBaseVersion) + "\"",
                 ";version=\"" + newBaseVersion + "\"");
-        attr.set(Constants.EXPORT_PACKAGE, newExportedPackage);
+        if (!newExportedPackage.equals(oldExportedPackage)) {
+            attr.set(Constants.EXPORT_PACKAGE, newExportedPackage);
+        }
     }
 }
