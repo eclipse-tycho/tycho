@@ -235,6 +235,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
         // project with multiple execution envs.
         // Minimum source and target level must be taken
+        // TODO 438743 also make this work without configuring breeHeaderSelectionPolicy=minimal?
         project = projects.get(2);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         assertEquals("OSGi/Minimum-1.0", mojo.getExecutionEnvironment());
