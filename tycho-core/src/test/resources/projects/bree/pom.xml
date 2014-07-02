@@ -10,6 +10,7 @@
 
 	<modules>
 		<module>manifest</module>
+		<module>manifest-minimal</module>
 		<module>pom-hard</module>
 		<module>buildproperties</module>
 		<module>pom-default</module>

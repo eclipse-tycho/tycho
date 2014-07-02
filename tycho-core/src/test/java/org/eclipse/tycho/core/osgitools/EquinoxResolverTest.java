@@ -61,13 +61,13 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         properties.put("tycho-version", TychoVersion.getTychoVersion());
 
         List<MavenProject> projects = getSortedProjects(basedir, properties, null);
-        assertEquals(5, projects.size());
+        assertEquals(6, projects.size());
 
-        assertEquals("executionenvironment.manifest", projects.get(1).getArtifactId());
-        ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(projects.get(1))
+        assertEquals("executionenvironment.manifest-minimal", projects.get(2).getArtifactId());
+        ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(projects.get(2))
                 .getFullSpecification();
         assertEquals("CDC-1.0/Foundation-1.0", ee.getProfileName());
-        Properties platformProperties = subject.getPlatformProperties(projects.get(1), ee);
+        Properties platformProperties = subject.getPlatformProperties(projects.get(2), ee);
         assertEquals("javax.microedition.io", platformProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
     }
 }
