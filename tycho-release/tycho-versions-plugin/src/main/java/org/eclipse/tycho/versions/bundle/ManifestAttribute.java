@@ -84,9 +84,13 @@ public class ManifestAttribute {
         String attribute = (name != null ? name.trim() : "") + ": " + (value != null ? value.trim() : "");
 
         lines.clear();
-        while (attribute.length() > 71) {
-            lines.add(attribute.substring(0, 70));
-            attribute = " " + attribute.substring(70);
+        while (attribute.indexOf(',') > 0 || attribute.length() > 71) {
+            int split = attribute.indexOf(',') + 1;
+            if (split == 0) {
+                split = 70;
+            }
+            lines.add(attribute.substring(0, split));
+            attribute = " " + attribute.substring(split);
         }
         lines.add(attribute);
     }
