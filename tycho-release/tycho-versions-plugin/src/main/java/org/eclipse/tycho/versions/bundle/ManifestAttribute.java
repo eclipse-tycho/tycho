@@ -15,6 +15,9 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.osgi.util.ManifestElement;
+import org.osgi.framework.BundleException;
+
 public class ManifestAttribute {
     private List<String> lines = new ArrayList<String>();
 
@@ -81,14 +84,23 @@ public class ManifestAttribute {
     }
 
     public void set(String name, String value) {
-        String attribute = (name != null ? name.trim() : "") + ": " + (value != null ? value.trim() : "");
-
         lines.clear();
-        while (attribute.length() > 71) {
-            lines.add(attribute.substring(0, 70));
-            attribute = " " + attribute.substring(70);
+        try {
+            ManifestElement[] elements = ManifestElement.parseHeader(name, value);
+            String firstLine = (name != null ? name.trim() : "") + ": " + elements[0];
+            if (elements.length > 1) {
+                firstLine = firstLine + ",";
+            }
+            lines.add(firstLine);
+            for (int i = 1; i < elements.length - 1; i++) {
+                lines.add(" " + elements[i] + ",");
+            }
+            if (elements.length > 1) {
+                lines.add(" " + elements[elements.length - 1]);
+            }
+        } catch (BundleException e) {
+            throw new RuntimeException(e);
         }
-        lines.add(attribute);
     }
 
 }
