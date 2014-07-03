@@ -40,17 +40,6 @@ public class MutableBundleManifestTest {
     }
 
     @Test
-    public void setVersion() throws Exception {
-        MutableBundleManifest mf = getManifest("/manifests/setVersion.mf");
-
-        mf.setVersion("1.0.1.qualifier");
-        assertContents(mf, "/manifests/setVersion.mf_expected");
-
-        mf.setVersion("1.0.1.qualifierrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
-        assertContents(mf, "/manifests/setVersion.mf_expected72");
-    }
-
-    @Test
     public void setExportedVersion() throws Exception {
         MutableBundleManifest mf = getManifest("/manifests/setExportedPackage.mf");
 

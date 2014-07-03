@@ -12,14 +12,17 @@ package org.eclipse.tycho.versions.bundle;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.eclipse.osgi.util.ManifestElement;
+import org.osgi.framework.BundleException;
 
 public class ManifestAttribute {
-    private List<String> lines = new ArrayList<String>();
+    private static final String ELEMENT_SEPARATOR = ",\n ";
+    // content holds all lines that belong to this header, but are normalized to line endings with '\n'
+    private final StringBuilder content = new StringBuilder();
 
     public ManifestAttribute(String str) {
-        lines.add(chopNewLine(str));
+        content.append(chopNewLine(str));
     }
 
     public ManifestAttribute(String name, String value) {
@@ -36,7 +39,8 @@ public class ManifestAttribute {
             throw new IllegalArgumentException("Additional attribute line must not consist of multiple lines");
         }
 
-        lines.add(choppedLine);
+        content.append("\n");
+        content.append(choppedLine);
     }
 
     private String chopNewLine(String str) {
@@ -56,39 +60,37 @@ public class ManifestAttribute {
      * trailing newline!
      */
     public void writeTo(Writer w, String lineTermination) throws IOException {
-        for (String line : lines) {
+        for (String line : content.toString().split("\n")) {
             w.write(line);
             w.write(lineTermination);
         }
     }
 
     public boolean hasName(String name) {
-        return lines.get(0).startsWith(name + ": ");
+        return content.toString().startsWith(name + ": ");
     }
 
     public String getValue() {
-        StringBuilder sb = new StringBuilder(lines.get(0));
-        for (int i = 1; i < lines.size(); i++) {
-            sb.append(lines.get(i).substring(1));
+        if (content.toString().indexOf(": ") > 0) {
+            return content.substring(content.toString().indexOf(": ") + 2).replaceAll("\n ", "");
         }
-
-        int idx = sb.indexOf(": ");
-        if (idx > 0) {
-            return sb.substring(idx + 2);
-        }
-
         return null;
     }
 
     public void set(String name, String value) {
-        String attribute = (name != null ? name.trim() : "") + ": " + (value != null ? value.trim() : "");
-
-        lines.clear();
-        while (attribute.length() > 71) {
-            lines.add(attribute.substring(0, 70));
-            attribute = " " + attribute.substring(70);
+        content.setLength(0);
+        try {
+            ManifestElement[] elements = ManifestElement.parseHeader(name, value);
+            content.append(name);
+            content.append(": ");
+            for (ManifestElement element : elements) {
+                content.append(element.toString());
+                content.append(ELEMENT_SEPARATOR);
+            }
+            content.setLength(content.length() - ELEMENT_SEPARATOR.length());
+        } catch (BundleException e) {
+            throw new RuntimeException(e);
         }
-        lines.add(attribute);
     }
 
 }

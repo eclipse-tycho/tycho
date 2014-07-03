@@ -205,22 +205,4 @@ public class ManifestAttributeTest {
                         + " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n" + " abcdefghijklmnop\n"
                         + " qrstuvwxyzABCDE\n" + " FGHIJKLMNOPQRSTUVWXYZ0123\n" + " 456789\n", writer.toString());
     }
-
-    @Test
-    public void shouldWrapNewValue() throws Exception {
-        // given
-        StringWriter writer = new StringWriter();
-        String headername = "headername";
-        String longValue = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc";
-
-        // when
-        ManifestAttribute attribute = new ManifestAttribute(headername, longValue);
-        attribute.writeTo(writer, "\n");
-
-        // then
-        assertEquals(longValue, attribute.getValue());
-        assertEquals(headername + ": " + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345\n"
-                + " 6789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abc\n", writer.toString());
-    }
-
 }
