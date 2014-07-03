@@ -109,7 +109,7 @@ class CompilerMain extends Main {
             bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
             if (javaHome != null) {
                 File directoryToCheck;
-                if (isMacOS()) {//$NON-NLS-1$//$NON-NLS-2$
+                if (isMacOS() && hasClassesDirWithJars()) {//$NON-NLS-1$//$NON-NLS-2$
                     directoryToCheck = new File(javaHome, "../Classes");
                 } else {
                     directoryToCheck = new File(javaHome, "lib");
@@ -144,6 +144,21 @@ class CompilerMain extends Main {
         }
         mavenLogger.debug("Using boot classpath: " + bootclasspaths);
         return bootclasspaths;
+    }
+
+    private boolean hasClassesDirWithJars() {
+        File classesDir = new File(javaHome, "../Classes");
+        if (!classesDir.isDirectory()) {
+            return false;
+        }
+        File[] jars = classesDir.listFiles(new FilenameFilter() {
+
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar") && new File(dir, name).isFile();
+            }
+
+        });
+        return jars != null && jars.length > 0;
     }
 
     protected boolean isMacOS() {
