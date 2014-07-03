@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e76c2f17_d2df17d0",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/ManifestAttribute.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-07-03T14:52:19Z",
+      "side": 1,
+      "message": "will this always split after first comma (or at index 70),  also for commas e.g. in version ranges ?\n\nI was thinking maybe to reuse ManifestElement.parseHeader() instead of this low-level (potentially error-prone) MANIFEST parsing. Then we could fill up to n elements until total length \u003e 70 and render n-1 elements using ManifestElement.toString() into one line. Wdyt?",
+      "revId": "26f42780baf25b144c549ed02d7960394c809f49",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
