@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e76c2f17_92075fd4",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/CompilerMain.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-07-03T14:56:19Z",
+      "side": 1,
+      "message": "Can we rather check for a file? I\u0027d rather not have an empty directory affect the build result which e.g. git wouldn\u0027t show as a change.\n\nOkay, git is probably not a good argument for a JVM installation, but the my uneasy feeling persists.",
+      "revId": "a7d07d92f02c5e5ce4bfa05d5cc94b827701dd18",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
