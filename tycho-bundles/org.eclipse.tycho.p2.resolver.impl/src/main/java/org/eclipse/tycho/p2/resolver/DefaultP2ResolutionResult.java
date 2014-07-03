@@ -62,11 +62,14 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
                     // skip overwrite check
 
                 } else if (entry.getType() != null && classifier == null) {
-                    // bug 430728: prevent that p2.inf "artifacts" overwrite the type of the main artifact
-                    throw new RuntimeException(
-                            "Ambiguous main artifact of the project at "
-                                    + location
-                                    + ". Make sure that additional units added via p2.inf specify a 'maven-classifier' property.");
+                    if (!type.equals(entry.getType()) || !id.equals(entry.getId())
+                            || !version.equals(entry.getVersion())) {
+                        // bug 430728: prevent that p2.inf "artifacts" overwrite the type of the main artifact
+                        throw new RuntimeException(
+                                "Ambiguous main artifact of the project at "
+                                        + location
+                                        + ". Make sure that additional units added via p2.inf specify a 'maven-classifier' property.");
+                    }
                 }
 
                 // type, id, and version for the artifact/project location is only known now -> update in entry

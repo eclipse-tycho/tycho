@@ -277,7 +277,7 @@ public class P2ResolverImpl implements P2Resolver {
         final String contributingArtifactType;
         final String contributingArtifactId;
 
-        // TODO 353889 infer the type from the p2 artifact (as this is done for content from p2 repositories)?
+        // TODO 353889 infer the type from the p2 artifact as this is done for content from p2 repositories; this would prevent bug 430728
         if (isBundleOrFragmentWithId(iu, id)) {
             contributingArtifactType = ArtifactType.TYPE_ECLIPSE_PLUGIN;
             contributingArtifactId = id;
