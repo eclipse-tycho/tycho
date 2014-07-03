@@ -16,6 +16,24 @@
       "revId": "a7d07d92f02c5e5ce4bfa05d5cc94b827701dd18",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e76c2f17_922e3f44",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/CompilerMain.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-07-03T14:58:49Z",
+      "side": 1,
+      "message": "So to avoid the empty directory problem, could we require that we find at least one *.jar?",
+      "parentUuid": "e76c2f17_92075fd4",
+      "revId": "a7d07d92f02c5e5ce4bfa05d5cc94b827701dd18",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
