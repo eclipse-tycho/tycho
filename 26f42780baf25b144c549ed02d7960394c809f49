@@ -16,6 +16,24 @@
       "revId": "26f42780baf25b144c549ed02d7960394c809f49",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e76c2f17_5214a7cf",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/bundle/ManifestAttribute.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 596
+      },
+      "writtenOn": "2014-07-03T15:42:19Z",
+      "side": 1,
+      "message": "Done, but I removed the splitting at 70 stuff alltogether.",
+      "parentUuid": "e76c2f17_d2df17d0",
+      "revId": "26f42780baf25b144c549ed02d7960394c809f49",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
