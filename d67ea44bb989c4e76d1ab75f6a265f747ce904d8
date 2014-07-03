@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e76c2f17_efa22c82",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-07-03T09:38:53Z",
+      "side": 0,
+      "message": "The resolution result needs an artifact location for every entry. So even if we\u0027d determine the type from the unit properties/capabilities, we\u0027d still need to get the associated p2 artifact. So there is not much gain here.",
+      "revId": "d67ea44bb989c4e76d1ab75f6a265f747ce904d8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
