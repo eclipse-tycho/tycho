@@ -5,5 +5,6 @@ Bundle-SymbolicName: TYCHO0214
  versionChange.bundle01
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.example.versionmatch;version="1.0.1",org.example.n
- omatch;version="100.0",org.example.nonversioned
+Export-Package: org.example.versionmatch;version="1.0.1",
+ org.example.nomatch;version="100.0",
+ org.example.nonversioned
