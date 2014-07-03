@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -47,12 +48,20 @@ public class Category {
         this.dom = document.getRootElement();
     }
 
-    public List<FeatureRef> getFeatures() {
-        ArrayList<FeatureRef> features = new ArrayList<FeatureRef>();
+    public List<SiteFeatureRef> getFeatures() {
+        ArrayList<SiteFeatureRef> features = new ArrayList<SiteFeatureRef>();
         for (Element featureDom : dom.getChildren("feature")) {
-            features.add(new FeatureRef(featureDom));
+            features.add(new SiteFeatureRef(featureDom));
         }
         return Collections.unmodifiableList(features);
+    }
+
+    public List<PluginRef> getPlugins() {
+        ArrayList<PluginRef> plugins = new ArrayList<PluginRef>();
+        for (Element pluginDom : dom.getChildren("bundle")) {
+            plugins.add(new PluginRef(pluginDom));
+        }
+        return Collections.unmodifiableList(plugins);
     }
 
     public static Category read(File file) throws IOException {

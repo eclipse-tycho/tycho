@@ -53,7 +53,7 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    String rewriteFeatureUrl(String url, VersionChange change) {
+    static String rewriteFeatureUrl(String url, VersionChange change) {
         if (url != null) {
             return url.replaceAll("\\Q" + change.getVersion() + "\\E", change.getNewVersion());
         }

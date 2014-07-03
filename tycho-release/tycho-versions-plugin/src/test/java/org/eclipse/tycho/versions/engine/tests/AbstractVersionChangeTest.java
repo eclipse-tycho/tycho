@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,33 +18,38 @@ import java.io.InputStreamReader;
 
 import org.codehaus.plexus.PlexusTestCase;
 
+// TODO reference helpers via static import instead of misusing inheritance for this 
 public abstract class AbstractVersionChangeTest extends PlexusTestCase {
-    protected void assertPom(File basedir) throws IOException {
+    protected static void assertPom(File basedir) throws IOException {
         assertFileContent(new File(basedir, "pom.xml"));
     }
 
-    protected void assertBundleManifest(File basedir) throws IOException {
+    protected static void assertBundleManifest(File basedir) throws IOException {
         assertFileContent(new File(basedir, "META-INF/MANIFEST.MF"));
     }
 
-    protected void assertFeatureXml(File basedir) throws IOException {
+    protected static void assertFeatureXml(File basedir) throws IOException {
         assertFileContent(new File(basedir, "feature.xml"));
     }
 
-    protected void assertSiteXml(File basedir) throws IOException {
+    protected static void assertSiteXml(File basedir) throws IOException {
         assertFileContent(new File(basedir, "site.xml"));
     }
 
-    protected void assertProductFile(File basedir, String name) throws IOException {
+    protected static void assertCategoryXml(File basedir) throws IOException {
+        assertFileContent(new File(basedir, "category.xml"));
+    }
+
+    protected static void assertProductFile(File basedir, String name) throws IOException {
         assertFileContent(new File(basedir, name));
     }
 
-    protected void assertFileContent(File actual) throws IOException {
+    protected static void assertFileContent(File actual) throws IOException {
         File expected = new File(actual.getParentFile(), actual.getName() + "_expected");
         assertEquals(toAsciiString(expected), toAsciiString(actual));
     }
 
-    private String toAsciiString(File file) throws IOException {
+    private static String toAsciiString(File file) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
         try {

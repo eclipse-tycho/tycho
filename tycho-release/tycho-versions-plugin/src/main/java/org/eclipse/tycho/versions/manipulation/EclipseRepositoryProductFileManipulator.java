@@ -29,7 +29,7 @@ import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 
-@Component(role = MetadataManipulator.class, hint = "eclipse-repository")
+@Component(role = MetadataManipulator.class, hint = "eclipse-repository-products")
 public class EclipseRepositoryProductFileManipulator extends ProductFileManipulator {
 
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {

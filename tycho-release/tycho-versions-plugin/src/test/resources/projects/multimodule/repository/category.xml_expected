@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/other_1.0.0.qualifier" id="other" version="1.0.0.qualifier"/>
+   <feature url="features/feature01_1.0.1.qualifier" id="feature01" version="1.0.1.qualifier"/>
+   <feature url="features/feature01_0.9.0.qualifier" id="feature01" version="0.9.0.qualifier"/>
+
+   <feature id="feature01" version="1.0.1.qualifier"/>
+
+   <bundle id="other" version="1.0.0.qualifier"/>
+   <bundle id="bundle" version="1.0.1.qualifier"/>
+   <bundle id="bundle" version="0.9.0.qualifier"/>
+</site>
