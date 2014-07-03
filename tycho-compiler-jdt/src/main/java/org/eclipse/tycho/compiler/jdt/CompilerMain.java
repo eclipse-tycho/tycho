@@ -109,7 +109,7 @@ class CompilerMain extends Main {
             bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
             if (javaHome != null) {
                 File directoryToCheck;
-                if (isMacOS()) {//$NON-NLS-1$//$NON-NLS-2$
+                if (isMacOS() && new File(javaHome, "../Classes").isDirectory()) {//$NON-NLS-1$//$NON-NLS-2$
                     directoryToCheck = new File(javaHome, "../Classes");
                 } else {
                     directoryToCheck = new File(javaHome, "lib");
