@@ -67,6 +67,7 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertProductFile(new File(basedir, "product"), "product.product");
 
         assertPom(new File(basedir, "repository"));
+        assertCategoryXml(new File(basedir, "repository"));
         assertProductFile(new File(basedir, "repository"), "product.product");
         assertProductFile(new File(basedir, "repository"), "differentversion.product");
     }
