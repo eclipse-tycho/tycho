@@ -290,7 +290,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.0</version>
+					<version>3.3</version>
 					<configuration>
 					    <relativizeDecorationLinks>false</relativizeDecorationLinks>
 						<reportPlugins>
@@ -385,12 +385,12 @@
 			</build>
 		</profile>
 	</profiles>
-	<!--need this to make site:stage happy -->
 	<distributionManagement>
 		<site>
 			<id>tycho-extras.site</id>
 			<name>Tycho Extras Site</name>
-			<url>staging</url>
+			<!-- workaround for http://jira.codehaus.org/browse/MSITE-671 -->
+			<url>http://staging</url>
 		</site>
 		<repository>
 			<id>${forgeReleaseId}</id>
