@@ -189,9 +189,9 @@ public class JavadocRunner {
             return;
         }
         ps.print(arg);
-        ps.print(' ');
+        ps.print(" '");
         addPath(ps, path);
-        ps.println();
+        ps.println('\'');
     }
 
     protected String getExecutable() {
