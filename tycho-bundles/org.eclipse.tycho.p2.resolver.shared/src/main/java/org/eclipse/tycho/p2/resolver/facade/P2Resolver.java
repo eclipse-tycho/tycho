@@ -52,6 +52,9 @@ public interface P2Resolver {
 
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String executionEnvironmentName);
 
+    public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
+            String eeName);
+
     /**
      * Resolves specified installable unit identified by id and versionRange. The unit with latest
      * version is return if id/versionRange match multiple units.
