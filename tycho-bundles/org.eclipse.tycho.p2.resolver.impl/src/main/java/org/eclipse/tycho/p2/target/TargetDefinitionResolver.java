@@ -23,7 +23,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -60,6 +65,8 @@ import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonito
  * @see TargetDefinitionResolverService
  */
 public final class TargetDefinitionResolver {
+
+    private static final String SOURCE_IU_ID = "org.eclipse.tycho.internal.target.source.bundles";
 
     private IMetadataRepositoryManager metadataManager;
     private IRepositoryIdManager repositoryIdManager;
@@ -136,11 +143,13 @@ public final class TargetDefinitionResolver {
 
         private IncludeMode includeMode = null;
         private Boolean includeAllEnvironments = null;
+        private Boolean includeSource = null;
 
         public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException,
                 TargetDefinitionResolutionException {
             setIncludeMode(iuLocationDefinition.getIncludeMode());
             setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
+            setIncludeSource(iuLocationDefinition.includeSource());
 
             LoadedIULocation loadedLocation = new LoadedIULocation(iuLocationDefinition);
             rootIUs.addAll(loadedLocation.getRootIUs());
@@ -167,6 +176,16 @@ public final class TargetDefinitionResolver {
             }
         }
 
+        private void setIncludeSource(Boolean newValue) {
+            if (!newValue.equals(includeSource)) {
+                if (includeSource != null) {
+                    throw new TargetDefinitionResolutionException(
+                            "The attribute 'includeSource' must be the same for all locations");
+                }
+                includeSource = newValue;
+            }
+        }
+
         public Collection<IInstallableUnit> resolve() throws TargetDefinitionResolutionException, ResolverException {
             if (!addedLocationsHaveContent()) {
                 return Collections.emptySet();
@@ -178,8 +197,45 @@ public final class TargetDefinitionResolver {
 
             AbstractResolutionStrategy strategy = getResolutionStrategy();
             strategy.setData(data);
+            Collection<IInstallableUnit> units = strategy.multiPlatformResolve(environments, monitor);
+            if (includeSource && !units.isEmpty()) {
+                addSourceBundleUnits(data, strategy, units);
+            }
 
-            return strategy.multiPlatformResolve(environments, monitor);
+            return units;
+        }
+
+        private void addSourceBundleUnits(ResolutionDataImpl data, AbstractResolutionStrategy strategy,
+                Collection<IInstallableUnit> units) throws ResolverException {
+            // see org.eclipse.pde.internal.core.target.P2TargetUtils#createSourceIU()
+            final IRequirement bundleRequirement = MetadataFactory.createRequirement(
+                    "org.eclipse.equinox.p2.eclipse.type", "bundle", null, null, false, false, false);
+            ArrayList<IRequirement> sourceBundleRequirements = new ArrayList<IRequirement>();
+            for (IInstallableUnit unit : units) {
+                if (unit.satisfies(bundleRequirement)) {
+                    final VersionRange perfectVersionMatch = new VersionRange(unit.getVersion(), true,
+                            unit.getVersion(), true);
+                    IRequirement optionalGreedySourceBundleRequirement = MetadataFactory.createRequirement(
+                            "osgi.bundle", unit.getId() + ".source", perfectVersionMatch, null, true, false, true);
+                    sourceBundleRequirements.add(optionalGreedySourceBundleRequirement);
+                }
+            }
+            InstallableUnitDescription sourceDescription = new MetadataFactory.InstallableUnitDescription();
+            sourceDescription.setId(SOURCE_IU_ID);
+            final Version sourceIUVersion = Version.createOSGi(1, 0, 0);
+            sourceDescription.setVersion(sourceIUVersion);
+            IProvidedCapability capability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID,
+                    SOURCE_IU_ID, sourceIUVersion);
+            sourceDescription.setCapabilities(new IProvidedCapability[] { capability });
+            sourceDescription.addRequirements(sourceBundleRequirements);
+
+            IInstallableUnit sourceIU = MetadataFactory.createInstallableUnit(sourceDescription);
+            // TODO also reconstruct strategy?
+            data.setRootIUs(Collections.singleton(sourceIU));
+            final TargetEnvironment nonFilteringEnvironment = new TargetEnvironment();
+            Collection<IInstallableUnit> sourceUnits = strategy.resolve(nonFilteringEnvironment, monitor);
+            sourceUnits.remove(sourceIU); // nobody wants to see our artificial IU
+            units.addAll(sourceUnits); // TODO: remove duplicates?
         }
 
         private boolean addedLocationsHaveContent() {

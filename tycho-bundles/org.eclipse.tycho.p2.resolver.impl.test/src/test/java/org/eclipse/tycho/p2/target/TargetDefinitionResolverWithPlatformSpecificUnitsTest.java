@@ -189,6 +189,10 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
         public boolean includeAllEnvironments() {
             return includeAllEnvironments;
         }
+
+        public boolean includeSource() {
+            return false;
+        }
     }
 
 }

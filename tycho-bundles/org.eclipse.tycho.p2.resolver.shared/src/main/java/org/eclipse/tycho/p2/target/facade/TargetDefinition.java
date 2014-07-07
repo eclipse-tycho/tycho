@@ -52,6 +52,8 @@ public interface TargetDefinition {
         public IncludeMode getIncludeMode();
 
         public boolean includeAllEnvironments();
+
+        public boolean includeSource();
     }
 
     public enum IncludeMode {

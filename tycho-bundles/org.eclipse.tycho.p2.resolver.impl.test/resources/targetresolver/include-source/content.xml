@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='SourceExample' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='1'>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <units size='4'>
+    <unit id='simple.bundle.source' version='1.0.0.201407081200' singleton='false'>
+      <update id='simple.bundle.source' range='[0.0.0,1.0.0.201407081200)' severity='0'/>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='simple.bundle.source' version='1.0.0.201407081200'/>
+        <provided namespace='osgi.bundle' name='simple.bundle.source' version='1.0.0.201407081200'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='source' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='simple.bundle.source' version='1.0.0.201407081200'/>
+      </artifacts>
+    </unit>
+    <unit id='simple.bundle' version='1.0.0.201407081200'>
+      <update id='simple.bundle' range='[0.0.0,1.0.0.201407081200)' severity='0'/>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='simple.bundle' version='1.0.0.201407081200'/>
+        <provided namespace='osgi.bundle' name='simple.bundle' version='1.0.0.201407081200'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='simple.bundle' version='1.0.0.201407081200'/>
+      </artifacts>
+    </unit>
+    <unit id='unrelated.bundle.source' version='2.0.0.p001' singleton='false'>
+      <update id='unrelated.bundle.source' range='[0.0.0,2.0.0.p001)' severity='0'/>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='unrelated.bundle.source' version='2.0.0.p001'/>
+        <provided namespace='osgi.bundle' name='unrelated.bundle.source' version='2.0.0.p001'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='source' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='unrelated.bundle.source' version='2.0.0.p001'/>
+      </artifacts>
+    </unit>
+    <unit id='nosource.bundle' version='1.0.0'>
+      <update id='nosource.bundle' range='[0.0.0,1.0.0)' severity='0'/>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='nosource.bundle' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='nosource.bundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='nosource.bundle' version='1.0.0'/>
+      </artifacts>
+    </unit>
+  </units>
+</repository>
