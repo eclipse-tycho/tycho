@@ -114,9 +114,9 @@ public class P2ResolverImpl implements P2Resolver {
         return resolveDependencies(project, new DependencyCollector(logger), new TargetEnvironment(null, null, null));
     }
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String eeName) {
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration, String eeName) {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
-        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(context,
+        P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration,
                 new ExecutionEnvironmentConfigurationStub(eeName), null, null);
         strategy.setEEResolutionHints(contextImpl.getEEResolutionHints());
         strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
@@ -125,6 +125,19 @@ public class P2ResolverImpl implements P2Resolver {
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
         for (IInstallableUnit iu : strategy.multiPlatformResolve(environments, monitor)) {
+            result.addArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
+        }
+        return result;
+    }
+
+    // TODO 412416 make this obsolete by adding appropriate getters in TargetPlatform interface
+    public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
+            String eeName) {
+        P2TargetPlatform targetPlatform = targetPlatformFactory.createTargetPlatform(tpConfiguration,
+                new ExecutionEnvironmentConfigurationStub(eeName), null, null);
+
+        MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
+        for (IInstallableUnit iu : targetPlatform.getInstallableUnits()) {
             result.addArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
         }
         return result;
