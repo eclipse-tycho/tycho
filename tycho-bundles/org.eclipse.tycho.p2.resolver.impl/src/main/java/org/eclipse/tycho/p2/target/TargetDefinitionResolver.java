@@ -22,10 +22,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -126,10 +130,12 @@ public final class TargetDefinitionResolver {
 
         private IncludeMode includeMode = null;
         private Boolean includeAllEnvironments = null;
+        private Boolean includeSource = null;
 
         public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException {
             setIncludeMode(iuLocationDefinition.getIncludeMode());
             setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
+            setIncludeSource(iuLocationDefinition.includeSource());
 
             LoadedIULocation loadedLocation = new LoadedIULocation(iuLocationDefinition);
             rootIUs.addAll(loadedLocation.getRootIUs());
@@ -156,6 +162,16 @@ public final class TargetDefinitionResolver {
             }
         }
 
+        private void setIncludeSource(Boolean newValue) {
+            if (!newValue.equals(includeSource)) {
+                if (includeSource != null) {
+                    throw new TargetDefinitionResolutionException(
+                            "The attribute 'includeSource' must be the same for all locations");
+                }
+                includeSource = newValue;
+            }
+        }
+
         public Collection<IInstallableUnit> resolve() {
             if (!addedLocationsHaveContent()) {
                 return Collections.emptySet();
@@ -167,8 +183,27 @@ public final class TargetDefinitionResolver {
 
             AbstractResolutionStrategy strategy = getResolutionStrategy();
             strategy.setData(data);
+            Collection<IInstallableUnit> units = strategy.multiPlatformResolve(environments, monitor);
+            if (includeSource) { // TODO do we have to check for units.isEmpty() here?
+                ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
+                for (IInstallableUnit unit : units) {
+                    // TODO the PDE additionally checks, if the IU is a bundle (satisfies a requirement on namespace
+                    // "org.eclipse.equinox.p2.eclipse.type" with value "bundle"), should we do the same here?
+                    requirements
+                            .add(MetadataFactory.createRequirement("osgi.bundle", unit.getId() + ".source",
+                                    new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, true,
+                                    false, true));
+                }
+                InstallableUnit sourceIU = new InstallableUnit();
+                sourceIU.setRequiredCapabilities(requirements.toArray(new IRequirement[requirements.size()]));
+                // TODO also reconstruct strategy?
+                data.setRootIUs(Collections.singleton((IInstallableUnit) sourceIU));
+                Collection<IInstallableUnit> sourceUnits = strategy.resolve(new TargetEnvironment(), monitor);
+                sourceUnits.remove(sourceIU); // nobody wants to see our artificial IU
+                units.addAll(sourceUnits); // TODO: remove duplicates?
+            }
 
-            return strategy.multiPlatformResolve(environments, monitor);
+            return units;
         }
 
         private boolean addedLocationsHaveContent() {

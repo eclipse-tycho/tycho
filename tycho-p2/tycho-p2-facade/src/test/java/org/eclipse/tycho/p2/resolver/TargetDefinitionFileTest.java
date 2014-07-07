@@ -92,6 +92,17 @@ public class TargetDefinitionFileTest {
     }
 
     @Test
+    public void testIncludeSource() throws Exception {
+        List<? extends Location> locations = readTargetLocations("includeSource.target");
+        InstallableUnitLocation locationWithSources = (InstallableUnitLocation) locations.get(0);
+        InstallableUnitLocation locationWithoutSources = (InstallableUnitLocation) locations.get(1);
+        InstallableUnitLocation locationWithoutIncludeSourceAttribute = (InstallableUnitLocation) locations.get(2);
+        assertEquals(true, locationWithSources.includeSource());
+        assertEquals(false, locationWithoutSources.includeSource());
+        assertEquals(false, locationWithoutIncludeSourceAttribute.includeSource());
+    }
+
+    @Test
     public void testInvalidXML() throws Exception {
         expectedException.expectCause(isA(TargetDefinitionSyntaxException.class));
         readTargetLocations("invalidXML.target");
