@@ -97,6 +97,10 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return Boolean.parseBoolean(dom.getAttributeValue("includeAllPlatforms"));
         }
 
+        public boolean includeSource() {
+            return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
+        }
+
     }
 
     public class OtherLocation implements Location {

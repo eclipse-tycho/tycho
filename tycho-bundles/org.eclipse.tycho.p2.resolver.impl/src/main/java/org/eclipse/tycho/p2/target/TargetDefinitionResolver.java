@@ -22,10 +22,14 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.CompoundQueryable;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -103,6 +107,7 @@ public class TargetDefinitionResolver {
 
         IncludeMode includeMode = null;
         Boolean includeAllEnvironments = null;
+        Boolean includeSource = null;
 
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation) {
@@ -113,12 +118,10 @@ public class TargetDefinitionResolver {
                 }
                 includeMode = iuLocationDefinition.getIncludeMode();
 
-                if (includeAllEnvironments != null
-                        && includeAllEnvironments.booleanValue() != iuLocationDefinition.includeAllEnvironments()) {
-                    throw new TargetDefinitionResolutionException(
-                            "The attribute 'includeAllPlatforms' must be the same for all locations");
-                }
-                includeAllEnvironments = iuLocationDefinition.includeAllEnvironments();
+                includeAllEnvironments = collectBooleanAttributeConsistently("includeAllPlatforms",
+                        includeAllEnvironments, iuLocationDefinition.includeAllEnvironments());
+                includeSource = collectBooleanAttributeConsistently("includeSource", includeSource,
+                        iuLocationDefinition.includeSource());
 
                 List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
                 for (Repository repository : iuLocationDefinition.getRepositories()) {
@@ -155,6 +158,23 @@ public class TargetDefinitionResolver {
             strategy.setAvailableInstallableUnits(availableUnits);
             strategy.setEEResolutionHints(executionEnvironment);
             units = strategy.multiPlatformResolve(environments, monitor);
+            if (includeSource) { // TODO do we have to check for units.isEmpty() here?
+                ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
+                for (IInstallableUnit unit : units) {
+                    // TODO the PDE additionally checks, if the IU is a bundle (satisfies a requirement on namespace
+                    // "org.eclipse.equinox.p2.eclipse.type" with value "bundle"), should we do the same here?
+                    requirements
+                            .add(MetadataFactory.createRequirement("osgi.bundle", unit.getId() + ".source",
+                                    new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, true,
+                                    false, true));
+                }
+                InstallableUnit sourceIU = new InstallableUnit();
+                sourceIU.setRequiredCapabilities(requirements.toArray(new IRequirement[requirements.size()]));
+                strategy.setRootInstallableUnits(Collections.singleton((IInstallableUnit) sourceIU));
+                Collection<IInstallableUnit> sourceUnits = strategy.resolve(new TargetEnvironment(), monitor);
+                sourceUnits.remove(sourceIU); // nobody wants to see our artificial IU
+                units.addAll(sourceUnits); // TODO: remove duplicates?
+            }
         } else {
             units = Collections.emptySet();
         }
@@ -165,6 +185,14 @@ public class TargetDefinitionResolver {
         }
 
         return new TargetDefinitionContent(units, artifactRepositories);
+    }
+
+    private Boolean collectBooleanAttributeConsistently(String attributeName, Boolean existingValue, boolean newValue) {
+        if (existingValue != null && existingValue.booleanValue() != newValue) {
+            throw new TargetDefinitionResolutionException("The attribute '" + attributeName
+                    + "' must be the same for all locations");
+        }
+        return newValue;
     }
 
     private AbstractResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments)

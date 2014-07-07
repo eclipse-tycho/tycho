@@ -257,7 +257,7 @@ public class TargetDefinitionResolverTest {
     }
 
     enum TestRepositories {
-        NONE, V1, V2, V1_AND_V2, UNSATISFIED, INVALID
+        NONE, V1, V2, V1_AND_V2, UNSATISFIED, INVALID, SOURCES
     }
 
     static class LocationStub implements InstallableUnitLocation {
@@ -288,6 +288,10 @@ public class TargetDefinitionResolverTest {
                 return Collections.singletonList(new RepositoryStub(null));
             case NONE:
                 return Collections.emptyList();
+            case SOURCES:
+                return Collections.singletonList(new RepositoryStub("include-source"));
+            default:
+                break;
             }
             throw new RuntimeException();
         }
@@ -310,6 +314,10 @@ public class TargetDefinitionResolverTest {
         }
 
         public boolean includeAllEnvironments() {
+            return false;
+        }
+
+        public boolean includeSource() {
             return false;
         }
     }
