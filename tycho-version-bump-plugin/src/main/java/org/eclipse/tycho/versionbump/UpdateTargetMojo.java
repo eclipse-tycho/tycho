@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2010, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,7 +53,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         }
         resolutionContext.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
         resolutionContext.addTargetDefinition(target);
-        P2ResolutionResult result = p2.resolveMetadata(resolutionContext, executionEnvironment);
+        P2ResolutionResult result = p2.getTargetPlatformAsResolutionResult(resolutionContext, executionEnvironment);
 
         Map<String, String> ius = new HashMap<String, String>();
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
@@ -81,7 +81,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
     }
 
     @Override
-    protected File getTargetFile() {
+    protected File getFileToBeUpdated() {
         return targetFile;
     }
 

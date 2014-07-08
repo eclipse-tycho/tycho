@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2010, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,11 +46,11 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
             createResolver();
             doUpdate();
         } catch (Exception e) {
-            throw new MojoExecutionException("Could not update " + getTargetFile().getAbsolutePath(), e);
+            throw new MojoExecutionException("Could not update " + getFileToBeUpdated(), e);
         }
     }
 
-    protected abstract File getTargetFile();
+    protected abstract File getFileToBeUpdated();
 
     protected abstract void doUpdate() throws IOException, URISyntaxException;
 

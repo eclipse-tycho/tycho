@@ -76,7 +76,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
     }
 
     @Override
-    protected File getTargetFile() {
+    protected File getFileToBeUpdated() {
         return productFile;
     }
 

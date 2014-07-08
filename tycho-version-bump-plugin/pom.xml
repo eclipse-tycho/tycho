@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-- Copyright (c) 2010, 2011 Sonatype Inc. and others.
+- Copyright (c) 2010, 2014 Sonatype Inc. and others.
 - All rights reserved. This program and the accompanying materials
 - are made available under the terms of the Eclipse Public License v1.0
 - which accompanies this distribution, and is available at
@@ -39,5 +39,27 @@
 			<artifactId>org.eclipse.tycho.core.shared</artifactId>
 		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>its</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-invoker-plugin</artifactId>
+						<configuration>
+							<goals>
+								<goal>${groupId}:${artifactId}:${version}:update-target</goal>
+							</goals>
+							<properties>
+								<target>update-target.target</target>
+							</properties>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
