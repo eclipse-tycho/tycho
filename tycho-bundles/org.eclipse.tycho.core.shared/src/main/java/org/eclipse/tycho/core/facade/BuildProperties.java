@@ -24,6 +24,7 @@ import java.util.Map;
  * Note that not all keys defined by PDE are supported.
  * 
  */
+// keep in sync with BuildProperties.md docs
 public interface BuildProperties {
 
     public String getJavacSource();
