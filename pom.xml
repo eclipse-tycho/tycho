@@ -77,9 +77,7 @@
 		<jgit-version>3.0.0.201306101825-r</jgit-version>
 		<!-- tycho-extras and tycho are normally developed and released in parallel using the same version -->
 		<tycho-version>${project.version}</tycho-version>
-
-		<!-- workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=360628 -->
-		<tycho-snapshots-url>https://oss.sonatype.org/content/groups/public/</tycho-snapshots-url>
+		<tycho-snapshots-url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</tycho-snapshots-url>
 	</properties>
 
 	<modules>
