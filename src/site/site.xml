@@ -11,6 +11,7 @@
 
 			<item name="Compiler Plugin" href="tycho-compiler-plugin/plugin-info.html" />
 			<item name="Packaging Plugin" href="tycho-packaging-plugin/plugin-info.html" />
+			<item name="Build Properties" href="BuildProperties.html" />
 			<item name="Surefire Plugin" href="tycho-surefire/tycho-surefire-plugin/plugin-info.html" />
 			<item name="p2 Publisher Plugin" href="tycho-p2/tycho-p2-publisher-plugin/plugin-info.html" />
 			<item name="p2 Repository Plugin" href="tycho-p2/tycho-p2-repository-plugin/plugin-info.html" />
