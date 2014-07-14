@@ -13,6 +13,7 @@
     <module>site</module>
     <module>product</module>
     <module>repository</module>
+    <module>repository-product-only</module>
   </modules>
 
 </project>

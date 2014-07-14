@@ -70,6 +70,10 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertCategoryXml(new File(basedir, "repository"));
         assertProductFile(new File(basedir, "repository"), "product.product");
         assertProductFile(new File(basedir, "repository"), "differentversion.product");
+
+        assertPom(new File(basedir, "repository-product-only"));
+        assertProductFile(new File(basedir, "repository-product-only"), "product2.product");
+
     }
 
     public void testProfile() throws Exception {

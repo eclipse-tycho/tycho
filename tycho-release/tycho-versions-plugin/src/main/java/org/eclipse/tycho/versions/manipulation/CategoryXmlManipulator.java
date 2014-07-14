@@ -42,7 +42,9 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
 
     private void updateFeatureReferences(VersionChange featureVersionChange, ProjectMetadata project) {
         Category categoryXml = getCategoryXml(project);
-
+        if (categoryXml == null) {
+            return;
+        }
         for (SiteFeatureRef feature : categoryXml.getFeatures()) {
             if (featureVersionChange.getArtifactId().equals(feature.getId())
                     && featureVersionChange.getVersion().equals(feature.getVersion())) {
@@ -63,7 +65,9 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
 
     private void updatePluginReferences(VersionChange pluginVersionChange, ProjectMetadata project) {
         Category categoryXml = getCategoryXml(project);
-
+        if (categoryXml == null) {
+            return;
+        }
         for (PluginRef plugin : categoryXml.getPlugins()) {
             if (pluginVersionChange.getArtifactId().equals(plugin.getId())
                     && pluginVersionChange.getVersion().equals(plugin.getVersion())) {
@@ -78,6 +82,9 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         Category categoryXml = project.getMetadata(Category.class);
         if (categoryXml == null) {
             File file = new File(project.getBasedir(), Category.CATEGORY_XML);
+            if (!file.isFile()) {
+                return null;
+            }
             try {
                 categoryXml = Category.read(file);
                 project.putMetadata(categoryXml);
