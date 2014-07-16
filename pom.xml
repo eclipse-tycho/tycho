@@ -71,6 +71,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<min.jdk.version>1.6</min.jdk.version>
 
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<classWorldsVersion>2.2.3</classWorldsVersion>
@@ -383,8 +384,8 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.1</version>
 					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
+						<source>${min.jdk.version}</source>
+						<target>${min.jdk.version}</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -454,6 +455,7 @@
 								<configuration>
 									<requirements>
 										<maven>${maven-version}</maven>
+										<jdk>${min.jdk.version}</jdk>
 									</requirements>
 								</configuration>
 							</plugin>
