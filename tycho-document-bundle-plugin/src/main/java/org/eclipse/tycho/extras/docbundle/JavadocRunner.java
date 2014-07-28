@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Obeo - Fix bug #440546
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
@@ -49,6 +50,8 @@ public class JavadocRunner {
 
     private Collection<String> classPath;
 
+    private String lineSeparator = System.getProperty("line.separator");
+
     public JavadocRunner() {
     }
 
@@ -83,29 +86,15 @@ public class JavadocRunner {
         this.output.mkdirs();
         this.buildDirectory.mkdirs();
 
-        final Commandline cli = new Commandline();
-        cli.setExecutable(getExecutable());
-        cli.setWorkingDirectory(this.output);
-
         final File optionsFile = new File(this.buildDirectory, "javadoc.options.txt");
+        final Commandline cli = createCommandLine(optionsFile.getAbsolutePath());
+
         final PrintStream ps = new PrintStream(optionsFile);
         try {
-            cli.createArg().setValue("@" + optionsFile.getAbsolutePath());
-            addJvmArgs(ps);
-            addSourcePaths(ps);
-            addClassPath(ps);
-            final int count = addPackages(ps);
-
-            if (count <= 0) {
-                throw new MojoExecutionException("No packages found");
-            }
-
-            addArguments(ps);
-
-            this.log.info("Calling: " + cli);
-
+            ps.print(createOptionsFileContent());
             ps.close();
 
+            this.log.info("Calling: " + cli);
             final int rc = CommandLineUtils.executeCommandLine(cli, new DefaultConsumer(), new DefaultConsumer());
             if (rc != 0) {
                 if (!this.options.isIgnoreError()) {
@@ -119,23 +108,45 @@ public class JavadocRunner {
         }
     }
 
-    private void addClassPath(final PrintStream ps) {
-        addPathArgument(ps, "-classpath", this.classPath);
+    /* VisibleForTesting */Commandline createCommandLine(String optionsFileAbsolutePath) {
+        Commandline cli = new Commandline();
+        cli.setExecutable(getExecutable());
+        cli.setWorkingDirectory(this.output);
+        cli.createArg().setValue("@" + optionsFileAbsolutePath);
+        addJvmArgs(cli);
+        return cli;
     }
 
-    private void addArguments(final PrintStream ps) {
+    /* VisibleForTesting */String createOptionsFileContent() throws Exception {
+        StringBuilder sb = new StringBuilder();
+        addSourcePaths(sb);
+        addClassPath(sb);
+        final int count = addPackages(sb);
+        if (count <= 0) {
+            this.log.warn("No packages found");
+        }
+        addArguments(sb);
+        return sb.toString();
+    }
+
+    private void addClassPath(final StringBuilder sb) {
+        addPathArgument(sb, "-classpath", this.classPath);
+    }
+
+    private void addArguments(final StringBuilder sb) {
         for (final String argument : this.options.getAdditionalArguments()) {
-            ps.println(argument);
+            sb.append(argument).append(lineSeparator);
         }
     }
 
-    private void addJvmArgs(final PrintStream ps) {
+    private void addJvmArgs(final Commandline cli) {
+
         for (final String arg : this.options.getJvmOptions()) {
-            ps.println("-J" + arg);
+            cli.createArg().setValue("-J" + arg);
         }
     }
 
-    private int addPackages(final PrintStream ps) throws Exception {
+    private int addPackages(final StringBuilder sb) throws Exception {
         int count = 0;
 
         for (final File manifestFile : this.manifestFiles) {
@@ -145,25 +156,25 @@ public class JavadocRunner {
             }
 
             final OsgiManifest bundle = this.bundleReader.loadManifest(manifestFile);
-            count += addPackages(ps, bundle.getManifestElements("Export-Package"));
+            count += addPackages(sb, bundle.getManifestElements("Export-Package"));
         }
         return count;
     }
 
-    private int addPackages(final PrintStream ps, final ManifestElement[] manifestElements) {
+    private int addPackages(final StringBuilder sb, final ManifestElement[] manifestElements) {
         if (manifestElements == null) {
             return 0;
         }
 
         for (final ManifestElement ele : manifestElements) {
             final String pkg = ele.getValue();
-            ps.println(pkg);
+            sb.append(pkg).append(lineSeparator);
         }
 
         return manifestElements.length;
     }
 
-    private void addPath(final PrintStream ps, final Collection<?> path) {
+    private void addPath(final StringBuilder sb, final Collection<?> path) {
         boolean first = true;
         for (final Object ele : path) {
             if (ele == null) {
@@ -172,26 +183,26 @@ public class JavadocRunner {
             // convert black slashes to forward slashes for javadoc
             final String pathEle = ele.toString().replace('\\', '/');
             if (!first) {
-                ps.print(File.pathSeparator);
+                sb.append(File.pathSeparator);
             } else {
                 first = false;
             }
-            ps.print(pathEle);
+            sb.append(pathEle);
         }
     }
 
-    private void addSourcePaths(final PrintStream ps) {
-        addPathArgument(ps, "-sourcepath", this.sourceFolders);
+    private void addSourcePaths(final StringBuilder sb) {
+        addPathArgument(sb, "-sourcepath", this.sourceFolders);
     }
 
-    private void addPathArgument(final PrintStream ps, final String arg, final Collection<?> path) {
+    private void addPathArgument(final StringBuilder sb, final String arg, final Collection<?> path) {
         if (path.isEmpty()) {
             return;
         }
-        ps.print(arg);
-        ps.print(" '");
-        addPath(ps, path);
-        ps.println('\'');
+        sb.append(arg);
+        sb.append(" '");
+        addPath(sb, path);
+        sb.append("'" + lineSeparator);
     }
 
     protected String getExecutable() {

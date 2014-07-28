@@ -42,6 +42,17 @@
 			<groupId>org.eclipse.tycho.extras</groupId>
 			<artifactId>tycho-p2-extras-plugin</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugin-testing</groupId>
+			<artifactId>maven-plugin-testing-harness</artifactId>
+			<scope>test</scope>
+			<version>2.0</version>
+		</dependency>
 	</dependencies>
 	
 	<profiles>
