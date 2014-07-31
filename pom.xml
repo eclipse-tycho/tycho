@@ -77,6 +77,7 @@
 		<jgit-version>3.0.0.201306101825-r</jgit-version>
 		<!-- tycho-extras and tycho are normally developed and released in parallel using the same version -->
 		<tycho-version>${project.version}</tycho-version>
+		<min.jdk.version>1.6</min.jdk.version>
 		<tycho-snapshots-url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</tycho-snapshots-url>
 	</properties>
 
@@ -227,8 +228,8 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.1</version>
 					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
+						<source>${min.jdk.version}</source>
+						<target>${min.jdk.version}</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -299,6 +300,7 @@
 								<configuration>
 									<requirements>
 									  <maven>${maven-version}</maven>
+									  <jdk>${min.jdk.version}</jdk>
 									</requirements>								
 								</configuration>
 							</plugin>
