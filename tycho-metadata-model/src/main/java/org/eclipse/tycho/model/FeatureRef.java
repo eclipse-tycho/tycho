@@ -92,6 +92,14 @@ public class FeatureRef {
         }
     }
 
+    public boolean isOptional() {
+        String optionalString = dom.getAttributeValue("optional");
+        if (optionalString == null) {
+            return false;
+        }
+        return "true".equals(optionalString.toLowerCase());
+    }
+
     public Element getDom() {
         return dom;
     }

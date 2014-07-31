@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="featureIncludingOtherFeatures"
+      label="featureIncludingOtherFeatures"
+      version="1.0.0"
+      provider-name="COMPANY">
+
+   <includes
+         id="feature01"
+         version="0.0.0"
+         optional="true"/>   
+         
+   <includes
+         id="missingButOptionalFeature"
+         version="0.0.0"
+         optional="true"/>   
+   
+   <plugin
+         id="bundle01"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

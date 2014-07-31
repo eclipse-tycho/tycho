@@ -59,6 +59,23 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
         assertEquals(1, plugins.size());
         assertEquals("bundle01", plugins.get(0).getKey().getId());
         assertEquals("0.0.1", plugins.get(0).getKey().getVersion());
+
+        plugins.clear();
+        features.clear();
+
+        // the product contains a feature "featureIncludingOtherFeatures" and this feature
+        // does have a 2 optional references, to "feature01" (which could be resolved) and to
+        // "missingButOptional" Feature which could not be resolved.
+        walkProduct("src/test/resources/dependencywalker/featureIncludingOtherFeature_based.product", plugins, features);
+        assertEquals(2, features.size());
+        assertEquals("featureIncludingOtherFeatures", features.get(0).getKey().getId());
+        assertEquals("1.0.0", features.get(0).getKey().getVersion());
+        assertEquals("feature01", features.get(1).getKey().getId());
+        assertEquals("1.0.0", features.get(1).getKey().getVersion());
+
+        assertEquals(1, plugins.size());
+        assertEquals("bundle01", plugins.get(0).getKey().getId());
+        assertEquals("0.0.1", plugins.get(0).getKey().getVersion());
     }
 
     protected void walkProduct(String productFile, final ArrayList<PluginDescription> plugins,
