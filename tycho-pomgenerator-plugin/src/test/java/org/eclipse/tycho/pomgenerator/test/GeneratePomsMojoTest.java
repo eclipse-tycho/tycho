@@ -74,6 +74,9 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals("p001", model.getArtifactId());
         assertEquals("1.0.0", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
+        // since it it a single pom (without a parent), the tycho extensions must be there
+        assertEquals("org.eclipse.tycho", model.getBuild().getPlugins().get(0).getGroupId());
+        assertEquals("tycho-maven-plugin", model.getBuild().getPlugins().get(0).getArtifactId());
     }
 
     public void testFeaturePom() throws Exception {

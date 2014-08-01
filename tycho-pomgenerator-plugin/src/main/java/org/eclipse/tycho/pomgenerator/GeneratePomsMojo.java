@@ -392,7 +392,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             Set<File> modules = getSiteFeaturesAndPlugins(basedir);
             if (aggregator && modules.size() > 0) {
                 Model modela = readPomTemplate("update-site-poma.xml");
-                setParent(basedir, modela, parent);
+                setParentOrAddTychoExtension(basedir, modela, parent);
                 modela.setGroupId(groupId);
                 modela.setArtifactId(basedir.getName() + ".aggregator");
                 modela.setVersion(version);
@@ -459,7 +459,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         }
 
         Model model = readPomTemplate("update-site-pom.xml");
-        setParent(basedir, model, parent);
+        setParentOrAddTychoExtension(basedir, model, parent);
         model.setGroupId(groupId);
         model.setArtifactId(basedir.getName());
         model.setVersion(version);
@@ -481,7 +481,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         }
 
         Model model = readPomTemplate("repository-pom.xml");
-        setParent(basedir, model, parent);
+        setParentOrAddTychoExtension(basedir, model, parent);
         model.setGroupId(groupId);
         model.setArtifactId(basedir.getName());
         model.setVersion(version);
@@ -647,7 +647,8 @@ public class GeneratePomsMojo extends AbstractMojo {
         return false;
     }
 
-    private void setParent(File basedir, Model model, Model parentModel) {
+    // sets the parent of the model or if it is the "root" project, add the tycho extension
+    private void setParentOrAddTychoExtension(File basedir, Model model, Model parentModel) {
         if (parentModel != null) {
             Parent parent = new Parent();
             parent.setGroupId(parentModel.getGroupId());
@@ -659,12 +660,14 @@ public class GeneratePomsMojo extends AbstractMojo {
             }
 
             model.setParent(parent);
+        } else {
+            addTychoExtension(model);
         }
     }
 
     private void generateFeaturePom(Model parent, File basedir) throws MojoExecutionException {
         Model model = readPomTemplate("feature-pom.xml");
-        setParent(basedir, model, parent);
+        setParentOrAddTychoExtension(basedir, model, parent);
 
         try {
             FileInputStream is = new FileInputStream(new File(basedir, "feature.xml"));
@@ -706,7 +709,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         if (groupId == null) {
             groupId = key.getId();
         }
-        setParent(basedir, model, parent);
+        setParentOrAddTychoExtension(basedir, model, parent);
         model.setGroupId(groupId);
         model.setArtifactId(key.getId());
         model.setVersion(toMavenVersion(key.getVersion().toString()));
