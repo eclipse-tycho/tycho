@@ -121,9 +121,29 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         assertEquals(firstTimestamp, project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
     }
 
-    public void testUnqualifiedVersion() throws Exception {
+    public void testUnqualifiedVersionSnapshot() throws Exception {
         File basedir = getBasedir("projects/buildqualifier");
         File pom = new File(basedir, "p002/pom.xml");
+
+        MavenExecutionRequest request = newMavenExecutionRequest(pom);
+        request.getProjectBuildingRequest().setProcessPlugins(false);
+
+        MavenProject project = getProject(request);
+
+        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
+        projects.add(project);
+        MavenSession session = new MavenSession(getContainer(), request, null, projects);
+
+        BuildQualifierMojo mojo = getMojo(project, session);
+
+        mojo.execute();
+
+        assertEquals("0.0.1", project.getProperties().get(BuildQualifierMojo.UNQUALIFIED_VERSION_PROPERTY));
+    }
+
+    public void testUnqualifiedVersionAlpha() throws Exception {
+        File basedir = getBasedir("projects/buildqualifier");
+        File pom = new File(basedir, "p003/pom.xml");
 
         MavenExecutionRequest request = newMavenExecutionRequest(pom);
         request.getProjectBuildingRequest().setProcessPlugins(false);

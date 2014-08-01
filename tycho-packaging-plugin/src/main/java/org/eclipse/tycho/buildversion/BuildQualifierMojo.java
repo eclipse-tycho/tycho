@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -179,8 +178,8 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     private String getUnqualifiedVersion() {
         String version = project.getArtifact().getVersion();
-        if (version.endsWith("-" + Artifact.SNAPSHOT_VERSION)) {
-            version = version.substring(0, version.length() - Artifact.SNAPSHOT_VERSION.length() - 1);
+        if (version.indexOf("-") > 0) {
+            version = version.substring(0, version.indexOf("-"));
         }
         return version;
     }
