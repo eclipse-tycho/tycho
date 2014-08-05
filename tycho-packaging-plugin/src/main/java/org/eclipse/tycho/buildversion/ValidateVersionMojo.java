@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Rapicorp, Inc. - add support for IU type (428310)   
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
@@ -17,7 +18,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.VersioningHelper;
-
+import org.eclipse.tycho.model.IU;
 /**
  * Validates project Maven and OSGi versions. For SNAPSHOT versions, OSGi version qualifier must be
  * ".qualifier" and unqualified Maven and OSGi versions must be equal. For RELEASE versions, OSGi
@@ -67,6 +68,8 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
             return project.getArtifactId() + ".product";
         } else if (PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(packaging)) {
             return project.getArtifactId();
+        } else if (PackagingType.TYPE_P2_IU.equals(packaging)) {
+            return IU.SOURCE_FILE_NAME;
         }
         return "<unknown packaging=" + packaging + ">";
     }
