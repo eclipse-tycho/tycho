@@ -61,6 +61,76 @@ public class MetadataIO {
 
     }
 
+    private static class SingleIUParser extends MetadataParser {
+        public InstallableUnitDescription unit;
+
+        public SingleIUParser() {
+            super(Activator.getContext(), BundleConstants.BUNDLE_ID);
+        }
+
+        @Override
+        protected String getErrorMessage() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        protected Object getRootObject() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public synchronized void parse(InputStream stream, IProgressMonitor monitor) throws IOException {
+            this.status = null;
+            setProgressMonitor(monitor);
+            monitor.beginTask(Messages.repo_loading, IProgressMonitor.UNKNOWN);
+            try {
+                // TODO: currently not caching the parser since we make no assumptions
+                // or restrictions on concurrent parsing
+                getParser();
+                SingleUnitHandler iuHandler = new SingleUnitHandler();
+                xmlReader.setContentHandler(iuHandler);
+                xmlReader.parse(new InputSource(stream));
+
+                if (isValidXML()) {
+                    unit = iuHandler.getUnit();
+                }
+            } catch (SAXException e) {
+                if (!(e.getException() instanceof OperationCanceledException))
+                    throw new IOException(e.getMessage());
+            } catch (ParserConfigurationException e) {
+                throw new IOException(e.getMessage());
+            } finally {
+                monitor.done();
+                stream.close();
+            }
+        }
+
+        private final class SingleUnitHandler extends RootHandler {
+
+            private List<InstallableUnitDescription> unit = new ArrayList<InstallableUnitDescription>();
+
+            @Override
+            protected void handleRootAttributes(Attributes attributes) {
+                // TODO Auto-generated method stub
+
+            }
+
+            public InstallableUnitDescription getUnit() {
+                return unit.get(0);
+            }
+
+            @Override
+            public void startElement(String name, Attributes attributes) throws SAXException {
+                if (name.equals(INSTALLABLE_UNIT_ELEMENT)) {
+                    new InstallableUnitHandler(this, attributes, unit);
+                } else {
+                    invalidElement(name, attributes);
+                }
+            }
+        }
+    }
+
     private static class Parser extends MetadataParser {
 
         private List<InstallableUnitDescription> units;
@@ -150,6 +220,12 @@ public class MetadataIO {
         public List<InstallableUnitDescription> getUnits() {
             return units;
         }
+    }
+
+    public InstallableUnitDescription readOneIU(InputStream is) throws IOException {
+        SingleIUParser parser = new SingleIUParser();
+        parser.parse(is, new NullProgressMonitor());
+        return parser.unit;
     }
 
     public Set<IInstallableUnit> readXML(InputStream is) throws IOException {

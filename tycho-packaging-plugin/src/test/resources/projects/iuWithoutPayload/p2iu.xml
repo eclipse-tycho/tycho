@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<unit id='iuWithoutPayload' version='1.0.0' singleton='false'>
+	<update id='iuWithoutPayload' range='[0.0.0,1.0.0)' severity='0' />
+	<properties>
+		<property name='org.eclipse.equinox.p2.name' value='Feature' />
+		<property name='org.eclipse.equinox.p2.type.group' value='true' />
+		<property name='org.eclipse.equinox.p2.type.iu' value='true' />
+		<property name='maven-groupId' value='428310' />
+		<property name='maven-artifactId' value='iuWithoutPayload' />
+		<property name='maven-version' value='1.0.0' />
+	</properties>
+	<provides>
+		<provided namespace='org.eclipse.equinox.p2.iu' name='iuWithoutPayload' version='1.0.0' />
+	</provides>
+</unit>
