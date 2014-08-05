@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<units size='2'>
+  <unit id='iuForRootFile' version='1.0.0' singleton='false'>
+    <update id='iuForRootFile' range='[0.0.0,1.0.0)' severity='0'/>
+    <properties size='7'>
+      <property name='org.eclipse.equinox.p2.name' value='Root files for my product'/>
+    </properties>
+    <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
+      <touchpointData size='1'>
+      <instructions size='2'>
+        <instruction key='install'>
+          unzip(source:@artifact, target:${installFolder});
+        </instruction>
+        <instruction key='uninstall'>
+          cleanupzip(source:@artifact, target:${installFolder});
+        </instruction>
+      </instructions>
+    </touchpointData>
+  </unit>
+</units>
