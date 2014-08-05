@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Rapicorp, Inc. - add support for IU type (428310)
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -337,6 +338,9 @@ public class P2ResolverImpl implements P2Resolver {
             } else if (isProduct(iu)) {
                 contributingArtifactType = ArtifactType.TYPE_ECLIPSE_PRODUCT;
                 contributingArtifactId = id;
+            } else if (isPureIU(iu)) {
+                contributingArtifactType = ArtifactType.TYPE_P2_IU;
+                contributingArtifactId = id;
             } else {
                 // additional IU of an artifact/project -> will be added to the artifact/project by its location
                 contributingArtifactType = null;
@@ -345,6 +349,12 @@ public class P2ResolverImpl implements P2Resolver {
         }
 
         result.addArtifact(contributingArtifactType, contributingArtifactId, version, location, mavenClassifier, iu);
+    }
+
+    private boolean isPureIU(IInstallableUnit iu) {
+        if ("true".equals(iu.getProperty("org.eclipse.equinox.p2.type.iu")))
+            return true;
+        return false;
     }
 
     private String getFeatureId(IInstallableUnit iu) {
