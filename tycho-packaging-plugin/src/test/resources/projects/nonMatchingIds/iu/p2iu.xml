@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<units size='1'>
+  <unit id='matchingId' version='1.0.0' singleton='false'>
+    <update id='matchingId' range='[0.0.0,1.0.0)' severity='0'/>
+    <properties size='3'>
+      <property name='org.eclipse.equinox.p2.name' value='Feature'/>
+      <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      <property name='org.eclipse.equinox.p2.type.iu' value='true' />
+    </properties>
+    <provides size='1'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='matchingId' version='1.0.0'/>
+    </provides>
+  </unit>
+</units>

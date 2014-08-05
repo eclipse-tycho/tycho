@@ -1,0 +1,7 @@
+
+requires.0.namespace=org.eclipse.equinox.p2.iu
+requires.0.name=iuForRootFile
+requires.0.range=[1.0.0,1.0.0]
+
+
+
