@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Rapicorp, Inc. - Support for IU packaging type
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository.xmlio;
 
@@ -62,11 +63,17 @@ public class MetadataIO {
     }
 
     private static class Parser extends MetadataParser {
+        public enum PARSER_MODE {
+            REPO, IU
+        }
+
+        private PARSER_MODE mode;
 
         private List<InstallableUnitDescription> units;
 
-        public Parser() {
+        public Parser(PARSER_MODE mode) {
             super(Activator.getContext(), BundleConstants.BUNDLE_ID);
+            this.mode = mode;
         }
 
         @Override
@@ -89,11 +96,12 @@ public class MetadataIO {
                 // TODO: currently not caching the parser since we make no assumptions
                 // or restrictions on concurrent parsing
                 getParser();
-                InstallableUnitsHandler repositoryHandler = new InstallableUnitsHandler();
-                xmlReader.setContentHandler(new RepositoryDocHandler(INSTALLABLE_UNITS_ELEMENT, repositoryHandler));
+                InstallableUnitsHandler handler = new InstallableUnitsHandler();
+                xmlReader.setContentHandler(mode.equals(PARSER_MODE.REPO)
+                        ? new RepositoryDocHandler(INSTALLABLE_UNITS_ELEMENT, handler) : handler);
                 xmlReader.parse(new InputSource(stream));
                 if (isValidXML()) {
-                    units = repositoryHandler.getUnits();
+                    units = handler.getUnits();
                 }
             } catch (SAXException e) {
                 if (!(e.getException() instanceof OperationCanceledException))
@@ -152,8 +160,15 @@ public class MetadataIO {
         }
     }
 
+    public InstallableUnitDescription readOneIU(InputStream is) throws IOException {
+        Parser parser = new Parser(org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO.Parser.PARSER_MODE.IU);
+
+        parser.parse(is, new NullProgressMonitor());
+        return parser.getUnits().get(0);
+    }
+
     public Set<IInstallableUnit> readXML(InputStream is) throws IOException {
-        Parser parser = new Parser();
+        Parser parser = new Parser(org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO.Parser.PARSER_MODE.REPO);
 
         parser.parse(is, new NullProgressMonitor());
 

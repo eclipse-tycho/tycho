@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<unit id='iuB' version='1.0.0.qualifier' singleton='false'>
+	<requires>
+		<require namespace='org.eclipse.equinox.p2.iu' name='iuA' version='0.0.0' />
+	</requires>
+</unit>
+

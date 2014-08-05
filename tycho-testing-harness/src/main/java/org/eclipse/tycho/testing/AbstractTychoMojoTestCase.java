@@ -114,6 +114,10 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         return new File(settingsFilePath);
     }
 
+    protected List<MavenProject> getSortedProjects(File basedir) throws Exception {
+        return getSortedProjects(basedir, null);
+    }
+
     protected List<MavenProject> getSortedProjects(File basedir, File platform) throws Exception {
         return getSortedProjects(basedir, null, platform);
     }
