@@ -75,7 +75,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         this(false);
     }
 
-    public Map<String, IP2Artifact> generateMetadata(List<IArtifactFacade> artifacts, File targetDir)
+    public Map<String, IP2Artifact> generateMetadata(List<IArtifactFacade> artifacts, final File targetDir)
             throws IOException {
         Map<String, IP2Artifact> result = new LinkedHashMap<String, IP2Artifact>();
 
@@ -95,6 +95,36 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 metadata = super.generateMetadata(artifact, null, publisherInfo, null);
 
                 result.putAll(artifactsRepository.getPublishedArtifacts());
+            } else if (PackagingType.TYPE_P2_IU.equals(artifact.getPackagingType())) {
+                TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
+                publisherInfo.setArtifactRepository(artifactsRepository);
+                final IArtifactFacade currentArtifact = artifact;
+                IArtifactFacade targetDirAsArtifact = new IArtifactFacade() {
+                    public String getVersion() {
+                        return currentArtifact.getVersion();
+                    }
+
+                    public String getPackagingType() {
+                        return currentArtifact.getPackagingType();
+                    }
+
+                    public File getLocation() {
+                        return targetDir;
+                    }
+
+                    public String getGroupId() {
+                        return currentArtifact.getGroupId();
+                    }
+
+                    public String getClassifier() {
+                        return currentArtifact.getClassifier();
+                    }
+
+                    public String getArtifactId() {
+                        return currentArtifact.getArtifactId();
+                    }
+                };
+                metadata = super.generateMetadata(targetDirAsArtifact, null, publisherInfo, null);
             } else {
                 publisherInfo.setArtifactOptions(IPublisherInfo.A_PUBLISH | IPublisherInfo.A_NO_MD5);
                 TransientArtifactRepository artifactsRepository = new TransientArtifactRepository();
@@ -257,6 +287,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                     throw new RuntimeException("Unable to read category File", e);
                 }
             }
+        } else if (PackagingType.TYPE_P2_IU.equals(packaging)) {
+            actions.add(new AuthoredIUAction(location));
         } else if (location.isFile() && location.getName().endsWith(".jar")) {
             actions.add(new BundlesAction(new File[] { location }));
         } else {

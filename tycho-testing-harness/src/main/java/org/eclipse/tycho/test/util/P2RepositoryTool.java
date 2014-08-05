@@ -41,8 +41,8 @@ public class P2RepositoryTool {
         } else if (contentJar.isFile()) {
             return new P2RepositoryTool(contentJar);
         } else {
-            throw new IllegalStateException("Not an eclipse-repository project, or project has not been built: "
-                    + projectRootFolder);
+            throw new IllegalStateException(
+                    "Not an eclipse-repository project, or project has not been built: " + projectRootFolder);
         }
     }
 
@@ -121,8 +121,8 @@ public class P2RepositoryTool {
     public IU getIU(String unitId, String version) throws Exception {
         loadMetadata();
 
-        List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "' and @version='" + version
-                + "']");
+        List<Node> nodes = getNodes(contentXml,
+                "/repository/units/unit[@id='" + unitId + "' and @version='" + version + "']");
 
         if (nodes.size() == 0)
             Assert.fail("Could not find IU with id '" + unitId + "' and version '" + version + "'");
@@ -275,6 +275,30 @@ public class P2RepositoryTool {
                 if (range != null && isStrictRange(range)) {
                     result.add(new IdAndVersion(getAttribute(require, "@name"), getLowerBound(range)));
                 }
+            }
+
+            return result;
+        }
+
+        public List<String> getArtifacts() throws Exception {
+            List<String> result = new ArrayList<String>();
+
+            List<Node> artifacts = getNodes(unitElement, "artifacts/artifact");
+            for (Node node : artifacts) {
+                result.add(getAttribute(node, "@classifier") + "/" + getAttribute(node, "@id") + "/"
+                        + getAttribute(node, "@version"));
+            }
+
+            return result;
+        }
+
+        public List<String> getProvidedCapabilities() throws Exception {
+            List<String> result = new ArrayList<String>();
+
+            List<Node> provides = getNodes(unitElement, "provides/provided");
+            for (Node node : provides) {
+                result.add(getAttribute(node, "@namespace") + "/" + getAttribute(node, "@name") + "/"
+                        + getAttribute(node, "@version"));
             }
 
             return result;
