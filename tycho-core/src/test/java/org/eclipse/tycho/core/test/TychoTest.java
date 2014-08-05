@@ -51,10 +51,6 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         super.tearDown();
     }
 
-    private List<MavenProject> getSortedProjects(File basedir) throws Exception {
-        return getSortedProjects(basedir, null);
-    }
-
     public void testModuleOrder() throws Exception {
         File basedir = getBasedir("projects/moduleorder");
 

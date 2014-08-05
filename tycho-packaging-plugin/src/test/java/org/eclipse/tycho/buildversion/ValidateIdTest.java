@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Rapicorp, Inc. - add support for IU type (428310)
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
@@ -39,6 +40,12 @@ public class ValidateIdTest extends AbstractTychoMojoTestCase {
         mojo.execute();
     }
 
+    public void testValidateMatchingIdIU() throws MojoExecutionException, Exception {
+        File basedir = getBasedir("projects/matchingIds/iu");
+        ValidateIdMojo mojo = getMojo(basedir);
+        mojo.execute();
+    }
+
     public void testFailIfNonMatchingIdBundle() throws MojoExecutionException, Exception {
         File basedir = getBasedir("projects/nonMatchingIds/bundle");
         ValidateIdMojo mojo = getMojo(basedir);
@@ -53,6 +60,12 @@ public class ValidateIdTest extends AbstractTychoMojoTestCase {
 
     public void testFailIfNonMatchingIdFeature() throws MojoExecutionException, Exception {
         File basedir = getBasedir("projects/nonMatchingIds/feature");
+        ValidateIdMojo mojo = getMojo(basedir);
+        assertMojoExecutionExceptionThrown(mojo);
+    }
+
+    public void testFailIfNonMatchingIdIU() throws MojoExecutionException, Exception {
+        File basedir = getBasedir("projects/nonMatchingIds/iu");
         ValidateIdMojo mojo = getMojo(basedir);
         assertMojoExecutionExceptionThrown(mojo);
     }

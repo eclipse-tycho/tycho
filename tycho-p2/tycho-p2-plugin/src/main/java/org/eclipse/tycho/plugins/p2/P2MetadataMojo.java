@@ -71,7 +71,7 @@ public class P2MetadataMojo extends AbstractMojo {
      */
     @Parameter
     private List<String> supportedProjectTypes = Arrays.asList("eclipse-plugin", "eclipse-test-plugin",
-            "eclipse-feature");
+            "eclipse-feature", "p2-installable-unit");
 
     /**
      * Baseline build repository(ies).
@@ -131,7 +131,9 @@ public class P2MetadataMojo extends AbstractMojo {
             artifacts.add(projectDefaultArtifact);
 
             for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
-                if (attachedArtifact.getFile() != null && attachedArtifact.getFile().getName().endsWith(".jar")) {
+                if (attachedArtifact.getFile() != null
+                        && (attachedArtifact.getFile().getName().endsWith(".jar") || attachedArtifact.getFile()
+                                .getName().endsWith(".zip"))) {
                     artifacts.add(new ArtifactFacade(attachedArtifact));
                 }
             }
