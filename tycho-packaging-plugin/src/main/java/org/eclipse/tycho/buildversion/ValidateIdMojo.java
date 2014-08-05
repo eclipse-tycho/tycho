@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Sonatype Inc. - initial API and implementation
+ *    Rapicorp, Inc. - add support for IU type (428310)
+ *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -21,9 +32,11 @@ public class ValidateIdMojo extends AbstractVersionMojo {
     private void failBuildDueToIdMismatch() throws MojoExecutionException {
         if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
             throw new MojoExecutionException(mismatchMessageFor("feature ID"));
-        } else {
-            throw new MojoExecutionException(mismatchMessageFor("bundle symbolic name"));
         }
+        if (PackagingType.TYPE_P2_IU.equals(project.getPackaging())) {
+            throw new MojoExecutionException(mismatchMessageFor("iu ID"));
+        }
+        throw new MojoExecutionException(mismatchMessageFor("bundle symbolic name"));
     }
 
     private String mismatchMessageFor(String eclipseIdKey) {

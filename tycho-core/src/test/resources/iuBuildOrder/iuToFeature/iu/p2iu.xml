@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<units size='1'>
+  <unit id='anIU' version='1.0.0' singleton='false'>
+    <update id='anIU' range='[0.0.0,1.0.0)' severity='0'/>
+    <requires size='1'>
+      <required namespace='org.eclipse.equinox.p2.iu' name='aFeature.feature.group' version='1.0.0'/>
+    </requires>
+  </unit>
+</units>

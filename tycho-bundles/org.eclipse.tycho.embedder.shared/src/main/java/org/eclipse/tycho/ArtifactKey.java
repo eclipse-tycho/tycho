@@ -17,7 +17,6 @@ package org.eclipse.tycho;
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ArtifactKey {
-
     /**
      * Artifact type. Should be one of the {@link ArtifactType} constants.
      */
