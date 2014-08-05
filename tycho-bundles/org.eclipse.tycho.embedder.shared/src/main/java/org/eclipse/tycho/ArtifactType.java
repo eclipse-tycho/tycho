@@ -18,10 +18,6 @@ public final class ArtifactType {
     public static final String TYPE_ECLIPSE_PLUGIN = "eclipse-plugin";
     public static final String TYPE_ECLIPSE_FEATURE = "eclipse-feature";
     public static final String TYPE_ECLIPSE_PRODUCT = "eclipse-product";
-
-    /**
-     * Pseudo artifact type used to denote other p2 installable unit dependencies.
-     */
     public static final String TYPE_INSTALLABLE_UNIT = "p2-installable-unit";
 
 }
