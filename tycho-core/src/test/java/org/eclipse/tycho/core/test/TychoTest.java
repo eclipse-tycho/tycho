@@ -392,6 +392,30 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
     }
 
+    public void testIUDependencies() throws Exception {
+        File basedir = getBasedir("iuBuildOrder/justIUs");
+        List<MavenProject> projects = getSortedProjects(basedir);
+        assertEquals("iuA", projects.get(0).getArtifactId());
+        assertEquals("iuB", projects.get(1).getArtifactId());
+        assertEquals("parent", projects.get(2).getArtifactId());
+    }
+
+    public void testFeatureToIUDependency() throws Exception {
+        File basedir = getBasedir("iuBuildOrder/featureToIU");
+        List<MavenProject> projects = getSortedProjects(basedir);
+        assertEquals("anIU", projects.get(0).getArtifactId());
+        assertEquals("featureWithIUDeps", projects.get(1).getArtifactId());
+        assertEquals("parent", projects.get(2).getArtifactId());
+    }
+
+    public void testIUToFeature() throws Exception {
+        File basedir = getBasedir("iuBuildOrder/iuToFeature");
+        List<MavenProject> projects = getSortedProjects(basedir);
+        assertEquals("aFeature", projects.get(0).getArtifactId());
+        assertEquals("anIU", projects.get(1).getArtifactId());
+        assertEquals("parent", projects.get(2).getArtifactId());
+    }
+
     private static String getActiveEEProfile(MavenProject project) {
         return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getProfileName();
     }

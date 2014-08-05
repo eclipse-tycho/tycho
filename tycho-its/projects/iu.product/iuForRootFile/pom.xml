@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>tralala</groupId>
+  <artifactId>iuForRootFile</artifactId>
+  <packaging>p2-iu</packaging>
+  <version>1.0.0</version>
+  
+  <properties>
+    <tycho-version>0.22.0-SNAPSHOT</tycho-version>
+    <e352-url>http://download.eclipse.org/releases/galileo</e352-url>
+	 <e342-url>http://download.eclipse.org/releases/ganymede</e342-url>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>e342</id>
+      <url>${e342-url}</url>
+      <layout>p2</layout>
+    </repository>
+
+  </repositories>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
+</project>

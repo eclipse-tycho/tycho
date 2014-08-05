@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<units size='2'>
+  <unit id='missingProperty' version='1.0.0' singleton='false'>
+    <update id='missingProperty' range='[0.0.0,1.0.0)' severity='0'/>
+    <properties size='7'>
+      <property name='org.eclipse.equinox.p2.name' value='Feature'/>
+      <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+    </properties>
+    <provides size='1'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='missingProperty' version='1.0.0'/>
+    </provides>
+  </unit>
+</units>

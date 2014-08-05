@@ -24,4 +24,6 @@ public final class ArtifactType {
      */
     public static final String TYPE_INSTALLABLE_UNIT = "p2-installable-unit";
 
+    public static final String TYPE_P2_IU = "p2-iu";
+
 }
