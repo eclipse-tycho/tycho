@@ -152,18 +152,19 @@ public class MetadataIO {
         }
     }
 
-    public Set<IInstallableUnit> readXML(InputStream is) throws IOException {
+    public Set<InstallableUnitDescription> readXMLAsDescriptor(InputStream is) throws IOException {
         Parser parser = new Parser();
-
         parser.parse(is, new NullProgressMonitor());
+        return new LinkedHashSet<InstallableUnitDescription>(parser.getUnits());
+    }
 
-        Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-
-        for (InstallableUnitDescription desc : parser.getUnits()) {
-            units.add(MetadataFactory.createInstallableUnit(desc));
+    public Set<IInstallableUnit> readXML(InputStream is) throws IOException {
+        Set<InstallableUnitDescription> iuDescriptions = readXMLAsDescriptor(is);
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>(iuDescriptions.size());
+        for (InstallableUnitDescription description : iuDescriptions) {
+            result.add(MetadataFactory.createInstallableUnit(description));
         }
-
-        return units;
+        return result;
     }
 
     public void writeXML(Set<IInstallableUnit> units, OutputStream os) throws IOException {
