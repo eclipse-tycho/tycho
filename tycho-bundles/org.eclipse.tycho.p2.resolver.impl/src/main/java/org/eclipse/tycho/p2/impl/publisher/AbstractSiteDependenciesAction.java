@@ -86,7 +86,7 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
                 System.arraycopy(params, 0, allArgs, 1, params.length);
 
             IMatchExpression<IInstallableUnit> iuMatcher = ExpressionUtil.getFactory()
-                    .<IInstallableUnit> matchExpression(ExpressionUtil.parse(expression), id); //$NON-NLS-1$
+                    .<IInstallableUnit> matchExpression(ExpressionUtil.parse(expression), id);
             return MetadataFactory.createRequirement(iuMatcher, null, 0, 1, true);
         } else if (type.equals("context")) {
             throw new IllegalStateException("Context iu queries are not supported in Tycho. Faulty expression is "

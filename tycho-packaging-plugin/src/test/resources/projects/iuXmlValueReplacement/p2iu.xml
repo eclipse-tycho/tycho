@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+  <unit id='demo.iu' version='1.0.0.qualifier' singleton='false'>
+    <update id='demo.iu' range='[0.0.0,1.0.0)' severity='0'/>
+    <properties size='4'>
+      <property name='org.eclipse.equinox.p2.name' value='Feature'/>
+      <property name='org.eclipse.equinox.p2.description' value='[Enter Feature Description here.]'/>
+      <property name='org.eclipse.equinox.p2.description.url' value='http://www.example.com/description'/>
+      <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+    </properties>
+    <provides size='2'>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='demo.iu' version='1.0.0.qualifier'/>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='demo.iu' version='1.1.1.qualifier'/>
+      <provided namespace='org.eclipse.equinox.p2.iu' name='anotherId' version='2.0.0.qualifier'/>
+    </provides>
+    <requires size='1'>
+      <required namespace='org.eclipse.equinox.p2.iu' name='org.junit4' range='0.0.0'/>
+      <required namespace='org.eclipse.equinox.p2.iu' name='org.hamcrest.core' range='1.1.0.qualifier'/>
+    </requires>
+    <licenses size='1'>
+      <license uri='http://www.example.com/license' url='http://www.example.com/license'>
+        [Enter License Description here.]
+      </license>
+    </licenses>
+    <copyright uri='http://www.example.com/copyright' url='http://www.example.com/copyright'>
+      [Enter Copyright Description here.]
+    </copyright>
+	<artifacts size='1'>
+      <artifact classifier='binary' id='demo.iu' version='1.0.0.qualifier'/>
+    </artifacts>
+  </unit>

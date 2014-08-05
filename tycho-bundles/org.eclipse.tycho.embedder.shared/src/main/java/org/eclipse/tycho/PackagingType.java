@@ -21,5 +21,6 @@ public final class PackagingType {
     public static final String TYPE_ECLIPSE_UPDATE_SITE = "eclipse-update-site";
     public static final String TYPE_ECLIPSE_APPLICATION = "eclipse-application";
     public static final String TYPE_ECLIPSE_REPOSITORY = "eclipse-repository";
+    public static final String TYPE_P2_IU = ArtifactType.TYPE_INSTALLABLE_UNIT;
 
 }
