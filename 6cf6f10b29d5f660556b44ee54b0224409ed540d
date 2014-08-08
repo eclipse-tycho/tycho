@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7672b30_7cf41bc1",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-08-08T09:19:35Z",
+      "side": 1,
+      "message": "yes I think it makes sense to do the additional sanity check that the IU is a bundle (and silently skip it if it\u0027s not a bundle). Can you add a link (maybe to the commit message or here) to the original PDE code so we can see how it\u0027s done there?",
+      "revId": "6cf6f10b29d5f660556b44ee54b0224409ed540d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7672b30_dc01ef3e",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-08-08T09:19:35Z",
+      "side": 1,
+      "message": "the name \"sourceIU\" is slightly misleading when compared to \"sourceUnits\".\nHow about \"syntheticSourceRequirementsIU\" or something like that indicating it\u0027s just a temporary holder for requirements?",
+      "revId": "6cf6f10b29d5f660556b44ee54b0224409ed540d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
