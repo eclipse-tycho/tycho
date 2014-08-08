@@ -102,6 +102,50 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<version>${tychoBootstrapVersion}</version>
+				<executions>
+					<execution>
+						<id>mirror-kepler-test-repo</id>
+						<phase>process-test-classes</phase>
+						<goals>
+							<goal>mirror</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<source>
+						<repository>
+							<url>http://download.eclipse.org/releases/kepler</url>
+							<layout>p2</layout>
+						</repository>
+					</source>
+					<ius>
+						<iu>
+							<id>org.eclipse.osgi</id>
+							<version>3.9.1.v20140110-1610</version>
+						</iu>
+						<iu>
+							<id>org.eclipse.equinox.launcher</id>
+							<version>1.3.0.v20130327-1440</version>
+						</iu>
+						<iu>
+							<id>org.eclipse.core.runtime</id>
+							<version>3.9.100.v20131218-1515</version>
+						</iu>
+						<iu>
+							<id>org.junit</id>
+							<version>4.11.0.v201303080030</version>
+						</iu>
+					</ius>
+					<includePacked>false</includePacked>
+					<includeOptional>false</includeOptional>
+					<destination>${project.basedir}/repositories/kepler-test</destination>
+				</configuration>
+			</plugin>
+			
 		</plugins>
 
 		<pluginManagement>

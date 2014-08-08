@@ -19,7 +19,7 @@ import java.net.URI;
 public class ResourceUtil {
 
     public enum P2Repositories {
-        ECLIPSE_342("e342"), ECLIPSE_352("e352"), SIMPLE_FEATURE("feature");
+        ECLIPSE_342("e342"), ECLIPSE_352("e352"), ECLIPSE_KEPLER("kepler-test"), SIMPLE_FEATURE("feature");
 
         private final String path;
 
