@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.p2Inf.multiEnv;
+package org.eclipse.tycho.test.p2Inf;
 
 import java.io.File;
 import java.io.InputStream;

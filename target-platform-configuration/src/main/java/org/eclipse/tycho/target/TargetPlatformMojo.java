@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
@@ -41,6 +42,9 @@ public class TargetPlatformMojo extends AbstractMojo {
 
     @Component
     private EquinoxServiceFactory osgiServices;
+
+    @Component
+    private Logger logger;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         ReactorRepositoryManagerFacade repositoryManager = osgiServices
@@ -74,6 +78,7 @@ public class TargetPlatformMojo extends AbstractMojo {
             File artifactXml = getAttachedArtifact(reactorProject, RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
 
             // found a Tycho project -> include in target platform
+            logger.debug("Adding reactor project: " + reactorProject.toString());
             ReactorProject tychoReactorProject = DefaultReactorProject.adapt(reactorProject);
             verifyIndexFileLocations(tychoReactorProject, metadataXml, artifactXml);
             result.add(tychoReactorProject.getIdentities());

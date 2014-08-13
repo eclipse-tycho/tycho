@@ -124,7 +124,7 @@ public class BundleDependenciesAction extends BundlesAction {
             protected IRequirement createRequirement(String namespace, String name, VersionRange range, String filter,
                     boolean optional, boolean multiple, boolean greedy) {
                 if (optionalAction == OptionalResolutionAction.OPTIONAL) {
-                    return super.createRequirement(namespace, symbolicName, range, filter, optional, multiple, greedy);
+                    return super.createRequirement(namespace, name, range, filter, optional, multiple, greedy);
                 }
                 return BundleDependenciesAction.this.createRequirement(namespace, name, range, filter, optional,
                         multiple, greedy);
