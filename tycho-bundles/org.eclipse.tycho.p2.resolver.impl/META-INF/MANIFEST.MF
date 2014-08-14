@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.p2.updatesite;bundle-version="1.0.200",
  org.eclipse.core.net;bundle-version="1.2.100",
  org.eclipse.tycho.p2.maven.repository;bundle-version="0.12.0"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.tycho.p2.impl;x-friends:="org.eclipse.tycho.p2.impl.test",
  org.eclipse.tycho.p2.impl.publisher;x-friends:="org.eclipse.tycho.p2.impl.test",
