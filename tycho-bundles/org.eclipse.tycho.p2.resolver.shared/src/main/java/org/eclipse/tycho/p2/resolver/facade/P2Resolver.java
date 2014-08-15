@@ -16,6 +16,7 @@ import java.util.Map;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
 public interface P2Resolver {
@@ -37,23 +38,28 @@ public interface P2Resolver {
      * @param project
      *            The reactor project to be resolved. May be <code>null</code>, in which case only
      *            the additional dependencies are resolved.
+     * @throws ResolutionException
      * 
      * @see #addDependency(String, String, String)
      * @TODO this should return Map<TargetEnvironment,P2ResolutionResult>
      */
-    public List<P2ResolutionResult> resolveDependencies(TargetPlatform context, ReactorProject project);
+    public List<P2ResolutionResult> resolveDependencies(TargetPlatform context, ReactorProject project)
+            throws ResolutionException;
 
     /**
+     * @throws ResolutionException
      * @deprecated Only needed for the deprecated eclipse-update-site (see bug 342876)
      */
     // TODO 403481 replace the "conflicting dependency aggregation" feature of eclipse-update-site 
     @Deprecated
-    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project);
+    public P2ResolutionResult collectProjectDependencies(TargetPlatform context, ReactorProject project)
+            throws ResolutionException;
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String executionEnvironmentName);
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub context, String executionEnvironmentName)
+            throws ResolutionException;
 
     public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
-            String eeName);
+            String eeName) throws ResolutionException;
 
     /**
      * Resolves specified installable unit identified by id and versionRange. The unit with latest

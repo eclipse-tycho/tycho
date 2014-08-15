@@ -19,6 +19,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 
 /**
  * Resolves project dependencies against the content of the target platform.
@@ -28,16 +29,17 @@ public interface DependencyResolver {
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject);
 
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects);
+            List<ReactorProject> reactorProjects) throws ResolutionException;
 
     /**
      * @param targetPlatform
      *            The candidate artifacts which may be used to resolve dependencies. If
      *            <code>null</code>, the final target platform of the project will be used.
+     * @throws ResolutionException
      */
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
-            DependencyResolverConfiguration resolverConfiguration);
+            DependencyResolverConfiguration resolverConfiguration) throws ResolutionException;
 
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts resolvedDependencies, Logger logger);

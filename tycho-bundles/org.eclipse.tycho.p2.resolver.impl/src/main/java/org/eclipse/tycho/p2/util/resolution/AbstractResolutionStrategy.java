@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 // TODO make this package private
@@ -59,12 +60,13 @@ public abstract class AbstractResolutionStrategy {
         modifiableData.setAdditionalFilterProperties(additionalFilterProperties);
     }
 
-    public Collection<IInstallableUnit> resolve(TargetEnvironment environment, IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> resolve(TargetEnvironment environment, IProgressMonitor monitor)
+            throws ResolutionException {
         return resolve(getEffectiveFilterProperties(environment), monitor);
     }
 
     public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
-            IProgressMonitor monitor) {
+            IProgressMonitor monitor) throws ResolutionException {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetEnvironment environment : environments) {
@@ -74,7 +76,8 @@ public abstract class AbstractResolutionStrategy {
         return result;
     }
 
-    protected abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
+    protected abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor)
+            throws ResolutionException;
 
     private Map<String, String> getEffectiveFilterProperties(TargetEnvironment environment) {
         Map<String, String> result = environment.toFilterProperties();
@@ -94,7 +97,7 @@ public abstract class AbstractResolutionStrategy {
         }
     }
 
-    protected RuntimeException newResolutionException(IStatus status) {
-        return new RuntimeException(StatusTool.collectProblems(status), status.getException());
+    protected ResolutionException newResolutionException(IStatus status) {
+        return new ResolutionException(StatusTool.collectProblems(status), status.getException());
     }
 }

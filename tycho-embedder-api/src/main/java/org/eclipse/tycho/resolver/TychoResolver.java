@@ -15,12 +15,14 @@ import java.util.List;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 
 public interface TychoResolver {
     // TODO project and reactorProject represent the same thing!? -> should be one paramenter
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject);
 
-    public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects);
+    public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects)
+            throws ResolutionException;
 
     public void traverse(MavenProject project, DependencyVisitor visitor);
 }

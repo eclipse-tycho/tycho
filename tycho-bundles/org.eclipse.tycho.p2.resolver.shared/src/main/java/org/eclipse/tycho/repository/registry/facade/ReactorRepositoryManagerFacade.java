@@ -16,6 +16,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
@@ -28,10 +29,11 @@ public interface ReactorRepositoryManagerFacade {
      * 
      * @param project
      *            the reactor project to compute the target platform for.
+     * @throws ResolutionException
      */
     TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
             TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
-            List<ReactorProject> reactorProjects, PomDependencyCollector pomDependencies);
+            List<ReactorProject> reactorProjects, PomDependencyCollector pomDependencies) throws ResolutionException;
 
     /**
      * Computes the (immutable) target platform with final p2 metadata and attaches it to the given

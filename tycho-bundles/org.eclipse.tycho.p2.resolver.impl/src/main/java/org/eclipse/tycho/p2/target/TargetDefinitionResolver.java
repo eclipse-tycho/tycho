@@ -36,6 +36,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
@@ -43,7 +44,6 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocati
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
@@ -81,19 +81,17 @@ public class TargetDefinitionResolver {
         this.repositoryIdManager = (IRepositoryIdManager) agent.getService(IRepositoryIdManager.SERVICE_NAME);
     }
 
-    public TargetDefinitionContent resolveContent(TargetDefinition definition) {
+    public TargetDefinitionContent resolveContent(TargetDefinition definition) throws ResolutionException {
         try {
             return resolveContentWithExceptions(definition);
         } catch (TargetDefinitionSyntaxException e) {
             throw new RuntimeException("Invalid syntax in target definition " + definition.getOrigin() + ": "
                     + e.getMessage(), e);
-        } catch (TargetDefinitionResolutionException e) {
-            throw new RuntimeException("Failed to resolve target definition " + definition.getOrigin(), e);
         }
     }
 
     TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
-            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
+            throws TargetDefinitionSyntaxException, ResolutionException {
 
         List<URI> artifactRepositories = new ArrayList<URI>();
 
@@ -109,13 +107,13 @@ public class TargetDefinitionResolver {
                 InstallableUnitLocation iuLocationDefinition = (InstallableUnitLocation) locationDefinition;
 
                 if (includeMode != null && includeMode != iuLocationDefinition.getIncludeMode()) {
-                    throw new TargetDefinitionResolutionException("Include mode must be the same for all locations");
+                    throw new ResolutionException("Include mode must be the same for all locations");
                 }
                 includeMode = iuLocationDefinition.getIncludeMode();
 
                 if (includeAllEnvironments != null
                         && includeAllEnvironments.booleanValue() != iuLocationDefinition.includeAllEnvironments()) {
-                    throw new TargetDefinitionResolutionException(
+                    throw new ResolutionException(
                             "The attribute 'includeAllPlatforms' must be the same for all locations");
                 }
                 includeAllEnvironments = iuLocationDefinition.includeAllEnvironments();
@@ -168,7 +166,7 @@ public class TargetDefinitionResolver {
     }
 
     private AbstractResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments)
-            throws TargetDefinitionResolutionException {
+            throws ResolutionException {
         switch (includeMode) {
         case PLANNER:
             return getPlannerResolutionStrategy(includeAllEnvironments);
@@ -183,41 +181,40 @@ public class TargetDefinitionResolver {
         return new SlicerResolutionStrategy(logger, ignoreFilters) {
 
             @Override
-            protected RuntimeException newResolutionException(IStatus status) {
+            protected ResolutionException newResolutionException(IStatus status) {
                 return TargetDefinitionResolver.this.newResolutionException(status);
             }
         };
     }
 
     private AbstractResolutionStrategy getPlannerResolutionStrategy(boolean includeAllEnvironments)
-            throws TargetDefinitionResolutionException {
+            throws ResolutionException {
         if (includeAllEnvironments) {
-            throw new TargetDefinitionResolutionException(
-                    "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
+            throw new ResolutionException("includeAllPlatforms='true' and includeMode='planner' are incompatible.");
         }
         return new ProjectorResolutionStrategy(logger) {
             @Override
-            protected RuntimeException newResolutionException(IStatus status) {
+            protected ResolutionException newResolutionException(IStatus status) {
                 return TargetDefinitionResolver.this.newResolutionException(status);
             }
         };
     }
 
-    private IMetadataRepository loadRepository(Repository repository) throws TargetDefinitionResolutionException {
+    private IMetadataRepository loadRepository(Repository repository) throws ResolutionException {
         try {
             return metadataManager.loadRepository(repository.getLocation(), monitor);
         } catch (ProvisionException e) {
-            throw new TargetDefinitionResolutionException("Failed to load p2 metadata repository from location "
+            throw new ResolutionException("Failed to load p2 metadata repository from location "
                     + repository.getLocation(), e);
         }
     }
 
     private IInstallableUnit getUnitInstance(IQueryable<IInstallableUnit> units, Unit unitReference)
-            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
+            throws TargetDefinitionSyntaxException, ResolutionException {
         IQueryResult<IInstallableUnit> queryResult = searchUnitInThisLocation(units, unitReference);
 
         if (queryResult.isEmpty()) {
-            throw new TargetDefinitionResolutionException(NLS.bind(
+            throw new ResolutionException(NLS.bind(
                     "Could not find \"{0}/{1}\" in the repositories of the current location", unitReference.getId(),
                     unitReference.getVersion()));
         }
@@ -239,8 +236,8 @@ public class TargetDefinitionResolver {
         return queryResult;
     }
 
-    /* package */RuntimeException newResolutionException(IStatus status) {
-        return new TargetDefinitionResolutionException(StatusTool.collectProblems(status), new CoreException(status));
+    /* package */ResolutionException newResolutionException(IStatus status) {
+        return new ResolutionException(StatusTool.collectProblems(status), new CoreException(status));
     }
 
     private Version parseVersion(Unit unitReference) throws TargetDefinitionSyntaxException {

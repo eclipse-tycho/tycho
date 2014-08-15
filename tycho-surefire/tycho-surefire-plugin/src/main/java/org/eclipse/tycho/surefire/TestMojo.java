@@ -77,6 +77,7 @@ import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.dev.DevBundleInfo;
 import org.eclipse.tycho.dev.DevWorkspaceResolver;
@@ -703,8 +704,13 @@ public class TestMojo extends AbstractMojo {
             }
         };
 
-        DependencyArtifacts testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null,
-                reactorProjects, resolverConfiguration);
+        DependencyArtifacts testRuntimeArtifacts;
+        try {
+            testRuntimeArtifacts = platformResolver.resolveDependencies(session, project, null, reactorProjects,
+                    resolverConfiguration);
+        } catch (ResolutionException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
 
         if (testRuntimeArtifacts == null) {
             throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");

@@ -24,13 +24,13 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.UnitStub;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Rule;
@@ -142,7 +142,7 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
                         LAUNCHER_BUNDLE_LINUX, LAUNCHER_BUNDLE_WINDOWS, LAUNCHER_BUNDLE_MAC)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolutionException.class)
     public void testConflictingIncludeAllEnvironments() throws Exception {
         targetDefinition = definitionWith(new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, true),
                 new FilterRepoLocationStubWithLauncherUnit(IncludeMode.SLICER, false));

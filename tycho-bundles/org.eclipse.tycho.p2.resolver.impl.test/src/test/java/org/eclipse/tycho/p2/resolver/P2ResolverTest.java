@@ -29,7 +29,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,6 +41,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
@@ -90,7 +90,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @SuppressWarnings({ "unchecked", "deprecation" })
     @Test
-    public void testSiteConflictingDependenciesResolver() throws IOException {
+    public void testSiteConflictingDependenciesResolver() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
 
         File[] projects = new File[] { resourceFile("siteresolver/bundle342"), //
@@ -488,11 +488,12 @@ public class P2ResolverTest extends P2ResolverTestBase {
         impl.resolveDependencies(getTargetPlatform(), projectToResolve);
     }
 
-    private P2TargetPlatform getTargetPlatform() {
+    private P2TargetPlatform getTargetPlatform() throws ResolutionException {
         return tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, pomDependencies);
     }
 
-    private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
+    private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler)
+            throws ResolutionException {
         return tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorProjects, pomDependencies);
     }
 

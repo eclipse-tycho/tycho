@@ -23,6 +23,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.target.PreliminaryTargetPlatformImpl;
@@ -77,7 +78,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
     public TargetPlatform computePreliminaryTargetPlatform(ReactorProject project,
             TargetPlatformConfigurationStub tpConfiguration, ExecutionEnvironmentConfiguration eeConfiguration,
-            List<ReactorProject> reactorProjects, PomDependencyCollector pomDependencies) {
+            List<ReactorProject> reactorProjects, PomDependencyCollector pomDependencies) throws ResolutionException {
         // at this point, there is only incomplete ("dependency-only") metadata for the reactor projects
         TargetPlatform result = tpFactory.createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects,
                 pomDependencies);

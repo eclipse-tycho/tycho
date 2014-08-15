@@ -23,6 +23,7 @@ import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.facade.MavenContextImpl;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -92,7 +93,7 @@ public class PomDependencyCollectorTest {
                 "groupId", "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, "p2metadata");
     }
 
-    private Collection<IInstallableUnit> getTargetPlatformUnits() {
+    private Collection<IInstallableUnit> getTargetPlatformUnits() throws ResolutionException {
         TestResolverFactory resolverFactory = new TestResolverFactory(logVerifier.getLogger());
         P2TargetPlatform platform = resolverFactory.getTargetPlatformFactoryImpl().createTargetPlatform(
                 new TargetPlatformConfigurationStub(), NOOP_EE_RESOLUTION_HANDLER, null, subject);

@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
@@ -46,7 +47,8 @@ public class TargetDefinitionResolverService {
     }
 
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
-            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
+            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent)
+            throws ResolutionException {
         ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
 
         TargetDefinitionContent resolution = resolutionCache.get(arguments);
@@ -64,7 +66,7 @@ public class TargetDefinitionResolverService {
     }
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
-    private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
+    private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) throws ResolutionException {
 
         return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.agent, logger)
                 .resolveContent(arguments.definition);

@@ -41,6 +41,7 @@ import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
@@ -93,7 +94,8 @@ public class P2ResolverImpl implements P2Resolver {
         }
     }
 
-    public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project) {
+    public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project)
+            throws ResolutionException {
         setContext(targetPlatform, project);
 
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
@@ -109,12 +111,14 @@ public class P2ResolverImpl implements P2Resolver {
         return results;
     }
 
-    public P2ResolutionResult collectProjectDependencies(TargetPlatform targetPlatform, ReactorProject project) {
+    public P2ResolutionResult collectProjectDependencies(TargetPlatform targetPlatform, ReactorProject project)
+            throws ResolutionException {
         setContext(targetPlatform, project);
         return resolveDependencies(project, new DependencyCollector(logger), new TargetEnvironment(null, null, null));
     }
 
-    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration, String eeName) {
+    public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration, String eeName)
+            throws ResolutionException {
         ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
         P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration,
                 new ExecutionEnvironmentConfigurationStub(eeName), null, null);
@@ -132,7 +136,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     // TODO 412416 make this obsolete by adding appropriate getters in TargetPlatform interface
     public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
-            String eeName) {
+            String eeName) throws ResolutionException {
         P2TargetPlatform targetPlatform = targetPlatformFactory.createTargetPlatform(tpConfiguration,
                 new ExecutionEnvironmentConfigurationStub(eeName), null, null);
 
@@ -145,7 +149,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     @SuppressWarnings("unchecked")
     protected P2ResolutionResult resolveDependencies(ReactorProject project, AbstractResolutionStrategy strategy,
-            TargetEnvironment environment) {
+            TargetEnvironment environment) throws ResolutionException {
         Set<IInstallableUnit> availableUnits = context.getInstallableUnits();
         if (project != null) {
             strategy.setRootInstallableUnits((Set<IInstallableUnit>) project.getDependencyMetadata(true));

@@ -24,15 +24,16 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
 import org.eclipse.tycho.resolver.TychoResolver;
@@ -87,7 +88,8 @@ public class DefaultTychoResolver implements TychoResolver {
         resolver.setupProjects(session, project, reactorProject);
     }
 
-    public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects) {
+    public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects)
+            throws ResolutionException {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
         if (dr == null) {
             return;

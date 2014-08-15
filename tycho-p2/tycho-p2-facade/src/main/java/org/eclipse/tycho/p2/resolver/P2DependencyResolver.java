@@ -73,6 +73,7 @@ import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependenc
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
@@ -185,7 +186,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
     }
 
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
-            List<ReactorProject> reactorProjects) {
+            List<ReactorProject> reactorProjects) throws ResolutionException {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
         ExecutionEnvironmentConfiguration ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
 
@@ -310,7 +311,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
             TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
-            DependencyResolverConfiguration resolverConfiguration) {
+            DependencyResolverConfiguration resolverConfiguration) throws ResolutionException {
         if (targetPlatform == null) {
             targetPlatform = TychoProjectUtils.getTargetPlatform(project);
         }
@@ -328,7 +329,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     private DependencyArtifacts doResolveDependencies(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects, DependencyResolverConfiguration resolverConfiguration,
-            TargetPlatform targetPlatform, P2Resolver resolver, TargetPlatformConfiguration configuration) {
+            TargetPlatform targetPlatform, P2Resolver resolver, TargetPlatformConfiguration configuration)
+            throws ResolutionException {
 
         Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
 

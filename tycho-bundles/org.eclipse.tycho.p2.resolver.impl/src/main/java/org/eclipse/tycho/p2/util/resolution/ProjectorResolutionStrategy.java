@@ -35,6 +35,7 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 
 @SuppressWarnings("restriction")
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
@@ -54,7 +55,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
     }
 
     @Override
-    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor)
+            throws ResolutionException {
 
         Map<String, String> newSelectionContext = SimplePlanner.createSelectionContext(properties);
 

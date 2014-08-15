@@ -23,12 +23,12 @@ import static org.hamcrest.CoreMatchers.any;
 import static org.junit.Assert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class TargetDefinitionResolverIncludeModeTests {
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolutionException.class)
     public void testUnsatisfiedDependencyWithPlanner() throws Exception {
         // ignore logged errors
         logVerifier.expectError(any(String.class));
@@ -81,14 +81,14 @@ public class TargetDefinitionResolverIncludeModeTests {
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(MAIN_BUNDLE)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolutionException.class)
     public void testUnsatisfiedInclusionWithSlicerFails() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED,
                 TARGET_FEATURE));
         subject.resolveContentWithExceptions(definition);
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolutionException.class)
     public void testResolveConflictingIncludeMode() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.V1, MAIN_BUNDLE),
                 new PlannerLocationStub(TestRepositories.V2));

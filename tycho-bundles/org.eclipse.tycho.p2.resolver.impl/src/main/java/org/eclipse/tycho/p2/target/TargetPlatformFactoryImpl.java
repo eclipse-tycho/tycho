@@ -45,6 +45,7 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
@@ -122,7 +123,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
-            PomDependencyCollector pomDependencies) {
+            PomDependencyCollector pomDependencies) throws ResolutionException {
         return createTargetPlatform(tpConfiguration, ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration),
                 reactorProjects, pomDependencies);
     }
@@ -143,13 +144,14 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      *            may be <code>null</code>
      * @param pomDependencies
      *            may be <code>null</code>
+     * @throws ResolutionException
      * 
      * @see #createTargetPlatform(TargetPlatformConfigurationStub,
      *      ExecutionEnvironmentConfiguration, List, PomDependencyCollector)
      */
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects,
-            PomDependencyCollector pomDependencies) {
+            PomDependencyCollector pomDependencies) throws ResolutionException {
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());
 
@@ -202,7 +204,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     private List<TargetDefinitionContent> resolveTargetDefinitions(TargetPlatformConfigurationStub tpConfiguration,
-            ExecutionEnvironmentResolutionHints eeResolutionHints) {
+            ExecutionEnvironmentResolutionHints eeResolutionHints) throws ResolutionException {
         List<TargetDefinitionContent> result = new ArrayList<TargetDefinitionContent>();
 
         for (TargetDefinition definition : tpConfiguration.getTargetDefinitions()) {

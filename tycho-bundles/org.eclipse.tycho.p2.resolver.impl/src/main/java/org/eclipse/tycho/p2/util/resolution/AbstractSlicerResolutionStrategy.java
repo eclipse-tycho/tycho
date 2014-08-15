@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 
 @SuppressWarnings("restriction")
 abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrategy {
@@ -37,7 +38,8 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         super(logger);
     }
 
-    protected final IQueryable<IInstallableUnit> slice(Map<String, String> properties, IProgressMonitor monitor) {
+    protected final IQueryable<IInstallableUnit> slice(Map<String, String> properties, IProgressMonitor monitor)
+            throws ResolutionException {
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Properties: " + properties.toString());

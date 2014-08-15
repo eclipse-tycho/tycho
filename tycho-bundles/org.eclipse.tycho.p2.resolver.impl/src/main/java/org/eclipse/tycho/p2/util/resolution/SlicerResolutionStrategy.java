@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 
 @SuppressWarnings("restriction")
 public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
@@ -69,7 +70,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
     @Override
     public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
-            IProgressMonitor monitor) {
+            IProgressMonitor monitor) throws ResolutionException {
         if (ignoreFilters) {
             // short cut: properties would ignored for each single resolution, so resolve just once 
             return resolve(Collections.<String, String> emptyMap(), monitor);
@@ -78,7 +79,8 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
     }
 
     @Override
-    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor)
+            throws ResolutionException {
 
         IQueryable<IInstallableUnit> slice = slice(properties, monitor);
 

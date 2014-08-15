@@ -28,11 +28,12 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.metadata.MetadataSerializable;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -122,8 +123,13 @@ public class RepositoryReferenceTool {
                 DependencyResolverConfiguration resolverConfiguration = configuration
                         .getDependencyResolverConfiguration();
 
-                DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
-                        targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration);
+                DependencyArtifacts dependencyArtifacts;
+                try {
+                    dependencyArtifacts = resolver.resolveDependencies(session, project, targetPlatform,
+                            DefaultReactorProject.adapt(session), resolverConfiguration);
+                } catch (ResolutionException e) {
+                    throw new MojoFailureException(e.getMessage(), e);
+                }
 
                 // this contains dependency-only metadata for 'this' project
                 Set<Object> targetPlatformInstallableUnits = new HashSet<Object>(

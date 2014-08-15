@@ -34,6 +34,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
@@ -72,7 +73,12 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
         List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
         for (MavenProject project : projects) {
-            resolver.resolveProject(session, project, reactorProjects);
+            try {
+                resolver.resolveProject(session, project, reactorProjects);
+            } catch (ResolutionException e) {
+                // resolution error is not an internal (unexpected) error, so avoid printing a stacktrace by throwing MavenExecutionException 
+                throw new MavenExecutionException(e.getMessage(), e);
+            }
         }
     }
 

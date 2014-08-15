@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.resolver.shared.ResolutionException;
 import org.eclipse.tycho.p2.impl.test.ResourceUtil;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
@@ -34,7 +35,6 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocati
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
-import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
@@ -144,13 +144,13 @@ public class TargetDefinitionResolverTest {
         assertThat(versionedIdsOf(units), hasItem(REFERENCED_BUNDLE_V1));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolutionException.class)
     public void testMissingUnit() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V2, MAIN_BUNDLE));
         subject.resolveContentWithExceptions(definition);
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolutionException.class)
     public void testUnitOnlyLookedUpInLocation() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V2, MAIN_BUNDLE),
                 new LocationStub(TestRepositories.V1));
@@ -158,7 +158,7 @@ public class TargetDefinitionResolverTest {
     }
 
     @Test
-    public void testUnitWithWildcardVersion() {
+    public void testUnitWithWildcardVersion() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2,
                 REFERENCED_BUNDLE_WILDCARD_VERSION));
         TargetDefinitionContent units = subject.resolveContent(definition);
@@ -166,7 +166,7 @@ public class TargetDefinitionResolverTest {
     }
 
     @Test
-    public void testUnitWithExactVersion() {
+    public void testUnitWithExactVersion() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2, REFERENCED_BUNDLE_V1));
         TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(REFERENCED_BUNDLE_V1)));
@@ -177,20 +177,20 @@ public class TargetDefinitionResolverTest {
      * the facade, syntax errors in the version attribute can only be detected by the resolver.
      */
     @Test(expected = TargetDefinitionSyntaxException.class)
-    public void testUnitWithWrongVersionYieldsSyntaxException() {
+    public void testUnitWithWrongVersionYieldsSyntaxException() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2,
                 REFERENCED_BUNDLE_INVALID_VERSION));
         subject.resolveContentWithExceptions(definition);
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolutionException.class)
     public void testInvalidRepository() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.INVALID, TARGET_FEATURE));
         subject.resolveContentWithExceptions(definition);
     }
 
     @Test
-    public void testResolveWithBundleInclusionListYieldsWarning() {
+    public void testResolveWithBundleInclusionListYieldsWarning() throws Exception {
         List<Location> noLocations = Collections.emptyList();
         TargetDefinition definition = new TargetDefinitionStub(noLocations, true);
         subject.resolveContent(definition);

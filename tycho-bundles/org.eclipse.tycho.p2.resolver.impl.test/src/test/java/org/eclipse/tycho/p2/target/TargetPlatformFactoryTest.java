@@ -99,7 +99,7 @@ public class TargetPlatformFactoryTest {
     }
 
     @Test
-    public void testFinalTargetPlatformContainsTargetFileIU() {
+    public void testFinalTargetPlatformContainsTargetFileIU() throws Exception {
         tpConfig.addTargetDefinition(targetDefinition(TestRepositories.V1_AND_V2, MAIN_BUNDLE));
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
 
