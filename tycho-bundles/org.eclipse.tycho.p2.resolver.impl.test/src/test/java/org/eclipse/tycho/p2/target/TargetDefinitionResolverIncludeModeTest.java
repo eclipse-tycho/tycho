@@ -35,7 +35,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TargetDefinitionResolverIncludeModeTests {
+public class TargetDefinitionResolverIncludeModeTest {
 
     @Rule
     public final P2Context p2Context = new P2Context();

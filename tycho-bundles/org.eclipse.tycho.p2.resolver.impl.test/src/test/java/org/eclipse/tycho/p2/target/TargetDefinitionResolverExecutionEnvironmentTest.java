@@ -25,7 +25,7 @@ import java.util.List;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeModeTests.PlannerLocationStub;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeModeTest.PlannerLocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.RepositoryStub;
 import org.eclipse.tycho.p2.target.ee.StandardEEResolutionHints;

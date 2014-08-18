@@ -253,7 +253,7 @@ public class TargetPlatformFactoryTest {
     }
 
     private static TargetDefinition plannerTargetDefinition(TestRepositories repository, IVersionedId unit) {
-        TargetDefinition.Location location = new TargetDefinitionResolverIncludeModeTests.PlannerLocationStub(
+        TargetDefinition.Location location = new TargetDefinitionResolverIncludeModeTest.PlannerLocationStub(
                 repository, unit);
         return new TargetDefinitionResolverTest.TargetDefinitionStub(Collections.singletonList(location));
     }
