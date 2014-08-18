@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7672b30_1adceb58",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/core/resolver/shared/ResolutionException.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-08-18T11:49:05Z",
+      "side": 1,
+      "message": "Given that this exception is only used for better error messages, and not used for a (recoverable) situation in an API contract, this should be a RuntimeException.\n\nAlso, I have my doubts that the name will lead to the intended use: The purpose is to have an exception type that indicates a configuration error. With the current name it may also be misused for \"internal\" resolver errors.\n\nSo it would be better to reflect the purpose in the name. Following the Maven convention, it should be called XXXFailureException, as in MojoFailureException. My first idea would have been BuildFailureException - but that Type exists in org.apache.maven. IMHO it would still be okay to use that name again.\n\nOtherwise, we could call it TychoBuildFailureException or just TychoFailureException.",
+      "revId": "0c1314f773b4a14c54ed0ea82c24c68d150cd9f9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7672b30_ff7da1d5",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-08-18T11:49:05Z",
+      "side": 1,
+      "message": "The ResolutionExceptions thrown here are lacking the information from definition.getOrigin().\n\nThe type TargetDefinitionResolutionException is not (any more) referenced outside this class, so it can in fact be replaced by a different type, or made class private. But the message should not get less useful.",
+      "revId": "0c1314f773b4a14c54ed0ea82c24c68d150cd9f9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
