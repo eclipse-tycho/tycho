@@ -33,6 +33,23 @@
       "revId": "0c1314f773b4a14c54ed0ea82c24c68d150cd9f9",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7672b30_baecd705",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-08-18T11:51:07Z",
+      "side": 1,
+      "message": "Good find. I didn\u0027t know that throwing an \"expected\" exception was possible in afterProjectsRead.",
+      "revId": "0c1314f773b4a14c54ed0ea82c24c68d150cd9f9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
