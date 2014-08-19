@@ -12,11 +12,17 @@ package org.eclipse.tycho.p2.util.resolution;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class ResolutionDataImpl implements ResolutionData {
 
@@ -36,8 +42,39 @@ public class ResolutionDataImpl implements ResolutionData {
         return availableIUs;
     }
 
+    /**
+     * Sets the installable units which may be used by the resolver.
+     * 
+     * @param availableIUs
+     *            the units available to the resolver. Must not contain any non-applicable execution
+     *            environment units.
+     */
     public void setAvailableIUs(Collection<IInstallableUnit> availableIUs) {
         this.availableIUs = availableIUs;
+    }
+
+    /**
+     * Sets the available installable units, removing all non-applicable execution environment
+     * units.
+     * 
+     * @see #setAvailableIUs(Collection)
+     */
+    public void setAvailableIUsAndFilter(IQueryable<IInstallableUnit> unfilteredAvailableUnits) {
+        this.availableIUs = new LinkedHashSet<IInstallableUnit>();
+
+        IQueryResult<IInstallableUnit> allUnits = unfilteredAvailableUnits.query(QueryUtil.ALL_UNITS,
+                new NullProgressMonitor());
+        copyApplyingEEFilter(allUnits.iterator(), this.availableIUs, eeResolutionHints);
+    }
+
+    private static void copyApplyingEEFilter(Iterator<IInstallableUnit> source, Collection<IInstallableUnit> sink,
+            ExecutionEnvironmentResolutionHints eeResolutionHints) {
+        while (source.hasNext()) {
+            IInstallableUnit unit = source.next();
+            if (!eeResolutionHints.isNonApplicableEEUnit(unit)) {
+                sink.add(unit);
+            }
+        }
     }
 
     @Override

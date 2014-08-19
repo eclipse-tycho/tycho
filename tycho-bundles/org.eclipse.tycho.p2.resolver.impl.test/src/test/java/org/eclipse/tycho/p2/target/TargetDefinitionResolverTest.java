@@ -94,7 +94,7 @@ public class TargetDefinitionResolverTest {
         TargetDefinition definition = definitionWith(new OtherLocationStub(), new LocationStub(TARGET_FEATURE));
         TargetDefinitionContent units = subject.resolveContent(definition);
         assertThat(versionedIdsOf(units), hasItem(MAIN_BUNDLE));
-        logVerifier.expectWarning("Target location type: Directory is not supported");
+        logVerifier.expectWarning("Target location type 'Directory' is not supported");
     }
 
     @Test
