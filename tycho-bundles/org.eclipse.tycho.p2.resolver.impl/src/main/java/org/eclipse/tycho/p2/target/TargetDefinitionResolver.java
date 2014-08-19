@@ -14,7 +14,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +21,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -59,7 +59,7 @@ import org.eclipse.tycho.repository.util.StatusTool;
  * 
  * @see TargetDefinitionResolverService
  */
-public class TargetDefinitionResolver {
+public final class TargetDefinitionResolver {
 
     private IMetadataRepositoryManager metadataManager;
     private IRepositoryIdManager repositoryIdManager;
@@ -97,68 +97,18 @@ public class TargetDefinitionResolver {
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
 
         List<URI> artifactRepositories = new ArrayList<URI>();
-
-        Set<IInstallableUnit> availableUnits = new LinkedHashSet<IInstallableUnit>();
-
-        Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>();
-
-        IncludeMode includeMode = null;
-        Boolean includeAllEnvironments = null;
+        ResolverRun resolverRun = new ResolverRun();
 
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation) {
-                InstallableUnitLocation iuLocationDefinition = (InstallableUnitLocation) locationDefinition;
+                resolverRun.addLocation((InstallableUnitLocation) locationDefinition);
 
-                if (includeMode != null && includeMode != iuLocationDefinition.getIncludeMode()) {
-                    throw new TargetDefinitionResolutionException("Include mode must be the same for all locations");
-                }
-                includeMode = iuLocationDefinition.getIncludeMode();
-
-                if (includeAllEnvironments != null
-                        && includeAllEnvironments.booleanValue() != iuLocationDefinition.includeAllEnvironments()) {
-                    throw new TargetDefinitionResolutionException(
-                            "The attribute 'includeAllPlatforms' must be the same for all locations");
-                }
-                includeAllEnvironments = iuLocationDefinition.includeAllEnvironments();
-
-                List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
-                for (Repository repository : iuLocationDefinition.getRepositories()) {
-                    repositoryIdManager.addMapping(repository.getId(), repository.getLocation());
+                for (Repository repository : ((InstallableUnitLocation) locationDefinition).getRepositories()) {
                     artifactRepositories.add(repository.getLocation());
-                    metadataRepositories.add(loadRepository(repository));
-                }
-
-                IQueryable<IInstallableUnit> locationUnits = new CompoundQueryable<IInstallableUnit>(
-                        metadataRepositories.toArray(new IMetadataRepository[metadataRepositories.size()]));
-
-                for (Unit unit : iuLocationDefinition.getUnits()) {
-                    rootIUs.add(getUnitInstance(locationUnits, unit));
-                }
-
-                Iterator<IInstallableUnit> iterator = locationUnits.query(QueryUtil.ALL_UNITS, monitor).iterator();
-                while (iterator.hasNext()) {
-                    IInstallableUnit unit = iterator.next();
-                    if (!executionEnvironment.isNonApplicableEEUnit(unit)) {
-                        availableUnits.add(unit);
-                    }
                 }
             } else {
-                logger.warn(NLS.bind("Target location type: {0} is not supported",
-                        locationDefinition.getTypeDescription()));
+                logger.warn("Target location type '" + locationDefinition.getTypeDescription() + "' is not supported");
             }
-        }
-
-        Collection<IInstallableUnit> units;
-        if (!availableUnits.isEmpty()) {
-            ResolutionDataImpl data = new ResolutionDataImpl(executionEnvironment);
-            data.setRootIUs(rootIUs);
-            data.setAvailableIUs(availableUnits);
-
-            AbstractResolutionStrategy strategy = getResolutionStrategy(includeMode, includeAllEnvironments);
-            strategy.setData(data);
-            units = strategy.multiPlatformResolve(environments, monitor);
-        } else {
-            units = Collections.emptySet();
         }
 
         if (definition.hasIncludedBundles()) {
@@ -166,91 +116,180 @@ public class TargetDefinitionResolver {
             logger.warn("De-selecting bundles in a target definition file is not supported. See http://wiki.eclipse.org/Tycho_Messages_Explained#Target_File_Include_Bundles for alternatives.");
         }
 
-        return new TargetDefinitionContent(units, artifactRepositories);
+        return new TargetDefinitionContent(resolverRun.resolve(), artifactRepositories);
     }
 
-    private AbstractResolutionStrategy getResolutionStrategy(IncludeMode includeMode, Boolean includeAllEnvironments)
-            throws TargetDefinitionResolutionException {
-        switch (includeMode) {
-        case PLANNER:
-            return getPlannerResolutionStrategy(includeAllEnvironments);
-        case SLICER:
-            return getSlicerResolutionStrategy(includeAllEnvironments);
-        default:
-            throw new IllegalStateException();
+    private class ResolverRun {
+
+        private List<IQueryable<IInstallableUnit>> availableUnitSources = new ArrayList<IQueryable<IInstallableUnit>>();
+        private Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>();
+
+        private IncludeMode includeMode = null;
+        private Boolean includeAllEnvironments = null;
+
+        public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException {
+            setIncludeMode(iuLocationDefinition.getIncludeMode());
+            setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
+
+            LoadedIULocation loadedLocation = new LoadedIULocation(iuLocationDefinition);
+            rootIUs.addAll(loadedLocation.getRootIUs());
+
+            availableUnitSources.addAll(loadedLocation.getAvailableUnits());
         }
-    }
 
-    private AbstractResolutionStrategy getSlicerResolutionStrategy(final boolean ignoreFilters) {
-        return new SlicerResolutionStrategy(logger, ignoreFilters) {
-
-            @Override
-            protected RuntimeException newResolutionException(IStatus status) {
-                return TargetDefinitionResolver.this.newResolutionException(status);
+        private void setIncludeMode(IncludeMode newValue) {
+            if (includeMode != newValue) {
+                if (includeMode != null) {
+                    throw new TargetDefinitionResolutionException("Include mode must be the same for all locations");
+                }
+                includeMode = newValue;
             }
-        };
-    }
-
-    private AbstractResolutionStrategy getPlannerResolutionStrategy(boolean includeAllEnvironments)
-            throws TargetDefinitionResolutionException {
-        if (includeAllEnvironments) {
-            throw new TargetDefinitionResolutionException(
-                    "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
         }
-        return new ProjectorResolutionStrategy(logger) {
-            @Override
-            protected RuntimeException newResolutionException(IStatus status) {
-                return TargetDefinitionResolver.this.newResolutionException(status);
+
+        private void setIncludeAllEnvironments(Boolean newValue) {
+            if (!newValue.equals(includeAllEnvironments)) {
+                if (includeAllEnvironments != null) {
+                    throw new TargetDefinitionResolutionException(
+                            "The attribute 'includeAllPlatforms' must be the same for all locations");
+                }
+                includeAllEnvironments = newValue;
             }
-        };
+        }
+
+        public Collection<IInstallableUnit> resolve() {
+            if (!addedLocationsHaveContent()) {
+                return Collections.emptySet();
+            }
+
+            ResolutionDataImpl data = new ResolutionDataImpl(executionEnvironment);
+            data.setRootIUs(rootIUs);
+            data.setAvailableIUsAndFilter(compoundQueriable(availableUnitSources));
+
+            AbstractResolutionStrategy strategy = getResolutionStrategy();
+            strategy.setData(data);
+
+            return strategy.multiPlatformResolve(environments, monitor);
+        }
+
+        private boolean addedLocationsHaveContent() {
+            return !availableUnitSources.isEmpty();
+        }
+
+        private AbstractResolutionStrategy getResolutionStrategy() throws TargetDefinitionResolutionException {
+            switch (includeMode) {
+            case PLANNER:
+                return getPlannerResolutionStrategy();
+            case SLICER:
+                return getSlicerResolutionStrategy();
+            default:
+                throw new IllegalStateException();
+            }
+        }
+
+        private AbstractResolutionStrategy getSlicerResolutionStrategy() {
+            boolean ignoreFilters = includeAllEnvironments;
+            return new SlicerResolutionStrategy(logger, ignoreFilters) {
+
+                @Override
+                protected RuntimeException newResolutionException(IStatus status) {
+                    return TargetDefinitionResolver.newResolutionException(status);
+                }
+            };
+        }
+
+        private AbstractResolutionStrategy getPlannerResolutionStrategy() throws TargetDefinitionResolutionException {
+            if (includeAllEnvironments) {
+                throw new TargetDefinitionResolutionException(
+                        "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
+            }
+            return new ProjectorResolutionStrategy(logger) {
+                @Override
+                protected RuntimeException newResolutionException(IStatus status) {
+                    return TargetDefinitionResolver.newResolutionException(status);
+                }
+            };
+        }
+
     }
 
-    private IMetadataRepository loadRepository(Repository repository) throws TargetDefinitionResolutionException {
-        try {
-            return metadataManager.loadRepository(repository.getLocation(), monitor);
-        } catch (ProvisionException e) {
-            throw new TargetDefinitionResolutionException("Failed to load p2 metadata repository from location "
-                    + repository.getLocation(), e);
+    private class LoadedIULocation {
+
+        private InstallableUnitLocation locationDefinition;
+        private List<IMetadataRepository> loadedRepositories;
+
+        public LoadedIULocation(InstallableUnitLocation locationDefinition) {
+            this.locationDefinition = locationDefinition;
+
+            loadedRepositories = new ArrayList<IMetadataRepository>();
+            for (Repository repository : locationDefinition.getRepositories()) {
+                repositoryIdManager.addMapping(repository.getId(), repository.getLocation());
+                loadedRepositories.add(loadRepository(repository));
+            }
+        }
+
+        private IMetadataRepository loadRepository(Repository repository) throws TargetDefinitionResolutionException {
+            try {
+                return metadataManager.loadRepository(repository.getLocation(), monitor);
+            } catch (ProvisionException e) {
+                throw new TargetDefinitionResolutionException("Failed to load p2 metadata repository from location "
+                        + repository.getLocation(), e);
+            }
+        }
+
+        public Collection<? extends IQueryable<IInstallableUnit>> getAvailableUnits() {
+            return loadedRepositories;
+        }
+
+        public Collection<? extends IInstallableUnit> getRootIUs() throws TargetDefinitionSyntaxException {
+            List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+            for (Unit unitReference : locationDefinition.getUnits()) {
+                result.add(findUnitInThisLocation(unitReference));
+            }
+            return result;
+        }
+
+        private IInstallableUnit findUnitInThisLocation(Unit unitReference) throws TargetDefinitionSyntaxException,
+                TargetDefinitionResolutionException {
+            IQueryResult<IInstallableUnit> queryResult = findUnit(unitReference, compoundQueriable(loadedRepositories));
+
+            if (queryResult.isEmpty()) {
+                throw new TargetDefinitionResolutionException(NLS.bind(
+                        "Could not find \"{0}/{1}\" in the repositories of the current location",
+                        unitReference.getId(), unitReference.getVersion()));
+            }
+            // if the repository contains the same iu/version twice, both are identical and it is OK to use either 
+            IInstallableUnit unitInstance = queryResult.iterator().next();
+            return unitInstance;
+        }
+
+        private IQueryResult<IInstallableUnit> findUnit(Unit unitReference, IQueryable<IInstallableUnit> units)
+                throws TargetDefinitionSyntaxException {
+            Version version = parseVersion(unitReference);
+
+            // the createIUQuery treats 0.0.0 version as "any version", and all other versions as exact versions
+            IQuery<IInstallableUnit> matchingIUQuery = QueryUtil.createIUQuery(unitReference.getId(), version);
+            IQuery<IInstallableUnit> latestMatchingIUQuery = QueryUtil.createLatestQuery(matchingIUQuery);
+
+            IQueryResult<IInstallableUnit> queryResult = units.query(latestMatchingIUQuery, new NullProgressMonitor());
+            return queryResult;
+        }
+
+        private Version parseVersion(Unit unitReference) throws TargetDefinitionSyntaxException {
+            try {
+                return Version.parseVersion(unitReference.getVersion());
+            } catch (IllegalArgumentException e) {
+                throw new TargetDefinitionSyntaxException(NLS.bind("Cannot parse version \"{0}\" of unit \"{1}\"",
+                        unitReference.getVersion(), unitReference.getId()), e);
+            }
         }
     }
 
-    private IInstallableUnit getUnitInstance(IQueryable<IInstallableUnit> units, Unit unitReference)
-            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
-        IQueryResult<IInstallableUnit> queryResult = searchUnitInThisLocation(units, unitReference);
-
-        if (queryResult.isEmpty()) {
-            throw new TargetDefinitionResolutionException(NLS.bind(
-                    "Could not find \"{0}/{1}\" in the repositories of the current location", unitReference.getId(),
-                    unitReference.getVersion()));
-        }
-        // if the repository contains the same iu/version twice, both are identical and
-        // it is OK to use either 
-        IInstallableUnit unitInstance = queryResult.iterator().next();
-        return unitInstance;
-    }
-
-    private IQueryResult<IInstallableUnit> searchUnitInThisLocation(IQueryable<IInstallableUnit> units,
-            Unit unitReference) throws TargetDefinitionSyntaxException {
-        Version version = parseVersion(unitReference);
-
-        // the createIUQuery treats 0.0.0 version as "any version", and all other versions as exact versions
-        IQuery<IInstallableUnit> matchingIUQuery = QueryUtil.createIUQuery(unitReference.getId(), version);
-        IQuery<IInstallableUnit> latestMatchingIUQuery = QueryUtil.createLatestQuery(matchingIUQuery);
-
-        IQueryResult<IInstallableUnit> queryResult = units.query(latestMatchingIUQuery, monitor);
-        return queryResult;
-    }
-
-    /* package */RuntimeException newResolutionException(IStatus status) {
+    static RuntimeException newResolutionException(IStatus status) {
         return new TargetDefinitionResolutionException(StatusTool.collectProblems(status), new CoreException(status));
     }
 
-    private Version parseVersion(Unit unitReference) throws TargetDefinitionSyntaxException {
-        try {
-            return Version.parseVersion(unitReference.getVersion());
-        } catch (IllegalArgumentException e) {
-            throw new TargetDefinitionSyntaxException(NLS.bind("Cannot parse version \"{0}\" of unit \"{1}\"",
-                    unitReference.getVersion(), unitReference.getId()), e);
-        }
+    @SuppressWarnings("unchecked")
+    static CompoundQueryable<IInstallableUnit> compoundQueriable(List<? extends IQueryable<IInstallableUnit>> queryable) {
+        return new CompoundQueryable<IInstallableUnit>(queryable.toArray(new IQueryable[queryable.size()]));
     }
 }
