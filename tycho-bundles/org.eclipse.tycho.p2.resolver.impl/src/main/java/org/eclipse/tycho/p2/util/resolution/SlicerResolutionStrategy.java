@@ -69,7 +69,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
     @Override
     public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
-            IProgressMonitor monitor) {
+            IProgressMonitor monitor) throws ResolverException {
         if (ignoreFilters) {
             // short cut: properties would ignored for each single resolution, so resolve just once 
             return resolve(Collections.<String, String> emptyMap(), monitor);
@@ -78,7 +78,8 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
     }
 
     @Override
-    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor)
+            throws ResolverException {
 
         IQueryable<IInstallableUnit> slice = slice(properties, monitor);
 

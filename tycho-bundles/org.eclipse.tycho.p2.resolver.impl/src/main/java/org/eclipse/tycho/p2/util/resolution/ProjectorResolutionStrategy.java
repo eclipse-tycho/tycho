@@ -22,6 +22,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.director.Projector;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
@@ -35,6 +36,7 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
 public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrategy {
@@ -54,7 +56,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
     }
 
     @Override
-    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
+    public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor)
+            throws ResolverException {
 
         Map<String, String> newSelectionContext = SimplePlanner.createSelectionContext(properties);
 
@@ -76,16 +79,9 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                 seedUnits /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
-            Set<Explanation> explanation = projector.getExplanation(monitor);
-
-            logger.info(newSelectionContext.toString());
-            logger.error("Cannot resolve project dependencies:");
-            for (Explanation explanationLine : explanation) {
-                logger.error("  " + explanationLine.toString());
-            }
-            logger.error("");
-
-            throw newResolutionException(s);
+            Set<Explanation> explanation = projector.getExplanation(new NullProgressMonitor()); // suppress "Cannot complete the request.  Generating details."
+            throw new ResolverException(toString(explanation), newSelectionContext.toString(),
+                    StatusTool.findException(s));
         }
         Collection<IInstallableUnit> newState = projector.extractSolution();
 
@@ -99,6 +95,15 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         }
 
         return newState;
+    }
+
+    private String toString(Set<Explanation> explanation) {
+        StringBuilder result = new StringBuilder();
+        for (Explanation explanationLine : explanation) {
+            result.append(explanationLine.toString());
+            result.append('\n');
+        }
+        return result.substring(0, result.length() - 1);
     }
 
     /*

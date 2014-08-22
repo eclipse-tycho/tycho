@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
@@ -22,18 +22,27 @@ public class MultiLineLogger implements MavenLogger {
         this.delegate = delegate;
     }
 
+    @Override
     public void error(String message) {
         for (String messageLine : message.split("\n")) {
             delegate.error(messageLine);
         }
     }
 
+    public void error(String message, String prefix) {
+        for (String messageLine : message.split("\n")) {
+            delegate.error(prefix + messageLine);
+        }
+    }
+
+    @Override
     public void warn(String message) {
         for (String messageLine : message.split("\n")) {
             delegate.warn(messageLine);
         }
     }
 
+    @Override
     public void warn(String message, Throwable cause) {
         String[] messageLines = message.split("\n");
 
@@ -47,22 +56,26 @@ public class MultiLineLogger implements MavenLogger {
         }
     }
 
+    @Override
     public void info(String message) {
         for (String messageLine : message.split("\n")) {
             delegate.info(messageLine);
         }
     }
 
+    @Override
     public void debug(String message) {
         for (String messageLine : message.split("\n")) {
             delegate.debug(messageLine);
         }
     }
 
+    @Override
     public boolean isDebugEnabled() {
         return delegate.isDebugEnabled();
     }
 
+    @Override
     public boolean isExtendedDebugEnabled() {
         return delegate.isExtendedDebugEnabled();
     }

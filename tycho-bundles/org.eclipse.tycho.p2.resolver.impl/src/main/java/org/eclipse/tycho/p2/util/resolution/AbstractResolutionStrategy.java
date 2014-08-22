@@ -18,11 +18,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.repository.util.StatusTool;
 
 public abstract class AbstractResolutionStrategy {
     protected static final IInstallableUnit[] EMPTY_IU_ARRAY = new IInstallableUnit[0];
@@ -39,12 +37,13 @@ public abstract class AbstractResolutionStrategy {
         this.data = data;
     }
 
-    public final Collection<IInstallableUnit> resolve(TargetEnvironment environment, IProgressMonitor monitor) {
+    public final Collection<IInstallableUnit> resolve(TargetEnvironment environment, IProgressMonitor monitor)
+            throws ResolverException {
         return resolve(getEffectiveFilterProperties(environment), monitor);
     }
 
     public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
-            IProgressMonitor monitor) {
+            IProgressMonitor monitor) throws ResolverException {
         Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
 
         for (TargetEnvironment environment : environments) {
@@ -54,7 +53,8 @@ public abstract class AbstractResolutionStrategy {
         return result;
     }
 
-    protected abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor);
+    protected abstract Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor)
+            throws ResolverException;
 
     private Map<String, String> getEffectiveFilterProperties(TargetEnvironment environment) {
         Map<String, String> result = environment.toFilterProperties();
@@ -74,7 +74,4 @@ public abstract class AbstractResolutionStrategy {
         }
     }
 
-    protected RuntimeException newResolutionException(IStatus status) {
-        return new RuntimeException(StatusTool.collectProblems(status), status.getException());
-    }
 }
