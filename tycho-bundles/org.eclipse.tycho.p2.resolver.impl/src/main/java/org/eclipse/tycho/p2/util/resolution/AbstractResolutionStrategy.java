@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.tycho.core.BuildFailureException;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.repository.util.StatusTool;
@@ -94,7 +95,7 @@ public abstract class AbstractResolutionStrategy {
         }
     }
 
-    protected RuntimeException newResolutionException(IStatus status) {
-        return new RuntimeException(StatusTool.collectProblems(status), status.getException());
+    protected BuildFailureException newBuildFailureException(IStatus status) {
+        return new BuildFailureException(StatusTool.collectProblems(status), status.getException());
     }
 }

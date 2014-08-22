@@ -85,7 +85,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
             }
             logger.error("");
 
-            throw newResolutionException(s);
+            throw newBuildFailureException(s);
         }
         Collection<IInstallableUnit> newState = projector.extractSolution();
 

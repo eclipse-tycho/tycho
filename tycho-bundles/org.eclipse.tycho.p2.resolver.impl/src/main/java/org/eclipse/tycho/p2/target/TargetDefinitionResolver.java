@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.core.BuildFailureException;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
@@ -85,10 +86,10 @@ public class TargetDefinitionResolver {
         try {
             return resolveContentWithExceptions(definition);
         } catch (TargetDefinitionSyntaxException e) {
-            throw new RuntimeException("Invalid syntax in target definition " + definition.getOrigin() + ": "
+            throw new BuildFailureException("Invalid syntax in target definition " + definition.getOrigin() + ": "
                     + e.getMessage(), e);
         } catch (TargetDefinitionResolutionException e) {
-            throw new RuntimeException("Failed to resolve target definition " + definition.getOrigin(), e);
+            throw new BuildFailureException("Failed to resolve target definition " + definition.getOrigin(), e);
         }
     }
 
@@ -183,8 +184,8 @@ public class TargetDefinitionResolver {
         return new SlicerResolutionStrategy(logger, ignoreFilters) {
 
             @Override
-            protected RuntimeException newResolutionException(IStatus status) {
-                return TargetDefinitionResolver.this.newResolutionException(status);
+            protected BuildFailureException newBuildFailureException(IStatus status) {
+                return TargetDefinitionResolver.this.newBuildFailurenException(status);
             }
         };
     }
@@ -197,8 +198,8 @@ public class TargetDefinitionResolver {
         }
         return new ProjectorResolutionStrategy(logger) {
             @Override
-            protected RuntimeException newResolutionException(IStatus status) {
-                return TargetDefinitionResolver.this.newResolutionException(status);
+            protected BuildFailureException newBuildFailureException(IStatus status) {
+                return TargetDefinitionResolver.this.newBuildFailurenException(status);
             }
         };
     }
@@ -239,8 +240,8 @@ public class TargetDefinitionResolver {
         return queryResult;
     }
 
-    /* package */RuntimeException newResolutionException(IStatus status) {
-        return new TargetDefinitionResolutionException(StatusTool.collectProblems(status), new CoreException(status));
+    /* package */BuildFailureException newBuildFailurenException(IStatus status) {
+        return new BuildFailureException(StatusTool.collectProblems(status), new CoreException(status));
     }
 
     private Version parseVersion(Unit unitReference) throws TargetDefinitionSyntaxException {

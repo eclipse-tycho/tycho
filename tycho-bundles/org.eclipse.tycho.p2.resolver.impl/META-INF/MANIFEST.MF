@@ -32,6 +32,7 @@ Export-Package: org.eclipse.tycho.p2.impl;x-friends:="org.eclipse.tycho.p2.impl.
  org.eclipse.tycho.p2.target.ee;x-friends:="org.eclipse.tycho.p2.tools.impl"
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
+ org.eclipse.tycho.core,
  org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.facade,
  org.eclipse.tycho.core.resolver.shared,

@@ -73,7 +73,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         IQueryable<IInstallableUnit> slice = slicer.slice(seedIUs.toArray(EMPTY_IU_ARRAY), monitor);
         MultiStatus slicerStatus = slicer.getStatus();
         if (slice == null || isSlicerError(slicerStatus)) {
-            throw newResolutionException(slicer.getStatus());
+            throw newBuildFailureException(slicer.getStatus());
         }
 
         if (logger.isExtendedDebugEnabled()) {

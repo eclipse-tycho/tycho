@@ -23,6 +23,7 @@ import static org.hamcrest.CoreMatchers.any;
 import static org.junit.Assert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.tycho.core.BuildFailureException;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.LocationStub;
 import org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.TestRepositories;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -58,7 +59,7 @@ public class TargetDefinitionResolverIncludeModeTest {
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = BuildFailureException.class)
     public void testUnsatisfiedDependencyWithPlanner() throws Exception {
         // ignore logged errors
         logVerifier.expectError(any(String.class));
@@ -81,7 +82,7 @@ public class TargetDefinitionResolverIncludeModeTest {
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(MAIN_BUNDLE)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = BuildFailureException.class)
     public void testUnsatisfiedInclusionWithSlicerFails() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED,
                 TARGET_FEATURE));
