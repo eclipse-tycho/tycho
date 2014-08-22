@@ -18,9 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -34,7 +32,9 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -49,9 +49,9 @@ import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
+import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.p2.util.resolution.SlicerResolutionStrategy;
 import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
-import org.eclipse.tycho.repository.util.StatusTool;
 
 /**
  * Class which performs target definition resolution. This class is used by the
@@ -86,15 +86,25 @@ public final class TargetDefinitionResolver {
         try {
             return resolveContentWithExceptions(definition);
         } catch (TargetDefinitionSyntaxException e) {
-            throw new RuntimeException("Invalid syntax in target definition " + definition.getOrigin() + ": "
+            throw new BuildFailureException("Invalid syntax in target definition " + definition.getOrigin() + ": "
                     + e.getMessage(), e);
         } catch (TargetDefinitionResolutionException e) {
-            throw new RuntimeException("Failed to resolve target definition " + definition.getOrigin(), e);
+            throw new BuildFailureException("Failed to resolve target definition " + definition.getOrigin() + ": "
+                    + e.getMessage(), e);
+        } catch (ResolverException e) {
+            logResolverException(e);
+            throw new BuildFailureException("Failed to resolve target definition " + definition.getOrigin(), e);
         }
     }
 
+    private void logResolverException(ResolverException e) {
+        logger.error("Cannot resolve target definition file:");
+        new MultiLineLogger(logger).error(e.getDetails(), "  ");
+        logger.error("");
+    }
+
     TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
-            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
+            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException, ResolverException {
 
         List<URI> artifactRepositories = new ArrayList<URI>();
         ResolverRun resolverRun = new ResolverRun();
@@ -127,7 +137,8 @@ public final class TargetDefinitionResolver {
         private IncludeMode includeMode = null;
         private Boolean includeAllEnvironments = null;
 
-        public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException {
+        public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException,
+                TargetDefinitionResolutionException {
             setIncludeMode(iuLocationDefinition.getIncludeMode());
             setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
 
@@ -137,7 +148,7 @@ public final class TargetDefinitionResolver {
             availableUnitSources.addAll(loadedLocation.getAvailableUnits());
         }
 
-        private void setIncludeMode(IncludeMode newValue) {
+        private void setIncludeMode(IncludeMode newValue) throws TargetDefinitionResolutionException {
             if (includeMode != newValue) {
                 if (includeMode != null) {
                     throw new TargetDefinitionResolutionException("Include mode must be the same for all locations");
@@ -146,7 +157,7 @@ public final class TargetDefinitionResolver {
             }
         }
 
-        private void setIncludeAllEnvironments(Boolean newValue) {
+        private void setIncludeAllEnvironments(Boolean newValue) throws TargetDefinitionResolutionException {
             if (!newValue.equals(includeAllEnvironments)) {
                 if (includeAllEnvironments != null) {
                     throw new TargetDefinitionResolutionException(
@@ -156,7 +167,7 @@ public final class TargetDefinitionResolver {
             }
         }
 
-        public Collection<IInstallableUnit> resolve() {
+        public Collection<IInstallableUnit> resolve() throws TargetDefinitionResolutionException, ResolverException {
             if (!addedLocationsHaveContent()) {
                 return Collections.emptySet();
             }
@@ -188,13 +199,7 @@ public final class TargetDefinitionResolver {
 
         private AbstractResolutionStrategy getSlicerResolutionStrategy() {
             boolean ignoreFilters = includeAllEnvironments;
-            return new SlicerResolutionStrategy(logger, ignoreFilters) {
-
-                @Override
-                protected RuntimeException newResolutionException(IStatus status) {
-                    return TargetDefinitionResolver.newResolutionException(status);
-                }
-            };
+            return new SlicerResolutionStrategy(logger, ignoreFilters);
         }
 
         private AbstractResolutionStrategy getPlannerResolutionStrategy() throws TargetDefinitionResolutionException {
@@ -202,12 +207,7 @@ public final class TargetDefinitionResolver {
                 throw new TargetDefinitionResolutionException(
                         "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
             }
-            return new ProjectorResolutionStrategy(logger) {
-                @Override
-                protected RuntimeException newResolutionException(IStatus status) {
-                    return TargetDefinitionResolver.newResolutionException(status);
-                }
-            };
+            return new ProjectorResolutionStrategy(logger);
         }
 
     }
@@ -217,7 +217,7 @@ public final class TargetDefinitionResolver {
         private InstallableUnitLocation locationDefinition;
         private List<IMetadataRepository> loadedRepositories;
 
-        public LoadedIULocation(InstallableUnitLocation locationDefinition) {
+        public LoadedIULocation(InstallableUnitLocation locationDefinition) throws TargetDefinitionResolutionException {
             this.locationDefinition = locationDefinition;
 
             loadedRepositories = new ArrayList<IMetadataRepository>();
@@ -240,7 +240,8 @@ public final class TargetDefinitionResolver {
             return loadedRepositories;
         }
 
-        public Collection<? extends IInstallableUnit> getRootIUs() throws TargetDefinitionSyntaxException {
+        public Collection<? extends IInstallableUnit> getRootIUs() throws TargetDefinitionSyntaxException,
+                TargetDefinitionResolutionException {
             List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
             for (Unit unitReference : locationDefinition.getUnits()) {
                 result.add(findUnitInThisLocation(unitReference));
@@ -282,10 +283,6 @@ public final class TargetDefinitionResolver {
                         unitReference.getVersion(), unitReference.getId()), e);
             }
         }
-    }
-
-    static RuntimeException newResolutionException(IStatus status) {
-        return new TargetDefinitionResolutionException(StatusTool.collectProblems(status), new CoreException(status));
     }
 
     @SuppressWarnings("unchecked")

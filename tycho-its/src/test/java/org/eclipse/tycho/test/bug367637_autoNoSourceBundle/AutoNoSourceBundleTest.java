@@ -29,7 +29,7 @@ public class AutoNoSourceBundleTest extends AbstractTychoIntegrationTest {
             verifier.executeGoals(Arrays.asList("clean", "install"));
             Assert.fail("Reference to a missing source bundle did not fail the build");
         } catch (VerificationException expected) {
-            verifier.verifyTextInLog("Unable to satisfy dependency from feature.feature.group 1.0.0.qualifier to bundle.source 0.0.0");
+            verifier.verifyTextInLog("feature.feature.group 1.0.0.qualifier requires 'bundle.source 0.0.0' but it could not be found");
         }
     }
 

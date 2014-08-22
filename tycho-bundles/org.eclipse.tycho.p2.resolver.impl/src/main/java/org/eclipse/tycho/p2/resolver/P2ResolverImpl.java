@@ -38,8 +38,10 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -53,6 +55,7 @@ import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.QueryableCollection;
 import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
+import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 @SuppressWarnings("restriction")
@@ -131,8 +134,14 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setData(data);
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
-        for (IInstallableUnit iu : strategy.multiPlatformResolve(environments, monitor)) {
-            result.addArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
+        try {
+            for (IInstallableUnit iu : strategy.multiPlatformResolve(environments, monitor)) {
+                result.addArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
+            }
+        } catch (ResolverException e) {
+            logger.error("Resolution failed:");
+            new MultiLineLogger(logger).error(e.getDetails(), "  ");
+            throw new RuntimeException(e);
         }
         return result;
     }
@@ -173,7 +182,18 @@ public class P2ResolverImpl implements P2Resolver {
         data.setAdditionalFilterProperties(additionalFilterProperties);
 
         strategy.setData(data);
-        Collection<IInstallableUnit> newState = strategy.resolve(environment, monitor);
+        Collection<IInstallableUnit> newState;
+        try {
+            newState = strategy.resolve(environment, monitor);
+        } catch (ResolverException e) {
+            logger.info(e.getSelectionContext());
+            logger.error("Cannot resolve project dependencies:");
+            new MultiLineLogger(logger).error(e.getDetails(), "  ");
+            logger.error("");
+            logger.error("The dependency resolution failed because there are requirements which are neither satisfied by artifacts "
+                    + "from the project's target platform nor by other projects in the reactor.");
+            throw new BuildFailureException("Cannot resolve dependencies of " + project.toString(), e);
+        }
 
         if (usedTargetPlatformUnits != null) {
             usedTargetPlatformUnits.addAll(newState);

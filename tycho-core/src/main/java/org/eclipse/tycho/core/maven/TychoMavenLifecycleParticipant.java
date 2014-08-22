@@ -31,6 +31,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
@@ -59,20 +60,26 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
 
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
-        if (disableLifecycleParticipation(session)) {
-            return;
-        }
-        List<MavenProject> projects = session.getProjects();
-        validate(projects);
-        configureComponents(session);
+        try {
+            if (disableLifecycleParticipation(session)) {
+                return;
+            }
+            List<MavenProject> projects = session.getProjects();
+            validate(projects);
+            configureComponents(session);
 
-        for (MavenProject project : projects) {
-            resolver.setupProject(session, project, DefaultReactorProject.adapt(project));
-        }
+            for (MavenProject project : projects) {
+                resolver.setupProject(session, project, DefaultReactorProject.adapt(project));
+            }
 
-        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
-        for (MavenProject project : projects) {
-            resolver.resolveProject(session, project, reactorProjects);
+            List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+            for (MavenProject project : projects) {
+                resolver.resolveProject(session, project, reactorProjects);
+            }
+        } catch (BuildFailureException e) {
+            // build failure is not an internal (unexpected) error, so avoid printing a stack
+            // trace by wrapping it in MavenExecutionException   
+            throw new MavenExecutionException(e.getMessage(), e);
         }
     }
 
