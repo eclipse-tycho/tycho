@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
 abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrategy {
@@ -37,7 +38,8 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         super(logger);
     }
 
-    protected final IQueryable<IInstallableUnit> slice(Map<String, String> properties, IProgressMonitor monitor) {
+    protected final IQueryable<IInstallableUnit> slice(Map<String, String> properties, IProgressMonitor monitor)
+            throws ResolverException {
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Properties: " + properties.toString());
@@ -73,7 +75,8 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         IQueryable<IInstallableUnit> slice = slicer.slice(seedIUs.toArray(EMPTY_IU_ARRAY), monitor);
         MultiStatus slicerStatus = slicer.getStatus();
         if (slice == null || isSlicerError(slicerStatus)) {
-            throw newResolutionException(slicer.getStatus());
+            throw new ResolverException(StatusTool.collectProblems(slicerStatus),
+                    StatusTool.findException(slicerStatus));
         }
 
         if (logger.isExtendedDebugEnabled()) {

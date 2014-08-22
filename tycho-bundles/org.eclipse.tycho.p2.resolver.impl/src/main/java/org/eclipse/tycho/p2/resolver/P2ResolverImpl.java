@@ -38,6 +38,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -53,6 +54,7 @@ import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.QueryableCollection;
 import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
+import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 @SuppressWarnings("restriction")
@@ -131,8 +133,12 @@ public class P2ResolverImpl implements P2Resolver {
         strategy.setData(data);
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
-        for (IInstallableUnit iu : strategy.multiPlatformResolve(environments, monitor)) {
-            result.addArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
+        try {
+            for (IInstallableUnit iu : strategy.multiPlatformResolve(environments, monitor)) {
+                result.addArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, iu.getId(), iu.getVersion().toString(), iu);
+            }
+        } catch (ResolverException e) {
+            throw new RuntimeException(e);
         }
         return result;
     }
@@ -173,7 +179,14 @@ public class P2ResolverImpl implements P2Resolver {
         data.setAdditionalFilterProperties(additionalFilterProperties);
 
         strategy.setData(data);
-        Collection<IInstallableUnit> newState = strategy.resolve(environment, monitor);
+        Collection<IInstallableUnit> newState;
+        try {
+            newState = strategy.resolve(environment, monitor);
+        } catch (ResolverException e) {
+            throw new BuildFailureException("Could not resolve dependencies of " + project.toString()
+                    + " against the artifacts in the reactor and the project's target plaform. "
+                    + "Check the log for details.", e);
+        }
 
         if (usedTargetPlatformUnits != null) {
             usedTargetPlatformUnits.addAll(newState);

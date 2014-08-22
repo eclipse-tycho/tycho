@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -177,7 +177,7 @@ public class TargetDefinitionResolverTest {
      * the facade, syntax errors in the version attribute can only be detected by the resolver.
      */
     @Test(expected = TargetDefinitionSyntaxException.class)
-    public void testUnitWithWrongVersionYieldsSyntaxException() {
+    public void testUnitWithWrongVersionYieldsSyntaxException() throws Exception {
         TargetDefinition definition = definitionWith(new LocationStub(TestRepositories.V1_AND_V2,
                 REFERENCED_BUNDLE_INVALID_VERSION));
         subject.resolveContentWithExceptions(definition);

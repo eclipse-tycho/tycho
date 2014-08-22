@@ -29,6 +29,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionResolutionException;
+import org.eclipse.tycho.p2.util.resolution.ResolverException;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
 import org.junit.Before;
@@ -58,7 +59,7 @@ public class TargetDefinitionResolverIncludeModeTest {
                 bagEquals(versionedIdList(TARGET_FEATURE, MAIN_BUNDLE, REFERENCED_BUNDLE_V1, OPTIONAL_BUNDLE)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolverException.class)
     public void testUnsatisfiedDependencyWithPlanner() throws Exception {
         // ignore logged errors
         logVerifier.expectError(any(String.class));
@@ -81,7 +82,7 @@ public class TargetDefinitionResolverIncludeModeTest {
         assertThat(versionedIdsOf(units), bagEquals(versionedIdList(MAIN_BUNDLE)));
     }
 
-    @Test(expected = TargetDefinitionResolutionException.class)
+    @Test(expected = ResolverException.class)
     public void testUnsatisfiedInclusionWithSlicerFails() throws Exception {
         TargetDefinition definition = definitionWith(new SlicerLocationStub(TestRepositories.UNSATISFIED,
                 TARGET_FEATURE));

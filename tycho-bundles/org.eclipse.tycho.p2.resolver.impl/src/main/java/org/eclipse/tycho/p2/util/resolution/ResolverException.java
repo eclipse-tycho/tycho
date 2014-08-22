@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP SE and others.
+ * Copyright (c) 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,17 +8,14 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.p2.target.facade;
+package org.eclipse.tycho.p2.util.resolution;
 
-public class TargetDefinitionResolutionException extends RuntimeException {
+public class ResolverException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public TargetDefinitionResolutionException(String message) {
-        super(message);
+    public ResolverException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public TargetDefinitionResolutionException(String message, Throwable e) {
-        super(message, e);
-    }
 }
