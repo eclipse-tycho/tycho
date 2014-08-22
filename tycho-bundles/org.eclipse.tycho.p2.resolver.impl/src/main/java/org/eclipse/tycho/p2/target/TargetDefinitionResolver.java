@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP AG and others.
+ * Copyright (c) 2011, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -48,6 +48,7 @@ import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
+import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.p2.util.resolution.SlicerResolutionStrategy;
 import org.eclipse.tycho.repository.util.DuplicateFilteringLoggingProgressMonitor;
 import org.eclipse.tycho.repository.util.StatusTool;
@@ -149,11 +150,12 @@ public class TargetDefinitionResolver {
 
         Collection<IInstallableUnit> units;
         if (!availableUnits.isEmpty()) {
-            AbstractResolutionStrategy strategy = getResolutionStrategy(includeMode, includeAllEnvironments);
+            ResolutionDataImpl data = new ResolutionDataImpl(executionEnvironment);
+            data.setRootIUs(rootIUs);
+            data.setAvailableIUs(availableUnits);
 
-            strategy.setRootInstallableUnits(rootIUs);
-            strategy.setAvailableInstallableUnits(availableUnits);
-            strategy.setEEResolutionHints(executionEnvironment);
+            AbstractResolutionStrategy strategy = getResolutionStrategy(includeMode, includeAllEnvironments);
+            strategy.setData(data);
             units = strategy.multiPlatformResolve(environments, monitor);
         } else {
             units = Collections.emptySet();

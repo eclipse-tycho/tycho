@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.tycho.p2.util.resolution;
@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Before;
@@ -59,11 +60,13 @@ public class ProjectorResolutionStrategyTest {
     public final LogVerifier logVerifier = new LogVerifier();
 
     private ProjectorResolutionStrategy strategy;
+    private ResolutionDataImpl data = new ResolutionDataImpl(ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS);
 
     @Before
     public void setup() {
         strategy = new ProjectorResolutionStrategy(logVerifier.getLogger());
-        strategy.setRootInstallableUnits(Collections.<IInstallableUnit> emptyList());
+        strategy.setData(data);
+        data.setRootIUs(Collections.<IInstallableUnit> emptyList());
     }
 
     @Test
@@ -130,7 +133,7 @@ public class ProjectorResolutionStrategyTest {
     }
 
     private void invokefixSwtWithLinuxFragmentPresent(IInstallableUnit rootIU, final List<IInstallableUnit> selectedIUs) {
-        strategy.setRootInstallableUnits(Collections.singleton(rootIU));
+        data.setRootIUs(Collections.singleton(rootIU));
         final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
         availableIUs.addAll(selectedIUs);

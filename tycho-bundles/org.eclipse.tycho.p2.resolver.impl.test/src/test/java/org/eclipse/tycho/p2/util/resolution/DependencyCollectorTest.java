@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -35,8 +36,6 @@ public class DependencyCollectorTest {
 
     @Test
     public void missingDependencies() {
-        DependencyCollector dc = new DependencyCollector(logVerifier.getLogger());
-
         InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
         String time = Long.toString(System.currentTimeMillis());
         iud.setId(time);
@@ -48,15 +47,18 @@ public class DependencyCollectorTest {
         requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "this.is.a.missing.iu",
                 range, null, 1 /* min */, 1 /* max */, true /* greedy */));
 
-        iud.setRequirements((IRequirement[]) requirements.toArray(new IRequirement[requirements.size()]));
+        iud.setRequirements(requirements.toArray(new IRequirement[requirements.size()]));
 
         HashSet<IInstallableUnit> rootUIs = new HashSet<IInstallableUnit>();
         rootUIs.add(MetadataFactory.createInstallableUnit(iud));
 
-        dc.setRootInstallableUnits(rootUIs);
-        dc.setAdditionalRequirements(new ArrayList<IRequirement>());
-        dc.setAvailableInstallableUnits(Collections.<IInstallableUnit> emptyList());
+        ResolutionDataImpl data = new ResolutionDataImpl(ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS);
+        data.setRootIUs(rootUIs);
+        data.setAdditionalRequirements(new ArrayList<IRequirement>());
+        data.setAvailableIUs(Collections.<IInstallableUnit> emptyList());
 
+        DependencyCollector dc = new DependencyCollector(logVerifier.getLogger());
+        dc.setData(data);
         try {
             dc.resolve(Collections.<String, String> emptyMap(), new NullProgressMonitor());
             Assert.fail();

@@ -52,6 +52,7 @@ import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.QueryableCollection;
+import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 @SuppressWarnings("restriction")
@@ -93,6 +94,7 @@ public class P2ResolverImpl implements P2Resolver {
         }
     }
 
+    @Override
     public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project) {
         setContext(targetPlatform, project);
 
@@ -109,19 +111,24 @@ public class P2ResolverImpl implements P2Resolver {
         return results;
     }
 
+    @Override
     public P2ResolutionResult collectProjectDependencies(TargetPlatform targetPlatform, ReactorProject project) {
         setContext(targetPlatform, project);
         return resolveDependencies(project, new DependencyCollector(logger), new TargetEnvironment(null, null, null));
     }
 
+    @Override
     public P2ResolutionResult resolveMetadata(TargetPlatformConfigurationStub tpConfiguration, String eeName) {
-        ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
         P2TargetPlatform contextImpl = targetPlatformFactory.createTargetPlatform(tpConfiguration,
                 new ExecutionEnvironmentConfigurationStub(eeName), null, null);
-        strategy.setEEResolutionHints(contextImpl.getEEResolutionHints());
-        strategy.setAvailableInstallableUnits(contextImpl.getInstallableUnits());
-        strategy.setRootInstallableUnits(new HashSet<IInstallableUnit>());
-        strategy.setAdditionalRequirements(additionalRequirements);
+
+        ResolutionDataImpl data = new ResolutionDataImpl(contextImpl.getEEResolutionHints());
+        data.setAvailableIUs(contextImpl.getInstallableUnits());
+        data.setRootIUs(new HashSet<IInstallableUnit>());
+        data.setAdditionalRequirements(additionalRequirements);
+
+        ProjectorResolutionStrategy strategy = new ProjectorResolutionStrategy(logger);
+        strategy.setData(data);
 
         MetadataOnlyP2ResolutionResult result = new MetadataOnlyP2ResolutionResult();
         for (IInstallableUnit iu : strategy.multiPlatformResolve(environments, monitor)) {
@@ -131,6 +138,7 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     // TODO 412416 make this obsolete by adding appropriate getters in TargetPlatform interface
+    @Override
     public P2ResolutionResult getTargetPlatformAsResolutionResult(TargetPlatformConfigurationStub tpConfiguration,
             String eeName) {
         P2TargetPlatform targetPlatform = targetPlatformFactory.createTargetPlatform(tpConfiguration,
@@ -146,9 +154,11 @@ public class P2ResolverImpl implements P2Resolver {
     @SuppressWarnings("unchecked")
     protected P2ResolutionResult resolveDependencies(ReactorProject project, AbstractResolutionStrategy strategy,
             TargetEnvironment environment) {
+        ResolutionDataImpl data = new ResolutionDataImpl(context.getEEResolutionHints());
+
         Set<IInstallableUnit> availableUnits = context.getInstallableUnits();
         if (project != null) {
-            strategy.setRootInstallableUnits((Set<IInstallableUnit>) project.getDependencyMetadata(true));
+            data.setRootIUs((Set<IInstallableUnit>) project.getDependencyMetadata(true));
             Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
                     .getDependencyMetadata(false);
             if (!projectSecondaryIUs.isEmpty()) {
@@ -156,13 +166,13 @@ public class P2ResolverImpl implements P2Resolver {
                 availableUnits.addAll(projectSecondaryIUs);
             }
         } else {
-            strategy.setRootInstallableUnits(Collections.<IInstallableUnit> emptySet());
+            data.setRootIUs(Collections.<IInstallableUnit> emptySet());
         }
-        strategy.setAdditionalRequirements(additionalRequirements);
-        strategy.setAvailableInstallableUnits(availableUnits);
-        strategy.setEEResolutionHints(context.getEEResolutionHints());
-        strategy.setAdditionalFilterProperties(additionalFilterProperties);
+        data.setAdditionalRequirements(additionalRequirements);
+        data.setAvailableIUs(availableUnits);
+        data.setAdditionalFilterProperties(additionalFilterProperties);
 
+        strategy.setData(data);
         Collection<IInstallableUnit> newState = strategy.resolve(environment, monitor);
 
         if (usedTargetPlatformUnits != null) {
@@ -335,6 +345,7 @@ public class P2ResolverImpl implements P2Resolver {
         return Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PRODUCT));
     }
 
+    @Override
     public void setEnvironments(List<TargetEnvironment> environments) {
         if (environments == null) {
             throw new NullPointerException();
@@ -342,6 +353,7 @@ public class P2ResolverImpl implements P2Resolver {
         this.environments = environments;
     }
 
+    @Override
     public void setAdditionalFilterProperties(Map<String, String> additionalFilterProperties) {
         if (additionalFilterProperties == null) {
             throw new NullPointerException();
@@ -349,6 +361,7 @@ public class P2ResolverImpl implements P2Resolver {
         this.additionalFilterProperties = additionalFilterProperties;
     }
 
+    @Override
     public void addDependency(String type, String id, String versionRange) {
         if (ArtifactType.TYPE_INSTALLABLE_UNIT.equals(type)) {
             additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id,
@@ -369,6 +382,7 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     // TODO 412416 this should be a method on the class TargetPlatform
+    @Override
     public P2ResolutionResult resolveInstallableUnit(TargetPlatform targetPlatform, String id, String versionRange) {
         setContext(targetPlatform, null);
 
