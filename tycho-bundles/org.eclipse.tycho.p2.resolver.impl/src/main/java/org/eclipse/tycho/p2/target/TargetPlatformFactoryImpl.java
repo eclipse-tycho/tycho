@@ -211,7 +211,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
 
             TargetDefinitionContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
-                    definition, tpConfiguration.getEnvironments(), eeResolutionHints, remoteAgent);
+                    definition, tpConfiguration.getEnvironments(), tpConfiguration.getIncludeSourcesMode(),
+                    eeResolutionHints, remoteAgent);
             result.add(targetFileContent);
 
             if (logger.isDebugEnabled()) {

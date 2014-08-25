@@ -38,6 +38,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.tycho.core.ee.shared.BuildFailureException;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourcesMode;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -89,9 +90,9 @@ public final class TargetDefinitionResolver {
         this.repositoryIdManager = (IRepositoryIdManager) agent.getService(IRepositoryIdManager.SERVICE_NAME);
     }
 
-    public TargetDefinitionContent resolveContent(TargetDefinition definition) {
+    public TargetDefinitionContent resolveContent(TargetDefinition definition, IncludeSourcesMode includeSourcesMode) {
         try {
-            return resolveContentWithExceptions(definition);
+            return resolveContentWithExceptions(definition, includeSourcesMode);
         } catch (TargetDefinitionSyntaxException e) {
             throw new BuildFailureException("Invalid syntax in target definition " + definition.getOrigin() + ": "
                     + e.getMessage(), e);
@@ -104,21 +105,32 @@ public final class TargetDefinitionResolver {
         }
     }
 
+    public TargetDefinitionContent resolveContent(TargetDefinition definition) {
+        return resolveContent(definition, IncludeSourcesMode.HONOR);
+    }
+
     private void logResolverException(ResolverException e) {
         logger.error("Cannot resolve target definition file:");
         new MultiLineLogger(logger).error(e.getDetails(), "  ");
         logger.error("");
     }
 
-    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
-            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException, ResolverException {
-
+    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition,
+            IncludeSourcesMode includeSourcesMode) throws TargetDefinitionSyntaxException,
+            TargetDefinitionResolutionException, ResolverException {
         List<URI> artifactRepositories = new ArrayList<URI>();
         ResolverRun resolverRun = new ResolverRun();
 
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation) {
-                resolverRun.addLocation((InstallableUnitLocation) locationDefinition);
+                InstallableUnitLocation iusLocation = (InstallableUnitLocation) locationDefinition;
+                boolean includeSources = iusLocation.includeSource();
+                if (includeSourcesMode == IncludeSourcesMode.IGNORE) {
+                    includeSources = false;
+                } else if (includeSourcesMode == IncludeSourcesMode.FORCE) {
+                    includeSources = true;
+                }
+                resolverRun.addLocation((InstallableUnitLocation) locationDefinition, includeSources);
 
                 for (Repository repository : ((InstallableUnitLocation) locationDefinition).getRepositories()) {
                     artifactRepositories.add(repository.getLocation());
@@ -136,6 +148,11 @@ public final class TargetDefinitionResolver {
         return new TargetDefinitionContent(resolverRun.resolve(), artifactRepositories);
     }
 
+    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
+            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException, ResolverException {
+        return resolveContentWithExceptions(definition, IncludeSourcesMode.HONOR);
+    }
+
     private class ResolverRun {
 
         private List<IQueryable<IInstallableUnit>> availableUnitSources = new ArrayList<IQueryable<IInstallableUnit>>();
@@ -145,11 +162,11 @@ public final class TargetDefinitionResolver {
         private Boolean includeAllEnvironments = null;
         private Boolean includeSource = null;
 
-        public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException,
-                TargetDefinitionResolutionException {
+        public void addLocation(InstallableUnitLocation iuLocationDefinition, boolean includeSources)
+                throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
             setIncludeMode(iuLocationDefinition.getIncludeMode());
             setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
-            setIncludeSource(iuLocationDefinition.includeSource());
+            setIncludeSource(includeSources);
 
             LoadedIULocation loadedLocation = new LoadedIULocation(iuLocationDefinition);
             rootIUs.addAll(loadedLocation.getRootIUs());

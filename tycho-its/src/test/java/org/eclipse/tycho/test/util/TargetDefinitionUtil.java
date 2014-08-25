@@ -62,4 +62,14 @@ public class TargetDefinitionUtil {
         TargetDefinitionFile.write(platform, targetDefinitionFile);
     }
 
+    /**
+     * Overwrites all "includeSources" attributes for IU location in the target file.
+     */
+    public static void setIncludeSource(File platformFile, boolean includeSources) throws IOException {
+        TargetDefinitionFile platform = TargetDefinitionFile.read(platformFile);
+        for (TargetDefinition.Location location : platform.getLocations()) {
+            ((IULocation) location).setIncludeSource(includeSources);
+        }
+        TargetDefinitionFile.write(platform, platformFile);
+    }
 }
