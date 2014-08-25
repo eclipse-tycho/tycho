@@ -30,6 +30,7 @@ public class TargetPlatformConfigurationStub {
     private final Set<MavenRepositoryLocation> repositories = new LinkedHashSet<MavenRepositoryLocation>();
     private final List<TargetDefinition> targetDefinitions = new ArrayList<TargetDefinition>();
     private boolean forceIgnoreLocalArtifacts = false;
+    private Boolean includeSources = null;
 
     public void setEnvironments(List<TargetEnvironment> environments) {
         this.environments = environments;
@@ -82,6 +83,19 @@ public class TargetPlatformConfigurationStub {
 
     public boolean getForceIgnoreLocalArtifacts() {
         return forceIgnoreLocalArtifacts;
+    }
+
+    public void setIncludeSourcesMode(Boolean includeSources) {
+        this.includeSources = includeSources;
+    }
+
+    /**
+     * 
+     * @return null if not overriden, true or false is forced to different behaviour than the one
+     *         specified in .target file
+     */
+    public Boolean getIncludeSourcesMode() {
+        return this.includeSources;
     }
 
 }

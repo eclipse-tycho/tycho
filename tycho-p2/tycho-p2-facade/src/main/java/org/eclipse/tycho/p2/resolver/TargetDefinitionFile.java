@@ -100,6 +100,16 @@ public final class TargetDefinitionFile implements TargetDefinition {
         public boolean includeSource() {
             return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
         }
+
+        /**
+         * @deprecated Not for productive use. Breaks the
+         *             {@link TargetDefinitionFile#equals(Object)} and
+         *             {@link TargetDefinitionFile#hashCode()} implementations.
+         */
+        @Deprecated
+        public void setIncludeSource(boolean includeSources) {
+            dom.setAttribute("includeSource", Boolean.toString(includeSources));
+        }
     }
 
     public class OtherLocation implements Location {

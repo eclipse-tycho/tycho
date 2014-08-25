@@ -47,6 +47,7 @@ import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.p2.maven.repository.Activator;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolver.IncludeSources;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
@@ -183,6 +184,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         applyConfiguredFilter(filter, reactorProjectUIs.keySet());
         applyFilters(filter, externalUIs, reactorProjectUIs.keySet(), eeResolutionHandler.getResolutionHints());
 
+        IncludeSources includeSourceMode = IncludeSources.fromBoolean(tpConfiguration.getIncludeSourcesMode());
+
         PreliminaryTargetPlatformImpl targetPlatform = new PreliminaryTargetPlatformImpl(reactorProjectUIs,//
                 externalUIs, //
                 pomDependenciesContent.getMavenInstallableUnits(), //
@@ -211,7 +214,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             }
 
             TargetDefinitionContent targetFileContent = targetDefinitionResolverService.getTargetDefinitionContent(
-                    definition, tpConfiguration.getEnvironments(), eeResolutionHints, remoteAgent);
+                    definition, tpConfiguration.getEnvironments(),
+                    IncludeSources.fromBoolean(tpConfiguration.getIncludeSourcesMode()), eeResolutionHints, remoteAgent);
             result.add(targetFileContent);
 
             if (logger.isDebugEnabled()) {

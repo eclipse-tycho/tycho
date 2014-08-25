@@ -26,6 +26,40 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public static final String POM_DEPENDENCIES_CONSIDER = "consider";
 
+    public enum IncludeSourcesMode {
+        /**
+         * Delegates to the "includeSources" parameter of target definitions
+         */
+        HONOR,
+        /**
+         * Ignores the "includeSources" parameter of target-definition, and never include sources
+         * that are not explicitly included in target-definition
+         */
+        IGNORE,
+        /**
+         * Ignores the "includeSources" parameter of target-definition, and always includes
+         * available sources for installable units that are part of the target-definition
+         */
+        FORCE;
+
+        /**
+         * returns a Boolean representation of the preference
+         * <ul>
+         * <li>null <=> HONOR</li>
+         * <li>true <=> FORCE</li>
+         * <li>false <=> IGNORE</li>
+         * </ul>
+         */
+        public Boolean toBoolean() {
+            if (this == FORCE) {
+                return Boolean.TRUE;
+            } else if (this == IGNORE) {
+                return Boolean.FALSE;
+            }
+            return null;
+        }
+    }
+
     private String resolver;
 
     private List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
@@ -51,6 +85,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private boolean includePackedArtifacts;
 
     private Map<String, String> resolverProfileProperties = new HashMap<String, String>();
+
+    private IncludeSourcesMode includesSourcesMode = IncludeSourcesMode.HONOR;
 
     /**
      * Returns the list of configured target environments, or the running environment if no
@@ -170,5 +206,13 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void addProfileProperty(String key, String value) {
         resolverProfileProperties.put(key, value);
+    }
+
+    public void setIncludeSourcesMode(IncludeSourcesMode includeSourcesMode) {
+        this.includesSourcesMode = includeSourcesMode;
+    }
+
+    public IncludeSourcesMode getIncludeSourcesMode() {
+        return this.includesSourcesMode;
     }
 }

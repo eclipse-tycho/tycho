@@ -65,6 +65,29 @@ import org.eclipse.tycho.repository.util.StatusTool;
  */
 public final class TargetDefinitionResolver {
 
+    public enum IncludeSources {
+        HONOR, IGNORE, FORCE;
+
+        /**
+         * parses a Boolean representation of the preference
+         * <ul>
+         * <li>null <=> HONOR</li>
+         * <li>true <=> FORCE</li>
+         * <li>false <=> IGNORE</li>
+         * </ul>
+         */
+        public static IncludeSources fromBoolean(Boolean includeSource) {
+            if (includeSource == null) {
+                return HONOR;
+            } else if (includeSource == Boolean.TRUE) {
+                return FORCE;
+            } else if (includeSource == Boolean.FALSE) {
+                return IGNORE;
+            }
+            return HONOR;
+        }
+    }
+
     private IMetadataRepositoryManager metadataManager;
     private IRepositoryIdManager repositoryIdManager;
 
@@ -97,7 +120,18 @@ public final class TargetDefinitionResolver {
         }
     }
 
-    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
+    public TargetDefinitionContent resolveContent(TargetDefinition definition, IncludeSources includeSourcesMode) {
+        try {
+            return resolveContentWithExceptions(definition, includeSourcesMode);
+        } catch (TargetDefinitionSyntaxException e) {
+            throw new RuntimeException("Invalid syntax in target definition " + definition.getOrigin() + ": "
+                    + e.getMessage(), e);
+        } catch (TargetDefinitionResolutionException e) {
+            throw new RuntimeException("Failed to resolve target definition " + definition.getOrigin(), e);
+        }
+    }
+
+    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition, IncludeSources includeSourcesMode)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
 
         List<URI> artifactRepositories = new ArrayList<URI>();
@@ -105,7 +139,14 @@ public final class TargetDefinitionResolver {
 
         for (Location locationDefinition : definition.getLocations()) {
             if (locationDefinition instanceof InstallableUnitLocation) {
-                resolverRun.addLocation((InstallableUnitLocation) locationDefinition);
+                InstallableUnitLocation iusLocation = (InstallableUnitLocation) locationDefinition;
+                boolean includeSources = iusLocation.includeSource();
+                if (includeSourcesMode == IncludeSources.IGNORE) {
+                    includeSources = false;
+                } else if (includeSourcesMode == IncludeSources.FORCE) {
+                    includeSources = true;
+                }
+                resolverRun.addLocation((InstallableUnitLocation) locationDefinition, includeSources);
 
                 for (Repository repository : ((InstallableUnitLocation) locationDefinition).getRepositories()) {
                     artifactRepositories.add(repository.getLocation());
@@ -123,6 +164,11 @@ public final class TargetDefinitionResolver {
         return new TargetDefinitionContent(resolverRun.resolve(), artifactRepositories);
     }
 
+    TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
+            throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException {
+        return resolveContentWithExceptions(definition, IncludeSources.HONOR);
+    }
+
     private class ResolverRun {
 
         private List<IQueryable<IInstallableUnit>> availableUnitSources = new ArrayList<IQueryable<IInstallableUnit>>();
@@ -132,10 +178,11 @@ public final class TargetDefinitionResolver {
         private Boolean includeAllEnvironments = null;
         private Boolean includeSource = null;
 
-        public void addLocation(InstallableUnitLocation iuLocationDefinition) throws TargetDefinitionSyntaxException {
+        public void addLocation(InstallableUnitLocation iuLocationDefinition, boolean includeSources)
+                throws TargetDefinitionSyntaxException {
             setIncludeMode(iuLocationDefinition.getIncludeMode());
             setIncludeAllEnvironments(iuLocationDefinition.includeAllEnvironments());
-            setIncludeSource(iuLocationDefinition.includeSource());
+            setIncludeSource(includeSources);
 
             LoadedIULocation loadedLocation = new LoadedIULocation(iuLocationDefinition);
             rootIUs.addAll(loadedLocation.getRootIUs());

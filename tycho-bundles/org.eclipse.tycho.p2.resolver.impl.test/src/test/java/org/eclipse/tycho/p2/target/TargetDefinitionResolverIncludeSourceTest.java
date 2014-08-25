@@ -76,6 +76,27 @@ public class TargetDefinitionResolverIncludeSourceTest {
         assertThat(content.getUnits().size(), is(1));
     }
 
+    @Test
+    public void testIgnoreIncludeSource() throws Exception {
+        TargetDefinition definition = definitionWith(new WithSourceLocationStub(TestRepositories.SOURCES,
+                BUNDLE_WITH_SOURCES));
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
+                TargetDefinitionResolver.IncludeSources.IGNORE);
+        assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
+        assertThat(content.getUnits().size(), is(1));
+    }
+
+    @Test
+    public void testForceIncludeSource() throws Exception {
+        TargetDefinition definition = definitionWith(new WithoutSourceLocationStub(TestRepositories.SOURCES,
+                BUNDLE_WITH_SOURCES));
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition,
+                TargetDefinitionResolver.IncludeSources.FORCE);
+        assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
+        assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
+        assertThat(content.getUnits().size(), is(2));
+    }
+
     static class WithSourceLocationStub extends LocationStub implements InstallableUnitLocation {
         public WithSourceLocationStub(TestRepositories repositories, IVersionedId... seedUnits) {
             super(repositories, seedUnits);

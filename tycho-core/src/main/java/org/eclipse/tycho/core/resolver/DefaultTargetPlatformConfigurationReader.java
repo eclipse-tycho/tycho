@@ -27,6 +27,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.artifacts.configuration.TargetPlatformFilterConfigurationReader;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TargetPlatformConfiguration.IncludeSourcesMode;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
@@ -84,6 +85,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 readDependencyResolutionConfiguration(result, configuration);
 
                 setIncludePackedArtifacts(result, configuration);
+                setTargetDefinitionIncludeSourcest(result, configuration);
             }
         }
 
@@ -130,6 +132,15 @@ public class DefaultTargetPlatformConfigurationReader {
             return;
         }
         result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
+    }
+
+    private void setTargetDefinitionIncludeSourcest(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        String value = getStringValue(configuration.getChild("targetDefinitionIncludeSource"));
+
+        if (value == null) {
+            return;
+        }
+        result.setIncludeSourcesMode(IncludeSourcesMode.valueOf(value.toUpperCase()));
     }
 
     private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {

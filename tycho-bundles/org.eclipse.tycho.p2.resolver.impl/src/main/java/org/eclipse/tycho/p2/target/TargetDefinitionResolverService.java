@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.tycho.core.facade.MavenContext;
 import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.p2.target.TargetDefinitionResolver.IncludeSources;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
@@ -46,8 +47,10 @@ public class TargetDefinitionResolverService {
     }
 
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
-            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
-        ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
+            List<TargetEnvironment> environments, IncludeSources includeSourcesMode,
+            ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
+        ResolutionArguments arguments = new ResolutionArguments(definition, environments, includeSourcesMode, jreIUs,
+                agent);
 
         TargetDefinitionContent resolution = resolutionCache.get(arguments);
 
@@ -67,7 +70,7 @@ public class TargetDefinitionResolverService {
     private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
 
         return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.agent, logger)
-                .resolveContent(arguments.definition);
+                .resolveContent(arguments.definition, arguments.includeSourcesMode);
     }
 
     private void debugCacheMiss(ResolutionArguments arguments) {
@@ -104,11 +107,13 @@ public class TargetDefinitionResolverService {
         final List<TargetEnvironment> environments;
         final ExecutionEnvironmentResolutionHints jreIUs;
         final IProvisioningAgent agent;
+        final IncludeSources includeSourcesMode;
 
         public ResolutionArguments(TargetDefinition definition, List<TargetEnvironment> environments,
-                ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
+                IncludeSources includeSourcesMode, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
             this.definition = definition;
             this.environments = environments;
+            this.includeSourcesMode = includeSourcesMode;
             this.jreIUs = jreIUs;
             this.agent = agent;
         }
