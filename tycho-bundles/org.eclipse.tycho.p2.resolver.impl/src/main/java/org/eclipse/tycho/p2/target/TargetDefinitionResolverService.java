@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourcesMode;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -46,8 +47,10 @@ public class TargetDefinitionResolverService {
     }
 
     public TargetDefinitionContent getTargetDefinitionContent(TargetDefinition definition,
-            List<TargetEnvironment> environments, ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
-        ResolutionArguments arguments = new ResolutionArguments(definition, environments, jreIUs, agent);
+            List<TargetEnvironment> environments, IncludeSourcesMode includeSourcesMode,
+            ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
+        ResolutionArguments arguments = new ResolutionArguments(definition, environments, includeSourcesMode, jreIUs,
+                agent);
 
         TargetDefinitionContent resolution = resolutionCache.get(arguments);
 
@@ -65,9 +68,8 @@ public class TargetDefinitionResolverService {
 
     // this method must only have the cache key as parameter (to make sure that the key is complete)
     private TargetDefinitionContent resolveFromArguments(ResolutionArguments arguments) {
-
         return new TargetDefinitionResolver(arguments.environments, arguments.jreIUs, arguments.agent, logger)
-                .resolveContent(arguments.definition);
+                .resolveContent(arguments.definition, arguments.includeSourcesMode);
     }
 
     private void debugCacheMiss(ResolutionArguments arguments) {
@@ -104,11 +106,14 @@ public class TargetDefinitionResolverService {
         final List<TargetEnvironment> environments;
         final ExecutionEnvironmentResolutionHints jreIUs;
         final IProvisioningAgent agent;
+        final IncludeSourcesMode includeSourcesMode;
 
         public ResolutionArguments(TargetDefinition definition, List<TargetEnvironment> environments,
-                ExecutionEnvironmentResolutionHints jreIUs, IProvisioningAgent agent) {
+                IncludeSourcesMode includeSourcesMode, ExecutionEnvironmentResolutionHints jreIUs,
+                IProvisioningAgent agent) {
             this.definition = definition;
             this.environments = environments;
+            this.includeSourcesMode = includeSourcesMode;
             this.jreIUs = jreIUs;
             this.agent = agent;
         }

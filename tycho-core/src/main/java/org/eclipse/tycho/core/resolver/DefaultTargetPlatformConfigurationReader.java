@@ -31,6 +31,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPol
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.BuildFailureException;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourcesMode;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -89,6 +90,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 readDependencyResolutionConfiguration(result, configuration);
 
                 setIncludePackedArtifacts(result, configuration);
+                setTargetDefinitionIncludeSourcest(result, configuration);
             }
         }
 
@@ -137,8 +139,16 @@ public class DefaultTargetPlatformConfigurationReader {
         result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
     }
 
-    private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration)
-            throws BuildFailureException {
+    private void setTargetDefinitionIncludeSourcest(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        String value = getStringValue(configuration.getChild("targetDefinitionIncludeSource"));
+
+        if (value == null) {
+            return;
+        }
+        result.setIncludeSourcesMode(IncludeSourcesMode.valueOf(value.toUpperCase()));
+    }
+
+    private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom resolverDom = configuration.getChild("dependency-resolution");
         if (resolverDom == null) {
             return;
