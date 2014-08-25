@@ -30,6 +30,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourcesMode;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -86,6 +87,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 readDependencyResolutionConfiguration(result, configuration);
 
                 setIncludePackedArtifacts(result, configuration);
+                setTargetDefinitionIncludeSourcest(result, configuration);
             }
         }
 
@@ -132,6 +134,15 @@ public class DefaultTargetPlatformConfigurationReader {
             return;
         }
         result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
+    }
+
+    private void setTargetDefinitionIncludeSourcest(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+        String value = getStringValue(configuration.getChild("targetDefinitionIncludeSource"));
+
+        if (value == null) {
+            return;
+        }
+        result.setIncludeSourcesMode(IncludeSourcesMode.valueOf(value.toUpperCase()));
     }
 
     private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
