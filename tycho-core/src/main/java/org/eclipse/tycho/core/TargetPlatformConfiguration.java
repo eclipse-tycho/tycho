@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.apache.maven.model.Dependency;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourcesMode;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
@@ -55,6 +56,8 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private boolean includePackedArtifacts;
 
     private Map<String, String> resolverProfileProperties = new HashMap<String, String>();
+
+    private IncludeSourcesMode includesSourcesMode = IncludeSourcesMode.honor;
 
     /**
      * Returns the list of configured target environments, or the running environment if no
@@ -182,5 +185,13 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void addProfileProperty(String key, String value) {
         resolverProfileProperties.put(key, value);
+    }
+
+    public void setIncludeSourcesMode(IncludeSourcesMode includeSourcesMode) {
+        this.includesSourcesMode = includeSourcesMode;
+    }
+
+    public IncludeSourcesMode getIncludeSourcesMode() {
+        return this.includesSourcesMode;
     }
 }
