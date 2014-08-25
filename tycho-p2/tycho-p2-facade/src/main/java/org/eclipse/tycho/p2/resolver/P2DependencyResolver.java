@@ -191,6 +191,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
         tpConfiguration.setIncludePackedArtifacts(configuration.isIncludePackedArtifacts());
+        tpConfiguration.setIncludeSourcesMode(configuration.getTargetDefinitionIncludeSourceMode());
 
         PomDependencyCollector pomDependencies = null;
         if (TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {

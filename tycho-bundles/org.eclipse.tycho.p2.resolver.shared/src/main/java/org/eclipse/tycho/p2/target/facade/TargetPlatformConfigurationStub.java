@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
@@ -29,6 +30,7 @@ public class TargetPlatformConfigurationStub {
 
     private final Set<MavenRepositoryLocation> repositories = new LinkedHashSet<MavenRepositoryLocation>();
     private final List<TargetDefinition> targetDefinitions = new ArrayList<TargetDefinition>();
+    private IncludeSourceMode targetDefinitionsIncludeSource = null;
     private boolean forceIgnoreLocalArtifacts = false;
 
     public void setEnvironments(List<TargetEnvironment> environments) {
@@ -74,6 +76,14 @@ public class TargetPlatformConfigurationStub {
 
     public List<TargetDefinition> getTargetDefinitions() {
         return targetDefinitions;
+    }
+
+    public void setIncludeSourcesMode(IncludeSourceMode includeSources) {
+        this.targetDefinitionsIncludeSource = includeSources;
+    }
+
+    public IncludeSourceMode getIncludeSourcesMode() {
+        return this.targetDefinitionsIncludeSource;
     }
 
     public void setForceIgnoreLocalArtifacts(boolean forceIgnoreLocalArtifacts) {
