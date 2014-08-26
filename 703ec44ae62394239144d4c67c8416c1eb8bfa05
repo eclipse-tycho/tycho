@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "c7672b30_1432e979",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverIncludeSourceTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2014-08-26T14:19:47Z",
+      "side": 1,
+      "message": "I copied these tests and tweaked them to put location in Planner mode, and I could see the failure because of missing unit id.\n\norg.eclipse.core.runtime.AssertionFailedException: null argument:\n        at org.eclipse.core.runtime.Assert.isNotNull(Assert.java:85)\n        at org.eclipse.core.runtime.Assert.isNotNull(Assert.java:73)\n        at org.eclipse.equinox.internal.p2.metadata.RequiredCapability.\u003cinit\u003e(RequiredCapability.java:105)\n        at org.eclipse.equinox.p2.metadata.MetadataFactory.createRequirement(MetadataFactory.java:465)\n        at org.eclipse.tycho.p2.util.resolution.AbstractSlicerResolutionStrategy.createStrictRequirementTo(AbstractSlicerResolutionStrategy.java:117)\n        at org.eclipse.tycho.p2.util.resolution.AbstractSlicerResolutionStrategy.createUnitRequiring(AbstractSlicerResolutionStrategy.java:101)\n        at org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy.resolve(ProjectorResolutionStrategy.java:74)\n        at org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy.resolve(AbstractResolutionStrategy.java:43)\n        at org.eclipse.tycho.p2.target.TargetDefinitionResolver$ResolverRun.resolve(TargetDefinitionResolver.java:248)\n        at org.eclipse.tycho.p2.target.TargetDefinitionResolver.resolveContentWithExceptions(TargetDefinitionResolver.java:164)\n        at org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeSourceTest.testForceIncludeSourcePlanner(TargetDefinitionResolverIncludeSourceTest.java:132)",
+      "revId": "703ec44ae62394239144d4c67c8416c1eb8bfa05",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7672b30_b42a157c",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
         "patchSetId": 2
@@ -13,6 +30,24 @@
       "writtenOn": "2014-08-26T13:05:02Z",
       "side": 1,
       "message": "While trying to write an integration-test + extension to have this behaviour configurable, I got an NPE while trying to resolve \"sourceIU\" because it\u0027s missing an id.\nAlso, I\u0027m not sure the approach of a single IUs to resolve all source is really what works best here. It seems to me that there should be one resolution for each tentative source IU.",
+      "revId": "703ec44ae62394239144d4c67c8416c1eb8bfa05",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7672b30_f4348d66",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2014-08-26T14:19:47Z",
+      "side": 1,
+      "message": "This implementation fails when target definition uses \"Planner\".\n\norg.eclipse.core.runtime.AssertionFailedException: null argument:\n        at org.eclipse.core.runtime.Assert.isNotNull(Assert.java:85)\n        at org.eclipse.core.runtime.Assert.isNotNull(Assert.java:73)\n        at org.eclipse.equinox.internal.p2.metadata.RequiredCapability.\u003cinit\u003e(RequiredCapability.java:105)\n        at org.eclipse.equinox.p2.metadata.MetadataFactory.createRequirement(MetadataFactory.java:465)\n        at org.eclipse.tycho.p2.util.resolution.AbstractSlicerResolutionStrategy.createStrictRequirementTo(AbstractSlicerResolutionStrategy.java:117)\n        at org.eclipse.tycho.p2.util.resolution.AbstractSlicerResolutionStrategy.createUnitRequiring(AbstractSlicerResolutionStrategy.java:101)\n        at org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy.resolve(ProjectorResolutionStrategy.java:74)\n        at org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy.resolve(AbstractResolutionStrategy.java:43)\n        at org.eclipse.tycho.p2.target.TargetDefinitionResolver$ResolverRun.resolve(TargetDefinitionResolver.java:248)\n        at org.eclipse.tycho.p2.target.TargetDefinitionResolver.resolveContentWithExceptions(TargetDefinitionResolver.java:164)\n        at org.eclipse.tycho.p2.target.TargetDefinitionResolverIncludeSourceTest.testForceIncludeSourcePlanner(TargetDefinitionResolverIncludeSourceTest.java:132)\n\nShould/Could we enfore usage of the Slicer strategy to resolve sources?",
+      "parentUuid": "c7672b30_b42a157c",
       "revId": "703ec44ae62394239144d4c67c8416c1eb8bfa05",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
