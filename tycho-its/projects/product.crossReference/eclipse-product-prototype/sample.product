@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product uid="product.crossreference.product" version="0.0.1.qualifier" useFeatures="false" includeLaunchers="false">
+<product uid="product.crossreference.product" version="0.0.1.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
