@@ -20,8 +20,7 @@ public class ProductArchiverMojoTest {
     public void testGetArtifactClassifier() {
         TargetEnvironment env = new TargetEnvironment("os", "ws", "arch");
         Product product = new Product("product.id");
-        String classifier = ProductArchiverMojo.getArtifactClassifier(product, env,
-                ProductArchiverMojo.DEFAULT_ARCHIVE_FORMAT);
+        String classifier = ProductArchiverMojo.getArtifactClassifier(product, env);
         assertEquals("os.ws.arch", classifier);
     }
 
@@ -29,8 +28,7 @@ public class ProductArchiverMojoTest {
     public void testGetArtifactClassifierWithAttachId() {
         TargetEnvironment env = new TargetEnvironment("os", "ws", "arch");
         Product product = new Product("product.id", "attachId");
-        String classifier = ProductArchiverMojo.getArtifactClassifier(product, env,
-                ProductArchiverMojo.DEFAULT_ARCHIVE_FORMAT);
+        String classifier = ProductArchiverMojo.getArtifactClassifier(product, env);
         assertEquals("attachId-os.ws.arch", classifier);
     }
 }

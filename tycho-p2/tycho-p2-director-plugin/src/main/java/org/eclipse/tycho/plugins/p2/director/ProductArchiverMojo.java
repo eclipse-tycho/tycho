@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *     Sonatype Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.director;
@@ -14,6 +14,7 @@ package org.eclipse.tycho.plugins.p2.director;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -38,7 +39,8 @@ import org.eclipse.tycho.plugins.tar.TarGzArchiver;
 @Mojo(name = "archive-products", defaultPhase = LifecyclePhase.PACKAGE)
 public final class ProductArchiverMojo extends AbstractProductMojo {
 
-    static final String DEFAULT_ARCHIVE_FORMAT = "zip";
+    private static final String DEFAULT_ARCHIVE_FORMAT = "zip";
+    private static final String TAR_GZ_ARCHIVE_FORMAT = "tar.gz";
 
     private abstract class ProductArchiver {
         abstract Archiver getArchiver() throws ArchiverException;
@@ -67,8 +69,6 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
      * <li>zip</li>
      * <li>tar.gz</li>
      * </ul>
-     * 
-     * The future versions can introduce support for other file formats and multiple formats per-os.
      * </p>
      */
     @Parameter
@@ -95,7 +95,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
             }
         });
 
-        productArchivers.put("tar.gz", new ProductArchiver() {
+        productArchivers.put(TAR_GZ_ARCHIVE_FORMAT, new ProductArchiver() {
             @Override
             Archiver getArchiver() throws ArchiverException {
                 TarArchiver.TarCompressionMethod tarCompressionMethod = new TarArchiver.TarCompressionMethod();
@@ -111,20 +111,16 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
     }
 
-    private static boolean checkForJavaNio() {
-        try {
-            return Class.forName("java.nio.file.Files") != null;
-        } catch (Throwable t) {
-            return false;
-        }
-    }
-
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         ProductConfig config = getProductConfig();
         if (!config.uniqueAttachIds()) {
             throw new MojoFailureException("Artifact file names for the archived products are not unique. "
                     + "Configure the attachId or select a subset of products. Current configuration: "
                     + config.getProducts());
+        }
+        if (!HAS_JAVA_NIO) {
+            warnThatTarGzWontHaveSymlinks(getEnvironments());
         }
 
         for (Product product : config.getProducts()) {
@@ -148,7 +144,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
                 try {
                     final File sourceDir = getProductMaterializeDirectory(product, env);
-                    if (HAS_JAVA_NIO && "tar.gz".equals(format)
+                    if (HAS_JAVA_NIO && TAR_GZ_ARCHIVE_FORMAT.equals(format)
                             && !"plexus".equals(getSession().getUserProperties().getProperty("tycho.tar"))) {
                         getLog().debug("Using commons-compress tar");
                         createCommonsCompressTarGz(productArchive, sourceDir);
@@ -164,8 +160,26 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                     throw new MojoExecutionException("Error packing product", e);
                 }
 
-                final String artifactClassifier = getArtifactClassifier(product, env, format);
+                final String artifactClassifier = getArtifactClassifier(product, env);
                 helper.attachArtifact(getProject(), format, artifactClassifier, productArchive);
+            }
+        }
+    }
+
+    private static boolean checkForJavaNio() {
+        try {
+            return Class.forName("java.nio.file.Files") != null;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    private void warnThatTarGzWontHaveSymlinks(List<TargetEnvironment> environments) {
+        for (TargetEnvironment environment : environments) {
+            if (TAR_GZ_ARCHIVE_FORMAT.equals(formats.get(environment.getOs()))) {
+                getLog().warn(
+                        "JAVA_HOME is set to a JDK version older than 1.7. 'tar.gz' archives will not preserve symbolic links.");
+                return;
             }
         }
     }
@@ -186,7 +200,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         }
     }
 
-    static String getArtifactClassifier(Product product, TargetEnvironment environment, String format) {
+    static String getArtifactClassifier(Product product, TargetEnvironment environment) {
         // classifier (and hence artifact file name) ends with os.ws.arch (similar to Eclipse
         // download packages)
         final String artifactClassifier;
