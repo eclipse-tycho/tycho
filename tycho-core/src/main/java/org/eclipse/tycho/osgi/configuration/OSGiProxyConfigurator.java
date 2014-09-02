@@ -21,7 +21,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.embedder.EmbeddedEquinox;
 import org.eclipse.sisu.equinox.embedder.EquinoxLifecycleListener;
-import org.eclipse.tycho.core.facade.ProxyServiceFacade;
+import org.eclipse.tycho.core.shared.ProxyServiceFacade;
 
 @Component(role = EquinoxLifecycleListener.class, hint = "P2ProxyConfigurator")
 public class OSGiProxyConfigurator extends EquinoxLifecycleListener {

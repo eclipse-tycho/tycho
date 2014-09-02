@@ -15,10 +15,10 @@ import java.io.File;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
-import org.eclipse.tycho.core.facade.BuildProperties;
-import org.eclipse.tycho.core.facade.BuildPropertiesImpl;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
-import org.eclipse.tycho.core.facade.LRUCache;
+import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
+import org.eclipse.tycho.core.shared.LRUCache;
 
 @Component(role = BuildPropertiesParser.class)
 public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposable {

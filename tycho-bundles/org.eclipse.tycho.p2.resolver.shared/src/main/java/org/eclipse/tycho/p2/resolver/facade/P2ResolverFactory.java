@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver.facade;
 
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformFactory;
 

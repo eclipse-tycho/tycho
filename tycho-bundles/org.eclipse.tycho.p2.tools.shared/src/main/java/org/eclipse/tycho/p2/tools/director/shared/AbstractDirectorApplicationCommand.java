@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 /**
  * Base class for calling a p2 director via command line arguments.

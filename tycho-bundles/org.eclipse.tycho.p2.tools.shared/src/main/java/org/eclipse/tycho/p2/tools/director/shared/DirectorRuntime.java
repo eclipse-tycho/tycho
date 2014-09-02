@@ -13,8 +13,8 @@ package org.eclipse.tycho.p2.tools.director.shared;
 import java.io.File;
 import java.net.URI;
 
-import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 /**
  * A runtime environment of the p2 director application.

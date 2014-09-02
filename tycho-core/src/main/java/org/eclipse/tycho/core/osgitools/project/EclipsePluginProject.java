@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.facade.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildProperties;
 
 public interface EclipsePluginProject {
 

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
-import org.eclipse.tycho.core.facade.MavenContext;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;

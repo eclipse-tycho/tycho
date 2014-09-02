@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenLogger;
 
 class P2PasswordUtil {
 

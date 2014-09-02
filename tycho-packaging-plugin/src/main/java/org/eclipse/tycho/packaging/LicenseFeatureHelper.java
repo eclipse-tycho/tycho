@@ -28,9 +28,9 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.facade.BuildProperties;
-import org.eclipse.tycho.core.facade.BuildPropertiesImpl;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 

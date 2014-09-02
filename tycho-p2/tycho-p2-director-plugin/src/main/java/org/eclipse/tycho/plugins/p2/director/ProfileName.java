@@ -12,7 +12,7 @@ package org.eclipse.tycho.plugins.p2.director;
 
 import java.util.List;
 
-import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 public class ProfileName {
     /** default-value="DefaultProfile" */

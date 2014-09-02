@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenLogger;
 
 class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 

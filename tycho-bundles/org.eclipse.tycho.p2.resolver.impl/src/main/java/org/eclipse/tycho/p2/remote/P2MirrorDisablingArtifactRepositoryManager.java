@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenLogger;
 
 @SuppressWarnings("restriction")
 class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryManager {

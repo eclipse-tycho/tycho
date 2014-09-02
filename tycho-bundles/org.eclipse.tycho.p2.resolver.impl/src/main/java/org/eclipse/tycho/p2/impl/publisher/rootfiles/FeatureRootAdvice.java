@@ -22,8 +22,8 @@ import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.facade.BuildProperties;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 /**

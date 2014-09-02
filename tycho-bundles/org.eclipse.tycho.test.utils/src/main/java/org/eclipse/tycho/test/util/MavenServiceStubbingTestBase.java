@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
-import org.eclipse.tycho.core.facade.MavenContext;
-import org.eclipse.tycho.core.facade.MavenContextImpl;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
+import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.p2.remote.testutil.MavenRepositorySettingsStub;
 import org.junit.Before;

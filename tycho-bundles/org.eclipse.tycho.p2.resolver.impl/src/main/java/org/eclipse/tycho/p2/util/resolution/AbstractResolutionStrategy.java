@@ -20,8 +20,8 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.tycho.core.facade.MavenLogger;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 public abstract class AbstractResolutionStrategy {

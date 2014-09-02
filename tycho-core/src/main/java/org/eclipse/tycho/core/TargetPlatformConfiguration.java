@@ -19,8 +19,8 @@ import java.util.Map;
 
 import org.apache.maven.model.Dependency;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 public class TargetPlatformConfiguration implements DependencyResolverConfiguration {
 

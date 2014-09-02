@@ -12,7 +12,7 @@ package org.eclipse.tycho.repository.util;
 
 import java.util.regex.Pattern;
 
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenLogger;
 
 /**
  * {@link LoggingProgressMonitor} which removes duplicated and other obsolete log output produced by

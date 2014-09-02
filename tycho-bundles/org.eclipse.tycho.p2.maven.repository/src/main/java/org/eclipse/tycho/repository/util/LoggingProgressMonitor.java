@@ -11,7 +11,7 @@
 package org.eclipse.tycho.repository.util;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenLogger;
 
 /**
  * Special {@link IProgressMonitor} instance which writes the task names it is given via the

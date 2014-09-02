@@ -13,8 +13,8 @@ package org.eclipse.tycho.p2.resolver;
 import java.io.File;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.facade.MavenContext;
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;

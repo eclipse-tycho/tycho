@@ -13,9 +13,9 @@ package org.eclipse.tycho.test.util;
 
 import java.io.File;
 
-import org.eclipse.tycho.core.facade.BuildProperties;
-import org.eclipse.tycho.core.facade.BuildPropertiesImpl;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 
 public class BuildPropertiesParserForTesting implements BuildPropertiesParser {
 

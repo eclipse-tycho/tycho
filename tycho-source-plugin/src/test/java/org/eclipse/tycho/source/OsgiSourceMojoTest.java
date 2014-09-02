@@ -21,7 +21,7 @@ import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 
 public class OsgiSourceMojoTest extends PlexusTestCase {
 

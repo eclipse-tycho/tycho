@@ -13,8 +13,8 @@ package org.eclipse.tycho.p2.impl.publisher;
 import java.util.List;
 
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 

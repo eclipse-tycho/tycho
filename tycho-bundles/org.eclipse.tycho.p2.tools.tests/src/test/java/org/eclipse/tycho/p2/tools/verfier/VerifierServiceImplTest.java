@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.tycho.BuildOutputDirectory;
-import org.eclipse.tycho.core.facade.MavenContext;
-import org.eclipse.tycho.core.facade.MavenContextImpl;
-import org.eclipse.tycho.core.facade.MavenLogger;
+import org.eclipse.tycho.core.shared.MavenContext;
+import org.eclipse.tycho.core.shared.MavenContextImpl;
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.verifier.VerifierServiceImpl;

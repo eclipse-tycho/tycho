@@ -9,7 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP AG - extended interface for more general use
  *******************************************************************************/
-package org.eclipse.tycho.core.facade;
+package org.eclipse.tycho.core.shared;
 
 /**
  * Maven logger for Tycho OSGi runtime.

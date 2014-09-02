@@ -20,8 +20,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.facade.BuildProperties;
-import org.eclipse.tycho.core.facade.BuildPropertiesParser;
+import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 
 public class EclipsePluginProjectImpl implements EclipsePluginProject {
 

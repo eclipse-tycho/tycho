@@ -14,9 +14,9 @@ import java.io.File;
 
 import org.apache.maven.execution.MavenSession;
 import org.eclipse.tycho.core.PluginDescription;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.model.PluginRef;
 
 public class ProductAssembler extends UpdateSiteAssembler {

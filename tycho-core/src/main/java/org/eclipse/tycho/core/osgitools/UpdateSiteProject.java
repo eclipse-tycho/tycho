@@ -22,7 +22,7 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.model.UpdateSite;
 
 @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_UPDATE_SITE)

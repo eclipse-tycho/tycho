@@ -55,7 +55,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
     private static final String[] SYSTEM_PACKAGES_EXTRA = { "org.eclipse.tycho", // 
             "org.eclipse.tycho.artifacts", //
             "org.eclipse.tycho.core.ee.shared", //
-            "org.eclipse.tycho.core.facade", //
+            "org.eclipse.tycho.core.shared", //
             "org.eclipse.tycho.core.resolver.shared", //
             "org.eclipse.tycho.locking.facade", //
             "org.eclipse.tycho.p2.metadata", //

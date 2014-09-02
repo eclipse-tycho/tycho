@@ -12,8 +12,8 @@ package org.eclipse.tycho.p2.metadata;
 
 import java.util.List;
 
-import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 public interface DependencyMetadataGenerator {
 

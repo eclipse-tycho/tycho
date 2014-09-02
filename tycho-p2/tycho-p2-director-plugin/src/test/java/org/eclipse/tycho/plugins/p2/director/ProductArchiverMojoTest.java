@@ -12,7 +12,7 @@ package org.eclipse.tycho.plugins.p2.director;
 
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.junit.Test;
 
 public class ProductArchiverMojoTest {

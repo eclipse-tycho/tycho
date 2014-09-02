@@ -21,7 +21,7 @@ import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.tycho.core.facade.ProxyServiceFacade;
+import org.eclipse.tycho.core.shared.ProxyServiceFacade;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 

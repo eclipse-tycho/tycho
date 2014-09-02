@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.facade;
+package org.eclipse.tycho.core.shared;
 
 import java.util.ArrayList;
 import java.util.HashMap;

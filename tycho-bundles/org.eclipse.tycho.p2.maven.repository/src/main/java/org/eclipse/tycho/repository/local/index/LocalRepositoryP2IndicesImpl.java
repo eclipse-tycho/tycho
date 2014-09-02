@@ -13,7 +13,7 @@ package org.eclipse.tycho.repository.local.index;
 
 import java.io.File;
 
-import org.eclipse.tycho.core.facade.MavenContext;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;

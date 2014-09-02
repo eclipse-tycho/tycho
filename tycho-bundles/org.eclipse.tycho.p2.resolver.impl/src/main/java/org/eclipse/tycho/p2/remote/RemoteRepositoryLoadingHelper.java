@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.tycho.core.facade.MavenLogger;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
+import org.eclipse.tycho.core.shared.MavenLogger;
 
 /**
  * Helper class for the Remote*RepositoryManagers taking care of mapping repository URLs to the

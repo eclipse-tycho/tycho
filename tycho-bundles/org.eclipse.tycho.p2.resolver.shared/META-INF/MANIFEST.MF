@@ -15,5 +15,5 @@ Bundle-Vendor: %providerName
 Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.ee.shared,
- org.eclipse.tycho.core.facade,
- org.eclipse.tycho.core.resolver.shared
+ org.eclipse.tycho.core.resolver.shared,
+ org.eclipse.tycho.core.shared

@@ -19,8 +19,8 @@ Require-Bundle: org.eclipse.equinox.p2.director.app;bundle-version="[1.0.200,2.0
  org.eclipse.equinox.p2.engine;bundle-version="[2.2.0,3.0.0)",
  org.eclipse.equinox.p2.director;bundle-version="[2.2.0,3.0.0)"
 Import-Package: org.eclipse.tycho,
- org.eclipse.tycho.core.facade,
  org.eclipse.tycho.core.resolver.shared,
+ org.eclipse.tycho.core.shared,
  org.eclipse.tycho.p2.impl.publisher,
  org.eclipse.tycho.p2.metadata,
  org.eclipse.tycho.p2.remote,
