@@ -19,7 +19,7 @@ import java.util.Map;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile.IULocation;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile.Unit;

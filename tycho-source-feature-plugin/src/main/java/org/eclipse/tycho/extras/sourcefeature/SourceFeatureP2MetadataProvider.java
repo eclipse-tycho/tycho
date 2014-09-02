@@ -27,8 +27,8 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationExce
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.PackagingType;
-import org.eclipse.tycho.core.facade.TargetEnvironment;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
