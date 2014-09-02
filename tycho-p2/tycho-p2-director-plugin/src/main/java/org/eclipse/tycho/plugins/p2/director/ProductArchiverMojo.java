@@ -125,14 +125,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
         for (Product product : config.getProducts()) {
             for (TargetEnvironment env : getEnvironments()) {
-                String format = formats != null ? formats.get(env.getOs()) : DEFAULT_ARCHIVE_FORMAT;
-                if (format != null) {
-                    format = format.trim();
-                }
-                if (format == null || format.length() == 0) {
-                    format = DEFAULT_ARCHIVE_FORMAT;
-                }
-
+                String format = getArchiveFormat(env);
                 ProductArchiver productArchiver = productArchivers.get(format);
                 if (productArchiver == null) {
                     throw new MojoExecutionException("Unknown or unsupported archive format os=" + env.getOs()
@@ -176,7 +169,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
     private void warnThatTarGzWontHaveSymlinks(List<TargetEnvironment> environments) {
         for (TargetEnvironment environment : environments) {
-            if (TAR_GZ_ARCHIVE_FORMAT.equals(formats.get(environment.getOs()))) {
+            if (TAR_GZ_ARCHIVE_FORMAT.equals(getArchiveFormat(environment))) {
                 getLog().warn(
                         "JAVA_HOME is set to a JDK version older than 1.7. 'tar.gz' archives will not preserve symbolic links.");
                 return;
@@ -190,6 +183,17 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         archiver.addDirectory(sourceDir);
         archiver.setDestFile(productArchive);
         archiver.createArchive();
+    }
+
+    private String getArchiveFormat(TargetEnvironment env) {
+        String format = formats != null ? formats.get(env.getOs()) : DEFAULT_ARCHIVE_FORMAT;
+        if (format != null) {
+            format = format.trim();
+        }
+        if (format == null || format.length() == 0) {
+            format = DEFAULT_ARCHIVE_FORMAT;
+        }
+        return format;
     }
 
     static String getArchiveFileName(Product product) {
