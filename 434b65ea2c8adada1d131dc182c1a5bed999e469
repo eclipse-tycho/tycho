@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7672b30_cee5679a",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/core/ee/shared/BuildFailureException.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-03T07:14:54Z",
+      "side": 1,
+      "message": "Sorry, my bad. Should have been org.eclipse.tycho.core.shared",
+      "revId": "434b65ea2c8adada1d131dc182c1a5bed999e469",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
