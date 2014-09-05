@@ -1,4 +1,3 @@
-repositories/kepler-test/
 # override global rule
 !/.settings/
 

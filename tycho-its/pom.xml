@@ -118,7 +118,7 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/releases/kepler</url>
+							<url>http://download.eclipse.org/releases/kepler/201402280900/</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
@@ -139,10 +139,19 @@
 							<id>org.junit</id>
 							<version>4.11.0.v201303080030</version>
 						</iu>
+						<iu>
+							<id>org.eclipse.equinox.executable.feature.group</id>
+							<version>3.6.0.v20140117-1004</version>
+						</iu>
 					</ius>
+					<filter>
+						<osgi.ws>win32</osgi.ws>
+						<osgi.os>win32</osgi.os>
+						<osgi.arch>x86_64</osgi.arch>
+					</filter>
 					<includePacked>false</includePacked>
 					<includeOptional>false</includeOptional>
-					<destination>${project.basedir}/repositories/kepler-test</destination>
+					<destination>${project.basedir}/repositories/kepler</destination>
 				</configuration>
 			</plugin>
 			

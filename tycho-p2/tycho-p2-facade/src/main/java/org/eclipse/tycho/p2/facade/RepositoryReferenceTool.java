@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.facade;
 
@@ -24,13 +24,12 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactDescriptor;
-import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -134,15 +133,8 @@ public class RepositoryReferenceTool {
                     if (otherProject == null) {
                         continue; // can't really happen
                     }
-                    if (PackagingType.TYPE_ECLIPSE_PLUGIN.equals(otherProject.getPackaging())
-                            || PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(otherProject.getPackaging())
-                            || PackagingType.TYPE_ECLIPSE_FEATURE.equals(otherProject.getPackaging())) {
-                        File artifactXml = otherProject.getArtifact(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
-                        if (artifactXml == null || !artifactXml.isFile()) {
-                            throw new MojoFailureException("Missing required file \""
-                                    + RepositoryLayoutHelper.FILE_NAME_LOCAL_ARTIFACTS
-                                    + "\" in target folder of module " + otherProject.getId());
-                        }
+                    File artifactXml = otherProject.getArtifact(RepositoryLayoutHelper.CLASSIFIER_P2_ARTIFACTS);
+                    if (artifactXml != null && artifactXml.isFile()) {
                         sources.addArtifactRepository(artifactXml.getParentFile());
                     }
                 }
