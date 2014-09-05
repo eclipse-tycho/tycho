@@ -16,7 +16,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -37,15 +36,9 @@ public class ExecutionEnvironmentUtils {
         Properties listProps = readProperties(findInSystemBundle("profile.list"));
         String[] profileFiles = listProps.getProperty("java.profiles").split(",");
         Map<String, StandardExecutionEnvironment> envMap = new HashMap<String, StandardExecutionEnvironment>();
-        final Pattern compactProfilePattern = Pattern.compile("JavaSE/compact\\d-1.8");
         for (String profileFile : profileFiles) {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));
-            String profileName = props.getProperty("osgi.java.profile.name").trim();
-            if (compactProfilePattern.matcher(profileName).matches()) {
-                // TODO 437923 add support for JavaSE/compact* execution profiles
-                continue;
-            }
-            envMap.put(profileName, new StandardExecutionEnvironment(props));
+            envMap.put(props.getProperty("osgi.java.profile.name").trim(), new StandardExecutionEnvironment(props));
         }
         return envMap;
     }

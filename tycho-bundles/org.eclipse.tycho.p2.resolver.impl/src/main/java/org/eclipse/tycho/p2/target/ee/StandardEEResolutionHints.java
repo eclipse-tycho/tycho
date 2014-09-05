@@ -36,6 +36,9 @@ import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 @SuppressWarnings("restriction")
 public final class StandardEEResolutionHints implements ExecutionEnvironmentResolutionHints {
 
+    private static final String JRE_ACTION_FALLBACK_EE = "JavaSE-1.6";
+    private static final Version JRE_ACTION_FALLBACK_VERSION = Version.parseVersion("1.6.0");
+
     private final String executionEnvironment;
     private final Map<VersionedId, IInstallableUnit> additionalUnits;
     private final Map<VersionedId, IInstallableUnit> temporaryUnits;
@@ -55,11 +58,13 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
      * p2 repositories are polluted with useless a.jre/config.a.jre IUs. These IUs do not represent
      * current/desired JRE and can expose resolver to packages that are not actually available.
      */
+    @Override
     public boolean isNonApplicableEEUnit(IInstallableUnit iu) {
         // See JREAction
         return iu.getId().startsWith("a.jre") || iu.getId().startsWith("config.a.jre");
     }
 
+    @Override
     public boolean isEESpecificationUnit(IInstallableUnit unit) {
         // not needed
         throw new UnsupportedOperationException();
@@ -82,13 +87,27 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
             put(units, iterator.next());
         }
 
+        ensureEEWasKnownToJREAction(executionEnvironment, units.values());
         return units;
     }
 
+    private static void ensureEEWasKnownToJREAction(String executionEnvironment, Collection<IInstallableUnit> eeUnits) {
+        for (IInstallableUnit unit : eeUnits) {
+            if (JRE_ACTION_FALLBACK_VERSION.equals(unit.getVersion())
+                    && !JRE_ACTION_FALLBACK_EE.equals(executionEnvironment)) {
+                // the JREAction didn't actually recognize the EE but fell back to JavaSE-1.6 - and this although the EE was recognized as standard EE before -> internal error 
+                throw new RuntimeException("The execution environment '" + executionEnvironment
+                        + "' is not know by the embedded version of p2");
+            }
+        }
+    }
+
+    @Override
     public Collection<IInstallableUnit> getMandatoryUnits() {
         return additionalUnits.values();
     }
 
+    @Override
     public Collection<IRequirement> getMandatoryRequires() {
         // not needed; getMandatoryUnits already enforces the use of the JRE IUs during resolution
         return Collections.emptyList();
@@ -114,6 +133,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return units;
     }
 
+    @Override
     public Collection<IInstallableUnit> getTemporaryAdditions() {
         return temporaryUnits.values();
     }

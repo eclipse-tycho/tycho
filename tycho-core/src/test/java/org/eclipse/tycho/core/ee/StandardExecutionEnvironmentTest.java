@@ -38,9 +38,15 @@ public class StandardExecutionEnvironmentTest {
     private StandardExecutionEnvironment osgiMin10Environment;
     private StandardExecutionEnvironment osgiMin11Environment;
     private StandardExecutionEnvironment osgiMin12Environment;
+    private StandardExecutionEnvironment javaSECompact1Enviroment;
+    private StandardExecutionEnvironment javaSECompact2Enviroment;
+    private StandardExecutionEnvironment javaSECompact3Enviroment;
 
     @Before
     public void setUp() throws Exception {
+        javaSECompact1Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact1-1.8");
+        javaSECompact2Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact2-1.8");
+        javaSECompact3Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE/compact3-1.8");
         javaSE8Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.8");
         javaSE7Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.7");
         javaSE6Enviroment = ExecutionEnvironmentUtils.getExecutionEnvironment("JavaSE-1.6");
@@ -71,6 +77,9 @@ public class StandardExecutionEnvironmentTest {
         assertNotNull(osgiMin10Environment);
         assertNotNull(osgiMin11Environment);
         assertNotNull(osgiMin12Environment);
+        assertNotNull(javaSECompact1Enviroment);
+        assertNotNull(javaSECompact2Enviroment);
+        assertNotNull(javaSECompact3Enviroment);
     }
 
     @Test
@@ -88,6 +97,9 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("OSGi/Minimum-1.0", osgiMin10Environment.getProfileName());
         assertEquals("OSGi/Minimum-1.1", osgiMin11Environment.getProfileName());
         assertEquals("OSGi/Minimum-1.2", osgiMin12Environment.getProfileName());
+        assertEquals("JavaSE/compact1-1.8", javaSECompact1Enviroment.getProfileName());
+        assertEquals("JavaSE/compact2-1.8", javaSECompact2Enviroment.getProfileName());
+        assertEquals("JavaSE/compact3-1.8", javaSECompact3Enviroment.getProfileName());
     }
 
     @Test
@@ -105,6 +117,9 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("1.6", javaSE6Enviroment.getCompilerSourceLevelDefault());
         assertEquals("1.7", javaSE7Enviroment.getCompilerSourceLevelDefault());
         assertEquals("1.8", javaSE8Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.8", javaSECompact1Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.8", javaSECompact2Enviroment.getCompilerSourceLevelDefault());
+        assertEquals("1.8", javaSECompact3Enviroment.getCompilerSourceLevelDefault());
     }
 
     @Test
@@ -122,6 +137,9 @@ public class StandardExecutionEnvironmentTest {
         assertEquals("1.6", javaSE6Enviroment.getCompilerTargetLevelDefault());
         assertEquals("1.7", javaSE7Enviroment.getCompilerTargetLevelDefault());
         assertEquals("1.8", javaSE8Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.8", javaSECompact1Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.8", javaSECompact2Enviroment.getCompilerTargetLevelDefault());
+        assertEquals("1.8", javaSECompact3Enviroment.getCompilerTargetLevelDefault());
     }
 
     @Test
@@ -151,7 +169,8 @@ public class StandardExecutionEnvironmentTest {
         List<StandardExecutionEnvironment> expectedList = new ArrayList<StandardExecutionEnvironment>(Arrays.asList(
                 osgiMin10Environment, osgiMin11Environment, osgiMin12Environment, cdc10Environment, cdc11Environment,
                 jre11Environment, j2SE12Environment, j2SE13Environment, j2SE14Environment, j2SE5Enviroment,
-                javaSE6Enviroment, javaSE7Enviroment, javaSE8Enviroment));
+                javaSE6Enviroment, javaSE7Enviroment, javaSECompact1Enviroment, javaSECompact2Enviroment,
+                javaSECompact3Enviroment, javaSE8Enviroment));
         List<StandardExecutionEnvironment> actualList = new ArrayList<StandardExecutionEnvironment>(expectedList);
         Collections.shuffle(actualList);
         Collections.sort(actualList);

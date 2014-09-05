@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.tycho.core.ee;
@@ -18,7 +18,8 @@ public class EEVersion implements Comparable<EEVersion> {
     public enum EEType {
 
         // order is significant for comparison
-        OSGI_MINIMUM("OSGi/Minimum"), CDC_FOUNDATION("CDC/Foundation"), JRE("JRE"), JAVA_SE("JavaSE");
+        OSGI_MINIMUM("OSGi/Minimum"), CDC_FOUNDATION("CDC/Foundation"), JRE("JRE"), JAVA_SE("JavaSE"), JAVA_SE_COMPACT1(
+                "JavaSE/compact1"), JAVA_SE_COMPACT2("JavaSE/compact2"), JAVA_SE_COMPACT3("JavaSE/compact3");
 
         private final String profileName;
 
@@ -32,7 +33,6 @@ public class EEVersion implements Comparable<EEVersion> {
                     return type;
                 }
             }
-            // TODO 437923 add support for JavaSE/compact* execution profiles
             return null;
         }
     }
@@ -45,12 +45,17 @@ public class EEVersion implements Comparable<EEVersion> {
         this.type = type;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
+    @Override
     public int compareTo(EEVersion other) {
+        // JavaSE/compact{1..3} > JavaSE-N except when N = 1.8  54
+        final Version JAVA8 = Version.parseVersion("1.8");
+        if (type.equals(EEType.JAVA_SE) && version.equals(JAVA8) && other.type.profileName.contains("JavaSE/compact")) {
+            return 1;
+        } else if (other.type.equals(EEType.JAVA_SE) && other.version.equals(JAVA8)
+                && type.profileName.contains("JavaSE/compact")) {
+            return -1;
+        }
+
         int result = type.compareTo(other.type);
         if (result != 0) {
             return result;
