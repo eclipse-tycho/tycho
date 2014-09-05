@@ -1,16 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.testutil;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -24,6 +25,7 @@ public class InstallableUnitMatchers {
     public static Matcher<IInstallableUnit> unitWithId(final String id) {
         return new TypeSafeMatcher<IInstallableUnit>(IInstallableUnit.class) {
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText(TYPE + " with ID " + id);
             }
@@ -40,6 +42,7 @@ public class InstallableUnitMatchers {
 
         return new TypeSafeMatcher<IInstallableUnit>() {
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText(TYPE + " with with ID " + id + " and version " + parsedVersion);
             }
@@ -64,6 +67,7 @@ public class InstallableUnitMatchers {
 
         return new TypeSafeMatcher<IInstallableUnit>() {
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText(TYPE + " with GAV " + gavString(groupId, artifactId, version, classifier));
             }
@@ -80,6 +84,41 @@ public class InstallableUnitMatchers {
         };
     }
 
+    public static Matcher<IProvidedCapability> packageCapability(final String packageName) {
+        return new TypeSafeMatcher<IProvidedCapability>() {
+
+            @Override
+            protected boolean matchesSafely(IProvidedCapability item) {
+                return "java.package".equals(item.getNamespace()) && packageName.equals(item.getName());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("the capability java.package/" + packageName);
+            }
+
+        };
+    }
+
+    public static Matcher<IProvidedCapability> eeCapability(final String eeName, String eeVersion) {
+        final Version parsedVersion = Version.parseVersion(eeVersion);
+
+        return new TypeSafeMatcher<IProvidedCapability>() {
+
+            @Override
+            protected boolean matchesSafely(IProvidedCapability item) {
+                return "osgi.ee".equals(item.getNamespace()) && eeName.equals(item.getName())
+                        && parsedVersion.equals(item.getVersion());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("the capability osgi.ee/" + eeName + "/" + parsedVersion);
+            }
+
+        };
+    }
+
     static String gavString(String groupId, String artifactId, String version, String classifier) {
         return groupId + ":" + artifactId + ":" + version + (classifier == null ? "" : ":" + classifier);
     }
@@ -93,4 +132,5 @@ public class InstallableUnitMatchers {
         }
         return left.equals(right);
     }
+
 }
