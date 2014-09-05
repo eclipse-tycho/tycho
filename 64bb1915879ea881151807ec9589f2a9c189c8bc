@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7672b30_67a0b1a4",
+        "filename": "tycho-bundles/tycho-bundles-target/tycho-bundles-target.target",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-05T14:21:41Z",
+      "side": 1,
+      "message": "The N-build is currently the only build containing the workaround in the publisher bundle (see [1])\n\nWe should probably go for Luna SR1 for the next Tycho release, so I\u0027d want to try the next M-build which also contain the same workaround.\n\n[1] https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d427123#c2",
+      "revId": "64bb1915879ea881151807ec9589f2a9c189c8bc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7672b30_c7fb8585",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/EEVersion.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-05T14:21:41Z",
+      "side": 1,
+      "message": "Should we re-introduce the IllegalArgumentException here? Tolerant behaviour may be better because then we don\u0027t need to change anything in Tycho when Equinox brings new EEs.\n\n[1] https://git.eclipse.org/r/#/c/24520/8..6/tycho-core/src/main/java/org/eclipse/tycho/core/ee/EEVersion.java",
+      "revId": "64bb1915879ea881151807ec9589f2a9c189c8bc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7672b30_07873d1f",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/EEVersion.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-05T14:21:41Z",
+      "side": 1,
+      "message": "@Jan, this was your proposal from the Equinox Luna migration [1] before we decided to decouple compact profile support.\n\n[1] https://git.eclipse.org/r/#/c/24520/6/tycho-core/src/main/java/org/eclipse/tycho/core/ee/EEVersion.java",
+      "revId": "64bb1915879ea881151807ec9589f2a9c189c8bc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
