@@ -3,16 +3,16 @@
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.executable.feature.group" version="3.6.100.v20140603-1326"/>
-<unit id="org.eclipse.sdk.ide" version="4.4.0.I20140606-1215"/>
-<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.9.0.v20140523-0116"/>
-<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.10.0.v20140606-1445"/>
+<unit id="org.eclipse.sdk.ide" version="4.5.0.I20140806-2000"/>
+<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.9.0.v20140629-1744"/>
+<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.10.0.v20140729-1451"/>
 <unit id="org.eclipse.ecf.core.feature.feature.group" version="1.1.0.v20140528-1625"/>
 <unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="1.0.0.v20140528-1625"/>
 <unit id="org.eclipse.ecf.filetransfer.feature.feature.group" version="3.9.0.v20140528-1625"/>
 <unit id="org.eclipse.ecf.filetransfer.ssl.feature.feature.group" version="1.0.0.v20140528-1625"/>
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.feature.feature.group" version="3.8.1.v20140528-1625"/>
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature.feature.group" version="1.0.0.v20140528-1625"/>
-<repository location="http://download.eclipse.org/releases/luna"/>
+<repository location="http://download.eclipse.org/releases/mars"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.mockito" version="1.8.4.v201303031500"/>
