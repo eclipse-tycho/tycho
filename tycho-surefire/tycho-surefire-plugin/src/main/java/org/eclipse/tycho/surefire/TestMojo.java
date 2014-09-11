@@ -180,25 +180,25 @@ public class TestMojo extends AbstractMojo {
     /**
      * @deprecated Use skipTests instead.
      */
-    @Parameter(property = "maven.test.skipExec", defaultValue = "false")
+    @Parameter(property = "maven.test.skipExec")
     private boolean skipExec;
 
     /**
      * <p>
      * Set this to "true" to skip running tests, but still compile them. Its use is NOT RECOMMENDED,
-     * but quite convenient on occasion.
+     * but quite convenient on occasion. Default: <code>false</code>
      * </p>
      */
-    @Parameter(property = "skipTests", defaultValue = "false")
-    private boolean skipTests;
+    @Parameter(property = "skipTests")
+    private Boolean skipTests;
 
     /**
      * <p>
      * Same as {@link #skipTests}
      * </p>
      */
-    @Parameter(property = "maven.test.skip", defaultValue = "false")
-    private boolean skip;
+    @Parameter(property = "maven.test.skip")
+    private Boolean skip;
 
     /**
      * <p>
@@ -589,7 +589,7 @@ public class TestMojo extends AbstractMojo {
     private RepositoryReferenceTool repositoryReferenceTool;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (skip || skipExec || skipTests) {
+        if (shouldSkip()) {
             getLog().info("Skipping tests");
             return;
         }
@@ -627,6 +627,20 @@ public class TestMojo extends AbstractMojo {
         }
 
         runTest(equinoxTestRuntime);
+    }
+
+    private boolean shouldSkip() {
+        if (skip != null && skipTests != null && !skip.equals(skipTests)) {
+            getLog().warn(
+                    "Both parameter 'skipTests' and 'maven.test.skip' are set, 'skipTests' has a higher priority!");
+        }
+        if (skipTests != null) {
+            return skipTests;
+        }
+        if (skip != null) {
+            return skip;
+        }
+        return false;
     }
 
     private ReactorProject getReactorProject() {
