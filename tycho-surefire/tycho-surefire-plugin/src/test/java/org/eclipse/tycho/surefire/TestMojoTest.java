@@ -12,9 +12,13 @@ package org.eclipse.tycho.surefire;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
+
+import java.lang.reflect.Field;
+
 import junit.framework.TestCase;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
@@ -62,6 +66,43 @@ public class TestMojoTest extends TestCase {
         // null arg must be ignored
         testMojo.addProgramArgs(cli, "-data", null);
         assertEquals(1, cli.getProgramArguments().length);
+    }
+
+    public void testShouldSkipWithNoValueSet() {
+        TestMojo testMojo = new TestMojo();
+        assertFalse(testMojo.shouldSkip());
+    }
+
+    public void testShouldSkipWithSkipTestsSetToTrue() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "skipTests", Boolean.TRUE);
+        assertTrue(testMojo.shouldSkip());
+    }
+
+    public void testShouldSkipWithMavenTestSkipSetToTrue() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "skip", Boolean.TRUE);
+        assertTrue(testMojo.shouldSkip());
+    }
+
+    public void testShouldSkipThatSkipTestsWillBePrefered() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "skip", Boolean.FALSE);
+        setParameter(testMojo, "skipTests", Boolean.TRUE);
+        assertTrue(testMojo.shouldSkip());
+    }
+
+    public void testShouldSkipWithSkipExeSetToTrue() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "skipExec", Boolean.TRUE);
+        assertTrue(testMojo.shouldSkip());
+    }
+
+    private void setParameter(Object object, String variable, Object value) throws IllegalArgumentException,
+            IllegalAccessException {
+        Field field = ReflectionUtils.getFieldByNameIncludingSuperclasses(variable, object.getClass());
+        field.setAccessible(true);
+        field.set(object, value);
     }
 
     private EquinoxLaunchConfiguration createEquinoxConfiguration() {
