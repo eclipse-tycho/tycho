@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_5a64f514",
+        "filename": "tycho-its/projects/surefire.skipTests/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-11T13:54:02Z",
+      "side": 1,
+      "message": "I think o.e.core.runtime is not explicitly required here",
+      "revId": "55150f65717baba43c57044654c299789127f685",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ba1d499d",
+        "filename": "tycho-its/projects/surefire.skipTests/src/tycho/its/Test.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-11T13:54:02Z",
+      "side": 1,
+      "message": "please correct copyright header",
+      "revId": "55150f65717baba43c57044654c299789127f685",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_1a5a7d56",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/surefire/TestSkipTests.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-11T13:54:02Z",
+      "side": 1,
+      "message": "please add copyright header",
+      "revId": "55150f65717baba43c57044654c299789127f685",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_3a2ad9b5",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-11T13:54:02Z",
+      "side": 1,
+      "message": "default value false should still be documented in javadoc (it was generated in maven site docs according to defaultValue).",
+      "revId": "55150f65717baba43c57044654c299789127f685",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_1a2f1dc6",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-11T13:54:02Z",
+      "side": 1,
+      "message": "default value false should still be documented in javadoc (it was generated in maven site docs according to defaultValue).",
+      "revId": "55150f65717baba43c57044654c299789127f685",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
