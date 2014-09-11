@@ -27,7 +27,7 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <!-- required for surefire junit3 provider -->
 <unit id="org.junit" version="3.8.2.v3_8_2_v20100427-1100"/>
-<repository location="http://download.eclipse.org/releases/indigo"/>
+<repository location="http://download.eclipse.org/releases/indigo/201202240900"/>
 </location>
 </locations>
 </target>
