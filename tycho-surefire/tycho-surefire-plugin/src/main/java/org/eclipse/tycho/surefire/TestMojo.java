@@ -189,16 +189,16 @@ public class TestMojo extends AbstractMojo {
      * but quite convenient on occasion.
      * </p>
      */
-    @Parameter(property = "skipTests", defaultValue = "false")
-    private boolean skipTests;
+    @Parameter(property = "skipTests")
+    private Boolean skipTests;
 
     /**
      * <p>
      * Same as {@link #skipTests}
      * </p>
      */
-    @Parameter(property = "maven.test.skip", defaultValue = "false")
-    private boolean skip;
+    @Parameter(property = "maven.test.skip")
+    private Boolean skip;
 
     /**
      * <p>
@@ -589,7 +589,7 @@ public class TestMojo extends AbstractMojo {
     private RepositoryReferenceTool repositoryReferenceTool;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (skip || skipExec || skipTests) {
+        if (shouldSkip()) {
             getLog().info("Skipping tests");
             return;
         }
@@ -627,6 +627,20 @@ public class TestMojo extends AbstractMojo {
         }
 
         runTest(equinoxTestRuntime);
+    }
+
+    private boolean shouldSkip() {
+        if (skip != null && skipTests != null && !skip.equals(skipTests)) {
+            getLog().warn(
+                    "Both parameter 'skipTests' and 'maven.test.skip' are set, 'skipTests' has a higher priority!");
+        }
+        if (skipTests != null) {
+            return skipTests;
+        }
+        if (skip != null) {
+            return skip;
+        }
+        return false;
     }
 
     private ReactorProject getReactorProject() {
