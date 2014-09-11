@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_173ff673",
+        "filename": "tycho-bundles/tycho-bundles-target/tycho-bundles-target.target",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-11T11:08:33Z",
+      "side": 1,
+      "message": "TODO: replace with actual versions",
+      "revId": "2cfe7d93b60707739e6bf8f2c9ca1b65f6e0e53d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_373af283",
+        "filename": "tycho-bundles/tycho-bundles-target/tycho-bundles-target.target",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-11T11:08:33Z",
+      "side": 1,
+      "message": "This is a candidate for SR1",
+      "revId": "2cfe7d93b60707739e6bf8f2c9ca1b65f6e0e53d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
