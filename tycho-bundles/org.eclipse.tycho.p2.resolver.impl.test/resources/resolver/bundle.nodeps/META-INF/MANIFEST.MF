@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle without any dependencies
+Bundle-SymbolicName: bundle.nodeps
+Bundle-Version: 1.0.0.qualifier

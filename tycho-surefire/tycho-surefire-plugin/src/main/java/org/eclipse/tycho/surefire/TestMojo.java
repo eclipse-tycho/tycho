@@ -815,6 +815,7 @@ public class TestMojo extends AbstractMojo {
     private List<Dependency> getTestDependencies() {
         ArrayList<Dependency> result = new ArrayList<Dependency>();
 
+        // see also P2ResolverImpl.addDependenciesForTests()
         result.add(newBundleDependency("org.eclipse.osgi"));
         result.add(newBundleDependency(EquinoxInstallationDescription.EQUINOX_LAUNCHER));
         if (useUIHarness) {
