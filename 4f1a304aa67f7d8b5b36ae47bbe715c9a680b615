@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_48038f4c",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 632,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-12T08:03:14Z",
+      "side": 1,
+      "message": "-1 \njust noticed now: forgot about skipExec here. This must also be handled, otherwise it will be ignored now.",
+      "revId": "4f1a304aa67f7d8b5b36ae47bbe715c9a680b615",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
