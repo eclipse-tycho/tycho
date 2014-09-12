@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_8860072b",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-12T14:17:02Z",
+      "side": 1,
+      "message": "\"plaform\" -\u003e fixed in next patch set",
+      "revId": "06ac8cacedcf58d21ff9bbcb07c9be75d093656c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
