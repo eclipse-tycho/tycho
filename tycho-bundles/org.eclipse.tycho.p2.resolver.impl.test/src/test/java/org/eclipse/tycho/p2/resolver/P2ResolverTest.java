@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2.resolver;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_FEATURE;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_PLUGIN;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_REPOSITORY;
+import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_TEST_PLUGIN;
 import static org.eclipse.tycho.PackagingType.TYPE_ECLIPSE_UPDATE_SITE;
 import static org.eclipse.tycho.p2.impl.test.ResourceUtil.resourceFile;
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HANDLER;
@@ -52,6 +53,9 @@ import org.eclipse.tycho.p2.target.DuplicateReactorIUsException;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.target.ee.ExecutionEnvironmentResolutionHandler;
 import org.eclipse.tycho.test.util.LogVerifier;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -185,6 +189,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         List<P2ResolutionResult.Entry> entries = new ArrayList<P2ResolutionResult.Entry>(result.getArtifacts());
         Collections.sort(entries, new Comparator<Entry>() {
 
+            @Override
             public int compare(Entry entry1, Entry entry2) {
                 return entry1.getId().compareTo(entry2.getId());
             }
@@ -216,6 +221,21 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertContainsUnit("org.eclipse.osgi", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.equinox.executable.feature.group", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.tycho.p2.impl.resolver.test.bundle01", result.getNonReactorUnits());
+    }
+
+    @Test
+    public void testEclipseTestPluginAutomaticallyDependsOnTestHarnesses() throws Exception {
+        tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
+        addContextProject(resourceFile("resolver/bundle.uitestharness"), TYPE_ECLIPSE_PLUGIN);
+
+        projectToResolve = createReactorProject(resourceFile("resolver/bundle.nodeps"), TYPE_ECLIPSE_TEST_PLUGIN,
+                "bundle.nodeps");
+
+        result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
+
+        assertThat(result.getArtifacts().size(), is(2));
+        assertThat(result.getArtifacts(), hasItem(withId("bundle.nodeps")));
+        assertThat(result.getArtifacts(), hasItem(withId("org.eclipse.ui.ide.application")));
     }
 
     @Test
@@ -465,6 +485,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertThat((Set<IInstallableUnit>) result.getNonReactorUnits(), hasItem(unitWithId("org.eclipse.osgi")));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testResolveWithoutProject() throws Exception {
         tpConfig.addP2Repository(resourceFile("repositories/e342").toURI());
@@ -512,6 +533,21 @@ public class P2ResolverTest extends P2ResolverTestBase {
         }
         assertThat(availableClassifiers, hasItem(classifier));
         return selectedEntry;
+    }
+
+    static Matcher<Entry> withId(final String id) {
+        return new TypeSafeMatcher<Entry>() {
+
+            @Override
+            protected boolean matchesSafely(Entry entry) {
+                return id.equals(entry.getId());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("an artifact with ID " + id);
+            }
+        };
     }
 
     private static void assertContainsUnit(String unitID, Set<?> units) {
