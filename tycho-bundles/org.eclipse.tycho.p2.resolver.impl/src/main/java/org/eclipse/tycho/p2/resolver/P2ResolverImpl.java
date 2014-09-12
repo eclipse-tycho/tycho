@@ -35,6 +35,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -100,6 +101,10 @@ public class P2ResolverImpl implements P2Resolver {
     @Override
     public List<P2ResolutionResult> resolveDependencies(TargetPlatform targetPlatform, ReactorProject project) {
         setContext(targetPlatform, project);
+
+        if (project != null && PackagingType.TYPE_ECLIPSE_TEST_PLUGIN.equals(project.getPackaging())) {
+            addDependenciesForTests();
+        }
 
         ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
         usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
@@ -395,6 +400,20 @@ public class P2ResolverImpl implements P2Resolver {
             // TODO make ".feature.group" a constant in FeaturesAction
         }
         // TODO else throw an exception
+    }
+
+    private void addDependenciesForTests() {
+        /*
+         * In case the test harness bundles are part of the reactor, the dependency resolution needs
+         * to identify them as a dependency of eclipse-test-plugin modules. Otherwise they will be
+         * missing in the final target platform of the module - they would be filtered from the
+         * external target platform, and not added from the reactor - and hence the test runtime
+         * resolution would fail (see bug 443396).
+         */
+        additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                "org.eclipse.core.runtime", VersionRange.emptyRange, null, true, true, true));
+        additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+                "org.eclipse.ui.ide.application", VersionRange.emptyRange, null, true, true, true));
     }
 
     public List<IRequirement> getAdditionalRequirements() {
