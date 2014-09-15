@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_0e54ff4a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-15T07:45:46Z",
+      "side": 1,
+      "message": "would be good to mention TestMojo#getTestDependencies() here as it has to be kept in sync",
+      "revId": "caabe0c6f5ac1101b0a3f5a53c344366469ab603",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
