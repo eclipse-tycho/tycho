@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_1b11dc0b",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-15T16:51:33Z",
+      "side": 1,
+      "message": "@Jan: Very good point. I even missed the \"org.eclipse.equinox.launcher\" bundle, which is another bunde a test typically doesn\u0027t depend on, but Tycho will need to fire up the test runtime.\n\nI omitted \"org.eclipse.osgi\" because the other bundles already have a dependency to it.",
+      "revId": "0d0b500e20e64a58c9e6270d9f2b8db4d5c24a03",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
