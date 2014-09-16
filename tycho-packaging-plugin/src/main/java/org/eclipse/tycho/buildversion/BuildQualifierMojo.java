@@ -44,7 +44,9 @@ import org.osgi.framework.Version;
  * unqualified project version is assigned to <code>unqualifiedVersion</code> project property. The
  * unqualified version is calculated based on <code>${project.version}</code> and can be used for
  * any Tycho project and regular Maven project. Different projects can use different formats to
- * expand the timestamp (not recommended).
+ * expand the timestamp (not recommended). The concatenation of <code>${unqualifiedVersion}</code>
+ * and <code>${buildQualifier}</code>, if not empty, is assigned to the project property
+ * <code>qualifiedVersion</code>.
  * </p>
  * <p>
  * The timestamp generation logic is extensible. The primary use case is to generate build version
@@ -77,8 +79,8 @@ import org.osgi.framework.Version;
 public class BuildQualifierMojo extends AbstractVersionMojo {
 
     public static final String BUILD_QUALIFIER_PROPERTY = "buildQualifier";
-
     public static final String UNQUALIFIED_VERSION_PROPERTY = "unqualifiedVersion";
+    public static final String QUALIFIED_VERSION_PROPERTY = "qualifiedVersion";
 
     @Parameter(property = "session", readonly = true)
     protected MavenSession session;
@@ -94,6 +96,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     /**
      * @deprecated This parameter is deprecated and may be removed in future versions of Tycho.
      */
+    @Deprecated
     // TODO this should not be configurable
     @Parameter(property = "project.basedir")
     protected File baseDir;
@@ -126,10 +129,12 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         TychoProjectVersion projectVersion = calculateQualifiedVersion();
         project.getProperties().put(BUILD_QUALIFIER_PROPERTY, projectVersion.qualifier);
         project.getProperties().put(UNQUALIFIED_VERSION_PROPERTY, projectVersion.unqualifiedVersion);
+        project.getProperties().put(QUALIFIED_VERSION_PROPERTY, projectVersion.getOSGiVersion());
 
         getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
     }
