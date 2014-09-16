@@ -207,6 +207,31 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Component
     private BundleReader bundleReader;
 
+    /**
+     * Whether all resources in the source folders should be copied to /target/clasees.
+     * <p>
+     * Possible values:
+     * <ul>
+     * <li><code>auto</code> (default)</li>
+     * <li><code>on</code></li>
+     * <li><code>off</code></li>
+     * </ul>
+     * </p>
+     * <code>auto</code> means that all resources are copied to /target/classes if one of the source
+     * folders is "/src" (PDE builds). For other builds (e.g. maven like projects with
+     * /src/main/java/ as source directory), no resources from the source folders are copied to the
+     * /target/classes folder.
+     * 
+     * <code>on</code> means that all resources are copied from the source folders to
+     * /target/classes regardless of the source folders names.
+     * 
+     * <code>off</code> means that no resources are copied from the source folders to
+     * /target/classes.
+     * 
+     */
+    @Parameter(defaultValue = "auto")
+    private String resourceCopying;
+
     @Override
     public void execute() throws MojoExecutionException, CompilationFailureException {
         StandardExecutionEnvironment[] manifestBREEs = bundleReader.loadManifest(project.getBasedir())
@@ -237,10 +262,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * resource files in source directories into the target folder
      */
     private void copyResources() throws MojoExecutionException {
+        if (!shouldResourcesBeCopied()) {
+            return;
+        }
         for (String sourceRoot : getCompileSourceRoots()) {
             // StaleSourceScanner.getIncludedSources throws IllegalStateException
             // if directory doesnt't exist
             File sourceRootFile = new File(sourceRoot);
+
             if (!sourceRootFile.isDirectory()) {
                 getLog().warn("Source directory " + sourceRoot + " does not exist");
                 continue;
@@ -265,6 +294,26 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                         + this.outputJar.getOutputDirectory(), e);
             }
         }
+    }
+
+    private boolean shouldResourcesBeCopied() throws MojoExecutionException {
+        if ("off".equalsIgnoreCase(resourceCopying)) {
+            return false;
+        }
+        if ("on".equalsIgnoreCase(resourceCopying)) {
+            return true;
+        }
+        if ("auto".equalsIgnoreCase(resourceCopying) || resourceCopying == null) {
+            for (String sourceRoot : getCompileSourceRoots()) {
+                if ((project.getBasedir() + File.separator + "src").equals(sourceRoot)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        throw new MojoExecutionException(
+                "Unkown parameter value for 'resourceCopying', must be one of 'on', 'off' or 'auto' but was '"
+                        + resourceCopying + "'");
     }
 
     /** public for testing purposes */
