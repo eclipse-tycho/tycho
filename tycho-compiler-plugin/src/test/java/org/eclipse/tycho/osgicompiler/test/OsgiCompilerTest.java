@@ -223,6 +223,15 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertFalse(new File(project.getBasedir(), "target/classes/testresources/Test.aj").canRead());
     }
 
+    public void testCopyResourcesWithResourceCopyingSetToOff() throws Exception {
+        File basedir = getBasedir("projects/resources/p003");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+        assertTrue(new File(project.getBasedir(), "target/classes/testresources/Test.class").exists());
+        assertFalse(new File(project.getBasedir(), "target/classes/testresources/test.properties").exists());
+    }
+
     public void testExecutionEnvironment() throws Exception {
         File basedir = getBasedir("projects/executionEnvironment");
         List<MavenProject> projects = getSortedProjects(basedir, null);
@@ -235,7 +244,6 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
         // project with multiple execution envs.
         // Minimum source and target level must be taken
-        // TODO 438743 also make this work without configuring breeHeaderSelectionPolicy=minimal?
         project = projects.get(2);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         assertEquals("OSGi/Minimum-1.0", mojo.getExecutionEnvironment());

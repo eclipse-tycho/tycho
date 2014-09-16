@@ -207,6 +207,27 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Component
     private BundleReader bundleReader;
 
+    /**
+     * Whether all resources in the source folders should be copied to
+     * ${project.build.outputDirectory}.
+     * 
+     * <code>true</code> (default) means that all resources are copied from the source folders to
+     * <code>${project.build.outputDirectory}</code>.
+     * 
+     * <code>false</code> means that no resources are copied from the source folders to
+     * <code>${project.build.outputDirectory}</code>.
+     * 
+     * Set this to <code>false</code> in case you want to keep resources separate from java files in
+     * <code>src/main/resources</code> and handle them using <a
+     * href="http://maven.apache.org/plugins/maven-resources-plugin/"> maven-resources-plugin</a>
+     * (e.g. for <a
+     * href="http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html">resource
+     * filtering<a/>.
+     * 
+     */
+    @Parameter(defaultValue = "true")
+    private boolean copyResources;
+
     @Override
     public void execute() throws MojoExecutionException, CompilationFailureException {
         StandardExecutionEnvironment[] manifestBREEs = bundleReader.loadManifest(project.getBasedir())
@@ -222,7 +243,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             this.outputJar = jar;
             this.outputJar.getOutputDirectory().mkdirs();
             super.execute();
-            copyResources();
+            doCopyResources();
         }
 
         // this does not include classes from nested jars
@@ -236,11 +257,15 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * mimics the behavior of the PDE incremental builder which by default copies all (non-java)
      * resource files in source directories into the target folder
      */
-    private void copyResources() throws MojoExecutionException {
+    private void doCopyResources() throws MojoExecutionException {
+        if (!copyResources) {
+            return;
+        }
         for (String sourceRoot : getCompileSourceRoots()) {
             // StaleSourceScanner.getIncludedSources throws IllegalStateException
             // if directory doesnt't exist
             File sourceRootFile = new File(sourceRoot);
+
             if (!sourceRootFile.isDirectory()) {
                 getLog().warn("Source directory " + sourceRoot + " does not exist");
                 continue;
