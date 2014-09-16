@@ -207,6 +207,26 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Component
     private BundleReader bundleReader;
 
+    /**
+     * Whether all resources in the source folders should be copied to /target/clasees.
+     * <p>
+     * Possible values:
+     * <ul>
+     * <li><code>on</code></li>
+     * <li><code>off</code></li>
+     * </ul>
+     * </p>
+     * 
+     * <code>on</code> means that all resources are copied from the source folders to
+     * /target/classes.
+     * 
+     * <code>off</code> means that no resources are copied from the source folders to
+     * /target/classes.
+     * 
+     */
+    @Parameter(defaultValue = "on")
+    private String resourceCopying;
+
     @Override
     public void execute() throws MojoExecutionException, CompilationFailureException {
         StandardExecutionEnvironment[] manifestBREEs = bundleReader.loadManifest(project.getBasedir())
@@ -237,10 +257,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * resource files in source directories into the target folder
      */
     private void copyResources() throws MojoExecutionException {
+        if (!shouldResourcesBeCopied()) {
+            return;
+        }
         for (String sourceRoot : getCompileSourceRoots()) {
             // StaleSourceScanner.getIncludedSources throws IllegalStateException
             // if directory doesnt't exist
             File sourceRootFile = new File(sourceRoot);
+
             if (!sourceRootFile.isDirectory()) {
                 getLog().warn("Source directory " + sourceRoot + " does not exist");
                 continue;
@@ -265,6 +289,17 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                         + this.outputJar.getOutputDirectory(), e);
             }
         }
+    }
+
+    private boolean shouldResourcesBeCopied() throws MojoExecutionException {
+        if ("off".equalsIgnoreCase(resourceCopying)) {
+            return false;
+        }
+        if (resourceCopying == null || "on".equalsIgnoreCase(resourceCopying)) {
+            return true;
+        }
+        throw new MojoExecutionException(
+                "Unkown parameter value for 'resourceCopying', must be 'on' or 'off' but was '" + resourceCopying + "'");
     }
 
     /** public for testing purposes */
