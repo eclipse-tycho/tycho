@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_8a8d9440",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-17T10:11:43Z",
+      "side": 1,
+      "message": "target/classes -\u003e \u003ccode\u003e${project.build.outputDirectory}\u003c/code\u003e",
+      "revId": "53f44e795a572f7928bd5c64085332b5ef0ac1d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ea81a808",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-17T10:11:43Z",
+      "side": 1,
+      "message": "I would add:\n\n\"Switch this off in case you want to keep resources separate from java files in \u003ccode\u003esrc/main/resources\u003c/code\u003e and handle them using \u003ca href\u003d\"http://maven.apache.org/plugins/maven-resources-plugin/\"\u003emaven-resources-plugin\u003c/a\u003e (e.g. for \u003ca href\u003d\"http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html\"\u003eresource filtering\u003ca/\u003e.",
+      "revId": "53f44e795a572f7928bd5c64085332b5ef0ac1d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_6a3c78ef",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-17T10:11:43Z",
+      "side": 1,
+      "message": "since we don\u0027t have a tri-state here anymore I\u0027d simply use boolean",
+      "revId": "53f44e795a572f7928bd5c64085332b5ef0ac1d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ea4fe88b",
+        "filename": "tycho-compiler-plugin/src/test/java/org/eclipse/tycho/osgicompiler/test/OsgiCompilerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-17T10:11:43Z",
+      "side": 1,
+      "message": "test not needed if we use boolean instead",
+      "revId": "53f44e795a572f7928bd5c64085332b5ef0ac1d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_4a41bc61",
+        "filename": "tycho-compiler-plugin/src/test/resources/projects/resources/p003/.classpath",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-17T10:11:43Z",
+      "side": 1,
+      "message": "remove this file, not needed",
+      "revId": "53f44e795a572f7928bd5c64085332b5ef0ac1d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_aa36900a",
+        "filename": "tycho-compiler-plugin/src/test/resources/projects/resources/p003/.project",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-17T10:11:43Z",
+      "side": 1,
+      "message": "remove this file, not needed",
+      "revId": "53f44e795a572f7928bd5c64085332b5ef0ac1d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
