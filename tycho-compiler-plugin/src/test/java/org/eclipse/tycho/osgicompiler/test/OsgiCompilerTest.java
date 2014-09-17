@@ -379,6 +379,66 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertThat((String) warnings.iterator().next(), containsString("is boxed"));
     }
 
+    public void testUseProjectSettingsSetToTrue() throws Exception {
+        // the code in the project does use boxing and the settings file 
+        // turns on warning for auto boxing so we expect here a warning
+        File basedir = getBasedir("projects/projectSettings/p001");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
+        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        mojo.setLog(new SystemStreamLog() {
+
+            @Override
+            public void warn(CharSequence content) {
+                warnings.add(content);
+            }
+
+        });
+        mojo.execute();
+        assertThat((String) warnings.iterator().next(), containsString("is boxed"));
+    }
+
+    public void testUseProjectSettingsSetToFalse() throws Exception {
+        File basedir = getBasedir("projects/projectSettings/p001");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        setVariableValueToObject(mojo, "useProjectSettings", Boolean.FALSE);
+        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        mojo.setLog(new SystemStreamLog() {
+
+            @Override
+            public void warn(CharSequence content) {
+                warnings.add(content);
+            }
+
+        });
+        mojo.execute();
+        assertTrue(warnings.isEmpty());
+    }
+
+    public void testUseProjectSettingsSetToTrueWithMissingPrefsFile() throws Exception {
+        File basedir = getBasedir("projects/projectSettings/p002");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
+        setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
+        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        mojo.setLog(new SystemStreamLog() {
+
+            @Override
+            public void warn(CharSequence content) {
+                warnings.add(content);
+            }
+
+        });
+        mojo.execute();
+        assertThat((String) warnings.iterator().next(),
+                containsString("Parameter 'useProjectSettings' is set to true, but preferences file"));
+    }
+
     public void test367431_frameworkExtensionCompileAccessRules() throws Exception {
         File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
         List<MavenProject> projects = getSortedProjects(basedir, new File(

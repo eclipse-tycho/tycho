@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ProjectSettings02
+Bundle-SymbolicName: projectSetting02
+Bundle-Version: 1.0.0

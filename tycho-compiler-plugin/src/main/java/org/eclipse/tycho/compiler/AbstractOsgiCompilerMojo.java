@@ -88,6 +88,8 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private static final Set<String> MATCH_ALL = Collections.singleton("**/*");
 
+    private static final String PREFS_FILE_PATH = ".settings" + File.separator + "org.eclipse.jdt.core.prefs";
+
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
 
@@ -195,6 +197,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      */
     @Parameter(defaultValue = "false")
     private boolean strictCompilerTarget;
+
+    /**
+     * If set to <code>true</code>, the settings file
+     * ${project.basedir}/.settings/org.eclipse.jdt.core.prefs will be passed to the compiler. If
+     * the file is not present, the build will not fail.
+     */
+    @Parameter(defaultValue = "false")
+    private boolean useProjectSettings;
 
     /**
      * Current build output jar
@@ -390,6 +400,16 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots)
             throws MojoExecutionException {
         CompilerConfiguration compilerConfiguration = super.getCompilerConfiguration(compileSourceRoots);
+        if (useProjectSettings) {
+            String prefsFilePath = project.getBasedir() + File.separator + PREFS_FILE_PATH;
+            if (!new File(prefsFilePath).exists()) {
+                getLog().warn(
+                        "Parameter 'useProjectSettings' is set to true, but preferences file '" + prefsFilePath
+                                + "' could not be found!");
+            } else {
+                compilerConfiguration.addCompilerCustomArgument("-properties", prefsFilePath);
+            }
+        }
         String encoding = getEclipsePluginProject().getBuildProperties().getJarToJavacDefaultEncodingMap()
                 .get(outputJar.getName());
         if (encoding != null) {
