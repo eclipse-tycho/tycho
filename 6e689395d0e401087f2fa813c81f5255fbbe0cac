@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_8cdbed9a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T16:16:49Z",
+      "side": 1,
+      "message": "I\u0027d rather not have the configuration be translated to magic Booleans and back, so this enum should rather be moved to the shared bundle and reused.",
+      "revId": "6e689395d0e401087f2fa813c81f5255fbbe0cac",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_4c3ef542",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T16:16:49Z",
+      "side": 1,
+      "message": "This code should not be duplicated; couldn\u0027t the other resolveContent method call this one?",
+      "revId": "6e689395d0e401087f2fa813c81f5255fbbe0cac",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_2c3bb951",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T16:16:49Z",
+      "side": 1,
+      "message": "Rather set includeSourcesMode on the ResolverRun and handle its implications in setIncludeSource",
+      "revId": "6e689395d0e401087f2fa813c81f5255fbbe0cac",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_acea2920",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T16:16:49Z",
+      "side": 1,
+      "message": "Although enum constants are usually all uppercase, I consider the convention for configuration flags more important. Therefore this enum should have the lower-case constants \"honor\", \"ignore\", and \"force\"",
+      "revId": "6e689395d0e401087f2fa813c81f5255fbbe0cac",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_6ce01143",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T16:16:49Z",
+      "side": 1,
+      "message": "Classes in the \"*.shared\" bundles can be used from both the Maven and OSGi class loader side. I don\u0027t see the need for this redundant definition.",
+      "revId": "6e689395d0e401087f2fa813c81f5255fbbe0cac",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
