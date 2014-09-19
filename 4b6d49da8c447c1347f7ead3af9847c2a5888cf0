@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_eca7013e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T15:39:49Z",
+      "side": 1,
+      "message": "I wouldn\u0027t put this into dependency-resolution because the ee also effect the target file resolution. dependency-resolution is only intended for flags which are dependency resolution only.\n\nSuggestion: resolveWithExecutionEnvironmentConstraints\u003dfalse\n\nSanity check; The site doc for this could be as follows:\n\"Take the constraints of the configured execution environment into account when resolving dependencies or target files. These constraints include the list of system packages and the Bundle-RequiredExecutionEnvironment header. When set to \"true\", the dependency resolution verifies that the bundle and all required bundles can be used in an OSGi container with the configured execution environment.\"\n\nI\u0027d say that this works :-)",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ac7ea952",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/core/ee/shared/ExecutionEnvironmentConfiguration.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T15:39:49Z",
+      "side": 1,
+      "message": "This interface has reasonably complicated restrictions on its mutable state - if possible, I\u0027d like to avoid adding more mutable state - so this value should be set on construction if possible.",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_8ce80d76",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/AllKnownEEsResolutionHints.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T15:39:49Z",
+      "side": 1,
+      "message": "I think that it would be better to add the JRE units as temporaryUnits. In this way they would be removed from resolution results and hence cannot end up in eclipse-repositories with includeAllDependencies",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_4cdf15d2",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/AllKnownEEsResolutionHints.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T15:39:49Z",
+      "side": 1,
+      "message": "computeTemporaryAdditions will only add an \"a.jre\" unit. I don\u0027t know of any case where this unit actually required by a product. AFAIK, all products require \"a.jre.javase\", which is anyway generated above.\n\nSo, I\u0027d simply omit this call.",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_cce20592",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/AllKnownEEsResolutionHints.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T15:39:49Z",
+      "side": 1,
+      "message": "Returning the JRE units from getTemporaryAdditions is IMHO enough. This method can return an empty list.\n\nThis means that a dependency resolution may e.g. prefer a bundle providing javax.xml over a a.jre.javase unit. IMHO this is okay: We don\u0027t care about EEs here, so we don\u0027t care about potentially redundant bundles either.",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ace7c9a0",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/ExecutionEnvironmentResolutionHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T15:39:49Z",
+      "side": 1,
+      "message": "Good: this needs to be checked first; this flag should override a custom EE configuration.",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ec2a612f",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/ExecutionEnvironmentResolutionHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T15:39:49Z",
+      "side": 1,
+      "message": "We could omit this class by adding a constructor in StandardEEResolutionHandler; \"all EEs\" is kind of also a standard EE:\n\n return new StandardEEResolutionHandler(new AllKnownEEsResolutionHints())\n\nMaybe it also make sense to call the latter class \"AllStandardEEsResolutionHints\"",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ac74e943",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-19T15:39:49Z",
+      "side": 1,
+      "message": "IIRC, this call would fail if you had a custom EE and ignoreByResolver configured at the same time. Would it work signal ignoreByResolver to newResolvedState by setting executionEnvironment to null?",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
