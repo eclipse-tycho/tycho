@@ -53,4 +53,46 @@ public class AttachedArtifact implements IArtifactFacade {
         return project.getPackaging();
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((classifier == null) ? 0 : classifier.hashCode());
+        result = prime * result + ((location == null) ? 0 : location.hashCode());
+        result = prime * result + ((project == null) ? 0 : project.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AttachedArtifact other = (AttachedArtifact) obj;
+        if (classifier == null) {
+            if (other.classifier != null)
+                return false;
+        } else if (!classifier.equals(other.classifier))
+            return false;
+        if (location == null) {
+            if (other.location != null)
+                return false;
+        } else if (!location.equals(other.location))
+            return false;
+        if (project == null) {
+            if (other.project != null)
+                return false;
+        } else if (!project.equals(other.project))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "AttachedArtifact [project=" + project + ", location=" + location + ", classifier=" + classifier + "]";
+    }
+
 }

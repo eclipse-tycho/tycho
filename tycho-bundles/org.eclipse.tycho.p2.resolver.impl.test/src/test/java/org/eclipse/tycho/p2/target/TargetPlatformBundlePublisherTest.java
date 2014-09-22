@@ -17,6 +17,7 @@ import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryMatchers.c
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +42,7 @@ public class TargetPlatformBundlePublisherTest {
     private static final String GROUP_ID = "example.group";
     private static final String ARTIFACT_ID = "example.artifact";
     private static final String VERSION = "0.8.15-SNAPSHOT";
+    private static final String VERSION2 = "0.8.16-SNAPSHOT";
 
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
@@ -67,6 +69,7 @@ public class TargetPlatformBundlePublisherTest {
         copyFolderContent(resourceFile("platformbuilder/pom-dependencies/bundle-repo"), localRepositoryRoot);
         File bundleFile = new File(localRepositoryRoot, RepositoryLayoutHelper.getRelativePath(GROUP_ID, ARTIFACT_ID,
                 VERSION, null, "jar"));
+
         IArtifactFacade bundleArtifact = new ArtifactMock(bundleFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
 
         IInstallableUnit publishedUnit = subject.attemptToPublishBundle(bundleArtifact);
@@ -101,6 +104,24 @@ public class TargetPlatformBundlePublisherTest {
         IInstallableUnit unit = subject.attemptToPublishBundle(otherArtifact);
 
         assertNull(unit);
+    }
+
+    @Test
+    public void testCaching() throws Exception {
+        copyFolderContent(resourceFile("platformbuilder/pom-dependencies/bundle-repo"), localRepositoryRoot);
+        File bundleFile = new File(localRepositoryRoot, RepositoryLayoutHelper.getRelativePath(GROUP_ID, ARTIFACT_ID,
+                VERSION, null, "jar"));
+        File bundleFile2 = new File(localRepositoryRoot, RepositoryLayoutHelper.getRelativePath(GROUP_ID, ARTIFACT_ID,
+                VERSION2, null, "jar"));
+        IArtifactFacade bundleArtifact = new ArtifactMock(bundleFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
+        IArtifactFacade bundleArtifact2 = new ArtifactMock(bundleFile2, GROUP_ID, ARTIFACT_ID, VERSION2, "jar");
+
+        IInstallableUnit unit1 = subject.attemptToPublishBundle(bundleArtifact);
+        IInstallableUnit unit2 = subject.attemptToPublishBundle(bundleArtifact2);
+        IInstallableUnit unit1SecondTime = subject.attemptToPublishBundle(bundleArtifact);
+        assertTrue(unit1 == unit1SecondTime);
+        assertTrue(!unit1.equals(unit2));
+        assertTrue(!unit1SecondTime.equals(unit2));
     }
 
     private static String artifactMD5Of(IArtifactKey key, IRawArtifactProvider artifactProvider) throws Exception {

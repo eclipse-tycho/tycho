@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.facade.internal;
 import java.io.File;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 public class ArtifactFacade implements IArtifactFacade {
@@ -48,4 +49,44 @@ public class ArtifactFacade implements IArtifactFacade {
         return wrappedArtifact.getClassifier();
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((wrappedArtifact == null) ? 0 : wrappedArtifact.hashCode());
+        return result;
+    }
+
+    /**
+     * This is not a generated method. Watch out in case of modifications. Gives back true only if
+     * both objects have a {@link DefaultArtifact} as {@link #wrappedArtifact}. The reason is, that
+     * other {@link Artifact} implementations do not have correct {@link Object#equals(Object)} and
+     * {@link Object#hashCode()} implementations.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ArtifactFacade other = (ArtifactFacade) obj;
+
+        // THIS two line is not generated. 
+        if (!(wrappedArtifact instanceof DefaultArtifact) || !(other.wrappedArtifact instanceof DefaultArtifact))
+            return false;
+
+        if (wrappedArtifact == null) {
+            if (other.wrappedArtifact != null)
+                return false;
+        } else if (!wrappedArtifact.equals(other.wrappedArtifact))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ArtifactFacade [wrappedArtifact=" + wrappedArtifact + "]";
+    }
 }

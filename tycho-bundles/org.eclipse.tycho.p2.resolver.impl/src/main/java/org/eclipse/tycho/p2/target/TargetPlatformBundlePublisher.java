@@ -12,6 +12,8 @@ package org.eclipse.tycho.p2.target;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.AssertionFailedException;
@@ -40,6 +42,18 @@ public class TargetPlatformBundlePublisher {
 
     private final MavenLogger logger;
     private final PublishedBundlesArtifactRepository publishedArtifacts;
+    private static final int ARTIFACT_CACHE_SIZE = 1000;
+    /**
+     * Cache containing {@link IArtifactDescriptor} and {@link IInstallableUnit} for a given
+     * {@link IArtifactFacade}. During profiling Tyhco it turned out, that turning normal maven
+     * artifacts into installable p2 artifacts takes a lot of time. Especially calculating MD5 hash
+     * for an artifact. In case of a multimodule project the same artifact will be published several
+     * times. This makes no sense. Since these installable artifacts are examined before the actual
+     * maven build happens, it is really not likely that these maven artifacts change during the
+     * whole build. So I cache them here. The actual items are only metadata, so the cache will not
+     * be that big. Just to make it sure the cache is a {@link LinkedHashMap} with limited capacity.
+     */
+    private static final Map<IArtifactFacade, InstallableUnitCacheItem> installableUnitCache = new CacheMap();
 
     public TargetPlatformBundlePublisher(File localMavenRepositoryRoot, MavenLogger logger) {
         this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepositoryRoot);
@@ -71,32 +85,53 @@ public class TargetPlatformBundlePublisher {
      *         OSGi bundle.
      */
     IInstallableUnit attemptToPublishBundle(IArtifactFacade mavenArtifact) {
-        if (!isAvailableAsLocalFile(mavenArtifact)) {
-            // this should have been ensured by the caller
-            throw new IllegalArgumentException("Not an artifact file: " + mavenArtifact.getLocation());
-        }
-        if (isCertainlyNoBundle(mavenArtifact)) {
-            return null;
-        }
-
-        PublisherRun publisherRun = new PublisherRun(mavenArtifact);
-        IStatus status = publisherRun.execute();
-
-        if (!status.isOK()) {
-            /**
-             * If publishing of a jar fails, it is simply not added to the resolution context. The
-             * BundlesAction already ignores non-bundle JARs silently, so an error status here
-             * indicates a caught exception that we at least want to see.
+        IInstallableUnit publishedIU = null;
+        IArtifactDescriptor publishedDescriptor = null;
+        synchronized (installableUnitCache) {
+            /*
+             * I really don't think that Tycho likes multithreaded build. But in case if it still
+             * used multithreaded just to prevent race conditions we simply serialize these
+             * requests.
              */
-            logger.warn(StatusTool.collectProblems(status), status.getException());
-        }
+            InstallableUnitCacheItem cacheItem = installableUnitCache.get(mavenArtifact);
+            if (cacheItem == null) {
+                logger.debug("No cached published artifact for " + mavenArtifact + "(" + mavenArtifact.getGroupId()
+                        + ":" + mavenArtifact.getArtifactId() + ":" + mavenArtifact.getClassifier() + ":"
+                        + mavenArtifact.getVersion() + ")");
 
-        IInstallableUnit publishedIU = publisherRun.getPublishedUnitIfExists();
+                if (!isAvailableAsLocalFile(mavenArtifact)) {
+                    // this should have been ensured by the caller
+                    throw new IllegalArgumentException("Not an artifact file: " + mavenArtifact.getLocation());
+                }
+                if (isCertainlyNoBundle(mavenArtifact)) {
+                    return null;
+                }
+
+                PublisherRun publisherRun = new PublisherRun(mavenArtifact);
+                IStatus status = publisherRun.execute();
+
+                if (!status.isOK()) {
+                    /**
+                     * If publishing of a jar fails, it is simply not added to the resolution
+                     * context. The BundlesAction already ignores non-bundle JARs silently, so an
+                     * error status here indicates a caught exception that we at least want to see.
+                     */
+                    logger.warn(StatusTool.collectProblems(status), status.getException());
+                }
+
+                publishedIU = publisherRun.getPublishedUnitIfExists();
+                if (publishedIU != null) {
+                    publishedDescriptor = publisherRun.getPublishedArtifactDescriptor();
+                }
+                installableUnitCache.put(mavenArtifact, new InstallableUnitCacheItem(publishedIU, publishedDescriptor));
+            } else {
+                publishedIU = cacheItem.getInstallableUnit();
+                publishedDescriptor = cacheItem.getArtifactDescriptor();
+            }
+        }
         if (publishedIU != null) {
-            IArtifactDescriptor publishedDescriptor = publisherRun.getPublishedArtifactDescriptor();
             publishedArtifacts.addPublishedArtifact(publishedDescriptor, mavenArtifact);
         }
-
         return publishedIU;
     }
 
@@ -267,5 +302,49 @@ public class TargetPlatformBundlePublisher {
             return new File(getLocation());
         }
 
+    }
+
+    /**
+     * Simple access order {@link LinkedHashMap} based cache.
+     * 
+     * @author liptak
+     */
+    private static final class CacheMap extends LinkedHashMap<IArtifactFacade, InstallableUnitCacheItem> {
+        private static final long serialVersionUID = 1L;
+        private static final float LOAD_FACTOR = 0.75f;
+        private static final int INITIAL_CAPACITY = 32;
+        private static final boolean ACCESS_ORDER = true;
+
+        public CacheMap() {
+            super(INITIAL_CAPACITY, LOAD_FACTOR, ACCESS_ORDER);
+        }
+
+        protected boolean removeEldestEntry(Map.Entry<IArtifactFacade, InstallableUnitCacheItem> eldest) {
+            return size() > ARTIFACT_CACHE_SIZE;
+        }
+    }
+
+    /**
+     * Value object for the published artifact cache
+     * 
+     * @author liptak
+     */
+    private static class InstallableUnitCacheItem {
+        private IInstallableUnit installableUnit;
+        private IArtifactDescriptor artifactDescriptor;
+
+        public InstallableUnitCacheItem(IInstallableUnit installableUnit, IArtifactDescriptor artifactDescriptor) {
+            super();
+            this.installableUnit = installableUnit;
+            this.artifactDescriptor = artifactDescriptor;
+        }
+
+        public IInstallableUnit getInstallableUnit() {
+            return installableUnit;
+        }
+
+        public IArtifactDescriptor getArtifactDescriptor() {
+            return artifactDescriptor;
+        }
     }
 }
