@@ -381,6 +381,17 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(i)));
     }
 
+    public void testWithProjectReferencesItself() throws Exception {
+        File basedir = getBasedir("projects/referencesItself");
+        try {
+            getSortedProjects(basedir);
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("Bundle referencesItself cannot be resolved"));
+        }
+
+    }
+
     private static String getActiveEEProfile(MavenProject project) {
         return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getProfileName();
     }
