@@ -301,6 +301,11 @@ public class EquinoxResolver {
             if (constraint instanceof BundleSpecification || constraint instanceof HostSpecification) {
                 BundleDescription[] requiredBundles = state.getBundles(constraint.getName());
                 for (int i = 0; i < requiredBundles.length; i++) {
+                    // if one of the constraints is the bundle itself (recursive dependency)
+                    // do not handle that bundle (again). See bug 442594.
+                    if (bundle.equals(requiredBundles[i])) {
+                        continue;
+                    }
                     getRelevantErrors(state, errors, requiredBundles[i]);
                 }
             }
