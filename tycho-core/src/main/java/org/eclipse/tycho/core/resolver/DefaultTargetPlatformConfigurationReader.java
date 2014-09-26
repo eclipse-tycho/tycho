@@ -161,7 +161,7 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private void readExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
+    protected void readExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
         Xpp3Dom requirementsDom = resolverDom.getChild("extraRequirements");
         if (requirementsDom == null) {
             return;
@@ -169,6 +169,16 @@ public class DefaultTargetPlatformConfigurationReader {
 
         for (Xpp3Dom requirementDom : requirementsDom.getChildren("requirement")) {
             Dependency d = new Dependency();
+            if (requirementDom.getChild("type") == null) {
+                throw new RuntimeException("Element <type> is missing in <extraRequirements><requirement> section.");
+            }
+            if (requirementDom.getChild("id") == null) {
+                throw new RuntimeException("Element <id> is missing in <extraRequirements><requirement> section.");
+            }
+            if (requirementDom.getChild("versionRange") == null) {
+                throw new RuntimeException(
+                        "Element <versionRange> is missing in <extraRequirements><requirement> section.");
+            }
             d.setType(requirementDom.getChild("type").getValue());
             d.setArtifactId(requirementDom.getChild("id").getValue());
             d.setVersion(requirementDom.getChild("versionRange").getValue());
