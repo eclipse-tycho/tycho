@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_ec552f27",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-26T13:27:45Z",
+      "side": 1,
+      "message": "I think it\u0027s better to use org.eclipse.tycho.core.ee.shared.BuildFailureException here. This will avoid printing stacktrace (more appropriate becuase it\u0027s a user error, not a Tycho internal error) See related https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d441538",
+      "revId": "7ab960b15af268b483867ed8e770a1abc2ee1f1f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_6c691fec",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-26T13:27:45Z",
+      "side": 1,
+      "message": "see above",
+      "revId": "7ab960b15af268b483867ed8e770a1abc2ee1f1f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_4c66e31c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-26T13:27:45Z",
+      "side": 1,
+      "message": "see above",
+      "revId": "7ab960b15af268b483867ed8e770a1abc2ee1f1f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ec3c0ff1",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReaderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-26T13:27:45Z",
+      "side": 1,
+      "message": "extract most of this code into a \"createConfigurationDom()\" or similar method to avoid copy-pasted code in all test methods.",
+      "revId": "7ab960b15af268b483867ed8e770a1abc2ee1f1f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_2c37270a",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReaderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-09-26T13:27:45Z",
+      "side": 1,
+      "message": "(minor) only catch the specific expected exception type here",
+      "revId": "7ab960b15af268b483867ed8e770a1abc2ee1f1f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
