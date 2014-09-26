@@ -30,6 +30,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPolicy;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -51,7 +52,8 @@ public class DefaultTargetPlatformConfigurationReader {
     @Requirement
     private TargetPlatformFilterConfigurationReader filterReader;
 
-    public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project) {
+    public TargetPlatformConfiguration getTargetPlatformConfiguration(MavenSession session, MavenProject project)
+            throws BuildFailureException {
         TargetPlatformConfiguration result = new TargetPlatformConfiguration();
 
         // Use org.eclipse.tycho:target-platform-configuration/configuration/environment, if provided
@@ -134,7 +136,8 @@ public class DefaultTargetPlatformConfigurationReader {
         result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
     }
 
-    private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
+    private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration)
+            throws BuildFailureException {
         Xpp3Dom resolverDom = configuration.getChild("dependency-resolution");
         if (resolverDom == null) {
             return;
@@ -161,7 +164,8 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private void readExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
+    protected void readExtraRequirements(TargetPlatformConfiguration result, Xpp3Dom resolverDom)
+            throws BuildFailureException {
         Xpp3Dom requirementsDom = resolverDom.getChild("extraRequirements");
         if (requirementsDom == null) {
             return;
@@ -169,6 +173,17 @@ public class DefaultTargetPlatformConfigurationReader {
 
         for (Xpp3Dom requirementDom : requirementsDom.getChildren("requirement")) {
             Dependency d = new Dependency();
+            if (requirementDom.getChild("type") == null) {
+                throw new BuildFailureException(
+                        "Element <type> is missing in <extraRequirements><requirement> section.");
+            }
+            if (requirementDom.getChild("id") == null) {
+                throw new BuildFailureException("Element <id> is missing in <extraRequirements><requirement> section.");
+            }
+            if (requirementDom.getChild("versionRange") == null) {
+                throw new BuildFailureException(
+                        "Element <versionRange> is missing in <extraRequirements><requirement> section.");
+            }
             d.setType(requirementDom.getChild("type").getValue());
             d.setArtifactId(requirementDom.getChild("id").getValue());
             d.setVersion(requirementDom.getChild("versionRange").getValue());
