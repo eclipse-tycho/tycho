@@ -24,9 +24,9 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
@@ -52,6 +52,7 @@ public class DefaultTychoResolver implements TychoResolver {
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    @Override
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
         if (dr == null) {
@@ -87,6 +88,7 @@ public class DefaultTychoResolver implements TychoResolver {
         resolver.setupProjects(session, project, reactorProject);
     }
 
+    @Override
     public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects) {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
         if (dr == null) {
@@ -131,17 +133,20 @@ public class DefaultTychoResolver implements TychoResolver {
         }
     }
 
+    @Override
     public void traverse(MavenProject project, final DependencyVisitor visitor) {
         TychoProject tychoProject = projectTypes.get(project.getPackaging());
         if (tychoProject != null) {
             tychoProject.getDependencyWalker(project).walk(new ArtifactDependencyVisitor() {
+                @Override
                 public void visitPlugin(org.eclipse.tycho.core.PluginDescription plugin) {
                     visitor.visit(plugin);
-                };
+                }
 
+                @Override
                 public boolean visitFeature(org.eclipse.tycho.core.FeatureDescription feature) {
                     return visitor.visit(feature);
-                };
+                }
             });
         } else {
             // TODO do something!

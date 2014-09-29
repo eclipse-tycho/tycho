@@ -35,6 +35,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         this.logger = logger;
     }
 
+    @Override
     public void overrideProfileConfiguration(String profileName, String configurationOrigin)
             throws IllegalStateException {
         checkConfigurationMutable();
@@ -45,6 +46,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         this.configurations[PRIMARY] = new ProfileConfiguration(profileName, configurationOrigin);
     }
 
+    @Override
     public void setProfileConfiguration(String profileName, String configurationOrigin) throws IllegalStateException {
         checkConfigurationMutable();
         if (profileName == null) {
@@ -60,6 +62,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         }
     }
 
+    @Override
     public String getProfileName() {
         if (effectiveProfileName == null) {
             // this also disallows further configuration changes
@@ -80,6 +83,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         return DEFAULT_EXECUTION_ENVIRONMENT;
     }
 
+    @Override
     public boolean isCustomProfile() {
         String profileName = getProfileName();
 
@@ -92,6 +96,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         }
     }
 
+    @Override
     public void setFullSpecificationForCustomProfile(List<SystemCapability> systemCapabilities)
             throws IllegalStateException {
         if (!isCustomProfile()) {
@@ -105,6 +110,7 @@ public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironme
         this.customExecutionEnvironment = new CustomExecutionEnvironment(getProfileName(), systemCapabilities);
     }
 
+    @Override
     public ExecutionEnvironment getFullSpecification() throws IllegalStateException {
         if (isCustomProfile()) {
             if (customExecutionEnvironment == null) {
