@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a766b734_3f50e428",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-30T07:17:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a766b734_eca7013e",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a766b734_ac7ea952",
         "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/core/ee/shared/ExecutionEnvironmentConfiguration.java",
         "patchSetId": 6
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "not obvious for me how to do this without rather big refactoring.",
       "parentUuid": "a766b734_ac7ea952",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_1f4d2894",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/core/ee/shared/ExecutionEnvironmentConfiguration.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-30T07:17:55Z",
+      "side": 1,
+      "message": "Sorry, then I probably didn\u0027t explain it well enough. See my changes in patch set 8.",
+      "parentUuid": "a766b734_4cd263ca",
       "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -240,6 +276,24 @@
       "side": 1,
       "message": "I looked into it and looks rather hard for me to do. I\u0027d rather say custom execution environment and ignore execution environment should not be set both.",
       "parentUuid": "a766b734_ac74e943",
+      "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_bfa7d4c3",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-09-30T07:17:55Z",
+      "side": 1,
+      "message": "Right, this idea doesn\u0027t work. I\u0027ve added an explicit error message for this case.",
+      "parentUuid": "a766b734_6cd59fb1",
       "revId": "4b6d49da8c447c1347f7ead3af9847c2a5888cf0",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
