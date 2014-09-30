@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven.utils;
 
+import java.util.List;
+
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.lifecycle.internal.LifecyclePluginResolver;
@@ -92,7 +94,16 @@ public class PluginRealmHelper {
             }
             try {
                 lifecyclePluginResolver.resolveMissingPluginVersions(project, session);
-                PluginDescriptor pluginDescriptor = compatibilityHelper.getPluginDescriptor(plugin, project, session);
+                PluginDescriptor pluginDescriptor = null;
+                try {
+                    pluginDescriptor = compatibilityHelper.getPluginDescriptor(plugin, project, session);
+                } catch (PluginResolutionException e) {
+                    if (isPluginPartOfSession(plugin, session.getProjects())) {
+                        // if the plugin is part of that build, do not fail (see bug #432957)
+                        continue;
+                    }
+                    throw e;
+                }
 
                 if (pluginDescriptor != null) {
                     if (pluginDescriptor.getArtifactMap().isEmpty() && pluginDescriptor.getDependencies().isEmpty()) {
@@ -137,6 +148,17 @@ public class PluginRealmHelper {
             }
         }
 
+    }
+
+    protected boolean isPluginPartOfSession(Plugin plugin, List<MavenProject> projects) {
+        for (MavenProject project : projects) {
+            if (project.getArtifactId().equals(plugin.getArtifactId())
+                    && project.getGroupId().equals(plugin.getGroupId())
+                    && project.getVersion().equals(plugin.getVersion())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static MavenExecutionException newMavenExecutionException(Exception cause) {
