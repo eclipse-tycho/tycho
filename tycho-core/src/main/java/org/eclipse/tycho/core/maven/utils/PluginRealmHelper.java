@@ -92,7 +92,13 @@ public class PluginRealmHelper {
             }
             try {
                 lifecyclePluginResolver.resolveMissingPluginVersions(project, session);
-                PluginDescriptor pluginDescriptor = compatibilityHelper.getPluginDescriptor(plugin, project, session);
+                PluginDescriptor pluginDescriptor = null;
+                try {
+                    pluginDescriptor = compatibilityHelper.getPluginDescriptor(plugin, project, session);
+                } catch (PluginResolutionException e) {
+                    // if the plugin could not be found, let maven fail (see bug #432957)
+                    continue;
+                }
 
                 if (pluginDescriptor != null) {
                     if (pluginDescriptor.getArtifactMap().isEmpty() && pluginDescriptor.getDependencies().isEmpty()) {
