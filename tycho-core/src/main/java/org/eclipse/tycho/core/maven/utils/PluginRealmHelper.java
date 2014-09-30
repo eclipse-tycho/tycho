@@ -27,6 +27,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 
 /**
  * Helper class that allows execution of components from maven plugin class realms. Normally, these
@@ -63,7 +64,10 @@ import org.codehaus.plexus.component.annotations.Requirement;
 public class PluginRealmHelper {
     public static interface PluginFilter {
         public boolean accept(PluginDescriptor descriptor);
-    };
+    }
+
+    @Requirement
+    private Logger logger;
 
     @Requirement
     private MavenPluginManager pluginManager;
@@ -92,7 +96,14 @@ public class PluginRealmHelper {
             }
             try {
                 lifecyclePluginResolver.resolveMissingPluginVersions(project, session);
-                PluginDescriptor pluginDescriptor = compatibilityHelper.getPluginDescriptor(plugin, project, session);
+                PluginDescriptor pluginDescriptor;
+                try {
+                    pluginDescriptor = compatibilityHelper.getPluginDescriptor(plugin, project, session);
+                } catch (PluginResolutionException e) {
+                    // if the plugin really does not exist, the Maven build will fail later on anyway -> ignore for now (cf. bug #432957)
+                    logger.debug("PluginResolutionException while looking for components from " + plugin, e);
+                    continue;
+                }
 
                 if (pluginDescriptor != null) {
                     if (pluginDescriptor.getArtifactMap().isEmpty() && pluginDescriptor.getDependencies().isEmpty()) {
