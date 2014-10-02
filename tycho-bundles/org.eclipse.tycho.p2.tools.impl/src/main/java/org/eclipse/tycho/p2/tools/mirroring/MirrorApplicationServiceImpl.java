@@ -61,6 +61,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent,
                     mirrorOptions.isIncludePacked());
             mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
+            mirrorApp.setMirrorProperties(mirrorOptions.isMirrorProperties());
             try {
                 // we want to see mirror progress as this is a possibly long-running operation
                 mirrorApp.setVerbose(true);

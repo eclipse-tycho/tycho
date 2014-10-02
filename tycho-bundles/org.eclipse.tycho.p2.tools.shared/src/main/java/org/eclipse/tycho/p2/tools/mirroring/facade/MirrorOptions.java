@@ -28,6 +28,7 @@ public class MirrorOptions {
     private boolean followOnlyFilteredRequirements = false;
     private boolean latestVersionOnly = false;
     private Map<String, String> filter = new HashMap<String, String>();
+    private boolean mirrorProperties = false;
 
     /**
      * Creates mirror options with default values.
@@ -121,6 +122,14 @@ public class MirrorOptions {
 
     public void setIncludePacked(boolean includePacked) {
         this.includePacked = includePacked;
+    }
+
+    public boolean isMirrorProperties() {
+        return mirrorProperties;
+    }
+
+    public void setMirrorProperties(boolean mirrrorProperties) {
+        this.mirrorProperties = mirrrorProperties;
     }
 
 }
