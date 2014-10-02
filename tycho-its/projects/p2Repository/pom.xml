@@ -10,6 +10,15 @@
 	<packaging>eclipse-repository</packaging>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.html</include>
+				</includes>
+			</resource>
+		</resources>
 		<!-- custom name of p2 repository archive (see bug 347416) -->
 		<finalName>${project.artifactId}-myqualifier</finalName>
 		<plugins>

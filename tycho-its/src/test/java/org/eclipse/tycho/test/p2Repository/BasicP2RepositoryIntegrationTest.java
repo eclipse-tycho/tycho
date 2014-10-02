@@ -11,11 +11,13 @@
 package org.eclipse.tycho.test.p2Repository;
 
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
+import org.apache.maven.it.util.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil;
@@ -52,5 +54,14 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
     public void test347416CustomFinalName() throws Exception {
         File repositoryArchive = new File(verifier.getBasedir(), "target/" + CUSTOM_FINAL_NAME + ".zip");
         assertThat(repositoryArchive, isFile());
+    }
+
+    @Test
+    public void testResourcesProcessed() throws Exception {
+        File repository = new File(verifier.getBasedir(), "target/repository");
+        assertThat(new File(repository, "index.html"), isFile());
+        File aboutFile = new File(repository, "about/about.html");
+        assertThat(aboutFile, isFile());
+        assertThat(FileUtils.fileRead(aboutFile).trim(), equalTo("About testrepo"));
     }
 }
