@@ -290,6 +290,9 @@
                 The build needs to guarantee that legacy build content is removed from output folder prior to each build. -->
               	org.apache.maven.plugins:maven-clean-plugin:${clean-plugin.version}:clean
               </initialize>
+              <process-resources>
+                org.apache.maven.plugins:maven-resources-plugin:${resources-plugin.version}:resources
+              </process-resources>
               <package>
                 org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-products,

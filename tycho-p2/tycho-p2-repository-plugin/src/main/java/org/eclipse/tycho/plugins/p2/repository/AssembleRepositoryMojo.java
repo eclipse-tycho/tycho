@@ -11,6 +11,7 @@
 package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -98,6 +100,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         try {
             File destination = getAssemblyRepositoryLocation();
             destination.mkdirs();
+            copyResources(destination);
 
             Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
             if (projectSeeds.size() == 0) {
@@ -115,6 +118,18 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
+        }
+    }
+
+    private void copyResources(File destination) throws MojoExecutionException {
+        File outputDir = new File(getProject().getBuild().getOutputDirectory());
+        try {
+            if (outputDir.isDirectory()) {
+                getLog().info(String.format("Copying resources from %s to %s", outputDir, destination));
+                FileUtils.copyDirectoryStructure(outputDir, destination);
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error copying resources", e);
         }
     }
 

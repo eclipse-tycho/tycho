@@ -270,7 +270,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         if (equinoxExecFeature.isDirectory()) {
             return equinoxExecFeature.getAbsoluteFile();
         } else {
-            File unzipped = new File(getProject().getBuild().getOutputDirectory(), artifact.getKey().getId() + "-"
+            File unzipped = new File(getProject().getBuild().getDirectory(), artifact.getKey().getId() + "-"
                     + artifact.getKey().getVersion());
             if (unzipped.exists()) {
                 return unzipped.getAbsoluteFile();
