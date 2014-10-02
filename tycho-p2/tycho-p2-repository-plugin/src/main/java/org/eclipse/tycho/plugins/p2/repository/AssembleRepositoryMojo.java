@@ -11,6 +11,7 @@
 package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -32,14 +34,23 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 
 /**
  * <p>
- * Aggregates content into a p2 repository.
+ * Aggregates content into a p2 repository in <code>${project.build.directory}/repository</code>.
  * </p>
  * <p>
- * The aggregation runs recursively: it starts with the content published in the current module, and
- * traverses all artifacts that are marked as <em>included</em> in already aggregated artifacts.
- * (The following artifacts can include other artifacts: categories, products, and features. Note:
- * Dependencies with a strict version range, i.e. a range which only matches exactly one version of
- * an artifact, are also considered as inclusions.)
+ * <ol>
+ * <li>
+ * Copies resources (if any) from <code>${project.build.outputDirectory}</code> to
+ * <code>${project.build.directory}/repository</code>. This allows to include additional files such
+ * as <code>index.html</code> or about files from <code>src/main/resources</code> (or elsewhere)
+ * into the p2 repository.</li>
+ * <li>
+ * The p2 aggregation into <code>${project.build.directory}/repository</code> runs recursively: it
+ * starts with the content published in the current module, and traverses all artifacts that are
+ * marked as <em>included</em> in already aggregated artifacts. (The following artifacts can include
+ * other artifacts: categories, products, and features. Note: Dependencies with a strict version
+ * range, i.e. a range which only matches exactly one version of an artifact, are also considered as
+ * inclusions.)</li>
+ * </ol>
  * </p>
  * 
  */
@@ -98,6 +109,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         try {
             File destination = getAssemblyRepositoryLocation();
             destination.mkdirs();
+            copyResources(destination);
 
             Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
             if (projectSeeds.size() == 0) {
@@ -115,6 +127,18 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
+        }
+    }
+
+    private void copyResources(File destination) throws MojoExecutionException {
+        File outputDir = new File(getProject().getBuild().getOutputDirectory());
+        try {
+            if (outputDir.isDirectory()) {
+                getLog().info(String.format("Copying resources from %s to %s", outputDir, destination));
+                FileUtils.copyDirectoryStructure(outputDir, destination);
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error copying resources", e);
         }
     }
 
