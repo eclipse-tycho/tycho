@@ -11,15 +11,19 @@
 package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -88,6 +92,35 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter
     private Map<String, String> profileProperties;
 
+    /**
+     * <p>
+     * Additional files (as file sets) that should be copied to the repository.
+     * </p>
+     * <p>
+     * E.g. the following configuration will copy all html files within the
+     * <code>${basedir}/resources</code> and all pdf files from
+     * <code>${basedir}/OtherResources</code> into the target repository folder.
+     * 
+     * <pre>
+     * &lt;additionalFileSets&gt;
+     *     &lt;fileSet&gt;
+     *     &lt;directory&gt;${basedir}/resources&gt;/directory&gt;  
+     *     &lt;includes&gt;
+     *       &lt;include&gt;*.html&gt;/include&gt;
+     *     &lt;/includes&gt;
+     *   &lt;/fileSet&gt;
+     *   &lt;fileSet&gt;
+     *     &lt;directory&gt;${basedir}/OtherResources&gt;/directory&gt;   
+     *     &lt;includes&gt;
+     *       &lt;include&gt;*.pdf&gt;/include&gt;
+     *     &lt;/includes&gt;
+     *   &lt;/fileSet&gt;
+     * &lt;/additionalFileSets&gt;
+     * </pre>
+     */
+    @Parameter
+    private FileSet[] additionalFileSets;
+
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
@@ -113,7 +146,13 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                     destination, repositoryName, compress, !createArtifactRepository, true);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
+
+            copyAdditionalFiles(destination);
+
         } catch (FacadeException e) {
+            throw new MojoExecutionException("Could not assemble p2 repository", e);
+
+        } catch (IOException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
         }
     }
@@ -121,6 +160,39 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     protected RepositoryReferences getVisibleRepositories() throws MojoExecutionException, MojoFailureException {
         int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
         return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
+    }
+
+    private void copyAdditionalFiles(File destination) throws IOException {
+        if (additionalFileSets == null || additionalFileSets.length == 0) {
+            return;
+        }
+        for (FileSet fileSet : additionalFileSets) {
+            File directory = new File(fileSet.getDirectory());
+            String includes = asCommaSeparatedList(fileSet.getIncludes());
+            String excludes = asCommaSeparatedList(fileSet.getExcludes());
+            List<File> files = FileUtils.getFiles(directory, includes, excludes);
+            for (File file : files) {
+                File destFile = getDestinationFile(file, directory, destination);
+                FileUtils.copyFile(file, destFile);
+            }
+        }
+    }
+
+    private File getDestinationFile(File originalFile, File originalLocation, File destination) {
+        String pathWithinLocation = originalFile.getAbsolutePath().substring(
+                originalLocation.getAbsolutePath().length());
+        return new File(destination, pathWithinLocation);
+    }
+
+    private String asCommaSeparatedList(List<String> strings) {
+        StringBuilder sb = new StringBuilder();
+        for (String string : strings) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            sb.append(string);
+        }
+        return sb.toString();
     }
 
 }

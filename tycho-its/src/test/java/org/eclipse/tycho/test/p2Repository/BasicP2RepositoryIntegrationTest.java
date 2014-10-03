@@ -53,4 +53,13 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
         File repositoryArchive = new File(verifier.getBasedir(), "target/" + CUSTOM_FINAL_NAME + ".zip");
         assertThat(repositoryArchive, isFile());
     }
+
+    @Test
+    public void testCopyAdditionalFiles() throws Exception {
+        File htmlFile1 = new File(verifier.getBasedir(), "target/repository/index.html");
+        assertThat(htmlFile1, isFile());
+        File htmlFile2 = new File(verifier.getBasedir(), "target/repository/subDir/index.html");
+        assertThat(htmlFile2, isFile());
+        assertFileDoesNotExist(new File(verifier.getBasedir(), "target/repository/subDir"), "test.txt");
+    }
 }
