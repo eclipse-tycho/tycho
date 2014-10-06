@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_545133de",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-10-06T11:28:54Z",
+      "side": 1,
+      "message": "\"mirrorProperties\" - what a horrible name for a boolean attribute!\n\nCould we use a better name than p2? What kind of properties are these exactly? Are they on repository level? If yes, we could call the flag mirrorRepositoryProperties (isMirrorRepositoryProperties, etc.)\n\nAnother idea would have been \"doMirrorProperties\" for the variable - but I can\u0027t think of a good name for the getter. Also \"doMirrorProperties()\"? Or \"isDoMirrorProperties\"!?",
+      "revId": "2a6a849edfa4c4d2ff87e42ac4691610dcac124b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
