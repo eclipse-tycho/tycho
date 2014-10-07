@@ -38,9 +38,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifact;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.toolchain.MisconfiguredToolchainException;
 import org.apache.maven.toolchain.ToolchainManagerPrivate;
-import org.apache.maven.toolchain.ToolchainPrivate;
 import org.apache.maven.toolchain.java.DefaultJavaToolChain;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
 import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
@@ -59,6 +57,8 @@ import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.maven.ToolchainProvider;
+import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry;
 import org.eclipse.tycho.core.osgitools.DefaultClasspathEntry.DefaultAccessRule;
@@ -74,10 +74,6 @@ import copied.org.apache.maven.plugin.CompilationFailureException;
 
 public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo implements JavaCompilerConfiguration,
         Adaptable {
-
-    private static enum JDKUsage {
-        SYSTEM, BREE;
-    }
 
     public static final String RULE_SEPARATOR = File.pathSeparator;
 
@@ -237,6 +233,9 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      */
     @Parameter(defaultValue = "true")
     private boolean copyResources;
+
+    @Component
+    ToolchainProvider toolchainProvider;
 
     @Override
     public void execute() throws MojoExecutionException, CompilationFailureException {
@@ -476,7 +475,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         if (useJDK != JDKUsage.BREE) {
             return;
         }
-        DefaultJavaToolChain toolChain = findMatchingJavaToolChain(getTargetExecutionEnvironment());
+        String toolchainId = getTargetExecutionEnvironment().getProfileName();
+        DefaultJavaToolChain toolChain = toolchainProvider.findMatchingJavaToolChain(session, toolchainId);
+        if (toolChain == null) {
+            throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
+                    + toolchainId + "' found. See http://maven.apache.org/guides/mini/guide-using-toolchains.html");
+        }
         compilerConfiguration.addCompilerCustomArgument("use.java.home", toolChain.getJavaHome());
         configureBootClassPath(compilerConfiguration, toolChain);
     }
@@ -528,25 +532,6 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             values[i] = doms[i].getValue();
         }
         return values;
-    }
-
-    private DefaultJavaToolChain findMatchingJavaToolChain(final ExecutionEnvironment environment)
-            throws MojoExecutionException {
-        try {
-            final Map<String, String> requirements = Collections.singletonMap("id", environment.getProfileName());
-            for (ToolchainPrivate javaToolChain : toolChainManager.getToolchainsForType("jdk", session)) {
-                if (javaToolChain.matchesRequirements(requirements)) {
-                    if (javaToolChain instanceof DefaultJavaToolChain) {
-                        return ((DefaultJavaToolChain) javaToolChain);
-                    }
-                }
-            }
-            throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
-                    + environment.getProfileName()
-                    + "' found. See http://maven.apache.org/guides/mini/guide-using-toolchains.html");
-        } catch (MisconfiguredToolchainException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
     }
 
     private void configureSourceAndTargetLevel(CompilerConfiguration compilerConfiguration)

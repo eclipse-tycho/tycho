@@ -70,7 +70,10 @@ import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.maven.ToolchainProvider;
+import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -588,6 +591,51 @@ public class TestMojo extends AbstractMojo {
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
+    @Component
+    private ToolchainProvider toolchainProvider;
+
+    /**
+     * Which JDK to use for the test bundles. Default value is SYSTEM. SYSTEM means that if a
+     * toolchain is configured in the pom.xml using the maven toolchains plugin and a match in the
+     * toolchains.xml can be found, it uses the configured toolchain. If not, it falls back to the
+     * currently running JDK. If BREE is specified, the MANIFEST header
+     * <code>Bundle-RequiredExecutionEnvironment</code> is used to define the JDK of the test
+     * bundle. In this case, you need to provide a <a
+     * href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>
+     * configuration file. The value of BREE will be matched against the id of the toolchain
+     * elements in toolchains.xml.
+     * 
+     * <p>
+     * Example for BREE: <br>
+     * In the MANIFEST:
+     * 
+     * <pre>
+     * Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+     * </pre>
+     * 
+     * In the toolchain.xml:
+     * 
+     * <pre>
+     * &lt;toolchains&gt;
+     *   &lt;toolchain&gt;
+     *      &lt;type&gt;jdk&lt;/type&gt;
+     *      &lt;provides&gt;
+     *          &lt;id&gt;JavaSE-1.7&lt;/id&gt;
+     *      &lt;/provides&gt;
+     *      &lt;configuration&gt;
+     *         &lt;jdkHome&gt;/path/to/jdk/1.7&lt;/jdkHome&gt;
+     *      &lt;/configuration&gt;
+     *   &lt;/toolchain&gt;
+     * &lt;/toolchains&gt;
+     * </pre>
+     * 
+     * </p>
+     * 
+     * 
+     */
+    @Parameter(defaultValue = "SYSTEM")
+    private JDKUsage useJDK;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (shouldSkip()) {
             getLog().info("Skipping tests");
@@ -957,10 +1005,20 @@ public class TestMojo extends AbstractMojo {
         }
     }
 
-    private Toolchain getToolchain() {
-        Toolchain tc = null;
-        if (toolchainManager != null) {
-            tc = toolchainManager.getToolchainFromBuildContext("jdk", session);
+    protected Toolchain getToolchain() throws MojoExecutionException {
+        if (JDKUsage.SYSTEM.equals(useJDK)) {
+            if (toolchainManager != null) {
+                return toolchainManager.getToolchainFromBuildContext("jdk", session);
+            }
+            return null;
+        }
+        ExecutionEnvironment executionEnvironment = TychoProjectUtils.getExecutionEnvironmentConfiguration(project)
+                .getFullSpecification();
+        String tcId = executionEnvironment.getProfileName();
+        Toolchain tc = toolchainProvider.findMatchingJavaToolChain(session, tcId);
+        if (tc == null) {
+            throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
+                    + tcId + "' found. See http://maven.apache.org/guides/mini/guide-using-toolchains.html");
         }
         return tc;
     }
