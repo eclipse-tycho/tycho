@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_8acf26d5",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-10-07T13:59:42Z",
+      "side": 1,
+      "message": "IMHO this doesn\u0027t fit here particularly well. I\u0027d rather restrict this goal to the p2 steps - and do the rest in the archive goal.",
+      "revId": "dab06bb497c691dd37c6483bcc2730622b6d8009",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_0a031685",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-10-07T13:59:42Z",
+      "side": 1,
+      "message": "Doing this step first aims to prevent that resources overwrite p2 repository files, right?\n\nWith the idea to fix bug 341744, this will no longer be ensured because the publishers would already write to target/repository.\n\nSo IMHO it would be better to already go for a \"copy without overwriting\" approach now.",
+      "revId": "dab06bb497c691dd37c6483bcc2730622b6d8009",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
