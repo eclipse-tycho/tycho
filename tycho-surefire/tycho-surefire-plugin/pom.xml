@@ -111,5 +111,12 @@
 			<artifactId>maven-surefire-common</artifactId>
 			<version>${surefire-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>3.0</version>
+			<type>jar</type>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

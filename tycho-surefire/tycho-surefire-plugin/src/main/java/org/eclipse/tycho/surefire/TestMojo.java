@@ -70,7 +70,10 @@ import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.maven.ToolchainProvider;
+import org.eclipse.tycho.core.maven.ToolchainProvider.JDKUsage;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.OsgiBundleProject;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
@@ -588,6 +591,58 @@ public class TestMojo extends AbstractMojo {
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
+    @Component
+    private ToolchainProvider toolchainProvider;
+
+    /**
+     * Which JDK to use for running the tests. Default value is SYSTEM which means the currently
+     * running JDK. If BREE is specified, MANIFEST header
+     * <code>Bundle-RequiredExecutionEnvironment</code> is used to define the JDK to run the tests
+     * against. In this case, you need to provide a <a
+     * href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>
+     * configuration file. The value of BREE will be matched against the id of the toolchain
+     * elements in toolchains.xml. Example:
+     * 
+     * <pre>
+     * &lt;toolchains&gt;
+     *   &lt;toolchain&gt;
+     *      &lt;type&gt;jdk&lt;/type&gt;
+     *      &lt;provides&gt;
+     *          &lt;id&gt;J2SE-1.5&lt;/id&gt;
+     *      &lt;/provides&gt;
+     *      &lt;configuration&gt;
+     *         &lt;jdkHome&gt;/path/to/jdk/1.5&lt;/jdkHome&gt;
+     *      &lt;/configuration&gt;
+     *   &lt;/toolchain&gt;
+     * &lt;/toolchains&gt;
+     * </pre>
+     * 
+     * The default value of the bootclasspath used for running the tests is
+     * <tt>&lt;jdkHome&gt;/lib/*;&lt;jdkHome&gt;/lib/ext/*;&lt;jdkHome&gt;/lib/endorsed/*</tt> .
+     * 
+     * For JDKs with different filesystem layouts, the bootclasspath can be specified explicitly in
+     * the configuration section.
+     * 
+     * Example:
+     * 
+     * <pre>
+     * &lt;configuration&gt;
+     *   &lt;jdkHome&gt;/path/to/jdk/1.5&lt;/jdkHome&gt;
+     *   &lt;bootClassPath&gt;
+     *     &lt;includes&gt;
+     *       &lt;include&gt;jre/lib/amd64/default/jclSC160/*.jar&lt;/include&gt;
+     *     &lt;/includes&gt;
+     *     &lt;excludes&gt;
+     *       &lt;exclude&gt;&#42;&#42;/alt-*.jar&lt;/exclude&gt;
+     *     &lt;/excludes&gt;
+     *   &lt;/bootClassPath&gt;
+     * &lt;/configuration&gt;
+     * </pre>
+     * 
+     */
+    @Parameter(defaultValue = "SYSTEM")
+    private JDKUsage useJDK;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (shouldSkip()) {
             getLog().info("Skipping tests");
@@ -957,10 +1012,20 @@ public class TestMojo extends AbstractMojo {
         }
     }
 
-    private Toolchain getToolchain() {
-        Toolchain tc = null;
-        if (toolchainManager != null) {
-            tc = toolchainManager.getToolchainFromBuildContext("jdk", session);
+    protected Toolchain getToolchain() throws MojoExecutionException {
+        if (JDKUsage.SYSTEM.equals(useJDK)) {
+            if (toolchainManager != null) {
+                return toolchainManager.getToolchainFromBuildContext("jdk", session);
+            }
+            return null;
+        }
+        ExecutionEnvironment executionEnvironment = TychoProjectUtils.getExecutionEnvironmentConfiguration(project)
+                .getFullSpecification();
+        String tcId = executionEnvironment.getProfileName();
+        Toolchain tc = toolchainProvider.findMatchingJavaToolChain(session, tcId);
+        if (tc == null) {
+            throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
+                    + tcId + "' found. See http://maven.apache.org/guides/mini/guide-using-toolchains.html");
         }
         return tc;
     }
