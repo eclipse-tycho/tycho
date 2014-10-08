@@ -85,6 +85,24 @@
       "revId": "0a23f0181eae4db4f2ccdcdd87d9fb3519cbc93a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_9b477671",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-10-08T12:34:31Z",
+      "side": 1,
+      "message": "I don\u0027t have a better name so let\u0027s keep it SYSTEM and BREE.\nHowever we should explain in the javadoc what happens with SYSTEM if you have toolchain configured in pom.xml (this should have been documented before already but now that we touch the code, let\u0027s make it clear)",
+      "parentUuid": "a766b734_7bec1a05",
+      "revId": "0a23f0181eae4db4f2ccdcdd87d9fb3519cbc93a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
