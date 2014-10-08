@@ -67,6 +67,24 @@
       "revId": "0a23f0181eae4db4f2ccdcdd87d9fb3519cbc93a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_7bec1a05",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2014-10-08T12:16:28Z",
+      "side": 1,
+      "message": "I see, I do not have any preference. Isn\u0027t \"BREE\" also kind of  \"toolchain-aware\" with the difference, that for \"BREE\" the toolchain is referenced in the MANIFEST and for the other case the toolchain might be defined in the pom?",
+      "parentUuid": "a766b734_0003f584",
+      "revId": "0a23f0181eae4db4f2ccdcdd87d9fb3519cbc93a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
