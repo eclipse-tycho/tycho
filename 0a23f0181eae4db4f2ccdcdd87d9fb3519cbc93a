@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_804425d1",
+        "filename": "tycho-surefire/tycho-surefire-plugin/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-10-08T11:16:49Z",
+      "side": 1,
+      "message": "we also use easymock in module tycho-core.\n\u003d\u003e we should pull up the version into the tycho parent dependencyManagement section and reference the artifact without version here and in tycho-core (manage the version used centrally in one place only to avoid potential for using multiple versions, this is generally what we try to do for all our dependencies)\n\n(minor) type jar is superfluous I think.",
+      "revId": "0a23f0181eae4db4f2ccdcdd87d9fb3519cbc93a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_604109be",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-10-08T11:16:49Z",
+      "side": 1,
+      "message": "I would add \"of the test bundle\" to make it clear it\u0027s the BREE of the test bundle which defines the JDK being used.",
+      "revId": "0a23f0181eae4db4f2ccdcdd87d9fb3519cbc93a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_80cf05d5",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-10-08T11:16:49Z",
+      "side": 1,
+      "message": "the whole javadoc section about bootclasspath does not apply here (this is handled specifically for the in-process compilation usecase in AbstractOsgiCompilerMojo.\n\nyou can simply remove this javadoc section.",
+      "revId": "0a23f0181eae4db4f2ccdcdd87d9fb3519cbc93a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_0003f584",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-10-08T11:16:49Z",
+      "side": 1,
+      "message": "not sure if \"SYSTEM\" reflects what is actually happening here:\n\nif a toolchain is configured in pom.xml and a match can be found in toolchains.xml , it uses the configured toolchain. If not, it falls back to the currently running JDK (this is what I would call \"SYSTEM\").\n\nDocs[1] call this behaviour \"toolchain-aware\". Not sure if that\u0027s a better name though.\n\nAt least we have to document the 3 different possibilities in the javadoc I think.\n\n\n[1] http://maven.apache.org/guides/mini/guide-using-toolchains.html",
+      "revId": "0a23f0181eae4db4f2ccdcdd87d9fb3519cbc93a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
