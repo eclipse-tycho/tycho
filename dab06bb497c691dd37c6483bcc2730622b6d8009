@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a766b734_d01ee420",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-10-10T12:41:45Z",
+      "side": 1,
+      "message": "assemble \u003d aggregate content (to be put in a zip)\n\narchive \u003d create a zip\n\nI think archive is not a better name match for what is happening when copying files: assembly.",
+      "parentUuid": "a766b734_8acf26d5",
+      "revId": "dab06bb497c691dd37c6483bcc2730622b6d8009",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a766b734_0a031685",
         "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2014-10-07T13:59:42Z",
       "side": 1,
       "message": "Doing this step first aims to prevent that resources overwrite p2 repository files, right?\n\nWith the idea to fix bug 341744, this will no longer be ensured because the publishers would already write to target/repository.\n\nSo IMHO it would be better to already go for a \"copy without overwriting\" approach now.",
+      "revId": "dab06bb497c691dd37c6483bcc2730622b6d8009",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_b021a85e",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-10-10T12:41:45Z",
+      "side": 1,
+      "message": "OK, we can make it more defensive (don\u0027t overwrite and warn if conflicts are detected)",
+      "parentUuid": "a766b734_0a031685",
       "revId": "dab06bb497c691dd37c6483bcc2730622b6d8009",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
