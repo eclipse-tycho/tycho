@@ -33,6 +33,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
 import org.eclipse.tycho.resolver.TychoResolver;
@@ -52,6 +53,10 @@ public class DefaultTychoResolver implements TychoResolver {
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
+    public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
+    public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
+    public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
+
     @Override
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
@@ -63,6 +68,8 @@ public class DefaultTychoResolver implements TychoResolver {
         if (project.getContextValue(TychoConstants.CTX_MERGED_PROPERTIES) != null) {
             return;
         }
+
+        setTychoEnvironmentProperties(session, project);
 
         // generic Eclipse/OSGi metadata
 
@@ -152,6 +159,15 @@ public class DefaultTychoResolver implements TychoResolver {
         } else {
             // TODO do something!
         }
+    }
+
+    protected void setTychoEnvironmentProperties(MavenSession session, MavenProject project) {
+        String arch = PlatformPropertiesUtils.getArch(session.getSystemProperties());
+        String os = PlatformPropertiesUtils.getOS(session.getSystemProperties());
+        String ws = PlatformPropertiesUtils.getWS(session.getSystemProperties());
+        project.getProperties().put(TYCHO_ENV_OSGI_WS, ws);
+        project.getProperties().put(TYCHO_ENV_OSGI_OS, os);
+        project.getProperties().put(TYCHO_ENV_OSGI_ARCH, arch);
     }
 
 }
