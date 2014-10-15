@@ -19,6 +19,7 @@
 			<item name="Source Plugin" href="tycho-source-plugin/plugin-info.html" />
 			<item name="Versions Plugin" href="tycho-release/tycho-versions-plugin/plugin-info.html" />
 			<item name="POM Generator Plugin" href="tycho-pomgenerator-plugin/plugin-info.html" />
+            <item name="Tycho Properties" href="TychoProperties.html" />
 		</menu>
 		<links>
 			<item name="This content is PRELIMINARY API and still subject to change"
