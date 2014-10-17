@@ -34,6 +34,24 @@
       "revId": "bb31b017c0957e1325cbb98041103548440981ea",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_745416cf",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTychoResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-10-17T08:47:20Z",
+      "side": 1,
+      "message": "Okay this makes sense. But in this case, I\u0027d propose to implement it in the same way as this is done in the TestMojo (line 985) using the merged properties and not only the sessions properties.",
+      "parentUuid": "a766b734_88cf1c58",
+      "revId": "bb31b017c0957e1325cbb98041103548440981ea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
