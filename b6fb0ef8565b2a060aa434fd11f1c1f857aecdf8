@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_5a7e5155",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBundlePublisher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-10-27T13:48:34Z",
+      "side": 1,
+      "message": "It would be better to separate the \"publishing artifacts\" action from the cache, similar to TargetDefinitionResolver and TargetDefinitionResolverService.",
+      "revId": "b6fb0ef8565b2a060aa434fd11f1c1f857aecdf8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_ba7a052d",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/facade/internal/ArtifactFacade.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-10-27T13:48:34Z",
+      "side": 1,
+      "message": "This is too brittle. We cannot rely on an implementation of equals in a different object which doesn\u0027t give us the guarantees for a cache key.\n\nThe root of this problem is that the IArtifactFacade type is use for too many different purposes. So the only solution I see is to use a separate, string-value holder object for the cache key instead of IArtifactFacade.",
+      "revId": "b6fb0ef8565b2a060aa434fd11f1c1f857aecdf8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
