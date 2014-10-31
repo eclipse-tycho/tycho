@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_317e1355",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/MavenInterpolationService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2014-10-31T06:46:24Z",
+      "side": 1,
+      "message": "Not sure if it\u0027s niche to throw here a RuntimeException. Alternativly we can introduce a new Exception wrapping the maven InterpolationException an throw that one here.",
+      "revId": "66983e66f637db9b644ce8b2ccc04ead0d6a1776",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
