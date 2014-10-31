@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
+import org.eclipse.tycho.core.shared.InterpolationService;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 /**
@@ -42,8 +43,9 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
 
     private Map<ConfigSpec, RootFilesProperties> propertiesPerConfig;
 
-    public FeatureRootAdvice(BuildProperties buildProperties, File baseDir, String artifactId) {
-        RootPropertiesParser parser = new RootPropertiesParser(baseDir, buildProperties);
+    public FeatureRootAdvice(BuildProperties buildProperties, File baseDir, String artifactId,
+            InterpolationService interpolationService) {
+        RootPropertiesParser parser = new RootPropertiesParser(baseDir, buildProperties, interpolationService);
         parser.parse();
         this.artifactId = artifactId;
         this.propertiesPerConfig = parser.getPermissionsAndLinksResult();
@@ -55,12 +57,12 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
      *         return null
      */
     public static IFeatureRootAdvice createRootFileAdvice(IArtifactFacade featureArtifact,
-            BuildPropertiesParser buildPropertiesParser) {
+            BuildPropertiesParser buildPropertiesParser, InterpolationService interpolationService) {
         File projectDir = getProjectBaseDir(featureArtifact);
 
         if (projectDir != null) {
             FeatureRootAdvice result = new FeatureRootAdvice(buildPropertiesParser.parse(projectDir), projectDir,
-                    featureArtifact.getArtifactId());
+                    featureArtifact.getArtifactId(), interpolationService);
             if (result.hasRootFiles()) {
                 return result;
             }

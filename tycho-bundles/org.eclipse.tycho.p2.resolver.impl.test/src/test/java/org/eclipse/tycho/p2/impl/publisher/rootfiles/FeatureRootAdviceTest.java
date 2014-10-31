@@ -19,10 +19,13 @@ import java.util.Properties;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
+import org.eclipse.tycho.core.shared.InterpolationService;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
+import org.eclipse.tycho.test.util.InterpolationServiceForTesting;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -77,7 +80,12 @@ public class FeatureRootAdviceTest {
 
     static IFeatureRootAdvice createAdvice(Properties buildProperties) {
         return new FeatureRootAdvice(new BuildPropertiesImpl(buildProperties), FEATURE_PROJECT_TEST_RESOURCE_ROOT,
-                DEFAULT_ARTIFACT_ID);
+                DEFAULT_ARTIFACT_ID, new InterpolationServiceForTesting());
+    }
+
+    static IFeatureRootAdvice createAdvice(Properties buildProperties, InterpolationService service) {
+        return new FeatureRootAdvice(new BuildPropertiesImpl(buildProperties), FEATURE_PROJECT_TEST_RESOURCE_ROOT,
+                DEFAULT_ARTIFACT_ID, service);
     }
 
     static void callGetDescriptorsForAllConfigurations(IFeatureRootAdvice advice) {
@@ -89,7 +97,7 @@ public class FeatureRootAdviceTest {
     @Test
     public void testFeatureRootAdviceComputePath() throws Exception {
         IFeatureRootAdvice rootFileAdvice = FeatureRootAdvice.createRootFileAdvice(createDefaultArtifactMock(),
-                new BuildPropertiesParserForTesting());
+                new BuildPropertiesParserForTesting(), new InterpolationServiceForTesting());
 
         File file1 = new File(FEATURE_PROJECT_TEST_RESOURCE_ROOT, ROOT_FILE_NAME).getCanonicalFile();
         IPath expectedPathFile1 = new Path(ROOT_FILE_NAME);
@@ -174,6 +182,22 @@ public class FeatureRootAdviceTest {
 
         assertNull(advice.getDescriptor(GLOBAL_SPEC));
         assertNull(advice.getDescriptor(LINUX_SPEC_FOR_ADVICE));
+    }
+
+    @Test
+    public void testWithParameterInRootFiles() {
+        Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
+        buildProperties.put("root." + WINDOWS_SPEC_FOR_PROPERTIES_KEY, "file:${parameter}/file1.txt");
+
+        IFeatureRootAdvice advice = createAdvice(buildProperties, new InterpolationService() {
+
+            @Override
+            public String interpolate(String value) {
+                return value.replace("${parameter}", "rootfiles");
+            }
+        });
+        FileSetDescriptor fileSetDescriptor = advice.getDescriptor(WINDOWS_SPEC_FOR_ADVICE);
+        assertEquals(1, fileSetDescriptor.getFiles().length);
     }
 
     private ArtifactMock createDefaultArtifactMock() throws IOException {

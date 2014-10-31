@@ -6,6 +6,7 @@
         <provide interface="org.eclipse.tycho.p2.metadata.P2Generator"/>
      </service>
      <reference bind="setBuildPropertiesParser" cardinality="1..1" interface="org.eclipse.tycho.core.shared.BuildPropertiesParser" name="BuildPropertiesParser" policy="static"/>
+     <reference bind="setInterpolationService" cardinality="1..1" interface="org.eclipse.tycho.core.shared.InterpolationService" name="InterpolationService" policy="static"/>
   </scr:component>
   <scr:component name="org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator">
      <implementation class="org.eclipse.tycho.p2.impl.publisher.DefaultDependencyMetadataGenerator"/>

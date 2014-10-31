@@ -27,6 +27,7 @@ import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdvice;
 import org.eclipse.tycho.p2.impl.publisher.rootfiles.FeatureRootAdviceTest;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
+import org.eclipse.tycho.test.util.InterpolationServiceForTesting;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -135,7 +136,8 @@ public class FeatureRootfileArtifactRepositoryTest {
 
     private FeatureRootAdvice createFeatureRootAdvice() {
         return new FeatureRootAdvice(rootPropertiesWithGlobalAndWindowsFiles(),
-                FeatureRootAdviceTest.FEATURE_PROJECT_TEST_RESOURCE_ROOT, "artifactId");
+                FeatureRootAdviceTest.FEATURE_PROJECT_TEST_RESOURCE_ROOT, "artifactId",
+                new InterpolationServiceForTesting());
     }
 
     private MavenPropertiesAdvice createMavenPropertyAdvice() {

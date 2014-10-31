@@ -42,6 +42,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
+import org.eclipse.tycho.core.shared.InterpolationService;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.model.ProductFile2;
 import org.eclipse.tycho.p2.impl.publisher.repo.FeatureRootfileArtifactRepository;
@@ -65,6 +66,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
      * Whether we need full p2 metadata (false) or just required capabilities.
      */
     private boolean dependenciesOnly;
+
+    private InterpolationService interpolationService;
 
     public P2GeneratorImpl(boolean dependenciesOnly) {
         this.dependenciesOnly = dependenciesOnly;
@@ -303,10 +306,15 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         advice.add(getExtraEntriesAdvice(artifact));
 
         IFeatureRootAdvice featureRootAdvice = FeatureRootAdvice.createRootFileAdvice(artifact,
-                getBuildPropertiesParser());
+                getBuildPropertiesParser(), interpolationService);
         if (featureRootAdvice != null) {
             advice.add(featureRootAdvice);
         }
         return advice;
     }
+
+    public void setInterpolationService(InterpolationService interpolationService) {
+        this.interpolationService = interpolationService;
+    }
+
 }

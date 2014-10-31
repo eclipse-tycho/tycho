@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.tycho.core.shared.BuildProperties;
+import org.eclipse.tycho.core.shared.InterpolationService;
 
 public class RootPropertiesParser {
     static class ParsingResult {
@@ -78,8 +79,11 @@ public class RootPropertiesParser {
 
     private boolean useDefaultExcludes;
 
-    public RootPropertiesParser(File baseDir, BuildProperties buildProperties) {
+    private InterpolationService interpolationService;
+
+    public RootPropertiesParser(File baseDir, BuildProperties buildProperties, InterpolationService interpolationService) {
         this.baseDir = baseDir;
+        this.interpolationService = interpolationService;
         this.rootEntries = buildProperties.getRootEntries();
         this.useDefaultExcludes = buildProperties.isRootFilesUseDefaultExcludes();
     }
@@ -91,7 +95,7 @@ public class RootPropertiesParser {
     public void parse() {
         for (Entry<String, String> entry : rootEntries.entrySet()) {
             keySegments = splitKey(entry.getKey());
-            valueSegments = splitAndTrimValue(entry.getValue());
+            valueSegments = splitAndTrimValue(interpolationService.interpolate(entry.getValue()));
             parseBuildPropertiesLine();
         }
         resolvePermissionWildcards();
