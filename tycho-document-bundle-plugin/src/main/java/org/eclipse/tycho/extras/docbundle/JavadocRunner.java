@@ -121,11 +121,13 @@ public class JavadocRunner {
         StringBuilder sb = new StringBuilder();
         addSourcePaths(sb);
         addClassPath(sb);
+        addArguments(sb);
+
         final int count = addPackages(sb);
         if (count <= 0) {
             this.log.warn("No packages found");
         }
-        addArguments(sb);
+
         return sb.toString();
     }
 
