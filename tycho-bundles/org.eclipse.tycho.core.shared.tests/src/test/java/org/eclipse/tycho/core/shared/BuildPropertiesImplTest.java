@@ -16,17 +16,30 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
 
 import org.junit.Test;
 
 public class BuildPropertiesImplTest {
 
     @Test
-    public void testSupportedKeys() {
-        BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(new File("resources/testbuild.properties"));
+    public void testSupportedKeys() throws IOException {
+        FileInputStream in = null;
+        Properties properties = new Properties();
+        try {
+            in = new FileInputStream(new File("resources/testbuild.properties"));
+            properties.load(in);
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+        BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(properties);
         assertEquals("1.3", buildProperties.getJavacSource());
         assertEquals("1.1", buildProperties.getJavacTarget());
         assertEquals("JavaSE-1.6", buildProperties.getJreCompilationProfile());
@@ -53,8 +66,7 @@ public class BuildPropertiesImplTest {
 
     @Test
     public void testNoBuildPropertiesFileFound() throws Exception {
-        BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(new File("DOES_NOT_EXIST"));
+        BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(new Properties());
         assertNotNull(buildProperties);
     }
-
 }
