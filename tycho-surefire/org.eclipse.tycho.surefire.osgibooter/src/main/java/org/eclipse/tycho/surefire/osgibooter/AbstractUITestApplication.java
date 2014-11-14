@@ -64,13 +64,20 @@ public abstract class AbstractUITestApplication implements ITestHarness {
     /*
      * return the application to run, or null if not even the default application is found.
      */
-    private Object getApplication(String[] args) throws CoreException {
+    private Object getApplicationToRun(String[] args) throws CoreException {
+        String configuredApplication = getConfiguredApplication(args);
+        if (configuredApplication == null) {
+            configuredApplication = DEFAULT_APP_3_0;
+        } else {
+            System.out.println("Launching application " + configuredApplication + "...");
+        }
+
         // Assume we are in 3.0 mode.
         // Find the name of the application as specified by the PDE JUnit launcher.
         // If no application is specified, the 3.0 default workbench application
         // is returned.
         IExtension extension = Platform.getExtensionRegistry().getExtension(Platform.PI_RUNTIME,
-                Platform.PT_APPLICATIONS, getApplicationToRun(args));
+                Platform.PT_APPLICATIONS, configuredApplication);
 
         // If no 3.0 extension can be found, search the registry
         // for the pre-3.0 default workbench application, i.e. org.eclipse ui.workbench
@@ -91,18 +98,12 @@ public abstract class AbstractUITestApplication implements ITestHarness {
         return null;
     }
 
-    /**
-     * The -testApplication argument specifies the application to be run. If the PDE JUnit launcher
-     * did not set this argument, then return the name of the default application. In 3.0, the
-     * default is the "org.eclipse.ui.ide.worbench" application.
-     * 
-     */
-    private String getApplicationToRun(String[] args) {
+    private String getConfiguredApplication(String[] args) {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-testApplication") && i < args.length - 1) //$NON-NLS-1$
                 return args[i + 1];
         }
-        return DEFAULT_APP_3_0;
+        return null;
     }
 
     protected Object run(String[] args) throws Exception {
@@ -111,7 +112,11 @@ public abstract class AbstractUITestApplication implements ITestHarness {
         fTestableObject = PlatformUI.getTestableObject();
         fTestableObject.setTestHarness(this);
         try {
-            Object application = getApplication(args);
+            Object application = getApplicationToRun(args);
+
+            if (application == null) {
+                return Integer.valueOf(200);
+            }
             runApplication(application, args);
         } catch (Exception e) {
             if (fTestRunnerResult == -1) {
