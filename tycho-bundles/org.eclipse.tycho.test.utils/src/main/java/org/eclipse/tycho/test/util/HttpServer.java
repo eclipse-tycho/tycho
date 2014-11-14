@@ -77,10 +77,12 @@ public class HttpServer extends ExternalResource {
 
     private static RunningServer startServerOnPort(int port) throws Exception {
         Server jetty = new Server();
-        Connector connector = new SocketConnector();
+        ServerConnector connector = new ServerConnector(jetty);
+        connector.setHost("localhost");
         connector.setPort(port);
         jetty.addConnector(connector);
 
+        
         ServletContextHandler context;
         context = new ServletContextHandler(jetty, "/", 0);
         jetty.start();
@@ -129,5 +131,5 @@ public class HttpServer extends ExternalResource {
             throw new IllegalStateException("HttpServer instance is not running. Did you forget the @Rule annotation?");
         }
     }
-
 }
+
