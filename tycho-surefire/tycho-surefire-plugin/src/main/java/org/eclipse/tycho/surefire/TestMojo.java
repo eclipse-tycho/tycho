@@ -982,6 +982,17 @@ public class TestMojo extends AbstractMojo {
         case 0:
             getLog().info("All tests passed!");
             break;
+
+        case 200: /* see AbstractUITestApplication */
+            if (application == null) {
+                // the extra test dependencies should prevent this case
+                throw new MojoExecutionException(
+                        "Could not find the default application \"org.eclipse.ui.ide.workbench\" in the test runtime.");
+            } else {
+                throw new MojoFailureException("Could not find application \"" + application + "\" in test runtime. "
+                        + "Make sure that the test runtime includes the bundle which defines this application.");
+            }
+
         case 254/* RunResult.NO_TESTS */:
             String message = "No tests found.";
             if (failIfNoTests) {
@@ -990,6 +1001,7 @@ public class TestMojo extends AbstractMojo {
                 getLog().warn(message);
             }
             break;
+
         case 255/* RunResult.FAILURE */:
             String errorMessage = "There are test failures.\n\nPlease refer to " + reportsDirectory
                     + " for the individual test results.";
@@ -999,9 +1011,10 @@ public class TestMojo extends AbstractMojo {
                 throw new MojoFailureException(errorMessage);
             }
             break;
+
         default:
-            throw new MojoFailureException("An unexpected error occured (return code " + result
-                    + "). See log for details.");
+            throw new MojoFailureException("An unexpected error occured while launching the test runtime (return code "
+                    + result + "). See log for details.");
         }
     }
 
