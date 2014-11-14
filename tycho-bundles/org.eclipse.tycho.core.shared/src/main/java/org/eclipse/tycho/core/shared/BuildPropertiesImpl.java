@@ -11,10 +11,6 @@
 
 package org.eclipse.tycho.core.shared;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,10 +40,6 @@ public class BuildPropertiesImpl implements BuildProperties {
     private Map<String, String> jarToOutputFolderMap;
     private Map<String, String> jarToManifestMap;
     private Map<String, String> rootEntries;
-
-    public BuildPropertiesImpl(File propsFile) {
-        this(readProperties(propsFile));
-    }
 
     @SuppressWarnings("unchecked")
     public BuildPropertiesImpl(Properties properties) {
@@ -108,27 +100,6 @@ public class BuildPropertiesImpl implements BuildProperties {
             return Collections.emptyMap();
         }
         return Collections.unmodifiableMap(map);
-    }
-
-    private static Properties readProperties(File propsFile) {
-        Properties properties = new Properties();
-        if (propsFile.canRead()) {
-            // TODO should we fail the build if build.properties is missing?
-            InputStream is = null;
-            try {
-                try {
-                    is = new FileInputStream(propsFile);
-                    properties.load(is);
-                } finally {
-                    if (is != null) {
-                        is.close();
-                    }
-                }
-            } catch (IOException e) {
-                // ignore
-            }
-        }
-        return properties;
     }
 
     private static String safeTrimValue(String key, Properties buildProperties) {
