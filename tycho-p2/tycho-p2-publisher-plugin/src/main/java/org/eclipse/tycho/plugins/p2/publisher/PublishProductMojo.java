@@ -14,33 +14,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.interpolation.InterpolationException;
 import org.codehaus.plexus.interpolation.Interpolator;
-import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
-import org.codehaus.plexus.interpolation.SingleResponseValueSource;
-import org.codehaus.plexus.interpolation.StringSearchInterpolator;
-import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
+import org.eclipse.tycho.core.maven.InterpolatorFactory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
@@ -83,6 +75,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Component
     private FileLockService fileLockService;
 
+    @Component
+    private InterpolatorFactory interpolatorFactory;
+
     @Override
     protected Collection<DependencySeed> publishContent(PublisherService publisherService)
             throws MojoExecutionException, MojoFailureException {
@@ -95,7 +90,8 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                             + " does not contain the mandatory attribute 'uid'");
                 }
                 qualifyVersions(productConfiguration, getQualifier());
-                interpolateProperties(productConfiguration, newInterpolator());
+                Interpolator interpolator = interpolatorFactory.createInterpolator(getSession(), getProject());
+                interpolateProperties(productConfiguration, interpolator);
                 extractRootFeatures(productConfiguration, result);
 
                 final File preparedProductFile = writeProductForPublishing(producFile, productConfiguration,
@@ -292,38 +288,6 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 throw new MojoFailureException("Unable to unzip the eqiuinox executable feature", e);
             }
         }
-    }
-
-    protected Interpolator newInterpolator() {
-        final MavenProject mavenProject = getProject();
-        final MavenSession mavenSession = getSession();
-        final Properties baseProps = new Properties();
-        baseProps.putAll(mavenProject.getProperties());
-        baseProps.putAll(mavenSession.getSystemProperties());
-        baseProps.putAll(mavenSession.getUserProperties());
-
-        final Settings settings = mavenSession.getSettings();
-
-        // roughly match resources plugin behaviour
-
-        final StringSearchInterpolator interpolator = new StringSearchInterpolator();
-        interpolator.addValueSource(new PrefixedObjectValueSource("project", mavenProject));
-        interpolator.addValueSource(new PrefixedObjectValueSource("settings", settings));
-        interpolator.addValueSource(new SingleResponseValueSource("localRepository", settings.getLocalRepository()));
-        interpolator.addValueSource(new ValueSource() {
-            public Object getValue(String expression) {
-                return baseProps.getProperty(expression);
-            }
-
-            public void clearFeedback() {
-            }
-
-            @SuppressWarnings("rawtypes")
-            public List getFeedback() {
-                return Collections.EMPTY_LIST;
-            }
-        });
-        return interpolator;
     }
 
 }
