@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_9039ba59",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared.tests/src/test/java/org/eclipse/tycho/core/shared/BuildPropertiesImplTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-17T09:53:21Z",
+      "side": 1,
+      "message": "move  finally block here",
+      "revId": "be9f8eb75e81a0b91da5cec53ea0ce58a70fc628",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_f0810e54",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/Interpolator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-17T09:53:21Z",
+      "side": 1,
+      "message": "I\u0027d add a comment here that order is important to decide which property level wins if a property is set on multiple levels",
+      "revId": "be9f8eb75e81a0b91da5cec53ea0ce58a70fc628",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_70d17e74",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/Interpolator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-17T09:53:21Z",
+      "side": 1,
+      "message": "we should at least preserve the original comment here to give some hint where this code is inspired from:\n\n// roughly match resources plugin behaviour\n\nIdeally we would just reuse some maven component that does resource filtering (I looked at maven-resource-plugin and maven-shared/maven-filtering) but it seems there is no easy way to reuse code from there...\n\nLooks like there are more properties supported on a pom.xml level:\nhttp://docs.codehaus.org/display/MAVENUSER/MavenPropertiesGuide\n\nbut I think it\u0027s OK to rather keep it simple here and wait until someone complains a property is missing.",
+      "revId": "be9f8eb75e81a0b91da5cec53ea0ce58a70fc628",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_f0962ea1",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/BuildPropertiesParserImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-17T09:53:21Z",
+      "side": 1,
+      "message": "this is worth a warning unless there are known cases where the session is null",
+      "revId": "be9f8eb75e81a0b91da5cec53ea0ce58a70fc628",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_d09b32c8",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/BuildPropertiesParserImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-17T09:53:21Z",
+      "side": 1,
+      "message": "this is worth a warning unless there are known cases where the project is null",
+      "revId": "be9f8eb75e81a0b91da5cec53ea0ce58a70fc628",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_70aa1ed2",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/osgitools/BuildPropertiesParserImplTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-17T09:53:21Z",
+      "side": 1,
+      "message": "(minor) in general I think it\u0027s OK to make the field package private or better to introduce a package-private constructor for testing purposes (documented as for testing only), in addition to the no-args constructor used by plexus\n\ndependency injection is nice but it should not cause artificial use of reflection where we could be type-safe instead.",
+      "revId": "be9f8eb75e81a0b91da5cec53ea0ce58a70fc628",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
