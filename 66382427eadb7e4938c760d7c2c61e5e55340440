@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_cbdf074d",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/utils/PluginRealmHelper.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-17T10:07:44Z",
+      "side": 1,
+      "message": "(low priority comment) I tend to use \"cf.\" for additional, optional information, and \"see\" only if the linked information is required to understand something.",
+      "revId": "66382427eadb7e4938c760d7c2c61e5e55340440",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
