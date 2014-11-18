@@ -17,9 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.rules.ExternalResource;
@@ -77,7 +76,8 @@ public class HttpServer extends ExternalResource {
 
     private static RunningServer startServerOnPort(int port) throws Exception {
         Server jetty = new Server();
-        Connector connector = new SocketConnector();
+        ServerConnector connector = new ServerConnector(jetty);
+        connector.setHost("localhost");
         connector.setPort(port);
         jetty.addConnector(connector);
 
