@@ -2,6 +2,91 @@
   "comments": [
     {
       "key": {
+        "uuid": "a766b734_825cc977",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverIncludeSourceTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T15:00:21Z",
+      "side": 1,
+      "message": "The implementation does not, and is not likely to, implement the conflicting includeSource attribute detection logic in an includeMode specific way. So before, the name was better.\n\nBut the includeMode could be set to null.",
+      "revId": "2e9621ea57aa4ab906114586bccc456bf8d97b22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_e26dbd24",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverIncludeSourceTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T15:00:21Z",
+      "side": 1,
+      "message": "If this test was needed, it should have been right next to the other testConflictingIncludeSourceLocations test.",
+      "revId": "2e9621ea57aa4ab906114586bccc456bf8d97b22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_68beaffd",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverIncludeSourceTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T15:00:21Z",
+      "side": 1,
+      "message": "Exact duplicate of testResultContainsSourceBundlePlannerMode",
+      "revId": "2e9621ea57aa4ab906114586bccc456bf8d97b22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_a8c3a77d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverIncludeSourceTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T15:00:21Z",
+      "side": 1,
+      "message": "This test case was in fact missing.",
+      "revId": "2e9621ea57aa4ab906114586bccc456bf8d97b22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_48dad35f",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/src/test/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverIncludeSourceTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T15:00:21Z",
+      "side": 1,
+      "message": "I agree that having consistent constructors for the InstallableUnitLocation stub classes is a good idea.",
+      "revId": "2e9621ea57aa4ab906114586bccc456bf8d97b22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a766b734_02055987",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
         "patchSetId": 7
