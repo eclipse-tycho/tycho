@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_02055987",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetDefinitionResolverService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T13:46:09Z",
+      "side": 1,
+      "message": "It seems unnecessary to have both a TargetDefinition instance and the IncludeSourceMode here. Wouldn\u0027t it be possible to inline the effect of IncludeSourceMode into the TargetDefinition instance?",
+      "revId": "2e9621ea57aa4ab906114586bccc456bf8d97b22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
