@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.apache.maven.model.Dependency;
 import org.eclipse.tycho.artifacts.TargetPlatformFilter;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
@@ -37,6 +38,7 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
     private boolean implicitTargetEnvironment = true;
 
     private final List<File> targets = new ArrayList<File>();
+    private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.honor;
 
     private String pomDependencies;
 
@@ -85,6 +87,14 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     public void addTarget(File target) {
         this.targets.add(target);
+    }
+
+    public IncludeSourceMode getTargetDefinitionIncludeSourceMode() {
+        return targetDefinitionIncludeSourceMode;
+    }
+
+    public void setTargetDefinitionIncludeSourceMode(IncludeSourceMode includeSourcesMode) {
+        this.targetDefinitionIncludeSourceMode = includeSourcesMode;
     }
 
     public void setPomDependencies(String pomDependencies) {
@@ -158,10 +168,12 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
         return this;
     }
 
+    @Override
     public List<Dependency> getExtraRequirements() {
         return extraRequirements;
     }
 
+    @Override
     public OptionalResolutionAction getOptionalResolutionAction() {
         return optionalAction;
     }

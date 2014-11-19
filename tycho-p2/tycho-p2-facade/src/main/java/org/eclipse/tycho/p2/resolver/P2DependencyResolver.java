@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,7 @@ import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.osgitools.targetplatform.MultiEnvironmentDependencyArtifacts;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -118,6 +119,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     private ReactorRepositoryManagerFacade reactorRepositoryManager;
 
+    @Override
     public void setupProjects(final MavenSession session, final MavenProject project,
             final ReactorProject reactorProject) {
         TargetPlatformConfiguration configuration = (TargetPlatformConfiguration) project
@@ -146,6 +148,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         // let external providers contribute additional metadata
         try {
             pluginRealmHelper.execute(session, project, new Runnable() {
+                @Override
                 public void run() {
                     try {
                         for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
@@ -160,6 +163,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                     }
                 }
             }, new PluginFilter() {
+                @Override
                 public boolean accept(PluginDescriptor descriptor) {
                     return isTychoP2Plugin(descriptor);
                 }
@@ -184,6 +188,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         return false;
     }
 
+    @Override
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects) {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
@@ -207,7 +212,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         tpConfiguration.setEnvironments(configuration.getEnvironments());
         for (File file : configuration.getTargets()) {
-            addTargetFileContentToTargetPlatform(file, tpConfiguration);
+            addTargetFileContentToTargetPlatform(file, configuration.getTargetDefinitionIncludeSourceMode(),
+                    tpConfiguration);
         }
 
         tpConfiguration.addFilters(configuration.getFilters());
@@ -218,7 +224,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     private ReactorProject getThisReactorProject(MavenSession session, MavenProject project,
             TargetPlatformConfiguration configuration) {
-        // 'this' project should obey optionalDependencnies configuration
+        // 'this' project should obey optionalDependencies configuration
 
         final List<TargetEnvironment> environments = configuration.getEnvironments();
         final OptionalResolutionAction optionalAction = configuration.getDependencyResolverConfiguration()
@@ -303,11 +309,13 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         }
     }
 
-    private void addTargetFileContentToTargetPlatform(File targetFile, TargetPlatformConfigurationStub resolutionContext) {
-        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile);
+    private void addTargetFileContentToTargetPlatform(File targetFile, IncludeSourceMode includeSourcesMode,
+            TargetPlatformConfigurationStub resolutionContext) {
+        TargetDefinitionFile target = TargetDefinitionFile.read(targetFile, includeSourcesMode);
         resolutionContext.addTargetDefinition(target);
     }
 
+    @Override
     public DependencyArtifacts resolveDependencies(final MavenSession session, final MavenProject project,
             TargetPlatform targetPlatform, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
@@ -408,12 +416,14 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         return platform;
     }
 
+    @Override
     public void initialize() throws InitializationException {
         this.resolverFactory = equinox.getService(P2ResolverFactory.class);
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
         this.reactorRepositoryManager = equinox.getService(ReactorRepositoryManagerFacade.class);
     }
 
+    @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts dependencyArtifacts, Logger logger) {
         MavenDependencyInjector.injectMavenDependencies(project, dependencyArtifacts, bundleReader, logger);

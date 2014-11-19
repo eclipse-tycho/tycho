@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - additional test cases
+ *    SAP SE - additional test cases
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.IncludeMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
@@ -36,7 +37,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testTarget() throws Exception {
-        List<? extends Location> locations = readTargetLocations("target.target");
+        List<? extends Location> locations = readTarget("target.target").getLocations();
         assertEquals(2, locations.size());
 
         InstallableUnitLocation location = (InstallableUnitLocation) locations.get(0);
@@ -58,7 +59,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testLocationTypes() throws Exception {
-        List<? extends Location> locations = readTargetLocations("locationtypes.target");
+        List<? extends Location> locations = readTarget("locationtypes.target").getLocations();
         assertEquals("Directory", locations.get(0).getTypeDescription());
         assertEquals("Profile", locations.get(1).getTypeDescription());
         assertEquals("Feature", locations.get(2).getTypeDescription());
@@ -72,7 +73,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testDefaultIncludeModeValues() throws Exception {
-        List<? extends Location> locations = readTargetLocations("includeModes.target");
+        List<? extends Location> locations = readTarget("includeModes.target").getLocations();
         InstallableUnitLocation locationWithDefaults = (InstallableUnitLocation) locations.get(0);
         assertEquals(IncludeMode.PLANNER, locationWithDefaults.getIncludeMode());
         assertEquals(false, locationWithDefaults.includeAllEnvironments());
@@ -80,7 +81,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testExplictIncludeModeValues() throws Exception {
-        List<? extends Location> locations = readTargetLocations("includeModes.target");
+        List<? extends Location> locations = readTarget("includeModes.target").getLocations();
         InstallableUnitLocation locationWithPlanner = (InstallableUnitLocation) locations.get(1);
         InstallableUnitLocation locationWithSlicer = (InstallableUnitLocation) locations.get(2);
         InstallableUnitLocation locationWithSlicerAndAllEnvironments = (InstallableUnitLocation) locations.get(3);
@@ -93,7 +94,7 @@ public class TargetDefinitionFileTest {
 
     @Test
     public void testIncludeSource() throws Exception {
-        List<? extends Location> locations = readTargetLocations("includeSource.target");
+        List<? extends Location> locations = readTarget("includeSource.target", IncludeSourceMode.honor).getLocations();
         InstallableUnitLocation locationWithSources = (InstallableUnitLocation) locations.get(0);
         InstallableUnitLocation locationWithoutSources = (InstallableUnitLocation) locations.get(1);
         InstallableUnitLocation locationWithoutIncludeSourceAttribute = (InstallableUnitLocation) locations.get(2);
@@ -103,15 +104,32 @@ public class TargetDefinitionFileTest {
     }
 
     @Test
+    public void testIncludeSourceWhenIgnored() throws Exception {
+        List<? extends Location> locations = readTarget("includeSource.target", IncludeSourceMode.ignore)
+                .getLocations();
+        for (Location location : locations) {
+            assertEquals(false, ((InstallableUnitLocation) location).includeSource());
+        }
+    }
+
+    @Test
+    public void testIncludeSourceWhenForced() throws Exception {
+        List<? extends Location> locations = readTarget("includeSource.target", IncludeSourceMode.force).getLocations();
+        for (Location location : locations) {
+            assertEquals(true, ((InstallableUnitLocation) location).includeSource());
+        }
+    }
+
+    @Test
     public void testInvalidXML() throws Exception {
         expectedException.expectCause(isA(TargetDefinitionSyntaxException.class));
-        readTargetLocations("invalidXML.target");
+        readTarget("invalidXML.target").getLocations();
     }
 
     public void testInvalidIncludeMode() throws Exception {
         expectedException.expect(TargetDefinitionSyntaxException.class);
 
-        List<? extends Location> locations = readTargetLocations("invalidMode.target");
+        List<? extends Location> locations = readTarget("invalidMode.target").getLocations();
 
         // allow exception to be thrown late
         InstallableUnitLocation invalidIncludeModeLocation = (InstallableUnitLocation) locations.get(0);
@@ -131,11 +149,11 @@ public class TargetDefinitionFileTest {
     }
 
     private TargetDefinitionFile readTarget(String fileName) throws IOException {
-        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName));
+        return readTarget(fileName, IncludeSourceMode.honor);
     }
 
-    private List<? extends Location> readTargetLocations(String fileName) throws IOException {
-        return readTarget(fileName).getLocations();
+    private TargetDefinitionFile readTarget(String fileName, IncludeSourceMode includeSourceMode) throws IOException {
+        return TargetDefinitionFile.read(new File("src/test/resources/modelio/" + fileName), includeSourceMode);
     }
 
 }

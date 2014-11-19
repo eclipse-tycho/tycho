@@ -31,6 +31,7 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration.BREEHeaderSelectionPol
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.ee.shared.BuildFailureException;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -89,6 +90,7 @@ public class DefaultTargetPlatformConfigurationReader {
                 readDependencyResolutionConfiguration(result, configuration);
 
                 setIncludePackedArtifacts(result, configuration);
+                setTargetDefinitionIncludeSources(result, configuration);
             }
         }
 
@@ -137,8 +139,23 @@ public class DefaultTargetPlatformConfigurationReader {
         result.setIncludePackedArtifacts(Boolean.parseBoolean(value));
     }
 
-    private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration)
+    private void setTargetDefinitionIncludeSources(TargetPlatformConfiguration result, Xpp3Dom configuration)
             throws BuildFailureException {
+        String value = getStringValue(configuration.getChild("targetDefinitionIncludeSource"));
+
+        if (value == null) {
+            return;
+        }
+        try {
+            result.setTargetDefinitionIncludeSourceMode(IncludeSourceMode.valueOf(value));
+        } catch (IllegalArgumentException e) {
+            throw new BuildFailureException(
+                    "Illegal value of <targetDefinitionIncludeSource> target platform configuration parameter: "
+                            + value, e);
+        }
+    }
+
+    private void readDependencyResolutionConfiguration(TargetPlatformConfiguration result, Xpp3Dom configuration) {
         Xpp3Dom resolverDom = configuration.getChild("dependency-resolution");
         if (resolverDom == null) {
             return;
@@ -160,7 +177,7 @@ public class DefaultTargetPlatformConfigurationReader {
         } else if (OPTIONAL_RESOLUTION_IGNORE.equals(value)) {
             result.setOptionalResolutionAction(OptionalResolutionAction.IGNORE);
         } else {
-            throw new RuntimeException("Illegal value of <optionalDependencies> dependency resolution parameter: "
+            throw new BuildFailureException("Illegal value of <optionalDependencies> dependency resolution parameter: "
                     + value);
         }
     }
@@ -239,9 +256,9 @@ public class DefaultTargetPlatformConfigurationReader {
     /**
      * Take the constraints of the configured execution environment into account when resolving
      * dependencies or target definitions. These constraints include the list of system packages and
-     * the <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the dependency resolution
-     * verifies that the bundle and all required bundles can be used in an OSGi container with the
-     * configured execution environment.
+     * the <tt>Bundle-RequiredExecutionEnvironment</tt> header. When set to <code>true</code>, the
+     * dependency resolution verifies that the bundle and all required bundles can be used in an
+     * OSGi container with the configured execution environment.
      */
     private void setResolveWithEEContraints(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
         String value = getStringValue(resolverDom.getChild("resolveWithExecutionEnvironmentConstraints"));
