@@ -15,6 +15,7 @@ import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.definitio
 import static org.eclipse.tycho.p2.target.TargetDefinitionResolverTest.versionedIdsOf;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import org.eclipse.equinox.p2.metadata.IVersionedId;
@@ -52,47 +53,86 @@ public class TargetDefinitionResolverIncludeSourceTest {
 
     @Test(expected = TargetDefinitionResolutionException.class)
     public void testConflictingIncludeSourceLocations() throws Exception {
-        TargetDefinition definition = definitionWith(new WithSourceLocationStub(TestRepositories.SOURCES,
-                BUNDLE_WITH_SOURCES), new WithoutSourceLocationStub(TestRepositories.SOURCES));
+        TargetDefinition definition = definitionWith(new WithSourceLocationStub(null, TestRepositories.SOURCES,
+                BUNDLE_WITH_SOURCES), new WithoutSourceLocationStub(null, TestRepositories.SOURCES));
         subject.resolveContentWithExceptions(definition);
     }
 
     @Test
-    public void testResultContainsSourceBundleSlicerMode() throws Exception {
-        TargetDefinition definition = definitionWith(new WithSourceLocationStub(TestRepositories.SOURCES,
-                BUNDLE_WITH_SOURCES));
+    public void testIncludeSourceWithSlicerMode() throws Exception {
+        TargetDefinition definition = definitionWith(new WithSourceLocationStub(IncludeMode.SLICER,
+                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
+
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
         assertThat(content.getUnits().size(), is(2));
     }
 
     @Test
-    public void testResultContainsSourceBundlePlannerMode() throws Exception {
+    public void testIncludeSourceWithPlannerMode() throws Exception {
         TargetDefinition definition = definitionWith(new WithSourceLocationStub(IncludeMode.PLANNER,
                 TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
+
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+
         assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
         assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
         assertThat(content.getUnits().size(), is(2));
     }
 
     @Test
-    public void testCanResolveBundlesWithoutSources() throws Exception {
-        TargetDefinition definition = definitionWith(new WithSourceLocationStub(TestRepositories.SOURCES,
-                NOSOURCE_BUNDLE));
+    public void testNoSourceIncludeWhenIncludeSourceIsFalseWithSlicerMode() throws Exception {
+        TargetDefinition definition = definitionWith(new WithoutSourceLocationStub(IncludeMode.SLICER,
+                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
+
         TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
-        assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
+
+        assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
         assertThat(content.getUnits().size(), is(1));
+    }
+
+    @Test
+    public void testNoSourceIncludeWhenIncludeSourceIsFalseWithPlannerMode() throws Exception {
+        TargetDefinition definition = definitionWith(new WithoutSourceLocationStub(IncludeMode.PLANNER,
+                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES));
+
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+
+        assertThat(versionedIdsOf(content), not(hasItem(SOURCE_BUNDLE)));
+        assertThat(content.getUnits().size(), is(1));
+    }
+
+    @Test
+    public void testCanResolveBundlesWithoutSourcesWithSlicerMode() throws Exception {
+        TargetDefinition definition = definitionWith(new WithSourceLocationStub(IncludeMode.SLICER,
+                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES, NOSOURCE_BUNDLE));
+
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+
+        assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
+        assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
+        assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
+        assertThat(content.getUnits().size(), is(3));
+    }
+
+    @Test
+    public void testCanResolveBundlesWithoutSourcesWithPlannerMode() throws Exception {
+        TargetDefinition definition = definitionWith(new WithSourceLocationStub(IncludeMode.PLANNER,
+                TestRepositories.SOURCES, BUNDLE_WITH_SOURCES, NOSOURCE_BUNDLE));
+
+        TargetDefinitionContent content = subject.resolveContentWithExceptions(definition);
+
+        assertThat(versionedIdsOf(content), hasItem(NOSOURCE_BUNDLE));
+        assertThat(versionedIdsOf(content), hasItem(BUNDLE_WITH_SOURCES));
+        assertThat(versionedIdsOf(content), hasItem(SOURCE_BUNDLE));
+        assertThat(content.getUnits().size(), is(3));
     }
 
     static class WithSourceLocationStub extends LocationStub implements InstallableUnitLocation {
 
         private IncludeMode includeMode;
-
-        public WithSourceLocationStub(TestRepositories repositories, IVersionedId... seedUnits) {
-            this(IncludeMode.SLICER, repositories, seedUnits);
-        }
 
         public WithSourceLocationStub(IncludeMode includeMode, TestRepositories repositories, IVersionedId... seedUnits) {
             super(repositories, seedUnits);
@@ -111,13 +151,22 @@ public class TargetDefinitionResolverIncludeSourceTest {
     }
 
     static class WithoutSourceLocationStub extends LocationStub implements InstallableUnitLocation {
-        public WithoutSourceLocationStub(TestRepositories repositories, IVersionedId... seedUnits) {
+        private IncludeMode includeMode;
+
+        public WithoutSourceLocationStub(IncludeMode includeMode, TestRepositories repositories,
+                IVersionedId... seedUnits) {
             super(repositories, seedUnits);
+            this.includeMode = includeMode;
         }
 
         @Override
         public boolean includeSource() {
             return false;
+        }
+
+        @Override
+        public IncludeMode getIncludeMode() {
+            return this.includeMode;
         }
     }
 }

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
@@ -32,7 +32,7 @@ public class TargetDefinitionUtil {
      * @throws IOException
      */
     public static void makeURLsAbsolute(File targetDefinitionFile, File relocationBasedir) throws IOException {
-        TargetDefinitionFile platform = TargetDefinitionFile.read(targetDefinitionFile);
+        TargetDefinitionFile platform = TargetDefinitionFile.read(targetDefinitionFile, null);
         List<? extends TargetDefinition.Location> locations = platform.getLocations();
         for (TargetDefinition.Location location : locations) {
             List<Repository> repositories = ((IULocation) location).getRepositoryImpls();
@@ -53,7 +53,7 @@ public class TargetDefinitionUtil {
      * Overwrites all repository URLs in the target file.
      */
     public static void setRepositoryURLs(File targetDefinitionFile, String url) throws IOException {
-        TargetDefinitionFile platform = TargetDefinitionFile.read(targetDefinitionFile);
+        TargetDefinitionFile platform = TargetDefinitionFile.read(targetDefinitionFile, null);
         for (TargetDefinition.Location location : platform.getLocations()) {
             for (Repository repository : ((IULocation) location).getRepositoryImpls()) {
                 repository.setLocation(url);

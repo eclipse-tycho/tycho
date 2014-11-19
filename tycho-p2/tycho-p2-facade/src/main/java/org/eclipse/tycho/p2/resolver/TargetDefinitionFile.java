@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - cache target definition resolution result (bug 373806)
+ *    SAP SE - cache target definition resolution result (bug 373806)
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition;
 import org.eclipse.tycho.p2.target.facade.TargetDefinitionSyntaxException;
 
@@ -49,13 +50,16 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private final Element dom;
     private final Document document;
 
-    public static class IULocation implements TargetDefinition.InstallableUnitLocation {
+    final IncludeSourceMode includeSourceMode;
+
+    public class IULocation implements TargetDefinition.InstallableUnitLocation {
         private final Element dom;
 
         public IULocation(Element dom) {
             this.dom = dom;
         }
 
+        @Override
         public List<? extends TargetDefinition.Unit> getUnits() {
             ArrayList<Unit> units = new ArrayList<Unit>();
             for (Element unitDom : dom.getChildren("unit")) {
@@ -64,6 +68,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return Collections.unmodifiableList(units);
         }
 
+        @Override
         public List<? extends TargetDefinition.Repository> getRepositories() {
             return getRepositoryImpls();
         }
@@ -78,10 +83,12 @@ public final class TargetDefinitionFile implements TargetDefinition {
             return repositories;
         }
 
+        @Override
         public String getTypeDescription() {
             return dom.getAttributeValue("type");
         }
 
+        @Override
         public IncludeMode getIncludeMode() {
             String attributeValue = dom.getAttributeValue("includeMode");
             if ("slicer".equals(attributeValue)) {
@@ -93,22 +100,32 @@ public final class TargetDefinitionFile implements TargetDefinition {
                     + "");
         }
 
+        @Override
         public boolean includeAllEnvironments() {
             return Boolean.parseBoolean(dom.getAttributeValue("includeAllPlatforms"));
         }
 
+        @Override
         public boolean includeSource() {
-            return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
+            switch (includeSourceMode) {
+            case ignore:
+                return false;
+            case force:
+                return true;
+            default:
+                return Boolean.parseBoolean(dom.getAttributeValue("includeSource"));
+            }
         }
     }
 
-    public class OtherLocation implements Location {
+    public static class OtherLocation implements Location {
         private final String description;
 
         public OtherLocation(String description) {
             this.description = description;
         }
 
+        @Override
         public String getTypeDescription() {
             return description;
         }
@@ -121,11 +138,13 @@ public final class TargetDefinitionFile implements TargetDefinition {
             this.dom = dom;
         }
 
+        @Override
         public String getId() {
             // this is Maven specific, used to match credentials and mirrors
             return dom.getAttributeValue("id");
         }
 
+        @Override
         public URI getLocation() {
             try {
                 return new URI(dom.getAttributeValue("location"));
@@ -153,10 +172,12 @@ public final class TargetDefinitionFile implements TargetDefinition {
             this.dom = dom;
         }
 
+        @Override
         public String getId() {
             return dom.getAttributeValue("id");
         }
 
+        @Override
         public String getVersion() {
             return dom.getAttributeValue("version");
         }
@@ -172,10 +193,13 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
-    private TargetDefinitionFile(File source) throws TargetDefinitionSyntaxException {
+    private TargetDefinitionFile(File source, IncludeSourceMode includeSourceMode)
+            throws TargetDefinitionSyntaxException {
         try {
             this.origin = source;
             this.fileContentHash = computeFileContentHash(source);
+
+            this.includeSourceMode = includeSourceMode;
 
             FileInputStream input = new FileInputStream(source);
             try {
@@ -192,6 +216,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
         }
     }
 
+    @Override
     public List<? extends TargetDefinition.Location> getLocations() {
         ArrayList<TargetDefinition.Location> locations = new ArrayList<TargetDefinition.Location>();
         Element locationsDom = dom.getChild("locations");
@@ -207,17 +232,19 @@ public final class TargetDefinitionFile implements TargetDefinition {
         return Collections.unmodifiableList(locations);
     }
 
+    @Override
     public boolean hasIncludedBundles() {
         return dom.getChild("includeBundles") != null;
     }
 
+    @Override
     public String getOrigin() {
         return origin.getAbsolutePath();
     }
 
-    public static TargetDefinitionFile read(File file) {
+    public static TargetDefinitionFile read(File file, IncludeSourceMode includeSourceMode) {
         try {
-            return new TargetDefinitionFile(file);
+            return new TargetDefinitionFile(file, includeSourceMode);
         } catch (TargetDefinitionSyntaxException e) {
             throw new RuntimeException("Invalid syntax in target definition " + file + ": " + e.getMessage(), e);
         }
