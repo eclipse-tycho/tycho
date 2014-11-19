@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_821fa9ea",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/META-INF/MANIFEST.MF",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T13:43:22Z",
+      "side": 1,
+      "message": "Package is already imported by host, so I don\u0027t see why we\u0027d need to add it here.\n\nAlso, when editing manifests, please use the Manifest editor, which ensures that imports are always sorted alphabetically. Manually editing this list would lead to spurious changes later.",
+      "revId": "1678f5687844a3207ed13148f2d91027f88dc356",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_a222a52a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/target/facade/TargetPlatformConfigurationStub.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T13:43:22Z",
+      "side": 1,
+      "message": "Spurious comment",
+      "revId": "1678f5687844a3207ed13148f2d91027f88dc356",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_6291add3",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T13:43:22Z",
+      "side": 1,
+      "message": "I\u0027d prefer a name closer to the switch name here, e.g. getTargetDefinitionIncludeSourceMode",
+      "revId": "1678f5687844a3207ed13148f2d91027f88dc356",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_8262097e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T13:43:22Z",
+      "side": 1,
+      "message": "\u003e toUpperCase\n\nWe don\u0027t do this anywhere AFAIK, and given potential locale issues and performance overhead (XML standard was incompatibly changed to be case sensitive because of this), I wouldn\u0027t do it.\n\nI\u0027d rather ignore the Java convention for having all-upper enum constants (cf. BREEHeaderSelectionPolicy)",
+      "revId": "1678f5687844a3207ed13148f2d91027f88dc356",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
