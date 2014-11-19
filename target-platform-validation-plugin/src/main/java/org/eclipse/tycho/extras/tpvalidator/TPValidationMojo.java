@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.resolver.TargetDefinitionFile;
@@ -116,7 +117,7 @@ public class TPValidationMojo extends AbstractMojo {
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
             tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 
-            TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile);
+            TargetDefinitionFile targetDefinition = TargetDefinitionFile.read(targetFile, IncludeSourceMode.honor);
             tpConfiguration.addTargetDefinition(targetDefinition);
 
             P2Resolver resolver = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));

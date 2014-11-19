@@ -51,6 +51,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
 
     private DependencyMetadataGenerator generator;
 
+    @Override
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
         if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging())) {
@@ -115,6 +116,7 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
         return null;
     }
 
+    @Override
     public void initialize() throws InitializationException {
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
     }
