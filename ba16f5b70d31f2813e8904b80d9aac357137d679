@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_0848db80",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TargetPlatformConfiguration.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-19T15:05:17Z",
+      "side": 1,
+      "message": "Should be ignore to match the commit message.",
+      "revId": "ba16f5b70d31f2813e8904b80d9aac357137d679",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
