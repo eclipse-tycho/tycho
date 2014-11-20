@@ -47,10 +47,27 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     private static final String FEATURE_PROPERTIES = "feature.properties";
 
     /**
-     * The maven archiver to use.
+     * The <a href="http://maven.apache.org/shared/maven-archiver/">maven archiver</a> to use. One
+     * of the archiver properties is the <code>addMavenDescriptor</code> flag, which indicates
+     * whether the generated archive will contain the pom.xml and pom.properties file. If no archive
+     * configuration is specified, the default for packaging type <code>eclipse-feature</code> is
+     * <code>false</code>. To change the default use the following configuration:
+     * 
+     * <pre>
+     * &lt;plugin&gt;
+     *   &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+     *   &lt;artifactId&gt;tycho-packaging-plugin&lt;/artifactId&gt;
+     *   &lt;version&gt;${tycho-version}&lt;/version&gt;
+     *   &lt;configuration&gt;
+     *     &lt;archive&gt;
+     *       &lt;addMavenDescriptor&gt;true&lt;/addMavenDescriptor&gt;
+     *     &lt;/archive&gt;
+     *   &lt;/configuration&gt;
+     * &lt;/plugin&gt;
+     * </pre>
      */
     @Parameter
-    private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
+    private MavenArchiveConfiguration archive;
 
     /**
      * The output directory of the jar file
@@ -131,6 +148,10 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
             archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
             if (featureProperties != null) {
                 archiver.getArchiver().addFile(featureProperties, FEATURE_PROPERTIES);
+            }
+            if (archive == null) {
+                archive = new MavenArchiveConfiguration();
+                archive.setAddMavenDescriptor(false);
             }
             archiver.createArchive(session, project, archive);
         } catch (Exception e) {

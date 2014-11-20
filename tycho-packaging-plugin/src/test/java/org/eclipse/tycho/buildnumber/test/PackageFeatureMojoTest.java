@@ -13,6 +13,7 @@ package org.eclipse.tycho.buildnumber.test;
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.maven.it.util.IOUtil;
@@ -22,6 +23,7 @@ import org.eclipse.tycho.packaging.PackageFeatureMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
+
     public void testFeatureXmlGeneration() throws Exception {
         File basedir = getBasedir("projects/featureXmlGeneration");
         File platform = new File("src/test/resources/eclipse");
@@ -81,5 +83,45 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
         } finally {
             zip.close();
         }
+    }
+
+    public void testAddMavenDescriptorNotAddedPerDefault() throws Exception {
+        File basedir = getBasedir("projects/addMavenDescriptorDefault");
+        File platform = new File("src/test/resources/eclipse");
+        List<MavenProject> projects = getSortedProjects(basedir, platform);
+
+        MavenProject project = getProject(projects, "addMavenDescriptorDefault");
+
+        PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
+        setVariableValueToObject(mojo, "project", project);
+        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
+        setVariableValueToObject(mojo, "finalName", "feature");
+
+        mojo.execute();
+
+        ZipFile zip = new ZipFile(new File(basedir, "target/feature.jar"));
+        ZipEntry entry = zip.getEntry("META-INF/maven");
+        assertNull("No 'META-INF/maven/' entry must be in the feature.jar!", entry);
+        zip.close();
+    }
+
+    public void testAddMavenDescriptorSetToTrue() throws Exception {
+        File basedir = getBasedir("projects/addMavenDescriptorSetToTrue");
+        File platform = new File("src/test/resources/eclipse");
+        List<MavenProject> projects = getSortedProjects(basedir, platform);
+
+        MavenProject project = getProject(projects, "addMavenDescriptorSetToTrue");
+
+        PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
+        setVariableValueToObject(mojo, "project", project);
+        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
+        setVariableValueToObject(mojo, "finalName", "feature");
+
+        mojo.execute();
+
+        ZipFile zip = new ZipFile(new File(basedir, "target/feature.jar"));
+        ZipEntry entry = zip.getEntry("META-INF/maven");
+        assertNotNull("There must be a 'META-INF/maven/' entry in the feature.jar!", entry);
+        zip.close();
     }
 }

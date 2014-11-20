@@ -93,7 +93,24 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
     protected String finalName;
 
     /**
-     * The maven archiver to use.
+     * The <a href="http://maven.apache.org/shared/maven-archiver/">maven archiver</a> to use. One
+     * of the archiver properties is the <code>addMavenDescriptor</code> flag, which indicates
+     * whether the generated archive will contain the pom.xml and pom.properties file. The default
+     * for packaging type <code>eclipse-plugin</code> is <code>true</code>. To change the default
+     * use the following configuration:
+     * 
+     * <pre>
+     * &lt;plugin&gt;
+     *   &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+     *   &lt;artifactId&gt;tycho-packaging-plugin&lt;/artifactId&gt;
+     *   &lt;version&gt;${tycho-version}&lt;/version&gt;
+     *   &lt;configuration&gt;
+     *     &lt;archive&gt;
+     *       &lt;addMavenDescriptor&gt;false&lt;/addMavenDescriptor&gt;
+     *     &lt;/archive&gt;
+     *   &lt;/configuration&gt;
+     * &lt;/plugin&gt;
+     * </pre>
      */
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
