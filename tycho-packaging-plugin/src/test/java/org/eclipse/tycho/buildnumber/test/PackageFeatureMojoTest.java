@@ -13,6 +13,7 @@ package org.eclipse.tycho.buildnumber.test;
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.maven.it.util.IOUtil;
@@ -22,6 +23,7 @@ import org.eclipse.tycho.packaging.PackageFeatureMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
+
     public void testFeatureXmlGeneration() throws Exception {
         File basedir = getBasedir("projects/featureXmlGeneration");
         File platform = new File("src/test/resources/eclipse");
@@ -78,6 +80,50 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
 
             // when present both in 'this' and license feature, files from 'this' feature are included
             assertEquals("file.txt contents", IOUtil.toString(zip.getInputStream(zip.getEntry("file.txt"))));
+        } finally {
+            zip.close();
+        }
+    }
+
+    public void testAddMavenDescriptorNotAddedPerDefault() throws Exception {
+        File basedir = getBasedir("projects/addMavenDescriptor/featureDefault/");
+        File platform = new File("src/test/resources/eclipse");
+        List<MavenProject> projects = getSortedProjects(basedir, platform);
+
+        MavenProject project = getProject(projects, "featureDefault");
+
+        PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
+        setVariableValueToObject(mojo, "project", project);
+        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
+
+        mojo.execute();
+
+        ZipFile zip = new ZipFile(new File(basedir, "target/featureDefault.jar"));
+        try {
+            ZipEntry entry = zip.getEntry("META-INF/maven");
+            assertNull("No 'META-INF/maven/' entry must be in the feature.jar!", entry);
+        } finally {
+            zip.close();
+        }
+    }
+
+    public void testAddMavenDescriptorSetToTrue() throws Exception {
+        File basedir = getBasedir("projects/addMavenDescriptor/featureForcedToTrue");
+        File platform = new File("src/test/resources/eclipse");
+        List<MavenProject> projects = getSortedProjects(basedir, platform);
+
+        MavenProject project = getProject(projects, "featureForcedToTrue");
+
+        PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
+        setVariableValueToObject(mojo, "project", project);
+        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
+
+        mojo.execute();
+
+        ZipFile zip = new ZipFile(new File(basedir, "target/featureForcedToTrue.jar"));
+        try {
+            ZipEntry entry = zip.getEntry("META-INF/maven");
+            assertNotNull("There must be a 'META-INF/maven/' entry in the feature.jar!", entry);
         } finally {
             zip.close();
         }
