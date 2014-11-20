@@ -114,6 +114,37 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         assertEquals("bundle;singleton:=true", symbolicName);
     }
 
+    public void testMavenDescriptorNotAddedToJarIfSetToFalse() throws Exception {
+        File basedir = getBasedir("projects/addMavenDescriptor/pluginForcedToFalse");
+        File classes = new File(basedir, "target/classes");
+        classes.mkdirs();
+        PackagePluginMojo mojo = execMaven(basedir);
+        mojo.execute();
+
+        JarFile nestedJar = new JarFile(new File(basedir, "target/pluginForcedToFalse.jar"));
+        try {
+            assertNull("Jar must not contain the maven descriptor if forced to not include it!",
+                    nestedJar.getEntry("META-INF/maven"));
+        } finally {
+            nestedJar.close();
+        }
+    }
+
+    public void testMavenDescriptorAddedToJarPerDefault() throws Exception {
+        File basedir = getBasedir("projects/addMavenDescriptor/pluginDefault");
+        File classes = new File(basedir, "target/classes");
+        classes.mkdirs();
+        PackagePluginMojo mojo = execMaven(basedir);
+        mojo.execute();
+
+        JarFile nestedJar = new JarFile(new File(basedir, "target/pluginDefault.jar"));
+        try {
+            assertNotNull("Jar must contain the maven descriptor per default!", nestedJar.getEntry("META-INF/maven"));
+        } finally {
+            nestedJar.close();
+        }
+    }
+
     private PackagePluginMojo execMaven(File basedir) throws Exception {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
