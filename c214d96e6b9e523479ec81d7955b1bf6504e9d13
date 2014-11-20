@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_3cb87510",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageFeatureMojoTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-20T15:46:34Z",
+      "side": 1,
+      "message": "close() should be in finally block",
+      "revId": "c214d96e6b9e523479ec81d7955b1bf6504e9d13",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_bcc3e57d",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageFeatureMojoTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-20T15:46:34Z",
+      "side": 1,
+      "message": "close() should be in finally block",
+      "revId": "c214d96e6b9e523479ec81d7955b1bf6504e9d13",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_d1a96add",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/addMavenDescriptorDefault/feature.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-20T15:46:34Z",
+      "side": 1,
+      "message": "I would remove the plugin if possible and not required for the test scenario",
+      "revId": "c214d96e6b9e523479ec81d7955b1bf6504e9d13",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_5cb3b135",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/addMavenDescriptorSetToTrue/feature.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-11-20T15:46:34Z",
+      "side": 1,
+      "message": "remove plugin if possible and not required for the test scenario",
+      "revId": "c214d96e6b9e523479ec81d7955b1bf6504e9d13",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
