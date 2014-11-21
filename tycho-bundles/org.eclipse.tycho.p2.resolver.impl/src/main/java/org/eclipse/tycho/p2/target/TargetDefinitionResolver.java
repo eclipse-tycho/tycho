@@ -105,7 +105,7 @@ public final class TargetDefinitionResolver {
     }
 
     private void logResolverException(ResolverException e) {
-        logger.error("Cannot resolve target definition file:");
+        logger.error("Cannot resolve target definition:");
         new MultiLineLogger(logger).error(e.getDetails(), "  ");
         logger.error("");
     }

@@ -101,10 +101,9 @@ import org.osgi.framework.Version;
  * Equinox and test harness bundles. The bundles are resolved from the target platform of the
  * project. Note that the test runtime does typically <em>not</em> contain the entire target
  * platform. If there are implicitly required bundles (e.g. <tt>org.eclipse.equinox.ds</tt> to make
- * declarative services work), they need to be added manually through an explicit
- * <tt>dependencies</tt> configuration.
+ * declarative services work), they need to be added manually through an <tt>extraRequirements</tt>
+ * configuration on the <tt>target-platform-configuration</tt> plugin.
  * </p>
- * 
  */
 @Mojo(name = "test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class TestMojo extends AbstractMojo {
@@ -231,12 +230,36 @@ public class TestMojo extends AbstractMojo {
     private File surefireProperties;
 
     /**
-     * Additional dependencies to be added to the test runtime.
-     * 
-     * The dependencies specified here are &ndash; together with the dependencies specified in the
-     * <tt>MANIFEST.MF</tt> of the project &ndash; resolved against the target platform. The
-     * resulting set of bundles is included in the test runtime. Ignored if {@link #testRuntime} is
+     * Additional dependencies to be added to the test runtime. Ignored if {@link #testRuntime} is
      * <code>p2Installed</code>.
+     * 
+     * Note: This parameter has only limited support for dependencies to artifacts within the
+     * reactor. Therefore it is recommended to specify <tt>extraRequirements</tt> on the
+     * <tt>target-platform-configuration</tt> plugin instead. Example:
+     * 
+     * <pre>
+     * &lt;plugin&gt;
+     *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+     *    &lt;artifactId&gt;target-platform-configuration&lt;/artifactId&gt;
+     *    &lt;version&gt;${tycho-version}&lt;/version&gt;
+     *    &lt;configuration&gt;
+     *       &lt;dependency-resolution&gt;
+     *          &lt;extraRequirements&gt;
+     *             &lt;requirement&gt;
+     *                &lt;type&gt;eclipse-feature&lt;/type&gt;
+     *                &lt;id&gt;example.project.feature&lt;/id&gt;
+     *                &lt;versionRange&gt;0.0.0&lt;/versionRange&gt;
+     *             &lt;/requirement&gt;
+     *          &lt;/extraRequirements&gt;
+     *       &lt;/dependency-resolution&gt;
+     *    &lt;/configuration&gt;
+     * &lt;/plugin&gt;
+     * </pre>
+     * 
+     * The dependencies specified as <tt>extraRequirements</tt> are &ndash; together with the
+     * dependencies specified in the <tt>MANIFEST.MF</tt> of the project &ndash; transitively
+     * resolved against the target platform. The resulting set of bundles is included in the test
+     * runtime.
      */
     @Parameter
     private Dependency[] dependencies;
@@ -460,29 +483,29 @@ public class TestMojo extends AbstractMojo {
      * 
      * <pre>
      * &lt;plugin&gt;
-     *     &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
-     *     &lt;artifactId&gt;tycho-surefire-plugin&lt;/artifactId&gt;
-     *     &lt;version&gt;${tycho-version}&lt;/version&gt;
-     *     &lt;configuration&gt;
-     *         &lt;testRuntime&gt;p2Installed&lt;/testRuntime&gt;
-     *     &lt;/configuration&gt;
+     *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+     *    &lt;artifactId&gt;tycho-surefire-plugin&lt;/artifactId&gt;
+     *    &lt;version&gt;${tycho-version}&lt;/version&gt;
+     *    &lt;configuration&gt;
+     *       &lt;testRuntime&gt;p2Installed&lt;/testRuntime&gt;
+     *    &lt;/configuration&gt;
      * &lt;/plugin&gt;
      * &lt;plugin&gt;
-     *     &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
-     *     &lt;artifactId&gt;target-platform-configuration&lt;/artifactId&gt;
-     *     &lt;version&gt;${tycho-version}&lt;/version&gt;
-     *     &lt;configuration&gt;
-     *         &lt;dependency-resolution&gt;
-     *             &lt;extraRequirements&gt;
-     *                 &lt;!-- product IU under test --&gt;
-     *                 &lt;requirement&gt;
-     *                     &lt;type&gt;p2-installable-unit&lt;/type&gt;
-     *                     &lt;id&gt;example.product.id&lt;/id&gt;
-     *                     &lt;versionRange&gt;0.0.0&lt;/versionRange&gt;
-     *                 &lt;/requirement&gt;
-     *             &lt;/extraRequirements&gt;
-     *         &lt;/dependency-resolution&gt;
-     *     &lt;/configuration&gt;
+     *    &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+     *    &lt;artifactId&gt;target-platform-configuration&lt;/artifactId&gt;
+     *    &lt;version&gt;${tycho-version}&lt;/version&gt;
+     *    &lt;configuration&gt;
+     *       &lt;dependency-resolution&gt;
+     *          &lt;extraRequirements&gt;
+     *             &lt;!-- product IU under test --&gt;
+     *             &lt;requirement&gt;
+     *                &lt;type&gt;p2-installable-unit&lt;/type&gt;
+     *                &lt;id&gt;example.product.id&lt;/id&gt;
+     *                &lt;versionRange&gt;0.0.0&lt;/versionRange&gt;
+     *             &lt;/requirement&gt;
+     *          &lt;/extraRequirements&gt;
+     *       &lt;/dependency-resolution&gt;
+     *    &lt;/configuration&gt;
      * &lt;/plugin&gt;
      * </pre>
      * 
@@ -547,15 +570,15 @@ public class TestMojo extends AbstractMojo {
      * 
      * <pre>
      * &lt;toolchains&gt;
-     *   &lt;toolchain&gt;
-     *      &lt;type&gt;jdk&lt;/type&gt;
-     *      &lt;provides&gt;
+     *    &lt;toolchain&gt;
+     *       &lt;type&gt;jdk&lt;/type&gt;
+     *       &lt;provides&gt;
      *          &lt;id&gt;JavaSE-1.7&lt;/id&gt;
-     *      &lt;/provides&gt;
-     *      &lt;configuration&gt;
-     *         &lt;jdkHome&gt;/path/to/jdk/1.7&lt;/jdkHome&gt;
-     *      &lt;/configuration&gt;
-     *   &lt;/toolchain&gt;
+     *       &lt;/provides&gt;
+     *       &lt;configuration&gt;
+     *          &lt;jdkHome&gt;/path/to/jdk/1.7&lt;/jdkHome&gt;
+     *       &lt;/configuration&gt;
+     *    &lt;/toolchain&gt;
      * &lt;/toolchains&gt;
      * </pre>
      */
@@ -907,8 +930,9 @@ public class TestMojo extends AbstractMojo {
                 throw new MojoExecutionException(
                         "Could not find the default application \"org.eclipse.ui.ide.workbench\" in the test runtime.");
             } else {
-                throw new MojoFailureException("Could not find application \"" + application + "\" in test runtime. "
-                        + "Make sure that the test runtime includes the bundle which defines this application.");
+                throw new MojoFailureException("Could not find application \"" + application
+                        + "\" in the test runtime. Make sure that the test runtime includes the bundle "
+                        + "which defines this application.");
             }
 
         case 254/* RunResult.NO_TESTS */:

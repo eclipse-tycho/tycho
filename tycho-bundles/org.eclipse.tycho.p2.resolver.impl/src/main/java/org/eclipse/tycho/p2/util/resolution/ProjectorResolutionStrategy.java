@@ -79,7 +79,9 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                 seedUnits /* newRoots */, monitor);
         IStatus s = projector.invokeSolver(monitor);
         if (s.getSeverity() == IStatus.ERROR) {
+            // log all transitive requirements which cannot be satisfied; this doesn't print the dependency chain from the seed to the units with missing requirements, so this is less useful than the "explanation" 
             logger.debug(StatusTool.collectProblems(s));
+
             Set<Explanation> explanation = projector.getExplanation(new NullProgressMonitor()); // suppress "Cannot complete the request.  Generating details."
             throw new ResolverException(toString(explanation), newSelectionContext.toString(),
                     StatusTool.findException(s));

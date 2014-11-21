@@ -195,8 +195,7 @@ public class P2ResolverImpl implements P2Resolver {
             logger.error("Cannot resolve project dependencies:");
             new MultiLineLogger(logger).error(e.getDetails(), "  ");
             logger.error("");
-            logger.error("The dependency resolution failed because there are requirements which are neither satisfied by artifacts "
-                    + "from the project's target platform nor by other projects in the reactor.");
+            logger.error("See http://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
             throw new BuildFailureException("Cannot resolve dependencies of " + project.toString(), e);
         }
 
