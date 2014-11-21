@@ -34,6 +34,7 @@ public class ProvisionedEquinoxInstallation implements EquinoxInstallation {
         description = new ProvisionedInstallationDescription(location, bundleReader);
     }
 
+    @Override
     public File getLauncherJar() {
         if (launcherJar != null) {
             return launcherJar;
@@ -42,15 +43,18 @@ public class ProvisionedEquinoxInstallation implements EquinoxInstallation {
         return launcherJar;
     }
 
+    @Override
     public File getLocation() {
         return location;
     }
 
+    @Override
     public File getConfigurationLocation() {
         // TODO should this be configurable?
         return new File(getLocation(), "configuration");
     }
 
+    @Override
     public EquinoxInstallationDescription getInstallationDescription() {
         return description;
     }

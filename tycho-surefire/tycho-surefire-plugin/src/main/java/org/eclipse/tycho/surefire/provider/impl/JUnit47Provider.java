@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.tycho.surefire.provider.impl;
@@ -32,6 +32,7 @@ public class JUnit47Provider extends AbstractJUnitProvider {
 
     private static final Version VERSION = Version.parseVersion("4.7.0");
 
+    @Override
     public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
         if (!isParallelEnabled(surefireProperties)) {
             return false;
@@ -43,14 +44,17 @@ public class JUnit47Provider extends AbstractJUnitProvider {
         return providerProperties.getProperty("parallel") != null;
     }
 
+    @Override
     public String getSurefireProviderClassName() {
         return "org.apache.maven.surefire.junitcore.JUnitCoreProvider";
     }
 
+    @Override
     public Version getVersion() {
         return VERSION;
     }
 
+    @Override
     public List<Dependency> getRequiredBundles() {
         return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit47"));
     }

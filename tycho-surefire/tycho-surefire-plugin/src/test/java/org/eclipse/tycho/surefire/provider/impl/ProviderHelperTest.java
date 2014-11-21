@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.tycho.surefire.provider.impl;
@@ -109,27 +109,28 @@ public class ProviderHelperTest extends PlexusTestCase {
     public void testMultipleProviderTypesFound() throws Exception {
         TestFrameworkProvider anotherProvider = new TestFrameworkProvider() {
 
+            @Override
             public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
                 return true;
             }
 
+            @Override
             public Version getVersion() {
                 return new Version("1.0");
             }
 
+            @Override
             public String getType() {
                 return "another_test_fwk";
             }
 
+            @Override
             public String getSurefireProviderClassName() {
                 return "a.nother.test.framework.Provider";
             }
 
+            @Override
             public List<Dependency> getRequiredBundles() {
-                return emptyList();
-            }
-
-            public List<String> getRequiredBundleSymbolicNames() {
                 return emptyList();
             }
         };

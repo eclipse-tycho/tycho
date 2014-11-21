@@ -30,7 +30,6 @@
 			<plugin>
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-component-metadata</artifactId>
-				<version>${plexusVersion}</version>
 				<executions>
 					<execution>
 						<goals>

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.surefire.provisioning;
 
@@ -68,23 +68,20 @@ public class BundlesPublisher {
             FileUtils.copyFileToDirectory(bundle, pluginsDir);
         }
         log.info("Publishing " + bundles.size() + " bundles to " + targetDirectory);
-        try {
-            launcher.setWorkingDirectory(workingDir);
-            launcher.setApplicationName("org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher");
-            launcher.addArguments("-artifactRepository", targetDirectory.toURL().toString(), //
-                    "-metadataRepository", targetDirectory.toURL().toString(),//
-                    "-compress", //
-                    "-publishArtifacts",//
-                    "-source",//
-                    targetDirectory.toString());
-            int result = launcher.execute(timeoutInSeconds);
-            if (result != 0) {
-                throw new MojoFailureException("P2 publisher return code was " + result);
-            }
-            return targetDirectory.toURI();
-        } catch (IOException ioe) {
-            throw new MojoExecutionException("Unable to execute the publisher", ioe);
+        launcher.setWorkingDirectory(workingDir);
+        launcher.setApplicationName("org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher");
+        launcher.addArguments("-artifactRepository", targetDirectory.toURI().toString(), //
+                "-metadataRepository", targetDirectory.toURI().toString(),//
+                "-compress", //
+                "-publishArtifacts",//
+                "-source",//
+                targetDirectory.toString());
+        int result = launcher.execute(timeoutInSeconds);
+        if (result != 0) {
+            throw new MojoFailureException("P2 publisher return code was " + result);
         }
+        return targetDirectory.toURI();
+
     }
 
 }

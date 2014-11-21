@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - port to surefire 2.10
+ *    SAP SE - port to surefire 2.10
  *    Mickael Istria (Red Hat Inc.) - 386988 Support for provisioned applications
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
@@ -110,11 +110,9 @@ import org.osgi.framework.Version;
 public class TestMojo extends AbstractMojo {
 
     /**
-     * <p>
      * Root directory (<a href=
      * "http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html#osgiinstallarea"
      * >osgi.install.area</a>) of the Equinox runtime used to execute tests.
-     * </p>
      */
     @Parameter(defaultValue = "${project.build.directory}/work")
     private File work;
@@ -139,42 +137,34 @@ public class TestMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * <p>
      * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
      * session on the specified port.
-     * </p>
      */
     @Parameter(property = "debugPort")
     private int debugPort;
 
     /**
-     * <p>
      * List of patterns (separated by commas) used to specify the tests that should be included in
      * testing. When not specified and whent the <code>test</code> parameter is not specified, the
      * default includes will be
      * <code>**&#47;Test*.java   **&#47;*Test.java   **&#47;*TestCase.java</code>
-     * </p>
      */
     @Parameter
     private List<String> includes;
 
     /**
-     * <p>
      * List of patterns (separated by commas) used to specify the tests that should be excluded in
      * testing. When not specified and when the <code>test</code> parameter is not specified, the
      * default excludes will be <code>**&#47;*$*</code> (which excludes all inner classes).
-     * </p>
      */
     @Parameter
     private List<String> excludes;
 
     /**
-     * <p>
      * Specify this parameter if you want to use the test pattern matching notation, Ant pattern
      * matching, to select tests to run. The Ant pattern will be used to create an include pattern
      * formatted like <code>**&#47;${test}.java</code> When used, the <code>includes</code> and
      * <code>excludes</code> patterns parameters are ignored
-     * </p>
      */
     @Parameter(property = "test")
     private String test;
@@ -182,72 +172,57 @@ public class TestMojo extends AbstractMojo {
     /**
      * @deprecated Use skipTests instead.
      */
+    @Deprecated
     @Parameter(property = "maven.test.skipExec")
     private boolean skipExec;
 
     /**
-     * <p>
      * Set this to "true" to skip running tests, but still compile them. Its use is NOT RECOMMENDED,
      * but quite convenient on occasion. Default: <code>false</code>
-     * </p>
      */
     @Parameter(property = "skipTests")
     private Boolean skipTests;
 
     /**
-     * <p>
      * Same as {@link #skipTests}
-     * </p>
      */
     @Parameter(property = "maven.test.skip")
     private Boolean skip;
 
     /**
-     * <p>
      * If set to "false" the test execution will not fail in case there are no tests found.
-     * </p>
      */
     @Parameter(property = "failIfNoTests", defaultValue = "true")
     private boolean failIfNoTests;
 
     /**
-     * <p>
      * Set this to true to ignore a failure during testing. Its use is NOT RECOMMENDED, but quite
      * convenient on occasion.
-     * </p>
      */
     @Parameter(property = "maven.test.failure.ignore", defaultValue = "false")
     private boolean testFailureIgnore;
 
     /**
-     * <p>
      * The directory containing generated test classes of the project being tested.
-     * </p>
      */
     @Parameter(property = "project.build.outputDirectory")
     private File testClassesDirectory;
 
     /**
-     * <p>
      * Enables -debug -consolelog for the test OSGi runtime
-     * </p>
      */
     @Parameter(property = "tycho.showEclipseLog", defaultValue = "false")
     private boolean showEclipseLog;
 
     /**
-     * <p>
      * Set this to "true" to redirect the unit test standard output to a file (found in
      * reportsDirectory/testName-output.txt).
-     * </p>
      */
     @Parameter(property = "maven.test.redirectTestOutputToFile", defaultValue = "false")
     private boolean redirectTestOutputToFile;
 
     /**
-     * <p>
      * Base directory where all reports are written to.
-     * </p>
      */
     @Parameter(defaultValue = "${project.build.directory}/surefire-reports")
     private File reportsDirectory;
@@ -256,33 +231,26 @@ public class TestMojo extends AbstractMojo {
     private File surefireProperties;
 
     /**
-     * <p>
      * Additional dependencies to be added to the test runtime.
-     * </p>
-     * <p>
+     * 
      * The dependencies specified here are &ndash; together with the dependencies specified in the
      * <tt>MANIFEST.MF</tt> of the project &ndash; resolved against the target platform. The
      * resulting set of bundles is included in the test runtime. Ignored if {@link #testRuntime} is
      * <code>p2Installed</code>.
-     * </p>
      */
     @Parameter
     private Dependency[] dependencies;
 
     /**
-     * <p>
      * Eclipse application to be run. If not specified, default application
      * org.eclipse.ui.ide.workbench will be used. Application runnable will be invoked from test
      * harness, not directly from Eclipse.
-     * </p>
      */
     @Parameter
     private String application;
 
     /**
-     * <p>
      * Eclipse product to be run, i.e. -product parameter passed to test Eclipse runtime.
-     * </p>
      */
     @Parameter
     private String product;
@@ -291,17 +259,13 @@ public class TestMojo extends AbstractMojo {
     private MavenSession session;
 
     /**
-     * <p>
      * Run tests using UI (true) or headless (false) test harness.
-     * </p>
      */
     @Parameter(defaultValue = "false")
     private boolean useUIHarness;
 
     /**
-     * <p>
      * Run tests in UI (true) or background (false) thread. Only applies to UI test harness.
-     * </p>
      */
     @Parameter(defaultValue = "true")
     private boolean useUIThread;
@@ -310,93 +274,71 @@ public class TestMojo extends AbstractMojo {
     private List<Artifact> pluginArtifacts;
 
     /**
-     * <p>
      * Arbitrary JVM options to set on the command line.
-     * </p>
      */
     @Parameter(property = "tycho.testArgLine")
     private String argLine;
 
     /**
-     * <p>
      * Arbitrary applications arguments to set on the command line.
-     * </p>
      */
     @Parameter
     private String appArgLine;
 
     /**
-     * <p>
      * Kill the forked test process after a certain number of seconds. If set to 0, wait forever for
      * the process, never timing out.
-     * </p>
      */
     @Parameter(property = "surefire.timeout")
     private int forkedProcessTimeoutInSeconds;
 
     /**
-     * <p>
      * Bundle-SymbolicName of the test suite, a special bundle that knows how to locate and execute
      * all relevant tests.
-     * </p>
      * 
-     * <p>
      * testSuite and testClass identify single test class to run. All other tests will be ignored if
      * both testSuite and testClass are provided. It is an error if provide one of the two
      * parameters but not the other.
-     * </p>
      */
     @Parameter(property = "testSuite")
     private String testSuite;
 
     /**
-     * <p>
      * See testSuite
-     * </p>
      */
     @Parameter(property = "testClass")
     private String testClass;
 
     /**
-     * <p>
      * Additional environments to set for the forked test JVM.
-     * </p>
      */
     @Parameter
     private Map<String, String> environmentVariables;
 
     /**
-     * <p>
      * Additional system properties to set for the forked test JVM.
-     * </p>
      */
     @Parameter
     private Map<String, String> systemProperties;
 
     /**
-     * <p>
      * List of bundles that must be expanded in order to execute the tests. Ignored if
      * {@link #testRuntime} is <code>p2Installed</code>.
-     * </p>
      */
     @Parameter
     private String[] explodedBundles;
 
     /**
-     * <p>
      * List of framework extension bundles to add. Note: The goal does not automatically detect
      * which bundles in the test runtime are framework extensions, but they have to be explicitly
      * specified using this parameter. Ignored if {@link #testRuntime} is <code>p2Installed</code>.
-     * </p>
      */
     @Parameter
     private Dependency[] frameworkExtensions;
 
     /**
-     * <p>
      * Bundle start level and auto start configuration used by the test runtime. Ignored if
      * {@link #testRuntime} is <code>p2Installed</code>.
-     * </p>
      */
     @Parameter
     private BundleStartLevel[] bundleStartLevel;
@@ -426,14 +368,12 @@ public class TestMojo extends AbstractMojo {
     private OsgiBundleProject osgiBundle;
 
     /**
-     * <p>
      * Normally tycho will automatically determine the test framework provider based on the test
      * project's classpath. Use this to force using a test framework provider implementation with
      * the given role hint. Tycho comes with providers
      * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;. Note that when specifying a
      * providerHint, you have to make sure the provider is actually available in the dependencies of
      * tycho-surefire-plugin.
-     * </p>
      * 
      * @since 0.16.0
      */
@@ -441,11 +381,9 @@ public class TestMojo extends AbstractMojo {
     private String providerHint;
 
     /**
-     * <p>
      * Defines the order the tests will be run in. Supported values are "alphabetical",
      * "reversealphabetical", "random", "hourly" (alphabetical on even hours, reverse alphabetical
      * on odd hours) and "filesystem".
-     * </p>
      * 
      * @since 0.19.0
      */
@@ -453,10 +391,8 @@ public class TestMojo extends AbstractMojo {
     private String runOrder;
 
     /**
-     * <p>
      * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads,
      * as controlled by threadCount.
-     * </p>
      * 
      * @since 0.16.0
      */
@@ -464,9 +400,7 @@ public class TestMojo extends AbstractMojo {
     private ParallelMode parallel;
 
     /**
-     * <p>
      * (JUnit 4.7 provider) Indicates that threadCount is per cpu core.
-     * </p>
      * 
      * @since 0.16.0
      */
@@ -474,11 +408,9 @@ public class TestMojo extends AbstractMojo {
     private boolean perCoreThreadCount;
 
     /**
-     * <p>
      * (JUnit 4.7 provider) The attribute thread-count allows you to specify how many threads should
      * be allocated for this execution. Only makes sense to use in conjunction with the parallel
      * parameter.
-     * </p>
      * 
      * @since 0.16.0
      */
@@ -486,11 +418,9 @@ public class TestMojo extends AbstractMojo {
     private int threadCount = -1;
 
     /**
-     * <p>
      * (JUnit 4.7 provider) Indicates that the thread pool will be unlimited. The parallel parameter
      * and the actual number of classes/methods will decide. Setting this to "true" effectively
      * disables perCoreThreadCount and threadCount.
-     * </p>
      * 
      * @since 0.16.0
      */
@@ -498,9 +428,7 @@ public class TestMojo extends AbstractMojo {
     private boolean useUnlimitedThreads;
 
     /**
-     * <p>
      * Use this to specify surefire provider-specific properties.
-     * </p>
      * 
      * @since 0.16.0
      */
@@ -508,7 +436,6 @@ public class TestMojo extends AbstractMojo {
     private Properties providerProperties = new Properties();
 
     /**
-     * <p>
      * How to create the OSGi test runtime. Allowed values are <code>default</code> and
      * <code>p2Installed</code>. Mode <code>p2Installed</code> is <b>EXPERIMENTAL</b> - only works
      * when installing products under test (see below).
@@ -555,8 +482,6 @@ public class TestMojo extends AbstractMojo {
      *     &lt;/configuration&gt;
      * &lt;/plugin&gt;
      * </pre>
-     * 
-     * </p>
      * 
      * @since 0.19.0
      */
@@ -607,7 +532,7 @@ public class TestMojo extends AbstractMojo {
      * The value of BREE will be matched against the id of the toolchain elements in toolchains.xml.
      * </li>
      * </ul>
-     * <p>
+     * 
      * Example for BREE: <br>
      * In <code>META-INF/MANIFEST.MF</code>:
      * 
@@ -630,12 +555,11 @@ public class TestMojo extends AbstractMojo {
      *   &lt;/toolchain&gt;
      * &lt;/toolchains&gt;
      * </pre>
-     * 
-     * </p>
      */
     @Parameter(defaultValue = "SYSTEM")
     private JDKUsage useJDK;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (shouldSkip()) {
             getLog().info("Skipping tests");
@@ -756,10 +680,12 @@ public class TestMojo extends AbstractMojo {
         List<ReactorProject> reactorProjects = getReactorProjects();
 
         final DependencyResolverConfiguration resolverConfiguration = new DependencyResolverConfiguration() {
+            @Override
             public OptionalResolutionAction getOptionalResolutionAction() {
                 return OptionalResolutionAction.IGNORE;
             }
 
+            @Override
             public List<Dependency> getExtraRequirements() {
                 return extraDependencies;
             }
@@ -894,7 +820,7 @@ public class TestMojo extends AbstractMojo {
         Properties mergedProviderProperties = getMergedProviderProperties();
         ScanResult scanResult = scanForTests();
         scanResult.writeTo(mergedProviderProperties);
-        for (Map.Entry entry : mergedProviderProperties.entrySet()) {
+        for (Map.Entry<?, ?> entry : mergedProviderProperties.entrySet()) {
             p.put("__provider." + entry.getKey(), entry.getValue());
         }
         p.setProperty("testprovider", provider.getSurefireProviderClassName());
@@ -952,17 +878,6 @@ public class TestMojo extends AbstractMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Can't write test launcher properties file", e);
         }
-    }
-
-    private String getIncludesExcludes(List<String> patterns) {
-        StringBuilder sb = new StringBuilder();
-        for (String pattern : patterns) {
-            if (sb.length() > 0) {
-                sb.append(',');
-            }
-            sb.append(pattern);
-        }
-        return sb.toString();
     }
 
     private void runTest(EquinoxInstallation testRuntime) throws MojoExecutionException, MojoFailureException {
@@ -1093,12 +1008,7 @@ public class TestMojo extends AbstractMojo {
             Properties customProfileProps = eeConfig.getFullSpecification().getProfileProperties();
             File profileFile = new File(new File(project.getBuild().getDirectory()), "custom.profile");
             storeProperties(customProfileProps, profileFile);
-            try {
-                cli.addVMArguments("-D" + EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE + "=" + profileFile.toURL());
-            } catch (MalformedURLException e) {
-                // should not happen
-                throw new RuntimeException(e);
-            }
+            cli.addVMArguments("-D" + EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE + "=" + profileFile.toURI());
         }
     }
 

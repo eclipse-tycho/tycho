@@ -42,12 +42,14 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
         this.bundleReader = bundleReader;
     }
 
+    @Override
     public ArtifactDescriptor getSystemBundle() {
         if (systemBundleDescriptor != null) {
             return systemBundleDescriptor;
         }
         File pluginsDir = new File(location, "plugins");
         File[] systemBundles = pluginsDir.listFiles(new FileFilter() {
+            @Override
             public boolean accept(File file) {
                 return file.isFile() && file.getName().startsWith(EquinoxContainer.NAME + "_");
             }
@@ -69,62 +71,77 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
         return systemBundleDescriptor;
     }
 
+    @Override
     public List<File> getFrameworkExtensions() {
         return Collections.emptyList();
     }
 
+    @Override
     public Set<String> getBundlesToExplode() {
         return Collections.emptySet();
     }
 
+    @Override
     public Map<String, BundleStartLevel> getBundleStartLevel() {
         return Collections.emptyMap();
     }
 
+    @Override
     public Map<String, String> getPlatformProperties() {
         return Collections.emptyMap();
     }
 
+    @Override
     public Map<String, String> getDevEntries() {
         return Collections.emptyMap();
     }
 
+    @Override
     public List<ArtifactDescriptor> getBundles() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ArtifactDescriptor getBundle(String symbolicName, String highestVersion) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addBundle(ArtifactKey key, File basedir) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addBundle(ArtifactKey key, File basedir, boolean override) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addBundle(ArtifactDescriptor artifact) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addFrameworkExtensions(List<File> frameworkExtensions) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addBundlesToExplode(List<String> bundlesToExplode) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addBundleStartLevel(BundleStartLevel level) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addPlatformProperty(String property, String value) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addDevEntries(String id, String entries) {
         throw new UnsupportedOperationException();
     }
