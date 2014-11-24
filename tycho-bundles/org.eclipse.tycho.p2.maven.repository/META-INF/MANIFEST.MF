@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho Maven/p2 Repository Integration (Incubation)
 Bundle-SymbolicName: org.eclipse.tycho.p2.maven.repository;singleton:=true
-Bundle-Version: 0.22.0.qualifier
+Bundle-Version: 0.22.0
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
