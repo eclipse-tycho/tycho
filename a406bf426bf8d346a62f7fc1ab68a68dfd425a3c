@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_72bfb149",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackagePluginMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-11-24T08:33:04Z",
+      "side": 0,
+      "message": "Does removing this not break the ability to set this parameter as a Mojo parameter?",
+      "revId": "a406bf426bf8d346a62f7fc1ab68a68dfd425a3c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
