@@ -16,6 +16,24 @@
       "revId": "a406bf426bf8d346a62f7fc1ab68a68dfd425a3c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_32dd398f",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackagePluginMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2014-11-24T08:50:06Z",
+      "side": 0,
+      "message": "Sorry, that was a copy/pase issue, the tests actually did work without that annotation but sure, it should be there! (See new patchset)",
+      "parentUuid": "a766b734_72bfb149",
+      "revId": "a406bf426bf8d346a62f7fc1ab68a68dfd425a3c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
