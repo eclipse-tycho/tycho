@@ -78,7 +78,7 @@ public class PomDependencyProcessor {
                  */
                 // TODO this should happen in resolution context
                 p2ArtifactsInLocalRepo.addGav(new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact
-                        .getVersion()));
+                        .getBaseVersion()));
 
             } else if (!p2Data.p2MetadataXml.isAvailable() && !p2Data.p2ArtifactsXml.isAvailable()) {
                 /*
