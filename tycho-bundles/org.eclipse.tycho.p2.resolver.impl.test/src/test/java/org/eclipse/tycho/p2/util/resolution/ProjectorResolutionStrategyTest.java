@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.util.resolution;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -30,9 +31,6 @@ import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
@@ -43,69 +41,82 @@ import org.junit.Test;
 @SuppressWarnings("restriction")
 public class ProjectorResolutionStrategyTest {
 
-    private static final class CollectionQueryable implements IQueryable<IInstallableUnit> {
-
-        private final Collection<IInstallableUnit> ius;
-
-        private CollectionQueryable(Collection<IInstallableUnit> ius) {
-            this.ius = ius;
-        }
-
-        public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-            return query.perform(ius.iterator());
-        }
-    }
-
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
+    private IProgressMonitor monitor = new NullProgressMonitor();
 
     private ProjectorResolutionStrategy strategy;
     private ResolutionDataImpl data = new ResolutionDataImpl(ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS);
+
+    private List<IInstallableUnit> selectedIUs;
 
     @Before
     public void setup() {
         strategy = new ProjectorResolutionStrategy(logVerifier.getLogger());
         strategy.setData(data);
         data.setRootIUs(Collections.<IInstallableUnit> emptyList());
+
+        selectedIUs = new ArrayList<IInstallableUnit>();
+    }
+
+    @Test
+    public void testFixSwt() throws Exception {
+        selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "3.103.1.v20140903-1938")); // a Luna version
+        IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
+        final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
+        availableIUs.addAll(selectedIUs);
+        availableIUs.add(swtImplFragment);
+        strategy.fixSWT(availableIUs, selectedIUs, createSelectionContext("linux", "gtk", "x86_64"), monitor);
+        assertThat(selectedIUs.size(), is(2));
+        assertThat(selectedIUs, hasItem(swtImplFragment));
+    }
+
+    @Test
+    public void testFixSwtDisabledForNonBrokenSWTVersion() throws Exception {
+        selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "3.104.0.v20141125-0639")); // SWT bug 361901 is fixed since Mars
+        IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
+        final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
+        availableIUs.addAll(selectedIUs);
+        availableIUs.add(swtImplFragment);
+        // this is a synthetic setup to test that fixSWT doesn't do anything -> it doesn't need to do anything because the selectedIUs would already contain the right fragment
+        strategy.fixSWT(availableIUs, selectedIUs, createSelectionContext("linux", "gtk", "x86_64"), monitor);
+        assertThat(selectedIUs.size(), is(1));
+        assertThat(selectedIUs, not(hasItem(swtImplFragment)));
     }
 
     @Test
     public void testFixSwtWithNLSFragmentPresent() throws Exception {
-        final List<IInstallableUnit> selectedIUs = createSwtHostBundleIUList();
+        selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0"));
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
         IInstallableUnit swtNLSFragment = createSwtFragment("linux", "gtk", "x86_64", "de");
         final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
         availableIUs.addAll(selectedIUs);
         availableIUs.add(swtNLSFragment);
         availableIUs.add(swtImplFragment);
-        strategy.fixSWT(new CollectionQueryable(availableIUs), selectedIUs,
-                createSelectionContext("linux", "gtk", "x86_64"), new NullProgressMonitor());
+        strategy.fixSWT(availableIUs, selectedIUs, createSelectionContext("linux", "gtk", "x86_64"), monitor);
         assertThat(selectedIUs.size(), is(2));
         assertThat(selectedIUs, hasItem(swtImplFragment));
     }
 
     @Test
     public void testFixSwtNoSwtDependency() throws Exception {
-        final List<IInstallableUnit> selectedIUs = new ArrayList<IInstallableUnit>();
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
         final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
         availableIUs.add(swtImplFragment);
-        strategy.fixSWT(new CollectionQueryable(availableIUs), selectedIUs,
-                createSelectionContext("linux", "gtk", "x86_64"), new NullProgressMonitor());
+        strategy.fixSWT(availableIUs, selectedIUs, createSelectionContext("linux", "gtk", "x86_64"), monitor);
         assertThat(selectedIUs.size(), is(0));
     }
 
     @Test
     public void testFixSwtNoImplFound() throws Exception {
-        final List<IInstallableUnit> selectedIUs = createSwtHostBundleIUList();
+        selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0"));
         // fragment does not match selection context
         IInstallableUnit swtImplFragmentWindows = createSwtFragment("win32", "win32", "x86_64", null);
         final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
         availableIUs.addAll(selectedIUs);
         availableIUs.add(swtImplFragmentWindows);
         try {
-            strategy.fixSWT(new CollectionQueryable(availableIUs), selectedIUs,
-                    createSelectionContext("linux", "gtk", "x86_64"), new NullProgressMonitor());
+            strategy.fixSWT(availableIUs, selectedIUs, createSelectionContext("linux", "gtk", "x86_64"), monitor);
             fail();
         } catch (RuntimeException e) {
             // expected
@@ -117,7 +128,7 @@ public class ProjectorResolutionStrategyTest {
     @Test
     public void testFixSwtSwtInRootIUs() throws Exception {
         IInstallableUnit rootIU = InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0");
-        final List<IInstallableUnit> selectedIUs = createSwtHostBundleIUList();
+        selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0"));
         invokefixSwtWithLinuxFragmentPresent(rootIU, selectedIUs);
         assertThat(selectedIUs.size(), is(1));
         assertThat(selectedIUs, hasItem(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0")));
@@ -126,7 +137,7 @@ public class ProjectorResolutionStrategyTest {
     @Test
     public void testFixSwtSwtFragmentInRootIUs() throws Exception {
         IInstallableUnit rootIU = createSwtFragment("linux", "gtk", "x86_64", null);
-        final List<IInstallableUnit> selectedIUs = createSwtHostBundleIUList();
+        selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0"));
         invokefixSwtWithLinuxFragmentPresent(rootIU, selectedIUs);
         assertThat(selectedIUs.size(), is(1));
         assertThat(selectedIUs, hasItem(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0")));
@@ -138,15 +149,7 @@ public class ProjectorResolutionStrategyTest {
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
         availableIUs.addAll(selectedIUs);
         availableIUs.add(swtImplFragment);
-        strategy.fixSWT(new CollectionQueryable(availableIUs), selectedIUs,
-                createSelectionContext("linux", "gtk", "x86_64"), new NullProgressMonitor());
-    }
-
-    private List<IInstallableUnit> createSwtHostBundleIUList() {
-        final List<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
-        IInstallableUnit swtHost = InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0");
-        ius.add(swtHost);
-        return ius;
+        strategy.fixSWT(availableIUs, selectedIUs, createSelectionContext("linux", "gtk", "x86_64"), monitor);
     }
 
     private IInstallableUnit createSwtFragment(String os, String ws, String arch, String nls) {

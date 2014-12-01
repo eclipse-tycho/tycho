@@ -32,6 +32,7 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -91,7 +92,7 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
         // remove fake IUs from resolved state
         newState.removeAll(data.getEEResolutionHints().getTemporaryAdditions());
 
-        fixSWT(new QueryableCollection(data.getAvailableIUs()), newState, newSelectionContext, monitor);
+        fixSWT(data.getAvailableIUs(), newState, newSelectionContext, monitor);
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Resolved IUs:\n" + ResolverDebugUtils.toDebugString(newState, false));
@@ -115,17 +116,14 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
      * There is no dependency from the host to the fragments, so we need to add the matching SWT
      * fragment manually.
      */
-    void fixSWT(IQueryable<IInstallableUnit> availableIUs, Collection<IInstallableUnit> ius,
+    void fixSWT(Collection<IInstallableUnit> availableIUs, Collection<IInstallableUnit> resolutionResult,
             Map<String, String> newSelectionContext, IProgressMonitor monitor) {
-        boolean swt = false;
-        for (IInstallableUnit iu : ius) {
-            if ("org.eclipse.swt".equals(iu.getId())) {
-                swt = true;
-                break;
-            }
-        }
+        IInstallableUnit swtHost = findSWTHostIU(resolutionResult);
 
-        if (!swt) {
+        if (swtHost == null) {
+            return;
+        } else if (swtHost.getVersion().compareTo(Version.createOSGi(3, 104, 0)) >= 0) {
+            // bug 361901 was fixed in Mars
             return;
         }
 
@@ -143,8 +141,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
         IInstallableUnit swtFragment = null;
 
-        all_ius: for (Iterator<IInstallableUnit> iter = availableIUs.query(QueryUtil.ALL_UNITS, monitor).iterator(); iter
-                .hasNext();) {
+        all_ius: for (Iterator<IInstallableUnit> iter = new QueryableCollection(availableIUs).query(
+                QueryUtil.ALL_UNITS, monitor).iterator(); iter.hasNext();) {
             IInstallableUnit iu = iter.next();
             if (iu.getId().startsWith("org.eclipse.swt") && isApplicable(newSelectionContext, iu.getFilter())
                     && providesJavaPackages(iu)) {
@@ -164,7 +162,16 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
                     + newSelectionContext);
         }
 
-        ius.add(swtFragment);
+        resolutionResult.add(swtFragment);
+    }
+
+    private IInstallableUnit findSWTHostIU(Collection<IInstallableUnit> ius) {
+        for (IInstallableUnit iu : ius) {
+            if ("org.eclipse.swt".equals(iu.getId())) {
+                return iu;
+            }
+        }
+        return null;
     }
 
     private boolean providesJavaPackages(IInstallableUnit iu) {

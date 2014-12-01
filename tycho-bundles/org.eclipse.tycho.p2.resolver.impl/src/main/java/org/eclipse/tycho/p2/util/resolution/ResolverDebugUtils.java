@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 
-@SuppressWarnings("restriction")
 class ResolverDebugUtils {
     public static String toDebugString(IQueryable<IInstallableUnit> ius, boolean verbose, IProgressMonitor monitor) {
         IQueryResult<IInstallableUnit> collector = ius.query(QueryUtil.ALL_UNITS, monitor);

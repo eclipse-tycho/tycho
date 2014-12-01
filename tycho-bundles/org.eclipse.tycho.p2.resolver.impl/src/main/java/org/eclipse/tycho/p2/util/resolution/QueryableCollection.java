@@ -37,10 +37,12 @@ public class QueryableCollection extends IndexProvider<IInstallableUnit> {
         dataSet = new ArrayList<IInstallableUnit>(ius);
     }
 
+    @Override
     public Iterator<IInstallableUnit> everything() {
         return dataSet.iterator();
     }
 
+    @Override
     public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
         if (InstallableUnit.MEMBER_PROVIDED_CAPABILITIES.equals(memberName)) {
             if (capabilityIndex == null)
@@ -55,6 +57,7 @@ public class QueryableCollection extends IndexProvider<IInstallableUnit> {
         return null;
     }
 
+    @Override
     public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
         if (!(client instanceof IInstallableUnit))
             return null;
