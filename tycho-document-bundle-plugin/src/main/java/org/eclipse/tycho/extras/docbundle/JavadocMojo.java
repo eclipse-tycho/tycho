@@ -102,6 +102,12 @@ public class JavadocMojo extends AbstractMojo {
     private TocOptions tocOptions = new TocOptions();
 
     /**
+     * Set this property to true to skip the generation of the Eclipse TOC files.
+     */
+    @Parameter(property = "skipTocGen", defaultValue = "false")
+    private boolean skipTocGen = false;
+
+    /**
      * The output location of the toc file.<br/>
      * This file will be overwritten.
      */
@@ -182,7 +188,9 @@ public class JavadocMojo extends AbstractMojo {
 
         try {
             runner.run();
-            tocWriter.writeTo(this.tocFile);
+            if (!skipTocGen) {
+                tocWriter.writeTo(this.tocFile);
+            }
         } catch (final Exception e) {
             throw new MojoExecutionException("Failed to run javadoc", e);
         }
