@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a766b734_062ee6c8",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2014-12-03T08:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a766b734_bbcaabb0",
+      "revId": "1201e8d082babcd2068c95119b50b540fffab1e6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a766b734_fb97039c",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2014-12-03T08:30:46Z",
       "side": 1,
       "message": "Remove whitespace",
+      "revId": "1201e8d082babcd2068c95119b50b540fffab1e6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_e6300a22",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2014-12-03T08:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a766b734_fb97039c",
       "revId": "1201e8d082babcd2068c95119b50b540fffab1e6",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
