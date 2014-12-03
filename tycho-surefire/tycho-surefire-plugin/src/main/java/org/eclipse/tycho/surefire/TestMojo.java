@@ -319,18 +319,12 @@ public class TestMojo extends AbstractMojo {
     private int forkedProcessTimeoutInSeconds;
 
     /**
-     * Bundle-SymbolicName of the test suite, a special bundle that knows how to locate and execute
-     * all relevant tests.
-     * 
-     * testSuite and testClass identify single test class to run. All other tests will be ignored if
-     * both testSuite and testClass are provided. It is an error if provide one of the two
-     * parameters but not the other.
-     */
-    @Parameter(property = "testSuite")
-    private String testSuite;
-
-    /**
-     * See testSuite
+     * Identifies a single test (suite) class to run. This is useful if you have a single JUnit test
+     * suite class defining which tests should be executed. Will be ignored if {@link #test} is
+     * specified. Example:
+     * <pre>
+     * &lt;testClass&gt;foo.bar.FooTest&lt;/testClass&gt;
+     * </pre>
      */
     @Parameter(property = "testClass")
     private String testClass;
@@ -597,23 +591,6 @@ public class TestMojo extends AbstractMojo {
             return;
         }
 
-        if (testSuite != null || testClass != null) {
-            if (testSuite == null || testClass == null) {
-                throw new MojoExecutionException("Both testSuite and testClass must be provided or both should be null");
-            }
-
-            MavenProject suite = getTestSuite(testSuite);
-
-            if (suite == null) {
-                throw new MojoExecutionException("Cannot find test suite project with Bundle-SymbolicName " + testSuite);
-            }
-
-            if (!suite.equals(project)) {
-                getLog().info("Not executing tests, testSuite=" + testSuite + " and project is not the testSuite");
-                return;
-            }
-        }
-
         EquinoxInstallation equinoxTestRuntime;
         if ("p2Installed".equals(testRuntime)) {
             equinoxTestRuntime = createProvisionedInstallation();
@@ -870,7 +847,7 @@ public class TestMojo extends AbstractMojo {
         return result;
     }
 
-    private ScanResult scanForTests() {
+    protected ScanResult scanForTests() {
         List<String> defaultIncludes = Arrays.asList("**/Test*.class", "**/*Test.class", "**/*TestCase.class");
         List<String> defaultExcludes = Arrays.asList("**/*$*");
         List<String> includeList;
