@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_f6b7151f",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-12-04T10:26:34Z",
+      "side": 0,
+      "message": "getTestSuite() is now unused and should be removed too",
+      "revId": "2e6145f496ee9805e8292e5195709ec42683d32b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
