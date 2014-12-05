@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a766b734_e7176176",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/pomGenerator/testSuite/TYCHO45Test.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2014-12-05T07:40:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a766b734_560d2975",
+      "revId": "7f660f6d51bb79be0bcf518f78249219277fc1e6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a766b734_b6e0fd04",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2014-12-04T10:26:34Z",
       "side": 1,
       "message": "not sure if  \"All other tests will be skipped\" is helpful (this is the old behaviour that TYCHO45 was testing, i.e. tests in other test modules will be skipped and the build will not fail on no matching tests. This is not true anymore and we need -DfailIfNoTests\u003dfalse now to skip test modules without matching tests).\n\nI\u0027d rather add something like \n\n\"This is useful if you have a single JUnit test suite class defining which tests should be executed.\"",
+      "revId": "7f660f6d51bb79be0bcf518f78249219277fc1e6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a766b734_c7122586",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2014-12-05T07:40:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a766b734_b6e0fd04",
       "revId": "7f660f6d51bb79be0bcf518f78249219277fc1e6",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
