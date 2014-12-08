@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
@@ -39,6 +39,7 @@ public class LogVerifier extends Verifier {
         final StringBuilder warnings = new StringBuilder();
         final StringBuilder infos = new StringBuilder();
 
+        @Override
         public void error(String message) {
             errors.append(message);
             errors.append('\n');
@@ -48,6 +49,7 @@ public class LogVerifier extends Verifier {
             }
         }
 
+        @Override
         public void warn(String message) {
             warnings.append(message);
             warnings.append('\n');
@@ -57,10 +59,12 @@ public class LogVerifier extends Verifier {
             }
         }
 
+        @Override
         public void warn(String message, Throwable cause) {
             warn(message);
         }
 
+        @Override
         public void info(String message) {
             infos.append(message);
             infos.append('\n');
@@ -70,16 +74,19 @@ public class LogVerifier extends Verifier {
             }
         }
 
+        @Override
         public void debug(String message) {
             if (WRITE_TO_CONSOLE) {
                 System.out.println("[DEBUG] " + message);
             }
         }
 
+        @Override
         public boolean isDebugEnabled() {
             return true;
         }
 
+        @Override
         public boolean isExtendedDebugEnabled() {
             // run through message preparation code in tests
             return true;

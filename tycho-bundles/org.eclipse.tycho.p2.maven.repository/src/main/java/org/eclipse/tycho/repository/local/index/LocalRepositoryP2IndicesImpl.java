@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.tycho.repository.local.index;
@@ -58,16 +58,19 @@ public class LocalRepositoryP2IndicesImpl implements LocalRepositoryP2Indices {
         initialized = true;
     }
 
+    @Override
     public TychoRepositoryIndex getArtifactsIndex() {
         checkInitialized();
         return artifactsIndex;
     }
 
+    @Override
     public TychoRepositoryIndex getMetadataIndex() {
         checkInitialized();
         return metadataIndex;
     }
 
+    @Override
     public File getBasedir() {
         return localRepositoryRoot;
     }

@@ -7,8 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - split target platform computation and dependency resolution
- *    SAP AG - create immutable target platform instances
+ *    SAP SE - split target platform computation and dependency resolution
+ *    SAP SE - create immutable target platform instances
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -77,6 +77,7 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
         return allius;
     }
 
+    @Override
     public void reportUsedLocalIUs(Collection<IInstallableUnit> usedUnits) {
         if (!includeLocalRepo) {
             return;

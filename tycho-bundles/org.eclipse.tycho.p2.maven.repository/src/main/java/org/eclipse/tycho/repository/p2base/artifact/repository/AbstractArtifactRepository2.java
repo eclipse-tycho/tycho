@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -241,6 +241,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
             this.artifactOutputStream = artifactSink.beginWrite();
         }
 
+        @Override
         public void setStatus(IStatus status) {
             if (status == null) {
                 throw new NullPointerException();
@@ -248,6 +249,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
             externallySetStatus = status;
         }
 
+        @Override
         public IStatus getStatus() {
             return externallySetStatus;
         }
@@ -322,6 +324,7 @@ public abstract class AbstractArtifactRepository2 extends AbstractArtifactReposi
      *             instead.
      */
     // TODO make final?
+    @Override
     @Deprecated
     public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
         try {

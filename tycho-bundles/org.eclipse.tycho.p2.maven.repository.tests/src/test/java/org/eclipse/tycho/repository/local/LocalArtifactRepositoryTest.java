@@ -214,13 +214,16 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
     public void testGetArtifactsErrorRequest() {
         LocalArtifactRepository repo = new LocalArtifactRepository(localRepoIndices);
         IArtifactRequest errorRequest = new IArtifactRequest() {
+            @Override
             public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
             }
 
+            @Override
             public IStatus getResult() {
                 return new Status(IStatus.ERROR, "test-bundle", "Error");
             }
 
+            @Override
             public IArtifactKey getArtifactKey() {
                 return null;
             }

@@ -203,6 +203,7 @@ public class TargetDefinitionResolverTest {
     static <T> Matcher<Collection<T>> bagEquals(final Collection<T> collection) {
         return new TypeSafeMatcher<Collection<T>>() {
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("collection containing exactly " + collection);
             }
@@ -243,14 +244,17 @@ public class TargetDefinitionResolverTest {
             this.hasBundleSelectionList = hasBundleSelectionList;
         }
 
+        @Override
         public List<Location> getLocations() {
             return locations;
         }
 
+        @Override
         public boolean hasIncludedBundles() {
             return hasBundleSelectionList;
         }
 
+        @Override
         public String getOrigin() {
             return "test stub";
         }
@@ -274,6 +278,7 @@ public class TargetDefinitionResolverTest {
             this(TestRepositories.V1, seedUnits);
         }
 
+        @Override
         public List<? extends Repository> getRepositories() {
             switch (repositories) {
             case V1:
@@ -296,6 +301,7 @@ public class TargetDefinitionResolverTest {
             throw new RuntimeException();
         }
 
+        @Override
         public List<? extends Unit> getUnits() {
             List<UnitStub> result = new ArrayList<UnitStub>();
             for (IVersionedId seedUnit : seedUnits) {
@@ -304,25 +310,30 @@ public class TargetDefinitionResolverTest {
             return result;
         }
 
+        @Override
         public String getTypeDescription() {
             return null;
         }
 
+        @Override
         public IncludeMode getIncludeMode() {
             // the tests in this class work with either
             return IncludeMode.SLICER;
         }
 
+        @Override
         public boolean includeAllEnvironments() {
             return false;
         }
 
+        @Override
         public boolean includeSource() {
             return false;
         }
     }
 
     private static class OtherLocationStub implements Location {
+        @Override
         public String getTypeDescription() {
             return "Directory";
         }
@@ -342,6 +353,7 @@ public class TargetDefinitionResolverTest {
             this("targetresolver/", repository);
         }
 
+        @Override
         public URI getLocation() {
             try {
                 if (repository != null) {
@@ -354,6 +366,7 @@ public class TargetDefinitionResolverTest {
             }
         }
 
+        @Override
         public String getId() {
             return null;
         }
@@ -368,10 +381,12 @@ public class TargetDefinitionResolverTest {
             this.unitReference = targetFeature;
         }
 
+        @Override
         public String getId() {
             return unitReference.getId();
         }
 
+        @Override
         public String getVersion() {
             if (unitReference.getVersion() == INVALID_VERSION_MARKER) {
                 return "abc";

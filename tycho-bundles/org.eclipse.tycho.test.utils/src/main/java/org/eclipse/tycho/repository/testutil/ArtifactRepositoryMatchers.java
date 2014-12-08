@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP AG and others.
+ * Copyright (c) 2011, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.testutil;
 
@@ -25,6 +25,7 @@ public class ArtifactRepositoryMatchers {
     public static Matcher<IArtifactProvider> contains(final IArtifactKey artifactKey) {
         return new TypeSafeMatcher<IArtifactProvider>() {
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("artifact repository with entry " + keyToString(artifactKey));
             }

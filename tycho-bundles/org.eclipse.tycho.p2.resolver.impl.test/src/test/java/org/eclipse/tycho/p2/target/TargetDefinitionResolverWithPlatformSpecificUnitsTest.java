@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -170,26 +170,32 @@ public class TargetDefinitionResolverWithPlatformSpecificUnitsTest {
             this.includeAllEnvironments = includeAllEnvironments;
         }
 
+        @Override
         public List<? extends Repository> getRepositories() {
             return Collections.singletonList(new RepositoryStub("with-filters"));
         }
 
+        @Override
         public List<? extends Unit> getUnits() {
             return Collections.singletonList(new UnitStub(LAUNCHER_FEATURE));
         }
 
+        @Override
         public String getTypeDescription() {
             return null;
         }
 
+        @Override
         public IncludeMode getIncludeMode() {
             return includeMode;
         }
 
+        @Override
         public boolean includeAllEnvironments() {
             return includeAllEnvironments;
         }
 
+        @Override
         public boolean includeSource() {
             return false;
         }

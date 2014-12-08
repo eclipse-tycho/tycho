@@ -80,6 +80,7 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
         }
     }
 
+    @Override
     public void save() throws IOException {
         File parentDir = indexFile.getParentFile();
         if (!parentDir.isDirectory()) {

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.testing;
 
@@ -33,10 +33,12 @@ import org.apache.maven.project.MavenProject;
 
 public class EmptyLifecycleExecutor implements LifecycleExecutor {
 
+    @Override
     public Set<Plugin> getPluginsBoundByDefaultToAllLifecycles(String packaging) {
         return null;
     }
 
+    @Override
     public MavenExecutionPlan calculateExecutionPlan(MavenSession session, String... tasks)
             throws PluginNotFoundException, PluginResolutionException, PluginDescriptorParsingException,
             MojoNotFoundException, NoPluginFoundForPrefixException, InvalidPluginDescriptorException,
@@ -45,15 +47,18 @@ public class EmptyLifecycleExecutor implements LifecycleExecutor {
         return null;
     }
 
+    @Override
     public void execute(MavenSession session) {
     }
 
+    @Override
     public void calculateForkedExecutions(MojoExecution mojoExecution, MavenSession session)
             throws MojoNotFoundException, PluginNotFoundException, PluginResolutionException,
             PluginDescriptorParsingException, NoPluginFoundForPrefixException, InvalidPluginDescriptorException,
             LifecyclePhaseNotFoundException, LifecycleNotFoundException, PluginVersionResolutionException {
     }
 
+    @Override
     public List<MavenProject> executeForkedExecutions(MojoExecution mojoExecution, MavenSession session)
             throws LifecycleExecutionException {
         return null;

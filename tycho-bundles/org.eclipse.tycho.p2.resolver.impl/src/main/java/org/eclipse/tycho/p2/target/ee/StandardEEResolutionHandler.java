@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.ee;
 

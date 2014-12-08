@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - Moved tests to a separate class; refactorings
+ *    SAP SE - Moved tests to a separate class; refactorings
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 

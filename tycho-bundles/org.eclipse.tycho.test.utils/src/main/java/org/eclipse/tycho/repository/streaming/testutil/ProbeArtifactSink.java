@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.streaming.testutil;
 
@@ -44,14 +44,17 @@ public class ProbeArtifactSink implements IArtifactSink {
         this.artifactKey = artifactKey;
     }
 
+    @Override
     public IArtifactKey getArtifactToBeWritten() {
         return artifactKey;
     }
 
+    @Override
     public boolean canBeginWrite() {
         return !committed;
     }
 
+    @Override
     public OutputStream beginWrite() {
         if (committed) {
             fail("Can not call beginWrite() after commitWrite()");
@@ -65,6 +68,7 @@ public class ProbeArtifactSink implements IArtifactSink {
         return sink != null;
     }
 
+    @Override
     public void abortWrite() {
         if (!writeIsStarted()) {
             throw new AssertionError("Should not call abortWrite() if beginWrite() wasn't called");
@@ -80,6 +84,7 @@ public class ProbeArtifactSink implements IArtifactSink {
         return aborted;
     }
 
+    @Override
     public void commitWrite() {
         if (!writeIsStarted()) {
             throw new AssertionError("Should not call abortWrite() if beginWrite() wasn't called");

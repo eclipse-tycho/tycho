@@ -21,6 +21,7 @@ public class Activator implements BundleActivator {
 
     private static IProvisioningAgent agent;
 
+    @Override
     public void start(BundleContext context) throws Exception {
         Activator.context = context;
 
@@ -32,6 +33,7 @@ public class Activator implements BundleActivator {
         context.ungetService(providerRef);
     }
 
+    @Override
     public void stop(BundleContext context) throws Exception {
         Activator.context = null;
     }

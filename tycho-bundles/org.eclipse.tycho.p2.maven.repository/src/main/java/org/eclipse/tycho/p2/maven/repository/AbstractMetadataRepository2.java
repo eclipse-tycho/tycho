@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.maven.repository;
 
@@ -21,13 +21,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.p2.core.IPool;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 
@@ -48,7 +48,7 @@ public abstract class AbstractMetadataRepository2 extends AbstractRepository<IIn
      *            the name of the repository
      * @param type
      *            the repository type as in
-     *            {@link MetadataRepositoryManager#createRepository(URI, String, String, java.util.Map)}
+     *            {@link IMetadataRepositoryManager#createRepository(URI, String, String, java.util.Map)}
      * @param location
      *            the physical location of the repository
      */
@@ -56,15 +56,18 @@ public abstract class AbstractMetadataRepository2 extends AbstractRepository<IIn
         super(agent, name, type, "1.0.0", location.toURI(), null, null, null);
     }
 
+    @Override
     public void addReferences(Collection<? extends IRepositoryReference> references) {
         // not supported
     }
 
+    @Override
     public Collection<IRepositoryReference> getReferences() {
         // not supported
         return Collections.emptyList();
     }
 
+    @Override
     public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
         try {
             // TODO do we need better support for batch operations?
@@ -77,6 +80,7 @@ public abstract class AbstractMetadataRepository2 extends AbstractRepository<IIn
         return Status.OK_STATUS;
     }
 
+    @Override
     public void compress(IPool<IInstallableUnit> iuPool) {
         // do nothing
     }

@@ -58,6 +58,7 @@ public class P2RepositoryTool {
 
     public File findFeatureArtifact(final String featureId) {
         File[] matchingFeatures = new File(repoLocation, "features").listFiles(new FilenameFilter() {
+            @Override
             public boolean accept(File dir, String name) {
                 return name.startsWith(featureId + "_");
             }

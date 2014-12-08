@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - apply DRY principle
+ *    SAP SE - apply DRY principle
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 

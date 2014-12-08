@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -33,6 +33,7 @@ public class FileRepositoryArtifactProvider extends RepositoryArtifactProvider i
         super(artifactRepositories, transferPolicy, agent);
     }
 
+    @Override
     public File getArtifactFile(IArtifactKey key) {
         for (IArtifactRepository repository : repositories) {
             if (repository.contains(key)) {
@@ -42,6 +43,7 @@ public class FileRepositoryArtifactProvider extends RepositoryArtifactProvider i
         return null;
     }
 
+    @Override
     public File getArtifactFile(IArtifactDescriptor descriptor) {
         for (IArtifactRepository repository : repositories) {
             if (repository.contains(descriptor)) {

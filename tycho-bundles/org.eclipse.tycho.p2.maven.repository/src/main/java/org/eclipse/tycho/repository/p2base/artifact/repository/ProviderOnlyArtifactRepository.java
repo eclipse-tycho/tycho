@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -51,14 +51,17 @@ public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2 
         return delegate.contains(key);
     }
 
+    @Override
     public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
         return delegate.query(query, monitor);
     }
 
+    @Override
     public File getArtifactFile(IArtifactKey key) {
         return delegate.getArtifactFile(key);
     }
 
+    @Override
     public IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
         return delegate.getArtifact(sink, monitor);
     }
@@ -75,15 +78,18 @@ public class ProviderOnlyArtifactRepository extends AbstractArtifactRepository2 
         return delegate.contains(descriptor);
     }
 
+    @Override
     public File getArtifactFile(IArtifactDescriptor descriptor) {
         return delegate.getArtifactFile(descriptor);
     }
 
+    @Override
     public IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
         return delegate.getRawArtifact(sink, monitor);
     }
 
     // TODO don't throw this here but in MirroringArtifactProvider?
+    @Override
     public IQueryable<IArtifactDescriptor> descriptorQueryable() {
         /*
          * Delegating this method would break the MirroringArtifactProvider: In order to determine

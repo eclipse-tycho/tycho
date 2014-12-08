@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote.testutil;
 
@@ -24,6 +24,7 @@ public class MavenRepositorySettingsStub implements MavenRepositorySettings {
         idToMirrorMap.put(repositoryId, mirroredUrl);
     }
 
+    @Override
     public MavenRepositoryLocation getMirror(MavenRepositoryLocation repository) {
         if (idToMirrorMap.containsKey(repository.getId())) {
             return new MavenRepositoryLocation("mirror-id", idToMirrorMap.get(repository.getId()));
@@ -31,6 +32,7 @@ public class MavenRepositorySettingsStub implements MavenRepositorySettings {
         return null;
     }
 
+    @Override
     public Credentials getCredentials(MavenRepositoryLocation location) {
         return null;
     }

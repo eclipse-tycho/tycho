@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.ee;
 
@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
+@SuppressWarnings("restriction")
 public final class CustomEEResolutionHints implements ExecutionEnvironmentResolutionHints {
 
     // primary members
@@ -54,10 +55,12 @@ public final class CustomEEResolutionHints implements ExecutionEnvironmentResolu
         }
     }
 
+    @Override
     public boolean isEESpecificationUnit(IInstallableUnit unit) {
         return unitName.equals(unit.getId()) && unit.getVersion().equals(unitVersion);
     }
 
+    @Override
     public boolean isNonApplicableEEUnit(IInstallableUnit iu) {
         return isJreUnit(iu.getId()) && !isEESpecificationUnit(iu);
     }
@@ -66,14 +69,17 @@ public final class CustomEEResolutionHints implements ExecutionEnvironmentResolu
         return id.startsWith("a.jre") || id.startsWith("config.a.jre");
     }
 
+    @Override
     public Collection<IInstallableUnit> getMandatoryUnits() {
         return Collections.emptyList();
     }
 
+    @Override
     public Collection<IInstallableUnit> getTemporaryAdditions() {
         return Collections.emptyList();
     }
 
+    @Override
     public Collection<IRequirement> getMandatoryRequires() {
         VersionRange strictUnitRange = new VersionRange(unitVersion, true, unitVersion, true);
         return Collections.singleton(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unitName,

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP AG and others.
+ * Copyright (c) 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.test.util;
 
@@ -28,6 +28,7 @@ public class ArchiveContentUtil {
         final HashSet<String> result = new HashSet<String>();
 
         visitEntries(archive, new ZipEntryVisitor() {
+            @Override
             public boolean visitEntry(ZipEntry entry, ZipInputStream stream) {
                 result.add(entry.getName());
                 return true;
@@ -44,6 +45,7 @@ public class ArchiveContentUtil {
         final String[] result = new String[1];
 
         visitEntries(archive, new ZipEntryVisitor() {
+            @Override
             public boolean visitEntry(ZipEntry entry, ZipInputStream stream) throws Exception {
                 if (fileInArchive.equals(entry.getName())) {
                     result[0] = IOUtil.toString(stream);

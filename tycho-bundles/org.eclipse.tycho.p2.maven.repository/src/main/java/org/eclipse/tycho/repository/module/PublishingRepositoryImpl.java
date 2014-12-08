@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.module;
 
@@ -39,32 +39,39 @@ public class PublishingRepositoryImpl implements PublishingRepository {
         this.artifactRepository = loadHelper.getModuleArtifactRepository();
     }
 
+    @Override
     public ReactorProjectIdentities getProjectIdentities() {
         return project;
     }
 
+    @Override
     public IMetadataRepository getMetadataRepository() {
         return metadataRepository;
     }
 
+    @Override
     public Set<Object> getInstallableUnits() {
         Set<Object> result = new HashSet<Object>();
         result.addAll(getMetadataRepository().query(QueryUtil.ALL_UNITS, null).toSet());
         return result;
     }
 
+    @Override
     public IArtifactRepository getArtifactRepository() {
         return artifactRepository;
     }
 
+    @Override
     public IArtifactRepository getArtifactRepositoryForWriting(WriteSessionContext writeSession) {
         return new ModuleArtifactRepositoryDelegate(artifactRepository, writeSession);
     }
 
+    @Override
     public void addArtifactLocation(String classifier, File artifactLocation) throws ProvisionException {
         artifactRepository.getArtifactsMap().add(classifier, artifactLocation);
     }
 
+    @Override
     public Map<String, File> getArtifactLocations() {
         Map<String, File> artifactLocations = artifactRepository.getArtifactsMap().getLocalArtifactLocations();
 

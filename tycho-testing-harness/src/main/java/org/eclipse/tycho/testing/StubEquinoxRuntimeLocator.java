@@ -15,6 +15,7 @@ import org.eclipse.sisu.equinox.embedder.EquinoxRuntimeLocator;
 
 @Component(role = EquinoxRuntimeLocator.class, hint = "stub")
 public class StubEquinoxRuntimeLocator implements EquinoxRuntimeLocator {
+    @Override
     public void locateRuntime(EquinoxRuntimeDescription description) throws Exception {
         throw new UnsupportedOperationException();
     }

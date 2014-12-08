@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.module;
 
@@ -112,6 +112,7 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
         io.writeXML(units, storage);
     }
 
+    @Override
     public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
         return query.perform(units.iterator());
     }
@@ -121,17 +122,20 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
         return true;
     }
 
+    @Override
     public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
         units.addAll(installableUnits);
         storeOrThrowRuntimeException();
     }
 
+    @Override
     public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
         boolean result = units.removeAll(installableUnits);
         storeOrThrowRuntimeException();
         return result;
     }
 
+    @Override
     public void removeAll() {
         units.clear();
         storeOrThrowRuntimeException();

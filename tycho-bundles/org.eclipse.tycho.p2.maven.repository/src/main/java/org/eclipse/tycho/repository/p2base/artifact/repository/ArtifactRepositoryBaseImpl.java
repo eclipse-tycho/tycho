@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -118,15 +118,18 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         return descriptors.toArray(EMPTY_DESCRIPTOR_ARRAY);
     }
 
+    @Override
     public final IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
         // TODO 397355 copy collection for thread-safety
         return query.perform(descriptorsMap.keySet().iterator());
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public final IQueryable<IArtifactDescriptor> descriptorQueryable() {
         // TODO 397355 copy collection for thread-safety
         return new IQueryable<IArtifactDescriptor>() {
+            @Override
             public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
                 return query.perform((Iterator<IArtifactDescriptor>) descriptors.iterator());
             }
@@ -247,6 +250,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
      */
     protected abstract File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor);
 
+    @Override
     public final File getArtifactFile(IArtifactDescriptor descriptor) {
         if (contains(descriptor)) {
             return internalGetArtifactStorageLocation(descriptor);
@@ -254,6 +258,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         return null;
     }
 
+    @Override
     public final File getArtifactFile(IArtifactKey key) {
         Set<ArtifactDescriptorT> descriptors = descriptorsMap.get(key);
 
@@ -297,6 +302,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         return status;
     }
 
+    @Override
     public final IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
         canWriteToSink(sink);
         // method signature allows calls with a IRawArtifactSink -> make sure this is only done if sink requests a raw artifact in canonical format
@@ -350,6 +356,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         }
     }
 
+    @Override
     public final IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
         canWriteToSink(sink);
 
@@ -418,14 +425,17 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             this.newDescriptor = newDescriptor;
         }
 
+        @Override
         public IArtifactKey getArtifactToBeWritten() {
             return newDescriptor.getArtifactKey();
         }
 
+        @Override
         public boolean canBeginWrite() {
             return !committed;
         }
 
+        @Override
         public OutputStream beginWrite() throws IllegalStateException, ArtifactSinkException {
             if (committed) {
                 throw new IllegalStateException(
@@ -447,6 +457,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             return currentOutputStream;
         }
 
+        @Override
         public void commitWrite() throws IllegalStateException, ArtifactSinkException {
             if (currentOutputStream == null) {
                 throw new IllegalStateException("Write operation has not yet been started. Cannot add artifact.");
@@ -463,6 +474,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             internalStore(null);
         }
 
+        @Override
         public void abortWrite() throws ArtifactSinkException {
             if (currentOutputStream == null) {
                 return;
@@ -483,6 +495,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
             super(newDescriptor);
         }
 
+        @Override
         public IArtifactDescriptor getArtifactFormatToBeWritten() {
             return newDescriptor;
         }

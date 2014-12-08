@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -64,23 +64,28 @@ public class ExecutionEnvironmentTestUtils {
 
     private static class NoopEEResolutionHints implements ExecutionEnvironmentResolutionHints {
 
+        @Override
         public boolean isNonApplicableEEUnit(IInstallableUnit iu) {
             // don't remove anything
             return false;
         }
 
+        @Override
         public boolean isEESpecificationUnit(IInstallableUnit unit) {
             return false;
         }
 
+        @Override
         public Collection<IInstallableUnit> getMandatoryUnits() {
             return Collections.emptyList();
         }
 
+        @Override
         public Collection<IInstallableUnit> getTemporaryAdditions() {
             return Collections.emptyList();
         }
 
+        @Override
         public Collection<IRequirement> getMandatoryRequires() {
             return Collections.emptyList();
         }

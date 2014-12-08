@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.module;
 
@@ -37,12 +37,12 @@ public class ModuleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
     public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
         File repositoryDir = RepositoryFactoryTools.asFile(location);
         if (repositoryDir != null) {
-            return load(repositoryDir, flags);
+            return load(repositoryDir);
         }
         return null;
     }
 
-    private IArtifactRepository load(File repositoryDir, int flags) throws ProvisionException {
+    private IArtifactRepository load(File repositoryDir) throws ProvisionException {
         if (ModuleArtifactRepository.canAttemptRead(repositoryDir)) {
             return ModuleArtifactRepository.restoreInstance(getAgent(), repositoryDir);
         }

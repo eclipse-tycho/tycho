@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SAP AG and others.
+ * Copyright (c) 2011, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -73,26 +73,32 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
         this.localArtifactRepository = localArtifactRepository;
     }
 
+    @Override
     public final Set<IInstallableUnit> getInstallableUnits() {
         return installableUnits;
     }
 
+    @Override
     public final ExecutionEnvironmentResolutionHints getEEResolutionHints() {
         return executionEnvironment;
     }
 
+    @Override
     public final Map<IInstallableUnit, ReactorProjectIdentities> getOriginalReactorProjectMap() {
         return reactorProjectLookup;
     }
 
+    @Override
     public final Map<IInstallableUnit, IArtifactFacade> getOriginalMavenArtifactMap() {
         return mavenArtifactLookup;
     }
 
+    @Override
     public final File getLocalArtifactFile(IArtifactKey key) {
         return jointArtifacts.getArtifactFile(key);
     }
 
+    @Override
     public final void saveLocalMavenRepository() {
         localArtifactRepository.save();
     }

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.repository;
 
@@ -97,6 +97,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         }
     }
 
+    @Override
     public boolean contains(IArtifactKey key) {
         init();
         for (IArtifactRepository repository : repositories) {
@@ -106,6 +107,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         return false;
     }
 
+    @Override
     public boolean contains(IArtifactDescriptor descriptor) {
         init();
         for (IArtifactRepository repository : repositories) {
@@ -162,6 +164,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         BooleanStatusArtifactRequest request = new BooleanStatusArtifactRequest(sink.getArtifactToBeWritten()) {
             private final RetryTracker retryTracker = new RetryTracker();
 
+            @Override
             public void perform(IArtifactRepository childRepository, IProgressMonitor monitor) {
                 try {
                     boolean artifactWasRead = getArtifactFromAnyMirror(availableDescriptors, childRepository, sink,
@@ -282,6 +285,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
                 null);
     }
 
+    @Override
     public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
         init();
         return repositoriesAsQueriable().query(query, monitor);
@@ -322,6 +326,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
             this.key = key;
         }
 
+        @Override
         public final IArtifactKey getArtifactKey() {
             return key;
         }
@@ -334,6 +339,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
             return successful;
         }
 
+        @Override
         public IStatus getResult() {
             if (successful) {
                 return Status.OK_STATUS;

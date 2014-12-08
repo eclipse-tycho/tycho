@@ -97,6 +97,7 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
     public void initialize(RepositoryState state) {
     }
 
+    @Override
     public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
         return query.perform(units.iterator());
     }
@@ -108,6 +109,7 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
         return unitsMap;
     }
 
+    @Override
     public Collection<IRepositoryReference> getReferences() {
         return Collections.emptyList();
     }

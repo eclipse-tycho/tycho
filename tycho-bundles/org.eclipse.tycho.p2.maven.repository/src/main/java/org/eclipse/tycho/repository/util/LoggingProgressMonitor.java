@@ -44,31 +44,39 @@ public class LoggingProgressMonitor implements IProgressMonitor {
         return false;
     }
 
+    @Override
     public final void beginTask(String name, int totalWork) {
         writeToLog(name);
     }
 
+    @Override
     public final void done() {
     }
 
+    @Override
     public final void internalWorked(double work) {
     }
 
+    @Override
     public final boolean isCanceled() {
         return false;
     }
 
+    @Override
     public final void setCanceled(boolean value) {
     }
 
+    @Override
     public final void setTaskName(String name) {
         writeToLog(name);
     }
 
+    @Override
     public final void subTask(String name) {
         writeToLog(name);
     }
 
+    @Override
     public final void worked(int work) {
     }
 

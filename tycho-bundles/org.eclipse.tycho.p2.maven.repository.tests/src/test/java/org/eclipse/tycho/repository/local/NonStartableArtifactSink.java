@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
@@ -25,28 +25,34 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtif
 @SuppressWarnings("restriction")
 public class NonStartableArtifactSink implements IRawArtifactSink {
 
+    @Override
     public IArtifactKey getArtifactToBeWritten() {
         // dummy key
         return new ArtifactKey("", "", Version.emptyVersion);
     }
 
+    @Override
     public IArtifactDescriptor getArtifactFormatToBeWritten() {
         return new ArtifactDescriptor(getArtifactToBeWritten());
     }
 
+    @Override
     public boolean canBeginWrite() {
         return false;
     }
 
+    @Override
     public OutputStream beginWrite() throws IllegalStateException, ArtifactSinkException {
         fail("Did not expect call to beginWrite()");
         return null;
     }
 
+    @Override
     public void commitWrite() throws IllegalStateException, ArtifactSinkException {
         fail("Did not expect call to commitWrite()");
     }
 
+    @Override
     public void abortWrite() throws ArtifactSinkException {
         fail("Did not expect call to abortWrite()");
 

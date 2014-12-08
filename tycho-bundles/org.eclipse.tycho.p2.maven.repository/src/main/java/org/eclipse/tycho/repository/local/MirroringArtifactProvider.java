@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP AG and others.
+ * Copyright (c) 2012, 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
@@ -99,6 +99,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     // pass through methods
 
+    @Override
     public final boolean contains(IArtifactKey key) {
         if (localArtifactRepository.contains(key)) {
             return true;
@@ -106,6 +107,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         return remoteProviders.contains(key);
     }
 
+    @Override
     @SuppressWarnings({ "restriction", "unchecked" })
     public final IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
         IQueryable<IArtifactKey>[] sources = new IQueryable[] { localArtifactRepository, remoteProviders };
@@ -114,6 +116,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
 
     // mirroring methods
 
+    @Override
     public final File getArtifactFile(IArtifactKey key) throws MirroringFailedException {
         if (makeLocallyAvailable(key)) {
             return localArtifactRepository.getArtifactFile(key);
@@ -121,6 +124,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         return null;
     }
 
+    @Override
     public final File getArtifactFile(IArtifactDescriptor descriptor) throws MirroringFailedException {
         if (makeLocallyAvailable(descriptor.getArtifactKey())) {
             return localArtifactRepository.getArtifactFile(descriptor);
@@ -128,6 +132,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         return null;
     }
 
+    @Override
     public final IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException,
             MirroringFailedException {
         IArtifactKey requestedKey = sink.getArtifactToBeWritten();
@@ -137,6 +142,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         return artifactNotFoundStatus(requestedKey);
     }
 
+    @Override
     public final IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException,
             MirroringFailedException {
         IArtifactKey requestedKey = sink.getArtifactToBeWritten();
@@ -146,6 +152,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         return artifactNotFoundStatus(requestedKey);
     }
 
+    @Override
     public final IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) throws MirroringFailedException {
         if (makeLocallyAvailable(key)) {
             return localArtifactRepository.getArtifactDescriptors(key);
@@ -153,6 +160,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
         return new IArtifactDescriptor[0];
     }
 
+    @Override
     public final boolean contains(IArtifactDescriptor descriptor) throws MirroringFailedException {
         if (makeLocallyAvailable(descriptor.getArtifactKey())) {
             return localArtifactRepository.contains(descriptor);

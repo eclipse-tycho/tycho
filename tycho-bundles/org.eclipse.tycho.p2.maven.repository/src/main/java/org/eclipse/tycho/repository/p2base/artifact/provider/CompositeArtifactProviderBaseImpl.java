@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Tobias Oberlies (SAP AG) - initial API and implementation
+ *    Tobias Oberlies (SAP SE) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.repository.p2base.artifact.provider;
 
@@ -33,6 +33,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtif
 public abstract class CompositeArtifactProviderBaseImpl implements IRawArtifactProvider {
 
     // shell for getArtifactDescriptors
+    @Override
     public final IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
         Set<IArtifactDescriptor> result = new HashSet<IArtifactDescriptor>();
         getArtifactDescriptorsOfAllSources(key, result);
@@ -42,6 +43,7 @@ public abstract class CompositeArtifactProviderBaseImpl implements IRawArtifactP
     protected abstract void getArtifactDescriptorsOfAllSources(IArtifactKey key, Set<IArtifactDescriptor> result);
 
     // shell for getArtifact
+    @Override
     public final IStatus getArtifact(IArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
         canWriteToSink(sink);
         canWriteCanonicalArtifactToSink(sink);
@@ -60,6 +62,7 @@ public abstract class CompositeArtifactProviderBaseImpl implements IRawArtifactP
             IProgressMonitor monitor) throws ArtifactSinkException;
 
     // shell for getRawArtifact
+    @Override
     public final IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
         canWriteToSink(sink);
 

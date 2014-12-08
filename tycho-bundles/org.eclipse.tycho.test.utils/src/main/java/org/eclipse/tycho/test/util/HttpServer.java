@@ -46,7 +46,7 @@ public class HttpServer extends ExternalResource {
 
     @Override
     protected void before() throws Throwable {
-        runningServer = startServer(null, null);
+        runningServer = startServer();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class HttpServer extends ExternalResource {
         }
     }
 
-    private static RunningServer startServer(String username, String password) throws Exception {
+    private static RunningServer startServer() throws Exception {
         int baseport = 1024;
         BindException cause = null;
         for (int i = 0; i < BIND_ATTEMPTS; i++) {

@@ -7,8 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    SAP AG - split target platform computation and dependency resolution
- *    SAP AG - create immutable target platform instances
+ *    SAP SE - split target platform computation and dependency resolution
+ *    SAP SE - create immutable target platform instances
  *******************************************************************************/
 package org.eclipse.tycho.p2.target;
 
@@ -116,10 +116,12 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         this.targetDefinitionResolverService = targetDefinitionResolverService;
     }
 
+    @Override
     public PomDependencyCollector newPomDependencyCollector() {
         return new PomDependencyCollectorImpl(mavenContext);
     }
 
+    @Override
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
             PomDependencyCollector pomDependencies) {
