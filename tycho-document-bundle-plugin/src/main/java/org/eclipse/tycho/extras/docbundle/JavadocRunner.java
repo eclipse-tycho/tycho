@@ -14,6 +14,7 @@ package org.eclipse.tycho.extras.docbundle;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.exec.OS;
@@ -51,6 +52,8 @@ public class JavadocRunner {
     private Collection<String> classPath;
 
     private String lineSeparator = System.getProperty("line.separator");
+
+    private DocletArtifactsResolver docletArtifactsResolver;
 
     public JavadocRunner() {
     }
@@ -121,6 +124,8 @@ public class JavadocRunner {
         StringBuilder sb = new StringBuilder();
         addSourcePaths(sb);
         addClassPath(sb);
+        addDoclet(sb);
+        addDocletPaths(sb);
         addArguments(sb);
 
         final int count = addPackages(sb);
@@ -129,6 +134,18 @@ public class JavadocRunner {
         }
 
         return sb.toString();
+    }
+
+    private void addDoclet(final StringBuilder sb) {
+        if (this.options.getDoclet() == null) {
+            return;
+        }
+        sb.append("-doclet ").append(this.options.getDoclet()).append(lineSeparator);
+    }
+
+    private void addDocletPaths(final StringBuilder sb) throws MojoExecutionException {
+        List<String> resolvedArtifactJars = docletArtifactsResolver.resolveArtifacts(this.options.getDocletArtifacts());
+        addPathArgument(sb, "-docletpath", resolvedArtifactJars);
     }
 
     private void addClassPath(final StringBuilder sb) {
@@ -273,5 +290,9 @@ public class JavadocRunner {
 
     public void setManifestFiles(Set<File> manifestFiles) {
         this.manifestFiles = manifestFiles;
+    }
+
+    public void setDocletArtifactsResolver(DocletArtifactsResolver docletArtifactsResolver) {
+        this.docletArtifactsResolver = docletArtifactsResolver;
     }
 }

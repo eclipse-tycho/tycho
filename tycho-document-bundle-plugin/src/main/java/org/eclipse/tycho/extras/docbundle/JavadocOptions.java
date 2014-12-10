@@ -13,6 +13,8 @@ package org.eclipse.tycho.extras.docbundle;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.maven.model.Dependency;
+
 /**
  * The javadoc options<br/>
  * At the moment the list of real options is quite small, but most arguments can be passed using the
@@ -28,6 +30,10 @@ public class JavadocOptions {
     private List<String> jvmOptions = new LinkedList<String>();
 
     private List<String> additionalArguments = new LinkedList<String>();
+
+    private List<Dependency> docletArtifacts = new LinkedList<Dependency>();
+
+    private String doclet;
 
     public void setIgnoreError(final boolean ignoreError) {
         this.ignoreError = ignoreError;
@@ -60,4 +66,21 @@ public class JavadocOptions {
     public void setAdditionalArguments(final List<String> additionalArguments) {
         this.additionalArguments = additionalArguments;
     }
+
+    public List<Dependency> getDocletArtifacts() {
+        return this.docletArtifacts;
+    }
+
+    public void setDocletArtifacts(List<Dependency> docletArtifacts) {
+        this.docletArtifacts = docletArtifacts;
+    }
+
+    public String getDoclet() {
+        return doclet;
+    }
+
+    public void setDoclet(String doclet) {
+        this.doclet = doclet;
+    }
+
 }

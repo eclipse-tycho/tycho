@@ -10,10 +10,16 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.junit.Assert;
@@ -29,8 +35,16 @@ public class TestJavadocRunner {
     public void testCommandLine() throws Exception {
         JavadocRunner javadocRunner = new JavadocRunner();
         JavadocOptions options = new JavadocOptions();
+        List<Dependency> docletArifacts = new LinkedList<Dependency>();
+        DocletArtifactsResolver docletResolver = mock(DocletArtifactsResolver.class);
+        List<String> docletArtifactsJarList = Arrays.asList("path/to/docletArtifact.jar",
+                "path/to/otherDocletArtifact.jar");
+        when(docletResolver.resolveArtifacts(docletArifacts)).thenReturn(docletArtifactsJarList);
         options.setAdditionalArguments(Arrays.asList("-docencoding \"UTF-8\""));
         options.setJvmOptions(Arrays.asList("-Xmx512m"));
+        options.setDoclet("foo.bar.MyDoclet");
+        options.setDocletArtifacts(docletArifacts);
+        javadocRunner.setDocletArtifactsResolver(docletResolver);
         javadocRunner.setLog(new SilentLog());
         javadocRunner.setOptions(options);
         javadocRunner.setSourceFolders(Collections.<File> emptySet());
@@ -43,7 +57,11 @@ public class TestJavadocRunner {
         Assert.assertEquals("-J-Xmx512m", cliArgs[1]);
 
         String optionsFile = javadocRunner.createOptionsFileContent();
-        Assert.assertEquals("-classpath 'rt.jar'" + System.getProperty("line.separator") + "-docencoding \"UTF-8\""
-                + System.getProperty("line.separator"), optionsFile);
+        String lineSeparator = System.getProperty("line.separator");
+        String expectedOptionsFile = "-classpath 'rt.jar'" + lineSeparator 
+                + "-doclet foo.bar.MyDoclet" + lineSeparator
+                + "-docletpath 'path/to/docletArtifact.jar" + File.pathSeparator + "path/to/otherDocletArtifact.jar'" + lineSeparator
+                + "-docencoding \"UTF-8\"" + lineSeparator;
+        Assert.assertEquals(expectedOptionsFile, optionsFile);
     }
 }

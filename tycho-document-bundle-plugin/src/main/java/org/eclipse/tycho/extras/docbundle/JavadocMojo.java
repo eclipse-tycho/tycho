@@ -90,7 +90,34 @@ public class JavadocMojo extends AbstractMojo {
     private Set<String> sourceTypes = new HashSet<String>();
 
     /**
-     * Options for calling the javadoc application
+     * Options for calling the javadoc application. Possible options are (all options are optional):
+     * <ul>
+     * <li><tt>ignoreError</tt>, specifies if errors calling javadoc should be ignored</li>
+     * <li><tt>doclet</tt>, used as javadoc <tt>-doclet</tt> parameter</li>
+     * <li><tt>docletArtifacts</tt>, dependencies will be resovled and added as <tt>-docletpath</tt>
+     * parameter</li>
+     * <li><tt>additionalArguments</tt>, a list of additional arguments passed to javadoc</li>
+     * </ul>
+     * Example configuration:
+     * <pre>
+     * &lt;configuration&gt;
+     *    &lt;javadocOptions&gt;
+     *       &lt;ignoreError&gt;false&lt;/ignoreError&gt;
+     *       &lt;doclet&gt;foo.bar.MyDoclet&lt;/doclet&gt;
+     *       &lt;docletArtifacts&gt;
+     *          &lt;docletArtifact&gt;
+     *             &lt;groupId&gt;foo.bar&lt;/groupId&gt;
+     *             &lt;artifactId&gt;foo.bar.mydocletartifact&lt;/artifactId&gt;
+     *             &lt;version&gt;1.0&lt;/version&gt;
+     *          &lt;/docletArtifact&gt;
+     *       &lt;/docletArtifacts&gt;
+     *       &lt;additionalArguments&gt;
+     *          &lt;additionalArgument&gt;-windowtitle "The Window Title"&lt;/additionalArgument&gt;
+     *          &lt;additionalArgument&gt;-nosince&lt;/additionalArgument&gt;
+     *       &lt;/additionalArguments&gt;
+     *    &lt;/javadocOptions&gt;
+     * &lt;/configuration&gt;
+     * </pre>
      */
     @Parameter(property = "javadocOptions")
     private JavadocOptions javadocOptions = new JavadocOptions();
@@ -116,6 +143,9 @@ public class JavadocMojo extends AbstractMojo {
 
     @Component
     private BundleReader bundleReader;
+
+    @Component
+    private DocletArtifactsResolver docletArtifactsResolver;
 
     public void setTocOptions(TocOptions tocOptions) {
         this.tocOptions = tocOptions;
@@ -149,6 +179,7 @@ public class JavadocMojo extends AbstractMojo {
         runner.setBuildDirectory(this.buildDirectory);
         runner.setToolchainManager(this.toolchainManager);
         runner.setSession(this.session);
+        runner.setDocletArtifactsResolver(docletArtifactsResolver);
 
         final GatherManifestVisitor gmv = new GatherManifestVisitor();
         visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, gmv);

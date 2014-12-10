@@ -34,6 +34,7 @@
 	</build>
 
 	<modules>
+	    <module>doclet</module>	    
 		<module>bundle1</module>
 		<module>feature1</module>
 		<module>docbundle1</module>

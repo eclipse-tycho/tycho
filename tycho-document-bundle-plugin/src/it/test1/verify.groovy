@@ -16,6 +16,17 @@
     }
  }
  
+ def checkFileContains = { fileName, content ->
+    File file = new File(basedir, fileName);
+    String fileContent = file.text
+    if (!fileContent.contains(content)) {
+      throw new Exception("Expected content '" + content + "' could not be found in file " + file);
+    }
+     
+ }
+
+ checkFileContains ( "docbundle1/target/javadoc.options.txt", "-docletpath" );
+ checkFileContains ( "docbundle1/target/javadoc.options.txt", "-doclet CustomDoclet" ); 
  checkFile ( "docbundle1/target/gen-doc/toc/javadoc.xml", "Missing expected toc file" ); 
  checkFile ( "docbundle1/target/gen-doc/reference/api/package-list", "Missing package list file" );
  checkFile ( "docbundle1/target/gen-doc/reference/api/bundle1/SampleClass1.html", "Missing doc file" );

@@ -45,6 +45,14 @@
 							<outputDirectory>${doc.output.folder}/reference/api</outputDirectory>
 							<tocFile>${doc.output.folder}/toc/javadoc.xml</tocFile>
 							<javadocOptions>
+							    <doclet>CustomDoclet</doclet>
+							    <docletArtifacts>
+							    	<docletArtifact>
+							    		<groupId>tycho-extras-its-project.test1</groupId>
+							    		<artifactId>customDoclet</artifactId>
+							    		<version>0.0.1-SNAPSHOT</version>
+							    	</docletArtifact>
+							    </docletArtifacts>
 								<additionalArguments>
 									<additionalArgument>-linkoffline
 										http://docs.oracle.com/javase/7/docs/api/
