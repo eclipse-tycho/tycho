@@ -53,10 +53,19 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
     @Requirement
     private Logger log;
 
+    public DefaultEquinoxInstallationFactory() {
+        // for plexus
+    }
+
+    DefaultEquinoxInstallationFactory(Logger log) {
+        this.log = log;
+    }
+
     public EquinoxInstallation createInstallation(EquinoxInstallationDescription description, File location) {
         Set<String> bundlesToExplode = description.getBundlesToExplode();
         List<File> frameworkExtensions = description.getFrameworkExtensions();
         Map<String, BundleStartLevel> startLevel = description.getBundleStartLevel();
+        BundleStartLevel defaultBundleStartLevel = description.getDefaultBundleStartLevel();
 
         Map<ArtifactKey, File> effective = new LinkedHashMap<ArtifactKey, File>();
 
@@ -88,7 +97,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
             p.putAll(description.getPlatformProperties());
 
-            String newOsgiBundles = toOsgiBundles(effective, startLevel);
+            String newOsgiBundles = toOsgiBundles(effective, startLevel, defaultBundleStartLevel);
 
             p.setProperty("osgi.bundles", newOsgiBundles);
 
@@ -101,7 +110,11 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             p.setProperty("osgi.install.area", "file:" + location.getAbsolutePath().replace('\\', '/'));
             p.setProperty("osgi.configuration.cascaded", "false");
             p.setProperty("osgi.framework", "org.eclipse.osgi");
-            p.setProperty("osgi.bundles.defaultStartLevel", "4");
+            String defaultStartLevelValue = "4";
+            if (defaultBundleStartLevel != null) {
+                defaultStartLevelValue = String.valueOf(defaultBundleStartLevel.getLevel());
+            }
+            p.setProperty("osgi.bundles.defaultStartLevel", defaultStartLevelValue);
 
             // fix osgi.framework
             String url = p.getProperty("osgi.framework");
@@ -216,8 +229,8 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         return "file:" + dstFile.getAbsolutePath().replace('\\', '/');
     }
 
-    protected String toOsgiBundles(Map<ArtifactKey, File> bundles, Map<String, BundleStartLevel> startLevel)
-            throws IOException {
+    protected String toOsgiBundles(Map<ArtifactKey, File> bundles, Map<String, BundleStartLevel> startLevel,
+            BundleStartLevel defaultStartLevel) throws IOException {
         log.debug("Installation OSGI bundles:");
         StringBuilder result = new StringBuilder();
         for (Map.Entry<ArtifactKey, File> entry : bundles.entrySet()) {
@@ -231,6 +244,10 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
             StringBuilder line = new StringBuilder();
             line.append(appendAbsolutePath(entry.getValue()));
+            // use the default start level if no start level is specified
+            if (level == null) {
+                level = defaultStartLevel;
+            }
             if (level != null) {
                 line.append('@').append(level.getLevel());
                 if (level.isAutoStart()) {
