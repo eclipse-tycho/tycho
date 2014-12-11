@@ -44,6 +44,8 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     private final Map<String, BundleStartLevel> startLevel = new HashMap<String, BundleStartLevel>(DEFAULT_START_LEVEL);
 
+    private BundleStartLevel defaultBundleStartLevel = null;
+
     private final List<File> frameworkExtensions = new ArrayList<File>();
 
     private final Set<String> bundlesToExplode = new HashSet<String>();
@@ -58,6 +60,14 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     public Map<String, BundleStartLevel> getBundleStartLevel() {
         return startLevel;
+    }
+
+    public BundleStartLevel getDefaultBundleStartLevel() {
+        return defaultBundleStartLevel;
+    }
+
+    public void setDefaultBundleStartLevel(BundleStartLevel defaultBundleStartLevel) {
+        this.defaultBundleStartLevel = defaultBundleStartLevel;
     }
 
     public ArtifactDescriptor getBundle(String symbolicName, String highestVersion) {
