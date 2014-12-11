@@ -38,6 +38,8 @@ public interface EquinoxInstallationDescription {
 
     public Map<String, BundleStartLevel> getBundleStartLevel();
 
+    public BundleStartLevel getDefaultBundleStartLevel();
+
     public Map<String, String> getPlatformProperties();
 
     public Map<String, String> getDevEntries();
@@ -49,6 +51,8 @@ public interface EquinoxInstallationDescription {
     public void addBundle(ArtifactKey key, File basedir, boolean override);
 
     public void addBundle(ArtifactDescriptor artifact);
+
+    public void setDefaultBundleStartLevel(BundleStartLevel defaultBundleStartLevel);
 
     /**
      * This one is kinda odd, it reads bundle manifest to extract ArtifactKey.
