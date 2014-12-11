@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a766b734_6a114659",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/main/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2014-12-11T13:15:25Z",
+      "side": 1,
+      "message": "I wonder if this setting is conflicting with the newly introduced default start level. At least it should be consistent.",
+      "revId": "5a2849c7d1096b4b9718ec352acb59d52815f236",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
