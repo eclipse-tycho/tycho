@@ -359,10 +359,35 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * Bundle start level and auto start configuration used by the test runtime. Ignored if
-     * {@link #testRuntime} is <code>p2Installed</code>.
+     * {@link #testRuntime} is <code>p2Installed</code>. Example:
+     * 
+     * <pre>
+     * &lt;bundleStartLevel&gt;
+     *   &lt;bundle&gt;
+     *     &lt;id&gt;foo.bar.myplugin&lt;/id&gt;
+     *     &lt;level&gt;6&lt;/level&gt;
+     *     &lt;autoStart&gt;true&lt;/autoStart&gt;
+     *   &lt;/bundle&gt;
+     * &lt;/bundleStartLevel&gt;
+     * </pre>
      */
     @Parameter
     private BundleStartLevel[] bundleStartLevel;
+
+    /**
+     * The default bundle start level and auto start configuration used by the test runtime for
+     * bundles where the start level/auto start is not configured in {@link #bundleStartLevel}.
+     * Ignored if {@link #testRuntime} is <code>p2Installed</code>. Example:
+     * 
+     * <pre>
+     *   &lt;defaultStartLevel&gt;
+     *     &lt;level&gt;6&lt;/level&gt;
+     *     &lt;autoStart&gt;true&lt;/autoStart&gt;
+     *   &lt;/defaultStartLevel&gt;
+     * </pre>
+     */
+    @Parameter
+    private BundleStartLevel defaultStartLevel;
 
     @Component
     private RepositorySystem repositorySystem;
@@ -705,6 +730,7 @@ public class TestMojo extends AbstractMojo {
         work.mkdirs();
 
         EquinoxInstallationDescription testRuntime = new DefaultEquinoxInstallationDescription();
+        testRuntime.setDefaultBundleStartLevel(defaultStartLevel);
         testRuntime.addBundlesToExplode(getBundlesToExplode());
         testRuntime.addFrameworkExtensions(getFrameworkExtensions());
         if (bundleStartLevel != null) {

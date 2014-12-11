@@ -146,4 +146,14 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public BundleStartLevel getDefaultBundleStartLevel() {
+        return null;
+    }
+
+    @Override
+    public void setDefaultBundleStartLevel(BundleStartLevel defaultBundleStartLevel) {
+        throw new UnsupportedOperationException();
+    }
+
 }
