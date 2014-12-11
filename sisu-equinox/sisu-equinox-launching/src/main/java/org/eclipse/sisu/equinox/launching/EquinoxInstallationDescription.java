@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,8 @@ public interface EquinoxInstallationDescription {
 
     public Map<String, BundleStartLevel> getBundleStartLevel();
 
+    public BundleStartLevel getDefaultBundleStartLevel();
+
     public Map<String, String> getPlatformProperties();
 
     public Map<String, String> getDevEntries();
@@ -49,6 +51,8 @@ public interface EquinoxInstallationDescription {
     public void addBundle(ArtifactKey key, File basedir, boolean override);
 
     public void addBundle(ArtifactDescriptor artifact);
+
+    public void setDefaultBundleStartLevel(BundleStartLevel defaultBundleStartLevel);
 
     /**
      * This one is kinda odd, it reads bundle manifest to extract ArtifactKey.

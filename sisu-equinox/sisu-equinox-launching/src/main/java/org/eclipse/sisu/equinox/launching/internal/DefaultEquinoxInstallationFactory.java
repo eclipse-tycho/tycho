@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,11 +53,23 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
     @Requirement
     private Logger log;
 
+    public DefaultEquinoxInstallationFactory() {
+        // for plexus
+    }
+
+    DefaultEquinoxInstallationFactory(Logger log) {
+        this.log = log;
+    }
+
     @Override
     public EquinoxInstallation createInstallation(EquinoxInstallationDescription description, File location) {
         Set<String> bundlesToExplode = description.getBundlesToExplode();
         List<File> frameworkExtensions = description.getFrameworkExtensions();
         Map<String, BundleStartLevel> startLevel = description.getBundleStartLevel();
+        BundleStartLevel defaultBundleStartLevel = description.getDefaultBundleStartLevel();
+        if (defaultBundleStartLevel == null) {
+            defaultBundleStartLevel = new BundleStartLevel(null, 4, false);
+        }
 
         Map<ArtifactKey, File> effective = new LinkedHashMap<ArtifactKey, File>();
 
@@ -89,7 +101,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
             p.putAll(description.getPlatformProperties());
 
-            String newOsgiBundles = toOsgiBundles(effective, startLevel);
+            String newOsgiBundles = toOsgiBundles(effective, startLevel, defaultBundleStartLevel);
 
             p.setProperty("osgi.bundles", newOsgiBundles);
 
@@ -102,7 +114,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             p.setProperty("osgi.install.area", "file:" + location.getAbsolutePath().replace('\\', '/'));
             p.setProperty("osgi.configuration.cascaded", "false");
             p.setProperty("osgi.framework", "org.eclipse.osgi");
-            p.setProperty("osgi.bundles.defaultStartLevel", "4");
+            p.setProperty("osgi.bundles.defaultStartLevel", String.valueOf(defaultBundleStartLevel.getLevel()));
 
             // fix osgi.framework
             String url = p.getProperty("osgi.framework");
@@ -217,8 +229,8 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         return "file:" + dstFile.getAbsolutePath().replace('\\', '/');
     }
 
-    protected String toOsgiBundles(Map<ArtifactKey, File> bundles, Map<String, BundleStartLevel> startLevel)
-            throws IOException {
+    protected String toOsgiBundles(Map<ArtifactKey, File> bundles, Map<String, BundleStartLevel> startLevel,
+            BundleStartLevel defaultStartLevel) throws IOException {
         log.debug("Installation OSGI bundles:");
         StringBuilder result = new StringBuilder();
         for (Map.Entry<ArtifactKey, File> entry : bundles.entrySet()) {
@@ -233,9 +245,20 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             StringBuilder line = new StringBuilder();
             line.append(appendAbsolutePath(entry.getValue()));
             if (level != null) {
-                line.append('@').append(level.getLevel());
+                line.append('@');
+                if (level.getLevel() > 0) {
+                    line.append(level.getLevel());
+                }
                 if (level.isAutoStart()) {
-                    line.append(":start");
+                    if (line.charAt(line.length() - 1) == '@') {
+                        line.append("start");
+                    } else {
+                        line.append(":start");
+                    }
+                }
+            } else {
+                if (defaultStartLevel.isAutoStart()) {
+                    line.append("@start");
                 }
             }
             log.debug("\t" + line);
