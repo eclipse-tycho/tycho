@@ -38,6 +38,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
@@ -48,6 +49,7 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
+import org.eclipse.tycho.p2.target.ArtifactTypeHelper;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -61,8 +63,6 @@ import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 @SuppressWarnings("restriction")
 public class P2ResolverImpl implements P2Resolver {
-    // BundlesAction.CAPABILITY_NS_OSGI_BUNDLE
-    private static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle";
 
     private final MavenLogger logger;
 
@@ -386,19 +386,15 @@ public class P2ResolverImpl implements P2Resolver {
     }
 
     @Override
-    public void addDependency(String type, String id, String versionRange) {
-        if (ArtifactType.TYPE_INSTALLABLE_UNIT.equals(type)) {
-            additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id,
-                    new VersionRange(versionRange), null, false, true));
-        } else if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(type)) {
-            additionalRequirements.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, id,
-                    new VersionRange(versionRange), null, false, true));
-        } else if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(type)) {
-            additionalRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id
-                    + ".feature.group", new VersionRange(versionRange), null, false, true));
-            // TODO make ".feature.group" a constant in FeaturesAction
+    public void addDependency(String type, String id, String versionRange) throws IllegalArtifactReferenceException {
+        final VersionRange parsedVersionRange;
+        try {
+            parsedVersionRange = new VersionRange(versionRange);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArtifactReferenceException("The string \"" + versionRange
+                    + "\" is not a valid OSGi version range");
         }
-        // TODO else throw an exception
+        additionalRequirements.add(ArtifactTypeHelper.createRequirementFor(type, id, parsedVersionRange));
     }
 
     private void addDependenciesForTests() {

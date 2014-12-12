@@ -45,7 +45,7 @@ public class P2ResolverAdditionalRequirementsTest {
     }
 
     @Test
-    public void testExactVersionMatchInTargetDefinitionUnit() {
+    public void testExactVersionMatchInTargetDefinitionUnit() throws Exception {
         String olderVersion = "2.3.3";
         String version = "2.3.4";
         String newerVersion = "2.3.5";
@@ -79,7 +79,7 @@ public class P2ResolverAdditionalRequirementsTest {
     }
 
     @Test
-    public void testZeroVersionInTargetDefinitionUnit() {
+    public void testZeroVersionInTargetDefinitionUnit() throws Exception {
         String zeroVersion = "0.0.0";
         String arbitraryVersion = "2.5.8";
 
@@ -97,7 +97,7 @@ public class P2ResolverAdditionalRequirementsTest {
     }
 
     @Test
-    public void testNullVersionInTargetDefinitionUnit() {
+    public void testNullVersionInTargetDefinitionUnit() throws Exception {
 
         String nullVersion = null;
         String arbitraryVersion = "2.5.8";
@@ -116,7 +116,7 @@ public class P2ResolverAdditionalRequirementsTest {
     }
 
     @Test
-    public void testAddDependencyWithVersionRange() {
+    public void testAddDependencyWithVersionRange() throws Exception {
         String range = "[2.0.0,3.0.0)";
         impl.addDependency(IU_TYPE, TARGET_UNIT_ID, range);
         impl.addDependency(BUNDLE_TYPE, TARGET_UNIT_ID, range);

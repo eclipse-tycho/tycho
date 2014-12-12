@@ -80,7 +80,7 @@ public class FeatureXmlTransformer {
                     log.info("Download/install size is not calculated for directory based bundle " + pluginRef.getId());
                 }
 
-                pluginRef.setDownloadSide(downloadSize / KBYTE);
+                pluginRef.setDownloadSize(downloadSize / KBYTE);
                 pluginRef.setInstallSize(installSize / KBYTE);
             }
 

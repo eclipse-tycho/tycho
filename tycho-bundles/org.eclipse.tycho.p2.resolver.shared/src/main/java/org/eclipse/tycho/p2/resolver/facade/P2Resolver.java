@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
@@ -29,7 +30,7 @@ public interface P2Resolver {
      */
     public void setAdditionalFilterProperties(Map<String, String> filterProperties);
 
-    public void addDependency(String type, String id, String versionRange);
+    public void addDependency(String type, String id, String versionRange) throws IllegalArtifactReferenceException;
 
     /**
      * Returns list ordered of resolution result, one per requested TargetEnvironment.
