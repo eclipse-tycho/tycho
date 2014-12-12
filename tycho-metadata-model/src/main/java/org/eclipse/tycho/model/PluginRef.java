@@ -117,7 +117,7 @@ public class PluginRef {
         dom.setAttribute("unpack", Boolean.toString(unpack));
     }
 
-    public void setDownloadSide(long size) {
+    public void setDownloadSize(long size) {
         dom.setAttribute("download-size", Long.toString(size));
     }
 

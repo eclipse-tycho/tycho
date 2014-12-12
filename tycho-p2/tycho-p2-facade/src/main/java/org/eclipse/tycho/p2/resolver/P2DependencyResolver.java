@@ -53,12 +53,14 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.MavenDependencyInjector;
 import org.eclipse.tycho.core.maven.utils.PluginRealmHelper;
@@ -349,7 +351,13 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         if (resolverConfiguration != null) {
             for (Dependency dependency : resolverConfiguration.getExtraRequirements()) {
-                resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
+                try {
+                    resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
+                } catch (IllegalArtifactReferenceException e) {
+                    throw new BuildFailureException("Invalid extraRequirement with type=\"" + dependency.getType()
+                            + "\", id=\"" + dependency.getArtifactId() + "\" and version=\"" + dependency.getVersion()
+                            + "\": " + e.getMessage(), e);
+                }
             }
         }
 
