@@ -169,6 +169,12 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                     }
                     walk.markStart(walk.parseCommit(headId));
                     RevCommit commit = walk.next();
+                    // When dirtyBehaviour==ignore and no commit was ever done, 
+                    // the commit is null, so we fallback to the defaultTimestampProvider
+                    if (commit == null) {
+                        logger.info("Fallback to default timestamp provider, because no commit could be found for that project (Shared but not commited yet).");
+                        return defaultTimestampProvider.getTimestamp(session, project, execution);
+                    }
                     return new Date(commit.getCommitTime() * 1000L);
                 } finally {
                     walk.release();
