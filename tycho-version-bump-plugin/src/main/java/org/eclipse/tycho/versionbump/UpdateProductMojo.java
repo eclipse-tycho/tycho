@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2010, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.core.p2.P2ArtifactRepositoryLayout;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.model.PluginRef;
@@ -55,7 +56,12 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
         ProductConfiguration product = ProductConfiguration.read(productFile);
 
         for (PluginRef plugin : product.getPlugins()) {
-            p2.addDependency(ArtifactType.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
+            try {
+                p2.addDependency(ArtifactType.TYPE_ECLIPSE_PLUGIN, plugin.getId(), "0.0.0");
+            } catch (IllegalArtifactReferenceException e) {
+                // shouldn't happen for the constant type and version
+                throw new RuntimeException(e);
+            }
         }
 
         P2ResolutionResult result = p2.resolveMetadata(resolutionContext, executionEnvironment);

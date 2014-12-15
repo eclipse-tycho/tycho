@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2014 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
@@ -158,6 +159,7 @@ public class EclipseRunMojo extends AbstractMojo {
     @Component
     private Logger logger;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             getLog().debug("skipping mojo execution");
@@ -167,22 +169,24 @@ public class EclipseRunMojo extends AbstractMojo {
         runEclipse(installation);
     }
 
-    private Dependency newBundleDependency(String bundleId) {
-        Dependency dependency = new Dependency();
-        dependency.setArtifactId(bundleId);
-        dependency.setType(ArtifactType.TYPE_ECLIPSE_PLUGIN);
-        return dependency;
+    private void addDefaultDependency(P2Resolver resolver, String bundleId) {
+        try {
+            resolver.addDependency(ArtifactType.TYPE_ECLIPSE_PLUGIN, bundleId, null);
+        } catch (IllegalArtifactReferenceException e) {
+            // shouldn't happen for the constant type and version
+            throw new RuntimeException(e);
+        }
     }
 
-    private List<Dependency> getDefaultDependencies() {
-        ArrayList<Dependency> result = new ArrayList<Dependency>();
-        result.add(newBundleDependency("org.eclipse.osgi"));
-        result.add(newBundleDependency(EquinoxInstallationDescription.EQUINOX_LAUNCHER));
-        result.add(newBundleDependency("org.eclipse.core.runtime"));
-        return result;
+    private void addDefaultDependencies(P2Resolver resolver) {
+        if (addDefaultDependencies) {
+            addDefaultDependency(resolver, "org.eclipse.osgi");
+            addDefaultDependency(resolver, EquinoxInstallationDescription.EQUINOX_LAUNCHER);
+            addDefaultDependency(resolver, "org.eclipse.core.runtime");
+        }
     }
 
-    private EquinoxInstallation createEclipseInstallation() throws MojoExecutionException {
+    private EquinoxInstallation createEclipseInstallation() throws MojoFailureException {
         P2ResolverFactory resolverFactory = equinox.getService(P2ResolverFactory.class);
         TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
         // we want to resolve from remote repos only
@@ -194,13 +198,14 @@ public class EclipseRunMojo extends AbstractMojo {
                 tpConfiguration, new ExecutionEnvironmentConfigurationStub(executionEnvironment), null, null);
         P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
         for (Dependency dependency : dependencies) {
-            resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
-        }
-        if (addDefaultDependencies) {
-            for (Dependency dependency : getDefaultDependencies()) {
+            try {
                 resolver.addDependency(dependency.getType(), dependency.getArtifactId(), dependency.getVersion());
+            } catch (IllegalArtifactReferenceException e) {
+                throw new MojoFailureException("Invalid dependency " + dependency.getType() + ":"
+                        + dependency.getArtifactId() + ":" + dependency.getVersion() + ": " + e.getMessage(), e);
             }
         }
+        addDefaultDependencies(resolver);
         EquinoxInstallationDescription installationDesc = new DefaultEquinoxInstallationDescription();
         for (P2ResolutionResult result : resolver.resolveDependencies(targetPlatform, null)) {
             for (Entry entry : result.getArtifacts()) {
