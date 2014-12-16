@@ -30,7 +30,9 @@
         </executions>
         <configuration>
           <toolchains>
-            <vendor>fake</vendor>
+            <jdk>
+              <vendor>fake</vendor>
+            </jdk>
           </toolchains>
         </configuration>
       </plugin>
