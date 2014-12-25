@@ -3,7 +3,7 @@
 <extension>
   <exportedPackages>
     <exportedPackage>org.eclipse.tycho</exportedPackage>
-    <exportedPackage>org.osgi.framework</exportedPackage>
+    <exportedPackage>org.osgi</exportedPackage>
     <exportedPackage>org.eclipse.osgi</exportedPackage>
     <exportedPackage>org.eclipse.sisu.equinox</exportedPackage>
     <exportedPackage>org.eclipse.tycho.p2.resolver</exportedPackage>
