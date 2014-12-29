@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8761b321_54a2f883",
+        "filename": "sisu-equinox/sisu-equinox-launching/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-29T13:20:09Z",
+      "side": 1,
+      "message": "Unfortunately xml formatter settings cannot be checked-in, so to avoid deviation from the (most common) xml file formatting in Tycho, you can manually configure the following settings: XML \u003e XML Files \u003e Editor: De-select \"Format comments\", \"Indent using tabs\", \"Indentation size\" 1\n\nThen, CTRL+SHIFT+F (on Windows) should properly format the XML files.",
+      "revId": "ab3877741c7ab7a68a3e28bdaad742adbedccea0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_f4b064c7",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/main/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactory.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-29T13:20:09Z",
+      "side": 1,
+      "message": "For starting a bundle with default start level, one can just append an \"@start\" (see http://eclipse.org/equinox/documents/quickstart-framework.php )\n\nIMHO it is a bug in the existing implementation that the autostart is ignored if no start level is configured for a bundle.",
+      "revId": "ab3877741c7ab7a68a3e28bdaad742adbedccea0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_34bbfcaa",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-29T13:20:09Z",
+      "side": 1,
+      "message": "There is no need to change this now, but I\u0027d recommend Mockito over EasyMock - Mockito is just more modern an e.g. doesn\u0027t need this replay call.",
+      "revId": "ab3877741c7ab7a68a3e28bdaad742adbedccea0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
