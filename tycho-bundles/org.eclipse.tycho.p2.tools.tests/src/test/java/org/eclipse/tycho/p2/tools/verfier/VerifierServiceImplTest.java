@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG and others.
+ * Copyright (c) 2011, 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.verfier;
 
@@ -104,26 +104,33 @@ public class VerifierServiceImplTest {
     class ErrorStoreMemoryLog implements MavenLogger {
         List<String> errors = new ArrayList<String>();
 
+        @Override
         public void error(String message) {
             errors.add(message);
         }
 
+        @Override
         public void warn(String message) {
         }
 
+        @Override
         public void warn(String message, Throwable cause) {
         }
 
+        @Override
         public void info(String message) {
         }
 
+        @Override
         public void debug(String message) {
         }
 
+        @Override
         public boolean isDebugEnabled() {
             return true;
         }
 
+        @Override
         public boolean isExtendedDebugEnabled() {
             return true;
         }

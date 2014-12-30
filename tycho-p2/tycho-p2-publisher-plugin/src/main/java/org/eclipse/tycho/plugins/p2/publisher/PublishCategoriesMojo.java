@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
@@ -77,6 +77,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
     private void copySiteI18nFiles(BuildOutputDirectory buildFolder) throws IOException {
         File[] i18nFiles = getProject().getBasedir().listFiles(new FileFilter() {
 
+            @Override
             public boolean accept(File file) {
                 String fileName = file.getName();
                 return fileName.startsWith("site") && fileName.endsWith(".properties");

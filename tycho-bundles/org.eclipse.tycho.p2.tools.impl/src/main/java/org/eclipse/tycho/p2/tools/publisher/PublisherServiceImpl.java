@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
@@ -59,6 +59,7 @@ class PublisherServiceImpl implements PublisherService {
         this.logger = logger;
     }
 
+    @Override
     public Collection<DependencySeed> publishCategories(File categoryDefinition) throws FacadeException,
             IllegalStateException {
 
@@ -81,6 +82,7 @@ class PublisherServiceImpl implements PublisherService {
         return toSeeds(null, allIUs);
     }
 
+    @Override
     public Collection<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor)
             throws FacadeException, IllegalStateException {
 
@@ -101,6 +103,7 @@ class PublisherServiceImpl implements PublisherService {
                 selectUnit(allIUs, productDescriptor.getId())));
     }
 
+    @Override
     public Collection<DependencySeed> publishEEProfile(File profileFile) throws FacadeException {
         validateProfile(profileFile);
         IPublisherAction jreAction = new JREAction(profileFile);

@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.facade.test;
 
-import junit.framework.Assert;
-
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class RepositoryLayoutHelperTest {

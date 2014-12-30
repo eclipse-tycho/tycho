@@ -55,6 +55,7 @@ public class BaselineServiceImpl implements BaselineService {
     // @Inject
     private RemoteAgentManager remoteAgentManager;
 
+    @Override
     public Map<String, IP2Artifact> getProjectBaseline(Collection<MavenRepositoryLocation> baselineLocations,
             Map<String, IP2Artifact> reactor, File target) {
 
@@ -184,6 +185,7 @@ public class BaselineServiceImpl implements BaselineService {
         return unit;
     }
 
+    @Override
     public boolean isMetadataEqual(IP2Artifact baseline, IP2Artifact reactor) {
         // TODO Auto-generated method stub
         return true;

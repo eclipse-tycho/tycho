@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
@@ -53,6 +53,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private MavenContext mavenContext;
 
+    @Override
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
             throws FacadeException {
@@ -112,7 +113,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         String id = iu.getId();
         String version = iu.getVersion();
         if (iu.getQueryMatchExpression() != null) {
-            return QueryUtil.createMatchQuery(iu.getQueryMatchExpression(), iu.getQueryParameters());
+            return QueryUtil.createMatchQuery(iu.getQueryMatchExpression(), (Object[]) iu.getQueryParameters());
         } else {
             if (version == null || version.length() == 0) {
                 return QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
@@ -122,6 +123,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
+    @Override
     public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
             boolean includePacked, Map<String, String> filterProperties) throws FacadeException {
@@ -262,6 +264,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             this.logger = logger;
         }
 
+        @Override
         public void log(IArtifactDescriptor descriptor, IStatus status) {
             if (!status.isOK()) {
                 logger.debug(MIRROR_TOOL_MESSAGE_PREFIX + StatusTool.collectProblems(status));
@@ -269,6 +272,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             }
         }
 
+        @Override
         public void log(IStatus status) {
             if (!status.isOK()) {
                 logger.warn(MIRROR_TOOL_MESSAGE_PREFIX + StatusTool.collectProblems(status));
@@ -284,6 +288,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
         }
 
+        @Override
         public void close() {
         }
 

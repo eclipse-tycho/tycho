@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2011 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *     Michael Pellaton (Netcetera) - add finalName mojo parameter
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
@@ -42,6 +42,7 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter(property = "project.build.finalName")
     private String finalName;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         File destFile = getBuildDirectory().getChild(finalName + ".zip");

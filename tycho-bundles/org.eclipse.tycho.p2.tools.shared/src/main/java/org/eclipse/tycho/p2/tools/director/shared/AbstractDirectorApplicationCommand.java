@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP AG and others.
+ * Copyright (c) 2012, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
+ *    SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.director.shared;
 
@@ -34,22 +34,26 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
 
     private File destination;
 
+    @Override
     public final void addMetadataSources(Iterable<URI> metadataRepositories) {
         for (URI repositoryUrl : metadataRepositories) {
             this.metadataSources.append(repositoryUrl);
         }
     }
 
+    @Override
     public final void addArtifactSources(Iterable<URI> artifactRepositories) {
         for (URI repositoryUrl : artifactRepositories) {
             this.artifactSources.append(repositoryUrl);
         }
     }
 
+    @Override
     public final void addUnitToInstall(String id) {
         this.unitsToInstall.append(id);
     }
 
+    @Override
     public final void addUnitToInstall(DependencySeed dependency) {
         final String uid;
         if (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(dependency.getType())) {
@@ -62,18 +66,22 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         this.unitsToInstall.append(uid /* + "/" + dependency.getVersion() */);
     }
 
+    @Override
     public final void setProfileName(String profileName) {
         this.profileName = profileName;
     }
 
+    @Override
     public final void setEnvironment(TargetEnvironment env) {
         this.environment = env;
     }
 
+    @Override
     public final void setInstallFeatures(boolean installFeatures) {
         this.installFeatures = installFeatures;
     }
 
+    @Override
     public final void setDestination(File path) {
         this.destination = path;
     }

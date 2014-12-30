@@ -29,26 +29,32 @@ public class AttachedArtifact implements IArtifactFacade {
         this.classifier = classifier;
     }
 
+    @Override
     public File getLocation() {
         return location;
     }
 
+    @Override
     public String getGroupId() {
         return project.getGroupId();
     }
 
+    @Override
     public String getArtifactId() {
         return project.getArtifactId();
     }
 
+    @Override
     public String getClassifier() {
         return classifier;
     }
 
+    @Override
     public String getVersion() {
         return project.getVersion();
     }
 
+    @Override
     public String getPackagingType() {
         return project.getPackaging();
     }
