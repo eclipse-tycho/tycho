@@ -51,6 +51,7 @@ public interface TargetPlatform {
      *            The ID of the artifact to be found.
      * @param versionRef
      *            A version reference string selecting one exact version or versions from a range.
+     *            May be <code>null</code>.
      * @return a matching artifact.
      * @throws IllegalArtifactReferenceException
      *             if an invalid type or malformed version reference is given

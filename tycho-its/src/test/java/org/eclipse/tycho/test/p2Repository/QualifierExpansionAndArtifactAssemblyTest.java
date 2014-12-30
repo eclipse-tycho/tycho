@@ -88,6 +88,18 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
     }
 
     @Test
+    public void testProductUnitHasOwnVersionAndInclusionsExpanded() throws Exception {
+        IU featureIU = p2Repository.getIU("prr.example.product", "1.0.0.20141230-qualifierOfRepo");
+
+        assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.group=true"));
+        assertThat(featureIU.getProperties(), hasItem("org.eclipse.equinox.p2.type.product=true"));
+
+        List<IdAndVersion> inclusions = featureIU.getInclusions();
+        assertThat(inclusions, hasItem(withIdAndVersion("prr.example.feature.feature.group", FEATURE_VERSION)));
+        assertThat(inclusions, hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
+    }
+
+    @Test
     public void testPublishedBundleIU() throws Exception {
         assertThat(p2Repository.getAllUnits(), hasItem(withIdAndVersion("prr.example.bundle", BUNDLE_VERSION)));
         assertThat(p2Repository.getBundleArtifact("prr.example.bundle", BUNDLE_VERSION), isFile());
