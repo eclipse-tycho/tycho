@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
@@ -15,22 +15,28 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.DefaultArtifactKey;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class PublishProductMojoUnitTest {
 
@@ -40,34 +46,32 @@ public class PublishProductMojoUnitTest {
     private final File testResources = new File("src/test/resources/unitTestResources");
 
     @Test
-    public void testQualifyVersions() throws IOException {
+    public void testExpandProductVersionQualifier() throws IOException {
         ProductConfiguration product = ProductConfiguration.read(new File(testResources, "test.product"));
 
-        PublishProductMojo.qualifyVersions(product, "20100623");
-
+        PublishProductMojo.expandProductVersionQualifier(product, "20100623");
         assertEquals("0.1.0.20100623", product.getVersion());
-        assertEquals("0.1.0.20100623", product.getFeatures().get(0).getVersion());
-        assertEquals("0.1.0.qual", product.getFeatures().get(1).getVersion());
-        assertEquals("0.1.0.20100623", product.getPlugins().get(0).getVersion());
+    }
+
+    @Test
+    public void testExpandVersionsOfInclusions() throws Exception {
+        ProductConfiguration product = ProductConfiguration.read(new File(testResources, "test.product"));
+        TargetPlatform targetPlatform = mock(TargetPlatform.class);
+        when(targetPlatform.resolveReference("eclipse-plugin", "test.plugin", "0.1.0.qualifier")).thenAnswer(
+                withResolvedVersion("0.1.0.20141230"));
+        when(targetPlatform.resolveReference("eclipse-plugin", "test.plugin2", "0.1.0.qual")).thenAnswer(
+                withSameVersion());
+        when(targetPlatform.resolveReference("eclipse-feature", "test.feature", "0.2.0.qualifier")).thenAnswer(
+                withResolvedVersion("0.2.0.20141230"));
+        when(targetPlatform.resolveReference("eclipse-feature", "test.feature2", "0.2.0.qual")).thenAnswer(
+                withSameVersion());
+
+        PublishProductMojo.expandVersionsOfInclusions("test.product", product, targetPlatform);
+        assertEquals("0.2.0.20141230", product.getFeatures().get(0).getVersion());
+        assertEquals("0.2.0.qual", product.getFeatures().get(1).getVersion());
+        assertEquals("0.1.0.20141230", product.getPlugins().get(0).getVersion());
         assertEquals("0.1.0.qual", product.getPlugins().get(1).getVersion());
-    }
 
-    @Test
-    public void testQualifyVersionsNoVersions() throws IOException {
-        ProductConfiguration product = ProductConfiguration.read(new File(testResources, "noVersion.product"));
-
-        PublishProductMojo.qualifyVersions(product, "20100623");
-
-        assertNull(product.getVersion());
-    }
-
-    @Test
-    public void testQualifyVersionsEmptyVersions() throws IOException {
-        ProductConfiguration product = ProductConfiguration.read(new File(testResources, "emptyVersion.product"));
-
-        PublishProductMojo.qualifyVersions(product, "20100623");
-
-        assertEquals("", product.getVersion());
     }
 
     // TODO test through the right interface: we should do assertions on the resulting IUs rather making assumptions on the obscure behaviour of p2's ProductAction
@@ -77,7 +81,7 @@ public class PublishProductMojoUnitTest {
         ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
         BuildOutputDirectory buildBasedir = new BuildOutputDirectory(tempFolder.newFolder("buildBasedir"));
 
-        PublishProductMojo.qualifyVersions(productConfiguration, "buildQualifier");
+        PublishProductMojo.expandProductVersionQualifier(productConfiguration, "expandedQualifier");
         File preparedProduct = PublishProductMojo.writeProductForPublishing(productFile, productConfiguration,
                 buildBasedir);
 
@@ -93,7 +97,7 @@ public class PublishProductMojoUnitTest {
         assertFileExists("configs/config_win32.ini", buildProductRootDir);
         assertFileExists("configs/config_solaris.ini", buildProductRootDir);
         ProductConfiguration buildProductConfiguration = ProductConfiguration.read(preparedProduct);
-        assertEquals("0.1.0.buildQualifier", buildProductConfiguration.getVersion());
+        assertEquals("0.1.0.expandedQualifier", buildProductConfiguration.getVersion());
     }
 
     private void assertFileExists(String relativePath, File dir) {
@@ -106,7 +110,7 @@ public class PublishProductMojoUnitTest {
         ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
         BuildOutputDirectory buildBasedir = new BuildOutputDirectory(tempFolder.newFolder("buildBasedir"));
 
-        PublishProductMojo.qualifyVersions(productConfiguration, "");
+        PublishProductMojo.expandProductVersionQualifier(productConfiguration, "");
         File preparedProduct = PublishProductMojo.writeProductForPublishing(productFile, productConfiguration,
                 buildBasedir);
 
@@ -159,6 +163,29 @@ public class PublishProductMojoUnitTest {
             result.add(feature.getId());
         }
         return result;
+    }
+
+    private static Answer<ArtifactKey> withResolvedVersion(final String version) {
+        return new Answer<ArtifactKey>() {
+            @Override
+            public ArtifactKey answer(InvocationOnMock invocation) throws Throwable {
+                String type = (String) invocation.getArguments()[0];
+                String id = (String) invocation.getArguments()[1];
+                return new DefaultArtifactKey(type, id, version);
+            }
+        };
+    }
+
+    private static Answer<ArtifactKey> withSameVersion() {
+        return new Answer<ArtifactKey>() {
+            @Override
+            public ArtifactKey answer(InvocationOnMock invocation) throws Throwable {
+                String type = (String) invocation.getArguments()[0];
+                String id = (String) invocation.getArguments()[1];
+                String version = (String) invocation.getArguments()[2];
+                return new DefaultArtifactKey(type, id, version);
+            }
+        };
     }
 
 }

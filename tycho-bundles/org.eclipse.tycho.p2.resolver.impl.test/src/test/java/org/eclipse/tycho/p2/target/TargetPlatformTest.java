@@ -67,6 +67,14 @@ public class TargetPlatformTest {
     }
 
     @Test
+    public void testResolveNullId() throws Exception {
+        exceptions.expect(IllegalArtifactReferenceException.class);
+        exceptions.expectMessage("ID is required");
+
+        subject.resolveReference("eclipse-plugin", null, "1.0.0");
+    }
+
+    @Test
     public void testResolveInvalidVersionSyntax() throws Exception {
         exceptions.expect(IllegalArtifactReferenceException.class);
         exceptions.expectMessage("is not a valid OSGi version");

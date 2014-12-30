@@ -1,14 +1,16 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG and others.
+ * Copyright (c) 2010, 2014 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,9 +28,12 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ArtifactDescriptor;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.buildversion.VersioningHelper;
 import org.eclipse.tycho.core.maven.InterpolationException;
 import org.eclipse.tycho.core.maven.Interpolator;
@@ -81,11 +86,16 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         for (File producFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(producFile);
-                if (productConfiguration.getId() == null) {
+                if (isEmpty(productConfiguration.getId())) {
                     throw new MojoExecutionException("The product file " + producFile.getName()
                             + " does not contain the mandatory attribute 'uid'");
+                } else if (isEmpty(productConfiguration.getVersion())) {
+                    throw new MojoExecutionException("The product file " + producFile.getName()
+                            + " does not contain the mandatory attribute 'version'");
                 }
-                qualifyVersions(productConfiguration, getQualifier());
+                expandProductVersionQualifier(productConfiguration, getQualifier());
+                expandVersionsOfInclusions(producFile.getName(), productConfiguration,
+                        TychoProjectUtils.getTargetPlatform(getProject()));
                 Interpolator interpolator = new org.eclipse.tycho.core.maven.Interpolator(getSession(), getProject());
                 interpolateProperties(productConfiguration, interpolator);
                 extractRootFeatures(productConfiguration, result);
@@ -173,42 +183,52 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         return new File(productFile.getParentFile(), p2infFilename);
     }
 
-    static void qualifyVersions(ProductConfiguration productConfiguration, String buildQualifier) {
-        // we need to expand the version otherwise the published artifact still has the '.qualifier'
-        // TODO is this still necessary? if this code was on the OSGi class loader side, we could have a unit test verify that the published IU is correct...
-        String productVersion = productConfiguration.getVersion();
-        if (productVersion != null) {
-            productVersion = replaceQualifier(productVersion, buildQualifier);
-            productConfiguration.setVersion(productVersion);
-        }
-
-        // now same for the features and bundles that version would be something else than "0.0.0"
-        for (FeatureRef featRef : productConfiguration.getFeatures()) {
-            if (featRef.getVersion() != null && featRef.getVersion().endsWith(VersioningHelper.QUALIFIER)) {
-                String newVersion = replaceQualifier(featRef.getVersion(), buildQualifier);
-                featRef.setVersion(newVersion);
-            }
-        }
-        for (PluginRef plugRef : productConfiguration.getPlugins()) {
-            if (plugRef.getVersion() != null && plugRef.getVersion().endsWith(VersioningHelper.QUALIFIER)) {
-                String newVersion = replaceQualifier(plugRef.getVersion(), buildQualifier);
-                plugRef.setVersion(newVersion);
+    static void expandProductVersionQualifier(ProductConfiguration productConfiguration, String qualifier) {
+        String unqualifiedVersion = stripQualifier(productConfiguration.getVersion());
+        if (unqualifiedVersion != null) {
+            if (qualifier == null || "".equals(qualifier)) {
+                productConfiguration.setVersion(unqualifiedVersion);
+            } else {
+                productConfiguration.setVersion(unqualifiedVersion + "." + qualifier);
             }
         }
     }
 
-    private static String replaceQualifier(final String productVersion, final String qualifier) {
-        String replaceVersion = productVersion;
-        if (productVersion.endsWith("." + VersioningHelper.QUALIFIER)) {
-            int qualifierIndex = productVersion.length() - VersioningHelper.QUALIFIER.length();
-            String unqualifiedVersion = productVersion.substring(0, qualifierIndex - 1);
-            if (qualifier == null || "".equals(qualifier)) {
-                replaceVersion = unqualifiedVersion;
-            } else {
-                replaceVersion = unqualifiedVersion + "." + qualifier;
+    private static String stripQualifier(String version) {
+        if (version.endsWith("." + VersioningHelper.QUALIFIER)) {
+            int qualifierIndex = version.length() - VersioningHelper.QUALIFIER.length();
+            return version.substring(0, qualifierIndex - 1);
+        }
+        // nothing to do
+        return null;
+    }
+
+    static void expandVersionsOfInclusions(String productName, ProductConfiguration productConfiguration,
+            TargetPlatform targetPlatform) throws MojoFailureException {
+
+        for (FeatureRef featureRef : productConfiguration.getFeatures()) {
+            try {
+                ArtifactKey resolvedReference = targetPlatform.resolveReference(ArtifactType.TYPE_ECLIPSE_FEATURE,
+                        featureRef.getId(), featureRef.getVersion());
+                featureRef.setVersion(resolvedReference.getVersion());
+            } catch (IllegalArtifactReferenceException e) {
+                throw new MojoFailureException("Invalid reference to feature \"" + featureRef.getId()
+                        + "\" with version \"" + featureRef.getVersion() + "\" in product " + productName + ": "
+                        + e.getMessage(), e);
             }
         }
-        return replaceVersion;
+
+        for (PluginRef pluginRef : productConfiguration.getPlugins()) {
+            try {
+                ArtifactKey resolvedReference = targetPlatform.resolveReference(ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                        pluginRef.getId(), pluginRef.getVersion());
+                pluginRef.setVersion(resolvedReference.getVersion());
+            } catch (IllegalArtifactReferenceException e) {
+                throw new MojoFailureException("Invalid reference to plug-in \"" + pluginRef.getId()
+                        + "\" with version \"" + pluginRef.getVersion() + "\" in product " + productName + ": "
+                        + e.getMessage(), e);
+            }
+        }
     }
 
     private static void interpolateProperties(ProductConfiguration productConfiguration, Interpolator interpolator)
@@ -231,6 +251,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
         // add root features as special dependency seed which are marked as "add-on" for the product
         DependencySeed.Filter filter = new DependencySeed.Filter() {
+            @Override
             public boolean isAddOnFor(String type, String id) {
                 return ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
             }

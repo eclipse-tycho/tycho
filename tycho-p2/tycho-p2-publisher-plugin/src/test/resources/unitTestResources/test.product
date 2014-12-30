@@ -30,8 +30,8 @@
    </plugins>
 
    <features>
-      <feature id="test.feature" version="0.1.0.qualifier"/>
-      <feature id="test.feature2" version="0.1.0.qual"/>
+      <feature id="test.feature" version="0.2.0.qualifier"/>
+      <feature id="test.feature2" version="0.2.0.qual"/>
    </features>
 
 

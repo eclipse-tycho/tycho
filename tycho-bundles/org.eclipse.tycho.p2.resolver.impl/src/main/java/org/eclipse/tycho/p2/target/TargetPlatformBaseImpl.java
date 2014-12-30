@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.core.ee.shared.BuildFailureException;
@@ -83,7 +84,21 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
     @Override
     public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, String version)
             throws IllegalArtifactReferenceException, BuildFailureException {
-        return ArtifactMatcher.resolveReference(type, id, version, installableUnits);
+
+        IInstallableUnit matchingUnit = ArtifactMatcher.resolveReference(type, id, version, installableUnits);
+        if (matchingUnit == null) {
+            String message;
+            if (version == null) {
+                message = type + " artifact with ID \"" + id + "\" not found in the target platform";
+            } else {
+                message = type + " artifact with ID \"" + id + "\" and version matching \"" + version
+                        + "\" not found in the target platform";
+            }
+            throw new BuildFailureException(message);
+            // TODO 353399 return null or use a dedicated exception type so that the caller may ignore non-resolvable references (with already expanded versions)?
+        }
+
+        return new DefaultArtifactKey(type, id, matchingUnit.getVersion().toString());
     }
 
     @Override
