@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
+import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
@@ -23,7 +24,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 /**
@@ -44,7 +44,7 @@ class PublisherActionRunner {
     }
 
     public Collection<IInstallableUnit> executeAction(IPublisherAction action, IMetadataRepository metadataOutput,
-            IArtifactRepository artifactOutput) throws FacadeException {
+            IArtifactRepository artifactOutput, IPublisherAdvice... advice) {
         ResultSpyAction resultSpy = new ResultSpyAction();
         IPublisherAction[] actions = new IPublisherAction[] { action, resultSpy };
 
@@ -53,6 +53,9 @@ class PublisherActionRunner {
          * bug 346532).
          */
         IPublisherInfo publisherInfo = newPublisherInfo(metadataOutput, artifactOutput);
+        for (IPublisherAdvice adviceItem : advice) {
+            publisherInfo.addAdvice(adviceItem);
+        }
         Publisher publisher = new Publisher(publisherInfo);
 
         IStatus result = publisher.publish(actions, null);
@@ -90,13 +93,19 @@ class PublisherActionRunner {
         publisherInfo.setConfigurations(configSpecs);
     }
 
-    private void handlePublisherStatus(IStatus result) throws FacadeException {
+    private void handlePublisherStatus(IStatus result) {
         if (result.matches(IStatus.INFO)) {
             logger.info(StatusTool.collectProblems(result));
         } else if (result.matches(IStatus.WARNING)) {
             logger.warn(StatusTool.collectProblems(result));
+
         } else if (!result.isOK()) {
-            throw new FacadeException(StatusTool.collectProblems(result), result.getException());
+            Throwable directlyIncludedException = result.getException();
+            if (directlyIncludedException instanceof RuntimeException) {
+                throw (RuntimeException) directlyIncludedException;
+            } else {
+                throw new RuntimeException(StatusTool.collectProblems(result), StatusTool.findException(result));
+            }
         }
     }
 

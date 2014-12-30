@@ -61,9 +61,17 @@ public class TargetPlatformTest {
     @Test
     public void testFailingResolve() throws Exception {
         exceptions.expect(not(isA(IllegalArtifactReferenceException.class))); // not a problem with the syntax
-        exceptions.expectMessage("Cannot resolve reference");
+        exceptions.expectMessage("not found in the target platform");
 
         subject.resolveReference("eclipse-plugin", "other.bundle", "1.0.0");
+    }
+
+    @Test
+    public void testResolveNullId() throws Exception {
+        exceptions.expect(IllegalArtifactReferenceException.class);
+        exceptions.expectMessage("ID is required");
+
+        subject.resolveReference("eclipse-plugin", null, "1.0.0");
     }
 
     @Test

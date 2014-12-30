@@ -29,10 +29,10 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 @SuppressWarnings({ "restriction", "nls" })
 public class InstallableUnitUtil {
 
-    private static final String IU_CAPABILITY_NS = "org.eclipse.equinox.p2.iu"; // see IInstallableUnit.NAMESPACE_IU_ID;
-    private static final String BUNDLE_CAPABILITY_NS = "osgi.bundle"; // see BundlesAction.CAPABILITY_NS_OSGI_BUNDLE
-    private static final String PRODUCT_TYPE_PROPERTY = "org.eclipse.equinox.p2.type.product"; // see InstallableUnitDescription.PROP_TYPE_PRODUCT;
-    private static final String FEATURE_TYPE_PROPERTY = "org.eclipse.equinox.p2.type.group"; // see InstallableUnitDescription.PROP_TYPE_GROUP;
+    static final String IU_CAPABILITY_NS = "org.eclipse.equinox.p2.iu"; // see IInstallableUnit.NAMESPACE_IU_ID;
+    static final String BUNDLE_CAPABILITY_NS = "osgi.bundle"; // see BundlesAction.CAPABILITY_NS_OSGI_BUNDLE
+    static final String PRODUCT_TYPE_PROPERTY = "org.eclipse.equinox.p2.type.product"; // see InstallableUnitDescription.PROP_TYPE_PRODUCT;
+    static final String FEATURE_TYPE_PROPERTY = "org.eclipse.equinox.p2.type.group"; // see InstallableUnitDescription.PROP_TYPE_GROUP;
 
     public static String DEFAULT_VERSION = "0.0.20";
 
@@ -86,9 +86,8 @@ public class InstallableUnitUtil {
     public static IInstallableUnit createIURequirement(String id, String version, String requiredId,
             String requiredVersionRange) {
         InstallableUnitDescription description = createIuDescription(id, version);
-        final RequiredCapability requiredCapability = new RequiredCapability(IU_CAPABILITY_NS, requiredId,
-                new VersionRange(requiredVersionRange), null, false, true);
-        description.addRequirements(Arrays.<IRequirement> asList(requiredCapability));
+        final IRequirement requiredCapability = createRequirement(requiredId, requiredVersionRange);
+        description.addRequirements(Arrays.asList(requiredCapability));
         return MetadataFactory.createInstallableUnit(description);
     }
 
@@ -102,5 +101,16 @@ public class InstallableUnitUtil {
 
     private static List<IProvidedCapability> createProvidedCapability(String namespace, String name, String version) {
         return Arrays.<IProvidedCapability> asList(new ProvidedCapability(namespace, name, Version.create(version)));
+    }
+
+    static IRequirement createRequirement(String requiredId, String requiredVersionRange) {
+        return new RequiredCapability(IU_CAPABILITY_NS, requiredId, new VersionRange(requiredVersionRange), null,
+                false, false, true);
+    }
+
+    static IRequirement createStrictRequirement(String requiredId, String requiredVersion) {
+        Version parsedVersion = Version.create(requiredVersion);
+        return new RequiredCapability(IU_CAPABILITY_NS, requiredId, new VersionRange(parsedVersion, true,
+                parsedVersion, true), null, false, false, true);
     }
 }

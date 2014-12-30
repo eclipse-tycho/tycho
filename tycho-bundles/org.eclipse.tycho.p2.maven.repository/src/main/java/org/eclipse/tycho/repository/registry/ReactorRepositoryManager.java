@@ -11,8 +11,6 @@
 package org.eclipse.tycho.repository.registry;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
@@ -20,8 +18,6 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFaca
 public interface ReactorRepositoryManager extends ReactorRepositoryManagerFacade {
 
     IProvisioningAgent getAgent();
-
-    public IMetadataRepository getFinalTargetPlatformMetadataRepository(ReactorProject project);
 
     /**
      * Returns the project's publishing repository.

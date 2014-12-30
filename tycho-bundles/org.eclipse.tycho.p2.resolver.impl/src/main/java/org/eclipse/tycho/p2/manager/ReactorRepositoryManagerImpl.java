@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -121,12 +120,12 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     }
 
     @Override
-    public IMetadataRepository getFinalTargetPlatformMetadataRepository(ReactorProject project) {
-        P2TargetPlatform targetPlatform = (P2TargetPlatform) project.getContextValue(FINAL_TARGET_PLATFORM_KEY);
+    public TargetPlatform getFinalTargetPlatform(ReactorProject project) {
+        TargetPlatform targetPlatform = (TargetPlatform) project.getContextValue(FINAL_TARGET_PLATFORM_KEY);
         if (targetPlatform == null) {
             throw new IllegalStateException("Target platform is missing");
         }
-        return targetPlatform.getInstallableUnitsAsMetadataRepository();
+        return targetPlatform;
     }
 
     // TODO use IOUtils

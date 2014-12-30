@@ -11,6 +11,7 @@
 package org.eclipse.tycho.test.util;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import org.hamcrest.CoreMatchers;
@@ -26,7 +27,7 @@ import org.hamcrest.TypeSafeMatcher;
 public class TychoMatchers {
 
     /**
-     * Returns a matcher matching any list that contains the given sequence of elements.
+     * Creates a matcher matching any list that contains the given sequence of elements.
      * 
      * @see CoreMatchers#hasItem(Matcher)
      */
@@ -58,6 +59,26 @@ public class TychoMatchers {
                         return false;
                 }
                 return true;
+            }
+        };
+    }
+
+    /**
+     * Creates a matcher matching any collection with the given size.
+     * 
+     * @see CoreMatchers#hasItem(Matcher)
+     */
+    public static <T> Matcher<Collection<? extends T>> hasSize(final int size) {
+        return new TypeSafeMatcher<Collection<? extends T>>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a collection with size " + size);
+            }
+
+            @Override
+            protected boolean matchesSafely(Collection<? extends T> item) {
+                return item.size() == size;
             }
         };
     }

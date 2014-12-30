@@ -13,6 +13,7 @@ package org.eclipse.tycho.p2.tools.publisher.facade;
 import java.util.List;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 public interface PublisherServiceFactory {
@@ -30,6 +31,7 @@ public interface PublisherServiceFactory {
     // TODO separate publishers per artifact type
     PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments);
 
-    PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments);
+    PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments,
+            String buildQualifier, Interpolator interpolator);
 
 }

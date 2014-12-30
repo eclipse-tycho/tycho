@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.testutil;
 
+import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.IU_CAPABILITY_NS;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
@@ -64,7 +68,6 @@ public class InstallableUnitMatchers {
 
     public static Matcher<IInstallableUnit> hasGAV(final String groupId, final String artifactId, final String version,
             final String classifier) {
-
         return new TypeSafeMatcher<IInstallableUnit>() {
 
             @Override
@@ -80,6 +83,35 @@ public class InstallableUnitMatchers {
                 String actualClassifier = item.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
                 return isEqual(groupId, actualGroupId) && isEqual(artifactId, actualArtifactId)
                         && isEqual(version, actualVersion) && isEqual(classifier, actualClassifier);
+            }
+        };
+    }
+
+    public static Matcher<IInstallableUnit> hasSelfCapability() {
+        return new TypeSafeMatcher<IInstallableUnit>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("an installable unit providing the self-capability");
+            }
+
+            @Override
+            protected boolean matchesSafely(IInstallableUnit unit) {
+                String name = unit.getId();
+                Version version = unit.getVersion();
+                for (IProvidedCapability capability : unit.getProvidedCapabilities()) {
+                    if (IU_CAPABILITY_NS.equals(capability.getNamespace()) && name.equals(capability.getName())
+                            && version.equals(capability.getVersion())) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            protected void describeMismatchSafely(IInstallableUnit item, Description mismatchDescription) {
+                mismatchDescription.appendValue(item).appendText(" has the provided capabilities ")
+                        .appendValue(item.getProvidedCapabilities());
             }
         };
     }
@@ -114,6 +146,55 @@ public class InstallableUnitMatchers {
             @Override
             public void describeTo(Description description) {
                 description.appendText("the capability osgi.ee/" + eeName + "/" + parsedVersion);
+            }
+
+        };
+    }
+
+    public static Matcher<? super IRequirement> requirement(final String id, final String version) {
+        final IInstallableUnit unit = InstallableUnitUtil.createIU(id, version);
+        return new TypeSafeMatcher<IRequirement>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a require of unit ").appendText(id).appendText(":").appendText(version);
+            }
+
+            @Override
+            protected boolean matchesSafely(IRequirement item) {
+                return item.isMatch(unit);
+            }
+        };
+    }
+
+    public static Matcher<IRequirement> strictRequirement(final String id, final String version) {
+        final IRequirement requirement = InstallableUnitUtil.createStrictRequirement(id, version);
+        return new TypeSafeMatcher<IRequirement>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a strict require of unit ").appendText(id).appendText(":").appendText(version);
+            }
+
+            @Override
+            protected boolean matchesSafely(IRequirement item) {
+                return requirement.equals(item);
+            }
+        };
+    }
+
+    public static Matcher<? super ITouchpointData> configureTouchpointInstructionThat(
+            final Matcher<String> instructionMatcher) {
+        return new TypeSafeMatcher<ITouchpointData>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a 'configure' touchpoint with: ").appendDescriptionOf(instructionMatcher);
+            }
+
+            @Override
+            protected boolean matchesSafely(ITouchpointData item) {
+                return instructionMatcher.matches(item.getInstruction("configure").getBody());
             }
 
         };

@@ -30,6 +30,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
+import org.eclipse.tycho.core.shared.VersioningHelper;
 import org.osgi.framework.Version;
 
 /**
