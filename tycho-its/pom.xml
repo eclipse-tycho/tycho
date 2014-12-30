@@ -30,7 +30,7 @@
 			/opt/maven/bin/mvn clean test -Pits -Dtycho-build-version=0.4.0-DEV-3023 -Dtycho.targetPlatform=/opt/eclipse-3.5/eclipse/
 		-->
 		<tycho-build-version>${project.version}</tycho-build-version>
-        <its-maven-version>${maven-version}</its-maven-version>
+		<its-maven-version>${maven-version}</its-maven-version>
 		<maven-dir>${project.build.directory}/apache-maven-${its-maven-version}</maven-dir>
 
 	</properties>
@@ -154,7 +154,6 @@
 					<destination>${project.basedir}/repositories/kepler</destination>
 				</configuration>
 			</plugin>
-			
 		</plugins>
 
 		<pluginManagement>
@@ -178,7 +177,9 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<execute />
+										<execute>
+											<runOnIncremental>false</runOnIncremental>
+										</execute>
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -191,7 +192,24 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<execute />
+										<execute>
+											<runOnIncremental>false</runOnIncremental>
+										</execute>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.eclipse.tycho.extras</groupId>
+										<artifactId>tycho-p2-extras-plugin</artifactId>
+										<versionRange>[${tychoBootstrapVersion},)</versionRange>
+										<goals>
+											<goal>mirror</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute>
+											<runOnIncremental>false</runOnIncremental>
+										</execute>
 									</action>
 								</pluginExecution>
 
