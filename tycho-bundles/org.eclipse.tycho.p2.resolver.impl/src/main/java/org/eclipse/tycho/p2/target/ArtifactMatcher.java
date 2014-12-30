@@ -18,30 +18,29 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 
 public class ArtifactMatcher {
 
-    public static org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, String version,
-            LinkedHashSet<IInstallableUnit> candidateUnits) throws IllegalArtifactReferenceException,
-            BuildFailureException {
-        VersionRange versionRange = getVersionRangeFromReference(parseAsOSGiVersion(version));
+    public static IInstallableUnit resolveReference(String type, String id, Version version,
+            LinkedHashSet<IInstallableUnit> candidateUnits) throws IllegalArtifactReferenceException {
+        if (id == null) {
+            throw new IllegalArtifactReferenceException("ID is required");
+        }
+
+        VersionRange versionRange = getVersionRangeFromReference(version);
         IQuery<IInstallableUnit> query = QueryUtil.createLatestQuery(ArtifactTypeHelper.createQueryFor(type, id,
                 versionRange));
 
         IQueryResult<IInstallableUnit> matchingIUs = query.perform(candidateUnits.iterator());
         if (matchingIUs.isEmpty()) {
-            throw new BuildFailureException("Cannot resolve reference to " + type + " with ID '" + id
-                    + "' and version '" + version + "'");
-            // TODO 353399 return null or use a dedicated exception type so that the caller may ignore non-resolvable references (with already expanded versions)?
+            return null;
+        } else {
+            return matchingIUs.iterator().next();
         }
-
-        return new DefaultArtifactKey(type, id, matchingIUs.iterator().next().getVersion().toString());
     }
 
-    private static Version parseAsOSGiVersion(String version) throws IllegalArtifactReferenceException {
+    public static Version parseAsOSGiVersion(String version) throws IllegalArtifactReferenceException {
         try {
             return Version.parseVersion(version);
         } catch (IllegalArgumentException e) {

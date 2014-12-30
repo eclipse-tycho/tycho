@@ -17,8 +17,12 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
@@ -69,5 +73,11 @@ public interface P2TargetPlatform extends TargetPlatform {
 
     // TODO 393004 this method should not be necessary
     void saveLocalMavenRepository();
+
+    /**
+     * @see #resolveReference(String, String, String)
+     */
+    ArtifactKey resolveReference(String type, String id, Version version) throws IllegalArtifactReferenceException,
+            DependencyResolutionException;
 
 }

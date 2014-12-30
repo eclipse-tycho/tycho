@@ -48,7 +48,10 @@ public interface ReactorRepositoryManagerFacade {
      */
     void computeFinalTargetPlatform(ReactorProject project, List<? extends ReactorProjectIdentities> upstreamProjects);
 
-    // TODO add method to get (final) target platform?
+    /**
+     * Returns the target platform with final p2 metadata for the given project.
+     */
+    TargetPlatform getFinalTargetPlatform(ReactorProject project);
 
     /**
      * Returns the project's publishing repository.

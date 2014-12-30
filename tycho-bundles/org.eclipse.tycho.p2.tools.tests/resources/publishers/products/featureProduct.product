@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="productId" version="0.1.0.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <features>
+      <feature id="test.feature1" version="1.0.1.qualifier"/>
+      <feature id="test.feature2" version="1.0.1.qualifier"/>
+   </features>
+
+
+</product>

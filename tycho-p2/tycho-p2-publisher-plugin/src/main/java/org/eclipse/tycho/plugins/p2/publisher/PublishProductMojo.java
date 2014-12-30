@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.publisher;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -24,24 +28,17 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
-import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
-import org.eclipse.tycho.buildversion.VersioningHelper;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.FeatureRef;
-import org.eclipse.tycho.model.Launcher;
-import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
-import org.eclipse.tycho.model.ProductConfiguration.ConfigIni;
-import org.eclipse.tycho.model.ProductConfiguration.ConfigurationProperty;
-import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
@@ -78,156 +75,36 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
+        Interpolator interpolator = new TychoInterpolator(getSession(), getProject());
         PublishProductTool publisher = publisherServiceFactory.createProductPublisher(getReactorProject(),
-                getEnvironments());
+                getEnvironments(), getQualifier(), interpolator);
 
-        List<DependencySeed> result = new ArrayList<DependencySeed>();
-        for (File producFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
+        List<DependencySeed> seeds = new ArrayList<DependencySeed>();
+        for (File productFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
-                ProductConfiguration productConfiguration = ProductConfiguration.read(producFile);
-                if (productConfiguration.getId() == null) {
-                    throw new MojoExecutionException("The product file " + producFile.getName()
+                ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
+                if (isEmpty(productConfiguration.getId())) {
+                    throw new MojoExecutionException("The product file " + productFile.getName()
                             + " does not contain the mandatory attribute 'uid'");
+                } else if (isEmpty(productConfiguration.getVersion())) {
+                    throw new MojoExecutionException("The product file " + productFile.getName()
+                            + " does not contain the mandatory attribute 'version'");
                 }
-                qualifyVersions(productConfiguration, getQualifier());
-                TychoInterpolator interpolator = new org.eclipse.tycho.core.maven.TychoInterpolator(getSession(),
-                        getProject());
-                interpolateProperties(productConfiguration, interpolator);
-                extractRootFeatures(productConfiguration, result);
 
-                final File preparedProductFile = writeProductForPublishing(producFile, productConfiguration,
-                        getBuildDirectory());
-                Collection<DependencySeed> seeds = publisher.publishProduct(preparedProductFile,
-                        productConfiguration.includeLaunchers() ? getEquinoxExecutableFeature() : null, flavor);
-                result.addAll(seeds);
-            } catch (FacadeException e) {
-                throw new MojoExecutionException("Exception while publishing product " + producFile.getAbsolutePath(),
-                        e);
+                Set<String> rootFeatures = extractRootFeatures(productConfiguration, seeds);
+                seeds.addAll(publisher.publishProduct(productFile, rootFeatures,
+                        productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, flavor));
             } catch (IOException e) {
                 throw new MojoExecutionException(
                         "I/O exception while writing product definition or copying launcher icons", e);
             }
         }
-        return result;
+        return seeds;
     }
 
-    /**
-     * Writes the product file and, if present, corresponding p2 advice file and other files
-     * referenced in the .product file via relative path to a working directory. The folder is named
-     * after the product ID (stored in the 'uid' attribute!), and the p2 advice file is renamed to
-     * "p2.inf" so that the publisher application finds it.
-     */
-    // TODO since we call the product publisher in process (and no longer via the publisher application), writing to disk would no longer be needed...
-    static File writeProductForPublishing(File originalProductFile, ProductConfiguration productConfiguration,
-            BuildOutputDirectory targetDir) throws IOException {
-        File buildProductDir = targetDir.getChild("products/" + productConfiguration.getId());
-        buildProductDir.mkdirs();
-        File preparedProductFile = new File(buildProductDir, originalProductFile.getName());
-        ProductConfiguration.write(productConfiguration, preparedProductFile);
-        copyP2Inf(getSourceP2InfFile(originalProductFile), new File(buildProductDir, "p2.inf"));
-        copyReferencedFiles(productConfiguration, originalProductFile.getParentFile(), buildProductDir);
-        return preparedProductFile;
-    }
-
-    private static void copyReferencedFiles(ProductConfiguration productConfiguration, File sourceDir, File targetDir)
-            throws IOException {
-        Launcher launcher = productConfiguration.getLauncher();
-        List<String> relativePaths = new ArrayList<String>();
-        if (launcher != null) {
-            relativePaths.addAll(launcher.getLinuxIcon().values());
-            relativePaths.addAll(launcher.getWindowsIcon().values());
-            relativePaths.addAll(launcher.getSolarisIcon().values());
-            relativePaths.addAll(launcher.getMacosxIcon().values());
-        }
-        ConfigIni configIni = productConfiguration.getConfigIni();
-        if (configIni != null) {
-            relativePaths.add(configIni.getLinuxConfigIni());
-            relativePaths.add(configIni.getWin32ConfigIni());
-            relativePaths.add(configIni.getSolarisConfigIni());
-            relativePaths.add(configIni.getMacosxConfigIni());
-        }
-        copyFiles(sourceDir, targetDir, relativePaths);
-    }
-
-    private static void copyFiles(File sourceDir, File targetDir, List<String> relativePaths) throws IOException {
-        for (String relativePath : relativePaths) {
-            if (relativePath == null) {
-                continue;
-            }
-            File sourceFile = new File(sourceDir, relativePath);
-            if (sourceFile.isFile()) {
-                FileUtils.copyFile(sourceFile, new File(targetDir, relativePath));
-            }
-        }
-    }
-
-    static void copyP2Inf(final File sourceP2Inf, final File buildP2Inf) throws IOException {
-        if (sourceP2Inf.exists()) {
-            FileUtils.copyFile(sourceP2Inf, buildP2Inf);
-        }
-    }
-
-    /**
-     * We expect an p2 advice file called "xx.p2.inf" next to a product file "xx.product".
-     */
-    static File getSourceP2InfFile(File productFile) {
-        // This must match org.eclipse.tycho.p2.impl.publisher.ProductDependenciesAction.addPublisherAdvice(IPublisherInfo)
-        final String productFileName = productFile.getName();
-        final String p2infFilename = productFileName.substring(0, productFileName.length() - ".product".length())
-                + ".p2.inf";
-        return new File(productFile.getParentFile(), p2infFilename);
-    }
-
-    static void qualifyVersions(ProductConfiguration productConfiguration, String buildQualifier) {
-        // we need to expand the version otherwise the published artifact still has the '.qualifier'
-        // TODO is this still necessary? if this code was on the OSGi class loader side, we could have a unit test verify that the published IU is correct...
-        String productVersion = productConfiguration.getVersion();
-        if (productVersion != null) {
-            productVersion = replaceQualifier(productVersion, buildQualifier);
-            productConfiguration.setVersion(productVersion);
-        }
-
-        // now same for the features and bundles that version would be something else than "0.0.0"
-        for (FeatureRef featRef : productConfiguration.getFeatures()) {
-            if (featRef.getVersion() != null && featRef.getVersion().endsWith(VersioningHelper.QUALIFIER)) {
-                String newVersion = replaceQualifier(featRef.getVersion(), buildQualifier);
-                featRef.setVersion(newVersion);
-            }
-        }
-        for (PluginRef plugRef : productConfiguration.getPlugins()) {
-            if (plugRef.getVersion() != null && plugRef.getVersion().endsWith(VersioningHelper.QUALIFIER)) {
-                String newVersion = replaceQualifier(plugRef.getVersion(), buildQualifier);
-                plugRef.setVersion(newVersion);
-            }
-        }
-    }
-
-    private static String replaceQualifier(final String productVersion, final String qualifier) {
-        String replaceVersion = productVersion;
-        if (productVersion.endsWith("." + VersioningHelper.QUALIFIER)) {
-            int qualifierIndex = productVersion.length() - VersioningHelper.QUALIFIER.length();
-            String unqualifiedVersion = productVersion.substring(0, qualifierIndex - 1);
-            if (qualifier == null || "".equals(qualifier)) {
-                replaceVersion = unqualifiedVersion;
-            } else {
-                replaceVersion = unqualifiedVersion + "." + qualifier;
-            }
-        }
-        return replaceVersion;
-    }
-
-    private static void interpolateProperties(ProductConfiguration productConfiguration, TychoInterpolator interpolator)
-            throws MojoExecutionException {
-        List<ConfigurationProperty> properties = productConfiguration.getConfigurationProperties();
-        if (properties != null && interpolator != null) {
-            for (ConfigurationProperty property : properties) {
-                property.setValue(interpolator.interpolate(property.getValue()));
-            }
-        }
-    }
-
-    static void extractRootFeatures(ProductConfiguration product, List<DependencySeed> seeds) {
+    static Set<String> extractRootFeatures(ProductConfiguration product, List<DependencySeed> seeds) {
         final String productId = product.getId();
+        Set<String> rootFeatures = new HashSet<String>();
 
         // add root features as special dependency seed which are marked as "add-on" for the product
         DependencySeed.Filter filter = new DependencySeed.Filter() {
@@ -240,16 +117,13 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             if (feature.getInstallMode() == FeatureRef.InstallMode.root) {
                 // TODO 372780 get feature version from target platform that matches the specification; picking any version will no longer work once the the director installs from the target platform instead of from the resolved dependencies
                 seeds.add(new DependencySeed(ArtifactType.TYPE_ECLIPSE_FEATURE, feature.getId(), null, filter));
+                rootFeatures.add(feature.getId());
             }
         }
-        product.removeRootInstalledFeatures();
+        return rootFeatures;
     }
 
-    /**
-     * Same code than in the ProductExportMojo. Needed to get the launcher binaries.
-     */
-    // TODO implement at eclipse: have product publisher take the executables from the context repositories 
-    private File getEquinoxExecutableFeature() throws MojoExecutionException, MojoFailureException {
+    private File getExpandedLauncherBinaries() throws MojoExecutionException, MojoFailureException {
         // TODO 364134 take the executable feature from the target platform instead
         DependencyArtifacts dependencyArtifacts = TychoProjectUtils.getDependencyArtifacts(getProject());
         ArtifactDescriptor artifact = dependencyArtifacts.getArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE,
