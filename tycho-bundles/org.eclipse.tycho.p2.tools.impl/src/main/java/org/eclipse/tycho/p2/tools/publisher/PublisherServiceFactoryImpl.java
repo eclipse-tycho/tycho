@@ -44,7 +44,8 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
         PublisherActionRunner publisherRunner = getPublisherRunnerForProject(targetPlatform, environments);
         PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project.getIdentities());
 
-        return new PublishProductToolImpl(publisherRunner, publishingRepository, buildQualifier, interpolator);
+        return new PublishProductToolImpl(publisherRunner, publishingRepository, targetPlatform, buildQualifier,
+                interpolator, mavenContext.getLogger());
     }
 
     private PublisherActionRunner getPublisherRunnerForProject(P2TargetPlatform targetPlatform,

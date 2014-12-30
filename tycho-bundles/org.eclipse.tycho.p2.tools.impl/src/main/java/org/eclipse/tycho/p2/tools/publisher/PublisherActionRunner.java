@@ -98,8 +98,15 @@ class PublisherActionRunner {
             logger.info(StatusTool.collectProblems(result));
         } else if (result.matches(IStatus.WARNING)) {
             logger.warn(StatusTool.collectProblems(result));
+
         } else if (!result.isOK()) {
-            throw new RuntimeException(StatusTool.collectProblems(result), result.getException());
+            Throwable directlyIncludedException = result.getException();
+            if (directlyIncludedException instanceof RuntimeException) {
+                throw (RuntimeException) directlyIncludedException;
+            } else {
+                // unknown internal error
+                throw new RuntimeException(StatusTool.collectProblems(result), StatusTool.findException(result));
+            }
         }
     }
 

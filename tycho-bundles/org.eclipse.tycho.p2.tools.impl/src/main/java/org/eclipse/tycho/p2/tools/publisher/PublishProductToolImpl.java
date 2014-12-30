@@ -32,6 +32,8 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.Interpolator;
+import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 
@@ -42,18 +44,23 @@ import org.eclipse.tycho.repository.publishing.PublishingRepository;
 @SuppressWarnings("restriction")
 public class PublishProductToolImpl implements PublishProductTool {
 
+    private final P2TargetPlatform targetPlatform;
+
     private final PublisherActionRunner publisherRunner;
     private final PublishingRepository publishingRepository;
 
     private final String buildQualifier;
     private final Interpolator interpolator;
+    private final MavenLogger logger;
 
     public PublishProductToolImpl(PublisherActionRunner publisherRunner, PublishingRepository publishingRepository,
-            String buildQualifier, Interpolator interpolator) {
+            P2TargetPlatform targetPlatform, String buildQualifier, Interpolator interpolator, MavenLogger logger) {
         this.publisherRunner = publisherRunner;
         this.publishingRepository = publishingRepository;
+        this.targetPlatform = targetPlatform;
         this.buildQualifier = buildQualifier;
         this.interpolator = interpolator;
+        this.logger = logger;
     }
 
     @Override
@@ -61,8 +68,8 @@ public class PublishProductToolImpl implements PublishProductTool {
             String flavor) throws IllegalArgumentException {
 
         IProductDescriptor originalProduct = loadProductFile(productFile);
-        IProductDescriptor expandedProduct = new ExpandedProduct(originalProduct, buildQualifier, interpolator,
-                rootFeatures);
+        IProductDescriptor expandedProduct = new ExpandedProduct(originalProduct, buildQualifier, targetPlatform,
+                interpolator, logger, rootFeatures);
 
         IPublisherAdvice[] advice = getProductSpecificAdviceFileAdvice(productFile, expandedProduct);
 

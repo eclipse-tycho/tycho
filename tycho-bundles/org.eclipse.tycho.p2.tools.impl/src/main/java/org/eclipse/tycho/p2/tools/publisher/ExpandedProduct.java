@@ -24,31 +24,41 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductContentType;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.tycho.ArtifactKey;
+import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
+import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.core.shared.Interpolator;
+import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.VersioningHelper;
+import org.eclipse.tycho.p2.target.P2TargetPlatform;
 
 @SuppressWarnings({ "restriction" })
 class ExpandedProduct implements IProductDescriptor {
 
     private final IProductDescriptor defaults;
 
+    private P2TargetPlatform targetPlatform;
     private Interpolator interpolator;
-    private String buildQualifier;
 
     private final String expandedVersion;
     private List<IVersionedId> expandedBundles = null;
     private List<IVersionedId> expandedFeatures = null;
 
+    private final MultiLineLogger logger;
+
     // TODO 428889 this information should come from the IProductDescriptor
     private Set<String> rootFeatures;
 
-    public ExpandedProduct(IProductDescriptor originalProduct, String buildQualifier, Interpolator interpolator,
-            Set<String> rootFeatures) {
+    public ExpandedProduct(IProductDescriptor originalProduct, String buildQualifier, P2TargetPlatform targetPlatform,
+            Interpolator interpolator, MavenLogger logger, Set<String> rootFeatures) {
         this.defaults = originalProduct;
-        this.buildQualifier = buildQualifier;
         this.rootFeatures = rootFeatures;
         this.expandedVersion = VersioningHelper.expandQualifier(originalProduct.getVersion(), buildQualifier);
+        this.targetPlatform = targetPlatform;
         this.interpolator = interpolator;
+        this.logger = new MultiLineLogger(logger);
     }
 
     @Override
@@ -69,7 +79,8 @@ class ExpandedProduct implements IProductDescriptor {
         }
 
         if (expandedBundles == null) {
-            expandedBundles = qualifyReferences(defaults.getBundles(includeFragments));
+            expandedBundles = resolveReferences("plugin", ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                    defaults.getBundles(includeFragments));
         }
         return expandedBundles;
     }
@@ -87,7 +98,8 @@ class ExpandedProduct implements IProductDescriptor {
             return defaults.getFeatures();
         }
         if (expandedFeatures == null) {
-            expandedFeatures = qualifyReferences(filter(defaults.getFeatures(), rootFeatures));
+            expandedFeatures = resolveReferences("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
+                    filter(defaults.getFeatures(), rootFeatures));
         }
         return expandedFeatures;
     }
@@ -104,14 +116,50 @@ class ExpandedProduct implements IProductDescriptor {
         return result;
     }
 
-    // TODO 373817 look up matching versions from the target platform
-    private List<IVersionedId> qualifyReferences(List<IVersionedId> references) {
+    private List<IVersionedId> resolveReferences(String elementName, String artifactType, List<IVersionedId> references) {
         List<IVersionedId> result = new ArrayList<IVersionedId>(references.size());
+        StringBuilder errors = null;
+
         for (IVersionedId reference : references) {
-            result.add(new VersionedId(reference.getId(), VersioningHelper.expandQualifier(reference.getVersion()
-                    .toString(), buildQualifier)));
+            try {
+                ArtifactKey resolvedReference = targetPlatform.resolveReference(artifactType, reference.getId(),
+                        reference.getVersion());
+                result.add(new VersionedId(resolvedReference.getId(), resolvedReference.getVersion()));
+
+            } catch (IllegalArtifactReferenceException e) {
+                errors = initReferenceResolutionError(errors);
+                errors.append("  Invalid <").append(elementName).append("> element with id=")
+                        .append(quote(reference.getId()));
+                if (reference.getVersion() != null) {
+                    errors.append(" and version=").append(quote(reference.getVersion()));
+                }
+                errors.append(": ").append(e.getMessage()).append('\n');
+            } catch (DependencyResolutionException e) {
+                errors = initReferenceResolutionError(errors);
+                errors.append("  ").append(e.getMessage()).append('\n');
+            }
+        }
+
+        if (errors != null) {
+            logger.error(errors.toString());
+            throw new DependencyResolutionException("Cannot resolve dependencies of product " + getLocation().getName()
+                    + ". See log for details.");
         }
         return result;
+    }
+
+    private StringBuilder initReferenceResolutionError(StringBuilder errors) {
+        if (errors == null)
+            return new StringBuilder("Cannot resolve dependencies of product " + getLocation().getName() + ":\n");
+        else
+            return errors;
+    }
+
+    private static String quote(Object nullableObject) {
+        if (nullableObject == null)
+            return null;
+        else
+            return "\"" + nullableObject + "\"";
     }
 
     @Override

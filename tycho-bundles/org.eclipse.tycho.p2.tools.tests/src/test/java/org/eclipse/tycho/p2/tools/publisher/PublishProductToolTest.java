@@ -44,6 +44,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.Interpolator;
@@ -113,7 +114,8 @@ public class PublishProductToolTest {
 
         PublisherActionRunner publisherRunner = new PublisherActionRunner(
                 targetPlatform.getInstallableUnitsAsMetadataRepository(), ENVIRONMENTS, logVerifier.getLogger());
-        return new PublishProductToolImpl(publisherRunner, outputRepository, QUALIFIER, interpolatorMock);
+        return new PublishProductToolImpl(publisherRunner, outputRepository, targetPlatform, QUALIFIER,
+                interpolatorMock, logVerifier.getLogger());
     }
 
     @Test
@@ -163,6 +165,19 @@ public class PublishProductToolTest {
     }
 
     @Test
+    public void testExpandVersionsOfInclusionsWithQualifierLiterals() throws Exception {
+        File productDefinition = resourceFile("publishers/products/inclusionsWithQualifiers.product");
+        subject = initPublisher(createBundleIU("test.plugin", "0.1.0.20141230"),
+                createBundleIU("test.plugin", "1.1.0"), createFeatureIU("test.feature", "0.2.0.20141230"),
+                createFeatureIU("test.feature", "1.2.0"));
+
+        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, ROOTS, null, FLAVOR));
+
+        assertThat(unit.getRequirements(), hasItem(strictRequirement("test.plugin", "0.1.0.20141230")));
+        assertThat(unit.getRequirements(), hasItem(strictRequirement("test.feature.feature.group", "0.2.0.20141230")));
+    }
+
+    @Test
     public void testExpandVersionWithSyntaxError() throws Exception {
         File productDefinition = resourceFile("publishers/products/inclusionsWithVersionSyntaxError.product");
         subject = initPublisher();
@@ -170,6 +185,17 @@ public class PublishProductToolTest {
         exceptions.expect(BuildFailureException.class);
         exceptions.expectMessage(both(containsString("inclusionsWithVersionSyntaxError.product")).and(
                 containsString("nonOSGi"))); // "nonOSGi" is the malformed version string
+        subject.publishProduct(productDefinition, ROOTS, null, FLAVOR);
+    }
+
+    @Test
+    public void testPublishingReportsAllResolutionErrorsAtOnce() throws Exception {
+        File productDefinition = resourceFile("publishers/products/featureProduct.product");
+        subject = initPublisher(createFeatureIU("test.feature1", "1.0.0")); // this version doesn't match
+
+        logVerifier.expectError(containsString("test.feature1"));
+        logVerifier.expectError(containsString("test.feature2"));
+        thrownException.expect(DependencyResolutionException.class);
         subject.publishProduct(productDefinition, ROOTS, null, FLAVOR);
     }
 
@@ -202,7 +228,8 @@ public class PublishProductToolTest {
         File launcherBinaries = resourceFile("launchers/");
         subject = initPublisher(); // emtpy target platform
 
-        exceptions.expectMessage("org.eclipse.core.filesystem.hpux.ppc");
+        logVerifier.expectError(containsString("org.eclipse.core.filesystem.hpux.ppc"));
+        thrownException.expect(DependencyResolutionException.class);
         subject.publishProduct(productDefinition, ROOTS, launcherBinaries, FLAVOR);
     }
 
