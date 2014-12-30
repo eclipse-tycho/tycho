@@ -91,23 +91,28 @@ public class P2ApplicationLauncher {
                 final EquinoxInstallationDescription description = new DefaultEquinoxInstallationDescription();
 
                 runtimeLocator.locateRuntime(new EquinoxRuntimeDescription() {
+                    @Override
                     public void addPlatformProperty(String property, String value) {
                         description.addPlatformProperty(property, value);
                     }
 
+                    @Override
                     public void addInstallation(File location) {
                         for (File file : new File(location, "plugins").listFiles()) {
                             P2ApplicationLauncher.this.addBundle(description, file);
                         }
                     }
 
+                    @Override
                     public void addExtraSystemPackage(String systemPackages) {
                     }
 
+                    @Override
                     public void addBundle(File location) {
                         P2ApplicationLauncher.this.addBundle(description, location);
                     }
 
+                    @Override
                     public void addBundleStartLevel(String id, int level, boolean autostart) {
                         description.addBundleStartLevel(new BundleStartLevel(id, level, autostart));
                     }

@@ -41,6 +41,7 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
         env.putAll(variables);
     }
 
+    @Override
     public Map<String, String> getEnvironment() {
         return env;
     }
@@ -49,6 +50,7 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
         this.jvmExecutable = jvmExecutable;
     }
 
+    @Override
     public String getJvmExecutable() {
         return jvmExecutable;
     }
@@ -57,6 +59,7 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
         this.workingDirectory = workingDirectory;
     }
 
+    @Override
     public File getWorkingDirectory() {
         return workingDirectory;
     }
@@ -73,6 +76,7 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
         }
     }
 
+    @Override
     public String[] getProgramArguments() {
         return toStringArray(args);
     }
@@ -91,10 +95,12 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
         addArguments(this.vmargs, vmargs);
     }
 
+    @Override
     public String[] getVMArguments() {
         return toStringArray(vmargs);
     }
 
+    @Override
     public File getLauncherJar() {
         return installation.getLauncherJar();
     }

@@ -77,6 +77,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         final Map<String, String> platformProperties = new LinkedHashMap<String, String>();
 
         equinoxLocator.locateRuntime(new EquinoxRuntimeDescription() {
+            @Override
             public void addExtraSystemPackage(String systemPackage) {
                 if (systemPackage == null || systemPackage.length() == 0) {
                     throw new IllegalArgumentException();
@@ -84,6 +85,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 extraSystemPackages.add(systemPackage);
             }
 
+            @Override
             public void addPlatformProperty(String property, String value) {
                 if (property == null || property.length() == 0) {
                     throw new IllegalArgumentException();
@@ -91,6 +93,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 platformProperties.put(property, value);
             }
 
+            @Override
             public void addInstallation(File location) {
                 if (location == null || !location.isDirectory() || !new File(location, "plugins").isDirectory()) {
                     throw new IllegalArgumentException();
@@ -102,6 +105,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 installationLocations.add(location);
             }
 
+            @Override
             public void addBundle(File location) {
                 if (location == null || !location.exists()) {
                     throw new IllegalArgumentException();
@@ -111,6 +115,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 }
             }
 
+            @Override
             public void addBundleStartLevel(String id, int level, boolean autostart) {
                 // TODO do we need to autostart?
             }
@@ -266,10 +271,12 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         return nonFrameworkArgs.toArray(new String[0]);
     }
 
+    @Override
     public <T> T getService(Class<T> clazz) {
         return getService(clazz, null);
     }
 
+    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T> T getService(Class<T> clazz, String filter) {
         checkStarted();
@@ -302,15 +309,18 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         }
     }
 
+    @Override
     public <T> void registerService(Class<T> clazz, T service) {
         registerService(clazz, service, new Hashtable<String, Object>(1));
     }
 
+    @Override
     public <T> void registerService(Class<T> clazz, T service, Dictionary<String, ?> properties) {
         // don't need to call checkStarted here because EmbeddedEquinox instances are already started
         frameworkContext.registerService(clazz, service, properties);
     }
 
+    @Override
     public void dispose() {
         if (frameworkContext != null) {
             try {
@@ -330,6 +340,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         }
     }
 
+    @Override
     public EquinoxServiceFactory getServiceFactory() {
         return this;
     }

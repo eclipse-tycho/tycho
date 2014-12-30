@@ -32,6 +32,7 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
     @Requirement
     private Logger log;
 
+    @Override
     public int execute(LaunchConfiguration configuration, int forkedProcessTimeoutInSeconds)
             throws EquinoxLaunchingException {
 
@@ -75,6 +76,7 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static Map<String, String> getMergedEnvironment(LaunchConfiguration configuration) throws IOException {
         Map<String, String> currentEnv = EnvironmentUtils.getProcEnvironment();
         currentEnv.putAll(configuration.getEnvironment());

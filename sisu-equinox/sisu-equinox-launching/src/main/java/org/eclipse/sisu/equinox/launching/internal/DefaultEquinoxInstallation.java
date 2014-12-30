@@ -32,14 +32,17 @@ public class DefaultEquinoxInstallation implements EquinoxInstallation {
         this.configurationLocation = configurationLocation;
     }
 
+    @Override
     public File getLocation() {
         return location;
     }
 
+    @Override
     public File getConfigurationLocation() {
         return configurationLocation;
     }
 
+    @Override
     public File getLauncherJar() {
         ArtifactDescriptor systemBundle = description.getSystemBundle();
         Version osgiVersion = Version.parseVersion(systemBundle.getKey().getVersion());
@@ -61,6 +64,7 @@ public class DefaultEquinoxInstallation implements EquinoxInstallation {
         }
     }
 
+    @Override
     public EquinoxInstallationDescription getInstallationDescription() {
         return description;
     }

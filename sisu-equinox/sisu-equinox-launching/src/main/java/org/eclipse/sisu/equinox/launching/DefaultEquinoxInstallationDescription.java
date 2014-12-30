@@ -52,34 +52,42 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     private final Map<String, String> devEntries = new HashMap<String, String>();
 
+    @Override
     public void addBundleStartLevel(BundleStartLevel level) {
         startLevel.put(level.getId(), level);
     }
 
+    @Override
     public Map<String, BundleStartLevel> getBundleStartLevel() {
         return startLevel;
     }
 
+    @Override
     public ArtifactDescriptor getBundle(String symbolicName, String highestVersion) {
         return bundles.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, symbolicName, highestVersion);
     }
 
+    @Override
     public List<ArtifactDescriptor> getBundles() {
         return bundles.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN);
     }
 
+    @Override
     public ArtifactDescriptor getSystemBundle() {
         return bundles.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, EquinoxContainer.NAME, null);
     }
 
+    @Override
     public void addBundle(ArtifactDescriptor artifact) {
         bundles.addArtifact(artifact);
     }
 
+    @Override
     public void addBundle(ArtifactKey key, File file) {
         addBundle(key, file, false);
     }
 
+    @Override
     public void addBundle(ArtifactKey key, File file, boolean override) {
         if (override) {
             bundles.removeAll(key.getType(), key.getId());
@@ -88,36 +96,44 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
         bundles.addArtifactFile(key, file, null);
     }
 
+    @Override
     public void addBundlesToExplode(List<String> bundlesToExplode) {
         this.bundlesToExplode.addAll(bundlesToExplode);
     }
 
+    @Override
     public Set<String> getBundlesToExplode() {
         return bundlesToExplode;
     }
 
+    @Override
     public void addFrameworkExtensions(List<File> frameworkExtensions) {
         this.frameworkExtensions.addAll(frameworkExtensions);
     }
 
+    @Override
     public List<File> getFrameworkExtensions() {
         return frameworkExtensions;
     }
 
+    @Override
     public void addPlatformProperty(String property, String value) {
         platformProperties.put(property, value);
     }
 
+    @Override
     public Map<String, String> getPlatformProperties() {
         return platformProperties;
     }
 
+    @Override
     public void addDevEntries(String id, String entries) {
         if (entries != null) {
             devEntries.put(id, entries);
         }
     }
 
+    @Override
     public Map<String, String> getDevEntries() {
         return devEntries;
     }

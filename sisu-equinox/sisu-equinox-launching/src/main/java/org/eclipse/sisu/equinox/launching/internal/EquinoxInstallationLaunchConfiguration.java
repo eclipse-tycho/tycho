@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2012 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 package org.eclipse.sisu.equinox.launching.internal;
 
@@ -37,6 +37,7 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
         File pluginsDir = new File(equinoxDirectory, "plugins");
         File[] launchers = pluginsDir.listFiles(new FilenameFilter() {
 
+            @Override
             public boolean accept(File dir, String name) {
                 return name.startsWith("org.eclipse.equinox.launcher_");
             }
@@ -50,26 +51,32 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
             return launchers[0];
     }
 
+    @Override
     public File getWorkingDirectory() {
         return equinoxDirectory;
     }
 
+    @Override
     public String getJvmExecutable() {
         return null;
     }
 
+    @Override
     public File getLauncherJar() {
         return launcherJar;
     }
 
+    @Override
     public String[] getVMArguments() {
         return new String[0];
     }
 
+    @Override
     public String[] getProgramArguments() {
         return programArguments;
     }
 
+    @Override
     public Map<String, String> getEnvironment() {
         return Collections.emptyMap();
     }

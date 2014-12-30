@@ -53,6 +53,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
     @Requirement
     private Logger log;
 
+    @Override
     public EquinoxInstallation createInstallation(EquinoxInstallationDescription description, File location) {
         Set<String> bundlesToExplode = description.getBundlesToExplode();
         List<File> frameworkExtensions = description.getFrameworkExtensions();
