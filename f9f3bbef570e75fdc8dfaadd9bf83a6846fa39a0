@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8761b321_fffb1d39",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T14:25:42Z",
+      "side": 1,
+      "message": "assertThat supersedes all other assert* methods - IMHO one never needs to use any of the other ones any more.\n\nassertThat is meant to be statically imported so that it yields a sentence: \"asserThat(something, is(xyz))\"",
+      "revId": "f9f3bbef570e75fdc8dfaadd9bf83a6846fa39a0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_7fe8ad74",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T14:25:42Z",
+      "side": 1,
+      "message": "I like calling the variable with the class under test \"subject\" (standing for \"test subject\"). This is very useful to be able to quickly spot what is being tested in a test.",
+      "revId": "f9f3bbef570e75fdc8dfaadd9bf83a6846fa39a0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_3fdf55d3",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T14:25:42Z",
+      "side": 1,
+      "message": "The fact that the EquinoxInstallationDescription keeps start levels in a map rather than a list is an implementation detail that I don\u0027t want to repeat here in the test setup. Therefore I just used the real implementation for this, so if the signature of getBundleStartLevel changed, I wouldn\u0027t need to adapt the test.",
+      "revId": "f9f3bbef570e75fdc8dfaadd9bf83a6846fa39a0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_1fdc19db",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T14:25:42Z",
+      "side": 1,
+      "message": "I changed this in the productive caller of toOsgiBundles that defaultLevel is never null. So this is the same in the tests.",
+      "revId": "f9f3bbef570e75fdc8dfaadd9bf83a6846fa39a0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_dff8e13f",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T14:25:42Z",
+      "side": 1,
+      "message": "With assertThat and small, well-separated test methods, I rarely find it necessary to comment on assertions.",
+      "revId": "f9f3bbef570e75fdc8dfaadd9bf83a6846fa39a0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_3ff63551",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T14:25:42Z",
+      "side": 1,
+      "message": "Although it wasn\u0027t incorrect before, I changed this in the implementation.",
+      "revId": "f9f3bbef570e75fdc8dfaadd9bf83a6846fa39a0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_1ff37960",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T14:25:42Z",
+      "side": 1,
+      "message": "0 is what you get when the \u003clevel\u003e attribute is omitted. This now works correctly. Before, it would have written \"@0:start\". I\u0027m not sure what Equinox does in this case, but \"@start\" is clearly better.",
+      "revId": "f9f3bbef570e75fdc8dfaadd9bf83a6846fa39a0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_9fd029c4",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/test/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxInstallationFactoryTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T14:25:42Z",
+      "side": 1,
+      "message": "I like using these kind of trivial static helper methods - they shorten the test to a few lines, and most often they are so trivial that I wouldn\u0027t need to read it to understand the test.",
+      "revId": "f9f3bbef570e75fdc8dfaadd9bf83a6846fa39a0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
