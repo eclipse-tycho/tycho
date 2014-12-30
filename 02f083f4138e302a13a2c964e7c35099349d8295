@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8761b321_f4c06495",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ArtifactMatcher.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T11:14:53Z",
+      "side": 1,
+      "message": "Should be \"The string ...\"",
+      "revId": "02f083f4138e302a13a2c964e7c35099349d8295",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8761b321_df974150",
+        "filename": "tycho-bundles/org.eclipse.tycho.test.utils/META-INF/MANIFEST.MF",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2014-12-30T11:14:53Z",
+      "side": 1,
+      "message": "No longer needed - tests now have their own copies of the string constants.",
+      "revId": "02f083f4138e302a13a2c964e7c35099349d8295",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
