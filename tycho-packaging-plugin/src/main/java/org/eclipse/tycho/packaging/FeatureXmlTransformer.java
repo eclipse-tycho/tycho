@@ -78,8 +78,8 @@ public class FeatureXmlTransformer {
             return targetPlatform.resolveReference(ArtifactType.TYPE_ECLIPSE_PLUGIN, pluginRef.getId(),
                     pluginRef.getVersion());
         } catch (IllegalArtifactReferenceException e) {
-            throw new MojoFailureException("Invalid reference to plug-in \"" + pluginRef.getId() + "\" with version \""
-                    + pluginRef.getVersion() + "\": " + e.getMessage(), e);
+            throw new MojoFailureException("Invalid plugin reference with id=" + quote(pluginRef.getId())
+                    + " and version=" + quote(pluginRef.getVersion()) + ": " + e.getMessage(), e);
         }
     }
 
@@ -89,9 +89,16 @@ public class FeatureXmlTransformer {
             return targetPlatform.resolveReference(ArtifactType.TYPE_ECLIPSE_FEATURE, featureRef.getId(),
                     featureRef.getVersion());
         } catch (IllegalArtifactReferenceException e) {
-            throw new MojoFailureException("Invalid reference to feature \"" + featureRef.getId()
-                    + "\" with version \"" + featureRef.getVersion() + "\": " + e.getMessage(), e);
+            throw new MojoFailureException("Invalid feature reference with id=" + quote(featureRef.getId())
+                    + " and version " + quote(featureRef.getVersion()) + ": " + e.getMessage(), e);
         }
+    }
+
+    private static String quote(String nullableString) {
+        if (nullableString == null)
+            return null;
+        else
+            return "\"" + nullableString + "\"";
     }
 
     private void setDownloadAndInstallSize(PluginRef pluginRefToEdit, File artifact) {

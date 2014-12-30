@@ -13,11 +13,14 @@ package org.eclipse.tycho.p2.tools.publisher;
 import java.util.List;
 
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
+import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
 
 public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
@@ -27,24 +30,30 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
     @Override
     public PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments) {
-        PublisherActionRunner publisherRunner = getPublisherRunnerForProject(project, environments);
-        return new PublisherServiceImpl(publisherRunner, project.getBuildQualifier(),
-                reactorRepoManager.getPublishingRepository(project.getIdentities()));
+        P2TargetPlatform targetPlatform = (P2TargetPlatform) reactorRepoManager.getFinalTargetPlatform(project);
+        PublisherActionRunner publisherRunner = getPublisherRunnerForProject(targetPlatform, environments);
+        PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project.getIdentities());
+
+        return new PublisherServiceImpl(publisherRunner, project.getBuildQualifier(), publishingRepository);
     }
 
     @Override
-    public PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments) {
-        PublisherActionRunner publisherRunner = getPublisherRunnerForProject(project, environments);
-        return new PublishProductToolImpl(publisherRunner, reactorRepoManager.getPublishingRepository(project
-                .getIdentities()));
+    public PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments,
+            String buildQualifier, Interpolator interpolator) {
+        P2TargetPlatform targetPlatform = (P2TargetPlatform) reactorRepoManager.getFinalTargetPlatform(project);
+        PublisherActionRunner publisherRunner = getPublisherRunnerForProject(targetPlatform, environments);
+        PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project.getIdentities());
+
+        return new PublishProductToolImpl(publisherRunner, publishingRepository, targetPlatform, buildQualifier,
+                interpolator, mavenContext.getLogger());
     }
 
-    private PublisherActionRunner getPublisherRunnerForProject(ReactorProject project,
+    private PublisherActionRunner getPublisherRunnerForProject(P2TargetPlatform targetPlatform,
             List<TargetEnvironment> environments) {
         checkCollaborators();
 
-        return new PublisherActionRunner(reactorRepoManager.getFinalTargetPlatformMetadataRepository(project),
-                environments, mavenContext.getLogger());
+        return new PublisherActionRunner(targetPlatform.getInstallableUnitsAsMetadataRepository(), environments,
+                mavenContext.getLogger());
     }
 
     // setters for DS

@@ -17,7 +17,10 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -83,8 +86,27 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
 
     @Override
     public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, String version)
+            throws IllegalArtifactReferenceException, DependencyResolutionException {
+        return resolveReference(type, id, ArtifactMatcher.parseAsOSGiVersion(version));
+    }
+
+    @Override
+    public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, Version version)
             throws IllegalArtifactReferenceException, BuildFailureException {
-        return ArtifactMatcher.resolveReference(type, id, version, installableUnits);
+
+        IInstallableUnit matchingUnit = ArtifactMatcher.resolveReference(type, id, version, installableUnits);
+        if (matchingUnit == null) {
+            String message;
+            if (version == null) {
+                message = type + " artifact with ID \"" + id + "\" was not found in the target platform";
+            } else {
+                message = type + " artifact with ID \"" + id + "\" and version matching \"" + version
+                        + "\" was not found in the target platform";
+            }
+            throw new DependencyResolutionException(message);
+        }
+
+        return new DefaultArtifactKey(type, id, matchingUnit.getVersion().toString());
     }
 
     @Override

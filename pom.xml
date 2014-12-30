@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ - Copyright (c) 2008, 2014 Sonatype Inc. and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
@@ -192,6 +192,11 @@
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-compiler-manager</artifactId>
 				<version>2.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.tycho</groupId>

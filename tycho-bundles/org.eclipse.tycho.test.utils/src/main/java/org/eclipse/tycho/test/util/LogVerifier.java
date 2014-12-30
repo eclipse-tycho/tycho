@@ -31,7 +31,7 @@ import org.junit.rules.Verifier;
  */
 public class LogVerifier extends Verifier {
 
-    private static boolean WRITE_TO_CONSOLE = false;
+    private static boolean WRITE_TO_CONSOLE = true;
 
     private class MemoryLog implements MavenLogger {
 

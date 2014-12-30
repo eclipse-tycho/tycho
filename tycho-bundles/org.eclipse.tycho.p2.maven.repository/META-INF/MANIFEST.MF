@@ -27,6 +27,7 @@ Export-Package: org.eclipse.tycho.p2.maven.repository,
  org.eclipse.tycho.repository.util
 Import-Package: org.eclipse.osgi.util,
  org.eclipse.tycho,
+ org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.shared,
  org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.p2.repository,

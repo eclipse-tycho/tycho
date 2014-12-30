@@ -12,28 +12,26 @@ package org.eclipse.tycho.p2.tools.publisher.facade;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Set;
 
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.p2.tools.FacadeException;
 
 public interface PublishProductTool {
 
-    // TODO update javadoc
     /**
      * Publishes the given product definition.
      * 
      * 
      * @param productDefinition
      *            A .product file as defined by the Eclipse PDE
+     * @param rootFeatures
      * @param launcherBinaries
      *            A folder that contains the native Eclipse launcher binaries
      * @param flavor
      *            The installation flavor the product shall be published for
-     * @throws FacadeException
-     *             if a checked exception occurs during publishing
-     * @return handles to the root IUs in the publisher result
+     * @return a handles to the published product IU
      */
-    Collection<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor)
-            throws FacadeException;
+    Collection<DependencySeed> publishProduct(File productDefinition, Set<String> rootFeatures, File launcherBinaries,
+            String flavor);
 
 }

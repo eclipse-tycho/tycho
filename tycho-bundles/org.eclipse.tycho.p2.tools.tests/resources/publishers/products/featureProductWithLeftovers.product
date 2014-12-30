@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="psl.product" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <plugins>
+      <plugin id="org.example.toBeIgnored"/>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.rcp" version="3.3.101.R34x_v20081125"/>
+   </features>
+
+</product>

@@ -1,0 +1,12 @@
+requires.0.namespace = org.eclipse.equinox.p2.iu
+requires.0.name = extra.iu
+requires.0.range = [1.2.3.$qualifier$,1.2.3.$qualifier$]
+provides.0.namespace = custom.namespace
+provides.0.name = capability
+provides.0.version = $version$
+
+units.0.id = extra.iu
+units.0.version = 1.2.3.$qualifier$
+units.0.provides.0.namespace = org.eclipse.equinox.p2.iu
+units.0.provides.0.name = extra.iu
+units.0.provides.0.version = 1.2.3.$qualifier$
