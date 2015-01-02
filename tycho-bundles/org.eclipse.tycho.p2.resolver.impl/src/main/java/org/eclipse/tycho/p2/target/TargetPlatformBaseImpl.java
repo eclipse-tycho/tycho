@@ -35,7 +35,8 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
      * preliminary target platform where the reactor build order isn't known yet). Configured and
      * automatic filters have been applied.
      */
-    private final LinkedHashSet<IInstallableUnit> installableUnits;
+    // TODO store as QueryableCollection, which contains indices to speed up queries?
+    protected final LinkedHashSet<IInstallableUnit> installableUnits;
 
     // reverse lookup from target platform content to the contributing artifact/project 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -96,7 +97,6 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
             return;
         }
 
-        // TODO introduce interface on OSGi class loader side to avoid this cast?
         List<PublishingRepository> upstreamProjectResults = getBuildResults(upstreamProjects);
         P2TargetPlatform result = ((TargetPlatformFactoryImpl) tpFactory)
                 .createTargetPlatformWithUpdatedReactorContent(preliminaryTargetPlatform, upstreamProjectResults);
@@ -118,6 +118,15 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
             results.add(getPublishingRepository(project));
         }
         return results;
+    }
+
+    @Override
+    public IMetadataRepository getFinalTargetPlatformMetadataRepository(ReactorProject project) {
+        P2TargetPlatform targetPlatform = (P2TargetPlatform) project.getContextValue(FINAL_TARGET_PLATFORM_KEY);
+        if (targetPlatform == null) {
+            throw new IllegalStateException("Target platform is missing");
+        }
+        return targetPlatform.getInstallableUnitsAsMetadataRepository();
     }
 
     // TODO use IOUtils

@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.shared.MavenLogger;
@@ -121,6 +122,12 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     @Override
     public File getArtifactLocation(ArtifactKey artifact) {
         // the preliminary TP lacks the reactor artifacts so this method doesn't make sense
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IMetadataRepository getInstallableUnitsAsMetadataRepository() {
+        // the preliminary TP shall not be used to create build results, so this method is not needed
         throw new UnsupportedOperationException();
     }
 

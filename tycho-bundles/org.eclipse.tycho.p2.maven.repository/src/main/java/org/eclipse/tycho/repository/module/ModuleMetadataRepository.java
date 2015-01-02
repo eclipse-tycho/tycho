@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP SE and others.
+ * Copyright (c) 2010, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,6 +108,7 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
     }
 
     private void storeWithoutExceptionHandling() throws IOException {
+        storage.getParentFile().mkdirs();
         MetadataIO io = new MetadataIO();
         io.writeXML(units, storage);
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,18 +33,18 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenContextImpl;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.p2.tools.BuildContext;
+import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
 import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
+import org.eclipse.tycho.repository.p2base.metadata.ImmutableInMemoryMetadataRepository;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
 import org.eclipse.tycho.test.util.LogVerifier;
 import org.eclipse.tycho.test.util.P2Context;
@@ -58,7 +59,7 @@ import org.junit.rules.TemporaryFolder;
 @SuppressWarnings("restriction")
 public class PublisherServiceTest {
 
-    private static final String DEFAULT_QUALIFIER = "testqual";
+    private static final String DEFAULT_QUALIFIER = "1.2.3.testqual";
     private static final String DEFAULT_FLAVOR = "tooling";
     private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
             .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
@@ -84,17 +85,15 @@ public class PublisherServiceTest {
     @Before
     public void initSubject() throws Exception {
         File projectDirectory = tempManager.newFolder("projectDir");
-        BuildContext buildContext = new BuildContext(new ReactorProjectIdentitiesStub(projectDirectory),
-                DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
-        // TODO use a "normal" feature (we don't need the patch here...)
-        RepositoryReferences contextRepositories = MirrorApplicationServiceTest.sourceRepos("patch");
+        LinkedHashSet<IInstallableUnit> installableUnits = new LinkedHashSet<IInstallableUnit>();
+        installableUnits.add(InstallableUnitUtil.createFeatureIU("org.eclipse.example.original_feature", "1.0.0"));
+        IMetadataRepository context = new ImmutableInMemoryMetadataRepository(installableUnits);
 
         outputRepository = new PublishingRepositoryImpl(p2Context.getAgent(), new ReactorProjectIdentitiesStub(
                 projectDirectory));
-        PublisherInfoTemplate publisherConfiguration = new PublisherInfoTemplate(contextRepositories, buildContext,
-                p2Context.getAgent());
-        subject = new PublisherServiceImpl(buildContext, publisherConfiguration, outputRepository,
+        PublisherInfoTemplate publisherConfiguration = new PublisherInfoTemplate(context, DEFAULT_ENVIRONMENTS);
+        subject = new PublisherServiceImpl(publisherConfiguration, DEFAULT_QUALIFIER, outputRepository,
                 logVerifier.getLogger());
     }
 
@@ -109,8 +108,6 @@ public class PublisherServiceTest {
 
         Set<Object> publishedUnits = outputRepository.getInstallableUnits();
         assertThat(publishedUnits, hasItem(seed.getInstallableUnit()));
-
-//        openFolderAndSleep(outputDirectory);
     }
 
     @Test
@@ -170,8 +167,6 @@ public class PublisherServiceTest {
         assertThat(artifactLocations.keySet(), hasItem(executableClassifier));
         assertThat(artifactLocations.get(executableClassifier), isFile());
         assertThat(artifactLocations.get(executableClassifier).toString(), endsWith(".zip"));
-
-//        openFolderAndSleep(outputDirectory);
     }
 
     @Test

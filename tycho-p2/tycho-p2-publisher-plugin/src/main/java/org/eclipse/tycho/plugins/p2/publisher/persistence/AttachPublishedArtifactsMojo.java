@@ -22,7 +22,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.plugins.p2.publisher.AbstractP2Mojo;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
@@ -46,8 +45,6 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
-        ReactorProject reactorProject = DefaultReactorProject.adapt(getProject());
-
         ReactorRepositoryManagerFacade reactorRepoManager = osgiServices
                 .getService(ReactorRepositoryManagerFacade.class);
         PublishingRepositoryFacade publishingRepo = reactorRepoManager.getPublishingRepository(getProjectIdentities());
@@ -65,7 +62,7 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
             }
         }
 
-        // TODO 353889 distinguish between dependency resolution seed units ("primary") and other units of the project
+        ReactorProject reactorProject = getReactorProject();
         reactorProject.setDependencyMetadata(true, publishingRepo.getInstallableUnits());
         reactorProject.setDependencyMetadata(false, Collections.emptySet());
     }
