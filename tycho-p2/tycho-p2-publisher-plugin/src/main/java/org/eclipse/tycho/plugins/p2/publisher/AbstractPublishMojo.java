@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,6 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
-import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
@@ -49,15 +47,8 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
             throws MojoExecutionException, MojoFailureException;
 
     private PublisherService createPublisherService() throws MojoExecutionException, MojoFailureException {
-        try {
-            RepositoryReferences contextRepositories = repositoryReferenceTool.getVisibleRepositories(getProject(),
-                    getSession(), 0);
-
-            PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
-            return publisherServiceFactory.createPublisher(contextRepositories, getBuildContext());
-        } catch (FacadeException e) {
-            throw new MojoExecutionException("Exception while initializing the publisher service", e);
-        }
+        PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
+        return publisherServiceFactory.createPublisher(getReactorProject(), getEnvironments());
     }
 
     /**

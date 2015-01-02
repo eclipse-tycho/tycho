@@ -108,6 +108,7 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
     }
 
     private void storeWithoutExceptionHandling() throws IOException {
+        storage.getParentFile().mkdirs();
         MetadataIO io = new MetadataIO();
         io.writeXML(units, storage);
     }

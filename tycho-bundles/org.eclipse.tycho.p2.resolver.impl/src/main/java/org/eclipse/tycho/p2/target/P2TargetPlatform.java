@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SAP SE and others.
+ * Copyright (c) 2011, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
@@ -28,6 +29,11 @@ import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 public interface P2TargetPlatform extends TargetPlatform {
 
     Set<IInstallableUnit> getInstallableUnits();
+
+    /**
+     * Returns the target platform content as (immutable) p2 metadata repository.
+     */
+    IMetadataRepository getInstallableUnitsAsMetadataRepository();
 
     /**
      * Returns additional information for resolving against the configured execution environment.

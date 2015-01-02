@@ -19,7 +19,10 @@ import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.p2.target.facade.PomDependencyCollector;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 
-// TODO summarize purpose of this service
+/**
+ * Manages the p2 repositories for the projects' build results ("publishing repository") and the p2
+ * repositories with the projects' context artifacts ("target platform").
+ */
 public interface ReactorRepositoryManagerFacade {
 
     /**
@@ -43,7 +46,6 @@ public interface ReactorRepositoryManagerFacade {
      *            Other projects in the reactor which have already been built and may be referenced
      *            by the given project.
      */
-    // TODO return target platform?
     void computeFinalTargetPlatform(ReactorProject project, List<? extends ReactorProjectIdentities> upstreamProjects);
 
     // TODO add method to get (final) target platform?

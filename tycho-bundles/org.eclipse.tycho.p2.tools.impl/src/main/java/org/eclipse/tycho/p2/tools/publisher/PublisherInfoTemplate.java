@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP SE and others.
+ * Copyright (c) 2010, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,35 +10,29 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
-import java.net.URI;
+import java.util.List;
 
-import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.p2.tools.BuildContext;
-import org.eclipse.tycho.p2.tools.RepositoryReferences;
 
 @SuppressWarnings("restriction")
 class PublisherInfoTemplate {
 
-    private final RepositoryReferences contextRepos;
-    private final BuildContext context;
-
-    private final IProvisioningAgent agent;
+    private IMetadataRepository targetPlatformInstallableUnits;
+    private List<TargetEnvironment> environments;
 
     /**
      * Creates a template for creating configured PublisherInfo instances.
      * 
      * @param reactorRepositoryManager
      */
-    public PublisherInfoTemplate(RepositoryReferences contextRepos, BuildContext context, IProvisioningAgent agent) {
-        this.contextRepos = contextRepos;
-        this.context = context;
-        this.agent = agent;
+    public PublisherInfoTemplate(IMetadataRepository targetPlatformInstallableUnits,
+            List<TargetEnvironment> environments) {
+        this.targetPlatformInstallableUnits = targetPlatformInstallableUnits;
+        this.environments = environments;
     }
 
     public IPublisherInfo newPublisherInfo(IMetadataRepository metadataOutput, IArtifactRepository artifactsOutput) {
@@ -48,22 +42,12 @@ class PublisherInfoTemplate {
         publisherInfo.setArtifactRepository(artifactsOutput);
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 
-        setContextMetadataRepos(publisherInfo);
+        // TODO publishers only need an IQueryable<IInstallableUnit> -> changing this in p2 would simplify things for us
+        publisherInfo.setContextMetadataRepository(targetPlatformInstallableUnits);
         // no (known) publisher action needs context artifact repositories
 
         setTargetEnvironments(publisherInfo);
         return publisherInfo;
-    }
-
-    private void setContextMetadataRepos(final PublisherInfo publisherInfo) {
-        if (contextRepos.getMetadataRepositories().size() > 0) {
-            final CompositeMetadataRepository contextMetadataComposite = CompositeMetadataRepository
-                    .createMemoryComposite(agent);
-            for (URI repositoryLocation : contextRepos.getMetadataRepositories()) {
-                contextMetadataComposite.addChild(repositoryLocation);
-            }
-            publisherInfo.setContextMetadataRepository(contextMetadataComposite);
-        }
     }
 
     /**
@@ -73,8 +57,8 @@ class PublisherInfoTemplate {
      */
     private void setTargetEnvironments(PublisherInfo publisherInfo) {
         int writeIx = 0;
-        String[] configSpecs = new String[context.getEnvironments().size()];
-        for (TargetEnvironment environment : context.getEnvironments()) {
+        String[] configSpecs = new String[environments.size()];
+        for (TargetEnvironment environment : environments) {
             configSpecs[writeIx++] = environment.toConfigSpec();
         }
         publisherInfo.setConfigurations(configSpecs);

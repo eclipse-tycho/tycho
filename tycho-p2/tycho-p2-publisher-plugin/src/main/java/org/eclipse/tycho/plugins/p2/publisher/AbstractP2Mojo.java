@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,10 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
@@ -43,6 +45,10 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
         return project;
     }
 
+    protected ReactorProject getReactorProject() {
+        return DefaultReactorProject.adapt(project);
+    }
+
     protected ReactorProjectIdentities getProjectIdentities() {
         return new MavenReactorProjectIdentities(project);
     }
@@ -53,6 +59,10 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
 
     protected String getQualifier() {
         return qualifier;
+    }
+
+    protected List<TargetEnvironment> getEnvironments() {
+        return TychoProjectUtils.getTargetPlatformConfiguration(project).getEnvironments();
     }
 
     protected BuildOutputDirectory getBuildDirectory() {
@@ -74,8 +84,7 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
     }
 
     protected BuildContext getBuildContext() {
-        List<TargetEnvironment> environments = TychoProjectUtils.getTargetPlatformConfiguration(project)
-                .getEnvironments();
-        return new BuildContext(getProjectIdentities(), getQualifier(), environments);
+        return new BuildContext(getProjectIdentities(), getQualifier(), getEnvironments());
     }
+
 }

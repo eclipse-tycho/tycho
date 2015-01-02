@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
-import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
@@ -46,15 +45,15 @@ import org.eclipse.tycho.repository.util.StatusTool;
 @SuppressWarnings("restriction")
 class PublisherServiceImpl implements PublisherService {
 
-    private final BuildContext context;
     private final PublisherInfoTemplate configuration;
+    private final String qualifier;
     private final PublishingRepository publishingRepository;
     private final MavenLogger logger;
 
-    public PublisherServiceImpl(BuildContext context, PublisherInfoTemplate publisherConfiguration,
+    public PublisherServiceImpl(PublisherInfoTemplate publisherConfiguration, String qualifier,
             PublishingRepository publishingRepository, MavenLogger logger) {
-        this.context = context;
         this.configuration = publisherConfiguration;
+        this.qualifier = qualifier;
         this.publishingRepository = publishingRepository;
         this.logger = logger;
     }
@@ -70,7 +69,7 @@ class PublisherServiceImpl implements PublisherService {
          * of the category IUs (see {@link
          * org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction#buildCategoryId(String)}).
          */
-        CategoryXMLAction categoryXMLAction = new CategoryXMLAction(categoryDefinition.toURI(), context.getQualifier());
+        CategoryXMLAction categoryXMLAction = new CategoryXMLAction(categoryDefinition.toURI(), qualifier);
 
         /*
          * TODO Fix in Eclipse: category publisher should produce root IUs; workaround: the category
