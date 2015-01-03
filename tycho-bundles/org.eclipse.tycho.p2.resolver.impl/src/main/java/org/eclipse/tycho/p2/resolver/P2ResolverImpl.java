@@ -56,9 +56,9 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
 import org.eclipse.tycho.p2.util.resolution.AbstractResolutionStrategy;
 import org.eclipse.tycho.p2.util.resolution.DependencyCollector;
 import org.eclipse.tycho.p2.util.resolution.ProjectorResolutionStrategy;
-import org.eclipse.tycho.p2.util.resolution.QueryableCollection;
 import org.eclipse.tycho.p2.util.resolution.ResolutionDataImpl;
 import org.eclipse.tycho.p2.util.resolution.ResolverException;
+import org.eclipse.tycho.repository.p2base.metadata.QueryableCollection;
 import org.eclipse.tycho.repository.util.LoggingProgressMonitor;
 
 @SuppressWarnings("restriction")

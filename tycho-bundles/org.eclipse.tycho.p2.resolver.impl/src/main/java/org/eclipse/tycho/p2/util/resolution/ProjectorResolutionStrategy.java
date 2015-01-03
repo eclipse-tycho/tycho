@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.repository.p2base.metadata.QueryableCollection;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")

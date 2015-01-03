@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.repository.p2base.metadata.QueryableCollection;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")

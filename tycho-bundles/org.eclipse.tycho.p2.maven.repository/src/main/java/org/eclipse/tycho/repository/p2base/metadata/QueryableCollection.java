@@ -10,7 +10,7 @@
  *     Cloudsmith Inc. - query indexes
  *     Sonatype, Inc. - adapted for Tycho
  *******************************************************************************/
-package org.eclipse.tycho.p2.util.resolution;
+package org.eclipse.tycho.repository.p2base.metadata;
 
 import java.util.ArrayList;
 import java.util.Collection;
