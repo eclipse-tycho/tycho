@@ -83,10 +83,12 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
         return unlessNull(version);
     }
 
+    @Override
     public String getPackaging() {
         return unlessNull(packagingType);
     }
 
+    @Override
     public Set<?> getDependencyMetadata(boolean primary) {
         return primary ? dependencyMetadata : secondaryDependencyMetadata;
     }
@@ -96,6 +98,7 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
         this.secondaryDependencyMetadata = new LinkedHashSet<Object>(dependencyMetadata.getMetadata(false));
     }
 
+    @Override
     public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
         if (primary)
             this.dependencyMetadata = installableUnits;
@@ -104,6 +107,7 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     // TODO share with real implementation?
+    @Override
     public Set<?> getDependencyMetadata() {
         Set<?> primary = getDependencyMetadata(true);
         Set<?> secondary = getDependencyMetadata(false);
@@ -119,11 +123,13 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
         return result;
     }
 
+    @Override
     public ReactorProjectIdentities getIdentities() {
         // TODO use something with correct equals implementation?
         return this;
     }
 
+    @Override
     public File getOutputDirectory() {
         return new File(getBasedir(), "target");
     }
@@ -133,39 +139,48 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
         return new BuildOutputDirectory(getOutputDirectory());
     }
 
+    @Override
     public File getTestOutputDirectory() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public File getArtifact() {
         return null;
     }
 
+    @Override
     public File getArtifact(String artifactClassifier) {
         return null;
     }
 
+    @Override
     public Object getContextValue(String key) {
         return contextValues.get(key);
     }
 
+    @Override
     public void setContextValue(String key, Object value) {
         contextValues.put(key, value);
     }
 
+    @Override
+    public String getBuildQualifier() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getExpandedVersion() {
         return getVersion();
     }
 
-    public void setExpandedVersion(String originalVersion, String qualifier) {
-        throw new UnsupportedOperationException();
-    }
-
+    @Override
     public String getId() {
         // TODO implement
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean sameProject(Object otherProject) {
         // TODO implement
         throw new UnsupportedOperationException();

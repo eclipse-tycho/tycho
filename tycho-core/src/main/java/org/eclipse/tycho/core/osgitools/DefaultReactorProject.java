@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,9 +22,8 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.core.TychoConstants;
+import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
-import org.osgi.framework.Version;
 
 public class DefaultReactorProject implements ReactorProject {
     private final MavenProject project;
@@ -58,51 +57,63 @@ public class DefaultReactorProject implements ReactorProject {
         return result;
     }
 
+    @Override
     public boolean sameProject(Object otherProject) {
         return project.equals(otherProject);
     }
 
+    @Override
     public File getBasedir() {
         return project.getBasedir();
     }
 
+    @Override
     public String getPackaging() {
         return project.getPackaging();
     }
 
+    @Override
     public String getGroupId() {
         return project.getGroupId();
     }
 
+    @Override
     public String getArtifactId() {
         return project.getArtifactId();
     }
 
+    @Override
     public String getVersion() {
         return project.getVersion();
     }
 
+    @Override
     public ReactorProjectIdentities getIdentities() {
         return new MavenReactorProjectIdentities(project);
     }
 
+    @Override
     public File getOutputDirectory() {
         return new File(project.getBuild().getOutputDirectory());
     }
 
+    @Override
     public BuildOutputDirectory getBuildDirectory() {
         return new BuildOutputDirectory(project.getBuild().getDirectory());
     }
 
+    @Override
     public File getTestOutputDirectory() {
         return new File(project.getBuild().getTestOutputDirectory());
     }
 
+    @Override
     public File getArtifact() {
         Artifact artifact = project.getArtifact();
         return artifact != null ? artifact.getFile() : null;
     }
 
+    @Override
     public File getArtifact(String artifactClassifier) {
         Artifact artifact = null;
         if (artifactClassifier == null) {
@@ -118,18 +129,22 @@ public class DefaultReactorProject implements ReactorProject {
         return artifact != null ? artifact.getFile() : null;
     }
 
+    @Override
     public Object getContextValue(String key) {
         return project.getContextValue(key);
     }
 
+    @Override
     public void setContextValue(String key, Object value) {
         project.setContextValue(key, value);
     }
 
+    @Override
     public void setDependencyMetadata(boolean primary, Set<?> installableUnits) {
         project.setContextValue(getDependencyMetadataKey(primary), installableUnits);
     }
 
+    @Override
     public Set<?> getDependencyMetadata() {
         Set<?> primary = getDependencyMetadata(true);
         Set<?> secondary = getDependencyMetadata(false);
@@ -145,6 +160,7 @@ public class DefaultReactorProject implements ReactorProject {
         return result;
     }
 
+    @Override
     public Set<?> getDependencyMetadata(boolean primary) {
         Set<?> metadata = (Set<?>) project.getContextValue(getDependencyMetadataKey(primary));
         return metadata;
@@ -154,30 +170,27 @@ public class DefaultReactorProject implements ReactorProject {
         return primary ? CTX_DEPENDENCY_METADATA : CTX_SECONDARY_DEPENDENCY_METADATA;
     }
 
-    public String getExpandedVersion() {
-        String version = (String) project.getContextValue(TychoConstants.CTX_EXPANDED_VERSION);
+    @Override
+    public String getBuildQualifier() {
+        String version = (String) project.getProperties().get(TychoProperties.BUILD_QUALIFIER);
         if (version != null) {
             return version;
         }
 
-        throw new IllegalStateException("Project " + getId() + " does not have expanded version");
+        throw new IllegalStateException("Project " + getId() + " does not have a build qualifier");
     }
 
-    public void setExpandedVersion(String originalVersion, String qualifier) {
-        Version version = Version.parseVersion(originalVersion);
-
-        String expandedVersion = new Version(version.getMajor(), version.getMinor(), version.getMicro(), qualifier)
-                .toString();
-
-        String oldVersion = (String) project.getContextValue(TychoConstants.CTX_EXPANDED_VERSION);
-
-        if (oldVersion != null && !oldVersion.equals(expandedVersion)) {
-            throw new IllegalStateException("Cannot redefine expanded version");
+    @Override
+    public String getExpandedVersion() {
+        String version = (String) project.getProperties().get(TychoProperties.QUALIFIED_VERSION);
+        if (version != null) {
+            return version;
         }
 
-        project.setContextValue(TychoConstants.CTX_EXPANDED_VERSION, expandedVersion);
+        throw new IllegalStateException("Project " + getId() + " does not have an expanded version");
     }
 
+    @Override
     public String getId() {
         return project.getId();
     }

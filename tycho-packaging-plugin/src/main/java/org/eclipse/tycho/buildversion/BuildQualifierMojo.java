@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import static org.eclipse.tycho.TychoProperties.BUILD_QUALIFIER;
+import static org.eclipse.tycho.TychoProperties.QUALIFIED_VERSION;
+import static org.eclipse.tycho.TychoProperties.UNQUALIFIED_VERSION;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -78,10 +82,6 @@ import org.osgi.framework.Version;
 @Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE)
 public class BuildQualifierMojo extends AbstractVersionMojo {
 
-    public static final String BUILD_QUALIFIER_PROPERTY = "buildQualifier";
-    public static final String UNQUALIFIED_VERSION_PROPERTY = "unqualifiedVersion";
-    public static final String QUALIFIED_VERSION_PROPERTY = "qualifiedVersion";
-
     @Parameter(property = "session", readonly = true)
     protected MavenSession session;
 
@@ -132,9 +132,9 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         TychoProjectVersion projectVersion = calculateQualifiedVersion();
-        project.getProperties().put(BUILD_QUALIFIER_PROPERTY, projectVersion.qualifier);
-        project.getProperties().put(UNQUALIFIED_VERSION_PROPERTY, projectVersion.unqualifiedVersion);
-        project.getProperties().put(QUALIFIED_VERSION_PROPERTY, projectVersion.getOSGiVersion());
+        project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
+        project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
+        project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
 
         getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
     }
