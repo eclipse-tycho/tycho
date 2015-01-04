@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,11 +25,18 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequestPopulator;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.Mojo;
+import org.apache.maven.plugin.MojoExecution;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.MavenSettingsBuilder;
 import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.component.configurator.ComponentConfigurator;
+import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
+import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
 public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
@@ -148,6 +155,25 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         }
 
         throw new IllegalArgumentException("No project with artifactId " + artifactId);
+    }
+
+    /**
+     * Returns a mojo configured with the mojo's default configuration.
+     */
+    // workaround for MPLUGINTESTING-46 - see http://jira.codehaus.org/browse/MPLUGINTESTING-46
+    protected Mojo lookupMojoWithDefaultConfiguration(MavenProject project, MavenSession session, String goal)
+            throws Exception {
+        MojoExecution mojoExecution = newMojoExecution(goal);
+        Xpp3Dom defaultConfiguration = mojoExecution.getConfiguration();
+
+        // the ResolverExpressionEvaluatorStub of lookupMojo is not sufficient to evaluate the variables in the default configuration 
+        ExpressionEvaluator expressionEvaluator = new PluginParameterExpressionEvaluator(session, mojoExecution);
+        ComponentConfigurator configurator = getContainer().lookup(ComponentConfigurator.class, "basic");
+
+        Mojo mojo = lookupEmptyMojo(goal, project.getFile());
+        configurator.configureComponent(mojo, new XmlPlexusConfiguration(defaultConfiguration), expressionEvaluator,
+                getContainer().getContainerRealm(), null);
+        return mojo;
     }
 
     protected static File getBasedir(String name) throws IOException {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,13 +26,16 @@ import org.codehaus.plexus.component.configurator.ComponentConfigurationExceptio
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
 public class BuildQualifierTest extends AbstractTychoMojoTestCase {
+
+    private static final String BUILD_QUALIFIER_PROPERTY = "buildQualifier";
+    private static final String UNQUALIFIED_VERSION_PROPERTY = "unqualifiedVersion";
+    private static final String QUALIFIED_VERSION_PROPERTY = "qualifiedVersion";
 
     public void testForceContextQualifier() throws Exception {
         /*
@@ -49,7 +52,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         request.getProjectBuildingRequest().setProcessPlugins(false);
 
         MavenProject project = getProject(request);
-        project.getProperties().put(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY, "garbage");
+        project.getProperties().put(BUILD_QUALIFIER_PROPERTY, "garbage");
 
         ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
         projects.add(project);
@@ -62,7 +65,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        assertEquals("foo-bar", project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
+        assertEquals("foo-bar", project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
     }
 
     public void testBuildProperties() throws Exception {
@@ -74,7 +77,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         request.getProjectBuildingRequest().setProcessPlugins(false);
 
         MavenProject project = getProject(request);
-        project.getProperties().put(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY, "garbage");
+        project.getProperties().put(BUILD_QUALIFIER_PROPERTY, "garbage");
 
         ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
         projects.add(project);
@@ -85,7 +88,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        assertEquals("blah", project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
+        assertEquals("blah", project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
     }
 
     public void testTimestamp() throws Exception {
@@ -97,7 +100,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         request.getProjectBuildingRequest().setProcessPlugins(false);
 
         MavenProject project = getProject(request);
-        project.getProperties().put(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY, "garbage");
+        project.getProperties().put(BUILD_QUALIFIER_PROPERTY, "garbage");
 
         ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
         projects.add(project);
@@ -108,17 +111,17 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        String firstTimestamp = (String) project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY);
+        String firstTimestamp = (String) project.getProperties().get(BUILD_QUALIFIER_PROPERTY);
 
         // lets do it again
         Thread.sleep(500L);
 
         project = getProject(request);
-        assertNull(project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
+        assertNull(project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
         mojo = getMojo(project, session);
         mojo.execute();
 
-        assertEquals(firstTimestamp, project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
+        assertEquals(firstTimestamp, project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
     }
 
     public void testUnqualifiedVersion() throws Exception {
@@ -138,7 +141,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        assertEquals("0.0.1", project.getProperties().get(BuildQualifierMojo.UNQUALIFIED_VERSION_PROPERTY));
+        assertEquals("0.0.1", project.getProperties().get(UNQUALIFIED_VERSION_PROPERTY));
     }
 
     public void testFullyQualifiedVersion() throws Exception {
@@ -158,9 +161,9 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        assertEquals("0.0.1", project.getProperties().get(BuildQualifierMojo.UNQUALIFIED_VERSION_PROPERTY));
-        assertEquals("123456", project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
-        assertEquals("0.0.1.123456", project.getProperties().get(BuildQualifierMojo.QUALIFIED_VERSION_PROPERTY));
+        assertEquals("0.0.1", project.getProperties().get(UNQUALIFIED_VERSION_PROPERTY));
+        assertEquals("123456", project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
+        assertEquals("0.0.1.123456", project.getProperties().get(QUALIFIED_VERSION_PROPERTY));
     }
 
     public void testNoQualifiedVersion() throws Exception {
@@ -180,9 +183,9 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
         mojo.execute();
 
-        assertEquals("0.0.1", project.getProperties().get(BuildQualifierMojo.UNQUALIFIED_VERSION_PROPERTY));
-        assertEquals("", project.getProperties().get(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
-        assertEquals("0.0.1", project.getProperties().get(BuildQualifierMojo.QUALIFIED_VERSION_PROPERTY));
+        assertEquals("0.0.1", project.getProperties().get(UNQUALIFIED_VERSION_PROPERTY));
+        assertEquals("", project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
+        assertEquals("0.0.1", project.getProperties().get(QUALIFIED_VERSION_PROPERTY));
     }
 
     public void testTimeZone() {
@@ -264,7 +267,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
 
     private void assertQualifier(String expected, List<MavenProject> projects, String artifactId) {
         MavenProject project = getProject(projects, artifactId);
-        assertEquals(expected, project.getProperties().getProperty(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
+        assertEquals(expected, project.getProperties().getProperty(BUILD_QUALIFIER_PROPERTY));
     }
 
     private void executeMojo(MavenSession session, MavenProject project) throws Exception {
@@ -276,10 +279,6 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         session.setCurrentProject(project);
         BuildQualifierMojo mojo = (BuildQualifierMojo) lookupConfiguredMojo(session, newMojoExecution(goal));
         mojo.execute();
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        String version = lookup(TychoProject.class, project.getPackaging()).getArtifactKey(reactorProject).getVersion();
-        reactorProject.setExpandedVersion(version,
-                project.getProperties().getProperty(BuildQualifierMojo.BUILD_QUALIFIER_PROPERTY));
     }
 
     private String createTimeStampInTimeZone(String timeZone, Date date) {

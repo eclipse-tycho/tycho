@@ -145,10 +145,9 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
     @Component
     private SourceReferenceComputer soureReferenceComputer;
 
+    @Override
     public void execute() throws MojoExecutionException {
         pdeProject = (EclipsePluginProject) project.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
-
-        expandVersion();
 
         createSubJars();
 

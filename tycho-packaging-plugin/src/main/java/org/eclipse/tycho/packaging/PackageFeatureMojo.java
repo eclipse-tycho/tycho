@@ -110,7 +110,6 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        expandVersion();
         outputDirectory.mkdirs();
 
         Feature feature = Feature.loadFeature(basedir);

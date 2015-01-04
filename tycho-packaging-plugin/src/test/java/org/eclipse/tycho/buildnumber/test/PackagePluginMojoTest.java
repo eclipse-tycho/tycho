@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2015 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -148,8 +148,12 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
     private PackagePluginMojo execMaven(File basedir) throws Exception {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
-        PackagePluginMojo mojo = getMojo(project, newMavenSession(project, projects));
-        return mojo;
+        MavenSession session = newMavenSession(project, projects);
+
+        // set build qualifier
+        lookupMojoWithDefaultConfiguration(project, session, "build-qualifier").execute();
+
+        return getMojo("package-plugin", PackagePluginMojo.class, project, session);
     }
 
     private void createDummyClassFile(File basedir) throws IOException {
@@ -158,8 +162,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         classFile.createNewFile();
     }
 
-    private PackagePluginMojo getMojo(MavenProject project, MavenSession session) throws Exception {
-        PackagePluginMojo mojo = (PackagePluginMojo) lookupMojo("package-plugin", project.getFile());
+    private <T> T getMojo(String goal, Class<T> mojoClass, MavenProject project, MavenSession session) throws Exception {
+        T mojo = mojoClass.cast(lookupMojo(goal, project.getFile()));
         setVariableValueToObject(mojo, "project", project);
         setVariableValueToObject(mojo, "session", session);
         return mojo;

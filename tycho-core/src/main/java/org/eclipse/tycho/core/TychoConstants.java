@@ -25,7 +25,6 @@ public interface TychoConstants {
             + "/eclipsePluginStrictBootclasspathAccessRules";
     static final String CTX_ECLIPSE_PLUGIN_BOOTCLASSPATH_EXTRA_ACCESSRULES = CTX_BASENAME
             + "/eclipsePluginBootclasspathExtraAccessRules";
-    static final String CTX_EXPANDED_VERSION = CTX_BASENAME + "/expandedVersion";
     static final String CTX_MERGED_PROPERTIES = CTX_BASENAME + "/mergedProperties";
     static final String CTX_TARGET_PLATFORM_CONFIGURATION = CTX_BASENAME + "/targetPlatformConfiguration";
     static final String CTX_EXECUTION_ENVIRONMENT_CONFIGURATION = CTX_BASENAME + "/executionEnvironmentConfiguration";

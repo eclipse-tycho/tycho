@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.it.util.IOUtil;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.model.Feature;
@@ -30,10 +31,13 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, platform);
 
         MavenProject project = getProject(projects, "licenseFeature.feature");
+        MavenSession session = newMavenSession(project, projects);
+        // set build qualifier
+        lookupMojoWithDefaultConfiguration(project, session, "build-qualifier").execute();
 
         PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
         setVariableValueToObject(mojo, "project", project);
-        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
+        setVariableValueToObject(mojo, "session", session);
         setVariableValueToObject(mojo, "finalName", "feature");
 
         mojo.execute();
@@ -73,10 +77,13 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, platform);
 
         MavenProject project = getProject(projects, "featureDefault");
+        MavenSession session = newMavenSession(project, projects);
+        // set build qualifier
+        lookupMojoWithDefaultConfiguration(project, session, "build-qualifier").execute();
 
         PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
         setVariableValueToObject(mojo, "project", project);
-        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
+        setVariableValueToObject(mojo, "session", session);
 
         mojo.execute();
 
@@ -95,10 +102,13 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, platform);
 
         MavenProject project = getProject(projects, "featureForcedToTrue");
+        MavenSession session = newMavenSession(project, projects);
+        // set build qualifier
+        lookupMojoWithDefaultConfiguration(project, session, "build-qualifier").execute();
 
         PackageFeatureMojo mojo = (PackageFeatureMojo) lookupMojo("package-feature", project.getFile());
         setVariableValueToObject(mojo, "project", project);
-        setVariableValueToObject(mojo, "session", newMavenSession(project, projects));
+        setVariableValueToObject(mojo, "session", session);
 
         mojo.execute();
 

@@ -28,11 +28,9 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.archiver.FileSet;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.AbstractScanner;
-import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildProperties;
 
 public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
@@ -118,12 +116,6 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
 
     protected DependencyArtifacts getDependencyArtifacts() {
         return getTychoProjectFacet().getDependencyArtifacts(project);
-    }
-
-    protected void expandVersion() {
-        ReactorProject reactorProject = DefaultReactorProject.adapt(project);
-        String originalVersion = getTychoProjectFacet().getArtifactKey(reactorProject).getVersion();
-        reactorProject.setExpandedVersion(originalVersion, qualifier);
     }
 
     protected void checkBinIncludesExist(BuildProperties buildProperties, String... ignoredIncludes)
