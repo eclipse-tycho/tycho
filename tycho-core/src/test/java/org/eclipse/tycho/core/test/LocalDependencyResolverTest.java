@@ -23,6 +23,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.testing.stubs.StubArtifactRepository;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
@@ -31,7 +32,6 @@ import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
-import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
 public class LocalDependencyResolverTest extends AbstractTychoMojoTestCase {
     public void testBundleIdParsing() throws Exception {

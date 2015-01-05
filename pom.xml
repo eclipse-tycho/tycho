@@ -74,19 +74,19 @@
 		<min.jdk.version>1.6</min.jdk.version>
 
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
-		<classWorldsVersion>2.2.3</classWorldsVersion>
+		<classWorldsVersion>2.5.1</classWorldsVersion>
 		<commonsCliVersion>1.2</commonsCliVersion>
 		<easyMockVersion>1.2_Java1.3</easyMockVersion>
 		<junitVersion>3.8.2</junitVersion>
 		<plexusVersion>1.5.5</plexusVersion>
 		<plexusInterpolationVersion>1.14</plexusInterpolationVersion>
-		<plexusUtilsVersion>3.0.7</plexusUtilsVersion>
+		<plexusUtilsVersion>3.0.15</plexusUtilsVersion>
 		<securityDispatcherVersion>1.3</securityDispatcherVersion>
 		<cipherVersion>1.7</cipherVersion>
 		<modelloVersion>1.4</modelloVersion>
 		<jxpathVersion>1.3</jxpathVersion>
 		<pluginToolsVersion>3.3</pluginToolsVersion>
-		<maven-version>3.0</maven-version>
+		<maven-version>3.1.1</maven-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
 		<equinoxVersion>3.10.0.v20140606-1445</equinoxVersion>
@@ -245,7 +245,7 @@
 			<dependency>
 				<groupId>org.apache.maven.plugin-testing</groupId>
 				<artifactId>maven-plugin-testing-harness</artifactId>
-				<version>2.1</version>
+				<version>3.0.0</version>
 				<exclusions>
 					<exclusion>
 						<artifactId>maven-aether-provider</artifactId>
