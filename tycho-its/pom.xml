@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ - Copyright (c) 2008, 2014 Sonatype Inc. and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@
 			/opt/maven/bin/mvn clean test -Pits -Dtycho-build-version=0.4.0-DEV-3023 -Dtycho.targetPlatform=/opt/eclipse-3.5/eclipse/
 		-->
 		<tycho-build-version>${project.version}</tycho-build-version>
-        <its-maven-version>${maven-version}</its-maven-version>
+		<its-maven-version>${maven-version}</its-maven-version>
 		<maven-dir>${project.build.directory}/apache-maven-${its-maven-version}</maven-dir>
 
 	</properties>
@@ -82,16 +82,6 @@
 				</executions>
 			</plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<testExcludes>
-						<!-- TODO tycho-186 is breaking 136 -->
-						<exclude>**/Tycho136*.java</exclude>
-					</testExcludes>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -154,7 +144,7 @@
 					<destination>${project.basedir}/repositories/kepler</destination>
 				</configuration>
 			</plugin>
-			
+
 		</plugins>
 
 		<pluginManagement>
@@ -167,7 +157,6 @@
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
-								<!-- Enable integration test execution in Eclipse... -->
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>org.sonatype.plugins</groupId>
@@ -178,7 +167,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<execute />
+										<ignore />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -188,21 +177,20 @@
 										<versionRange>[2.1,)</versionRange>
 										<goals>
 											<goal>unpack-dependencies</goal>
+											<goal>unpack</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<execute />
+										<ignore />
 									</action>
 								</pluginExecution>
-
-								<!-- ... but do not download Eclipse installation for -Dtycho.targetPlatform -->
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-dependency-plugin</artifactId>
-										<versionRange>[2.1,)</versionRange>
+										<groupId>org.eclipse.tycho.extras</groupId>
+										<artifactId>tycho-p2-extras-plugin</artifactId>
+										<versionRange>[${tychoBootstrapVersion},)</versionRange>
 										<goals>
-											<goal>unpack</goal>
+											<goal>mirror</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
