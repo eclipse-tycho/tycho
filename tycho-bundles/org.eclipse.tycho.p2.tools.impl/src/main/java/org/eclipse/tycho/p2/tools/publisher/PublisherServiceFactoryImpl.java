@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 import org.eclipse.tycho.repository.registry.ReactorRepositoryManager;
@@ -26,13 +27,27 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
     @Override
     public PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments) {
+        PublisherActionRunner publisherRunner = getPublisherRunnerForProject(project, environments);
+        return new PublisherServiceImpl(publisherRunner, project.getBuildQualifier(),
+                reactorRepoManager.getPublishingRepository(project.getIdentities()));
+    }
+
+    @Override
+    public PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments) {
+        PublisherActionRunner publisherRunner = getPublisherRunnerForProject(project, environments);
+        return new PublishProductToolImpl(publisherRunner, reactorRepoManager.getPublishingRepository(project
+                .getIdentities()));
+    }
+
+    private PublisherActionRunner getPublisherRunnerForProject(ReactorProject project,
+            List<TargetEnvironment> environments) {
         checkCollaborators();
 
-        return new PublisherServiceImpl(new PublisherInfoTemplate(
-                reactorRepoManager.getFinalTargetPlatformMetadataRepository(project), environments),
-                project.getBuildQualifier(), reactorRepoManager.getPublishingRepository(project.getIdentities()),
-                mavenContext.getLogger());
+        return new PublisherActionRunner(reactorRepoManager.getFinalTargetPlatformMetadataRepository(project),
+                environments, mavenContext.getLogger());
     }
+
+    // setters for DS
 
     public void setMavenContext(MavenContext mavenContext) {
         this.mavenContext = mavenContext;

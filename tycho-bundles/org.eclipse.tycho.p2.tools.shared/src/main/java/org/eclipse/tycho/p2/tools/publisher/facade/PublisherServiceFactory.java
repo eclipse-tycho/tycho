@@ -30,4 +30,6 @@ public interface PublisherServiceFactory {
     // TODO separate publishers per artifact type
     PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments);
 
+    PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments);
+
 }

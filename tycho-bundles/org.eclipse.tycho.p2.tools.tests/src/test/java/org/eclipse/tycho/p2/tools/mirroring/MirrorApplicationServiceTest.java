@@ -156,8 +156,8 @@ public class MirrorApplicationServiceTest {
     public static RepositoryReferences sourceRepos(String... repoIds) {
         RepositoryReferences result = new RepositoryReferences();
         for (String repoId : repoIds) {
-            result.addMetadataRepository(ResourceUtil.resolveTestResource("resources/repositories/" + repoId));
-            result.addArtifactRepository(ResourceUtil.resolveTestResource("resources/repositories/" + repoId));
+            result.addMetadataRepository(ResourceUtil.resourceFile("repositories/" + repoId));
+            result.addArtifactRepository(ResourceUtil.resourceFile("repositories/" + repoId));
         }
         return result;
     }

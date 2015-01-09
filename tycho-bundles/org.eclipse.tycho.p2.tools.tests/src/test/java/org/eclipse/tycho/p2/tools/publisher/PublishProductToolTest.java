@@ -11,32 +11,27 @@
 package org.eclipse.tycho.p2.tools.publisher;
 
 import static org.eclipse.tycho.p2.tools.test.util.ResourceUtil.resourceFile;
+import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.testutil.InstallableUnitUtil;
-import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.repository.module.PublishingRepositoryImpl;
 import org.eclipse.tycho.repository.p2base.metadata.ImmutableInMemoryMetadataRepository;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
@@ -46,12 +41,12 @@ import org.eclipse.tycho.test.util.ReactorProjectIdentitiesStub;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
-@SuppressWarnings("restriction")
-public class PublisherServiceTest {
+public class PublishProductToolTest {
 
-    private static final String DEFAULT_QUALIFIER = "1.2.3.testqual";
+    private static final String DEFAULT_FLAVOR = "tooling";
     private static final List<TargetEnvironment> DEFAULT_ENVIRONMENTS = Collections
             .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
 
@@ -62,8 +57,11 @@ public class PublisherServiceTest {
     @Rule
     public P2Context p2Context = new P2Context();
 
+    @Rule
+    public ExpectedException thrownException = ExpectedException.none();
+
     private PublishingRepository outputRepository;
-    private PublisherService subject;
+    private PublishProductTool subject;
 
     @Before
     public void initSubject() throws Exception {
@@ -73,68 +71,43 @@ public class PublisherServiceTest {
         installableUnits.add(InstallableUnitUtil.createFeatureIU("org.eclipse.example.original_feature", "1.0.0"));
         IMetadataRepository context = new ImmutableInMemoryMetadataRepository(installableUnits);
 
-        // TODO these publishers don't produce artifacts, so we could run without file system
         outputRepository = new PublishingRepositoryImpl(p2Context.getAgent(), new ReactorProjectIdentitiesStub(
                 projectDirectory));
         PublisherActionRunner publisherRunner = new PublisherActionRunner(context, DEFAULT_ENVIRONMENTS,
                 logVerifier.getLogger());
-        subject = new PublisherServiceImpl(publisherRunner, DEFAULT_QUALIFIER, outputRepository);
+        subject = new PublishProductToolImpl(publisherRunner, outputRepository);
     }
 
     @Test
-    public void testCategoryPublishing() throws Exception {
-        File categoryDefinition = resourceFile("publishers/category.xml");
+    public void testProductPublishing() throws Exception {
+        File productDefinition = resourceFile("publishers/test.product");
+        File launcherBinaries = resourceFile("launchers/");
 
-        Collection<DependencySeed> seeds = subject.publishCategories(categoryDefinition);
+        Collection<DependencySeed> seeds = subject.publishProduct(productDefinition, launcherBinaries, DEFAULT_FLAVOR);
 
         assertThat(seeds.size(), is(1));
         DependencySeed seed = seeds.iterator().next();
 
         Set<Object> publishedUnits = outputRepository.getInstallableUnits();
         assertThat(publishedUnits, hasItem(seed.getInstallableUnit()));
+
+        // test for launcher artifact
+        Map<String, File> artifactLocations = outputRepository.getArtifactLocations();
+        // TODO 348586 drop productUid from classifier
+        String executableClassifier = "productUid.executable.testws.testos.testarch";
+        assertThat(artifactLocations.keySet(), hasItem(executableClassifier));
+        assertThat(artifactLocations.get(executableClassifier), isFile());
+        assertThat(artifactLocations.get(executableClassifier).toString(), endsWith(".zip"));
     }
 
     @Test
-    public void testProfilePublishing() throws Exception {
-        File customProfile = resourceFile("publishers/virgo-1.6.profile");
-        Collection<DependencySeed> seeds = subject.publishEEProfile(customProfile);
-        assertThat(seeds.size(), is(2));
-        IInstallableUnit virgoProfileIU = unitsById(seeds).get("a.jre.virgo");
-        assertThat(virgoProfileIU, not(nullValue()));
-        Collection<IProvidedCapability> provided = virgoProfileIU.getProvidedCapabilities();
-        boolean customJavaxActivationVersionFound = false;
-        Version version_1_1_1 = Version.create("1.1.1");
-        for (IProvidedCapability capability : provided) {
-            if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(capability.getNamespace())) {
-                if ("javax.activation".equals(capability.getName())) {
-                    if (version_1_1_1.equals(capability.getVersion())) {
-                        customJavaxActivationVersionFound = true;
-                        break;
-                    }
-                }
-            }
-        }
-        assertTrue("did not find capability for package javax.activation with custom version " + version_1_1_1,
-                customJavaxActivationVersionFound);
-        assertThat(unitsById(seeds).keySet(), hasItem("config.a.jre.virgo"));
-    }
+    public void testProductPublishingWithMissingFragments() throws Exception {
+        // product referencing a fragment that is not in the target platform -> publisher must fail because the dependency resolution no longer detects this (see bug 342890)
+        File productDefinition = resourceFile("publishers/missingFragment.product");
+        File launcherBinaries = resourceFile("launchers/");
 
-    @Test(expected = FacadeException.class)
-    public void testValidateProfileFile() throws Exception {
-        ((PublisherServiceImpl) subject).validateProfile(resourceFile("publishers/inconsistentname-1.0.profile"));
-    }
-
-    /**
-     * Returns the installable units from the given dependency seeds, indexed by the installable
-     * units's IDs.
-     */
-    private static Map<String, IInstallableUnit> unitsById(Collection<DependencySeed> seeds) {
-        Map<String, IInstallableUnit> result = new HashMap<String, IInstallableUnit>();
-        for (DependencySeed seed : seeds) {
-            IInstallableUnit iu = (IInstallableUnit) seed.getInstallableUnit();
-            result.put(iu.getId(), iu);
-        }
-        return result;
+        thrownException.expectMessage(containsString("org.eclipse.core.filesystem.hpux.ppc"));
+        subject.publishProduct(productDefinition, launcherBinaries, DEFAULT_FLAVOR);
     }
 
 }

@@ -13,16 +13,16 @@ package org.eclipse.tycho.p2.tools.test.util;
 import java.io.File;
 
 /**
- * Helper for accessing test resources.
+ * Canonical test resource access.
  */
 public class ResourceUtil {
 
-    public static File resolveTestResource(String pathRelativeToProjectRoot) throws IllegalStateException {
-        File resolvedFile = new File(pathRelativeToProjectRoot).getAbsoluteFile();
+    public static File resourceFile(String path) throws IllegalStateException {
+        File resolvedFile = new File("resources", path).getAbsoluteFile();
 
         if (!resolvedFile.canRead()) {
-            throw new IllegalStateException("Test resource \"" + pathRelativeToProjectRoot + "\" is not available; "
-                    + workingDirMessage());
+            throw new IllegalStateException("Test resource \"" + path
+                    + "\" not found under \"resources\" in the project " + workingDirMessage());
         }
         return resolvedFile;
     }
@@ -30,4 +30,5 @@ public class ResourceUtil {
     private static String workingDirMessage() {
         return "(working directory is \"" + new File(".").getAbsolutePath() + "\")";
     }
+
 }

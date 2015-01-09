@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,7 +42,8 @@ import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.model.ProductConfiguration.ConfigIni;
 import org.eclipse.tycho.model.ProductConfiguration.ConfigurationProperty;
 import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 /**
  * <p>
@@ -65,6 +66,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
      *             Tycho.
      */
     @Parameter(defaultValue = "tooling")
+    @Deprecated
     private String flavor;
 
     @Component(role = UnArchiver.class, hint = "zip")
@@ -74,8 +76,11 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     private FileLockService fileLockService;
 
     @Override
-    protected Collection<DependencySeed> publishContent(PublisherService publisherService)
+    protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
+        PublishProductTool publisher = publisherServiceFactory.createProductPublisher(getReactorProject(),
+                getEnvironments());
+
         List<DependencySeed> result = new ArrayList<DependencySeed>();
         for (File producFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
@@ -92,7 +97,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
                 final File preparedProductFile = writeProductForPublishing(producFile, productConfiguration,
                         getBuildDirectory());
-                Collection<DependencySeed> seeds = publisherService.publishProduct(preparedProductFile,
+                Collection<DependencySeed> seeds = publisher.publishProduct(preparedProductFile,
                         productConfiguration.includeLaunchers() ? getEquinoxExecutableFeature() : null, flavor);
                 result.addAll(seeds);
             } catch (FacadeException e) {
@@ -226,6 +231,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
         // add root features as special dependency seed which are marked as "add-on" for the product
         DependencySeed.Filter filter = new DependencySeed.Filter() {
+            @Override
             public boolean isAddOnFor(String type, String id) {
                 return ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
             }
