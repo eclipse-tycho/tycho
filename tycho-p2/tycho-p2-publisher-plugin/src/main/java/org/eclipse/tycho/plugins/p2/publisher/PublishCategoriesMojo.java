@@ -27,6 +27,7 @@ import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 /**
  * <p>
@@ -39,8 +40,11 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
     @Override
-    protected Collection<DependencySeed> publishContent(PublisherService publisherService)
+    protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
+        PublisherService publisherService = publisherServiceFactory.createPublisher(getReactorProject(),
+                getEnvironments());
+
         try {
             List<DependencySeed> categoryIUs = new ArrayList<DependencySeed>();
             for (Category category : getCategories()) {

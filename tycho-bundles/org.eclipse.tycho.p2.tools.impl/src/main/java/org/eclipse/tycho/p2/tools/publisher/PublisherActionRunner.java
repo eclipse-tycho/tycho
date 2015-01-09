@@ -10,32 +10,58 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
+import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
+import org.eclipse.tycho.p2.tools.FacadeException;
+import org.eclipse.tycho.repository.util.StatusTool;
 
+/**
+ * Helper for running publisher actions in the context of a project.
+ */
 @SuppressWarnings("restriction")
-class PublisherInfoTemplate {
+class PublisherActionRunner {
 
-    private IMetadataRepository targetPlatformInstallableUnits;
+    private IMetadataRepository contextIUs;
     private List<TargetEnvironment> environments;
+    private MavenLogger logger;
 
-    /**
-     * Creates a template for creating configured PublisherInfo instances.
-     * 
-     * @param reactorRepositoryManager
-     */
-    public PublisherInfoTemplate(IMetadataRepository targetPlatformInstallableUnits,
-            List<TargetEnvironment> environments) {
-        this.targetPlatformInstallableUnits = targetPlatformInstallableUnits;
+    public PublisherActionRunner(IMetadataRepository contextInstallableUnits, List<TargetEnvironment> environments,
+            MavenLogger logger) {
+        this.contextIUs = contextInstallableUnits;
         this.environments = environments;
+        this.logger = logger;
     }
 
-    public IPublisherInfo newPublisherInfo(IMetadataRepository metadataOutput, IArtifactRepository artifactsOutput) {
+    public Collection<IInstallableUnit> executeAction(IPublisherAction action, IMetadataRepository metadataOutput,
+            IArtifactRepository artifactOutput) throws FacadeException {
+        ResultSpyAction resultSpy = new ResultSpyAction();
+        IPublisherAction[] actions = new IPublisherAction[] { action, resultSpy };
+
+        /**
+         * The PublisherInfo must not be cached, or results may leak between publishing actions (see
+         * bug 346532).
+         */
+        IPublisherInfo publisherInfo = newPublisherInfo(metadataOutput, artifactOutput);
+        Publisher publisher = new Publisher(publisherInfo);
+
+        IStatus result = publisher.publish(actions, null);
+        handlePublisherStatus(result);
+
+        return resultSpy.getAllIUs();
+    }
+
+    private IPublisherInfo newPublisherInfo(IMetadataRepository metadataOutput, IArtifactRepository artifactsOutput) {
         final PublisherInfo publisherInfo = new PublisherInfo();
 
         publisherInfo.setMetadataRepository(metadataOutput);
@@ -43,7 +69,7 @@ class PublisherInfoTemplate {
         publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 
         // TODO publishers only need an IQueryable<IInstallableUnit> -> changing this in p2 would simplify things for us
-        publisherInfo.setContextMetadataRepository(targetPlatformInstallableUnits);
+        publisherInfo.setContextMetadataRepository(contextIUs);
         // no (known) publisher action needs context artifact repositories
 
         setTargetEnvironments(publisherInfo);
@@ -62,6 +88,16 @@ class PublisherInfoTemplate {
             configSpecs[writeIx++] = environment.toConfigSpec();
         }
         publisherInfo.setConfigurations(configSpecs);
+    }
+
+    private void handlePublisherStatus(IStatus result) throws FacadeException {
+        if (result.matches(IStatus.INFO)) {
+            logger.info(StatusTool.collectProblems(result));
+        } else if (result.matches(IStatus.WARNING)) {
+            logger.warn(StatusTool.collectProblems(result));
+        } else if (!result.isOK()) {
+            throw new FacadeException(StatusTool.collectProblems(result), result.getException());
+        }
     }
 
 }

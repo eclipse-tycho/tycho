@@ -19,7 +19,6 @@ import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
-import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
@@ -32,24 +31,18 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
-        PublisherService publisherService = createPublisherService();
-        Collection<DependencySeed> units = publishContent(publisherService);
+        PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
+        Collection<DependencySeed> units = publishContent(publisherServiceFactory);
         postPublishedIUs(units);
     }
 
     /**
      * Publishes source files with the help of the given publisher service.
      * 
-     * @param publisherService
      * @return the list of root installable units that has been published
      */
-    protected abstract Collection<DependencySeed> publishContent(PublisherService publisherService)
+    protected abstract Collection<DependencySeed> publishContent(PublisherServiceFactory publisherFactory)
             throws MojoExecutionException, MojoFailureException;
-
-    private PublisherService createPublisherService() throws MojoExecutionException, MojoFailureException {
-        PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
-        return publisherServiceFactory.createPublisher(getReactorProject(), getEnvironments());
-    }
 
     /**
      * Adds the just published installable units into a shared list. The assemble-repository goal

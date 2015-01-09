@@ -10,52 +10,36 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
-import static org.eclipse.tycho.p2.tools.publisher.DependencySeedUtil.createSeed;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Properties;
 
-import org.eclipse.core.runtime.AssertionFailedException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
-import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
-import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
-import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
-import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.target.ee.CustomEEResolutionHints;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
-import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
 class PublisherServiceImpl implements PublisherService {
 
-    private final PublisherInfoTemplate configuration;
+    private final PublisherActionRunner publisherRunner;
     private final String qualifier;
     private final PublishingRepository publishingRepository;
-    private final MavenLogger logger;
 
-    public PublisherServiceImpl(PublisherInfoTemplate publisherConfiguration, String qualifier,
-            PublishingRepository publishingRepository, MavenLogger logger) {
-        this.configuration = publisherConfiguration;
+    public PublisherServiceImpl(PublisherActionRunner publisherRunner, String qualifier,
+            PublishingRepository publishingRepository) {
+        this.publisherRunner = publisherRunner;
         this.qualifier = qualifier;
         this.publishingRepository = publishingRepository;
-        this.logger = logger;
     }
 
     @Override
@@ -75,39 +59,18 @@ class PublisherServiceImpl implements PublisherService {
          * TODO Fix in Eclipse: category publisher should produce root IUs; workaround: the category
          * publisher produces no "inner" IUs, so just return all IUs
          */
-        Collection<IInstallableUnit> allIUs = executePublisher(categoryXMLAction,
+        Collection<IInstallableUnit> allIUs = publisherRunner.executeAction(categoryXMLAction,
                 publishingRepository.getMetadataRepository(), publishingRepository.getArtifactRepository());
         // TODO introduce type "eclipse-category"?
         return toSeeds(null, allIUs);
     }
 
     @Override
-    public Collection<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor)
-            throws FacadeException, IllegalStateException {
-
-        IProductDescriptor productDescriptor = null;
-        try {
-            productDescriptor = new ProductFile(productDefinition.getAbsolutePath());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to load product file " + productDefinition.getAbsolutePath(), e); //$NON-NLS-1$
-        }
-
-        ProductAction action = new ProductAction(null, productDescriptor, flavor, launcherBinaries);
-        IMetadataRepository metadataRepository = publishingRepository.getMetadataRepository();
-        IArtifactRepository artifactRepository = publishingRepository
-                .getArtifactRepositoryForWriting(new ProductBinariesWriteSession(productDescriptor.getId()));
-        Collection<IInstallableUnit> allIUs = executePublisher(action, metadataRepository, artifactRepository);
-
-        return Collections.singletonList(createSeed(ArtifactType.TYPE_ECLIPSE_PRODUCT,
-                selectUnit(allIUs, productDescriptor.getId())));
-    }
-
-    @Override
     public Collection<DependencySeed> publishEEProfile(File profileFile) throws FacadeException {
         validateProfile(profileFile);
         IPublisherAction jreAction = new JREAction(profileFile);
-        Collection<IInstallableUnit> allIUs = executePublisher(jreAction, publishingRepository.getMetadataRepository(),
-                publishingRepository.getArtifactRepository());
+        Collection<IInstallableUnit> allIUs = publisherRunner.executeAction(jreAction,
+                publishingRepository.getMetadataRepository(), publishingRepository.getArtifactRepository());
         return toSeeds(null, allIUs);
     }
 
@@ -154,37 +117,6 @@ class PublisherServiceImpl implements PublisherService {
             throw new FacadeException("Profile file with 'osgi.java.profile.name=" + profileName + "' must be named '"
                     + profileName + ".profile', but found file name: '" + simpleFileName + "'");
         }
-    }
-
-    private Collection<IInstallableUnit> executePublisher(IPublisherAction action,
-            IMetadataRepository metadataRepository, IArtifactRepository artifactRepository) throws FacadeException {
-        ResultSpyAction resultSpy = new ResultSpyAction();
-        IPublisherAction[] actions = new IPublisherAction[] { action, resultSpy };
-        Publisher publisher = new Publisher(configuration.newPublisherInfo(metadataRepository, artifactRepository));
-
-        IStatus result = publisher.publish(actions, null);
-        handlePublisherStatus(result);
-
-        return resultSpy.getAllIUs();
-    }
-
-    private void handlePublisherStatus(IStatus result) throws FacadeException {
-        if (result.matches(IStatus.INFO)) {
-            logger.info(StatusTool.collectProblems(result));
-        } else if (result.matches(IStatus.WARNING)) {
-            logger.warn(StatusTool.collectProblems(result));
-        } else if (!result.isOK()) {
-            throw new FacadeException(StatusTool.collectProblems(result), result.getException());
-        }
-    }
-
-    private static IInstallableUnit selectUnit(Collection<IInstallableUnit> units, String id) {
-        for (IInstallableUnit unit : units) {
-            if (id.equals(unit.getId())) {
-                return unit;
-            }
-        }
-        throw new AssertionFailedException("Publisher did not produce expected IU");
     }
 
     private static Collection<DependencySeed> toSeeds(String type, Collection<IInstallableUnit> units) {

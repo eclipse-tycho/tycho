@@ -21,6 +21,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
+import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 /**
  * <p>
@@ -41,8 +42,11 @@ public final class PublishEEProfileMojo extends AbstractPublishMojo {
     private File profileFile;
 
     @Override
-    protected Collection<DependencySeed> publishContent(PublisherService publisherService)
+    protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
+        PublisherService publisherService = publisherServiceFactory.createPublisher(getReactorProject(),
+                getEnvironments());
+
         try {
             Collection<DependencySeed> ius = publisherService.publishEEProfile(profileFile);
             getLog().info("Published profile IUs: " + ius);
