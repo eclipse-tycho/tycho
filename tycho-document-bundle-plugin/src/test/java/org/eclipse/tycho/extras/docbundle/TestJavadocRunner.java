@@ -17,7 +17,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
@@ -37,8 +39,8 @@ public class TestJavadocRunner {
         JavadocOptions options = new JavadocOptions();
         List<Dependency> docletArifacts = new LinkedList<Dependency>();
         DocletArtifactsResolver docletResolver = mock(DocletArtifactsResolver.class);
-        List<String> docletArtifactsJarList = Arrays.asList("path/to/docletArtifact.jar",
-                "path/to/otherDocletArtifact.jar");
+        Set<String> docletArtifactsJarList = new LinkedHashSet<String>(Arrays.asList("path/to/docletArtifact.jar",
+                "path/to/otherDocletArtifact.jar"));
         when(docletResolver.resolveArtifacts(docletArifacts)).thenReturn(docletArtifactsJarList);
         options.setAdditionalArguments(Arrays.asList("-docencoding \"UTF-8\""));
         options.setJvmOptions(Arrays.asList("-Xmx512m"));

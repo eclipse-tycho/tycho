@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -59,8 +60,8 @@ public class DocletArtifactsResolver {
      * @throws MojoExecutionException
      *             if one of the specified depenencies could not be resolved
      */
-    public List<String> resolveArtifacts(List<Dependency> dependencies) throws MojoExecutionException {
-        List<String> files = new ArrayList<String>();
+    public Set<String> resolveArtifacts(List<Dependency> dependencies) throws MojoExecutionException {
+        Set<String> files = new LinkedHashSet<String>();
 
         if (dependencies == null || dependencies.isEmpty()) {
             return files;
@@ -73,7 +74,7 @@ public class DocletArtifactsResolver {
             Artifact artifact = repositorySystem.createDependencyArtifact(dependency);
             ArtifactResolutionRequest request = new ArtifactResolutionRequest();
             request.setArtifact(artifact);
-            request.setResolveRoot(true).setResolveTransitively(false);
+            request.setResolveRoot(true).setResolveTransitively(true);
             request.setLocalRepository(session.getLocalRepository());
             request.setRemoteRepositories(project.getPluginArtifactRepositories());
             request.setOffline(session.isOffline());
@@ -85,7 +86,9 @@ public class DocletArtifactsResolver {
                 throw new MojoExecutionException("Failed to resolve doclet artifact " + dependency.getManagementKey(),
                         e);
             }
-            files.add(artifact.getFile().getAbsolutePath());
+            for (Artifact resolvedArtifact : result.getArtifacts()) {
+                files.add(resolvedArtifact.getFile().getAbsolutePath());
+            }
         }
 
         return files;

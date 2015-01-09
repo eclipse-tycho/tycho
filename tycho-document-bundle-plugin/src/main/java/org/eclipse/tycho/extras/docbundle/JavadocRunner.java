@@ -14,7 +14,6 @@ package org.eclipse.tycho.extras.docbundle;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.exec.OS;
@@ -144,7 +143,7 @@ public class JavadocRunner {
     }
 
     private void addDocletPaths(final StringBuilder sb) throws MojoExecutionException {
-        List<String> resolvedArtifactJars = docletArtifactsResolver.resolveArtifacts(this.options.getDocletArtifacts());
+        Set<String> resolvedArtifactJars = docletArtifactsResolver.resolveArtifacts(this.options.getDocletArtifacts());
         addPathArgument(sb, "-docletpath", resolvedArtifactJars);
     }
 

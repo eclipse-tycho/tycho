@@ -25,8 +25,16 @@
      
  }
 
+// check if the doclet artifacts are passed as path
  checkFileContains ( "docbundle1/target/javadoc.options.txt", "-docletpath" );
- checkFileContains ( "docbundle1/target/javadoc.options.txt", "-doclet CustomDoclet" ); 
+ 
+ // check if the transitive dependencies are also resolved
+ checkFileContains ( "docbundle1/target/javadoc.options.txt", "tycho-maven-plugin" );
+ 
+ // check if the custom doclet is used
+ checkFileContains ( "docbundle1/target/javadoc.options.txt", "-doclet CustomDoclet" );
+ 
+ // check if the expected java doc files are generated 
  checkFile ( "docbundle1/target/gen-doc/toc/javadoc.xml", "Missing expected toc file" ); 
  checkFile ( "docbundle1/target/gen-doc/reference/api/package-list", "Missing package list file" );
  checkFile ( "docbundle1/target/gen-doc/reference/api/bundle1/SampleClass1.html", "Missing doc file" );
