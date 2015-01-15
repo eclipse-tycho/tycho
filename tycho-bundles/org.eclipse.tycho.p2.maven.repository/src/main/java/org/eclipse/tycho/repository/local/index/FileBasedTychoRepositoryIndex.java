@@ -10,13 +10,22 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local.index;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
@@ -32,16 +41,21 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
     public static final String ARTIFACTS_INDEX_RELPATH = ".meta/p2-artifacts.properties";
     public static final String METADATA_INDEX_RELPATH = ".meta/p2-local-metadata.properties";
 
+    private static final String ENCODING = "UTF8";
+    private static final String EOL = "\n";
+
     private final File indexFile;
+    private final MavenLogger logger;
     private FileLocker fileLocker;
 
     private Set<GAV> addedGavs = new HashSet<GAV>();
     private Set<GAV> removedGavs = new HashSet<GAV>();
 
-    private FileBasedTychoRepositoryIndex(File indexFile, FileLockService fileLockService) {
+    private FileBasedTychoRepositoryIndex(File indexFile, FileLockService fileLockService, MavenLogger logger) {
         super();
         this.indexFile = indexFile;
         this.fileLocker = fileLockService.getFileLocker(indexFile);
+        this.logger = logger;
         if (indexFile.isFile()) {
             lock();
             try {
@@ -89,7 +103,13 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
         lock();
         try {
             reconcile();
-            write(new FileOutputStream(indexFile));
+            // minimize time window for corrupting the file by first writing to a temp file, then moving it
+            File tempFile = File.createTempFile("index", "tmp", indexFile.getParentFile());
+            write(new FileOutputStream(tempFile));
+            if (indexFile.isFile()) {
+                indexFile.delete();
+            }
+            tempFile.renameTo(indexFile);
         } finally {
             unlock();
         }
@@ -111,12 +131,49 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
         removedGavs.clear();
     }
 
-    public static TychoRepositoryIndex createMetadataIndex(File basedir, FileLockService fileLockService) {
-        return new FileBasedTychoRepositoryIndex(new File(basedir, METADATA_INDEX_RELPATH), fileLockService);
+    private void write(OutputStream outStream) throws IOException {
+        Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), ENCODING);
+        try {
+            for (GAV gav : getProjectGAVs()) {
+                out.write(gav.toExternalForm());
+                out.write(EOL);
+            }
+            out.flush();
+        } finally {
+            out.close();
+        }
     }
 
-    public static TychoRepositoryIndex createArtifactsIndex(File basedir, FileLockService fileLockService) {
-        return new FileBasedTychoRepositoryIndex(new File(basedir, ARTIFACTS_INDEX_RELPATH), fileLockService);
+    private Set<GAV> read(InputStream inStream) throws IOException {
+        LinkedHashSet<GAV> result = new LinkedHashSet<GAV>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, ENCODING));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().length() == 0) {
+                    continue;
+                }
+                try {
+                    GAV parsedGAV = GAV.parse(line);
+                    result.add(parsedGAV);
+                } catch (IllegalArgumentException e) {
+                    logger.warn("Ignoring invalid line '" + line + "' in " + indexFile);
+                }
+            }
+        } finally {
+            reader.close();
+        }
+        return result;
+    }
+
+    public static TychoRepositoryIndex createMetadataIndex(File basedir, FileLockService fileLockService,
+            MavenLogger logger) {
+        return new FileBasedTychoRepositoryIndex(new File(basedir, METADATA_INDEX_RELPATH), fileLockService, logger);
+    }
+
+    public static TychoRepositoryIndex createArtifactsIndex(File basedir, FileLockService fileLockService,
+            MavenLogger logger) {
+        return new FileBasedTychoRepositoryIndex(new File(basedir, ARTIFACTS_INDEX_RELPATH), fileLockService, logger);
     }
 
 }

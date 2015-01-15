@@ -13,6 +13,7 @@ package org.eclipse.tycho.repository.local;
 
 import java.io.File;
 
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
@@ -43,11 +44,47 @@ public abstract class BaseMavenRepositoryTest {
     }
 
     final TychoRepositoryIndex createArtifactsIndex(File location) {
-        return FileBasedTychoRepositoryIndex.createArtifactsIndex(location, new NoopFileLockService());
+        return FileBasedTychoRepositoryIndex.createArtifactsIndex(location, new NoopFileLockService(),
+                new NoopMavenLogger());
     }
 
     final TychoRepositoryIndex createMetadataIndex(File location) {
-        return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService());
+        return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService(),
+                new NoopMavenLogger());
+    }
+
+    static class NoopMavenLogger implements MavenLogger {
+
+        @Override
+        public void error(String message) {
+        }
+
+        @Override
+        public void warn(String message) {
+        }
+
+        @Override
+        public void warn(String message, Throwable cause) {
+        }
+
+        @Override
+        public void info(String message) {
+        }
+
+        @Override
+        public void debug(String message) {
+        }
+
+        @Override
+        public boolean isDebugEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isExtendedDebugEnabled() {
+            return false;
+        }
+
     }
 
 }

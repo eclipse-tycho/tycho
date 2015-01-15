@@ -70,25 +70,31 @@ public class GAV {
         return sb.toString();
     }
 
-    // TODO do not return null here
-    public static GAV parse(String str) {
-        if (str == null || str.trim().length() <= 0) {
-            return null;
+    /**
+     * Parse a line in the form "g:a:v"
+     * 
+     * @throws IllegalArgumentException
+     *             if line is not well-formed
+     */
+    public static GAV parse(String line) {
+        int currentIndex = 0;
+        int colonIndex = -1;
+
+        colonIndex = nextColonIndex(line, currentIndex);
+        if (colonIndex < 0) {
+            throw new IllegalArgumentException("Invalid line: '" + line + "'");
         }
+        String groupId = substring(line, currentIndex, colonIndex);
 
-        int p, c;
+        currentIndex = colonIndex + 1;
+        colonIndex = nextColonIndex(line, currentIndex);
+        if (colonIndex < 0) {
+            throw new IllegalArgumentException("Invalid line: '" + line + "'");
+        }
+        String artifactId = substring(line, currentIndex, colonIndex);
 
-        p = 0;
-        c = nextColonIndex(str, p);
-        String groupId = substring(str, p, c);
-
-        p = c + 1;
-        c = nextColonIndex(str, p);
-        String artifactId = substring(str, p, c);
-
-        p = c + 1;
-        c = str.length();
-        String version = substring(str, p, c);
+        currentIndex = colonIndex + 1;
+        String version = substring(line, currentIndex, line.length());
 
         return new GAV(groupId, artifactId, version);
     }
@@ -99,10 +105,7 @@ public class GAV {
     }
 
     private static int nextColonIndex(String str, int pos) {
-        int idx = str.indexOf(':', pos);
-        if (idx < 0)
-            throw new IllegalArgumentException("Invalid portable string: " + str);
-        return idx;
+        return str.indexOf(':', pos);
     }
 
     @Override
