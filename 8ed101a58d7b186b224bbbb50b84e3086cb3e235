@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "67fe7f71_55f17e89",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository.tests/src/test/java/org/eclipse/tycho/repository/local/BaseMavenRepositoryTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-01-15T15:07:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67fe7f71_95976651",
+      "revId": "8ed101a58d7b186b224bbbb50b84e3086cb3e235",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67fe7f71_558dfe3c",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/index/FileBasedTychoRepositoryIndex.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "67fe7f71_9509263a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/index/FileBasedTychoRepositoryIndex.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-01-15T15:07:58Z",
+      "side": 1,
+      "message": "the file lock service uses marker files next to the actual files being locked, so you can delete the file and still keep up the lock.",
+      "parentUuid": "67fe7f71_558dfe3c",
+      "revId": "8ed101a58d7b186b224bbbb50b84e3086cb3e235",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67fe7f71_f57b5297",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/repository/GAV.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2015-01-15T14:42:30Z",
       "side": 1,
       "message": "Move this check into nextColonIndex instead of doing it twice in this method?",
+      "revId": "8ed101a58d7b186b224bbbb50b84e3086cb3e235",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67fe7f71_b5e54aca",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.shared/src/main/java/org/eclipse/tycho/p2/repository/GAV.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-01-15T15:07:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67fe7f71_f57b5297",
       "revId": "8ed101a58d7b186b224bbbb50b84e3086cb3e235",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
