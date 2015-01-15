@@ -11,8 +11,11 @@
 
 package org.eclipse.tycho.repository.local;
 
+import static org.mockito.Mockito.mock;
+
 import java.io.File;
 
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
@@ -43,11 +46,13 @@ public abstract class BaseMavenRepositoryTest {
     }
 
     final TychoRepositoryIndex createArtifactsIndex(File location) {
-        return FileBasedTychoRepositoryIndex.createArtifactsIndex(location, new NoopFileLockService());
+        return FileBasedTychoRepositoryIndex.createArtifactsIndex(location, new NoopFileLockService(),
+                mock(MavenLogger.class));
     }
 
     final TychoRepositoryIndex createMetadataIndex(File location) {
-        return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService());
+        return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService(),
+                mock(MavenLogger.class));
     }
 
 }

@@ -10,14 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.repository;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -29,8 +21,6 @@ import java.util.Set;
 //TODO merge into only sub-class FileBasedTychoRepositoryIndex?
 public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryIndex {
 
-    private static final String ENCODING = "UTF8";
-    private static final String EOL = "\n";
     private Set<GAV> gavs;
 
     protected DefaultTychoRepositoryIndex() {
@@ -61,36 +51,6 @@ public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryInde
 
     protected void setGavs(Set<GAV> content) {
         this.gavs = content;
-    }
-
-    protected void write(OutputStream outStream) throws IOException {
-        Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), ENCODING);
-        try {
-            for (GAV gav : getProjectGAVs()) {
-                out.write(gav.toExternalForm());
-                out.write(EOL);
-            }
-            out.flush();
-        } finally {
-            out.close();
-        }
-    }
-
-    protected Set<GAV> read(InputStream inStream) throws IOException {
-        LinkedHashSet<GAV> result = new LinkedHashSet<GAV>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, ENCODING));
-        try {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                GAV parsedGAV = GAV.parse(line);
-                if (parsedGAV != null) {
-                    result.add(parsedGAV);
-                }
-            }
-        } finally {
-            reader.close();
-        }
-        return result;
     }
 
 }
