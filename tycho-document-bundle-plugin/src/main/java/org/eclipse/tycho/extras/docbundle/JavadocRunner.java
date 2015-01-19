@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2013, 2015 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -125,6 +125,7 @@ public class JavadocRunner {
         addClassPath(sb);
         addDoclet(sb);
         addDocletPaths(sb);
+        addEncoding(sb);
         addArguments(sb);
 
         final int count = addPackages(sb);
@@ -133,6 +134,12 @@ public class JavadocRunner {
         }
 
         return sb.toString();
+    }
+
+    private void addEncoding(final StringBuilder sb) {
+        if (this.options.getEncoding() != null) {
+            sb.append("-encoding ").append(this.options.getEncoding()).append(lineSeparator);
+        }
     }
 
     private void addDoclet(final StringBuilder sb) {

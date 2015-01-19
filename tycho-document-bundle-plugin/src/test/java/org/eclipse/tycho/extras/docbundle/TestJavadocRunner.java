@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Obeo and others.
+ * Copyright (c) 2014, 2015 Obeo and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,7 @@ public class TestJavadocRunner {
         options.setJvmOptions(Arrays.asList("-Xmx512m"));
         options.setDoclet("foo.bar.MyDoclet");
         options.setDocletArtifacts(docletArifacts);
+        options.setEncoding("ISO8859_1");
         javadocRunner.setDocletArtifactsResolver(docletResolver);
         javadocRunner.setLog(new SilentLog());
         javadocRunner.setOptions(options);
@@ -63,6 +64,7 @@ public class TestJavadocRunner {
         String expectedOptionsFile = "-classpath 'rt.jar'" + lineSeparator 
                 + "-doclet foo.bar.MyDoclet" + lineSeparator
                 + "-docletpath 'path/to/docletArtifact.jar" + File.pathSeparator + "path/to/otherDocletArtifact.jar'" + lineSeparator
+                + "-encoding ISO8859_1" + lineSeparator
                 + "-docencoding \"UTF-8\"" + lineSeparator;
         Assert.assertEquals(expectedOptionsFile, optionsFile);
     }

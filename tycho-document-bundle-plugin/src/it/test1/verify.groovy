@@ -25,6 +25,9 @@
      
  }
 
+// check if the encoding is set
+ checkFileContains ( "docbundle1/target/javadoc.options.txt", "-encoding UTF-8" );
+
 // check if the doclet artifacts are passed as path
  checkFileContains ( "docbundle1/target/javadoc.options.txt", "-docletpath" );
  

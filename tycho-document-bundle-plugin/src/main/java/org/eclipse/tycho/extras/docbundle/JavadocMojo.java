@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2013, 2015 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -96,13 +96,17 @@ public class JavadocMojo extends AbstractMojo {
      * <li><tt>doclet</tt>, used as javadoc <tt>-doclet</tt> parameter</li>
      * <li><tt>docletArtifacts</tt>, dependencies will be resovled and added as <tt>-docletpath</tt>
      * parameter</li>
+     * <li><tt>encoding</tt>, used as javadoc <tt>-encoding</tt> parameter (default:
+     * <tt>${project.build.sourceEncoding}</tt></li>
      * <li><tt>additionalArguments</tt>, a list of additional arguments passed to javadoc</li>
      * </ul>
      * Example configuration:
+     * 
      * <pre>
      * &lt;configuration&gt;
      *    &lt;javadocOptions&gt;
      *       &lt;ignoreError&gt;false&lt;/ignoreError&gt;
+     *       &lt;encoding&gt;UTF-8&lt;/encoding&gt;
      *       &lt;doclet&gt;foo.bar.MyDoclet&lt;/doclet&gt;
      *       &lt;docletArtifacts&gt;
      *          &lt;docletArtifact&gt;
@@ -141,6 +145,9 @@ public class JavadocMojo extends AbstractMojo {
     @Parameter(property = "tocFile", defaultValue = "${project.build.directory}/tocjavadoc.xml")
     private File tocFile;
 
+    @Parameter(property = "project.build.sourceEncoding", readonly = true)
+    private String projectBuildSourceEncoding;
+
     @Component
     private BundleReader bundleReader;
 
@@ -171,6 +178,11 @@ public class JavadocMojo extends AbstractMojo {
         if (this.cleanFirst) {
             getLog().info("Cleaning up first");
             cleanUp();
+        }
+
+        // if no encoding is set, fall back to ${project.build.sourceEncoding}
+        if (javadocOptions.getEncoding() == null) {
+            javadocOptions.setEncoding(projectBuildSourceEncoding);
         }
 
         final JavadocRunner runner = new JavadocRunner();
