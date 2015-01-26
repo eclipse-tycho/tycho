@@ -136,7 +136,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         if (result.exists()) {
             return result;
         } else {
-            getLogger().debug("Bundle-ClassPath entry " + path + " does not exist in" + bundleLocation);
+            getLogger().debug("Bundle-ClassPath entry " + path + " does not exist in " + bundleLocation);
             return null;
         }
     }
