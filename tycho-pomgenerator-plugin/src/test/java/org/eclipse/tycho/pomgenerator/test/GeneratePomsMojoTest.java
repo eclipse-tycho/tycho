@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.Mojo;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
@@ -240,5 +241,27 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
         assertEquals("../../", module.getParent().getRelativePath());
 
+    }
+
+    public void testMalformedManifest() throws Exception {
+        File baseDir = getBasedir("projects/malformed");
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("groupId", "group");
+        params.put("version", "1.0.0");
+        try {
+            generate(baseDir, new File[] { new File(baseDir, "base") }, params);
+            fail("OsgiManifestParserException expected, since  it does contain an invalid MANIFEST.MF file");
+        } catch (OsgiManifestParserException e) {
+            assertFalse(new File(baseDir, "pom.xml").exists());
+        }
+
+    }
+
+    public void testWithMetadataDirectory() throws Exception {
+        File baseDir = getBasedir("projects/withmetadata");
+        generate(baseDir);
+        Model model = readModel(baseDir, "pom.xml");
+        assertNotNull(model);
+        assertTrue("Only one module must be present, .metadata must be skipped", model.getModules().size() == 1);
     }
 }
