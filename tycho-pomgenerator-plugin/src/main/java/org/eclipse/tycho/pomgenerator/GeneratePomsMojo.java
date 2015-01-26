@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,7 +59,6 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DependencyComputer;
 import org.eclipse.tycho.core.osgitools.EquinoxResolver;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
-import org.eclipse.tycho.core.osgitools.OsgiManifestParserException;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.FeatureRef;
@@ -81,9 +80,12 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private static final class DirectoryFilter implements FileFilter {
         public boolean accept(File fileToTest) {
-            return fileToTest.isDirectory();
+            return fileToTest.isDirectory() && !METADATA_DIR.equals(fileToTest.getName());
         }
     }
+
+    /** Metadata directory that should be skipped when searching for projects **/
+    private static final String METADATA_DIR = ".metadata";
 
     /** reference to real pom.xml in aggregator poma.xml */
     private static final String THIS_MODULE = ".";
@@ -207,12 +209,8 @@ public class GeneratePomsMojo extends AbstractMojo {
 
         for (File dir : candidateDirs) {
             if (isPluginProject(dir)) {
-                try {
-                    OsgiManifest mf = bundleReader.loadManifest(dir);
-                    platform.addArtifactFile(mf.toArtifactKey(), dir, null);
-                } catch (OsgiManifestParserException e) {
-                    getLog().debug("Invalid bundle manifest " + dir.getAbsolutePath());
-                }
+                OsgiManifest mf = bundleReader.loadManifest(dir);
+                platform.addArtifactFile(mf.toArtifactKey(), dir, null);
             }
         }
 
