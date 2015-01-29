@@ -62,6 +62,7 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
             }
         }
 
+        // TODO is this still needed?
         ReactorProject reactorProject = getReactorProject();
         reactorProject.setDependencyMetadata(true, publishingRepo.getInstallableUnits());
         reactorProject.setDependencyMetadata(false, Collections.emptySet());

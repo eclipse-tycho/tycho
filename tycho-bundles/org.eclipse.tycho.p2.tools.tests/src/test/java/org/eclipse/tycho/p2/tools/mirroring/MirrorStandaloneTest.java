@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
-import static org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest.repoFile;
-import static org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest.sourceRepos;
+import static org.eclipse.tycho.p2.tools.mirroring.RepositoryAggregatorTest.repoFile;
+import static org.eclipse.tycho.p2.tools.mirroring.RepositoryAggregatorTest.sourceRepos;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+// TODO rename to MirrorApplicationTest? the tycho-extras standalone mirroring is the last user of the p2 mirror application
 public class MirrorStandaloneTest {
     private static final String DEFAULT_NAME = "dummy";
 

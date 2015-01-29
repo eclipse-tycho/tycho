@@ -18,7 +18,9 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
@@ -37,6 +39,10 @@ public abstract class AbstractRepositoryMojo extends AbstractMojo {
 
     protected MavenProject getProject() {
         return project;
+    }
+
+    protected ReactorProject getReactorProject() {
+        return DefaultReactorProject.adapt(project);
     }
 
     protected ReactorProjectIdentities getProjectIdentities() {

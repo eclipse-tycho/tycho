@@ -16,6 +16,7 @@ import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
+// TODO this is a ball of mud; split and/or more clearly limit scope
 public class BuildContext {
     private final ReactorProjectIdentities project;
 

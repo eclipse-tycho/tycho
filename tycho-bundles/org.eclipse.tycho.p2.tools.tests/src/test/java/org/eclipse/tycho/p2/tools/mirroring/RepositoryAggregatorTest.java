@@ -36,6 +36,7 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2.tools.mirroring.facade.RepositoryAggregator;
 import org.eclipse.tycho.p2.tools.publisher.DependencySeedUtil;
 import org.eclipse.tycho.p2.tools.test.util.ResourceUtil;
 import org.eclipse.tycho.test.util.LogVerifier;
@@ -46,7 +47,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 @SuppressWarnings("restriction")
-public class MirrorApplicationServiceTest {
+public class RepositoryAggregatorTest {
 
     // feature containing org.eclipse.core.runtime 3.4
     private static final String SIMPLE_FEATURE = "org.eclipse.example.original_feature";
@@ -64,7 +65,7 @@ public class MirrorApplicationServiceTest {
     private BuildContext context;
     private DestinationRepositoryDescriptor destinationRepo;
 
-    private MirrorApplicationServiceImpl subject;
+    private RepositoryAggregator subject;
 
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder();
@@ -79,17 +80,9 @@ public class MirrorApplicationServiceTest {
         ReactorProjectIdentities currentProject = new ReactorProjectIdentitiesStub(projectFolder);
         context = new BuildContext(currentProject, DEFAULT_QUALIFIER, DEFAULT_ENVIRONMENTS);
 
-        subject = new MirrorApplicationServiceImpl();
+        subject = new RepositoryAggregatorImpl();
         MavenContext mavenContext = new MavenContextImpl(null, logVerifier.getLogger());
         subject.setMavenContext(mavenContext);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMirrorNothing() throws Exception {
-        // make sure that this unsupported case is detected; the mirror application would just mirror everything
-        Collection<DependencySeed> noSeeds = Collections.emptyList();
-
-        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, noSeeds, context, false, false, null);
     }
 
     @Test

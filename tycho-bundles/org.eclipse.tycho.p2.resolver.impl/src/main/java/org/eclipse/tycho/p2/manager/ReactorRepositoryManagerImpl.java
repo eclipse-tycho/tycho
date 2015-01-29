@@ -66,12 +66,6 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
         FileUtils.deleteAll(agentDir);
     }
 
-    // TODO hide?
-    @Override
-    public IProvisioningAgent getAgent() {
-        return agent;
-    }
-
     @Override
     public PublishingRepository getPublishingRepository(ReactorProjectIdentities project) {
         return new PublishingRepositoryImpl(agent, project);

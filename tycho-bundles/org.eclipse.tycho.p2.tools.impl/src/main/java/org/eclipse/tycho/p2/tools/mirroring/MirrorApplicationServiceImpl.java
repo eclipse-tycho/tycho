@@ -13,10 +13,8 @@ package org.eclipse.tycho.p2.tools.mirroring;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -30,13 +28,9 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildOutputDirectory;
-import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
-import org.eclipse.tycho.p2.tools.BuildContext;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
@@ -123,48 +117,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         }
     }
 
-    @Override
-    public void mirrorReactor(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
-            Collection<DependencySeed> projectSeeds, BuildContext context, boolean includeAllDependencies,
-            boolean includePacked, Map<String, String> filterProperties) throws FacadeException {
-        IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
-        try {
-            final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, includePacked);
-
-            // mirror scope: seed units...
-            mirrorApp.setSourceIUs(toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(),
-                    sources));
-
-            // TODO the p2 mirror tool should support mirroring multiple environments at once
-            for (TargetEnvironment environment : context.getEnvironments()) {
-                SlicingOptions options = new SlicingOptions();
-                options.considerStrictDependencyOnly(!includeAllDependencies);
-                Map<String, String> filter = options.getFilter();
-                addFilterForFeatureJARs(filter);
-                if (filterProperties != null) {
-                    filter.putAll(filterProperties);
-                }
-                filter.putAll(environment.toFilterProperties());
-                mirrorApp.setSlicingOptions(options);
-
-                try {
-                    LogListener logListener = new LogListener(mavenContext.getLogger());
-                    mirrorApp.setLog(logListener);
-
-                    IStatus returnStatus = mirrorApp.run(null);
-                    checkStatus(returnStatus);
-                    logListener.showHelpForLoggedMessages();
-
-                } catch (ProvisionException e) {
-                    throw new FacadeException(
-                            MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
-                }
-            }
-        } finally {
-            agent.stop();
-        }
-    }
-
     private static MirrorApplication createMirrorApplication(RepositoryReferences sources,
             DestinationRepositoryDescriptor destination, IProvisioningAgent agent, boolean includePacked) {
         final MirrorApplication mirrorApp = new MirrorApplication(agent, includePacked);
@@ -195,13 +147,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         return destinationDescriptor;
     }
 
-    /**
-     * Set filter value so that the feature JAR units and artifacts are included when mirroring.
-     */
-    private static void addFilterForFeatureJARs(Map<String, String> filter) {
-        filter.put("org.eclipse.update.install.features", "true");
-    }
-
     private static List<RepositoryDescriptor> createSourceDescriptors(RepositoryReferences sources) {
         List<RepositoryDescriptor> result = new ArrayList<RepositoryDescriptor>();
         createSourceRepositories(result, sources.getMetadataRepositories(), RepositoryDescriptor.KIND_METADATA);
@@ -217,28 +162,6 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             repository.setLocation(repositoryLocation);
             result.add(repository);
         }
-    }
-
-    private static List<IInstallableUnit> toInstallableUnitList(Collection<DependencySeed> seeds,
-            IMetadataRepository sourceRepository, RepositoryReferences sourceRepositoryNames) throws FacadeException {
-        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>(seeds.size());
-
-        for (DependencySeed seed : seeds) {
-            if (seed.getInstallableUnit() == null) {
-                // TODO 372780 drop this when getInstallableUnit can no longer be null
-                String unitId = seed.getId()
-                        + (ArtifactType.TYPE_ECLIPSE_FEATURE.equals(seed.getType()) ? ".feature.group" : "");
-                result.addAll(querySourceIus(Collections.singletonList(new IUDescription(unitId, null)),
-                        sourceRepository, sourceRepositoryNames));
-            } else {
-                result.add((IInstallableUnit) seed.getInstallableUnit());
-            }
-        }
-
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException("List of seed units for repository aggregation must not be empty");
-        }
-        return result;
     }
 
     private static void checkStatus(IStatus status) throws FacadeException {

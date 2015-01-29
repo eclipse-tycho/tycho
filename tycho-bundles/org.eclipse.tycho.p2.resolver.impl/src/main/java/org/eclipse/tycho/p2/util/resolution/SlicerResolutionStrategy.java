@@ -59,6 +59,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 //                throw new IllegalStateException();
             evalFilterTo = false; // ... and then this value doesn't matter
         }
+        // TODO use our own Slicer subclass rather than doing the complicated PermissiveSlicer setup
         return new PermissiveSlicer(availableIUs, context, true, false, evalFilterTo, true, false);
     }
 

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.verfier;
 
-import static org.eclipse.tycho.p2.tools.mirroring.MirrorApplicationServiceTest.sourceRepos;
+import static org.eclipse.tycho.p2.tools.mirroring.RepositoryAggregatorTest.sourceRepos;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

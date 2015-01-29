@@ -28,9 +28,7 @@ import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
-import org.eclipse.tycho.p2.tools.FacadeException;
-import org.eclipse.tycho.p2.tools.RepositoryReferences;
-import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
+import org.eclipse.tycho.p2.tools.mirroring.facade.RepositoryAggregator;
 
 /**
  * <p>
@@ -107,28 +105,23 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try {
-            File destination = getAssemblyRepositoryLocation();
-            destination.mkdirs();
-            copyResources(destination);
+        File destination = getAssemblyRepositoryLocation();
+        destination.mkdirs();
+        copyResources(destination);
 
-            Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
-            if (projectSeeds.size() == 0) {
-                throw new MojoFailureException("No content specified for p2 repository");
-            }
-
-            RepositoryReferences sources = getVisibleRepositories();
-
-            TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(getProject());
-
-            MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
-            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
-                    destination, repositoryName, compress, !createArtifactRepository, true);
-            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                    includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
-        } catch (FacadeException e) {
-            throw new MojoExecutionException("Could not assemble p2 repository", e);
+        Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
+        if (projectSeeds.size() == 0) {
+            throw new MojoFailureException("No content specified for p2 repository");
         }
+
+        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(getProject());
+
+        RepositoryAggregator mirrorApp = p2.getService(RepositoryAggregator.class);
+        DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
+                repositoryName, compress, !createArtifactRepository, true);
+        mirrorApp.mirrorReactor(getReactorProject(), destinationRepoDescriptor, projectSeeds, getBuildContext(),
+                includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
+
     }
 
     private void copyResources(File destination) throws MojoExecutionException {
@@ -141,11 +134,6 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Error copying resources", e);
         }
-    }
-
-    protected RepositoryReferences getVisibleRepositories() throws MojoExecutionException, MojoFailureException {
-        int flags = RepositoryReferenceTool.REPOSITORIES_INCLUDE_CURRENT_MODULE;
-        return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
     }
 
 }
