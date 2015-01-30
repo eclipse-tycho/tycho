@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH - Bug 457314 - handle null as tycho version
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
@@ -58,6 +59,15 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     @Requirement
     private Logger log;
 
+    public TychoMavenLifecycleParticipant() {
+        // needed for plexus
+    }
+
+    // needed for unit tests
+    protected TychoMavenLifecycleParticipant(Logger log) {
+        this.log = log;
+    }
+
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
         try {
@@ -88,12 +98,16 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         validateUniqueBaseDirs(projects);
     }
 
-    private void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
+    protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
         Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<String, Set<MavenProject>>();
         for (MavenProject project : projects) {
             for (Plugin plugin : project.getBuild().getPlugins()) {
                 if (TYCHO_GROUPID.equals(plugin.getGroupId()) && TYCHO_PLUGIN_IDS.contains(plugin.getArtifactId())) {
                     String version = plugin.getVersion();
+                    // Skip checking plug ins that do not have a version
+                    if (version == null) {
+                        continue;
+                    }
                     log.debug(TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in "
                             + project);
                     Set<MavenProject> projectSet = versionToProjectsMap.get(version);
