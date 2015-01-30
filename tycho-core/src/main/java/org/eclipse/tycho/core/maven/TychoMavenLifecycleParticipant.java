@@ -88,12 +88,16 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         validateUniqueBaseDirs(projects);
     }
 
-    private void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
+    protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
         Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<String, Set<MavenProject>>();
         for (MavenProject project : projects) {
             for (Plugin plugin : project.getBuild().getPlugins()) {
                 if (TYCHO_GROUPID.equals(plugin.getGroupId()) && TYCHO_PLUGIN_IDS.contains(plugin.getArtifactId())) {
                     String version = plugin.getVersion();
+                    // Skip checking plug ins that do not have a version
+                    if (version == null) {
+                        continue;
+                    }
                     log.debug(TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in "
                             + project);
                     Set<MavenProject> projectSet = versionToProjectsMap.get(version);
