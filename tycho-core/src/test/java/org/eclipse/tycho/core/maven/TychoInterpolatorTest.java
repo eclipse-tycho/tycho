@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Bachmann electronic and others.
+ * Copyright (c) 2014, 2015 Bachmann electronic and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.util.Properties;
@@ -25,10 +27,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class InterpolatorTest {
+public class TychoInterpolatorTest {
 
     private Settings settings;
-    private Interpolator interpolator;
+    private TychoInterpolator interpolator;
     private MavenProject project;
 
     @Before
@@ -58,47 +60,47 @@ public class InterpolatorTest {
 
         replay(session, project, settings, baseDir);
 
-        interpolator = new Interpolator(session, project);
+        interpolator = new TychoInterpolator(session, project);
     }
 
     @Test
-    public void testProjectPropertiesGetInterpolated() throws InterpolationException {
+    public void testProjectPropertiesGetInterpolated() {
         String interpolated = interpolator.interpolate("${myProjectPropertyKey}");
         Assert.assertEquals("myProjectPropertyValue", interpolated);
     }
 
     @Test
-    public void testUserPropertiesGetInterpolated() throws InterpolationException {
+    public void testUserPropertiesGetInterpolated() {
         String interpolated = interpolator.interpolate("${myUserPropertyKey}");
         Assert.assertEquals("myUserPropertyValue", interpolated);
     }
 
     @Test
-    public void testSystemPropertiesGetInterpolated() throws InterpolationException {
+    public void testSystemPropertiesGetInterpolated() {
         String interpolated = interpolator.interpolate("${mySystemPropertyKey}");
         Assert.assertEquals("mySystemPropertyValue", interpolated);
     }
 
     @Test
-    public void testLocalRepositoryGetInterpolated() throws InterpolationException {
+    public void testLocalRepositoryGetInterpolated() {
         String interpolated = interpolator.interpolate("${localRepository}");
         Assert.assertEquals("myLocalRepo", interpolated);
     }
 
     @Test
-    public void testBaseDirGetInterpolated() throws InterpolationException {
+    public void testBaseDirGetInterpolated() {
         String interpolated = interpolator.interpolate("${basedir}");
         Assert.assertEquals("absolutePathToBaseDir", interpolated);
     }
 
     @Test
-    public void testVersionGetInterpolated() throws InterpolationException {
+    public void testVersionGetInterpolated() {
         String interpolated = interpolator.interpolate("${version}");
         Assert.assertEquals("1.0.0", interpolated);
     }
 
     @Test
-    public void testProjectMembersGetInterpolated() throws InterpolationException {
+    public void testProjectMembersGetInterpolated() {
         reset(project);
         expect(project.getArtifactId()).andReturn("myArtifactId");
         replay(project);
@@ -107,11 +109,27 @@ public class InterpolatorTest {
     }
 
     @Test
-    public void testSettingsMembersGetInterpolated() throws InterpolationException {
+    public void testSettingsMembersGetInterpolated() {
         reset(settings);
         expect(settings.getSourceLevel()).andReturn("mySourceLevel");
         replay(settings);
         String interpolated = interpolator.interpolate("${settings.sourceLevel}");
         Assert.assertEquals("mySourceLevel", interpolated);
     }
+
+    @Test
+    public void testInterpolateSubString() {
+        assertThat(interpolator.interpolate("pre1${localRepository}1post"), is("pre1myLocalRepo1post"));
+    }
+
+    @Test
+    public void testInterpolateNonExisting() {
+        assertThat(interpolator.interpolate("${undefined}"), is("${undefined}"));
+    }
+
+    @Test
+    public void testInterpolateSyntaxError() {
+        assertThat(interpolator.interpolate("${not closed"), is("${not closed"));
+    }
+
 }

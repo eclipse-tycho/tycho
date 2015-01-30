@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     SAP AG - initial API and implementation
+ *     SAP SE - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.tycho.core.osgitools;
@@ -25,8 +25,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
-import org.eclipse.tycho.core.maven.InterpolationException;
-import org.eclipse.tycho.core.maven.Interpolator;
+import org.eclipse.tycho.core.maven.TychoInterpolator;
 import org.eclipse.tycho.core.shared.BuildProperties;
 import org.eclipse.tycho.core.shared.BuildPropertiesImpl;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
@@ -58,6 +57,7 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
         this.logger = logger;
     }
 
+    @Override
     public BuildProperties parse(File baseDir) {
         File propsFile = new File(baseDir, BUILD_PROPERTIES);
         String filePath = propsFile.getAbsolutePath();
@@ -71,6 +71,7 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
         return buildProperties;
     }
 
+    @Override
     public void dispose() {
         cache.clear();
     }
@@ -114,14 +115,10 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
                     + "', values in the build.properties will not be interpolated!");
             return;
         }
-        Interpolator interpolator = new Interpolator(mavenSession, mavenProject);
+        TychoInterpolator interpolator = new TychoInterpolator(mavenSession, mavenProject);
 
         for (Entry<Object, Object> entry : properties.entrySet()) {
-            try {
-                entry.setValue(interpolator.interpolate((String) entry.getValue()));
-            } catch (InterpolationException e) {
-                logger.warn("Cannot interpolate build.properties value: " + entry.getValue());
-            }
+            entry.setValue(interpolator.interpolate((String) entry.getValue()));
         }
     }
 }

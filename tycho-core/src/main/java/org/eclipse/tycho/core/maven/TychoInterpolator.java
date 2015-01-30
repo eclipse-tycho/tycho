@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Bachmann electronic and others.
+ * Copyright (c) 2014, 2015 Bachmann electronic and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.codehaus.plexus.interpolation.PrefixedObjectValueSource;
 import org.codehaus.plexus.interpolation.SingleResponseValueSource;
 import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
+import org.eclipse.tycho.core.shared.Interpolator;
 
 /**
  * Class thats interpolates string values like ${project.artifactId}. It is using the
@@ -39,11 +40,11 @@ import org.codehaus.plexus.interpolation.ValueSource;
  * </p>
  *
  */
-public class Interpolator {
+public class TychoInterpolator implements Interpolator {
 
     private StringSearchInterpolator interpolator;
 
-    public Interpolator(MavenSession mavenSession, MavenProject mavenProject) {
+    public TychoInterpolator(MavenSession mavenSession, MavenProject mavenProject) {
         final Properties baseProps = new Properties();
         // The order how the properties been added is important! 
         // It defines which properties win over others 
@@ -69,13 +70,16 @@ public class Interpolator {
         interpolator.addValueSource(new SingleResponseValueSource("basedir", mavenProject.getBasedir()
                 .getAbsolutePath()));
         interpolator.addValueSource(new ValueSource() {
+            @Override
             public Object getValue(String expression) {
                 return baseProps.getProperty(expression);
             }
 
+            @Override
             public void clearFeedback() {
             }
 
+            @Override
             @SuppressWarnings("rawtypes")
             public List getFeedback() {
                 return Collections.EMPTY_LIST;
@@ -83,11 +87,13 @@ public class Interpolator {
         });
     }
 
-    public String interpolate(String input) throws InterpolationException {
+    @Override
+    public String interpolate(String input) {
         try {
             return interpolator.interpolate(input);
         } catch (org.codehaus.plexus.interpolation.InterpolationException e) {
-            throw new InterpolationException(e);
+            throw new RuntimeException("Error while interpolating value \"" + input + "\"", e);
         }
     }
+
 }

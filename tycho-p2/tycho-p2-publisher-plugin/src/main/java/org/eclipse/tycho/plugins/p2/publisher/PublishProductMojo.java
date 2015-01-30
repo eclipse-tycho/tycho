@@ -30,8 +30,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.buildversion.VersioningHelper;
-import org.eclipse.tycho.core.maven.InterpolationException;
-import org.eclipse.tycho.core.maven.Interpolator;
+import org.eclipse.tycho.core.maven.TychoInterpolator;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
@@ -86,7 +85,8 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                             + " does not contain the mandatory attribute 'uid'");
                 }
                 qualifyVersions(productConfiguration, getQualifier());
-                Interpolator interpolator = new org.eclipse.tycho.core.maven.Interpolator(getSession(), getProject());
+                TychoInterpolator interpolator = new org.eclipse.tycho.core.maven.TychoInterpolator(getSession(),
+                        getProject());
                 interpolateProperties(productConfiguration, interpolator);
                 extractRootFeatures(productConfiguration, result);
 
@@ -211,17 +211,12 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         return replaceVersion;
     }
 
-    private static void interpolateProperties(ProductConfiguration productConfiguration, Interpolator interpolator)
+    private static void interpolateProperties(ProductConfiguration productConfiguration, TychoInterpolator interpolator)
             throws MojoExecutionException {
         List<ConfigurationProperty> properties = productConfiguration.getConfigurationProperties();
         if (properties != null && interpolator != null) {
             for (ConfigurationProperty property : properties) {
-                try {
-                    property.setValue(interpolator.interpolate(property.getValue()));
-                } catch (InterpolationException e) {
-                    throw new MojoExecutionException("Could not interpolate product configuration property "
-                            + property.getName(), e);
-                }
+                property.setValue(interpolator.interpolate(property.getValue()));
             }
         }
     }
