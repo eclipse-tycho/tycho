@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.core.ee.shared.BuildFailureException;
+import org.eclipse.tycho.core.shared.BuildFailureException;
 
 public class ArtifactMatcher {
 

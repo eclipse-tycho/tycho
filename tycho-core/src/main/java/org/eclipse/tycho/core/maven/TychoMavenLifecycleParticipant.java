@@ -32,10 +32,10 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")

@@ -14,7 +14,7 @@ import java.io.File;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.core.ee.shared.BuildFailureException;
+import org.eclipse.tycho.core.shared.BuildFailureException;
 
 /**
  * Set of artifacts which can be used by the build of a project, e.g. to resolve the project's

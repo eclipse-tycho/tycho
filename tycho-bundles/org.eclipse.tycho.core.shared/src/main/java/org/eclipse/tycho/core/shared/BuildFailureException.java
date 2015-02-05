@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,8 +8,11 @@
  * Contributors:
  *    SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.core.ee.shared;
+package org.eclipse.tycho.core.shared;
 
+/**
+ * Exception indicating a user error e.g. an invalid or inconsistent build configuration.
+ */
 public class BuildFailureException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

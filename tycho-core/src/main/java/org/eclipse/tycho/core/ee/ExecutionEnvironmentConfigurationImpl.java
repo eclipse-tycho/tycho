@@ -13,10 +13,10 @@ package org.eclipse.tycho.core.ee;
 import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.core.ee.shared.BuildFailureException;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.ee.shared.SystemCapability;
+import org.eclipse.tycho.core.shared.BuildFailureException;
 
 public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
     private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-1.6";

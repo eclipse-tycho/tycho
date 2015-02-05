@@ -37,7 +37,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.tycho.core.ee.shared.BuildFailureException;
+import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;

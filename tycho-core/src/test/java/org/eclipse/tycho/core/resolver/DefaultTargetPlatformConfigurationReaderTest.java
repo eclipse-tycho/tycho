@@ -12,7 +12,7 @@ package org.eclipse.tycho.core.resolver;
 
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.ee.shared.BuildFailureException;
+import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Test;
 
