@@ -117,6 +117,448 @@
     },
     {
       "key": {
+        "uuid": "070b0362_04922428",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/P2IUProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "we parse the p2iu.xml but discard the result.\nIs this just for XML validation as early as possible?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_24c64814",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "\"TychoTest\" is a \"god\" test class with no clear responsibility (our fault).\n\nMay be better to move the new p2-iu tests out to a separate test class (\"P2IUTest\" ?)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_245be803",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "parent is not actually referenced as parent by the modules, so the order is undefined and may change in future maven versions. better make the order explicit (e.g. by referencing the parent in both modules, then the parent should come first)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_e4f2805a",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/TychoTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "same as above for parent",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_841d7427",
+        "filename": "tycho-core/src/test/resources/iuBuildOrder/featureToIU/feature/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "both properties and build/pugins section is not needed here (it\u0027s ignored by the special way the test is executing maven ( setProcessPlugins(false)) \n\nThis is probably not the cleanest/most straightforward way to test - again our fault as you just \"monkey see, monkey do\" the same way as existing tests are done. \n\nThat said I don\u0027t have a better option so let\u0027s just remove the harcoded tycho version and build/plugins section altogether as it\u0027s ignored anyway.",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_c4065cd8",
+        "filename": "tycho-core/src/test/resources/iuBuildOrder/featureToIU/iu/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove properties and build/plugins section",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_a40358c6",
+        "filename": "tycho-core/src/test/resources/iuBuildOrder/featureToIU/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove properties and build/plugins section",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_e40d60f3",
+        "filename": "tycho-core/src/test/resources/iuBuildOrder/iuToFeature/feature/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove properties and build/plugins section",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_243f6874",
+        "filename": "tycho-core/src/test/resources/iuBuildOrder/iuToFeature/iu/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove properties and build/plugins section",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_84345495",
+        "filename": "tycho-core/src/test/resources/iuBuildOrder/iuToFeature/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove properties and build/plugins section",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_6439708b",
+        "filename": "tycho-core/src/test/resources/iuBuildOrder/justIUs/iuA/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove properties, repositories and build/plugins section",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_c42dbc4a",
+        "filename": "tycho-core/src/test/resources/iuBuildOrder/justIUs/iuB/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove properties, repositories  and build/plugins section",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_a42a382e",
+        "filename": "tycho-its/projects/iu.artifact/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove hardcoded tycho-version property (will be set automatically by AbstractTychoIntegrationTest)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_38fe6877",
+        "filename": "tycho-its/projects/iu.product/eclipse-repository/main.p2.inf",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "If I build this project locally, I can\u0027t find iuForRootFile in iu.product/eclipse-repository/target/repository. shouldn\u0027t it be pulled in by the product?\n\nalso, is there a test missing that would check the IU \"iuForRootFile\"´actually ends up in the generated p2 repository?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_d8f63cca",
+        "filename": "tycho-its/projects/iu.product/eclipse-repository/main.product",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "try to keep the product as minimal as possible for the sake of test execution speed (even just an empty / just one plugin product bogus is OK as long as it\u0027s not strictly required for the test purpose)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_18172452",
+        "filename": "tycho-its/projects/iu.product/eclipse-repository/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "is archiving the products really necessary for the scope of this test?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_f8134061",
+        "filename": "tycho-its/projects/iu.product/eclipse-repository/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "is archiving the product really necessary for the scope of this test?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_781f5065",
+        "filename": "tycho-its/projects/iu.product/eclipse-repository/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "is the profile name related/required  to the test (or just copy-paste remnants? if so, remove)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_f82a207d",
+        "filename": "tycho-its/projects/iu.product/eclipse-repository/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "compress \u003d false: copy-paste remnants or required by the test?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_788d903d",
+        "filename": "tycho-its/projects/iu.product/iuForRootFile/p2iu.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "(minor) if I build this project, the resulting target/p2iu.xml seems mangled in terms of whitespace (many newlines inserted)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_f8fd00a5",
+        "filename": "tycho-its/projects/iu.product/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "avoid using remote p2 repos in ITs for test execution speed and stability reasons.\n\nif really required, you can use a local file:// mirror of a small subset (see e.g. other tests using ResourceUtil.P2Repositories.ECLIPSE_KEPLER)\n\nif the subset of mirrored IUs is too small, see tycho-its/pom.xml where you can add single IUs to the mirror.",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_b809b839",
+        "filename": "tycho-its/projects/iu.product/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "[performance] reduce to only one env unless required by the test",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_b897f850",
+        "filename": "tycho-its/projects/iu.repo/iu/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove hardcoded tycho-version (will be set by base test class)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_58f24c93",
+        "filename": "tycho-its/projects/iu.repo/iu/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "should rather be inherited from the parent",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_d8ebdceb",
+        "filename": "tycho-its/projects/iu.repo/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove hardcoded tycho-version property (will be set automatically by AbstractTychoIntegrationTest)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_38f78883",
+        "filename": "tycho-its/projects/iu.repo/repository/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "should rather be inherited from the parent",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "070b0362_24180835",
         "filename": "tycho-metadata-model/src/main/java/org/eclipse/tycho/model/IU.java",
         "patchSetId": 4
@@ -186,6 +628,125 @@
     },
     {
       "key": {
+        "uuid": "070b0362_2435a861",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/IUXmlTransformer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "is this delegation method needed? I find directly using iu.addArtifact(classifier, id, version) more clear.",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_8498d4fd",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "add class level javadoc for end user of mojo (will end up in generated maven site docs)\n\nwhat does this mojo do and how to use it.\n\nwe should also talk about the format of p2iu.xml here - where is it specified (schema?), how can I validate it, what are the supported elements and attributes etc.\n\nIf I understand it correctly up to now this was an (internal)  format  that was only generated by p2 publishers. If it\u0027s now to be a source format edited manually by users, we will probably need more docs on the format.\nAlso, this probably means p2 has to take into account there are manually written and possibly out-dated XML descriptors out there in case p2 wants to change/enhance the format in the future.",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_e45600a3",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "remove javadoc since not needed/out of date",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_045a24c9",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": ", readonly\u003dtrue\n\n(this should not be configurable by the user)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_44b70c73",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": ", readonly\u003dtrue\n\n(this should not be configurable by the user)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_24bc8855",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "Zip archiver (or just remove misleading javadoc)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_a4a7d83e",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "do we need this to be configurable or can it just be hardcoded?\nIf configurable, add javadoc for the end user which will end up in generated maven site docs\n\nAlso, I\u0027m wondering if we should simply use maven standard directory src/main/resources (then you would add maven-resources plugin to the default lifecycle and pick up results  to be packed here from target/classes. See e.g. how this is done in eclipse-repository packaging type (https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d424691).\n\n This would have the benefit of getting maven resource filtering (replacement of ${foo} maven variables) in payload files for free (and being slightly more intuitive in temrs of maven \"convention over configuration\") .",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "070b0362_a4199807",
         "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
         "patchSetId": 4
@@ -209,6 +770,23 @@
     },
     {
       "key": {
+        "uuid": "070b0362_a48eb8b6",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "reflect what? or maybe just remove comment?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "070b0362_84e57454",
         "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
         "patchSetId": 4
@@ -226,6 +804,57 @@
         "endLine": 68,
         "endChar": 32
       },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_4409ccbb",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "isDirectory()",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_a4f2380b",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "I wonder why we need this bogus file here?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_c41c9cf9",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "getPayloadDir() ?",
       "revId": "c30acd754a18eea51e8499de307295e334c39f89",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -312,6 +941,74 @@
       "writtenOn": "2015-02-06T14:52:23Z",
       "side": 1,
       "message": "I can\u0027t find the test using this test resource. Which test is it?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_c472dc05",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/iuWithPayload/p2iu.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "I wonder whether the size attributes make sense.\nlooks to me like they are not correct here (and I can imagine if this file is edited by the user they will basically never be correct)\n\nwill this be fixed by the publisher when generating the IU file?\nIf so, should we document the size attributes can be ignored (or better, can we even not specify them at all in source form?)",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_a46fd81f",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/iuWithPayload/p2iu.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "size \u003d6 ?, see above.",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_e479e0e8",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/iuWithPayload/p2iu.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "shouldn\u0027t groupId, artifactId and version be added by the mojo rather than redundantly specified here?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_8460d42a",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/iuWithPayload/p2iu.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T15:53:23Z",
+      "side": 1,
+      "message": "shouldn\u0027t artifact with (magic?) classifier \"binary\" be added by the mojo rather than specified by the user?",
       "revId": "c30acd754a18eea51e8499de307295e334c39f89",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
