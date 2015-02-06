@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Bachmann electronic and others.
+ * Copyright (c) 2014, 2015 Bachmann electronic and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,19 +41,17 @@ public class BuildPropertiesParserImplTest {
 
     @Before
     public void setup() throws IllegalArgumentException, IllegalAccessException {
-        legacySupport = createMock(LegacySupport.class);
-        mavenSession = createMock(MavenSession.class);
-        project1 = createMock(MavenProject.class);
-        project2 = createMock(MavenProject.class);
-        logger = createMock(Logger.class);
+        legacySupport = mock(LegacySupport.class);
+        mavenSession = mock(MavenSession.class);
+        project1 = mock(MavenProject.class);
+        project2 = mock(MavenProject.class);
+        logger = mock(Logger.class);
 
-        expect(legacySupport.getSession()).andReturn(mavenSession);
-        expect(mavenSession.getProjects()).andReturn(Arrays.asList(project1, project2)).anyTimes();
+        when(legacySupport.getSession()).thenReturn(mavenSession);
+        when(mavenSession.getProjects()).thenReturn(Arrays.asList(project1, project2));
 
-        expect(project1.getBasedir()).andReturn(new File("/bathToProject1")).anyTimes();
-        expect(project2.getBasedir()).andReturn(new File("/bathToProject2")).anyTimes();
-
-        replay(legacySupport, mavenSession, project1, project2);
+        when(project1.getBasedir()).thenReturn(new File("/bathToProject1"));
+        when(project2.getBasedir()).thenReturn(new File("/bathToProject2"));
 
         parser = new BuildPropertiesParserImpl(legacySupport, logger);
     }
@@ -75,14 +71,10 @@ public class BuildPropertiesParserImplTest {
 
     @Test
     public void testInterpolateWithABaseDirThatsNotPartOfTheSessionsProjects() {
-        reset(logger);
-        logger.warn(anyObject(String.class));
-        expectLastCall().once();
-        replay(logger);
         Properties props = new Properties();
         props.put("key", "value");
         parser.interpolate(props, new File("/bathToSomeProjectThatsNotPartOfTheSessionProjects"));
-        verify(logger);
+        verify(logger, times(1)).warn(anyString());
     }
 
     @Test

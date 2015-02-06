@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Bachmann electronics GmbH and others.
+ * Copyright (c) 2014, 2015 Bachmann electronics GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,9 @@
  *      Bachmann electronics GmbH - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tycho.surefire;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 
@@ -21,7 +24,6 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.java.DefaultJavaToolChain;
 import org.codehaus.plexus.util.ReflectionUtils;
-import org.easymock.EasyMock;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.ToolchainProvider;
@@ -40,11 +42,11 @@ public class TestMojoToolchainTests extends TestCase {
 
     @Override
     public void setUp() throws Exception {
-        toolchainManager = EasyMock.createMock(ToolchainManager.class);
-        session = EasyMock.createMock(MavenSession.class);
-        breeToolchain = EasyMock.createMock(DefaultJavaToolChain.class);
-        systemToolchain = EasyMock.createMock(Toolchain.class);
-        toolchainProvider = EasyMock.createMock(ToolchainProvider.class);
+        toolchainManager = mock(ToolchainManager.class);
+        session = mock(MavenSession.class);
+        breeToolchain = mock(DefaultJavaToolChain.class);
+        systemToolchain = mock(Toolchain.class);
+        toolchainProvider = mock(ToolchainProvider.class);
         project = new MavenProject();
         testMojo = new TestMojo();
         setParameter(testMojo, "useJDK", JDKUsage.SYSTEM);
@@ -60,24 +62,21 @@ public class TestMojoToolchainTests extends TestCase {
     }
 
     public void testGetToolchainWithUseJDKSetToSystemWithToolchainManager() throws Exception {
-        EasyMock.expect(toolchainManager.getToolchainFromBuildContext("jdk", session)).andReturn(systemToolchain);
-        EasyMock.replay(toolchainManager);
+        when(toolchainManager.getToolchainFromBuildContext("jdk", session)).thenReturn(systemToolchain);
         Toolchain tc = testMojo.getToolchain();
         Assert.assertEquals(systemToolchain, tc);
     }
 
     public void testGetToolchainWithUseJDKSetToBREE() throws Exception {
         setupWithBree();
-        EasyMock.expect(toolchainProvider.findMatchingJavaToolChain(session, "myId")).andReturn(breeToolchain);
-        EasyMock.replay(toolchainProvider);
+        when(toolchainProvider.findMatchingJavaToolChain(session, "myId")).thenReturn(breeToolchain);
         Toolchain tc = testMojo.getToolchain();
         Assert.assertEquals(breeToolchain, tc);
     }
 
     public void testGetToolchainWithUseJDKSetToBREEToolchainNotFound() throws Exception {
         setupWithBree();
-        EasyMock.expect(toolchainProvider.findMatchingJavaToolChain(session, "myId")).andReturn(null);
-        EasyMock.replay(toolchainProvider);
+        when(toolchainProvider.findMatchingJavaToolChain(session, "myId")).thenReturn(null);
         try {
             testMojo.getToolchain();
             fail("MojoExcecutionException expected since Toolchain could not be found!");
@@ -89,9 +88,8 @@ public class TestMojoToolchainTests extends TestCase {
 
     public void setupWithBree() throws Exception {
         setParameter(testMojo, "useJDK", JDKUsage.BREE);
-        ExecutionEnvironmentConfiguration envConf = EasyMock.createMock(ExecutionEnvironmentConfiguration.class);
-        EasyMock.expect(envConf.getProfileName()).andReturn("myId");
-        EasyMock.replay(envConf);
+        ExecutionEnvironmentConfiguration envConf = mock(ExecutionEnvironmentConfiguration.class);
+        when(envConf.getProfileName()).thenReturn("myId");
         project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, envConf);
     }
 

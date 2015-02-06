@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.maven;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reset;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.Properties;
@@ -35,10 +33,10 @@ public class TychoInterpolatorTest {
 
     @Before
     public void setUp() {
-        MavenSession session = createMock(MavenSession.class);
-        project = createMock(MavenProject.class);
-        settings = createMock(Settings.class);
-        File baseDir = createMock(File.class);
+        MavenSession session = mock(MavenSession.class);
+        project = mock(MavenProject.class);
+        settings = mock(Settings.class);
+        File baseDir = mock(File.class);
 
         Properties projectProperties = new Properties();
         projectProperties.put("myProjectPropertyKey", "myProjectPropertyValue");
@@ -49,16 +47,14 @@ public class TychoInterpolatorTest {
         Properties systemProperties = new Properties();
         systemProperties.put("mySystemPropertyKey", "mySystemPropertyValue");
 
-        expect(project.getProperties()).andReturn(projectProperties);
-        expect(session.getSystemProperties()).andReturn(systemProperties);
-        expect(session.getUserProperties()).andReturn(userProperties);
-        expect(session.getSettings()).andReturn(settings);
-        expect(settings.getLocalRepository()).andReturn("myLocalRepo");
-        expect(project.getBasedir()).andReturn(baseDir);
-        expect(project.getVersion()).andReturn("1.0.0");
-        expect(baseDir.getAbsolutePath()).andReturn("absolutePathToBaseDir");
-
-        replay(session, project, settings, baseDir);
+        when(project.getProperties()).thenReturn(projectProperties);
+        when(session.getSystemProperties()).thenReturn(systemProperties);
+        when(session.getUserProperties()).thenReturn(userProperties);
+        when(session.getSettings()).thenReturn(settings);
+        when(settings.getLocalRepository()).thenReturn("myLocalRepo");
+        when(project.getBasedir()).thenReturn(baseDir);
+        when(project.getVersion()).thenReturn("1.0.0");
+        when(baseDir.getAbsolutePath()).thenReturn("absolutePathToBaseDir");
 
         interpolator = new TychoInterpolator(session, project);
     }
@@ -101,18 +97,14 @@ public class TychoInterpolatorTest {
 
     @Test
     public void testProjectMembersGetInterpolated() {
-        reset(project);
-        expect(project.getArtifactId()).andReturn("myArtifactId");
-        replay(project);
+        when(project.getArtifactId()).thenReturn("myArtifactId");
         String interpolated = interpolator.interpolate("${project.artifactId}");
         Assert.assertEquals("myArtifactId", interpolated);
     }
 
     @Test
     public void testSettingsMembersGetInterpolated() {
-        reset(settings);
-        expect(settings.getSourceLevel()).andReturn("mySourceLevel");
-        replay(settings);
+        when(settings.getSourceLevel()).thenReturn("mySourceLevel");
         String interpolated = interpolator.interpolate("${settings.sourceLevel}");
         Assert.assertEquals("mySourceLevel", interpolated);
     }
