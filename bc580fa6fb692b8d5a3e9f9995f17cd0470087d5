@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "070b0362_b8d1b8c6",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/artifacts/DependencyResolutionException.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T16:27:57Z",
+      "side": 1,
+      "message": "Split out into separate change.",
+      "revId": "bc580fa6fb692b8d5a3e9f9995f17cd0470087d5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
