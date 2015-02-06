@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "070b0362_04a504b6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T12:25:11Z",
+      "side": 1,
+      "message": "Confirmed with Martin that this is okay.\n\nhttps://dev.eclipse.org/mhonarc/lists/tycho-dev/msg01209.html",
+      "range": {
+        "startLine": 12,
+        "startChar": 21,
+        "endLine": 12,
+        "endChar": 59
+      },
+      "revId": "5e00dda2923b453de87971356b922c6a62fbdfc1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
