@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Bachmann electronic GmbH and others.
+ * Copyright (c) 2014, 2015 Bachmann electronic GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
-import org.easymock.EasyMock;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,11 +36,10 @@ public class DefaultTychoResolverTest {
         System.setProperty("os.name", PlatformPropertiesUtils.INTERNAL_OS_LINUX);
         System.setProperty("os.arch", PlatformPropertiesUtils.INTERNAL_AMD64);
 
-        MavenProject project = EasyMock.createMock(MavenProject.class);
+        MavenProject project = mock(MavenProject.class);
         Properties mergedProperties = new Properties();
         Properties projectProperties = new Properties();
-        EasyMock.expect(project.getProperties()).andReturn(projectProperties).anyTimes();
-        EasyMock.replay(project);
+        when(project.getProperties()).thenReturn(projectProperties);
 
         defaultTychoResolver.setTychoEnvironmentProperties(mergedProperties, project);
 
