@@ -255,6 +255,29 @@
     },
     {
       "key": {
+        "uuid": "070b0362_58208ca3",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageIUMojoTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T15:35:42Z",
+      "side": 1,
+      "message": "IMHO, all assert* methods except assertThat are obsolete. assertThat, optionally combined with conversion functions on the first argument and custom matchers on the second argument, should always be the first choice. E.g. here you can write\n\n import static org.eclipse.tycho.test.util.ArchiveContentUtil.getFilesInZip(File);\n\n assertThat(getFilesInZip(file), hasItem(\"file.txt\"))",
+      "range": {
+        "startLine": 44,
+        "startChar": 8,
+        "endLine": 50,
+        "endChar": 9
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "070b0362_c4aadc08",
         "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageIUMojoTest.java",
         "patchSetId": 4
