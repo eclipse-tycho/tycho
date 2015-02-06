@@ -355,6 +355,23 @@
     },
     {
       "key": {
+        "uuid": "070b0362_38182835",
+        "filename": "tycho-its/projects/iu.product/eclipse-repository/main.p2.inf",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-06T16:12:56Z",
+      "side": 1,
+      "message": "just for the sake of testing, can we make this a perfect version match (I misread it as perfect version match actually; typo?) so it\u0027s pulled in when assembling the repo? \n\nthen, add another test to make sure IU iuForRootFile actually ends up in target/repository",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "070b0362_d8f63cca",
         "filename": "tycho-its/projects/iu.product/eclipse-repository/main.product",
         "patchSetId": 4
