@@ -1,0 +1,297 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "070b0362_a4bb58b9",
+        "filename": "tycho-bundles/org.eclipse.tycho.embedder.shared/src/main/java/org/eclipse/tycho/ArtifactType.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "We certainly don\u0027t want both TYPE_P2_IU and TYPE_INSTALLABLE_UNIT. Not sure how they are different yet though. Most likely, TYPE_P2_IU is not a artifact type.",
+      "range": {
+        "startLine": 27,
+        "startChar": 31,
+        "endLine": 27,
+        "endChar": 41
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_e4c56032",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "Would returning a list not also be just as good?",
+      "range": {
+        "startLine": 158,
+        "startChar": 19,
+        "endLine": 158,
+        "endChar": 32
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_44842cec",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "This change is great - but it seems unrelated to the IU packaging type.\n\nSo please split this out into a separate change. BTW, the bug report for the iu support is bug 371983.",
+      "range": {
+        "startLine": 63,
+        "startChar": 25,
+        "endLine": 63,
+        "endChar": 48
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_449d4c46",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "This code shows inconsistent use of $NON-NLS-x$ tags (which are not used in the Tycho codebase.) This makes me think that this code copied.\n\nSo, where was this code copied from?",
+      "range": {
+        "startLine": 78,
+        "startChar": 8,
+        "endLine": 94,
+        "endChar": 9
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_647e9056",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AuthoredIUAction.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "What requires this?",
+      "range": {
+        "startLine": 79,
+        "startChar": 66,
+        "endLine": 79,
+        "endChar": 87
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_24180835",
+        "filename": "tycho-metadata-model/src/main/java/org/eclipse/tycho/model/IU.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "What happens if there are other artifacts referenced? Would this work when building an eclipse-repository? Probably not before bug 372780 is fixed, right?",
+      "range": {
+        "startLine": 166,
+        "startChar": 16,
+        "endLine": 167,
+        "endChar": 77
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_a4d198c6",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/ValidateVersionMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "It is hard to guess what this is supposed to be. Rename to SOURCE_FILE_NAME or P2_IU_XML?",
+      "range": {
+        "startLine": 72,
+        "startChar": 22,
+        "endLine": 72,
+        "endChar": 27
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_047d04d5",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/IUXmlTransformer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "Is this to prevent that the self capability is processed here? If yes, shouldn\u0027t the namespace also be checked?",
+      "range": {
+        "startLine": 76,
+        "startChar": 48,
+        "endLine": 76,
+        "endChar": 105
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_a4199807",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "Reflect what?",
+      "range": {
+        "startLine": 60,
+        "startChar": 10,
+        "endLine": 60,
+        "endChar": 44
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_84e57454",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "You said somewhere that it is good to write the expanded source file into the target folder so that users can see what has been automatically added. This would not be necessary because the publishing will anyway write a p2metadata.xml which contains the expanded IU. So if you wanted, you could do all these build steps in a publisher (cf. this change: https://git.eclipse.org/r/#/c/38854/ )",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 32
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_44654c93",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageIUMojoTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "You can replace this by \n\n lookupConfiguredMojo(project, \"package-iu\")\n\nThis automatically sets the default values declared in the Mojo. So you then can also omit the basedir and outputDirectory configuration in src/test/resources/projects/iuWithPayload/pom.xml",
+      "range": {
+        "startLine": 38,
+        "startChar": 45,
+        "endLine": 40,
+        "endChar": 58
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_c4aadc08",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageIUMojoTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "Nice. This makes sense.",
+      "range": {
+        "startLine": 82,
+        "startChar": 20,
+        "endLine": 82,
+        "endChar": 43
+      },
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_6465f038",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/iuValidator/missingProperty/p2iu.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-06T14:52:23Z",
+      "side": 1,
+      "message": "I can\u0027t find the test using this test resource. Which test is it?",
+      "revId": "c30acd754a18eea51e8499de307295e334c39f89",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
