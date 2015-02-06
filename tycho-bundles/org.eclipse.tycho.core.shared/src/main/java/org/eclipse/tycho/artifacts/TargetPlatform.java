@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SAP SE and others.
+ * Copyright (c) 2011, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ import java.io.File;
 
 import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 
 /**
  * Set of artifacts which can be used by the build of a project, e.g. to resolve the project's
@@ -51,15 +50,16 @@ public interface TargetPlatform {
      *            The ID of the artifact to be found.
      * @param versionRef
      *            A version reference string selecting one exact version or versions from a range.
+     *            May be <code>null</code>.
      * @return a matching artifact.
      * @throws IllegalArtifactReferenceException
      *             if an invalid type or malformed version reference is given
-     * @throws BuildFailureException
+     * @throws DependencyResolutionException
      *             if there is no matching artifact in the target platform.
      */
     // TODO For the final TP, all versions are expanded - but ArtifactKey specifies that contains versions with non-expanded qualifiers; use a different type?
     ArtifactKey resolveReference(String type, String id, String versionRef) throws IllegalArtifactReferenceException,
-            BuildFailureException;
+            DependencyResolutionException;
 
     /**
      * Returns the file system location of the given target platform artifact. Not supported by the

@@ -38,6 +38,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
@@ -196,7 +197,7 @@ public class P2ResolverImpl implements P2Resolver {
             new MultiLineLogger(logger).error(e.getDetails(), "  ");
             logger.error("");
             logger.error("See http://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
-            throw new BuildFailureException("Cannot resolve dependencies of " + project.toString(), e);
+            throw new DependencyResolutionException("Cannot resolve dependencies of " + project.toString(), e);
         }
 
         if (usedTargetPlatformUnits != null) {
