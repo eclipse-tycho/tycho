@@ -1,0 +1,7 @@
+Verified+1: Hudson CI
+Code-Review+2: Martin Schreiber <m.schreiber@bachmann.info>
+Submitted-by: Martin Schreiber <m.schreiber@bachmann.info>
+Submitted-at: Fri, 06 Feb 2015 08:35:33 -0500
+Reviewed-on: https://git.eclipse.org/r/41241
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
