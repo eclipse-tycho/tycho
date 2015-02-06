@@ -18,8 +18,8 @@ import java.util.Set;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
@@ -83,7 +83,7 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
 
     @Override
     public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, String version)
-            throws IllegalArtifactReferenceException, BuildFailureException {
+            throws IllegalArtifactReferenceException, DependencyResolutionException {
         return ArtifactMatcher.resolveReference(type, id, version, installableUnits);
     }
 
