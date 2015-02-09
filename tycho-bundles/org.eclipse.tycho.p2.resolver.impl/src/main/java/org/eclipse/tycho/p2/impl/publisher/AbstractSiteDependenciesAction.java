@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Rapicorp, Inc. - add support for IU type (428310)
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
@@ -15,12 +16,15 @@ import java.util.Set;
 
 import org.eclipse.equinox.internal.p2.updatesite.SiteBundle;
 import org.eclipse.equinox.internal.p2.updatesite.SiteFeature;
+import org.eclipse.equinox.internal.p2.updatesite.SiteIU;
 import org.eclipse.equinox.internal.p2.updatesite.SiteModel;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 @SuppressWarnings("restriction")
 public abstract class AbstractSiteDependenciesAction extends AbstractDependenciesAction {
@@ -45,17 +49,51 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
 
             VersionRange range = getVersionRange(createVersion(feature.getFeatureVersion()));
 
-            required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null, false,
-                    false));
+            required.add(
+                    MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null, false, false));
         }
 
         for (SiteBundle bundle : getSiteModel().getBundles()) {
             String id = bundle.getBundleIdentifier();
             VersionRange range = getVersionRange(createVersion(bundle.getBundleVersion()));
-            required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null, false,
-                    false));
+            required.add(
+                    MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null, false, false));
         }
+
+        for (SiteIU iu : getSiteModel().getIUs()) {
+            IRequirement requirement = getRequirement(iu);
+            if (requirement != null)
+                required.add(requirement);
+        }
+
         return required;
+    }
+
+    //This is roughly inspired from org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction
+    private IRequirement getRequirement(SiteIU iu) {
+        String id = iu.getID();
+        String range = iu.getRange();
+        String type = iu.getQueryType();
+        String expression = iu.getQueryExpression();
+        String[] params = iu.getQueryParams();
+        if (id != null) {
+            VersionRange vRange = new VersionRange(range);
+            return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, vRange, null, false, false);
+        } else if ("match".equals(type)) {
+            //Merge the arguments
+            String[] allArgs = new String[(params == null ? 0 : params.length) + 1];
+            allArgs[0] = id;
+            if (params != null)
+                System.arraycopy(params, 0, allArgs, 1, params.length);
+
+            IMatchExpression<IInstallableUnit> iuMatcher = ExpressionUtil.getFactory()
+                    .<IInstallableUnit> matchExpression(ExpressionUtil.parse(expression), params);
+            return MetadataFactory.createRequirement(iuMatcher, null, 0, 1, true);
+        } else if ("context".equals(type)) {
+            throw new IllegalStateException(
+                    "Context iu queries are not supported in Tycho. Faulty expression is " + expression);
+        }
+        return null;
     }
 
     @Override
