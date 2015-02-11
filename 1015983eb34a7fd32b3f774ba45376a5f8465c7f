@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "070b0362_f0498c39",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/product/ProductFileFilteringTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-11T08:40:19Z",
+      "side": 0,
+      "message": "Now tested by the unit test PublishProductToolTest.testPublishingWithVariableExpansion",
+      "revId": "1015983eb34a7fd32b3f774ba45376a5f8465c7f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
