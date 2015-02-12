@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -24,6 +25,7 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 
 @SuppressWarnings("restriction")
@@ -99,6 +101,17 @@ public class ArtifactTypeHelper {
 
     private static IRequirement createIURequirement(String id, VersionRange versionRange) {
         return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, versionRange, null, false, true);
+    }
+
+    public static org.eclipse.tycho.ArtifactKey toTychoArtifact(IInstallableUnit unit) {
+        // TODO unit test & add more cases
+        if (Boolean.valueOf(unit.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP))) {
+            // TODO check suffix
+            String id = unit.getId();
+            return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, id.substring(0, id.length()
+                    - ".feature.group".length()), unit.getVersion().toString());
+        }
+        throw new IllegalArgumentException(unit.toString());
     }
 
     // p2 artifacts

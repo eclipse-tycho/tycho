@@ -19,7 +19,6 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ReactorProjectIdentities;
 import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
@@ -75,9 +74,13 @@ public interface P2TargetPlatform extends TargetPlatform {
     void saveLocalMavenRepository();
 
     /**
-     * @see #resolveReference(String, String, String)
+     * Same as {@link #resolveArtifact(String, String, String)} but returning the result as
+     * {@link IInstallableUnit}.
+     * 
+     * Note: "artifact" in "resolveArtifact" refers to a Tycho artifact, which technically represent
+     * a p2 installable unit and optionally the associated p2 artifact.
      */
-    ArtifactKey resolveReference(String type, String id, Version version) throws IllegalArtifactReferenceException,
+    IInstallableUnit resolveUnit(String type, String id, Version version) throws IllegalArtifactReferenceException,
             DependencyResolutionException;
 
 }

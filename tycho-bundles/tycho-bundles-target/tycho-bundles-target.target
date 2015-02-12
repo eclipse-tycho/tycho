@@ -12,6 +12,7 @@
 <unit id="org.eclipse.ecf.filetransfer.ssl.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature.feature.group" version="0.0.0"/>
+<!-- TODO Use Mars M6 to consume p2 enhancements for bug 428889 -->
 <repository location="http://download.eclipse.org/eclipse/updates/4.5milestones/S-4.5M4-201412102000"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">

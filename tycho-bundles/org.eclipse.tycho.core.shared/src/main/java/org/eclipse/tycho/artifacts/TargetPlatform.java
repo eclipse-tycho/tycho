@@ -58,7 +58,7 @@ public interface TargetPlatform {
      *             if there is no matching artifact in the target platform.
      */
     // TODO For the final TP, all versions are expanded - but ArtifactKey specifies that contains versions with non-expanded qualifiers; use a different type?
-    ArtifactKey resolveReference(String type, String id, String versionRef) throws IllegalArtifactReferenceException,
+    ArtifactKey resolveArtifact(String type, String id, String versionRef) throws IllegalArtifactReferenceException,
             DependencyResolutionException;
 
     /**

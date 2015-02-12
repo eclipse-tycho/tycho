@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.model;
 
+import java.util.List;
+
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.xml.sax.Attributes;
 
@@ -49,4 +52,14 @@ public class ProductFile2 extends ProductFile {
             plugins.add(entry);
         }
     }
+
+    @Override
+    public List<IVersionedId> getFeatures() {
+        /*
+         * Unlike the final IU, the dependency-only IU shall depend on root features so that the
+         * dependency resolver correctly discovers dependencies to root features from the reactor.
+         */
+        return getFeatures(INCLUDED_FEATURES | ROOT_FEATURES);
+    }
+
 }
