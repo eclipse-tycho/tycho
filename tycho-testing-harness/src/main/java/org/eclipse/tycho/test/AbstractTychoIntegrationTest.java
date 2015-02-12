@@ -94,6 +94,15 @@ public abstract class AbstractTychoIntegrationTest {
         Verifier verifier = new Verifier(testDir.getAbsolutePath());
         verifier.getCliOptions().add("-Dmaven.home=" + getMavenHome());
         verifier.getCliOptions().add("-Dtycho-version=" + getTychoVersion());
+        // bug 447397: use temp dir in target/ folder to make sure we don't leave garbage behind
+        // when using maven < 3.1 
+        File tmpDir = new File("target/tmp");
+        if (!tmpDir.isDirectory()) {
+            if (!tmpDir.mkdirs()) {
+                throw new IOException("could not create temp directory " + tmpDir);
+            }
+        }
+        verifier.getCliOptions().add("-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
         if (setTargetPlatform) {
             verifier.getCliOptions().add("-Dtycho.targetPlatform=" + getTargetPlatform());
         }
