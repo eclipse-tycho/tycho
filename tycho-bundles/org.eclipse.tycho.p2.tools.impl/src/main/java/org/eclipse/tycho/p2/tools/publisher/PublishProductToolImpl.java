@@ -13,9 +13,9 @@ package org.eclipse.tycho.p2.tools.publisher;
 import static org.eclipse.tycho.p2.tools.publisher.DependencySeedUtil.createSeed;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.Path;
@@ -28,11 +28,13 @@ import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.target.ArtifactTypeHelper;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.repository.publishing.PublishingRepository;
@@ -64,12 +66,12 @@ public class PublishProductToolImpl implements PublishProductTool {
     }
 
     @Override
-    public Collection<DependencySeed> publishProduct(File productFile, Set<String> rootFeatures, File launcherBinaries,
-            String flavor) throws IllegalArgumentException {
+    public List<DependencySeed> publishProduct(File productFile, File launcherBinaries, String flavor)
+            throws IllegalArgumentException {
 
         IProductDescriptor originalProduct = loadProductFile(productFile);
-        IProductDescriptor expandedProduct = new ExpandedProduct(originalProduct, buildQualifier, targetPlatform,
-                interpolator, logger, rootFeatures);
+        ExpandedProduct expandedProduct = new ExpandedProduct(originalProduct, buildQualifier, targetPlatform,
+                interpolator, logger);
 
         IPublisherAdvice[] advice = getProductSpecificAdviceFileAdvice(productFile, expandedProduct);
 
@@ -80,8 +82,10 @@ public class PublishProductToolImpl implements PublishProductTool {
         Collection<IInstallableUnit> allIUs = publisherRunner.executeAction(action, metadataRepository,
                 artifactRepository, advice);
 
-        return Collections.singletonList(createSeed(ArtifactType.TYPE_ECLIPSE_PRODUCT,
-                selectUnit(allIUs, expandedProduct.getId())));
+        List<DependencySeed> seeds = new ArrayList<DependencySeed>();
+        seeds.add(createSeed(ArtifactType.TYPE_ECLIPSE_PRODUCT, selectUnit(allIUs, expandedProduct.getId())));
+        addRootFeatures(expandedProduct, seeds);
+        return seeds;
     }
 
     /**
@@ -106,6 +110,22 @@ public class PublishProductToolImpl implements PublishProductTool {
         final String p2infFilename = productFileName.substring(0, productFileName.length() - ".product".length())
                 + ".p2.inf";
         return p2infFilename;
+    }
+
+    private static void addRootFeatures(ExpandedProduct product, List<DependencySeed> seeds) {
+        final String productId = product.getId();
+
+        // add root features as special dependency seed which are marked as "add-on" for the product
+        DependencySeed.Filter filter = new DependencySeed.Filter() {
+            @Override
+            public boolean isAddOnFor(String type, String id) {
+                return ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
+            }
+        };
+        for (IInstallableUnit featureIU : product.getRootFeatures()) {
+            ArtifactKey featureArtifact = ArtifactTypeHelper.toTychoArtifact(featureIU);
+            seeds.add(new DependencySeed(featureArtifact.getType(), featureArtifact.getId(), featureIU, filter));
+        }
     }
 
     private static IProductDescriptor loadProductFile(File productFile) throws IllegalArgumentException {

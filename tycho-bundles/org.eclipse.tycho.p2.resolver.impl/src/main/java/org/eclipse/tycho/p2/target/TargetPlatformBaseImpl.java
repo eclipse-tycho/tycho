@@ -84,13 +84,14 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
     }
 
     @Override
-    public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, String version)
+    public final org.eclipse.tycho.ArtifactKey resolveArtifact(String type, String id, String version)
             throws IllegalArtifactReferenceException, DependencyResolutionException {
-        return resolveReference(type, id, ArtifactMatcher.parseAsOSGiVersion(version));
+        IInstallableUnit resolvedUnit = resolveUnit(type, id, ArtifactMatcher.parseAsOSGiVersion(version));
+        return new DefaultArtifactKey(type, id, resolvedUnit.getVersion().toString());
     }
 
     @Override
-    public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, Version version)
+    public final IInstallableUnit resolveUnit(String type, String id, Version version)
             throws IllegalArtifactReferenceException, DependencyResolutionException {
 
         IInstallableUnit matchingUnit = ArtifactMatcher.resolveReference(type, id, version, installableUnits);
@@ -104,8 +105,7 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
             }
             throw new DependencyResolutionException(message);
         }
-
-        return new DefaultArtifactKey(type, id, matchingUnit.getVersion().toString());
+        return matchingUnit;
     }
 
     @Override

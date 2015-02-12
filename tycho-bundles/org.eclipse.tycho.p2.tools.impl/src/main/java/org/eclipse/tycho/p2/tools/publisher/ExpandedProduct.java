@@ -11,23 +11,19 @@
 package org.eclipse.tycho.p2.tools.publisher;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductContentType;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
-import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.ArtifactType;
-import org.eclipse.tycho.artifacts.DependencyResolutionException;
-import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
@@ -45,20 +41,19 @@ class ExpandedProduct implements IProductDescriptor {
     private final String expandedVersion;
     private List<IVersionedId> expandedBundles = null;
     private List<IVersionedId> expandedFeatures = null;
+    private List<IInstallableUnit> expandedRootFeatures = Collections.emptyList();
 
     private final MultiLineLogger logger;
 
-    // TODO 428889 this information should come from the IProductDescriptor
-    private Set<String> rootFeatures;
-
     public ExpandedProduct(IProductDescriptor originalProduct, String buildQualifier, P2TargetPlatform targetPlatform,
-            Interpolator interpolator, MavenLogger logger, Set<String> rootFeatures) {
+            Interpolator interpolator, MavenLogger logger) {
         this.defaults = originalProduct;
-        this.rootFeatures = rootFeatures;
         this.expandedVersion = VersioningHelper.expandQualifier(originalProduct.getVersion(), buildQualifier);
         this.targetPlatform = targetPlatform;
         this.interpolator = interpolator;
         this.logger = new MultiLineLogger(logger);
+
+        expandVersions();
     }
 
     @Override
@@ -78,10 +73,6 @@ class ExpandedProduct implements IProductDescriptor {
             return defaults.getBundles(includeFragments);
         }
 
-        if (expandedBundles == null) {
-            expandedBundles = resolveReferences("plugin", ArtifactType.TYPE_ECLIPSE_PLUGIN,
-                    defaults.getBundles(includeFragments));
-        }
         return expandedBundles;
     }
 
@@ -93,73 +84,37 @@ class ExpandedProduct implements IProductDescriptor {
 
     @Override
     public List<IVersionedId> getFeatures() {
-        if (getProductContentType() == ProductContentType.BUNDLES) {
-            // TODO add hasFeatures() method to avoid this method to be called in bundle-based products
-            return defaults.getFeatures();
-        }
-        if (expandedFeatures == null) {
-            expandedFeatures = resolveReferences("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
-                    filter(defaults.getFeatures(), rootFeatures));
-        }
-        return expandedFeatures;
+        return getFeatures(INCLUDED_FEATURES);
     }
 
-    private List<IVersionedId> filter(List<IVersionedId> source, Set<String> toRemove) {
-        List<IVersionedId> result = new ArrayList<IVersionedId>();
-        for (IVersionedId entry : source) {
-            if (toRemove.contains(entry.getId())) {
-                // remove
-            } else {
-                result.add(entry);
-            }
+    @Override
+    public List<IVersionedId> getFeatures(int options) {
+        if (options == INCLUDED_FEATURES) {
+            return expandedFeatures;
+        } else {
+            // currently not needed by the publisher action -> omitted for simplicity
+            throw new UnsupportedOperationException();
         }
-        return result;
     }
 
-    private List<IVersionedId> resolveReferences(String elementName, String artifactType, List<IVersionedId> references) {
-        List<IVersionedId> result = new ArrayList<IVersionedId>(references.size());
-        StringBuilder errors = null;
-
-        for (IVersionedId reference : references) {
-            try {
-                ArtifactKey resolvedReference = targetPlatform.resolveReference(artifactType, reference.getId(),
-                        reference.getVersion());
-                result.add(new VersionedId(resolvedReference.getId(), resolvedReference.getVersion()));
-
-            } catch (IllegalArtifactReferenceException e) {
-                errors = initReferenceResolutionError(errors);
-                errors.append("  Invalid <").append(elementName).append("> element with id=")
-                        .append(quote(reference.getId()));
-                if (reference.getVersion() != null) {
-                    errors.append(" and version=").append(quote(reference.getVersion()));
-                }
-                errors.append(": ").append(e.getMessage()).append('\n');
-            } catch (DependencyResolutionException e) {
-                errors = initReferenceResolutionError(errors);
-                errors.append("  ").append(e.getMessage()).append('\n');
-            }
-        }
-
-        if (errors != null) {
-            logger.error(errors.toString());
-            throw new DependencyResolutionException("Cannot resolve dependencies of product " + getLocation().getName()
-                    + ". See log for details.");
-        }
-        return result;
+    public List<IInstallableUnit> getRootFeatures() {
+        return expandedRootFeatures;
     }
 
-    private StringBuilder initReferenceResolutionError(StringBuilder errors) {
-        if (errors == null)
-            return new StringBuilder("Cannot resolve dependencies of product " + getLocation().getName() + ":\n");
-        else
-            return errors;
-    }
-
-    private static String quote(Object nullableObject) {
-        if (nullableObject == null)
-            return null;
-        else
-            return "\"" + nullableObject + "\"";
+    private void expandVersions() {
+        ProductContentType contentType = getProductContentType();
+        ProductVersionExpansionRun resolver = new ProductVersionExpansionRun(targetPlatform, getLocation());
+        if (contentType != ProductContentType.FEATURES) {
+            expandedBundles = resolver.resolveReferences("plugin", ArtifactType.TYPE_ECLIPSE_PLUGIN,
+                    defaults.getBundles(true));
+        }
+        if (contentType != ProductContentType.BUNDLES) {
+            expandedFeatures = resolver.resolveReferences("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
+                    defaults.getFeatures(INCLUDED_FEATURES));
+            expandedRootFeatures = resolver.resolveReferencesToIUs("feature", ArtifactType.TYPE_ECLIPSE_FEATURE,
+                    defaults.getFeatures(ROOT_FEATURES));
+        }
+        resolver.reportErrors(logger);
     }
 
     @Override
@@ -181,6 +136,18 @@ class ExpandedProduct implements IProductDescriptor {
     }
 
     // delegating methods
+
+    @Override
+    public boolean hasBundles(boolean includeFragments) {
+        // don't need to expand versions for this check
+        return defaults.hasBundles(includeFragments);
+    }
+
+    @Override
+    public boolean hasFeatures() {
+        // don't need to expand versions for this check
+        return defaults.hasFeatures();
+    }
 
     @Override
     public String getLauncherName() {

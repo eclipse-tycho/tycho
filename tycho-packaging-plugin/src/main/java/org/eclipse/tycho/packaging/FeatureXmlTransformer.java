@@ -75,7 +75,7 @@ public class FeatureXmlTransformer {
     private ArtifactKey resolvePluginReference(TargetPlatform targetPlatform, PluginRef pluginRef)
             throws MojoFailureException {
         try {
-            return targetPlatform.resolveReference(ArtifactType.TYPE_ECLIPSE_PLUGIN, pluginRef.getId(),
+            return targetPlatform.resolveArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, pluginRef.getId(),
                     pluginRef.getVersion());
         } catch (IllegalArtifactReferenceException e) {
             throw new MojoFailureException("Invalid plugin reference with id=" + quote(pluginRef.getId())
@@ -86,7 +86,7 @@ public class FeatureXmlTransformer {
     private ArtifactKey resolveFeatureReference(TargetPlatform targetPlatform, FeatureRef featureRef)
             throws MojoFailureException {
         try {
-            return targetPlatform.resolveReference(ArtifactType.TYPE_ECLIPSE_FEATURE, featureRef.getId(),
+            return targetPlatform.resolveArtifact(ArtifactType.TYPE_ECLIPSE_FEATURE, featureRef.getId(),
                     featureRef.getVersion());
         } catch (IllegalArtifactReferenceException e) {
             throw new MojoFailureException("Invalid feature reference with id=" + quote(featureRef.getId())

@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
-import static java.util.Arrays.asList;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.configureTouchpointInstructionThat;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.hasSelfCapability;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.productUnit;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.requirement;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.strictRequirement;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
@@ -20,6 +20,7 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createBundleIU;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.createFeatureIU;
 import static org.eclipse.tycho.p2.testutil.MatchingItemFinder.getUnique;
 import static org.eclipse.tycho.p2.tools.test.util.ResourceUtil.resourceFile;
+import static org.eclipse.tycho.test.util.TychoMatchers.hasSize;
 import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -72,7 +73,6 @@ public class PublishProductToolTest {
     private static final String FLAVOR = "tooling";
     private static final List<TargetEnvironment> ENVIRONMENTS = Collections.singletonList(new TargetEnvironment(
             "testos", "testws", "testarch"));
-    private static final Set<String> ROOTS = Collections.emptySet();
 
     @Rule
     public ExpectedException exceptions = ExpectedException.none();
@@ -124,7 +124,7 @@ public class PublishProductToolTest {
         File launcherBinaries = resourceFile("launchers/");
 
         subject = initPublisher();
-        Collection<DependencySeed> seeds = subject.publishProduct(productDefinition, ROOTS, launcherBinaries, FLAVOR);
+        Collection<DependencySeed> seeds = subject.publishProduct(productDefinition, launcherBinaries, FLAVOR);
 
         assertThat(seeds.size(), is(1));
         DependencySeed seed = seeds.iterator().next();
@@ -146,7 +146,7 @@ public class PublishProductToolTest {
         File productDefinition = resourceFile("publishers/products/test.product");
         subject = initPublisher();
 
-        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, ROOTS, null, FLAVOR));
+        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
         assertThat(unit.getVersion().toString(), is("0.1.0." + QUALIFIER));
     }
@@ -158,7 +158,7 @@ public class PublishProductToolTest {
                 createBundleIU("test.plugin", "1.1.0"), createFeatureIU("test.feature", "0.2.0.20141230"),
                 createFeatureIU("test.feature", "1.2.0"));
 
-        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, ROOTS, null, FLAVOR));
+        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
         assertThat(unit.getRequirements(), hasItem(strictRequirement("test.plugin", "1.1.0")));
         assertThat(unit.getRequirements(), hasItem(strictRequirement("test.feature.feature.group", "1.2.0")));
@@ -171,7 +171,7 @@ public class PublishProductToolTest {
                 createBundleIU("test.plugin", "1.1.0"), createFeatureIU("test.feature", "0.2.0.20141230"),
                 createFeatureIU("test.feature", "1.2.0"));
 
-        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, ROOTS, null, FLAVOR));
+        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
         assertThat(unit.getRequirements(), hasItem(strictRequirement("test.plugin", "0.1.0.20141230")));
         assertThat(unit.getRequirements(), hasItem(strictRequirement("test.feature.feature.group", "0.2.0.20141230")));
@@ -185,7 +185,7 @@ public class PublishProductToolTest {
         exceptions.expect(BuildFailureException.class);
         exceptions.expectMessage(both(containsString("inclusionsWithVersionSyntaxError.product")).and(
                 containsString("nonOSGi"))); // "nonOSGi" is the malformed version string
-        subject.publishProduct(productDefinition, ROOTS, null, FLAVOR);
+        subject.publishProduct(productDefinition, null, FLAVOR);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class PublishProductToolTest {
         logVerifier.expectError(containsString("test.feature1"));
         logVerifier.expectError(containsString("test.feature2"));
         thrownException.expect(DependencyResolutionException.class);
-        subject.publishProduct(productDefinition, ROOTS, null, FLAVOR);
+        subject.publishProduct(productDefinition, null, FLAVOR);
     }
 
     @Test
@@ -205,7 +205,7 @@ public class PublishProductToolTest {
         File productDefinition = resourceFile("publishers/products/featureProductWithLeftovers.product");
         subject = initPublisher(createFeatureIU("org.eclipse.rcp", "3.3.101.R34x_v20081125"));
 
-        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, ROOTS, null, FLAVOR));
+        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
         assertThat(unit.getRequirements(),
                 hasItem(strictRequirement("org.eclipse.rcp.feature.group", "3.3.101.R34x_v20081125")));
@@ -216,7 +216,7 @@ public class PublishProductToolTest {
         File productDefinition = resourceFile("publishers/products/pluginProductWithLeftovers.product");
         subject = initPublisher(createBundleIU("org.eclipse.core.runtime", "3.5.0.v20090525"));
 
-        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, ROOTS, null, FLAVOR));
+        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
         assertThat(unit.getRequirements(), hasItem(strictRequirement("org.eclipse.core.runtime", "3.5.0.v20090525")));
     }
@@ -230,7 +230,7 @@ public class PublishProductToolTest {
 
         logVerifier.expectError(containsString("org.eclipse.core.filesystem.hpux.ppc"));
         thrownException.expect(DependencyResolutionException.class);
-        subject.publishProduct(productDefinition, ROOTS, launcherBinaries, FLAVOR);
+        subject.publishProduct(productDefinition, launcherBinaries, FLAVOR);
     }
 
     @Test
@@ -238,7 +238,7 @@ public class PublishProductToolTest {
         File productDefinition = resourceFile("publishers/products/p2Inf/test.product");
         subject = initPublisher();
 
-        subject.publishProduct(productDefinition, ROOTS, null, FLAVOR);
+        subject.publishProduct(productDefinition, null, FLAVOR);
 
         assertThat(unitsIn(outputRepository), hasItem(unitWithId("testproduct")));
         IInstallableUnit unit = getUnique(unitWithId("testproduct"), unitsIn(outputRepository));
@@ -255,7 +255,7 @@ public class PublishProductToolTest {
         File productDefinition = resourceFile("publishers/products/p2InfPerProduct/test.product");
         subject = initPublisher();
 
-        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, ROOTS, null, FLAVOR));
+        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
         assertThat(unit.getRequirements(), hasItem(strictRequirement("extra.iu", "1.2.3." + QUALIFIER)));
     }
@@ -266,7 +266,7 @@ public class PublishProductToolTest {
         subject = initPublisher(createBundleIU("org.eclipse.osgi", "3.10.1.v20140909-1633"));
         when(interpolatorMock.interpolate("${unqualifiedVersion}.${buildQualifier}")).thenReturn("1.0.0.20150109");
 
-        IInstallableUnit mainUnit = getUnit(subject.publishProduct(productDefinition, ROOTS, null, FLAVOR));
+        IInstallableUnit mainUnit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
         String configUnitId = "tooling" + mainUnit.getId() + ".config.testws.testos.testarch";
         IInstallableUnit configUnit = getUnique(unitWithId(configUnitId), unitsIn(outputRepository));
@@ -282,22 +282,39 @@ public class PublishProductToolTest {
                 createFeatureIU("org.eclipse.e4.rcp", "1.0"), createFeatureIU("org.eclipse.help", "2.0.102.v20140128"),
                 createFeatureIU("org.eclipse.egit", "2.0"));
 
-        // TODO 428889 this information shall come from the IProductDescriptor
-        Set<String> rootFeatures = new HashSet<String>(asList("org.eclipse.help", "org.eclipse.egit"));
-        IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, rootFeatures, null, FLAVOR));
+        List<DependencySeed> seeds = subject.publishProduct(productDefinition, null, FLAVOR);
+        IInstallableUnit productUnit = getUnique(productUnit(), unitsIn(seeds));
 
-        assertThat(unit.getRequirements(), hasItem(requirement("org.eclipse.rcp.feature.group", "4.4.0.v20140128")));
-        assertThat(unit.getRequirements(), hasItem(requirement("org.eclipse.e4.rcp.feature.group", "1.0")));
-        assertThat(unit.getRequirements(),
+        assertThat(productUnit.getRequirements(),
+                hasItem(requirement("org.eclipse.rcp.feature.group", "4.4.0.v20140128")));
+        assertThat(productUnit.getRequirements(), hasItem(requirement("org.eclipse.e4.rcp.feature.group", "1.0")));
+        assertThat(productUnit.getRequirements(),
                 not(hasItem(requirement("org.eclipse.help.feature.group", "2.0.102.v20140128"))));
-        assertThat(unit.getRequirements(), not(hasItem(requirement("org.eclipse.egit.feature.group", "2.0"))));
+        assertThat(productUnit.getRequirements(), not(hasItem(requirement("org.eclipse.egit.feature.group", "2.0"))));
 
-        // TODO 428889 extract root feature seeds on this class loader side
+        assertThat(seeds.get(1).getId(), is("org.eclipse.help"));
+        assertThat((IInstallableUnit) seeds.get(1).getInstallableUnit(),
+                is(unitWithId("org.eclipse.help.feature.group")));
+        assertThat(seeds.get(2).getId(), is("org.eclipse.egit"));
+        assertThat((IInstallableUnit) seeds.get(2).getInstallableUnit(),
+                is(unitWithId("org.eclipse.egit.feature.group")));
+        assertThat(seeds, hasSize(3));
     }
 
+    /**
+     * Returns the IU from the only dependency seed.
+     */
     private static IInstallableUnit getUnit(Collection<DependencySeed> seeds) {
         assertThat(seeds, TychoMatchers.hasSize(1));
         return (IInstallableUnit) seeds.iterator().next().getInstallableUnit();
+    }
+
+    private Set<IInstallableUnit> unitsIn(Collection<DependencySeed> seeds) {
+        Set<IInstallableUnit> result = new HashSet<IInstallableUnit>();
+        for (DependencySeed seed : seeds) {
+            result.add((IInstallableUnit) seed.getInstallableUnit());
+        }
+        return result;
     }
 
     private static Set<IInstallableUnit> unitsIn(PublishingRepository results) {

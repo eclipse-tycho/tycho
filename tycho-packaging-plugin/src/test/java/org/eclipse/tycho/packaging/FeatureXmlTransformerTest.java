@@ -55,8 +55,8 @@ public class FeatureXmlTransformerTest {
                 "feature.xml"));
 
         TargetPlatform tp = mock(TargetPlatform.class);
-        when(tp.resolveReference("eclipse-feature", "org.eclipse.rcp", "4.5.0.qualifier")).thenReturn(rcpFeatureInTP);
-        when(tp.resolveReference("eclipse-plugin", "org.junit4", "4.8.1.qualifier")).thenReturn(junit4InTP);
+        when(tp.resolveArtifact("eclipse-feature", "org.eclipse.rcp", "4.5.0.qualifier")).thenReturn(rcpFeatureInTP);
+        when(tp.resolveArtifact("eclipse-plugin", "org.junit4", "4.8.1.qualifier")).thenReturn(junit4InTP);
         when(tp.getArtifactLocation(junit4InTP)).thenReturn(junit4JarLocation);
 
         subject.expandReferences(feature, tp);
