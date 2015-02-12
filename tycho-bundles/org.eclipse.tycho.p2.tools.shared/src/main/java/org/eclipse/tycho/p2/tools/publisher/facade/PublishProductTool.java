@@ -11,8 +11,7 @@
 package org.eclipse.tycho.p2.tools.publisher.facade;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
@@ -23,14 +22,12 @@ public interface PublishProductTool {
      * 
      * @param productDefinition
      *            A .product file as defined by the Eclipse PDE
-     * @param rootFeatures
      * @param launcherBinaries
      *            A folder that contains the native Eclipse launcher binaries
      * @param flavor
      *            The installation flavor the product shall be published for
      * @return a handles to the published product IU
      */
-    Collection<DependencySeed> publishProduct(File productDefinition, Set<String> rootFeatures, File launcherBinaries,
-            String flavor);
+    List<DependencySeed> publishProduct(File productDefinition, File launcherBinaries, String flavor);
 
 }

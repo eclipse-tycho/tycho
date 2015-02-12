@@ -11,6 +11,7 @@
 package org.eclipse.tycho.p2.testutil;
 
 import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.IU_CAPABILITY_NS;
+import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.PRODUCT_TYPE_PROPERTY;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -60,6 +61,21 @@ public class InstallableUnitMatchers {
 
     public static Matcher<IInstallableUnit> unitWithIdAndVersion(IVersionedId versionedId) {
         return unit(versionedId.getId(), versionedId.getVersion().toString());
+    }
+
+    public static Matcher<IInstallableUnit> productUnit() {
+        return new TypeSafeMatcher<IInstallableUnit>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a product installable unit");
+            }
+
+            @Override
+            protected boolean matchesSafely(IInstallableUnit item) {
+                return Boolean.valueOf(item.getProperty(PRODUCT_TYPE_PROPERTY));
+            }
+        };
     }
 
     public static Matcher<IInstallableUnit> hasGAV(String groupId, String artifactId, String version) {

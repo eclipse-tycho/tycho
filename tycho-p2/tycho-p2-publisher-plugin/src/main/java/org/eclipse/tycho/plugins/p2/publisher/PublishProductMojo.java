@@ -16,9 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -37,7 +35,6 @@ import org.eclipse.tycho.core.shared.Interpolator;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
-import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
@@ -91,8 +88,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                             + " does not contain the mandatory attribute 'version'");
                 }
 
-                Set<String> rootFeatures = extractRootFeatures(productConfiguration, seeds);
-                seeds.addAll(publisher.publishProduct(productFile, rootFeatures,
+                seeds.addAll(publisher.publishProduct(productFile,
                         productConfiguration.includeLaunchers() ? getExpandedLauncherBinaries() : null, flavor));
             } catch (IOException e) {
                 throw new MojoExecutionException(
@@ -100,27 +96,6 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             }
         }
         return seeds;
-    }
-
-    static Set<String> extractRootFeatures(ProductConfiguration product, List<DependencySeed> seeds) {
-        final String productId = product.getId();
-        Set<String> rootFeatures = new HashSet<String>();
-
-        // add root features as special dependency seed which are marked as "add-on" for the product
-        DependencySeed.Filter filter = new DependencySeed.Filter() {
-            @Override
-            public boolean isAddOnFor(String type, String id) {
-                return ArtifactType.TYPE_ECLIPSE_PRODUCT.equals(type) && productId.equals(id);
-            }
-        };
-        for (FeatureRef feature : product.getFeatures()) {
-            if (feature.getInstallMode() == FeatureRef.InstallMode.root) {
-                // TODO 372780 get feature version from target platform that matches the specification; picking any version will no longer work once the the director installs from the target platform instead of from the resolved dependencies
-                seeds.add(new DependencySeed(ArtifactType.TYPE_ECLIPSE_FEATURE, feature.getId(), null, filter));
-                rootFeatures.add(feature.getId());
-            }
-        }
-        return rootFeatures;
     }
 
     private File getExpandedLauncherBinaries() throws MojoExecutionException, MojoFailureException {

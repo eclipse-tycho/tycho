@@ -15,6 +15,7 @@
 
    <features>
       <feature id="feature.toBeIgnored" version="0.0.0"/>
+      <feature id="root.feature.toBeIgnored" version="0.0.0" installMode="root"/>
    </features>
 
 </product>
