@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "070b0362_f4017279",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/locking/LockProcess.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-16T09:25:30Z",
+      "side": 1,
+      "message": "Does this work? According to the class comment, the process will \"hold the lock for a certain time\", so when the acquired message is printed, the lock will still be held.",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 76,
+        "endChar": 55
+      },
+      "revId": "23d358b8dc0bc692b2bad7500c08c2657e6ab645",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
