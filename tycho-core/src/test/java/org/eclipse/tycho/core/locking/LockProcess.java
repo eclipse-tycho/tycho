@@ -23,6 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileLock;
 import java.util.Arrays;
 
+import org.codehaus.plexus.util.FileUtils;
+
 /**
  * Lock a file in a spawned JVM process and hold it for a certain time before exiting.
  */
@@ -69,6 +71,12 @@ public class LockProcess {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            try {
+                FileUtils.deleteDirectory(tmpClassDir);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
