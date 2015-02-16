@@ -22,6 +22,24 @@
       "revId": "23d358b8dc0bc692b2bad7500c08c2657e6ab645",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "070b0362_54a83ed8",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/locking/LockProcess.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-16T09:45:32Z",
+      "side": 1,
+      "message": "it works (this is only the classes dir for the forked VM, not the locked file) but you are right it\u0027s better to do this in the cleanup() method. In fact we already do it but fail to delete the empty directories",
+      "parentUuid": "070b0362_f4017279",
+      "revId": "23d358b8dc0bc692b2bad7500c08c2657e6ab645",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
