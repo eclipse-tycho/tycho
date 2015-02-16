@@ -23,6 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileLock;
 import java.util.Arrays;
 
+import org.codehaus.plexus.util.FileUtils;
+
 /**
  * Lock a file in a spawned JVM process and hold it for a certain time before exiting.
  */
@@ -82,17 +84,7 @@ public class LockProcess {
         }
         process.waitFor();
         process = null;
-        deleteRecursive(tmpClassDir);
-    }
-
-    private void deleteRecursive(File file) {
-        if (file.isDirectory()) {
-            for (File subFile : file.listFiles()) {
-                deleteRecursive(subFile);
-            }
-        } else if (file.isFile()) {
-            file.delete();
-        }
+        FileUtils.deleteDirectory(tmpClassDir);
     }
 
     private void copyClassFile() {
