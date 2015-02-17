@@ -36,7 +36,7 @@ import org.eclipse.tycho.repository.p2base.artifact.repository.ArtifactRepositor
 import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
-public class TargetPlatformBundlePublisher {
+class TargetPlatformBundlePublisher {
 
     private final MavenLogger logger;
     private final PublishedBundlesArtifactRepository publishedArtifacts;
@@ -71,6 +71,12 @@ public class TargetPlatformBundlePublisher {
      *         OSGi bundle.
      */
     IInstallableUnit attemptToPublishBundle(IArtifactFacade mavenArtifact) {
+        IInstallableUnit publishedIU = null;
+        IArtifactDescriptor publishedDescriptor = null;
+        logger.debug("No cached published artifact for " + mavenArtifact + "(" + mavenArtifact.getGroupId() + ":"
+                + mavenArtifact.getArtifactId() + ":" + mavenArtifact.getClassifier() + ":"
+                + mavenArtifact.getVersion() + ")");
+
         if (!isAvailableAsLocalFile(mavenArtifact)) {
             // this should have been ensured by the caller
             throw new IllegalArgumentException("Not an artifact file: " + mavenArtifact.getLocation());
@@ -91,12 +97,11 @@ public class TargetPlatformBundlePublisher {
             logger.warn(StatusTool.collectProblems(status), status.getException());
         }
 
-        IInstallableUnit publishedIU = publisherRun.getPublishedUnitIfExists();
+        publishedIU = publisherRun.getPublishedUnitIfExists();
         if (publishedIU != null) {
-            IArtifactDescriptor publishedDescriptor = publisherRun.getPublishedArtifactDescriptor();
+            publishedDescriptor = publisherRun.getPublishedArtifactDescriptor();
             publishedArtifacts.addPublishedArtifact(publishedDescriptor, mavenArtifact);
         }
-
         return publishedIU;
     }
 

@@ -32,7 +32,7 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFilePro
 
 public class PomDependencyCollectorImpl implements PomDependencyCollector {
 
-    private final TargetPlatformBundlePublisher bundlesPublisher;
+    private final TargetPlatformBundlePublisherService bundlesPublisher;
     private final MavenLogger logger;
 
     private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
@@ -44,7 +44,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         this.logger = mavenContext.getLogger();
 
         File localRepositoryRoot = mavenContext.getLocalRepositoryRoot();
-        this.bundlesPublisher = new TargetPlatformBundlePublisher(localRepositoryRoot, mavenContext.getLogger());
+        this.bundlesPublisher = new TargetPlatformBundlePublisherService(localRepositoryRoot, mavenContext.getLogger());
     }
 
     @Override

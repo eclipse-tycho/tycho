@@ -105,4 +105,10 @@ public interface ReactorProject {
     public String getId();
 
     public boolean sameProject(/* MavenProject */Object otherProject);
+
+    @Override
+    public boolean equals(Object obj);
+
+    @Override
+    public int hashCode();
 }
