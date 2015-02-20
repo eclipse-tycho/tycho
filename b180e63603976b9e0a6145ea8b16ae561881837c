@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_15dd3656",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-20T15:51:59Z",
+      "side": 1,
+      "message": "So this is copy\u0026paste of Parser? I strongly dislike copy\u0026paste code so I have a hard time accepting this. On the other hand, it may be unfair to require you to clean up our existing mess in the code.\n\nSo could you please at least try to not make it worse by duplicating the mess?",
+      "revId": "b180e63603976b9e0a6145ea8b16ae561881837c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_f5c86a4c",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/test/P2IUTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-20T15:51:59Z",
+      "side": 1,
+      "message": "Good that you wrote these tests, although the implementation doesn\u0027t work (no irony!). I\u0027ll need exactly these cases for bug 353889. For now, I\u0027d disable the non-working assertions though (see my following patch set).",
+      "range": {
+        "startLine": 19,
+        "startChar": 13,
+        "endLine": 19,
+        "endChar": 21
+      },
+      "revId": "b180e63603976b9e0a6145ea8b16ae561881837c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_95c12679",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/iu/IUMetadataGenerationTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-20T15:51:59Z",
+      "side": 1,
+      "message": "So the test is using production code to do assertions? This seems wrong to me.\n\nWouldn\u0027t it be possible to have the test build an eclipse-repository instead and then do the assertions with the P2RepositoryTool?",
+      "range": {
+        "startLine": 125,
+        "startChar": 24,
+        "endLine": 125,
+        "endChar": 30
+      },
+      "revId": "b180e63603976b9e0a6145ea8b16ae561881837c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
