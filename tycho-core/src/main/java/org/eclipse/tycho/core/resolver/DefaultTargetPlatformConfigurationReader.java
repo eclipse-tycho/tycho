@@ -343,13 +343,14 @@ public class DefaultTargetPlatformConfigurationReader {
         }
     }
 
-    private void addTargetArtifact(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
+    protected void addTargetArtifact(TargetPlatformConfiguration result, MavenSession session, MavenProject project,
             Xpp3Dom artifactDom) {
         Xpp3Dom groupIdDom = artifactDom.getChild("groupId");
         Xpp3Dom artifactIdDom = artifactDom.getChild("artifactId");
         Xpp3Dom versionDom = artifactDom.getChild("version");
         if (groupIdDom == null || artifactIdDom == null || versionDom == null) {
-            return;
+            throw new BuildFailureException(
+                    "The target artifact configuration is invalid - <groupId>, <artifactId> and <version> are mandatory");
         }
         Xpp3Dom classifierDom = artifactDom.getChild("classifier");
 

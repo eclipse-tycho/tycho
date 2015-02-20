@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Bachmann electronics GmbH and others.
+ * Copyright (c) 2014, 2015 Bachmann electronics GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.Arrays;
+
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.shared.BuildFailureException;
@@ -65,6 +73,86 @@ public class DefaultTargetPlatformConfigurationReaderTest extends AbstractTychoM
         } catch (BuildFailureException e) {
             assertTrue(e.getMessage().contains("Element <id> is missing in <extraRequirements><requirement> section."));
         }
+    }
+
+    @Test
+    public void testAddTargetWithValidTargetDefinition() {
+        Xpp3Dom dom = createGavConfiguration("myGroupId", "myArtifactId", "myVersion");
+        MavenSession session = setupMockSession();
+        TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
+        configurationReader.addTargetArtifact(configuration, session, null, dom);
+        assertEquals(1, configuration.getTargets().size());
+        assertEquals(new File("/basedir/myArtifactId.target").getPath(), configuration.getTargets().get(0).getPath());
+    }
+
+    @Test
+    public void testAddTargetWithMissingVersionInTargetDefinition() {
+        Xpp3Dom dom = createGavConfiguration("myGroupId", "myArtifactId", null);
+        MavenSession session = setupMockSession();
+        TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
+        try {
+            configurationReader.addTargetArtifact(configuration, session, null, dom);
+            fail();
+        } catch (BuildFailureException e) {
+            assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
+        }
+    }
+
+    @Test
+    public void testAddTargetWithMissingGroupInTargetDefinition() {
+        Xpp3Dom dom = createGavConfiguration(null, "myArtifactId", "myVersion");
+        MavenSession session = setupMockSession();
+        TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
+        try {
+            configurationReader.addTargetArtifact(configuration, session, null, dom);
+            fail();
+        } catch (BuildFailureException e) {
+            assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
+        }
+    }
+
+    @Test
+    public void testAddTargetWithMissingArtifactIdInTargetDefinition() {
+        Xpp3Dom dom = createGavConfiguration("myGroupId", null, "myVersion");
+        MavenSession session = setupMockSession();
+        TargetPlatformConfiguration configuration = new TargetPlatformConfiguration();
+        try {
+            configurationReader.addTargetArtifact(configuration, session, null, dom);
+            fail();
+        } catch (BuildFailureException e) {
+            assertTrue(e.getMessage().contains("The target artifact configuration is invalid"));
+        }
+    }
+
+    private MavenSession setupMockSession() {
+        MavenSession session = mock(MavenSession.class);
+        MavenProject project = mock(MavenProject.class);
+        when(session.getProjects()).thenReturn(Arrays.asList(project));
+        when(project.getGroupId()).thenReturn("myGroupId");
+        when(project.getArtifactId()).thenReturn("myArtifactId");
+        when(project.getVersion()).thenReturn("myVersion");
+        when(project.getBasedir()).thenReturn(new File("/basedir/"));
+        return session;
+    }
+
+    private Xpp3Dom createGavConfiguration(String groupId, String artifactId, String version) {
+        Xpp3Dom dom = new Xpp3Dom("artifact");
+        if (groupId != null) {
+            Xpp3Dom group = new Xpp3Dom("groupId");
+            group.setValue(groupId);
+            dom.addChild(group);
+        }
+        if (artifactId != null) {
+            Xpp3Dom artifact = new Xpp3Dom("artifactId");
+            artifact.setValue(artifactId);
+            dom.addChild(artifact);
+        }
+        if (version != null) {
+            Xpp3Dom ver = new Xpp3Dom("version");
+            ver.setValue(version);
+            dom.addChild(ver);
+        }
+        return dom;
     }
 
     private Xpp3Dom createConfigurationDom(String... requirementChildren) {
