@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "a7fb1785_f291a024",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-20T14:29:23Z",
+      "side": 1,
+      "message": "Please add a \"Bug: 371983\" footer line\n\nCf. http://wiki.eclipse.org/Tycho/Contributor_Guide#Commit_Message_Guidelines",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_4f08d135",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
         "patchSetId": 1
@@ -70,6 +87,29 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_f26c00ad",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-20T14:29:23Z",
+      "side": 1,
+      "message": "As already stated here [1], this code as if it was copied from somewhere. Where was it copied from so that I can check the copyright?\n\n[1] https://git.eclipse.org/r/#/c/40517/4/tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+      "range": {
+        "startLine": 89,
+        "startChar": 95,
+        "endLine": 89,
+        "endChar": 108
+      },
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_8f975951",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
         "patchSetId": 1
@@ -98,6 +138,70 @@
       "writtenOn": "2015-02-20T10:20:35Z",
       "side": 1,
       "message": "fix copyright header",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_727e505f",
+        "filename": "tycho-its/projects/p2Repository.iu/example-feature/build.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-20T14:29:23Z",
+      "side": 1,
+      "message": "... or better drop it. This file is not copyright worthy",
+      "parentUuid": "a7fb1785_2f8e253e",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_f2436014",
+        "filename": "tycho-its/projects/p2Repository.iu/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-20T14:29:23Z",
+      "side": 1,
+      "message": "When creating new integration tests, please follow the naming conventions documented here [1]\n\nSo this should be something like this:\n\n \u003cgroupId\u003etycho-its-project.p2Repository.iu\u003cgroupId\u003e\n \u003cartifactId\u003epri.parent\u003c/artifactId\u003e\n\n[1] http://wiki.eclipse.org/Developing_Tycho#Writing_integration_tests",
+      "range": {
+        "startLine": 4,
+        "startChar": 2,
+        "endLine": 5,
+        "endChar": 33
+      },
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_32e84874",
+        "filename": "tycho-its/projects/p2Repository.iu/repository/category.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-20T14:29:23Z",
+      "side": 1,
+      "message": "Hmm, this doesn\u0027t seem to be a good example for the \u003ciu\u003e syntax use case because I could just as well do the same with a \u003cfeature\u003e element.\n\nMaybe a product reference would be a good use case. If this is the case, it would make sense to migrate the \n\n /tycho-its/projects/product.crossReference\n\ntest to use a category.xml with \u003ciu\u003e instead of the \"extending-product.product\" with p2.inf",
+      "range": {
+        "startLine": 3,
+        "startChar": 11,
+        "endLine": 3,
+        "endChar": 44
+      },
       "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
