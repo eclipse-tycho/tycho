@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_4f08d135",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-20T10:20:35Z",
+      "side": 1,
+      "message": "If I got it right the integration test only covers the id !\u003d null case\n\nwould be nice to have another example for type\u003d\"match\" (more or less to educate me and document how this is done in terms of category.xml syntax)",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_af9a1579",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-20T10:20:35Z",
+      "side": 1,
+      "message": "not sure if type could be null. If so, reverse the equals() order to be on the safe side:\n\"match\".equals(type)",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_cfa161aa",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-20T10:20:35Z",
+      "side": 1,
+      "message": "looks like allArgs is not used at all here. can it be removed?",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_efa41dbc",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-20T10:20:35Z",
+      "side": 1,
+      "message": "at this point id is always null. Is this OK?",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_8f975951",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-20T10:20:35Z",
+      "side": 1,
+      "message": "if type could be null, reverse equals() order (same as above)",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_2f8e253e",
+        "filename": "tycho-its/projects/p2Repository.iu/example-feature/build.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-02-20T10:20:35Z",
+      "side": 1,
+      "message": "fix copyright header",
+      "revId": "ac114de79f9f72e39ff10af5129eed0ef409f4d4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
