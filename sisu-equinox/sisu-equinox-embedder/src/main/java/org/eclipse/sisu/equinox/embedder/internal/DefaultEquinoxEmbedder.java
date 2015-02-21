@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
     private BundleContext frameworkContext;
 
     private File tempSecureStorage;
-    private File tempConfigDir;
+    private File tempEquinoxDir;
 
     public synchronized void start() throws Exception {
         if (frameworkContext != null) {
@@ -187,13 +187,17 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
     }
 
     private String copyToTempFolder(File configDir) throws IOException {
-        File tempDir = File.createTempFile("config", "equinox");
-        if (!(tempDir.delete() && tempDir.mkdirs())) {
-            throw new IOException("Could not create temp dir " + tempDir);
+        File equinoxTmp = File.createTempFile("tycho", "equinox");
+        if (!(equinoxTmp.delete() && equinoxTmp.mkdirs())) {
+            throw new IOException("Could not create temp dir " + equinoxTmp);
         }
-        FileUtils.copyFileToDirectory(new File(configDir, "config.ini"), tempDir);
-        this.tempConfigDir = tempDir;
-        return tempDir.getAbsolutePath();
+        File tempConfigDir = new File(equinoxTmp, "config");
+        if (!(tempConfigDir.mkdirs())) {
+            throw new IOException("Could not create temp config dir " + tempConfigDir);
+        }
+        FileUtils.copyFileToDirectory(new File(configDir, "config.ini"), tempConfigDir);
+        this.tempEquinoxDir = equinoxTmp;
+        return tempConfigDir.getAbsolutePath();
     }
 
     private void activateBundlesInWorkingOrder() {
@@ -329,11 +333,11 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                 getLogger().error("Exception while shutting down equinox", e);
             }
             tempSecureStorage.delete();
-            if (tempConfigDir != null) {
+            if (tempEquinoxDir != null) {
                 try {
-                    FileUtils.deleteDirectory(tempConfigDir);
+                    FileUtils.deleteDirectory(tempEquinoxDir);
                 } catch (IOException e) {
-                    getLogger().warn("Exception while deleting temp folder " + tempConfigDir, e);
+                    getLogger().warn("Exception while deleting temp folder " + tempEquinoxDir, e);
                 }
             }
             frameworkContext = null;
