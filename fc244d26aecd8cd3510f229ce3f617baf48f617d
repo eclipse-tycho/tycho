@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_b6f385d8",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AuthoredIUAction.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-23T09:13:19Z",
+      "side": 1,
+      "message": "I\u0027ve tried omitting the block below, and this leads to the test failure below in IUMetadataGenerationTest.\n\nI suppose that it would be possible to change the P2GeneratorImpl to make it work anyway, but I wouldn\u0027t invest much here. The P2Generator is anyway a dead end: dependency only publishing won\u0027t be needed any more with bug 353889, and for final metadata publishing it too much of a ball-of-mud design. Maybe I\u0027ll try to do some more cleaning up here, but if I do, it\u0027ll be a separate change.\n\nCaused by: org.apache.maven.plugin.PluginExecutionException: Execution default-p2-metadata-default of goal org.eclipse.tycho:tycho-p2-plugin:0.23.0-SNAPSHOT:p2-metadata-default failed.\n\tat org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:116)\n\tat org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:195)\n\t... 19 more\nCaused by: java.lang.IllegalArgumentException\n\tat org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl.getCanonicalArtifact(P2GeneratorImpl.java:186)\n\tat org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl.generateMetadata(P2GeneratorImpl.java:139)\n\tat org.eclipse.tycho.plugins.p2.P2MetadataMojo.attachP2Metadata(P2MetadataMojo.java:143)\n\tat org.eclipse.tycho.plugins.p2.P2MetadataMojo.execute(P2MetadataMojo.java:102)\n\tat org.eclipse.tycho.plugins.p2.P2MetadataDefaultMojo.execute(P2MetadataDefaultMojo.java:33)\n\tat org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:107)\n\t... 20 more",
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
