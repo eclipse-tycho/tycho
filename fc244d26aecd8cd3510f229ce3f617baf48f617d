@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_21510a5b",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_186d62a7",
+      "range": {
+        "startLine": 101,
+        "startChar": 24,
+        "endLine": 101,
+        "endChar": 25
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_787e2656",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2015-02-24T16:20:47Z",
       "side": 1,
       "message": "omit?",
+      "range": {
+        "startLine": 164,
+        "startChar": 35,
+        "endLine": 164,
+        "endChar": 78
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_84b1ec2f",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_787e2656",
       "range": {
         "startLine": 164,
         "startChar": 35,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_64b68027",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_38749e74",
+      "range": {
+        "startLine": 171,
+        "startChar": 35,
+        "endLine": 171,
+        "endChar": 79
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_1811e20b",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
         "patchSetId": 12
@@ -82,6 +154,24 @@
       "writtenOn": "2015-02-24T16:20:47Z",
       "side": 1,
       "message": "already fix in parent commit?",
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_04c5fc83",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Yes, the real fix is in the parent change set.",
+      "parentUuid": "a7fb1785_1811e20b",
       "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -128,6 +218,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_c4d2d443",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "I tried 3 different times to be sure (with complete rebuilds) and removing this code causes three IT failures:\nProductWithIUTest.testFileInRootFolder:31 » Verification Exit code was non-zer...\n  IUMetadataGenerationTest.testIUWithArtifact:32 » Verification Exit code was no...\n  IUMetadataGenerationTest.testIUWithoutArtifact:54 » Verification Exit code was...",
+      "parentUuid": "a7fb1785_1844421d",
+      "range": {
+        "startLine": 343,
+        "startChar": 12,
+        "endLine": 343,
+        "endChar": 38
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_d8063ad8",
         "filename": "tycho-its/projects/iu.artifact/pom.xml",
         "patchSetId": 12
@@ -139,6 +253,30 @@
       "writtenOn": "2015-02-24T16:20:47Z",
       "side": 1,
       "message": "remove?",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 18
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_04ecdc03",
+        "filename": "tycho-its/projects/iu.artifact/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_d8063ad8",
       "range": {
         "startLine": 26,
         "startChar": 0,
@@ -179,6 +317,30 @@
       "writtenOn": "2015-02-24T16:20:47Z",
       "side": 1,
       "message": "Inline? IMHO, all assertions should done directly in the test method. (And if you happen to have found the same code from me somewhere, this was from an older version of myself ;-)",
+      "range": {
+        "startLine": 48,
+        "startChar": 17,
+        "endLine": 48,
+        "endChar": 38
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_e4e8b0f1",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/iu/IUMetadataGenerationTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_988e728a",
       "range": {
         "startLine": 48,
         "startChar": 17,
@@ -271,6 +433,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_24e3d812",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageIUMojoTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_5eacf3a7",
+      "range": {
+        "startLine": 89,
+        "startChar": 61,
+        "endLine": 89,
+        "endChar": 68
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_3ea5a7b6",
         "filename": "tycho-packaging-plugin/src/test/resources/projects/matchingIds/iu/pom.xml",
         "patchSetId": 12
@@ -282,6 +468,30 @@
       "writtenOn": "2015-02-24T16:20:47Z",
       "side": 1,
       "message": "omit?",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 23,
+        "endChar": 15
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_c40db478",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/matchingIds/iu/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Nope. I tried and w/o it the test fails complaining the mojo can\u0027t be found.",
+      "parentUuid": "a7fb1785_3ea5a7b6",
       "range": {
         "startLine": 17,
         "startChar": 6,
@@ -317,6 +527,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_a4122891",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/nonMatchingIds/iu/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Nope. I tried and w/o it the test fails complaining the mojo can\u0027t be found.",
+      "parentUuid": "a7fb1785_1ea26bad",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 15
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_f83a164b",
         "filename": "tycho-testing-harness/src/main/java/org/eclipse/tycho/test/util/P2RepositoryTool.java",
         "patchSetId": 12
@@ -328,6 +562,24 @@
       "writtenOn": "2015-02-24T16:20:47Z",
       "side": 1,
       "message": "Strange: When I run the formatter on this file, this change is undone. Pascal, what happens when you do the same?\n\nWe have the formatter settings checked in, so I wonder why you seem to have different settings...",
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_842a8cb3",
+        "filename": "tycho-testing-harness/src/main/java/org/eclipse/tycho/test/util/P2RepositoryTool.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-24T21:58:33Z",
+      "side": 1,
+      "message": "Nothing happens when I format the file.\nI checked and the tycho formatter settings are indeed taken into account. \nI\u0027m using the most recent I build from Mars.",
+      "parentUuid": "a7fb1785_f83a164b",
       "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
