@@ -2,6 +2,92 @@
   "comments": [
     {
       "key": {
+        "uuid": "a7fb1785_186d62a7",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "personally, I would find an if more readable here. Could also be changed later.",
+      "range": {
+        "startLine": 101,
+        "startChar": 24,
+        "endLine": 101,
+        "endChar": 25
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_787e2656",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "omit?",
+      "range": {
+        "startLine": 164,
+        "startChar": 35,
+        "endLine": 164,
+        "endChar": 78
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_38749e74",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/p2/maven/repository/xmlio/MetadataIO.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "omit?",
+      "range": {
+        "startLine": 171,
+        "startChar": 35,
+        "endLine": 171,
+        "endChar": 79
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_1811e20b",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "already fix in parent commit?",
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_b6f385d8",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AuthoredIUAction.java",
         "patchSetId": 12
@@ -13,6 +99,235 @@
       "writtenOn": "2015-02-23T09:13:19Z",
       "side": 1,
       "message": "I\u0027ve tried omitting the block below, and this leads to the test failure below in IUMetadataGenerationTest.\n\nI suppose that it would be possible to change the P2GeneratorImpl to make it work anyway, but I wouldn\u0027t invest much here. The P2Generator is anyway a dead end: dependency only publishing won\u0027t be needed any more with bug 353889, and for final metadata publishing it too much of a ball-of-mud design. Maybe I\u0027ll try to do some more cleaning up here, but if I do, it\u0027ll be a separate change.\n\nCaused by: org.apache.maven.plugin.PluginExecutionException: Execution default-p2-metadata-default of goal org.eclipse.tycho:tycho-p2-plugin:0.23.0-SNAPSHOT:p2-metadata-default failed.\n\tat org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:116)\n\tat org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:195)\n\t... 19 more\nCaused by: java.lang.IllegalArgumentException\n\tat org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl.getCanonicalArtifact(P2GeneratorImpl.java:186)\n\tat org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl.generateMetadata(P2GeneratorImpl.java:139)\n\tat org.eclipse.tycho.plugins.p2.P2MetadataMojo.attachP2Metadata(P2MetadataMojo.java:143)\n\tat org.eclipse.tycho.plugins.p2.P2MetadataMojo.execute(P2MetadataMojo.java:102)\n\tat org.eclipse.tycho.plugins.p2.P2MetadataDefaultMojo.execute(P2MetadataDefaultMojo.java:33)\n\tat org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:107)\n\t... 20 more",
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_1844421d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/resolver/P2ResolverImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "I tried to omit this change, and the integration tests also pass. So is there a particular reason why you added this?\n\nI know that it is really hard to understand what all this is good for, so I suppose that you just followed the examples of the other packaging types. If this is all there is to it, I\u0027d still say we leave it, and I may revise this later.\n\n(To solve the mystery: This code here is needed for the \"dependency walkers\" over on the Maven class loader side. But AFAIK none of them walks p2-installable-unit projects, so it is at least currently not needed.)",
+      "range": {
+        "startLine": 343,
+        "startChar": 12,
+        "endLine": 343,
+        "endChar": 38
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_d8063ad8",
+        "filename": "tycho-its/projects/iu.artifact/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 18
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_b8a40e04",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/iu/IUMetadataGenerationTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "Thanks for rewriting this test. It is really readable now!",
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_988e728a",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/iu/IUMetadataGenerationTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "Inline? IMHO, all assertions should done directly in the test method. (And if you happen to have found the same code from me somewhere, this was from an older version of myself ;-)",
+      "range": {
+        "startLine": 48,
+        "startChar": 17,
+        "endLine": 48,
+        "endChar": 38
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_38b2de51",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/iu/IUMetadataGenerationTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "Nice! So the dummy artifact is only created during dependency-only publishing.",
+      "range": {
+        "startLine": 66,
+        "startChar": 19,
+        "endLine": 66,
+        "endChar": 57
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_3e1807a8",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageIUMojo.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "Nice!",
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_fe4f9f8b",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageIUMojoTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "Thanks for including the proposed changes!",
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_5eacf3a7",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageIUMojoTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "Interesting, I\u0027ve never used this matcher. \"is\" does the same, and since it is more common AFAIK it would be better to use that one.",
+      "range": {
+        "startLine": 89,
+        "startChar": 61,
+        "endLine": 89,
+        "endChar": 68
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_3ea5a7b6",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/matchingIds/iu/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "omit?",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 23,
+        "endChar": 15
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_1ea26bad",
+        "filename": "tycho-packaging-plugin/src/test/resources/projects/nonMatchingIds/iu/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "omit?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 15
+      },
+      "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_f83a164b",
+        "filename": "tycho-testing-harness/src/main/java/org/eclipse/tycho/test/util/P2RepositoryTool.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-24T16:20:47Z",
+      "side": 1,
+      "message": "Strange: When I run the formatter on this file, this change is undone. Pascal, what happens when you do the same?\n\nWe have the formatter settings checked in, so I wonder why you seem to have different settings...",
       "revId": "fc244d26aecd8cd3510f229ce3f617baf48f617d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
