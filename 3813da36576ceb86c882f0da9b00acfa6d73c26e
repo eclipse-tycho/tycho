@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_78b1ff2c",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-25T16:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_675b2203",
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_67184236",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
         "patchSetId": 7
@@ -66,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_58b6c326",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-25T16:10:58Z",
+      "side": 1,
+      "message": "There was indeed a problem. I fixed this.",
+      "parentUuid": "a7fb1785_27247a38",
+      "range": {
+        "startLine": 83,
+        "startChar": 12,
+        "endLine": 87,
+        "endChar": 71
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_e775523e",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
         "patchSetId": 7
@@ -77,6 +119,30 @@
       "writtenOn": "2015-02-25T09:45:03Z",
       "side": 1,
       "message": "Is this because it can\u0027t work in principle, or because it just hasn\u0027t been implemented/tested?",
+      "range": {
+        "startLine": 93,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 105
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_0d519f5a",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-25T16:10:58Z",
+      "side": 1,
+      "message": "This is because match queries can\u0027t be stored in a requirements.",
+      "parentUuid": "a7fb1785_e775523e",
       "range": {
         "startLine": 93,
         "startChar": 12,
@@ -135,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_b8bb670c",
+        "filename": "tycho-its/projects/p2Repository.iu.match/sample-product/sample.product",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-25T16:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_a7c6aadf",
+      "range": {
+        "startLine": 4,
+        "startChar": 94,
+        "endLine": 4,
+        "endChar": 98
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_67bcc256",
         "filename": "tycho-its/projects/p2Repository.iu/sample-product/sample.product",
         "patchSetId": 7
@@ -146,6 +236,30 @@
       "writtenOn": "2015-02-25T09:45:03Z",
       "side": 1,
       "message": "change to false to make this test platform-independent",
+      "range": {
+        "startLine": 4,
+        "startChar": 94,
+        "endLine": 4,
+        "endChar": 98
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_98c02b76",
+        "filename": "tycho-its/projects/p2Repository.iu/sample-product/sample.product",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2015-02-25T16:10:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_67bcc256",
       "range": {
         "startLine": 4,
         "startChar": 94,
