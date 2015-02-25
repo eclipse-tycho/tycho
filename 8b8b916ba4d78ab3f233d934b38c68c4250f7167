@@ -22,6 +22,75 @@
       "revId": "8b8b916ba4d78ab3f233d934b38c68c4250f7167",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_d8463327",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T17:17:37Z",
+      "side": 1,
+      "message": "I\u0027m wondering if maybe getName should return an already normalized name.\n\nThe name is also used in EclipsePluginProjectImpl to compute the outputDirectory and currently the nested jar\u0027s classes folder could be hidden in a subfolder of the target folder. E.g. for a Bundle-ClassPath: ., work/worker.jar, the classes would hide at \"target/work/worker.jar-classes\". (\"target/work\" is used by Tycho\u0027s test execution, so I wouldn\u0027t expect classes there.) It would be better to have them in \"target/work_worker.jar-classes\"",
+      "range": {
+        "startLine": 474,
+        "startChar": 51,
+        "endLine": 474,
+        "endChar": 60
+      },
+      "revId": "8b8b916ba4d78ab3f233d934b38c68c4250f7167",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_38e017b5",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T17:17:37Z",
+      "side": 1,
+      "message": "Interesting enough, you are right that the build.properties could contain backslashes. I can define keys like source.lib\\\\library.jar\u003d... and the build works (on Windows).\n\nHowever, when I specify Bundle-ClassPath: lib\\library.jar  Equinox doesn\u0027t put the nested jar on the bundle\u0027s classpath. (Same with two backslashes.)\n\nIt does in fact work if I combine source.lib\\\\library.jar\u003d... in the build.properties and Bundle-ClassPath: lib/library.jar in the manifest, but I\u0027d rather not support this. The PDE shows a warning in this case, and IMHO Tycho should rather fail than (implicitly or explicitly) support this case.",
+      "range": {
+        "startLine": 474,
+        "startChar": 81,
+        "endLine": 474,
+        "endChar": 105
+      },
+      "revId": "8b8b916ba4d78ab3f233d934b38c68c4250f7167",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_4d99e7d0",
+        "filename": "tycho-compiler-plugin/src/test/resources/projects/logs/multiJarMultiDir/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T17:17:37Z",
+      "side": 1,
+      "message": "Do you also have an example where the JAR is not in the bundle root, but e.g. at lib/library.jar instead?\n\nIs the presence of the \".\" class path entry a separate dimension which needs to be tested?",
+      "range": {
+        "startLine": 8,
+        "startChar": 1,
+        "endLine": 8,
+        "endChar": 12
+      },
+      "revId": "8b8b916ba4d78ab3f233d934b38c68c4250f7167",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
