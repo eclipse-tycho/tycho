@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_d2f3b2d7",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/IUXmlTransformer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T11:54:23Z",
+      "side": 1,
+      "message": "Drop this check? The unit/@version is anyway ensured to be the project version, isn\u0027t it? So the setVersion would anyway a no-op if the version didn\u0027t have a qualifier.",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 42
+      },
+      "revId": "ef465c5b07fd44d4463730683022f7bb6bb6d512",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_12709ac9",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/IUXmlTransformer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T11:54:23Z",
+      "side": 1,
+      "message": "The behaviour is strange in case the capability has version \"1.2.3.qualifier\" and the unit \"2.0.0.qualifier\". Then, not only the qualifier would be expanded but also the base version replaced.\n\nThe question really is what are the use cases which are supposed to be supported. This is something which should rather be discussed in the bug ticket (bug 428310) than here. To get to a good, consistent solution, I\u0027d really recommend to already write the user documentation now. Because the best solution is in most cases the one that is the easiest to explain :-)",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 61
+      },
+      "revId": "ef465c5b07fd44d4463730683022f7bb6bb6d512",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_32bb16ab",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/IUXmlTransformer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T11:54:23Z",
+      "side": 1,
+      "message": "Are there any other cases than a literal \"0.0.0\" that actually work? Again, documentation would help to see all the use cases which are supposed to be supported.",
+      "range": {
+        "startLine": 95,
+        "startChar": 33,
+        "endLine": 95,
+        "endChar": 56
+      },
+      "revId": "ef465c5b07fd44d4463730683022f7bb6bb6d512",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_b2a70692",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/IUXmlTransformer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T11:54:23Z",
+      "side": 1,
+      "message": "This parameter does not accept ranges.",
+      "range": {
+        "startLine": 112,
+        "startChar": 93,
+        "endLine": 112,
+        "endChar": 98
+      },
+      "revId": "ef465c5b07fd44d4463730683022f7bb6bb6d512",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
