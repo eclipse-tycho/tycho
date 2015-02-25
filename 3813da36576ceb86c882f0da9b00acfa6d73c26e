@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_675b2203",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T09:45:03Z",
+      "side": 1,
+      "message": "Thank you for this information - this explains why this code had a different style. As for the copyright, I no longer see a problem here because this is just the way to use the APIs.",
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_67184236",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T09:45:03Z",
+      "side": 1,
+      "message": "Is this correct? I\u0027m not an expert on the p2 expression language, but from what I understand, the SiteXMLAction would expect something like this \n\n   \u003ciu\u003e\n     \u003cquery\u003e \n       \u003cexpression type\u003d\"match\"\u003e\n         \u003c![CDATA[\n           id \u003d\u003d $0\n         ]]\u003e\n       \u003c/expression\u003e\n       \u003cparam\u003esample-product\u003c/param\u003e\n     \u003c/query\u003e\n   \u003c/iu\u003e\n\n(cf. https://git.eclipse.org/r/#/c/41475/7/tycho-its/projects/p2Repository.iu.match/repository/category.xml ) but this code would expect\n\n   \u003ciu id\u003d\"sample-product\"\u003e\n     \u003cquery\u003e \n       \u003cexpression type\u003d\"match\"\u003e\n         \u003c![CDATA[\n           id \u003d\u003d $0\n         ]]\u003e\n       \u003c/expression\u003e\n     \u003c/query\u003e\n   \u003c/iu\u003e",
+      "range": {
+        "startLine": 83,
+        "startChar": 12,
+        "endLine": 87,
+        "endChar": 71
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_e775523e",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T09:45:03Z",
+      "side": 1,
+      "message": "Is this because it can\u0027t work in principle, or because it just hasn\u0027t been implemented/tested?",
+      "range": {
+        "startLine": 93,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 105
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_a7398a8d",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/AbstractSiteDependenciesAction.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T09:45:03Z",
+      "side": 1,
+      "message": "This reminds me that we should check if Tycho detects and reports invalid syntax in the category.xml (but probably this should be a separate change). If we do it, it should be done as part of the regular build (PublishCategoriesMojo) and not in the early dependency resolution where this code runs.",
+      "range": {
+        "startLine": 96,
+        "startChar": 8,
+        "endLine": 96,
+        "endChar": 20
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_a7c6aadf",
+        "filename": "tycho-its/projects/p2Repository.iu.match/sample-product/sample.product",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T09:45:03Z",
+      "side": 1,
+      "message": "change to false",
+      "range": {
+        "startLine": 4,
+        "startChar": 94,
+        "endLine": 4,
+        "endChar": 98
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_67bcc256",
+        "filename": "tycho-its/projects/p2Repository.iu/sample-product/sample.product",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T09:45:03Z",
+      "side": 1,
+      "message": "change to false to make this test platform-independent",
+      "range": {
+        "startLine": 4,
+        "startChar": 94,
+        "endLine": 4,
+        "endChar": 98
+      },
+      "revId": "3813da36576ceb86c882f0da9b00acfa6d73c26e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
