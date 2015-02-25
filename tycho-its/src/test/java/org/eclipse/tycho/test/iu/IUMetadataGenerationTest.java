@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.iu;
 
+import static org.eclipse.tycho.test.util.TychoMatchers.hasSize;
+import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
@@ -21,44 +23,46 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;
-import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class IUMetadataGenerationTest extends AbstractTychoIntegrationTest {
 
-    @Test
-    public void testIUWithArtifact() throws Exception {
-        Verifier verifier = getVerifier("iu.artifact", false);
+    private static P2RepositoryTool repo;
+
+    @BeforeClass
+    public static void runBuild() throws Exception {
+        Verifier verifier = new IUMetadataGenerationTest().getVerifier("iu.artifact", false);
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
 
         File repoProject = new File(verifier.getBasedir(), "repository");
-        P2RepositoryTool repo = P2RepositoryTool.forEclipseRepositoryModule(repoProject);
-        IU finalIU = repo.getUniqueIU("iuA");
+        repo = P2RepositoryTool.forEclipseRepositoryModule(repoProject);
+    }
+
+    @Test
+    public void testIUWithArtifact() throws Exception {
+        IU finalIU = repo.getUniqueIU("iua.artifact");
 
         //Here we check that the final IU contained in the repo has the right shape
-        assertThat(finalIU.getProvidedCapabilities(), hasItem("org.eclipse.equinox.p2.iu/iuA/1.0.0"));
+        assertThat(finalIU.getProvidedCapabilities(), hasItem("org.eclipse.equinox.p2.iu/iua.artifact/1.0.0"));
         List<String> properties = finalIU.getProperties();
-        assertThat(properties, hasItem("maven-groupId=" + "iu.artifact"));
-        assertThat(properties, hasItem("maven-artifactId=" + "iuA"));
+        assertThat(properties, hasItem("maven-groupId=" + "tycho-its-project.iua"));
+        assertThat(properties, hasItem("maven-artifactId=" + "iua.artifact"));
         assertThat(properties, hasItem("maven-version=" + finalIU.getVersion()));
-        assertThat(finalIU.getArtifacts(), hasItem("binary/iuA/1.0.0"));
+        assertThat(finalIU.getArtifacts(), hasItem("binary/iua.artifact/1.0.0"));
 
         //check that the artifact is here
-        Assert.assertTrue(new File(repoProject, "target/repository/binary/iuA_1.0.0").exists());
+        assertThat(repo.getBinaryArtifact("iua.artifact", "1.0.0"), isFile());
     }
 
     @Test
     public void testIUWithoutArtifact() throws Exception {
-        Verifier verifier = getVerifier("iu.withoutArtifact", false);
-        verifier.executeGoal("verify");
-        verifier.verifyErrorFreeLog();
+        IU finalIU = repo.getUniqueIU("iua.noartifact");
 
-        P2RepositoryTool repo = P2RepositoryTool
-                .forEclipseRepositoryModule(new File(verifier.getBasedir(), "repository"));
-        IU finalIU = repo.getUniqueIU("iuA");
-
-        assertThat(finalIU.getProvidedCapabilities(), hasItem("org.eclipse.equinox.p2.iu/iuA/1.0.0"));
-        assertThat(finalIU.getArtifacts().size(), is(0));
+        assertThat(finalIU.getProvidedCapabilities(), hasItem("org.eclipse.equinox.p2.iu/iua.noartifact/1.0.0"));
+        assertThat(finalIU.getArtifacts(), hasSize(0));
+        assertThat(repo.getBinaryArtifact("iua.noartifact", "1.0.0"), not(isFile()));
     }
+
 }

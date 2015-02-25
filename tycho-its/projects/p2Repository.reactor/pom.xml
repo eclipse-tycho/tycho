@@ -15,7 +15,7 @@
 	<repositories>
 		<repository>
 			<id>e352</id>
-			<url>${tpRepository.e352}</url>
+			<url>${e352-repo}</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>

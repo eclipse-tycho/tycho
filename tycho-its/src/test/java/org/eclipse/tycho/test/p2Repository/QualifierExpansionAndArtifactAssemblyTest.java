@@ -48,7 +48,7 @@ public class QualifierExpansionAndArtifactAssemblyTest extends AbstractTychoInte
     @BeforeClass
     public static void executeBuild() throws Exception {
         verifier = new QualifierExpansionAndArtifactAssemblyTest().getVerifier("p2Repository.reactor", false);
-        verifier.getSystemProperties().put("tpRepository.e352", P2Repositories.ECLIPSE_352.toString());
+        verifier.getSystemProperties().put("e352-repo", P2Repositories.ECLIPSE_352.toString());
 
         /*
          * Do not execute "install" to ensure that features and bundles can be included directly

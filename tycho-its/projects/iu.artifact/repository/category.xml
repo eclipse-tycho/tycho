@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <iu id="iuA" version="0.0.0">
-     <category name="Test Category" />
+   <iu id="iua.artifact" version="0.0.0">
+      <category name="Test Category" />
+   </iu>
+   <iu id="iua.noartifact" version="0.0.0">
+      <category name="Test Category" />
    </iu>
    <category-def label="Test Category Label" name="Test Category">
       <description>Test Category Description</description>
