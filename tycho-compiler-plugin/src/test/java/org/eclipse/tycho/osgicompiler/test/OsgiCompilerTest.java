@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -483,4 +483,31 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         getMojo(projects, projects.get(1)).execute();
         getMojo(projects, projects.get(2)).execute();
     }
+
+    public void testCompilerLogWithMultiJarInSingleDirectory() throws Exception {
+        File basedir = getBasedir("projects/logs/multiJarSingleDir");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+        assertTrue(new File(basedir, "target/log-dir/@dot.log").canRead());
+        assertTrue(new File(basedir, "target/log-dir/library.jar.log").canRead());
+    }
+
+    public void testCompilerLogWithMultiJarInSubDirectory() throws Exception {
+        File basedir = getBasedir("projects/logs/multiJarMultiDir");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+        assertTrue(new File(basedir, "target/log-dir/@dot.log").canRead());
+        assertTrue(new File(basedir, "target/log-dir/lib_library.jar.log").canRead());
+    }
+
+    public void testCompilerLogWithSingleJar() throws Exception {
+        File basedir = getBasedir("projects/logs/singleJar");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+        assertTrue(new File(basedir, "target/log-dir/@dot.xml").canRead());
+    }
+
 }
