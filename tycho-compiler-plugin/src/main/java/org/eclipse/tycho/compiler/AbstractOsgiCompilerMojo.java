@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -442,7 +443,40 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         configureSourceAndTargetLevel(compilerConfiguration);
         configureJavaHome(compilerConfiguration);
         configureBootclasspathAccessRules(compilerConfiguration);
+        configureCompilerLog(compilerConfiguration);
         return compilerConfiguration;
+    }
+
+    private void configureCompilerLog(CompilerConfiguration compilerConfiguration) {
+        Map<String, String> map = compilerConfiguration.getCustomCompilerArgumentsAsMap();
+
+        if (!map.keySet().contains("-log") || ".".equals(outputJar.getName())) {
+            return;
+        }
+
+        // compiler argument -log can be in the map either as key/value pair
+        // or as 2 separate keys one with -log one with the path
+        String logPath = map.get("-log");
+        if (logPath == null) {
+            // find the next key after "-log"
+            LinkedList<String> keys = new LinkedList<String>(map.keySet());
+            int logIndex = keys.indexOf("-log");
+            if (logIndex == keys.size() - 1) {
+                getLog().error(
+                        "Compiler argument '-log' found, but no additional argument containing the path could be found");
+                return;
+            }
+            logPath = keys.get(logIndex + 1);
+            map.remove(logPath);
+        }
+
+        File logFile = new File(logPath);
+        String normalizedOutputJarName = outputJar.getName().replaceAll("/", "_").replaceAll("\\\\", "_");
+        String newLogFileName = normalizedOutputJarName + "_" + logFile.getName();
+        File newLogFile = new File(logFile.getParent(), newLogFileName);
+        map.remove("-log");
+        map.put("-log", newLogFile.getAbsolutePath());
+        compilerConfiguration.setCustomCompilerArgumentsAsMap(map);
     }
 
     private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration)
