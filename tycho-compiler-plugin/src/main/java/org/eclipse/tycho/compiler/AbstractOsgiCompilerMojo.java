@@ -234,6 +234,55 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Parameter(defaultValue = "true")
     private boolean copyResources;
 
+    /**
+     * The directory where the compiler log files should be placed. For each output jar a log file
+     * will be created and stored in this directory. Makes only sense if log is enabled
+     * {@link #logEnabled}. Default: <code>${project.build.directory}/compile-logs</code>
+     */
+    @Parameter(defaultValue = "${project.build.directory}/compile-logs")
+    private File logDirectory;
+
+    /**
+     * The format of the compiler log file. <code>plain</code> will log into a plain text file
+     * (.log), <code>xml</code> will log in xml format (.xml). Makes only sense if log is enabled @link
+     * {@link #logEnabled}. Default: <code>plain</code>
+     */
+    @Parameter(defaultValue = "plain")
+    private String logFormat;
+
+    /**
+     * Whether the compiler output should be logged into files. If set to <code>true</code>, the
+     * compiler will create a log file for each jar file that gets created. The directory could be
+     * specified by {@link #logDirectory}, the format by using {@link #logFormat}. The name of the
+     * log files will be derived from the jar name, for "main" classes <code>@dot.xml</code> or
+     * <code>@dot.log</code> is used, depending on the format.
+     * 
+     * <pre>
+     * build.properties:
+     * 
+     * output.lib1/library.jar = lib1bin/ 
+     * output.lib2/library.jar = lib2bin/ 
+     * output.. = bin/
+     * 
+     * And a configuration:
+     * 
+     * &lt;configuration&gt;
+     *   &lt;logEnabled&gt;true&lt;/logEnabled&gt;
+     *   &lt;logDirectory&gt;${project.build.directory}/logfiles&lt;/logDirectory&gt;
+     *   &lt;logFormat&gt;true&lt;/logFormat&gt; 
+     * &lt;/configuration&gt;
+     * 
+     * Will produce the following log files
+     * 
+     * ${project.build.directory}/logfiles/@dot.xml
+     * ${project.build.directory}/logfiles/lib1_library.jar.xml
+     * ${project.build.directory}/logfiles/lib2_library.jar.xml
+     * </pre>
+     */
+
+    @Parameter(defaultValue = "false")
+    private boolean logEnabled;
+
     @Component
     ToolchainProvider toolchainProvider;
 
@@ -442,7 +491,31 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         configureSourceAndTargetLevel(compilerConfiguration);
         configureJavaHome(compilerConfiguration);
         configureBootclasspathAccessRules(compilerConfiguration);
+        configureCompilerLog(compilerConfiguration);
         return compilerConfiguration;
+    }
+
+    private void configureCompilerLog(CompilerConfiguration compilerConfiguration) {
+        if (!logEnabled) {
+            return;
+        }
+        logDirectory.mkdirs();
+        String logFileName = null;
+        if (".".equals(outputJar.getName())) {
+            logFileName = "@dot";
+        } else {
+            logFileName = outputJar.getName().replaceAll("/", "_");
+        }
+        String logPath = logDirectory.getAbsolutePath();
+        if (!logPath.endsWith(File.separator)) {
+            logPath = logPath + File.separator;
+        }
+        String fileExtension = logFormat;
+        if ("plain".equals(logFormat)) {
+            fileExtension = "log";
+        }
+        logPath = logPath + logFileName + "." + fileExtension;
+        compilerConfiguration.addCompilerCustomArgument("-log", logPath);
     }
 
     private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration)
