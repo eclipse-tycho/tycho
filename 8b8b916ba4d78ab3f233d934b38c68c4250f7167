@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_4d356760",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-02-25T15:48:02Z",
+      "side": 1,
+      "message": "IMHO this is the wrong approach. If we followed it the documentation from compilerArgs would need to be changed from\n\n Arguments to be passed to the compiler.\n\nto something significantly more complex.",
+      "range": {
+        "startLine": 457,
+        "startChar": 8,
+        "endLine": 458,
+        "endChar": 64
+      },
+      "revId": "8b8b916ba4d78ab3f233d934b38c68c4250f7167",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
