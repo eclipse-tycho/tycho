@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Main Product" uid="main.product.id" id="product.branding" application="product.bundle.application" version="0.0.1.qualifier" useFeatures="false" includeLaunchers="false">
+<product name="Main Product" uid="main.product.id" id="product.branding" application="product.bundle.application" version="1.0.0" useFeatures="false" includeLaunchers="false">
 
    <configIni use="default">
    </configIni>
@@ -12,4 +12,6 @@
    <plugins>
       <plugin id="org.eclipse.core.runtime"/>
    </plugins>
+
+
 </product>

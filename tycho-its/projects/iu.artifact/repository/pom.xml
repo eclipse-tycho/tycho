@@ -3,15 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>repository</artifactId>
-	<version>1.0.0</version>
-
 	<parent>
-		<groupId>iu.artifact</groupId>
-		<artifactId>parent</artifactId>
+		<groupId>tycho-its-project.iu.artifact</groupId>
+		<artifactId>iua.parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
+	<artifactId>iua.repository</artifactId>
 	<packaging>eclipse-repository</packaging>
 
 	<build>
@@ -26,5 +24,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 </project>

@@ -10,22 +10,22 @@
  *******************************************************************************/
 package org.eclipse.tycho.test.iu;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
+import static org.eclipse.tycho.test.util.TychoMatchers.isFile;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.eclipse.tycho.test.util.ArchiveContentUtil;
+import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
 public class ProductWithIUTest extends AbstractTychoIntegrationTest {
 
     @Test
-    public void testFileInRootFolder() throws Exception {
+    public void testRootFilesFromIUPackagingInstalledAndInRepo() throws Exception {
         Verifier verifier = getVerifier("iu.product", false);
         verifier.getSystemProperties().setProperty("test-data-repo", P2Repositories.ECLIPSE_KEPLER.toString());
         verifier.executeGoal("package");
@@ -33,13 +33,13 @@ public class ProductWithIUTest extends AbstractTychoIntegrationTest {
 
         File rootFileInstalledByIU = new File(verifier.getBasedir(),
                 "eclipse-repository/target/products/main.product.id/linux/gtk/x86/myFile.txt");
-        assertThat(rootFileInstalledByIU.exists(), is(true));
+        assertThat(rootFileInstalledByIU, isFile());
 
-        File artifactInRepo = new File(verifier.getBasedir(),
-                "eclipse-repository/target/repository/binary/iuForRootFile_1.0.0");
-        assertThat(artifactInRepo.exists(), is(true));
+        P2RepositoryTool p2Repository = P2RepositoryTool.forEclipseRepositoryModule(new File(verifier.getBasedir(),
+                "eclipse-repository"));
+        assertThat(p2Repository.findBinaryArtifact("iup.iuForRootFile"), isFile());
 
-        File metadataRepo = new File(verifier.getBasedir(), "eclipse-repository/target/repository/content.jar");
-        assertThat(ArchiveContentUtil.getFileContent(metadataRepo, "content.xml"), containsString("id='iuForRootFile'"));
+        assertThat(p2Repository.getAllUnitIds(), hasItem("iup.iuForRootFile"));
     }
+
 }
