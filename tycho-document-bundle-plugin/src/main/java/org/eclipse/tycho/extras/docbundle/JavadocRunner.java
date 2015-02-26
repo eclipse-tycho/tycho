@@ -14,6 +14,7 @@ package org.eclipse.tycho.extras.docbundle;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.exec.OS;
@@ -36,9 +37,9 @@ public class JavadocRunner {
 
     private MavenSession session;
 
-    private Set<File> sourceFolders;
+    private Set<File> sourceFolders = Collections.<File> emptySet();
 
-    private Set<File> manifestFiles;
+    private Set<File> manifestFiles = Collections.<File> emptySet();
 
     private Log log;
 
@@ -48,11 +49,15 @@ public class JavadocRunner {
 
     private BundleReader bundleReader;
 
-    private Collection<String> classPath;
+    private Collection<String> classPath = Collections.<String> emptyList();
 
     private String lineSeparator = System.getProperty("line.separator");
 
     private DocletArtifactsResolver docletArtifactsResolver;
+
+    private PackageNameMatcher includeMatcher;
+
+    private PackageNameMatcher excludeMatcher;
 
     public JavadocRunner() {
     }
@@ -120,6 +125,19 @@ public class JavadocRunner {
     }
 
     /* VisibleForTesting */String createOptionsFileContent() throws Exception {
+
+        // initialize include/exclude filters
+        if (options != null) {
+            if (!options.getIncludes().isEmpty()) {
+                includeMatcher = PackageNameMatcher.compile(options.getIncludes());
+                this.log.info("Including packages matching " + includeMatcher);
+            }
+            if (!options.getExcludes().isEmpty()) {
+                excludeMatcher = PackageNameMatcher.compile(options.getExcludes());
+                this.log.info("Excluding packages matching " + excludeMatcher);
+            }
+        }
+
         StringBuilder sb = new StringBuilder();
         addSourcePaths(sb);
         addClassPath(sb);
@@ -193,7 +211,13 @@ public class JavadocRunner {
 
         for (final ManifestElement ele : manifestElements) {
             final String pkg = ele.getValue();
-            sb.append(pkg).append(lineSeparator);
+
+            final boolean include = includeMatcher != null ? includeMatcher.matches(pkg) : true;
+            final boolean exclude = excludeMatcher != null ? excludeMatcher.matches(pkg) : false;
+
+            if (include && !exclude) {
+                sb.append(pkg).append(lineSeparator);
+            }
         }
 
         return manifestElements.length;

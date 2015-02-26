@@ -37,6 +37,10 @@ public class JavadocOptions {
 
     private String encoding;
 
+    private List<String> includes = new LinkedList<String>();
+
+    private List<String> excludes = new LinkedList<String>();
+
     public void setIgnoreError(final boolean ignoreError) {
         this.ignoreError = ignoreError;
     }
@@ -91,6 +95,22 @@ public class JavadocOptions {
 
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    public List<String> getIncludes() {
+        return includes;
+    }
+
+    public void setIncludes(List<String> includes) {
+        this.includes = includes;
+    }
+
+    public List<String> getExcludes() {
+        return excludes;
+    }
+
+    public void setExcludes(List<String> excludes) {
+        this.excludes = excludes;
     }
 
 }

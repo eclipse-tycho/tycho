@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Obeo - initial API and implementation
+ *     Enrico De Fent - test package inclusion/exclusion (see bug 459214)
  *******************************************************************************/
 package org.eclipse.tycho.extras.docbundle;
 
@@ -16,26 +17,39 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.codehaus.plexus.util.cli.Commandline;
+import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * 
- * @author <a href="mailto:mikael.barbero@obeo.fr">Mikael Barbero</a>
- */
 public class TestJavadocRunner {
 
     @Test
     public void testCommandLine() throws Exception {
-        JavadocRunner javadocRunner = new JavadocRunner();
+        JavadocRunner javadocRunner = buildTestRunner();
+        JavadocOptions options = new JavadocOptions();
+        options.setJvmOptions(Arrays.asList("-Xmx512m"));
+        javadocRunner.setOptions(options);
+
+        Commandline commandLine = javadocRunner.createCommandLine("/dev/null");
+
+        String[] cliArgs = commandLine.getArguments();
+        Assert.assertEquals(2, cliArgs.length);
+        Assert.assertEquals("@/dev/null", cliArgs[0]);
+        Assert.assertEquals("-J-Xmx512m", cliArgs[1]);
+    }
+
+    @Test
+    public void testOptionsFile() throws Exception {
+        JavadocRunner javadocRunner = buildTestRunner();
         JavadocOptions options = new JavadocOptions();
         List<Dependency> docletArifacts = new LinkedList<Dependency>();
         DocletArtifactsResolver docletResolver = mock(DocletArtifactsResolver.class);
@@ -43,29 +57,98 @@ public class TestJavadocRunner {
                 "path/to/otherDocletArtifact.jar"));
         when(docletResolver.resolveArtifacts(docletArifacts)).thenReturn(docletArtifactsJarList);
         options.setAdditionalArguments(Arrays.asList("-docencoding \"UTF-8\""));
-        options.setJvmOptions(Arrays.asList("-Xmx512m"));
         options.setDoclet("foo.bar.MyDoclet");
         options.setDocletArtifacts(docletArifacts);
         options.setEncoding("ISO8859_1");
         javadocRunner.setDocletArtifactsResolver(docletResolver);
-        javadocRunner.setLog(new SilentLog());
         javadocRunner.setOptions(options);
         javadocRunner.setSourceFolders(Collections.<File> emptySet());
         javadocRunner.setClassPath(Arrays.asList("rt.jar"));
-        javadocRunner.setManifestFiles(Collections.<File> emptySet());
-        Commandline commandLine = javadocRunner.createCommandLine("/dev/null");
-        String[] cliArgs = commandLine.getArguments();
-        Assert.assertEquals(2, cliArgs.length);
-        Assert.assertEquals("@/dev/null", cliArgs[0]);
-        Assert.assertEquals("-J-Xmx512m", cliArgs[1]);
+        javadocRunner.setManifestFiles(Collections.singleton(getTestBundleRoot()));
 
         String optionsFile = javadocRunner.createOptionsFileContent();
-        String lineSeparator = System.getProperty("line.separator");
-        String expectedOptionsFile = "-classpath 'rt.jar'" + lineSeparator 
-                + "-doclet foo.bar.MyDoclet" + lineSeparator
-                + "-docletpath 'path/to/docletArtifact.jar" + File.pathSeparator + "path/to/otherDocletArtifact.jar'" + lineSeparator
-                + "-encoding ISO8859_1" + lineSeparator
-                + "-docencoding \"UTF-8\"" + lineSeparator;
-        Assert.assertEquals(expectedOptionsFile, optionsFile);
+        AssertOnBuffer aob = new AssertOnBuffer(optionsFile);
+        aob.assertNextLine("-classpath 'rt.jar'");
+        aob.assertNextLine("-doclet foo.bar.MyDoclet");
+        aob.assertNextLine("-docletpath 'path/to/docletArtifact.jar" + File.pathSeparator
+                + "path/to/otherDocletArtifact.jar'");
+        aob.assertNextLine("-encoding ISO8859_1");
+        aob.assertNextLine("-docencoding \"UTF-8\"");
+        aob.assertNextLine("com.example.bundle.core");
+        aob.assertNextLine("com.example.bundle.core.conf");
+        aob.assertNextLine("com.example.bundle.core.internal");
+        aob.assertNextLine("com.acme.other.core");
+        aob.assertNextLine("com.acme.other.core.internal.utils");
+        aob.assertNextLine("com.acme.other.core.internal.ui");
+        aob.assertNextLine("nu.xom");
+        aob.assertNoMoreLines();
+    }
+
+    @Test
+    public void testOptionsFileExclude() throws Exception {
+        final JavadocRunner javadocRunner = buildTestRunner();
+        final JavadocOptions options = new JavadocOptions();
+
+        final List<String> excludes = new LinkedList<String>();
+        excludes.add("*.internal");
+        excludes.add("*.internal.*");
+        excludes.add("*.xom");
+        options.setExcludes(excludes);
+
+        javadocRunner.setOptions(options);
+
+        final Set<File> manifests = new HashSet<File>();
+        File file = getTestBundleRoot();
+        manifests.add(file);
+        javadocRunner.setManifestFiles(manifests);
+
+        String optionsFile = javadocRunner.createOptionsFileContent();
+        AssertOnBuffer aob = new AssertOnBuffer(optionsFile);
+        aob.assertNextLine("com.example.bundle.core");
+        aob.assertNextLine("com.example.bundle.core.conf");
+        aob.assertNextLine("com.acme.other.core");
+        aob.assertNoMoreLines();
+    }
+
+    @Test
+    public void testOptionsFileInclude() throws Exception {
+        final JavadocRunner javadocRunner = buildTestRunner();
+        final JavadocOptions options = new JavadocOptions();
+
+        final List<String> includes = new LinkedList<String>();
+        includes.add("com.example.*");
+        includes.add("nu.xom");
+        options.setIncludes(includes);
+
+        javadocRunner.setOptions(options);
+        javadocRunner.setManifestFiles(Collections.singleton(getTestBundleRoot()));
+
+        String optionsFile = javadocRunner.createOptionsFileContent();
+        AssertOnBuffer aob = new AssertOnBuffer(optionsFile);
+        aob.assertNextLine("com.example.bundle.core");
+        aob.assertNextLine("com.example.bundle.core.conf");
+        aob.assertNextLine("com.example.bundle.core.internal");
+        aob.assertNextLine("nu.xom");
+        aob.assertNoMoreLines();
+    }
+
+    private static final String BUNDLE_ROOT = "bundle";
+
+    /**
+     * Returns the local path of the test bundle.
+     */
+    private File getTestBundleRoot() throws Exception {
+        return new File(getClass().getResource(BUNDLE_ROOT).toURI());
+    }
+
+    /**
+     * Returns a minimal JavadocRunner.
+     */
+    private JavadocRunner buildTestRunner() {
+        final JavadocRunner javadocRunner = new JavadocRunner();
+        javadocRunner.setDocletArtifactsResolver(mock(DocletArtifactsResolver.class));
+        javadocRunner.setLog(new SilentLog());
+        javadocRunner.setBundleReader(new DefaultBundleReader());
+        return javadocRunner;
     }
 }
