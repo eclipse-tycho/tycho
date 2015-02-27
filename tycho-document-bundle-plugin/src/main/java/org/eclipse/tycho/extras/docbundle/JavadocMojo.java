@@ -99,6 +99,8 @@ public class JavadocMojo extends AbstractMojo {
      * <li><tt>encoding</tt>, used as javadoc <tt>-encoding</tt> parameter (default:
      * <tt>${project.build.sourceEncoding}</tt></li>
      * <li><tt>additionalArguments</tt>, a list of additional arguments passed to javadoc</li>
+     * <li><tt>includes</tt>/<tt>excludes</tt>, the list of names of packages to be included in or
+     * excluded from JavaDoc processing; use '<tt>*</tt>' character as wildcard</li>
      * </ul>
      * Example configuration:
      * 
@@ -115,6 +117,12 @@ public class JavadocMojo extends AbstractMojo {
      *             &lt;version&gt;1.0&lt;/version&gt;
      *          &lt;/docletArtifact&gt;
      *       &lt;/docletArtifacts&gt;
+     *       &lt;includes&gt;
+     *          &lt;include&gt;com.example.*&lt;/include&gt;
+     *       &lt;/includes&gt;
+     *       &lt;excludes&gt;
+     *          &lt;exclude&gt;com.example.internal.*&lt;/exclude&gt;
+     *       &lt;/excludes&gt;   
      *       &lt;additionalArguments&gt;
      *          &lt;additionalArgument&gt;-windowtitle "The Window Title"&lt;/additionalArgument&gt;
      *          &lt;additionalArgument&gt;-nosince&lt;/additionalArgument&gt;
