@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_24ed86b3",
+        "filename": "tycho-compiler-plugin/src/test/resources/projects/logs/multiJarMultiDir/src/src/Src.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-02T08:34:11Z",
+      "side": 1,
+      "message": "Omit copyright header?",
+      "revId": "cc46cd342a6e6ea968f6ade955d76d240c668688",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
