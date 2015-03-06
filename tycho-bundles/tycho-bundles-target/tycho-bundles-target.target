@@ -13,7 +13,7 @@
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature.feature.group" version="0.0.0"/>
 <!-- this is a build towards Mars M6; TODO use milestone -->
-<repository location="http://download.eclipse.org/eclipse/updates/4.5-N-builds/N20150216-2000"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.5-I-builds/I20150305-1200"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.mockito" version="1.8.4.v201303031500"/>
