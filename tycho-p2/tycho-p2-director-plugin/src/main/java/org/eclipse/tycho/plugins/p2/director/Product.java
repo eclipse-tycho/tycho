@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 
 /**
@@ -79,6 +80,8 @@ public final class Product {
     }
 
     public String getRootFolder(String os) {
+        if (Constants.OS_MACOSX.equals(os))
+            return getRootFolderMac();
         if (rootFolders == null) {
             return rootFolder;
         } else {
@@ -88,6 +91,19 @@ public final class Product {
                 return rootFolders.get(os);
             }
         }
+    }
+
+    private String getRootFolderMac() {
+        if (rootFolders == null)
+            return "Eclipse.app";
+
+        String folder = null;
+        if (rootFolders.get(Constants.OS_MACOSX) == null) {
+            folder = rootFolder;
+        } else {
+            folder = rootFolders.get(Constants.OS_MACOSX);
+        }
+        return folder.endsWith(".app") ? folder : folder + ".app";
     }
 
     public String getArchiveFileName() {
