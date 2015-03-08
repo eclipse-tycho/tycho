@@ -33,6 +33,7 @@ import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -70,7 +71,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.runtime.Adaptable;
 
 import copied.org.apache.maven.plugin.AbstractCompilerMojo;
-import copied.org.apache.maven.plugin.CompilationFailureException;
 
 public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo implements JavaCompilerConfiguration,
         Adaptable {
@@ -270,14 +270,14 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * ${project.build.directory}/logfiles/lib2_library.jar.xml
      * </pre>
      */
-    @Parameter(defaultValue = "plain")
+    @Parameter
     private String log;
 
     @Component
     ToolchainProvider toolchainProvider;
 
     @Override
-    public void execute() throws MojoExecutionException, CompilationFailureException {
+    public void execute() throws MojoExecutionException, MojoFailureException {
         StandardExecutionEnvironment[] manifestBREEs = bundleReader.loadManifest(project.getBasedir())
                 .getExecutionEnvironments();
         getLog().debug("Manifest BREEs: " + Arrays.toString(manifestBREEs));
@@ -461,7 +461,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Override
     protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots)
-            throws MojoExecutionException {
+            throws MojoExecutionException, MojoFailureException {
         CompilerConfiguration compilerConfiguration = super.getCompilerConfiguration(compileSourceRoots);
         if (useProjectSettings) {
             String prefsFilePath = project.getBasedir() + File.separator + PREFS_FILE_PATH;
@@ -485,9 +485,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return compilerConfiguration;
     }
 
-    private void configureCompilerLog(CompilerConfiguration compilerConfiguration) {
+    private void configureCompilerLog(CompilerConfiguration compilerConfiguration) throws MojoFailureException {
         if (log == null) {
             return;
+        }
+        if (compilerConfiguration.getCustomCompilerArgumentsAsMap().containsKey("-log")) {
+            throw new MojoFailureException("Compiler logging is configured by the 'log' compiler"
+                    + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed.");
         }
         logDirectory.mkdirs();
         String logFileName = null;

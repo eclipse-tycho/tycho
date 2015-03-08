@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.compiler.Compiler;
@@ -272,7 +273,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
     protected abstract File getOutputDirectory();
 
-    public void execute() throws MojoExecutionException, CompilationFailureException {
+    public void execute() throws MojoExecutionException, MojoFailureException {
         // ----------------------------------------------------------------------
         // Look up the compiler. This is done before other code than can
         // cause the mojo to return before the lookup is done possibly resulting
@@ -420,7 +421,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     }
 
     protected CompilerConfiguration getCompilerConfiguration(List<String> compileSourceRoots)
-            throws MojoExecutionException {
+            throws MojoExecutionException, MojoFailureException {
 
         CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
 

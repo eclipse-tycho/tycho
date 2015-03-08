@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>logs</groupId>
-  <artifactId>multiJarSingleDir</artifactId>
+  <artifactId>singleJar</artifactId>
   <packaging>eclipse-plugin</packaging>
   <version>1.0.0</version>
   <build>
@@ -13,8 +13,11 @@
         <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
-          <logDirectory>${project.build.directory}/log-dir</logDirectory>
-          <log>plain</log>
+            <log>plain</log>
+            <compilerArgs>
+              <arg>-log</arg>
+              <arg>${project.build.directory}/@dot.xml</arg>
+            </compilerArgs>
         </configuration>
       </plugin>
     </plugins>

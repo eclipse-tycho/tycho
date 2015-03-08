@@ -13,8 +13,7 @@
         <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
-          <compilerId>jdt</compilerId>
-          <logDirectory>target/projects/logs/singleJar/target/log-dir</logDirectory>
+          <logDirectory>${project.build.directory}/log-dir</logDirectory>
           <log>xml</log>
         </configuration>
       </plugin>

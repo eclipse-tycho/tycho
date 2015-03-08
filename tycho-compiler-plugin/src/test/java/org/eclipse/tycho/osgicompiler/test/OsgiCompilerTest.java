@@ -488,7 +488,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/logs/multiJarSingleDir");
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
-        getMojo(projects, project).execute();
+        lookupConfiguredMojo(project, "compile").execute();
         assertTrue(new File(basedir, "target/log-dir/@dot.log").canRead());
         assertTrue(new File(basedir, "target/log-dir/library.jar.log").canRead());
     }
@@ -497,7 +497,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/logs/multiJarMultiDir");
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
-        getMojo(projects, project).execute();
+        lookupConfiguredMojo(project, "compile").execute();
         assertTrue(new File(basedir, "target/log-dir/@dot.log").canRead());
         assertTrue(new File(basedir, "target/log-dir/lib_library.jar.log").canRead());
     }
@@ -506,8 +506,28 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         File basedir = getBasedir("projects/logs/singleJar");
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
-        getMojo(projects, project).execute();
+        lookupConfiguredMojo(project, "compile").execute();
         assertTrue(new File(basedir, "target/log-dir/@dot.xml").canRead());
     }
 
+    public void testCompilerLogWithCustomComilerArgs() throws Exception {
+        File basedir = getBasedir("projects/logs/customCompilerArgs");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        lookupConfiguredMojo(project, "compile").execute();
+        assertTrue(new File(basedir, "target/@dot.xml").canRead());
+    }
+
+    public void testCompilerLogWithCustomComilerArgsAndLog() throws Exception {
+        File basedir = getBasedir("projects/logs/customCompilerArgsAndLog");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        try {
+            lookupConfiguredMojo(project, "compile").execute();
+            fail();
+        } catch (MojoFailureException e) {
+            assertThat(e.getMessage(), containsString("Compiler logging is configured by the 'log' compiler"
+                    + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed."));
+        }
+    }
 }
