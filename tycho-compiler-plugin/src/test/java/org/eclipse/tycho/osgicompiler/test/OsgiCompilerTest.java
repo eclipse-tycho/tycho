@@ -510,4 +510,24 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertTrue(new File(basedir, "target/log-dir/@dot.xml").canRead());
     }
 
+    public void testCompilerLogWithCustomComilerArgs() throws Exception {
+        File basedir = getBasedir("projects/logs/customCompilerArgs");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        getMojo(projects, project).execute();
+        assertTrue(new File(basedir, "target/@dot.xml").canRead());
+    }
+
+    public void testCompilerLogWithCustomComilerArgsAndLog() throws Exception {
+        File basedir = getBasedir("projects/logs/customCompilerArgsAndLog");
+        List<MavenProject> projects = getSortedProjects(basedir, null);
+        MavenProject project = projects.get(0);
+        try {
+            getMojo(projects, project).execute();
+            fail();
+        } catch (MojoExecutionException e) {
+            assertThat(e.getMessage(), containsString("Compiler logging is configured by the 'log' compiler"
+                    + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed."));
+        }
+    }
 }

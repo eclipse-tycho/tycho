@@ -270,7 +270,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * ${project.build.directory}/logfiles/lib2_library.jar.xml
      * </pre>
      */
-    @Parameter(defaultValue = "plain")
+    @Parameter
     private String log;
 
     @Component
@@ -485,9 +485,13 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return compilerConfiguration;
     }
 
-    private void configureCompilerLog(CompilerConfiguration compilerConfiguration) {
+    private void configureCompilerLog(CompilerConfiguration compilerConfiguration) throws MojoExecutionException {
         if (log == null) {
             return;
+        }
+        if (compilerConfiguration.getCustomCompilerArgumentsAsMap().containsKey("-log")) {
+            throw new MojoExecutionException("Compiler logging is configured by the 'log' compiler"
+                    + " plugin parameter and the custom compiler argument '-log'. Only either of them is allowed.");
         }
         logDirectory.mkdirs();
         String logFileName = null;
