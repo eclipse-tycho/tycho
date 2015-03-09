@@ -81,14 +81,9 @@ public class IUXmlTransformer {
             String range = req.getAttributeValue(IU.RANGE);
             if (range != null && range.endsWith(".qualifier")
                     && IU.P2_IU_NAMESPACE.equals(req.getAttributeValue(IU.NAMESPACE))) {
-                ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.getAttributeValue(IU.NAMESPACE),
-                        req.getAttributeValue(IU.NAME), range, req.toString());
-                if (artifact != null) {
-                    range = artifact.getVersion();
-                    req.setAttribute(IU.RANGE, range);
-                } else {
-                    log.error("Could not replace version for requirement: " + req.toString());
-                }
+                ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.getAttributeValue(IU.NAME),
+                        range, req.toString());
+                req.setAttribute(IU.RANGE, artifact.getVersion());
             }
         }
     }
@@ -99,22 +94,16 @@ public class IUXmlTransformer {
             return;
         for (Element req : requirements) {
             String range = req.getAttributeValue(IU.RANGE);
-            if (range != null && range.contains("0.0.0")
-                    && IU.P2_IU_NAMESPACE.equals(req.getAttributeValue(IU.NAMESPACE))) {
-                ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.getAttributeValue(IU.NAMESPACE),
-                        req.getAttributeValue(IU.NAME), range, req.toString());
-                if (artifact != null) {
-                    range = range.replaceAll("0\\.0\\.0", artifact.getVersion());
-                    req.setAttribute(IU.RANGE, range);
-                } else {
-                    log.error("Could not replace version for requirement: " + req.toString());
-                }
+            if ("0.0.0".equals(range) && IU.P2_IU_NAMESPACE.equals(req.getAttributeValue(IU.NAMESPACE))) {
+                ArtifactKey artifact = resolveRequirementReference(targetPlatform, req.getAttributeValue(IU.NAME),
+                        range, req.toString());
+                req.setAttribute(IU.RANGE, artifact.getVersion());
             }
         }
     }
 
-    private ArtifactKey resolveRequirementReference(TargetPlatform targetPlatform, String namespace, String name,
-            String version, String xml) throws MojoFailureException {
+    private ArtifactKey resolveRequirementReference(TargetPlatform targetPlatform, String name, String version,
+            String xml) throws MojoFailureException {
         try {
             return targetPlatform.resolveArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, name, version);
         } catch (IllegalArtifactReferenceException e) {

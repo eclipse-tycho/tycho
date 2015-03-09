@@ -11,8 +11,6 @@
 package org.eclipse.tycho.packaging;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,19 +33,14 @@ import de.pdark.decentxml.Element;
 
 public class IUXmlTransformerTest {
     private static ArtifactKey junit4InTP;
-    private static File junit4JarLocation;
     private static ArtifactKey hamcrestInTP;
-    private static File hamcrestJarLocation;
 
     private IUXmlTransformer subject;
 
     @BeforeClass
     public static void initTestResources() throws Exception {
         junit4InTP = new DefaultArtifactKey("eclipse-plugin", "org.junit4", "4.8.1.v20100302");
-        junit4JarLocation = TestUtil.getTestResourceLocation("eclipse/plugins/org.junit4_4.8.1.v20100302.jar");
         hamcrestInTP = new DefaultArtifactKey("eclipse-plugin", "org.hamcrest.core", "1.1.0.v20090501071000");
-        hamcrestJarLocation = TestUtil
-                .getTestResourceLocation("eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar");
     }
 
     @Test
@@ -67,11 +60,9 @@ public class IUXmlTransformerTest {
         IU iu = IU.read(new File(TestUtil.getBasedir("projects/iuXmlValueReplacement/"), "p2iu.xml"));
 
         subject.replaceQualifierInCapabilities(iu.getProvidedCapabilites(), "CAPABILITY");
-        assertThat("1.0.0.CAPABILITY", is(not(iu.getVersion())));
         assertThat(iu.getProvidedCapabilites(), hasItem(capability("anotherId", "2.0.0.CAPABILITY")));
         assertThat(iu.getProvidedCapabilites(), hasItem(capability("demo.iu", "1.0.0.CAPABILITY")));
         assertThat(iu.getProvidedCapabilites(), hasItem(capability("demo.iu", "1.1.1.CAPABILITY")));
-        assertThat(iu.getArtifacts(), not(hasItem(artifact("demo.iu", "1.0.0.CAPABILITY"))));
     }
 
     @Test
@@ -81,17 +72,17 @@ public class IUXmlTransformerTest {
 
         TargetPlatform tp = mock(TargetPlatform.class);
         when(tp.resolveArtifact("p2-installable-unit", "org.junit4", "0.0.0")).thenReturn(junit4InTP);
-        when(tp.getArtifactLocation(junit4InTP)).thenReturn(junit4JarLocation);
         when(tp.resolveArtifact("p2-installable-unit", "org.hamcrest.core", "1.1.0.qualifier"))
                 .thenReturn(hamcrestInTP);
-        when(tp.getArtifactLocation(hamcrestInTP)).thenReturn(hamcrestJarLocation);
 
         subject.replaceZerosInRequirements(iu, tp);
+        subject.replaceQualifierInRequirements(iu, tp);
 
         assertThat(iu.getRequiredCapabilites(), hasItem(requirement("org.junit4", "4.8.1.v20100302")));
+        assertThat(iu.getRequiredCapabilites(), hasItem(requirement("org.hamcrest.core", "1.1.0.v20090501071000")));
     }
 
-    private Matcher<Element> requirement(final String id, final String version) {
+    private static Matcher<Element> requirement(final String id, final String version) {
         return new TypeSafeMatcher<Element>() {
 
             @Override
@@ -107,7 +98,7 @@ public class IUXmlTransformerTest {
         };
     }
 
-    private Matcher<Element> capability(final String id, final String version) {
+    private static Matcher<Element> capability(final String id, final String version) {
         return new TypeSafeMatcher<Element>() {
 
             @Override
@@ -123,7 +114,7 @@ public class IUXmlTransformerTest {
         };
     }
 
-    private Matcher<Element> artifact(final String id, final String version) {
+    private static Matcher<Element> artifact(final String id, final String version) {
         return new TypeSafeMatcher<Element>() {
 
             @Override
