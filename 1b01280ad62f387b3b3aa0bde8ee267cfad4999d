@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_3fb29a00",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-09T09:26:34Z",
+      "side": 1,
+      "message": "Should be a MojoFailureException because this is a configuration error. MojoExecutionException should only be used for internal errors.",
+      "range": {
+        "startLine": 493,
+        "startChar": 22,
+        "endLine": 493,
+        "endChar": 44
+      },
+      "revId": "1b01280ad62f387b3b3aa0bde8ee267cfad4999d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_7f82620d",
+        "filename": "tycho-compiler-plugin/src/test/java/org/eclipse/tycho/osgicompiler/test/OsgiCompilerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-09T09:26:34Z",
+      "side": 1,
+      "message": "This method uses lookupMojo instead of the later introduced lookupConfiguredMojo. Only the latter applies the default values. This fix is about a mistake in the default values, so it would make sense to port getMojo to use lookupConfiguredMojo.\n\nIf you decide to do so, it would probably make sense to look through all the other tests and remove the explicit default configuration in their pom.xmls. And this is probably worth a separate change.",
+      "range": {
+        "startLine": 526,
+        "startChar": 12,
+        "endLine": 526,
+        "endChar": 19
+      },
+      "revId": "1b01280ad62f387b3b3aa0bde8ee267cfad4999d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
