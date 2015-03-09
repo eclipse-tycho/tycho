@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_02cca563",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-03-09T14:05:24Z",
+      "side": 1,
+      "message": "I can do that, but then I have to change the method signature of this and the super class. But then I have the problem that also the execute method does throw just the MojoExecutionException which cannot be changed from MojoExecutionException to MojoFailureException.",
+      "parentUuid": "a7fb1785_3fb29a00",
+      "range": {
+        "startLine": 493,
+        "startChar": 22,
+        "endLine": 493,
+        "endChar": 44
+      },
+      "revId": "1b01280ad62f387b3b3aa0bde8ee267cfad4999d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_7f82620d",
         "filename": "tycho-compiler-plugin/src/test/java/org/eclipse/tycho/osgicompiler/test/OsgiCompilerTest.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2015-03-09T09:26:34Z",
       "side": 1,
       "message": "This method uses lookupMojo instead of the later introduced lookupConfiguredMojo. Only the latter applies the default values. This fix is about a mistake in the default values, so it would make sense to port getMojo to use lookupConfiguredMojo.\n\nIf you decide to do so, it would probably make sense to look through all the other tests and remove the explicit default configuration in their pom.xmls. And this is probably worth a separate change.",
+      "range": {
+        "startLine": 526,
+        "startChar": 12,
+        "endLine": 526,
+        "endChar": 19
+      },
+      "revId": "1b01280ad62f387b3b3aa0bde8ee267cfad4999d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_623129f0",
+        "filename": "tycho-compiler-plugin/src/test/java/org/eclipse/tycho/osgicompiler/test/OsgiCompilerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-03-09T14:05:24Z",
+      "side": 1,
+      "message": "I tried to use lookupConfiguredMojo instead of lookupMojo but ran into the following problem.\n\nIf there is a parameters which does have a property specified:\n\n    @Parameter(property \u003d \"maven.compiler.showWarnings\", defaultValue \u003d \"false\")\n    private boolean showWarnings;\n\nand the pom.xml file which is used in the test does set the parameter\n\n   \u003cconfiguration\u003e\n      \u003cshowWarnings\u003etrue\u003c/showWarnings\u003e\n   \u003c/configuration\u003e\n\nin the mojo that gets created by lookupConfiguredMojo showWarnings is set to false. \n\nSo I am using the lookupConfiguredMojo for the tests introduced by the bug regarding the log stuff, and can look into the other tests later.",
+      "parentUuid": "a7fb1785_7f82620d",
       "range": {
         "startLine": 526,
         "startChar": 12,
