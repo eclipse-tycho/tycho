@@ -116,7 +116,7 @@ public class IUXmlTransformer {
     private ArtifactKey resolveRequirementReference(TargetPlatform targetPlatform, String namespace, String name,
             String version, String xml) throws MojoFailureException {
         try {
-            return targetPlatform.resolveReference(ArtifactType.TYPE_INSTALLABLE_UNIT, name, version);
+            return targetPlatform.resolveArtifact(ArtifactType.TYPE_INSTALLABLE_UNIT, name, version);
         } catch (IllegalArtifactReferenceException e) {
             throw new MojoFailureException("Can't resolve reference " + xml);
         }

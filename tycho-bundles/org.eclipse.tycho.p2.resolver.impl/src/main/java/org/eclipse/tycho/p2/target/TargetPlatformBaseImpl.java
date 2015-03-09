@@ -84,7 +84,7 @@ abstract class TargetPlatformBaseImpl implements P2TargetPlatform {
     }
 
     @Override
-    public final org.eclipse.tycho.ArtifactKey resolveReference(String type, String id, String version)
+    public final org.eclipse.tycho.ArtifactKey resolveArtifact(String type, String id, String version)
             throws IllegalArtifactReferenceException, DependencyResolutionException {
         return resolveReference(type, id, ArtifactMatcher.parseAsOSGiVersion(version));
     }

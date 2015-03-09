@@ -80,9 +80,9 @@ public class IUXmlTransformerTest {
         IU iu = IU.read(new File(TestUtil.getBasedir("projects/iuXmlValueReplacement/"), "p2iu.xml"));
 
         TargetPlatform tp = mock(TargetPlatform.class);
-        when(tp.resolveReference("p2-installable-unit", "org.junit4", "0.0.0")).thenReturn(junit4InTP);
+        when(tp.resolveArtifact("p2-installable-unit", "org.junit4", "0.0.0")).thenReturn(junit4InTP);
         when(tp.getArtifactLocation(junit4InTP)).thenReturn(junit4JarLocation);
-        when(tp.resolveReference("p2-installable-unit", "org.hamcrest.core", "1.1.0.qualifier"))
+        when(tp.resolveArtifact("p2-installable-unit", "org.hamcrest.core", "1.1.0.qualifier"))
                 .thenReturn(hamcrestInTP);
         when(tp.getArtifactLocation(hamcrestInTP)).thenReturn(hamcrestJarLocation);
 

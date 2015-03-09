@@ -75,7 +75,7 @@ public interface P2TargetPlatform extends TargetPlatform {
     void saveLocalMavenRepository();
 
     /**
-     * @see #resolveReference(String, String, String)
+     * @see #resolveArtifact(String, String, String)
      */
     ArtifactKey resolveReference(String type, String id, Version version) throws IllegalArtifactReferenceException,
             DependencyResolutionException;

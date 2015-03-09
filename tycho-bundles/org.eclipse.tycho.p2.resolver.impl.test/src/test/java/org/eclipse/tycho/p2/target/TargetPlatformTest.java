@@ -51,7 +51,7 @@ public class TargetPlatformTest {
 
     @Test
     public void testResolveFixedVersion() throws Exception {
-        ArtifactKey key = subject.resolveReference("eclipse-plugin", "some.bundle", "1.1.0.v2013");
+        ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", "1.1.0.v2013");
 
         assertThat(key.getType(), is(ArtifactType.TYPE_ECLIPSE_PLUGIN));
         assertThat(key.getId(), is("some.bundle"));
@@ -63,7 +63,7 @@ public class TargetPlatformTest {
         exceptions.expect(not(isA(IllegalArtifactReferenceException.class))); // not a problem with the syntax
         exceptions.expectMessage("not found in the target platform");
 
-        subject.resolveReference("eclipse-plugin", "other.bundle", "1.0.0");
+        subject.resolveArtifact("eclipse-plugin", "other.bundle", "1.0.0");
     }
 
     @Test
@@ -71,7 +71,7 @@ public class TargetPlatformTest {
         exceptions.expect(IllegalArtifactReferenceException.class);
         exceptions.expectMessage("ID is required");
 
-        subject.resolveReference("eclipse-plugin", null, "1.0.0");
+        subject.resolveArtifact("eclipse-plugin", null, "1.0.0");
     }
 
     @Test
@@ -79,12 +79,12 @@ public class TargetPlatformTest {
         exceptions.expect(IllegalArtifactReferenceException.class);
         exceptions.expectMessage("is not a valid OSGi version");
 
-        subject.resolveReference("eclipse-plugin", "other.bundle", "1.0.0-SNAPSHOT");
+        subject.resolveArtifact("eclipse-plugin", "other.bundle", "1.0.0-SNAPSHOT");
     }
 
     @Test
     public void testResolveLatestVersionThroughZeros() throws Exception {
-        ArtifactKey key = subject.resolveReference("eclipse-plugin", "some.bundle", "0.0.0");
+        ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", "0.0.0");
 
         assertThat(key.getVersion(), is("1.2.0"));
     }
@@ -92,21 +92,21 @@ public class TargetPlatformTest {
     @Test
     public void testResolveLatestVersionThroughOmittedVersion() throws Exception {
         // e.g. when version attribute is omitted
-        ArtifactKey key = subject.resolveReference("eclipse-plugin", "some.bundle", null);
+        ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", null);
 
         assertThat(key.getVersion(), is("1.2.0"));
     }
 
     @Test
     public void testResolveLatestQualifierWithQualifierLiteral() throws Exception {
-        ArtifactKey key = subject.resolveReference("eclipse-plugin", "some.bundle", "1.1.0.qualifier");
+        ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", "1.1.0.qualifier");
 
         assertThat(key.getVersion(), is("1.1.0.v2014"));
     }
 
     @Test
     public void testResolveFixedVersionForThreeSegmentVersion() throws Exception {
-        ArtifactKey key = subject.resolveReference("eclipse-plugin", "some.bundle", "1.1.0");
+        ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "some.bundle", "1.1.0");
 
         // three-segment versions don't have a special semantic in the PDE, so 1.1.0 doesn't resolve to 1.1.0.v2014 (cf. bug 373844)
         assertThat(key.getVersion(), is("1.1.0"));
@@ -117,7 +117,7 @@ public class TargetPlatformTest {
         candidateIUs = createSet(createBundleIU("unit", "1.0.0"), createProductIU("unit", "1.99.0"));
         subject = createTP();
 
-        ArtifactKey key = subject.resolveReference("eclipse-plugin", "unit", ANY_VERSION);
+        ArtifactKey key = subject.resolveArtifact("eclipse-plugin", "unit", ANY_VERSION);
 
         assertThat(key.getType(), is(ArtifactType.TYPE_ECLIPSE_PLUGIN));
         assertThat(key.getId(), is("unit"));
@@ -129,7 +129,7 @@ public class TargetPlatformTest {
         candidateIUs = createSet(createBundleIU("unit", "2.0.0"), createProductIU("unit", "1.99.0"));
         subject = createTP();
 
-        ArtifactKey key = subject.resolveReference("eclipse-product", "unit", ANY_VERSION);
+        ArtifactKey key = subject.resolveArtifact("eclipse-product", "unit", ANY_VERSION);
 
         assertThat(key.getType(), is(ArtifactType.TYPE_ECLIPSE_PRODUCT));
         assertThat(key.getId(), is("unit"));
@@ -141,7 +141,7 @@ public class TargetPlatformTest {
         candidateIUs = createSet(createBundleIU("unit", "2.0.0"), createProductIU("unit", "1.99.0"));
         subject = createTP();
 
-        ArtifactKey key = subject.resolveReference("p2-installable-unit", "unit", ANY_VERSION);
+        ArtifactKey key = subject.resolveArtifact("p2-installable-unit", "unit", ANY_VERSION);
 
         assertThat(key.getType(), is(ArtifactType.TYPE_INSTALLABLE_UNIT));
         assertThat(key.getId(), is("unit"));
@@ -154,7 +154,7 @@ public class TargetPlatformTest {
                 createFeatureIU("unit", "1.2.0"));
         subject = createTP();
 
-        ArtifactKey key = subject.resolveReference("eclipse-feature", "unit", ANY_VERSION);
+        ArtifactKey key = subject.resolveArtifact("eclipse-feature", "unit", ANY_VERSION);
 
         assertThat(key.getType(), is(ArtifactType.TYPE_ECLIPSE_FEATURE));
         assertThat(key.getId(), is("unit")); // id is feature id
@@ -166,7 +166,7 @@ public class TargetPlatformTest {
         exceptions.expect(IllegalArtifactReferenceException.class);
         exceptions.expectMessage("Unknown artifact type");
 
-        subject.resolveReference("invalid-type", "unit", ANY_VERSION);
+        subject.resolveArtifact("invalid-type", "unit", ANY_VERSION);
     }
 
     private FinalTargetPlatformImpl createTP() {
