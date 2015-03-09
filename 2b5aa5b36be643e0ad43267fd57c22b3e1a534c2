@@ -154,6 +154,24 @@
       "revId": "2b5aa5b36be643e0ad43267fd57c22b3e1a534c2",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_3ffd7ae1",
+        "filename": "tycho-packaging-plugin/src/test/resources/eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-09T11:56:20Z",
+      "side": 1,
+      "message": "I just realized that this jar was copied from tycho-its/repositories/junit4/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar\n\nSo much for \"our jar files are stripped...\"",
+      "parentUuid": "a7fb1785_1f3a3e80",
+      "revId": "2b5aa5b36be643e0ad43267fd57c22b3e1a534c2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
