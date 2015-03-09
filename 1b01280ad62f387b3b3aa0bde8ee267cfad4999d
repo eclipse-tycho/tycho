@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_9d14764c",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-03-09T17:17:04Z",
+      "side": 1,
+      "message": "Sure, go ahead. What do you think about Davids comment in the bug, that failing the build in that case might not be the best solution?\nIf we change that to just log a warning, we do not need to care about an exception here.",
+      "parentUuid": "a7fb1785_62576952",
+      "range": {
+        "startLine": 493,
+        "startChar": 22,
+        "endLine": 493,
+        "endChar": 44
+      },
+      "revId": "1b01280ad62f387b3b3aa0bde8ee267cfad4999d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_7f82620d",
         "filename": "tycho-compiler-plugin/src/test/java/org/eclipse/tycho/osgicompiler/test/OsgiCompilerTest.java",
         "patchSetId": 1
