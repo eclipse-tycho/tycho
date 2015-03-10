@@ -15,11 +15,14 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.impl.Activator;
 
 /**
  * p2 {@link CacheManager} instance caching the p2 repository indices (i.e. <tt>content.xml</tt> and
@@ -53,9 +56,11 @@ class RemoteRepositoryCacheManager extends CacheManager {
             if (cacheFile != null) {
                 return cacheFile;
             }
-
-            throw new ProvisionException("Repository system is offline and no local cache available for "
-                    + repositoryLocation.toString());
+            // TODO move pluginid to BundleConstants
+            throw new ProvisionException(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+                    ProvisionException.REPOSITORY_NOT_FOUND,
+                    "Repository system is offline and no local cache available for " + repositoryLocation.toString(),
+                    null));
         } else {
             /**
              * Here, we could implement a cache refreshment policy, but the
