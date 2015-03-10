@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SAP SE and others.
+ * Copyright (c) 2011, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,11 @@ package org.eclipse.tycho.p2.target;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Set;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -24,11 +25,10 @@ import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.impl.publisher.MavenPropertiesAdvice;
-import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
-import org.eclipse.tycho.p2.repository.MavenRepositoryCoordinates;
 import org.eclipse.tycho.repository.local.GAVArtifactDescriptor;
 import org.eclipse.tycho.repository.p2base.artifact.provider.IRawArtifactFileProvider;
 import org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicies;
@@ -39,10 +39,10 @@ import org.eclipse.tycho.repository.util.StatusTool;
 public class TargetPlatformBundlePublisher {
 
     private final MavenLogger logger;
-    private final PublishedBundlesArtifactRepository publishedArtifacts;
+    private final PublishedBundlesArtifactRepository allPublishedArtifacts;
 
     public TargetPlatformBundlePublisher(File localMavenRepositoryRoot, MavenLogger logger) {
-        this.publishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepositoryRoot);
+        this.allPublishedArtifacts = new PublishedBundlesArtifactRepository(localMavenRepositoryRoot);
         this.logger = logger;
     }
 
@@ -79,7 +79,7 @@ public class TargetPlatformBundlePublisher {
             return null;
         }
 
-        PublisherRun publisherRun = new PublisherRun(mavenArtifact);
+        PublisherRun publisherRun = new PublisherRun(mavenArtifact, allPublishedArtifacts);
         IStatus status = publisherRun.execute();
 
         if (!status.isOK()) {
@@ -93,8 +93,8 @@ public class TargetPlatformBundlePublisher {
 
         IInstallableUnit publishedIU = publisherRun.getPublishedUnitIfExists();
         if (publishedIU != null) {
-            IArtifactDescriptor publishedDescriptor = publisherRun.getPublishedArtifactDescriptor();
-            publishedArtifacts.addPublishedArtifact(publishedDescriptor, mavenArtifact);
+            IArtifactKey publishedArtifactKey = publisherRun.getPublishedArtifact(publishedIU);
+            allPublishedArtifacts.verifyArtifactFileLocation(mavenArtifact, publishedArtifactKey);
         }
 
         return publishedIU;
@@ -110,7 +110,7 @@ public class TargetPlatformBundlePublisher {
     }
 
     IRawArtifactFileProvider getArtifactRepoOfPublishedBundles() {
-        return publishedArtifacts;
+        return allPublishedArtifacts;
     }
 
     private static class PublisherRun {
@@ -120,11 +120,12 @@ public class TargetPlatformBundlePublisher {
         private final IArtifactFacade mavenArtifact;
 
         private PublisherInfo publisherInfo;
-        private TransientArtifactRepository collectedDescriptors;
+        private final IArtifactRepository artifactRepository;
         private PublisherResult publisherResult;
 
-        PublisherRun(IArtifactFacade artifact) {
+        PublisherRun(IArtifactFacade artifact, IArtifactRepository artifactRepository) {
             this.mavenArtifact = artifact;
+            this.artifactRepository = artifactRepository;
         }
 
         IStatus execute() {
@@ -139,8 +140,7 @@ public class TargetPlatformBundlePublisher {
 
         private void enableArtifactDescriptorCollection() {
             publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
-            collectedDescriptors = new TransientArtifactRepository();
-            publisherInfo.setArtifactRepository(collectedDescriptors);
+            publisherInfo.setArtifactRepository(artifactRepository);
         }
 
         private void enableUnitAnnotationWithGAV() {
@@ -168,16 +168,16 @@ public class TargetPlatformBundlePublisher {
             }
         }
 
-        IArtifactDescriptor getPublishedArtifactDescriptor() {
-            Set<IArtifactDescriptor> descriptors = collectedDescriptors.getArtifactDescriptors();
-            if (descriptors.isEmpty()) {
-                throw new AssertionFailedException(EXCEPTION_CONTEXT
-                        + "BundlesAction did not create an artifact entry for " + mavenArtifact.getLocation());
-            } else if (descriptors.size() == 1) {
-                return descriptors.iterator().next();
+        IArtifactKey getPublishedArtifact(IInstallableUnit publishedIU) {
+            Collection<IArtifactKey> publishedArtifacts = publishedIU.getArtifacts();
+            if (publishedArtifacts.size() == 0) {
+                throw new AssertionFailedException(EXCEPTION_CONTEXT + "BundlesAction did not produce an artifact for "
+                        + mavenArtifact.getLocation());
+            } else if (publishedArtifacts.size() == 1) {
+                return publishedArtifacts.iterator().next();
             } else {
                 throw new AssertionFailedException(EXCEPTION_CONTEXT
-                        + "BundlesAction created more than one artifact entry for " + mavenArtifact.getLocation());
+                        + "BundlesAction produced more than one artifact for " + mavenArtifact.getLocation());
             }
         }
     }
@@ -209,35 +209,16 @@ public class TargetPlatformBundlePublisher {
             super(null, localMavenRepositoryRoot.toURI(), ArtifactTransferPolicies.forLocalArtifacts());
         }
 
-        void addPublishedArtifact(IArtifactDescriptor baseDescriptor, IArtifactFacade mavenArtifact) {
-            // TODO allow other extensions than the default ("jar")?
-            MavenRepositoryCoordinates repositoryCoordinates = new MavenRepositoryCoordinates(
-                    mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), mavenArtifact.getVersion(),
-                    mavenArtifact.getClassifier(), null);
-
-            GAVArtifactDescriptor descriptorForRepository = new GAVArtifactDescriptor(baseDescriptor,
-                    repositoryCoordinates);
-
-            File requiredArtifactLocation = new File(getBaseDir(), descriptorForRepository.getMavenCoordinates()
-                    .getLocalRepositoryPath());
-            File actualArtifactLocation = mavenArtifact.getLocation();
-            if (!equivalentPaths(requiredArtifactLocation, actualArtifactLocation)) {
-                throw new AssertionFailedException(
-                        "The Maven artifact to be added to the target platform is not stored at the required location on disk: required \""
-                                + requiredArtifactLocation + "\" but was \"" + actualArtifactLocation + "\"");
-            }
-
-            internalAddInternalDescriptor(descriptorForRepository);
-        }
-
-        private boolean equivalentPaths(File path, File otherPath) {
-            return path.equals(otherPath);
+        @Override
+        public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+            // TODO 461827 use type ArtifactDescriptor once p2 allows this; cf. MavenPropertiesAdvice
+            return new SimpleArtifactDescriptor(key);
         }
 
         @Override
         protected GAVArtifactDescriptor getInternalDescriptorForAdding(IArtifactDescriptor descriptor) {
-            // artifacts are only added via the dedicated method
-            throw new UnsupportedOperationException();
+            // TODO debug output
+            return toInternalDescriptor(descriptor);
         }
 
         @Override
@@ -261,6 +242,21 @@ public class TargetPlatformBundlePublisher {
         protected File internalGetArtifactStorageLocation(IArtifactDescriptor descriptor) {
             String relativePath = toInternalDescriptor(descriptor).getMavenCoordinates().getLocalRepositoryPath();
             return new File(getBaseDir(), relativePath);
+        }
+
+        /**
+         * In the publisher setup above, only artifact descriptors are added to this repository. The
+         * artifacts are already assumed to be in the right place. This method verifies this to
+         * prevent errors when trying to read the artifacts later on.
+         */
+        public void verifyArtifactFileLocation(IArtifactFacade mavenArtifact, IArtifactKey publishedArtifact) {
+            File actualArtifactLocation = mavenArtifact.getLocation();
+            File requiredArtifactLocation = getArtifactFile(publishedArtifact);
+            if (!requiredArtifactLocation.equals(actualArtifactLocation)) {
+                throw new AssertionFailedException(
+                        "The Maven artifact to be added to the target platform is not stored at the required location on disk: required \""
+                                + requiredArtifactLocation + "\" but was \"" + actualArtifactLocation + "\"");
+            }
         }
 
         private File getBaseDir() {

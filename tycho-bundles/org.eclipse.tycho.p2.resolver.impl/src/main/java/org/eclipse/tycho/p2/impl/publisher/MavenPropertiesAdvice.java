@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,8 +39,9 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
         }
     }
 
+    @Override
     public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
-        // TODO this is a nasty hack, and it doesn't even work; see org.eclipse.equinox.p2.publisher.AbstractPublisherAction.processArtifactPropertiesAdvice(IInstallableUnit, IArtifactDescriptor, IPublisherInfo) 
+        // TODO 461827 this is a hack; fix org.eclipse.equinox.p2.publisher.AbstractPublisherAction.processArtifactPropertiesAdvice so that p2 itself adds the properties 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
@@ -49,10 +50,12 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
         return null;
     }
 
+    @Override
     public Map<String, String> getInstallableUnitProperties(InstallableUnitDescription iu) {
         return properties;
     }
 
+    @Override
     public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
         return true;
     }
