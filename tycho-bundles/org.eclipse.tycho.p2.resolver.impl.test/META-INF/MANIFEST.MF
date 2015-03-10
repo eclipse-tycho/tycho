@@ -6,6 +6,7 @@ Bundle-Version: 0.23.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Fragment-Host: org.eclipse.tycho.p2.resolver.impl
 Require-Bundle: org.junit,
+ org.apache.commons.io,
  org.eclipse.equinox.ds,
  org.eclipse.equinox.p2.transport.ecf
 Bundle-ActivationPolicy: lazy

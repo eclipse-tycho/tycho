@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SAP SE and others.
+ * Copyright (c) 2011, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,13 +13,15 @@ package org.eclipse.tycho.p2.testutil;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.IU_CAPABILITY_NS;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitUtil.PRODUCT_TYPE_PROPERTY;
 
+import java.util.Map;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
+import org.eclipse.tycho.repository.testutil.ArtifactPropertiesMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -84,21 +86,18 @@ public class InstallableUnitMatchers {
 
     public static Matcher<IInstallableUnit> hasGAV(final String groupId, final String artifactId, final String version,
             final String classifier) {
+        final Matcher<Map<String, String>> propertiesMatcher = ArtifactPropertiesMatchers.containsGAV(groupId,
+                artifactId, version, classifier);
         return new TypeSafeMatcher<IInstallableUnit>() {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText(TYPE + " with GAV " + gavString(groupId, artifactId, version, classifier));
+                description.appendText(TYPE).appendText(" with ").appendDescriptionOf(propertiesMatcher);
             }
 
             @Override
             public boolean matchesSafely(IInstallableUnit item) {
-                String actualGroupId = item.getProperty(RepositoryLayoutHelper.PROP_GROUP_ID);
-                String actualArtifactId = item.getProperty(RepositoryLayoutHelper.PROP_ARTIFACT_ID);
-                String actualVersion = item.getProperty(RepositoryLayoutHelper.PROP_VERSION);
-                String actualClassifier = item.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER);
-                return isEqual(groupId, actualGroupId) && isEqual(artifactId, actualArtifactId)
-                        && isEqual(version, actualVersion) && isEqual(classifier, actualClassifier);
+                return propertiesMatcher.matches(item.getProperties());
             }
         };
     }
@@ -214,20 +213,6 @@ public class InstallableUnitMatchers {
             }
 
         };
-    }
-
-    static String gavString(String groupId, String artifactId, String version, String classifier) {
-        return groupId + ":" + artifactId + ":" + version + (classifier == null ? "" : ":" + classifier);
-    }
-
-    static <T> boolean isEqual(T left, T right) {
-        if (left == right) {
-            return true;
-        }
-        if (left == null) {
-            return false;
-        }
-        return left.equals(right);
     }
 
 }
