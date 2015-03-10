@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_53579d51",
+        "filename": "tycho-compiler-plugin/src/test/java/org/eclipse/tycho/osgicompiler/test/OsgiCompilerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T10:36:24Z",
+      "side": 1,
+      "message": "Oops, forgot to adapt this.\n\n@Martin: Could you please fix this when you are anyway touching this change?",
+      "range": {
+        "startLine": 528,
+        "startChar": 17,
+        "endLine": 528,
+        "endChar": 39
+      },
+      "revId": "67039a5997122dc6497139944d768e5abed0d9a9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
