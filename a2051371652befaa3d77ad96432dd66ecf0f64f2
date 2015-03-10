@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_b3b52166",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T16:44:45Z",
+      "side": 1,
+      "message": "Please add a\n\n Bug: 437896\n\nfooter line in the commit message, so that Gerrit and EGit display it as a link.\n\nSee also https://wiki.eclipse.org/Tycho/Contributor_Guide#Commit_Message_Guidelines",
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_732e1947",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl.test/resources/platformbuilder/pom-dependencies/bundle-repo/example/group/example.artifact/0.8.16-SNAPSHOT/example.artifact-0.8.16-SNAPSHOT.jar",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T16:44:45Z",
+      "side": 1,
+      "message": "Is this a file which is new to the Tycho sources, or did you copy it from somewhere else in the Tycho source tree?\n\nWhile having binary files in the Git repository as test data is very convenient, we try to avoid adding more of them (unless really necessary).",
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_b3288137",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ArtifactFacadeKey.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T16:44:45Z",
+      "side": 1,
+      "message": "Copyright header is missing. Is this file based on another file? If yes, copy and adapt the original copyright header. Or did you write this file from scratch? If yes, add the copyright header with the copyright that applies to this file.",
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_b38361a5",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ArtifactFacadeKey.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T16:44:45Z",
+      "side": 1,
+      "message": "We don\u0027t use @author tags. Please remove. If you are keen to see your name in the sources, you could add it in the copyright header.",
+      "range": {
+        "startLine": 13,
+        "startChar": 3,
+        "endLine": 13,
+        "endChar": 17
+      },
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_7360d977",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBundlePublisher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T16:44:45Z",
+      "side": 1,
+      "message": "Is it necessary to declare these variable here? If not, I\u0027d prefer the smaller diff, i.e. keep the declaration with the initialization below.",
+      "range": {
+        "startLine": 74,
+        "startChar": 8,
+        "endLine": 75,
+        "endChar": 55
+      },
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_331491cf",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBundlePublisherService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T16:44:45Z",
+      "side": 1,
+      "message": "Is this a realistic number? Do you have some examples of how many pom dependencies a typical (your?) project has?\n\nI think that it would make sense to allow tweaking this number through a system property.",
+      "range": {
+        "startLine": 26,
+        "startChar": 51,
+        "endLine": 26,
+        "endChar": 56
+      },
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_13bd1520",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBundlePublisherService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T16:44:45Z",
+      "side": 1,
+      "message": "This is surprising: To avoid the MD5 computation, you are caching IInstallableUnits - which don\u0027t contain any MD5s.\n\nIf the main goal is to avoid the MD5 re-computation, it seems that there is an easier solution. The p2 BundlesAction (which is called further down the call stack from here) contains this code:\n\n // if the destination already contains the descriptor, there is nothing to do.\n IArtifactRepository destination \u003d publisherInfo.getArtifactRepository();\n if (destination \u003d\u003d null || destination.contains(descriptor))\n     return;\n\nCurrently, destination is null. But this could be changed. I think I\u0027ll propose a change that does this, and then you can profile again and see if this already solves the problem.",
+      "range": {
+        "startLine": 30,
+        "startChar": 38,
+        "endLine": 30,
+        "endChar": 85
+      },
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_73cf39d6",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBundlePublisherService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-10T16:44:45Z",
+      "side": 1,
+      "message": "IMHO it the full history (\"during profiling...\") is not necessary to understand this code.\n\nI suppose that it would be enough to say \"cache IInstallableUnits to avoid repeated computation of MD5 hashes for the artifacts\"",
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
