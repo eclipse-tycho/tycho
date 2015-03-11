@@ -76,6 +76,29 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_6a3bbb87",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/PomDependencyCollectorImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-11T08:24:57Z",
+      "side": 1,
+      "message": "Is this correct? Given that TargetPlatformBundlePublisherService is a cache, shouldn\u0027t there just be a single instance?",
+      "range": {
+        "startLine": 47,
+        "startChar": 32,
+        "endLine": 47,
+        "endChar": 72
+      },
+      "revId": "a2051371652befaa3d77ad96432dd66ecf0f64f2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_7360d977",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBundlePublisher.java",
         "patchSetId": 1
