@@ -22,10 +22,10 @@
 
   <dependencies>
     <dependency>
-      <!-- CQ https://dev.eclipse.org/ipzilla/show_bug.cgi?id=6591 -->
+      <!-- XXX need to do CQ ritual -->
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-debug-all</artifactId>
-      <version>4.0</version>
+      <version>5.0.3</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>

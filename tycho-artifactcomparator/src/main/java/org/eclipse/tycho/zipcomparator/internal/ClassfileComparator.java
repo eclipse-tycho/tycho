@@ -61,7 +61,7 @@ public class ClassfileComparator implements ContentsComparator {
     private String disassemble(byte[] bytes) {
         ClassReader reader = new ClassReader(bytes);
         ClassNode clazz = new ClassNode();
-        reader.accept(clazz, Opcodes.ASM4 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+        reader.accept(clazz, Opcodes.ASM5 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 
         // inner class list gets reordered during pack200 normalization
         if (clazz.innerClasses != null) {
