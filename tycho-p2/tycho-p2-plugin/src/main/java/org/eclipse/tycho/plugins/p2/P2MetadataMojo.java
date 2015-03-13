@@ -131,9 +131,9 @@ public class P2MetadataMojo extends AbstractMojo {
             artifacts.add(projectDefaultArtifact);
 
             for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
-                if (attachedArtifact.getFile() != null
-                        && (attachedArtifact.getFile().getName().endsWith(".jar") || attachedArtifact.getFile()
-                                .getName().endsWith(".zip"))) {
+                if (attachedArtifact.getFile() != null && (attachedArtifact.getFile().getName().endsWith(".jar")
+                        || (attachedArtifact.getFile().getName().endsWith(".zip")
+                                && project.getPackaging().equals("p2-installable-unit")))) {
                     artifacts.add(new ArtifactFacade(attachedArtifact));
                 }
             }
