@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,11 +13,11 @@ package org.eclipse.tycho.test.TYCHO0439repositoryCategories;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.codehaus.plexus.archiver.zip.ZipEntry;
-import org.codehaus.plexus.archiver.zip.ZipFile;
+import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -42,12 +42,14 @@ public class RepositoryCategoriesTest extends AbstractTychoIntegrationTest {
 
         XMLParser parser = new XMLParser();
         Document document = null;
-        ZipFile contentJar = new ZipFile(content);
+        ZipUnArchiver contentJar = new ZipUnArchiver(content);
+        TemporaryFolder tempFolder = new TemporaryFolder();
+        tempFolder.create();
         try {
-            ZipEntry contentXmlEntry = contentJar.getEntry("content.xml");
-            document = parser.parse(new XMLIOSource(contentJar.getInputStream(contentXmlEntry)));
+            contentJar.extract("content.xml", tempFolder.getRoot());
+            document = parser.parse(new XMLIOSource(new File(tempFolder.getRoot(), "content.xml")));
         } finally {
-            contentJar.close();
+            tempFolder.delete();
         }
         Element repository = document.getRootElement();
         all_units: for (Element unit : repository.getChild("units").getChildren("unit")) {
