@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,10 +11,10 @@
 package org.eclipse.tycho.test.TYCHO0439repositoryCategories;
 
 import java.io.File;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
-import org.codehaus.plexus.archiver.zip.ZipEntry;
-import org.codehaus.plexus.archiver.zip.ZipFile;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,8 +44,8 @@ public class RepositoryCategoriesTest extends AbstractTychoIntegrationTest {
         Document document = null;
         ZipFile contentJar = new ZipFile(content);
         try {
-            ZipEntry contentXmlEntry = contentJar.getEntry("content.xml");
-            document = parser.parse(new XMLIOSource(contentJar.getInputStream(contentXmlEntry)));
+            ZipEntry entry = contentJar.getEntry("content.xml");
+            document = parser.parse(new XMLIOSource(contentJar.getInputStream(entry)));
         } finally {
             contentJar.close();
         }
