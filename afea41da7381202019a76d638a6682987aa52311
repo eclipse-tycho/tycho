@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_51b81962",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-03-19T12:23:26Z",
+      "side": 1,
+      "message": "unfortunately we need to file CQs for the full transitive dependency chain, one CQ per library and version...\n\nThat\u0027s simply how the eclipse IP process works.\n\nI hope this doesn\u0027t pull in a whole slew of deps we didn\u0027t file a CQ yet for.\nWe did file a generic CQ for everything that maven brings out of the box, so contact me on tycho-dev if you are unsure about whether to file a CQ a transitive dependency.\n\nalso, test-scope dependencies can be ignored.\n\nplease reference the created CQs in bugzilla (you can also add  CQ: \u003cnumber\u003e footers in the commit message which will gnerate a link)",
+      "parentUuid": "a7fb1785_b1acdd74",
+      "revId": "afea41da7381202019a76d638a6682987aa52311",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_5603ef83",
         "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/TYCHO0439repositoryCategories/RepositoryCategoriesTest.java",
         "patchSetId": 1
