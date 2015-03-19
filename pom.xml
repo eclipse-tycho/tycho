@@ -93,6 +93,7 @@
 		<module>tycho-buildtimestamp-jgit</module>
 		<module>tycho-sourceref-jgit</module>
 		<module>target-platform-validation-plugin</module>
+		<module>tycho-pomless</module>
 	</modules>
 
 	<repositories>
@@ -137,6 +138,18 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-model</artifactId>
+				<version>${maven-version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-model-builder</artifactId>
+				<version>${maven-version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.maven.plugin-tools</groupId>
 				<artifactId>maven-plugin-annotations</artifactId>
 				<version>${plugin-tools-version}</version>
@@ -167,6 +180,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-testing-harness</artifactId>
 				<version>${tycho-version}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.tycho</groupId>
@@ -193,6 +207,11 @@
 				<artifactId>tycho-bundles-external</artifactId>
 				<version>${tycho-version}</version>
 				<type>zip</type>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-pomless</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -226,6 +245,7 @@
 				<artifactId>maven-source-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>source-jar</id>
 						<goals>
 							<goal>jar-no-fork</goal>
 						</goals>
@@ -412,6 +432,12 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>its</id>
+			<modules>
+				<module>tycho-extras-its</module>
+			</modules>
 		</profile>
 	</profiles>
 	<distributionManagement>
