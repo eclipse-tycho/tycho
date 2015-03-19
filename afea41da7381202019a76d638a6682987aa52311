@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_d1c1a998",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-03-19T13:40:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_51b81962",
+      "revId": "afea41da7381202019a76d638a6682987aa52311",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_5603ef83",
         "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/TYCHO0439repositoryCategories/RepositoryCategoriesTest.java",
         "patchSetId": 1
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_f1c665ac",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/TYCHO0439repositoryCategories/RepositoryCategoriesTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-03-19T13:40:28Z",
+      "side": 1,
+      "message": "Was able to use the java util zip stuff, which can deal with input streams instead of extracting the file first",
+      "parentUuid": "a7fb1785_5603ef83",
+      "revId": "afea41da7381202019a76d638a6682987aa52311",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_7600ab74",
         "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/product/Util.java",
         "patchSetId": 1
@@ -83,6 +119,24 @@
       "writtenOn": "2015-03-19T08:33:13Z",
       "side": 1,
       "message": "it should be possible to do this with streaming, no temp folder should be required.",
+      "revId": "afea41da7381202019a76d638a6682987aa52311",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_5195b994",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/product/Util.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-03-19T13:40:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7fb1785_7600ab74",
       "revId": "afea41da7381202019a76d638a6682987aa52311",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
