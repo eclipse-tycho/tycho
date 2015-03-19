@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_f6ebfb17",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-03-19T08:33:13Z",
+      "side": 1,
+      "message": "we need to file CQs for the new versions of plexus-io and plexus-archiver used here (and possibly their transitive depndencies). See existing CQs\n\nhttps://dev.eclipse.org/ipzilla/buglist.cgi?query_format\u003dadvanced\u0026product\u003dtechnology\u0026component\u003dtechnology.tycho\n\n(need to login with committer credentials)",
+      "revId": "afea41da7381202019a76d638a6682987aa52311",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_5603ef83",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/TYCHO0439repositoryCategories/RepositoryCategoriesTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-03-19T08:33:13Z",
+      "side": 1,
+      "message": "you can simply use a field with  @Rule, the temp folder will be deleted automatically on teardown",
+      "revId": "afea41da7381202019a76d638a6682987aa52311",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_7600ab74",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/product/Util.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-03-19T08:33:13Z",
+      "side": 1,
+      "message": "it should be possible to do this with streaming, no temp folder should be required.",
+      "revId": "afea41da7381202019a76d638a6682987aa52311",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
