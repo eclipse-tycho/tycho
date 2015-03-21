@@ -337,8 +337,11 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             allRemoteArtifactRepositories.addAll(targetDefinitionContent.getArtifactRepositoryLocations());
         }
 
-        return new RepositoryArtifactProvider(allRemoteArtifactRepositories,
-                ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent);
+        IProgressMonitor monitor = new DuplicateFilteringLoggingProgressMonitor(logger);
+
+        RepositoryArtifactProvider provider = new RepositoryArtifactProvider(allRemoteArtifactRepositories,
+                ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent, monitor);
+        return provider;
     }
 
     private Map<IInstallableUnit, ReactorProjectIdentities> getPreliminaryReactorProjectUIs(

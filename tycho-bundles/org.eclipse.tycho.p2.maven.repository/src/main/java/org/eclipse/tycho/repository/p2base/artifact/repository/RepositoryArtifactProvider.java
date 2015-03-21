@@ -45,17 +45,20 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
 
         private IArtifactRepositoryManager repositoryManager;
         private List<URI> repositoryURLs;
+        private IProgressMonitor progressMonitor;
 
-        RepositoryLoader(List<URI> repositoryURLs, IArtifactRepositoryManager repositoryManager) {
+        RepositoryLoader(List<URI> repositoryURLs, IArtifactRepositoryManager repositoryManager,
+                IProgressMonitor progressMonitor) {
             this.repositoryURLs = repositoryURLs;
             this.repositoryManager = repositoryManager;
+            this.progressMonitor = progressMonitor;
         }
 
         List<IArtifactRepository> loadRepositories() {
             List<IArtifactRepository> result = new ArrayList<IArtifactRepository>(repositoryURLs.size());
             for (URI repositoryURL : repositoryURLs) {
                 try {
-                    result.add(repositoryManager.loadRepository(repositoryURL, null));
+                    result.add(repositoryManager.loadRepository(repositoryURL, progressMonitor));
                 } catch (ProvisionException e) {
                     // don't ignore if repositories can't be loaded
                     // TODO improve message?
@@ -84,7 +87,12 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
 
     public RepositoryArtifactProvider(List<URI> artifactRepositories, ArtifactTransferPolicy transferPolicy,
             IProvisioningAgent agent) {
-        this(new RepositoryLoader(artifactRepositories, getRepositoryManager(agent)), transferPolicy);
+        this(artifactRepositories, transferPolicy, agent, null);
+    }
+
+    public RepositoryArtifactProvider(List<URI> artifactRepositories, ArtifactTransferPolicy transferPolicy,
+            IProvisioningAgent agent, IProgressMonitor monitor) {
+        this(new RepositoryLoader(artifactRepositories, getRepositoryManager(agent), monitor), transferPolicy);
     }
 
     RepositoryArtifactProvider(RepositoryLoader repositoryLoader, ArtifactTransferPolicy transferPolicy) {
