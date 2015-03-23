@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_1cc34105",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformFactoryImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-03-23T07:36:57Z",
+      "side": 1,
+      "message": "There is already a monitor field in this class which is also a DuplicateFilteringLoggingProgressMonitor (see line #95).\nSo there is no need to create another instance here - right?",
+      "range": {
+        "startLine": 340,
+        "startChar": 25,
+        "endLine": 340,
+        "endChar": 32
+      },
+      "revId": "0b4b6aefd46d767bba171b2378fffb93ae35c30c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
