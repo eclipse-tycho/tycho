@@ -83,7 +83,7 @@ public class FileRepositoryArtifactProviderTest {
     }
 
     private static RepositoryLoader loaderFor(final IArtifactRepository repository) throws Exception {
-        return new RepositoryLoader(null, null) {
+        return new RepositoryLoader(null, null, null) {
             @Override
             List<IArtifactRepository> loadRepositories() {
                 return Collections.singletonList(repository);

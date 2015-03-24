@@ -338,7 +338,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
 
         return new RepositoryArtifactProvider(allRemoteArtifactRepositories,
-                ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent);
+                ArtifactTransferPolicies.forRemoteArtifacts(), remoteAgent, monitor);
     }
 
     private Map<IInstallableUnit, ReactorProjectIdentities> getPreliminaryReactorProjectUIs(
