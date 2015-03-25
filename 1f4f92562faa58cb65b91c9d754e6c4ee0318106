@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_d9170004",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-25T12:36:52Z",
+      "side": 1,
+      "message": "The implementation is all in all pretty obvious. IMHO describing the effect of this change would have been more interesting, e.g. what is now additionally logged.",
+      "revId": "1f4f92562faa58cb65b91c9d754e6c4ee0318106",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_391f241f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-25T12:36:52Z",
+      "side": 1,
+      "message": "Well, its not just any progress monitory... see other comment.",
+      "revId": "1f4f92562faa58cb65b91c9d754e6c4ee0318106",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_d9c54008",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformFactoryImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-25T12:36:52Z",
+      "side": 1,
+      "message": "This class is not suitable for multi-threaded use, but this is completely invisible for the callee. This may lead to bad surprises in case we should decide to parallelize the artifact repository loading.\n\nSo instead wouldn\u0027t it be possible to just pass the MavenLogger here and have the RepositoryArtifactProvider construct the monitor from the logger itself?",
+      "range": {
+        "startLine": 341,
+        "startChar": 76,
+        "endLine": 341,
+        "endChar": 83
+      },
+      "revId": "1f4f92562faa58cb65b91c9d754e6c4ee0318106",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
