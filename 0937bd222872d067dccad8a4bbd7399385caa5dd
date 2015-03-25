@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_74ed3100",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/IUXmlTransformer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-25T14:04:20Z",
+      "side": 1,
+      "message": "This error handling is wrong: Errors should lead to a build failure.\n\nFortunately, this incorrect code is already defused by the behaviour of TargetPlatform.resolveReference (or TargetPlatform.resolveArtifact - what it has been renamed to in the meanwhile): That method never returns null but throws exceptions if the resolution failed.",
+      "range": {
+        "startLine": 110,
+        "startChar": 20,
+        "endLine": 110,
+        "endChar": 94
+      },
+      "revId": "0937bd222872d067dccad8a4bbd7399385caa5dd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
