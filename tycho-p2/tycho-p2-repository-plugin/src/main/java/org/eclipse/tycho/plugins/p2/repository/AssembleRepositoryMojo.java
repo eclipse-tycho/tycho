@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -56,6 +58,15 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  */
 @Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE)
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
+
+    private static enum CreateP2IndexMode {
+        FALSE, EMPTY, TRUE
+    }
+
+    private static final String VERSION_STANCE = "version = 1\n";
+    private static final String METADATA_REPOSITORY_FACTORY_ORDER_STANCE = "metadata.repository.factory.order = content.xml,\\!\n";
+    private static final String ARTIFACT_REPOSITORY_FACTORY_ORDER_STANCE = "artifact.repository.factory.order = artifacts.xml,\\!\n";
+
     /**
      * <p>
      * By default, this goal creates a p2 repository. Set this to <code>false</code> if only a p2
@@ -64,6 +75,22 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
      */
     @Parameter(defaultValue = "true")
     private boolean createArtifactRepository;
+
+    /**
+     * <p>
+     * By default, this goal creates an empty p2.index files. Set this to <code>true</code> if a
+     * proper p2.index file should be created and to <code>false</code> no p2.index should be
+     * created.
+     * </p>
+     * 
+     * @since 0.23.0
+     */
+    @Parameter(defaultValue = "empty")
+    private CreateP2IndexMode createP2Index;
+
+    public void setCreateP2Index(String value) {
+        createP2Index = CreateP2IndexMode.valueOf(value.toUpperCase());
+    }
 
     /**
      * <p>
@@ -126,6 +153,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
                     destination, repositoryName, compress, !createArtifactRepository, true);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
+
+            createP2IndexFile(destination);
         } catch (FacadeException e) {
             throw new MojoExecutionException("Could not assemble p2 repository", e);
         }
@@ -140,6 +169,24 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Error copying resources", e);
+        }
+    }
+
+    private void createP2IndexFile(File destination) throws MojoExecutionException {
+        try {
+            File p2IndexFile = new File(destination, "p2.index");
+            if (CreateP2IndexMode.FALSE.equals(createP2Index)) {
+                return;
+            } else if (CreateP2IndexMode.EMPTY.equals(createP2Index)) {
+                FileUtils.fileWrite(p2IndexFile, "");
+            } else if (CreateP2IndexMode.TRUE.equals(createP2Index)) {
+                FileUtils.fileWrite(p2IndexFile, "US-ASCII", VERSION_STANCE + METADATA_REPOSITORY_FACTORY_ORDER_STANCE
+                        + (createArtifactRepository ? ARTIFACT_REPOSITORY_FACTORY_ORDER_STANCE : ""));
+            } else {
+                throw new AssertionError(format("Unknown value for parameter createP2Index: \"%s\"", createP2Index));
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error creating p2.index file", e);
         }
     }
 
