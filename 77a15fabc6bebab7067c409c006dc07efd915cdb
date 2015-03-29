@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_3a7a682f",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2015-03-29T08:52:56Z",
+      "side": 1,
+      "message": "Should enum values be documented here?",
+      "revId": "77a15fabc6bebab7067c409c006dc07efd915cdb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_fa4740f4",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/AssembleRepositoryMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2015-03-29T08:52:56Z",
+      "side": 1,
+      "message": "Allows Maven to do String -\u003e enum conversion. Maven accepts spellings like\n\n  true,\n  TRUE\n  TruE\n\n(just like it would for @Parameters of type boolean), but throws a MojoConfigurationException on illegal values like \"unknown\".\n\nFWIW, I think Tycho\u0027s code could benefit from this pattern generally; sometimes you use plain Strings (\"consider\" for pomDependencies), so that the user doesn\u0027t get MojoConfigurationExceptions if entering an illegal value. At other times, you use *lowercase* enum constants, which not only look odd in Java code, but also prevent the user from using a different spelling (which Maven allows for booleans, for example), although you can rightly argue that being strict about the spelling is a good thing, of course.",
+      "revId": "77a15fabc6bebab7067c409c006dc07efd915cdb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
