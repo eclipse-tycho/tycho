@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_9fef077c",
+        "filename": "tycho-its/projects/iu.artifact/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-03-31T08:09:01Z",
+      "side": 1,
+      "message": "Should be iu.artifact",
+      "range": {
+        "startLine": 6,
+        "startChar": 28,
+        "endLine": 6,
+        "endChar": 31
+      },
+      "revId": "72b053c86c402e0a3c56d6cee429e87ad3273ec6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
