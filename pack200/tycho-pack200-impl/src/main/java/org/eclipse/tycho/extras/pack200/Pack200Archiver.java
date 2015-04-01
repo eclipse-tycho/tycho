@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,8 @@ public class Pack200Archiver {
     @Requirement
     private Logger log;
 
+    private Pack200Wrapper packWrapper = new Pack200Wrapper();
+
     /**
      * @param file
      *            source jar file
@@ -61,7 +63,7 @@ public class Pack200Archiver {
                 }
 
                 try {
-                    getPack200().pack(pluginArtifacts, tmpFile != null ? tmpFile : file, packFile);
+                    packWrapper.pack(pluginArtifacts, tmpFile != null ? tmpFile : file, packFile);
                 } finally {
                     if (tmpFile != null) {
                         if (!tmpFile.delete()) {
@@ -85,22 +87,6 @@ public class Pack200Archiver {
         if (eclipseInf != null && eclipseInf.shouldPack() && eclipseInf.shouldSign()) {
             throw new IOException("Pack200 and jar signing cannot be both enabled in " + EclipseInf.PATH_ECLIPSEINF
                     + ". See bug 388629.");
-        }
-    }
-
-    private Pack200Wrapper getPack200() {
-        // pack200 in java 6 and earlier has a memory leak that results in eventual OOME for large multimodule projects
-        // the OOME is triggered by repetitive in-process execution of pack200 for different input jars
-        // to workaround, fork pack200 to a separate JVM for each jar
-        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6888127
-
-        try {
-            // java.nio.file.FileSystem was introduced in java 7, so this will fail with CNFE on earlier jdk versions
-            // this is how ant detects java7 too, see org.apache.tools.ant.util.JavaEnvUtils
-            Class.forName("java.nio.file.FileSystem");
-            return new Pack200Wrapper();
-        } catch (ClassNotFoundException mustBeJava6orEarlier) {
-            return new ForkedPack200Wrapper();
         }
     }
 
@@ -149,7 +135,7 @@ public class Pack200Archiver {
     }
 
     public void unpack(List<Artifact> pluginArtifacts, File packFile, File jarFile) throws IOException {
-        getPack200().unpack(pluginArtifacts, packFile, jarFile);
+        packWrapper.unpack(pluginArtifacts, packFile, jarFile);
     }
 
     public boolean pack(List<Artifact> pluginArtifacts, File file, File packFile) throws IOException {
@@ -159,7 +145,7 @@ public class Pack200Archiver {
             assertSupportedEclipseInf(eclipseInf);
             if (eclipseInf == null || (eclipseInf.shouldPack() && eclipseInf.isPackNormalized())) {
                 log.info("Pack200 packing jar " + file.getAbsolutePath());
-                getPack200().pack(pluginArtifacts, file, packFile);
+                packWrapper.pack(pluginArtifacts, file, packFile);
                 return true;
             }
         } finally {

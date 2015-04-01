@@ -77,7 +77,7 @@
 		<jgit-version>3.5.3.201412180710-r</jgit-version>
 		<!-- tycho-extras and tycho are normally developed and released in parallel using the same version -->
 		<tycho-version>${project.version}</tycho-version>
-		<min.jdk.version>1.6</min.jdk.version>
+		<min.jdk.version>1.7</min.jdk.version>
 		<tycho-snapshots-url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</tycho-snapshots-url>
 		<plexusVersion>1.5.5</plexusVersion>
 	</properties>
