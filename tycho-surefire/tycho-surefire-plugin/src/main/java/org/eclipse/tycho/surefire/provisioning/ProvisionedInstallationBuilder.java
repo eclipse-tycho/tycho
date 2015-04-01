@@ -38,7 +38,7 @@ public class ProvisionedInstallationBuilder {
     private List<URI> artifactRepos = new ArrayList<URI>();
     private List<String> ius = new ArrayList<String>();
     private File workingDir;
-    private File destination;
+    private File effectiveDestination;
     private String profileName;
     private boolean installFeatures = true;
 
@@ -78,7 +78,17 @@ public class ProvisionedInstallationBuilder {
     }
 
     public void setDestination(File destination) {
-        this.destination = destination;
+        // For new MacOS layouts turn a given 'RCP.app' dir into 'RCP.app/Contents/Eclipse'
+        // This is what is expected from Eclipse runtime as install root anyways.
+        if (destination.getName().endsWith(".app")) {
+            this.effectiveDestination = new File(destination, "Contents/Eclipse");
+        } else {
+            this.effectiveDestination = destination;
+        }
+    }
+
+    public File getEffectiveDestination() {
+        return effectiveDestination;
     }
 
     public void setProfileName(String name) {
@@ -93,7 +103,7 @@ public class ProvisionedInstallationBuilder {
         validate();
         publishPlainBundleJars();
         executeDirector();
-        return new ProvisionedEquinoxInstallation(destination, bundleReader);
+        return new ProvisionedEquinoxInstallation(effectiveDestination, bundleReader);
     }
 
     private void publishPlainBundleJars() throws MojoFailureException, MojoExecutionException, IOException {
@@ -121,11 +131,11 @@ public class ProvisionedInstallationBuilder {
         for (String iu : ius) {
             command.addUnitToInstall(iu);
         }
-        command.setDestination(destination);
+        command.setDestination(effectiveDestination);
         command.setProfileName(profileName);
         command.setInstallFeatures(installFeatures);
         command.setEnvironment(TargetEnvironment.getRunningEnvironment());
-        log.info("Installing IUs " + ius + " to " + destination);
+        log.info("Installing IUs " + ius + " to " + effectiveDestination);
         try {
             command.execute();
         } catch (DirectorCommandException e) {
@@ -135,7 +145,7 @@ public class ProvisionedInstallationBuilder {
 
     private void validate() {
         assertNotNull(workingDir, "workingDir");
-        assertNotNull(destination, "destination");
+        assertNotNull(effectiveDestination, "destination");
         assertNotEmpty(metadataRepos, "metadataRepos");
         assertNotEmpty(artifactRepos, "artifactRepos");
         assertNotEmpty(ius, "ius");
@@ -152,4 +162,5 @@ public class ProvisionedInstallationBuilder {
             throw new IllegalStateException(name + " must not be null");
         }
     }
+
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Red Hat Inc.
+ * Copyright (c) 2013, 2015 Red Hat Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ public class ProvisionedEquinoxInstallation implements EquinoxInstallation {
 
     private File location;
     private File launcherJar;
+    private File configurationLocation;
     private EquinoxInstallationDescription description;
 
     public ProvisionedEquinoxInstallation(File location, BundleReader bundleReader) {
@@ -51,7 +52,11 @@ public class ProvisionedEquinoxInstallation implements EquinoxInstallation {
     @Override
     public File getConfigurationLocation() {
         // TODO should this be configurable?
-        return new File(getLocation(), "configuration");
+        if (configurationLocation != null) {
+            return configurationLocation;
+        }
+        configurationLocation = EquinoxInstallationLaunchConfiguration.findConfigurationArea(location);
+        return configurationLocation;
     }
 
     @Override

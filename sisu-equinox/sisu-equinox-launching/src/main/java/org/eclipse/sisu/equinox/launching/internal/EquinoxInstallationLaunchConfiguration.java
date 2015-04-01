@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP SE and others.
+ * Copyright (c) 2012, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,12 +43,16 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
             }
         });
 
-        if (launchers.length == 0)
+        if (launchers == null || launchers.length == 0)
             throw new IllegalArgumentException("No launcher bundle found in " + pluginsDir);
         else if (launchers.length > 1)
             throw new IllegalArgumentException("Multiple versions of the launcher bundle found in " + pluginsDir);
         else
             return launchers[0];
+    }
+
+    public static File findConfigurationArea(File location) {
+        return new File(location, "configuration");
     }
 
     @Override

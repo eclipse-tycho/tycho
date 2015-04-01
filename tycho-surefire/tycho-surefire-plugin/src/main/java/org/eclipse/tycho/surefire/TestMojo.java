@@ -1005,7 +1005,7 @@ public class TestMojo extends AbstractMojo {
 
         addProgramArgs(cli, "-data", osgiDataDirectory.getAbsolutePath(), //
                 "-install", testRuntime.getLocation().getAbsolutePath(), //
-                "-configuration", new File(work, "configuration").getAbsolutePath(), //
+                "-configuration", testRuntime.getConfigurationLocation().getAbsolutePath(), //
                 "-application", getTestApplication(testRuntime.getInstallationDescription()), //
                 "-testproperties", surefireProperties.getAbsolutePath());
         if (application != null) {
