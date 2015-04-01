@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP SE and others.
+ * Copyright (c) 2012, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,16 +34,22 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
     }
 
     public static File findLauncherJar(File equinoxDirectory) {
-        File pluginsDir = new File(equinoxDirectory, "plugins");
-        File[] launchers = pluginsDir.listFiles(new FilenameFilter() {
+        File pluginsDir = new File(equinoxDirectory, "plugins"); // normal layout
+        if (!pluginsDir.isDirectory() && equinoxDirectory.getName().endsWith(".app")) {
+            pluginsDir = new File(equinoxDirectory, "Contents/Eclipse/plugins"); // new MacOS layout
+        }
+        if (!pluginsDir.isDirectory()) {
+            throw new IllegalArgumentException("No plugins directory found in " + equinoxDirectory);
+        }
 
+        File[] launchers = pluginsDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.startsWith("org.eclipse.equinox.launcher_");
             }
         });
 
-        if (launchers.length == 0)
+        if (launchers == null || launchers.length == 0)
             throw new IllegalArgumentException("No launcher bundle found in " + pluginsDir);
         else if (launchers.length > 1)
             throw new IllegalArgumentException("Multiple versions of the launcher bundle found in " + pluginsDir);
