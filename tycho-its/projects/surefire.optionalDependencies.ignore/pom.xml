@@ -2,8 +2,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>tycho-its-project</groupId>
-  <artifactId>351842_testOptionalDependencies</artifactId>
+  <groupId>tycho-its-project.optionalDependencies.ignore</groupId>
+  <artifactId>odi.testbundle</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
@@ -42,6 +42,7 @@
             <!--
               this bundle has mutually exclusive optional dependencies 
               on two versions of org.eclipse.equinox.frameworkadmin
+              -> disable them for dependency resolution and the test runtime
             -->
             <optionalDependencies>ignore</optionalDependencies>
           </dependency-resolution>
