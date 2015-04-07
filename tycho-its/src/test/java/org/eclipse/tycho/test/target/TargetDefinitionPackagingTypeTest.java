@@ -9,7 +9,7 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.test.target.packagingType;
+package org.eclipse.tycho.test.target;
 
 import java.io.File;
 

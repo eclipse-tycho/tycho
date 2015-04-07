@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.target.httpAuthentication;
+package org.eclipse.tycho.test.target;
 
 import java.io.File;
 import java.util.Arrays;

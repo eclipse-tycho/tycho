@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.target.restriction.targetFile;
+package org.eclipse.tycho.test.target;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

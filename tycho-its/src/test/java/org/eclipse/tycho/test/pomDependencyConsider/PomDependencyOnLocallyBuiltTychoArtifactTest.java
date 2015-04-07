@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.pomDependencyConsider.p2Data.reuse;
+package org.eclipse.tycho.test.pomDependencyConsider;
 
 import java.io.File;
 

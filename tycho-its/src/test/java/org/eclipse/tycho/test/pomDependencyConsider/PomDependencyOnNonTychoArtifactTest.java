@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.pomDependencyConsider.p2Data.generate;
+package org.eclipse.tycho.test.pomDependencyConsider;
 
 import static org.junit.Assert.assertEquals;
 

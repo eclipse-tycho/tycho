@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.featurePatch.external;
+package org.eclipse.tycho.test.featurePatch;
 
 import static org.junit.Assert.assertTrue;
 

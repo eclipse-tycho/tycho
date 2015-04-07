@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.pomDependencyConsider.systemScope;
+package org.eclipse.tycho.test.pomDependencyConsider;
 
 import static java.util.Arrays.asList;
 import static org.eclipse.tycho.test.util.ResourceUtil.P2Repositories.ECLIPSE_352;
