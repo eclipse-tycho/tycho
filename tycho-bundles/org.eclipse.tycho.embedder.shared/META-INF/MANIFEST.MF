@@ -4,5 +4,5 @@ Bundle-SymbolicName: org.eclipse.tycho.embedder.shared
 Bundle-Version: 0.23.0.qualifier
 Bundle-Name: Tycho Embedder API Maven/OSGi Shared Classes (Incubation)
 Bundle-Vendor: %providerName
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.tycho
