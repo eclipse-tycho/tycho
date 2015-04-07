@@ -9,7 +9,7 @@
  *     SAP AG - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.tycho.test.packageplugin;
+package org.eclipse.tycho.test.packaging;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,7 +30,7 @@ public class PackageNestedJarsAndDirsTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testPackageNestedJarsAndDirs() throws Exception {
-        Verifier verifier = getVerifier("/package.nestedJarsAndDirs", false);
+        Verifier verifier = getVerifier("/packaging.nestedJarsAndDirs", false);
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
         File bundleJar = new File(verifier.getBasedir(), "target/nestedJarsAndDirs-1.0.0-SNAPSHOT.jar");
