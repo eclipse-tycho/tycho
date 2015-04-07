@@ -2,8 +2,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>tycho-its-project.compiler.optionalDependencies</groupId>
-  <artifactId>cod.require-bundle-ignore</artifactId>
+  <groupId>tycho-its-project.resolver.optionalDependencies</groupId>
+  <artifactId>rod.require-bundle-ignore</artifactId>
   <version>1.0.0</version>
   <packaging>eclipse-plugin</packaging>
 

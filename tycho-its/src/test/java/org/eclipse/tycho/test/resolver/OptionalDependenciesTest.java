@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.compiler;
+package org.eclipse.tycho.test.resolver;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
@@ -21,7 +21,7 @@ public class OptionalDependenciesTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testOptionallyRequiredBundleIsOnCompileClassPath() throws Exception {
-        Verifier verifier = getVerifier("/compiler.optionalDependencies/require-bundle", false);
+        Verifier verifier = getVerifier("/resolver.optionalDependencies/require-bundle", false);
         verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
@@ -29,7 +29,7 @@ public class OptionalDependenciesTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testOptionallyRequiredBundleCanBeIgnored() throws Exception {
-        Verifier verifier = getVerifier("/compiler.optionalDependencies/require-bundle-ignore", false);
+        Verifier verifier = getVerifier("/resolver.optionalDependencies/require-bundle-ignore", false);
         // empty target platform -> dependency would not resolve if the project had not overridden the optionalDependencies=require default
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
