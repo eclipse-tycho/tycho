@@ -30,6 +30,7 @@ public class Activator implements BundleActivator {
         Activator.instance = this;
     }
 
+    @Override
     public void start(BundleContext context) throws Exception {
         this.context = context;
     }
@@ -67,6 +68,7 @@ public class Activator implements BundleActivator {
         }
     }
 
+    @Override
     public void stop(BundleContext context) throws Exception {
     }
 

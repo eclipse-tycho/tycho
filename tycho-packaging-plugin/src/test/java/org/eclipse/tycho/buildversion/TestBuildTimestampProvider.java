@@ -33,6 +33,7 @@ public class TestBuildTimestampProvider implements BuildTimestampProvider {
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    @Override
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution)
             throws MojoExecutionException {
         String prop = session.getCurrentProject().getProperties().getProperty(PROP_TESTBUILDTIMESTAMPE);

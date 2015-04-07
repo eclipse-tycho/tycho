@@ -73,10 +73,12 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
         return key;
     }
 
+    @Override
     public Set<?/* IInstallableUnit */> getNonReactorUnits() {
         return nonReactorUnits;
     }
 
+    @Override
     public Set<?/* IInstallableUnit */> getInstallableUnits() {
         Set<Object> units = new LinkedHashSet<Object>();
         for (ArtifactDescriptor artifact : artifacts.values()) {

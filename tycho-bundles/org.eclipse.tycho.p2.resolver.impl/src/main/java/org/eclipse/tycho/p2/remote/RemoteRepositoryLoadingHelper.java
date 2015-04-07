@@ -36,6 +36,7 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
         this.logger = logger;
     }
 
+    @Override
     public void addMapping(String mavenRepositoryId, URI location) {
         if (mavenRepositoryId == null)
             return;

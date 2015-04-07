@@ -32,6 +32,7 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
 @Component(role = MetadataManipulator.class, hint = "eclipse-repository-products")
 public class EclipseRepositoryProductFileManipulator extends ProductFileManipulator {
 
+    @Override
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         if (!isEclipseRepository(project)) {
             return;
@@ -41,6 +42,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
         }
     }
 
+    @Override
     public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
         if (isEclipseRepository(project)) {
             ArrayList<String> errors = new ArrayList<String>();
@@ -64,6 +66,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
         return PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(project.getMetadata(MutablePomFile.class).getPackaging());
     }
 
+    @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         ProductConfigurations products = project.getMetadata(ProductConfigurations.class);
         if (products != null) {
@@ -79,6 +82,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
             products = new ProductConfigurations();
             File[] productFiles = project.getBasedir().listFiles(new FileFilter() {
 
+                @Override
                 public boolean accept(File file) {
                     return file.isFile() && file.getName().endsWith(".product");
                 }

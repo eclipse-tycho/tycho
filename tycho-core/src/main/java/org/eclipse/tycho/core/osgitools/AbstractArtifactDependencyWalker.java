@@ -51,6 +51,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         this.environments = environments;
     }
 
+    @Override
     public void traverseUpdateSite(UpdateSite site, ArtifactDependencyVisitor visitor) {
         WalkbackPath visited = new WalkbackPath();
 
@@ -59,6 +60,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         }
     }
 
+    @Override
     public void traverseFeature(File location, Feature feature, ArtifactDependencyVisitor visitor) {
         traverseFeature(location, feature, null, visitor, new WalkbackPath());
     }
@@ -104,6 +106,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
         return null;
     }
 
+    @Override
     public void traverseProduct(ProductConfiguration product, ArtifactDependencyVisitor visitor) {
         traverseProduct(product, visitor, new WalkbackPath());
     }

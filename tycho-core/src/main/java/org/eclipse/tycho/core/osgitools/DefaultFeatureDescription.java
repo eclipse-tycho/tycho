@@ -31,10 +31,12 @@ public class DefaultFeatureDescription extends DefaultArtifactDescriptor impleme
         this.featureRef = featureRef;
     }
 
+    @Override
     public FeatureRef getFeatureRef() {
         return featureRef;
     }
 
+    @Override
     public Feature getFeature() {
         return feature;
     }

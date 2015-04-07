@@ -28,6 +28,7 @@ public class CopyMapping implements SourceMapping {
 
     List<SourceTargetPair> sourceTargetMappings = new ArrayList<SourceTargetPair>();
 
+    @Override
     public Set getTargetFiles(File targetDir, String source) throws InclusionScanException {
         File targetFile = new File(targetDir, source);
         sourceTargetMappings.add(new SourceTargetPair(source, targetFile));

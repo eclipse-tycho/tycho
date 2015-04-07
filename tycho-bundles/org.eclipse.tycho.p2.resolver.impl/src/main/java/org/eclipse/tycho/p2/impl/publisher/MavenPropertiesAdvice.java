@@ -39,6 +39,7 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
         }
     }
 
+    @Override
     public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
         // TODO this is a nasty hack, and it doesn't even work; see org.eclipse.equinox.p2.publisher.AbstractPublisherAction.processArtifactPropertiesAdvice(IInstallableUnit, IArtifactDescriptor, IPublisherInfo) 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -49,10 +50,12 @@ public class MavenPropertiesAdvice implements IPropertyAdvice {
         return null;
     }
 
+    @Override
     public Map<String, String> getInstallableUnitProperties(InstallableUnitDescription iu) {
         return properties;
     }
 
+    @Override
     public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
         return true;
     }

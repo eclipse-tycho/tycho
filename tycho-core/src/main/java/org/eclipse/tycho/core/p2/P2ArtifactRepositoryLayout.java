@@ -26,22 +26,27 @@ public class P2ArtifactRepositoryLayout implements ArtifactRepositoryLayout, Art
     private static final ArtifactRepositoryPolicy DISABLED_POLICY = new ArtifactRepositoryPolicy(false,
             ArtifactRepositoryPolicy.UPDATE_POLICY_NEVER, ArtifactRepositoryPolicy.CHECKSUM_POLICY_IGNORE);
 
+    @Override
     public String pathOf(Artifact artifact) {
         return ".p2-ignore";
     }
 
+    @Override
     public String pathOfLocalRepositoryMetadata(ArtifactMetadata metadata, ArtifactRepository repository) {
         return ".p2-ignore";
     }
 
+    @Override
     public String pathOfRemoteRepositoryMetadata(ArtifactMetadata metadata) {
         return ".p2-ignore";
     }
 
+    @Override
     public String getId() {
         return ID;
     }
 
+    @Override
     public ArtifactRepository newMavenArtifactRepository(String id, String url, ArtifactRepositoryPolicy snapshots,
             ArtifactRepositoryPolicy releases) {
         return new MavenArtifactRepository(id, url, this, DISABLED_POLICY, DISABLED_POLICY);

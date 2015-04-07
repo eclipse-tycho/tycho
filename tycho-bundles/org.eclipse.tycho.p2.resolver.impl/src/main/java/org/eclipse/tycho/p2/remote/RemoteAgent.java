@@ -145,10 +145,12 @@ public class RemoteAgent implements IProvisioningAgent {
 
     // end initialization
 
+    @Override
     public Object getService(String serviceName) {
         return delegate.getService(serviceName);
     }
 
+    @Override
     public void registerService(String serviceName, Object service) {
         delegate.registerService(serviceName, service);
     }
@@ -157,10 +159,12 @@ public class RemoteAgent implements IProvisioningAgent {
         return type.cast(getService(type.getName()));
     }
 
+    @Override
     public void stop() {
         delegate.stop();
     }
 
+    @Override
     public void unregisterService(String serviceName, Object service) {
         delegate.unregisterService(serviceName, service);
     }

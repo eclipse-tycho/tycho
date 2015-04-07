@@ -273,6 +273,7 @@ public class SimpleArtifactRepositoryIO {
             return theRepository;
         }
 
+        @Override
         protected Object getRootObject() {
             return theRepository;
         }
@@ -283,6 +284,7 @@ public class SimpleArtifactRepositoryIO {
                 super(rootName, rootHandler);
             }
 
+            @Override
             public void processingInstruction(String target, String data) throws SAXException {
                 if (PI_REPOSITORY_TARGET.equals(target)) {
                     // TODO: should the root handler be constructed based on class
@@ -318,11 +320,13 @@ public class SimpleArtifactRepositoryIO {
                 return null;
             }
 
+            @Override
             protected void handleRootAttributes(Attributes attributes) {
                 attrValues = parseAttributes(attributes, required, optional);
                 attrValues[2] = checkVersion(REPOSITORY_ELEMENT, VERSION_ATTRIBUTE, attrValues[2]).toString();
             }
 
+            @Override
             public void startElement(String name, Attributes attributes) {
                 if (MAPPING_RULES_ELEMENT.equals(name)) {
                     if (mappingRulesHandler == null) {
@@ -367,6 +371,7 @@ public class SimpleArtifactRepositoryIO {
                 return rules;
             }
 
+            @Override
             public void startElement(String name, Attributes attributes) {
                 if (name.equals(MAPPING_RULE_ELEMENT)) {
                     new MappingRuleHandler(this, attributes, mappingRules);
@@ -386,6 +391,7 @@ public class SimpleArtifactRepositoryIO {
                 mappingRules.add(parseRequiredAttributes(attributes, required));
             }
 
+            @Override
             public void startElement(String name, Attributes attributes) {
                 invalidElement(name, attributes);
             }
@@ -405,6 +411,7 @@ public class SimpleArtifactRepositoryIO {
                 return artifacts;
             }
 
+            @Override
             public void startElement(String name, Attributes attributes) {
                 if (name.equals(ARTIFACT_ELEMENT)) {
                     new ArtifactHandler(this, attributes, artifacts);
@@ -435,6 +442,7 @@ public class SimpleArtifactRepositoryIO {
                 currentArtifact = new ArtifactDescriptor(new ArtifactKey(values[0], values[1], version));
             }
 
+            @Override
             public void startElement(String name, Attributes attributes) {
                 if (PROCESSING_STEPS_ELEMENT.equals(name)) {
                     if (processingStepsHandler == null) {
@@ -459,6 +467,7 @@ public class SimpleArtifactRepositoryIO {
                 }
             }
 
+            @Override
             protected void finished() {
                 if (isValidXML() && currentArtifact != null) {
                     Map properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler
@@ -488,6 +497,7 @@ public class SimpleArtifactRepositoryIO {
                         .toArray(new ProcessingStepDescriptor[processingSteps.size()]);
             }
 
+            @Override
             public void startElement(String name, Attributes attributes) {
                 if (name.equals(PROCESSING_STEP_ELEMENT)) {
                     new ProcessingStepHandler(this, attributes, processingSteps);
@@ -509,15 +519,18 @@ public class SimpleArtifactRepositoryIO {
                         PROCESSING_STEP_ELEMENT, STEP_REQUIRED_ATTRIBUTE, attributeValues[1]).booleanValue()));
             }
 
+            @Override
             public void startElement(String name, Attributes attributes) {
                 invalidElement(name, attributes);
             }
         }
 
+        @Override
         protected String getErrorMessage() {
             return Messages.io_parseError;
         }
 
+        @Override
         public String toString() {
             // TODO:
             return super.toString();

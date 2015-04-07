@@ -29,6 +29,7 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
 @Component(role = MetadataManipulator.class, hint = "eclipse-update-site")
 public class SiteXmlManipulator extends AbstractMetadataManipulator {
 
+    @Override
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         if (isSite(project)) {
             if (isFeature(change.getProject().getPackaging())) {
@@ -84,6 +85,7 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
         return PackagingType.TYPE_ECLIPSE_UPDATE_SITE.equals(packaging);
     }
 
+    @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         File basedir = project.getBasedir();
         UpdateSite site = project.getMetadata(UpdateSite.class);
@@ -92,6 +94,7 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
+    @Override
     public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
         return null; // there is no project version in site.xml
     }

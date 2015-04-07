@@ -27,10 +27,12 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 
 public abstract class AbstractTychoProject extends AbstractLogEnabled implements TychoProject {
 
+    @Override
     public DependencyArtifacts getDependencyArtifacts(MavenProject project) {
         return TychoProjectUtils.getDependencyArtifacts(project);
     }
 
+    @Override
     public DependencyArtifacts getDependencyArtifacts(MavenProject project, TargetEnvironment environment) {
         DependencyArtifacts platform = getDependencyArtifacts(project);
 
@@ -56,8 +58,8 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
     }
 
     /**
-     * @deprecated Only needed for {@link LocalDependencyResolver}; p2 resolver checks
-     *             consistency itself
+     * @deprecated Only needed for {@link LocalDependencyResolver}; p2 resolver checks consistency
+     *             itself
      */
     @Deprecated
     public void checkForMissingDependencies(MavenProject project) {
@@ -82,6 +84,7 @@ public abstract class AbstractTychoProject extends AbstractLogEnabled implements
         return environments.toArray(new TargetEnvironment[environments.size()]);
     }
 
+    @Override
     public TargetEnvironment getImplicitTargetEnvironment(MavenProject project) {
         return null;
     }

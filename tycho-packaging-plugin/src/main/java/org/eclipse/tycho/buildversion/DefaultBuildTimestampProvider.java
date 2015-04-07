@@ -30,6 +30,7 @@ public class DefaultBuildTimestampProvider implements BuildTimestampProvider {
 
     private static final String REACTOR_BUILD_TIMESTAMP_PROPERTY = "reactorBuildTimestampProperty";
 
+    @Override
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution) {
         Date timestamp;
         String value = session.getUserProperties().getProperty(REACTOR_BUILD_TIMESTAMP_PROPERTY);

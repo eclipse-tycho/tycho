@@ -60,6 +60,7 @@ public class DefaultClasspathEntry implements ClasspathEntry {
             return result;
         }
 
+        @Override
         public String getPattern() {
             return pattern;
         }
@@ -69,6 +70,7 @@ public class DefaultClasspathEntry implements ClasspathEntry {
             return getPattern();
         }
 
+        @Override
         public boolean isDiscouraged() {
             return discouraged;
         }
@@ -82,18 +84,22 @@ public class DefaultClasspathEntry implements ClasspathEntry {
         this.rules = rules;
     }
 
+    @Override
     public List<File> getLocations() {
         return locations;
     }
 
+    @Override
     public List<AccessRule> getAccessRules() {
         return rules;
     }
 
+    @Override
     public ArtifactKey getArtifactKey() {
         return key;
     }
 
+    @Override
     public ReactorProject getMavenProject() {
         return project;
     }

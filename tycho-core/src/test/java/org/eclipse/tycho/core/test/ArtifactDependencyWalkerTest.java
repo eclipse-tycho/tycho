@@ -26,9 +26,9 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
-import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.osgitools.AbstractArtifactDependencyWalker;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.osgitools.targetplatform.LocalDependencyResolver;
@@ -68,6 +68,7 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
         final ProductConfiguration product = ProductConfiguration.read(new File(productFile));
 
         ArtifactDependencyWalker walker = new AbstractArtifactDependencyWalker(platform) {
+            @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseProduct(product, visitor);
             }

@@ -94,6 +94,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
     @Requirement
     private DevWorkspaceResolver workspaceState;
 
+    @Override
     public void locateRuntime(EquinoxRuntimeDescription description) throws MavenExecutionException {
         WorkspaceTychoOsgiRuntimeLocator workspaceLocator = WorkspaceTychoOsgiRuntimeLocator
                 .getResolver(this.workspaceState);

@@ -33,14 +33,17 @@ public class P2Artifact implements IP2Artifact {
         this.artifactDescriptor = artifactDescriptor;
     }
 
+    @Override
     public File getLocation() {
         return location;
     }
 
+    @Override
     public Set<Object> getInstallableUnits() {
         return installableUnits;
     }
 
+    @Override
     public Object getArtifactDescriptor() {
         return artifactDescriptor;
     }

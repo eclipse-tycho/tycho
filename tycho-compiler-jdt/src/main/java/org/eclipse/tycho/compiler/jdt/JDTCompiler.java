@@ -112,6 +112,7 @@ public class JDTCompiler extends AbstractCompiler {
         return messages;
     }
 
+    @Override
     public String[] createCommandLine(CompilerConfiguration config) throws CompilerException {
         return buildCompilerArguments(config, new CustomCompilerConfiguration(), getSourceFiles(config));
     }

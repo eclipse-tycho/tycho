@@ -35,6 +35,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
 
     private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
+    @Override
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction) {
         return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction);

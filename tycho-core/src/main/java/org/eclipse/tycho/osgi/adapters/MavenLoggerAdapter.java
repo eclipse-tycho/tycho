@@ -23,36 +23,43 @@ public class MavenLoggerAdapter implements MavenLogger {
         this.extendedDebug = extendedDebug;
     }
 
+    @Override
     public void debug(String message) {
         if (!isEmpty(message)) {
             logger.debug(message);
         }
     }
 
+    @Override
     public void info(String message) {
         if (!isEmpty(message)) {
             logger.info(message);
         }
     }
 
+    @Override
     public void warn(String message) {
         warn(message, null);
     }
 
+    @Override
     public void warn(String message, Throwable cause) {
         if (!isEmpty(message)) {
             logger.warn(message, cause);
         }
     }
 
+    @Override
     public void error(String message) {
         logger.error(message);
     }
 
+    @Override
     public boolean isDebugEnabled() {
         return logger.isDebugEnabled();
     }
 
+    @Override
     public boolean isExtendedDebugEnabled() {
         return isDebugEnabled() && extendedDebug;
     }

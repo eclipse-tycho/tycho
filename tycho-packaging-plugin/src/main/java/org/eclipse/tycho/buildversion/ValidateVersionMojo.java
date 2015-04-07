@@ -19,6 +19,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.VersioningHelper;
 import org.eclipse.tycho.model.IU;
+
 /**
  * Validates project Maven and OSGi versions. For SNAPSHOT versions, OSGi version qualifier must be
  * ".qualifier" and unqualified Maven and OSGi versions must be equal. For RELEASE versions, OSGi
@@ -34,6 +35,7 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
     @Parameter(defaultValue = "true")
     private boolean strictVersions = true;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         String mavenVersion = project.getVersion();
         String osgiVersion = getOSGiVersion();

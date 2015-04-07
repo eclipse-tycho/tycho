@@ -54,6 +54,7 @@ public class ArtifactsIO {
             super(context, bundleId);
         }
 
+        @Override
         public synchronized void parse(InputStream stream) throws IOException {
             this.status = null;
             try {
@@ -91,6 +92,7 @@ public class ArtifactsIO {
                 return artifacts;
             }
 
+            @Override
             public void startElement(String name, Attributes attributes) {
                 if (name.equals(ARTIFACT_ELEMENT)) {
                     new ArtifactHandler(this, attributes, artifacts);

@@ -25,6 +25,7 @@ public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implemen
         super(true);
     }
 
+    @Override
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
             OptionalResolutionAction optionalAction) {
         return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction);

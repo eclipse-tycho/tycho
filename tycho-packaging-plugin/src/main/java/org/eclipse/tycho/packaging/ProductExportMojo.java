@@ -123,6 +123,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     @Component
     private FileLockService fileLockService;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().warn(
                 "The packaging type 'eclipse-application' is deprecated; use 'eclipse-repository' instead. "

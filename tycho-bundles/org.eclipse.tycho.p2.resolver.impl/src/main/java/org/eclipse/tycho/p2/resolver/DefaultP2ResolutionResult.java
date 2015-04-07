@@ -32,6 +32,7 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
      */
     private final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<Object>();
 
+    @Override
     public Collection<Entry> getArtifacts() {
         return entries.values();
     }
@@ -99,6 +100,7 @@ public class DefaultP2ResolutionResult implements P2ResolutionResult {
         this.nonReactorUnits.addAll(installableUnits);
     }
 
+    @Override
     public Set<?> getNonReactorUnits() {
         return nonReactorUnits;
     }

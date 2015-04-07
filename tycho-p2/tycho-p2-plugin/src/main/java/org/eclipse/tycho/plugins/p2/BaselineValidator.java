@@ -46,10 +46,12 @@ import org.eclipse.tycho.zipcomparator.internal.SimpleArtifactDelta;
 public class BaselineValidator {
 
     private static class MissingArtifactDelta implements ArtifactDelta {
+        @Override
         public String getMessage() {
             return "not present in baseline";
         }
 
+        @Override
         public String getDetailedMessage() {
             return getMessage();
         }

@@ -68,6 +68,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
         this.target = target;
     }
 
+    @Override
     public boolean visitFeature(FeatureDescription feature) {
         File location = feature.getLocation();
         String artifactId = feature.getKey().getId();
@@ -121,6 +122,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
         return new File(target, sb.toString());
     }
 
+    @Override
     public void visitPlugin(PluginDescription plugin) {
         String bundleId = plugin.getKey().getId();
         String version = plugin.getKey().getVersion();

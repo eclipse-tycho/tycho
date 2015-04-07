@@ -75,6 +75,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         this(false);
     }
 
+    @Override
     public Map<String, IP2Artifact> generateMetadata(List<IArtifactFacade> artifacts, final File targetDir)
             throws IOException {
         Map<String, IP2Artifact> result = new LinkedHashMap<String, IP2Artifact>();
@@ -100,26 +101,32 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                 publisherInfo.setArtifactRepository(artifactsRepository);
                 final IArtifactFacade currentArtifact = artifact;
                 IArtifactFacade targetDirAsArtifact = new IArtifactFacade() {
+                    @Override
                     public String getVersion() {
                         return currentArtifact.getVersion();
                     }
 
+                    @Override
                     public String getPackagingType() {
                         return currentArtifact.getPackagingType();
                     }
 
+                    @Override
                     public File getLocation() {
                         return targetDir;
                     }
 
+                    @Override
                     public String getGroupId() {
                         return currentArtifact.getGroupId();
                     }
 
+                    @Override
                     public String getClassifier() {
                         return currentArtifact.getClassifier();
                     }
 
+                    @Override
                     public String getArtifactId() {
                         return currentArtifact.getArtifactId();
                     }
@@ -190,6 +197,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         return a != null ? a.equals(b) : b == null;
     }
 
+    @Override
     public void persistMetadata(Map<String, IP2Artifact> metadata, File unitsXml, File artifactsXml) throws IOException {
         Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
         Set<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<IArtifactDescriptor>();
@@ -328,6 +336,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
         return res;
     }
 
+    @Override
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact) {
         ArrayList<IPublisherAdvice> advice = new ArrayList<IPublisherAdvice>();
         advice.add(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),

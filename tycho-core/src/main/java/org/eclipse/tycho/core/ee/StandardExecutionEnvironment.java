@@ -111,14 +111,17 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         }
     }
 
+    @Override
     public String getProfileName() {
         return profileName;
     }
 
+    @Override
     public String getCompilerSourceLevelDefault() {
         return compilerSourceLevel;
     }
 
+    @Override
     public String getCompilerTargetLevelDefault() {
         return compilerTargetLevel;
     }
@@ -132,10 +135,12 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                 + compilerTargetLevel + "}";
     }
 
+    @Override
     public Set<String> getSystemPackages() {
         return systemPackages;
     }
 
+    @Override
     public int compareTo(StandardExecutionEnvironment otherEnv) {
         return eeVersion.compareTo(otherEnv.eeVersion);
     }
@@ -210,10 +215,12 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         return true;
     }
 
+    @Override
     public Properties getProfileProperties() {
         return profileProperties;
     }
 
+    @Override
     public boolean isCompatibleCompilerTargetLevel(String target) {
         if (target == null) {
             throw new IllegalArgumentException();

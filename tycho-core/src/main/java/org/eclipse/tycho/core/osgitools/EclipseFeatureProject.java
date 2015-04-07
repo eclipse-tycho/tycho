@@ -34,12 +34,14 @@ public class EclipseFeatureProject extends AbstractArtifactBasedProject {
         final Feature feature = Feature.loadFeature(location);
         return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
                 project, environment)) {
+            @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseFeature(location, feature, visitor);
             }
         };
     }
 
+    @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
         Feature feature = Feature.loadFeature(project.getBasedir());
         return new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_FEATURE, feature.getId(), feature.getVersion());

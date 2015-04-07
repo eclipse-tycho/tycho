@@ -46,6 +46,7 @@ public class TargetPlatformMojo extends AbstractMojo {
     @Component
     private Logger logger;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         ReactorRepositoryManagerFacade repositoryManager = osgiServices
                 .getService(ReactorRepositoryManagerFacade.class);

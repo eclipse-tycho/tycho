@@ -38,9 +38,9 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.artifacts.TargetPlatform;
+import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.DependencyResolver;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.MavenDependencyCollector;
@@ -98,16 +98,19 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
         }
     }
 
+    @Override
     public void setupProjects(MavenSession session, MavenProject project, ReactorProject reactorProject) {
         // everything is done in resolveDependencies
     }
 
+    @Override
     public TargetPlatform computePreliminaryTargetPlatform(MavenSession session, MavenProject project,
             List<ReactorProject> reactorProjects) {
         // everything is done in resolveDependencies
         return null;
     }
 
+    @Override
     public DependencyArtifacts resolveDependencies(MavenSession session, MavenProject project,
             TargetPlatform resolutionContext, List<ReactorProject> reactorProjects,
             DependencyResolverConfiguration resolverConfiguration) {
@@ -236,6 +239,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
         layout.setLocation(location.getAbsoluteFile());
     }
 
+    @Override
     public void injectDependenciesIntoMavenModel(MavenProject project, AbstractTychoProject projectType,
             DependencyArtifacts targetPlatform, Logger logger) {
         // walk depencencies for consistency

@@ -32,6 +32,7 @@ public class TychoOsgiRuntimeMainArtifacts implements TychoOsgiRuntimeArtifacts 
         ARTIFACTS.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.tools.impl", tychoVersion, "jar"));
     }
 
+    @Override
     public List<Dependency> getRuntimeArtifacts() {
         return ARTIFACTS;
     }

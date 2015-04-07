@@ -66,18 +66,22 @@ public abstract class AbstractMetadataGenerator {
     protected ICapabilityAdvice getExtraEntriesAdvice(IArtifactFacade artifact) {
         final IRequirement[] extraRequirements = extractExtraEntriesAsIURequirement(artifact.getLocation());
         return new ICapabilityAdvice() {
+            @Override
             public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
                 return true;
             }
 
+            @Override
             public IRequirement[] getRequiredCapabilities(InstallableUnitDescription iu) {
                 return extraRequirements;
             }
 
+            @Override
             public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu) {
                 return null;
             }
 
+            @Override
             public IRequirement[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
                 return null;
             }

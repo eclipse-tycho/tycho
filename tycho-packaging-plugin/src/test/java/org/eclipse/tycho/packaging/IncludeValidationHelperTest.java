@@ -93,26 +93,32 @@ public class IncludeValidationHelperTest {
 
         Logger log = new AbstractLogger(Logger.LEVEL_DEBUG, null) {
 
+            @Override
             public void warn(String message, Throwable throwable) {
                 warnings.add(message);
             }
 
+            @Override
             public void info(String message, Throwable throwable) {
                 Assert.fail();
             }
 
+            @Override
             public Logger getChildLogger(String name) {
                 return null;
             }
 
+            @Override
             public void fatalError(String message, Throwable throwable) {
                 Assert.fail();
             }
 
+            @Override
             public void error(String message, Throwable throwable) {
                 Assert.fail();
             }
 
+            @Override
             public void debug(String message, Throwable throwable) {
                 Assert.fail();
             }

@@ -50,6 +50,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
         return false;
     }
 
+    @Override
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
 
@@ -160,6 +161,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
                 && isVersionEquals(change.getVersion(), gav.getVersion());
     }
 
+    @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
         if (pom != null) {
@@ -184,6 +186,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
         }
     }
 
+    @Override
     public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
         return null; // there are no restrictions on maven version format
     }

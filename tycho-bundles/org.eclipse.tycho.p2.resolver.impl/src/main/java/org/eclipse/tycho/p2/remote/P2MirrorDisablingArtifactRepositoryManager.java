@@ -72,6 +72,7 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
 
     // disable mirrors in returned repositories
 
+    @Override
     public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException {
         IArtifactRepository repository = delegate.createRepository(location, name, type, properties);
@@ -79,6 +80,7 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
         return repository;
     }
 
+    @Override
     public IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
             throws ProvisionException {
         IArtifactRepository repository = delegate.loadRepository(location, flags, monitor);
@@ -86,12 +88,14 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
         return repository;
     }
 
+    @Override
     public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
         IArtifactRepository repository = delegate.loadRepository(location, monitor);
         disableMirrors(repository, mavenLogger);
         return repository;
     }
 
+    @Override
     public IArtifactRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
         IArtifactRepository repository = delegate.refreshRepository(location, monitor);
         disableMirrors(repository, mavenLogger);
@@ -100,20 +104,24 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
 
     // plain delegation
 
+    @Override
     public void addRepository(URI location) {
         delegate.addRepository(location);
     }
 
+    @Override
     public boolean contains(URI location) {
         return delegate.contains(location);
     }
 
+    @Override
     public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination,
             Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties) {
         return delegate.createMirrorRequest(key, destination, destinationDescriptorProperties,
                 destinationRepositoryProperties);
     }
 
+    @Override
     public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination,
             Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties,
             String downloadStatsParameters) {
@@ -121,34 +129,42 @@ class P2MirrorDisablingArtifactRepositoryManager implements IArtifactRepositoryM
                 destinationRepositoryProperties, downloadStatsParameters);
     }
 
+    @Override
     public IProvisioningAgent getAgent() {
         return delegate.getAgent();
     }
 
+    @Override
     public URI[] getKnownRepositories(int flags) {
         return delegate.getKnownRepositories(flags);
     }
 
+    @Override
     public String getRepositoryProperty(URI location, String key) {
         return delegate.getRepositoryProperty(location, key);
     }
 
+    @Override
     public boolean isEnabled(URI location) {
         return delegate.isEnabled(location);
     }
 
+    @Override
     public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
         return delegate.query(query, monitor);
     }
 
+    @Override
     public boolean removeRepository(URI location) {
         return delegate.removeRepository(location);
     }
 
+    @Override
     public void setEnabled(URI location, boolean enablement) {
         delegate.setEnabled(location, enablement);
     }
 
+    @Override
     public void setRepositoryProperty(URI location, String key, String value) {
         delegate.setRepositoryProperty(location, key, value);
     }

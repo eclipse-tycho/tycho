@@ -90,22 +90,27 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
         return result;
     }
 
+    @Override
     public ReactorProject getMavenProject() {
         return project;
     }
 
+    @Override
     public List<BuildOutputJar> getOutputJars() {
         return new ArrayList<BuildOutputJar>(outputJars.values());
     }
 
+    @Override
     public BuildOutputJar getDotOutputJar() {
         return dotOutputJar;
     }
 
+    @Override
     public Map<String, BuildOutputJar> getOutputJarMap() {
         return outputJars;
     }
 
+    @Override
     public BuildProperties getBuildProperties() {
         return buildProperties;
     }

@@ -47,11 +47,13 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
         return loadingHelper.getEffectiveLocationAndPrepareLoad(location);
     }
 
+    @Override
     public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException,
             OperationCanceledException {
         return this.loadRepository(location, IRepository.NONE, monitor);
     }
 
+    @Override
     public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
             throws ProvisionException, OperationCanceledException {
         URI effectiveLocation = translateAndPrepareLoad(location);
@@ -82,52 +84,64 @@ class RemoteMetadataRepositoryManager implements IMetadataRepositoryManager {
 
     // delegated methods
 
+    @Override
     public void addRepository(URI location) {
         delegate.addRepository(translate(location));
     }
 
+    @Override
     public boolean contains(URI location) {
         return delegate.contains(translate(location));
     }
 
+    @Override
     public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties)
             throws ProvisionException, OperationCanceledException {
         return delegate.createRepository(translate(location), name, type, properties);
     }
 
+    @Override
     public IProvisioningAgent getAgent() {
         return delegate.getAgent();
     }
 
+    @Override
     public URI[] getKnownRepositories(int flags) {
         return delegate.getKnownRepositories(flags);
     }
 
+    @Override
     public String getRepositoryProperty(URI location, String key) {
         return delegate.getRepositoryProperty(translate(location), key);
     }
 
+    @Override
     public boolean isEnabled(URI location) {
         return delegate.isEnabled(translate(location));
     }
 
+    @Override
     public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
         return delegate.query(query, monitor);
     }
 
+    @Override
     public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException,
             OperationCanceledException {
         return delegate.refreshRepository(translateAndPrepareLoad(location), monitor);
     }
 
+    @Override
     public boolean removeRepository(URI location) {
         return delegate.removeRepository(translate(location));
     }
 
+    @Override
     public void setEnabled(URI location, boolean enablement) {
         delegate.setEnabled(translate(location), enablement);
     }
 
+    @Override
     public void setRepositoryProperty(URI location, String key, String value) {
         delegate.setRepositoryProperty(translate(location), key, value);
     }

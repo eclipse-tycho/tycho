@@ -20,10 +20,12 @@ import org.sonatype.aether.transfer.NoRepositoryConnectorException;
 @Component(role = RepositoryConnectorFactory.class, hint = "p2")
 public class P2RepositoryConnectorFactory implements RepositoryConnectorFactory {
 
+    @Override
     public int getPriority() {
         return 0;
     }
 
+    @Override
     public RepositoryConnector newInstance(RepositorySystemSession session, RemoteRepository repository)
             throws NoRepositoryConnectorException {
         if (P2ArtifactRepositoryLayout.ID.equals(repository.getContentType())) {

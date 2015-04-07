@@ -101,6 +101,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
         return propertiesPerConfig.size() > 0;
     }
 
+    @Override
     public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
         if (id != null && !id.equals(this.artifactId)) {
             return false;
@@ -113,6 +114,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
         return true;
     }
 
+    @Override
     public String[] getConfigurations() {
         Set<ConfigSpec> configSpecs = propertiesPerConfig.keySet();
         List<String> result = new ArrayList<String>();
@@ -122,14 +124,17 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
         return result.toArray(new String[result.size()]);
     }
 
+    @Override
     public IPathComputer getRootFileComputer(final String configSpec) {
         final FileToPathMap filesMap = propertiesPerConfig.get(ConfigSpec.createFromWsOsArch(configSpec)).getFileMap();
 
         return new IPathComputer() {
+            @Override
             public void reset() {
                 // do nothing
             }
 
+            @Override
             public IPath computePath(File fileInSources) {
                 IPath fileInInstallation = filesMap.get(fileInSources);
                 return fileInInstallation;
@@ -137,6 +142,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
         };
     }
 
+    @Override
     public FileSetDescriptor getDescriptor(String wsOsArch) {
         ConfigSpec configuration = ConfigSpec.createFromWsOsArch(wsOsArch);
         RootFilesProperties rootProperties = propertiesPerConfig.get(configuration);

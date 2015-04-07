@@ -28,6 +28,7 @@ public class NestedZipComparator implements ContentsComparator {
     @Requirement(hint = ZipComparatorImpl.TYPE)
     private ArtifactComparator zipComparator;
 
+    @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
         File zip = File.createTempFile("zip", ".zip");
         try {

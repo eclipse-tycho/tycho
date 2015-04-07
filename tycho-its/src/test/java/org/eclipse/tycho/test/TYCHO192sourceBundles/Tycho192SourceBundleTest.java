@@ -97,6 +97,7 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
         File[] sourceJars = new File(verifier.getBasedir(), "helloworld.updatesite/target/site/plugins")
                 .listFiles(new FileFilter() {
 
+                    @Override
                     public boolean accept(File pathname) {
                         return pathname.isFile() && pathname.getName().startsWith("helloworld.source_");
                     }

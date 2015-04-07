@@ -23,6 +23,7 @@ import org.eclipse.tycho.PackagingType;
 @Mojo(name = "validate-id", defaultPhase = LifecyclePhase.VALIDATE)
 public class ValidateIdMojo extends AbstractVersionMojo {
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!project.getArtifactId().equals(getOSGiId())) {
             failBuildDueToIdMismatch();

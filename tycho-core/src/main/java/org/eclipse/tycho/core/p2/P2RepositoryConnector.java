@@ -29,6 +29,7 @@ public class P2RepositoryConnector implements RepositoryConnector {
         this.repository = repository;
     }
 
+    @Override
     public void get(Collection<? extends ArtifactDownload> artifactDownloads,
             Collection<? extends MetadataDownload> metadataDownloads) {
         if (artifactDownloads != null) {
@@ -43,6 +44,7 @@ public class P2RepositoryConnector implements RepositoryConnector {
         }
     }
 
+    @Override
     public void put(Collection<? extends ArtifactUpload> artifactUploads,
             Collection<? extends MetadataUpload> metadataUploads) {
         if (artifactUploads != null) {
@@ -57,6 +59,7 @@ public class P2RepositoryConnector implements RepositoryConnector {
         }
     }
 
+    @Override
     public void close() {
     }
 

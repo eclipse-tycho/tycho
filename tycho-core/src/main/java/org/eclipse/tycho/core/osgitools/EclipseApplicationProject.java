@@ -32,6 +32,7 @@ public class EclipseApplicationProject extends AbstractArtifactBasedProject {
         final ProductConfiguration product = loadProduct(DefaultReactorProject.adapt(project));
         return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
                 project, environment)) {
+            @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseProduct(product, visitor);
             }
@@ -47,6 +48,7 @@ public class EclipseApplicationProject extends AbstractArtifactBasedProject {
         }
     }
 
+    @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
         ProductConfiguration product = loadProduct(project);
         String id = product.getId() != null ? product.getId() : project.getArtifactId();

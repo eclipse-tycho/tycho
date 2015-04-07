@@ -37,22 +37,27 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
         this.classifier = classifier;
     }
 
+    @Override
     public String getType() {
         return type;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public String getVersion() {
         return version;
     }
 
+    @Override
     public File getLocation() {
         return location;
     }
 
+    @Override
     public Set<Object> getInstallableUnits() {
         return installableUnits;
     }
@@ -64,6 +69,7 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
         installableUnits.add(installableUnit);
     }
 
+    @Override
     public String getClassifier() {
         return classifier;
     }

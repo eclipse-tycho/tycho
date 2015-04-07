@@ -59,10 +59,12 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         return localArtifactRepository;
     }
 
+    @Override
     public PomDependencyCollector newPomDependencyCollector() {
         return new PomDependencyCollectorImpl(mavenContext);
     }
 
+    @Override
     public TargetPlatformFactoryImpl getTargetPlatformFactory() {
         try {
             // TODO don't synchronize twice
@@ -75,6 +77,7 @@ public class P2ResolverFactoryImpl implements P2ResolverFactory {
         }
     }
 
+    @Override
     public P2ResolverImpl createResolver(MavenLogger logger) {
         return new P2ResolverImpl(getTargetPlatformFactory(), logger);
     }

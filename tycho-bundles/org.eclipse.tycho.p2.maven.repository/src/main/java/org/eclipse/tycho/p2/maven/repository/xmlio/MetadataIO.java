@@ -123,6 +123,7 @@ public class MetadataIO {
                 super(rootName, rootHandler);
             }
 
+            @Override
             public void processingInstruction(String target, String data) throws SAXException {
                 // if (PI_REPOSITORY_TARGET.equals(target)) {
                 // Version repositoryVersion = extractPIVersion(target, data);

@@ -60,10 +60,12 @@ public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
         return key;
     }
 
+    @Override
     public Collection<Entry> getArtifacts() {
         return entries.values();
     }
 
+    @Override
     public Set<?> getNonReactorUnits() {
         return Collections.emptySet();
     }

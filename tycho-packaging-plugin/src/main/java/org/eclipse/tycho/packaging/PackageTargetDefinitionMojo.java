@@ -33,6 +33,7 @@ public class PackageTargetDefinitionMojo extends AbstractMojo {
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File targetFile = new File(project.getBasedir(), project.getArtifactId() + FILE_EXTENSION);
         if (!targetFile.isFile()) {

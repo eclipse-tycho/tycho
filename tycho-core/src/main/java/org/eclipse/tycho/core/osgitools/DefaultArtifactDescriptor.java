@@ -38,22 +38,27 @@ public class DefaultArtifactDescriptor implements ArtifactDescriptor {
         this.installableUnits = installableUnits;
     }
 
+    @Override
     public ArtifactKey getKey() {
         return key;
     }
 
+    @Override
     public File getLocation() {
         return location;
     }
 
+    @Override
     public ReactorProject getMavenProject() {
         return project;
     }
 
+    @Override
     public String getClassifier() {
         return classifier;
     }
 
+    @Override
     public Set<Object> getInstallableUnits() {
         return installableUnits;
     }

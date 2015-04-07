@@ -54,6 +54,7 @@ public class PackageUpdateSiteMojo extends AbstractMojo {
     @Component
     private MavenProjectHelper projectHelper;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (target == null || !target.isDirectory()) {
             throw new MojoExecutionException(

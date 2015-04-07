@@ -34,6 +34,7 @@ public class FileLockServiceImpl implements FileLockService {
      * 
      * @see org.eclipse.tycho.p2.repository.FileLockService#getFileLocker(java.io.File)
      */
+    @Override
     public synchronized FileLocker getFileLocker(File file) {
         return new FileLockerImpl(file, anyLocation);
     }

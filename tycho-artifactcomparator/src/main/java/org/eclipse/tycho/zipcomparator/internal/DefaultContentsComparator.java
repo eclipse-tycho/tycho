@@ -22,6 +22,7 @@ public class DefaultContentsComparator implements ContentsComparator {
 
     public static final String TYPE = "default";
 
+    @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
         return !IOUtil.contentEquals(baseline, reactor) ? new SimpleArtifactDelta("different") : null;
     }

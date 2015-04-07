@@ -47,6 +47,7 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
         assertTrue(surefireReportsDir.isDirectory());
         File[] surefireXmlReports = surefireReportsDir.listFiles(new FilenameFilter() {
 
+            @Override
             public boolean accept(File dir, String name) {
                 return name.startsWith("TEST-") && name.endsWith(".xml");
             }

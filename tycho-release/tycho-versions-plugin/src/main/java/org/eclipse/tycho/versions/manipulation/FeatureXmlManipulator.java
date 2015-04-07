@@ -27,6 +27,7 @@ import org.eclipse.tycho.versions.engine.Versions;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-feature")
 public class FeatureXmlManipulator extends AbstractMetadataManipulator {
+    @Override
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         if (isFeature(project)) {
             Feature feature = getFeatureXml(project);
@@ -45,6 +46,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
+    @Override
     public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
         if (isFeature(project)) {
             Feature feature = getFeatureXml(project);
@@ -103,6 +105,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
         return new File(project.getBasedir(), Feature.FEATURE_XML);
     }
 
+    @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         Feature feature = project.getMetadata(Feature.class);
         if (feature != null) {

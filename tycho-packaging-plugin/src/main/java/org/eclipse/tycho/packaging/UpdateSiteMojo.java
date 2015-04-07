@@ -37,6 +37,7 @@ public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
     @Parameter
     private boolean inlineArchives;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         target.mkdirs();
         try {

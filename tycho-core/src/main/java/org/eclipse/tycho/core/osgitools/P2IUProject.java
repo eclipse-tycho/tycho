@@ -28,12 +28,14 @@ public class P2IUProject extends AbstractArtifactBasedProject {
     protected ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment) {
         return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
                 project, environment)) {
+            @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 //Nothing to do
             }
         };
     }
 
+    @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
         IU anIU = IU.loadIU(project.getBasedir());
         return new DefaultArtifactKey(org.eclipse.tycho.ArtifactType.TYPE_INSTALLABLE_UNIT, anIU.getId(),

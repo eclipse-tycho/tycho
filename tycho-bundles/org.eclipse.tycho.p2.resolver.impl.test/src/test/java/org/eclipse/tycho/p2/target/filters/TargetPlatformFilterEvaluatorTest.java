@@ -238,6 +238,7 @@ public class TargetPlatformFilterEvaluatorTest {
                 return expectedSize == collection.size();
             }
 
+            @Override
             public void describeTo(Description description) {
                 description.appendText("a collection of size ").appendValue(expectedSize);
             }

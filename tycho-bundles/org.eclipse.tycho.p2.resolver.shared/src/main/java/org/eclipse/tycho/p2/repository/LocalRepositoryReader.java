@@ -20,6 +20,7 @@ public class LocalRepositoryReader implements RepositoryReader {
         this.localMavenRepositoryRoot = localMavenRepositoryRoot;
     }
 
+    @Override
     public File getLocalArtifactLocation(GAV gav, String classifier, String extension) {
         return new File(localMavenRepositoryRoot, RepositoryLayoutHelper.getRelativePath(gav, classifier, extension));
     }

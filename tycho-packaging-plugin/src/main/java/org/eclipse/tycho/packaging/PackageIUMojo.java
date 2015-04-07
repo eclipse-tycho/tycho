@@ -53,6 +53,7 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
     @Component(role = Archiver.class, hint = "zip")
     private ZipArchiver zipArchiver;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         outputDirectory.mkdirs();
 

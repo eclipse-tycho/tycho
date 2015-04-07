@@ -41,6 +41,7 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
 
     private DependencyMetadataGenerator sourcesGenerator;
 
+    @Override
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
         if (OsgiSourceMojo.isRelevantProjectImpl(project, buildPropertiesParser)) {
@@ -51,6 +52,7 @@ public class SourcesP2MetadataProvider implements P2MetadataProvider, Initializa
         return null;
     }
 
+    @Override
     public void initialize() throws InitializationException {
         this.sourcesGenerator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=source-bundle)");
     }

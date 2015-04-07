@@ -161,6 +161,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     private BundleReader bundleReader;
 
     /** {@inheritDoc} */
+    @Override
     protected List<Resource> getSources(MavenProject p) throws MojoExecutionException {
         return getSources(project, requireSourceRoots, buildPropertiesParser.parse(p.getBasedir()));
     }
@@ -189,6 +190,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     }
 
     /** {@inheritDoc} */
+    @Override
     protected List<Resource> getResources(MavenProject p) throws MojoExecutionException {
         if (excludeResources) {
             return Collections.emptyList();
@@ -310,6 +312,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     }
 
     /** {@inheritDoc} */
+    @Override
     protected String getClassifier() {
         return ReactorProject.SOURCE_ARTIFACT_CLASSIFIER;
     }

@@ -38,6 +38,7 @@ public class ClassfileComparator implements ContentsComparator {
     // P2 JarComparator... which is a fork (yes, a fork) of JDT ClassFileBytesDisassembler, 
     // which is not exported, so can't use this either.
 
+    @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
         byte[] baselineBytes = IOUtil.toByteArray(baseline);
         byte[] reactorBytes = IOUtil.toByteArray(reactor);
@@ -67,6 +68,7 @@ public class ClassfileComparator implements ContentsComparator {
         if (clazz.innerClasses != null) {
             List<InnerClassNode> sorted = new ArrayList<InnerClassNode>(clazz.innerClasses);
             Collections.sort(sorted, new Comparator<InnerClassNode>() {
+                @Override
                 public int compare(InnerClassNode o1, InnerClassNode o2) {
                     return o1.name.compareTo(o2.name);
                 }

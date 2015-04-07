@@ -28,6 +28,7 @@ public class DefaultPluginDescription extends DefaultArtifactDescriptor implemen
         this.pluginRef = pluginRef;
     }
 
+    @Override
     public PluginRef getPluginRef() {
         return pluginRef;
     }

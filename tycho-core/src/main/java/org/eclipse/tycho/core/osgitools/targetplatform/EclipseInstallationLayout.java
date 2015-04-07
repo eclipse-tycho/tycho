@@ -46,6 +46,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 public class EclipseInstallationLayout extends AbstractLogEnabled {
 
     private static final class FEATURE_FILTER implements FileFilter {
+        @Override
         public boolean accept(File pathname) {
             if (pathname.getName().startsWith(".")) {
                 // filter out all dot files (like .svn or .DS_Store).

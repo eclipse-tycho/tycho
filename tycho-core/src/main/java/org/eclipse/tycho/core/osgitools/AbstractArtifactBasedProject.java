@@ -23,10 +23,12 @@ public abstract class AbstractArtifactBasedProject extends AbstractTychoProject 
     public static final String SNAPSHOT_VERSION = "-SNAPSHOT";
 
     // requires resolved target platform
+    @Override
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project) {
         return getDependencyWalker(project, null);
     }
 
+    @Override
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment) {
         return newDependencyWalker(project, environment);
     }

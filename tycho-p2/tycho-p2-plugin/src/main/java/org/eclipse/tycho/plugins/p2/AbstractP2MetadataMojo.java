@@ -67,6 +67,7 @@ public abstract class AbstractP2MetadataMojo extends AbstractMojo {
     @Component
     private P2ApplicationLauncher launcher;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!generateP2Metadata) {
             return;

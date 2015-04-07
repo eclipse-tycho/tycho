@@ -30,6 +30,7 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
 @Component(role = MetadataManipulator.class, hint = "eclipse-repository")
 public class CategoryXmlManipulator extends AbstractMetadataManipulator {
 
+    @Override
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         if (isEclipseRepository(project)) {
             if (isFeature(change.getProject().getPackaging())) {
@@ -101,6 +102,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         return PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(pom.getPackaging());
     }
 
+    @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         File basedir = project.getBasedir();
         Category categoryXml = project.getMetadata(Category.class);
@@ -109,6 +111,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
+    @Override
     public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
         // this manipulator does not add any restrictions on version changes allowed for eclipse-repository projects
         return null;

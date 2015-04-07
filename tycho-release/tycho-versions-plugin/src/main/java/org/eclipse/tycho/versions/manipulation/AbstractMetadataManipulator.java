@@ -45,6 +45,7 @@ public abstract class AbstractMetadataManipulator implements MetadataManipulator
         return PackagingType.TYPE_ECLIPSE_FEATURE.equals(packaging);
     }
 
+    @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         return false;
     }

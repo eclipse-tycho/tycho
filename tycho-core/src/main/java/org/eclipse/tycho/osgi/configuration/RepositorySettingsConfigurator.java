@@ -54,6 +54,7 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
 
     private class MavenRepositorySettingsProvider implements MavenRepositorySettings {
 
+        @Override
         public MavenRepositoryLocation getMirror(MavenRepositoryLocation location) {
             if (location.getId() == null) {
                 return null;
@@ -71,6 +72,7 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
             return null;
         }
 
+        @Override
         public MavenRepositorySettings.Credentials getCredentials(MavenRepositoryLocation location) {
             if (location.getId() == null) {
                 return null;

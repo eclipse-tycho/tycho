@@ -123,70 +123,87 @@ public class BuildPropertiesImpl implements BuildProperties {
         return Collections.unmodifiableList(result);
     }
 
+    @Override
     public List<String> getBinIncludes() {
         return binIncludes;
     }
 
+    @Override
     public List<String> getBinExcludes() {
         return binExcludes;
     }
 
+    @Override
     public List<String> getSourceIncludes() {
         return sourceIncludes;
     }
 
+    @Override
     public List<String> getSourceExcludes() {
         return sourceExcludes;
     }
 
+    @Override
     public Map<String, List<String>> getJarToSourceFolderMap() {
         return jarToSourceFolderMap;
     }
 
+    @Override
     public List<String> getJarsExtraClasspath() {
         return jarsExtraClasspath;
     }
 
+    @Override
     public String getJavacSource() {
         return javacSource;
     }
 
+    @Override
     public String getJavacTarget() {
         return javacTarget;
     }
 
+    @Override
     public List<String> getJarsCompileOrder() {
         return jarsCompileOrder;
     }
 
+    @Override
     public Map<String, List<String>> getJarToExtraClasspathMap() {
         return jarToExtraClasspathMap;
     }
 
+    @Override
     public Map<String, String> getJarToJavacDefaultEncodingMap() {
         return jarToJavacDefaultEncodingMap;
     }
 
+    @Override
     public Map<String, String> getJarToOutputFolderMap() {
         return jarToOutputFolderMap;
     }
 
+    @Override
     public Map<String, String> getJarToManifestMap() {
         return jarToManifestMap;
     }
 
+    @Override
     public String getJreCompilationProfile() {
         return jreCompilationProfile;
     }
 
+    @Override
     public String getForceContextQualifier() {
         return forceContextQualifier;
     }
 
+    @Override
     public boolean isRootFilesUseDefaultExcludes() {
         return rootFilesUseDefaultExcludes;
     }
 
+    @Override
     public Map<String, String> getRootEntries() {
         return rootEntries;
     }

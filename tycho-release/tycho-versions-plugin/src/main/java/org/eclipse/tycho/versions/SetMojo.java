@@ -82,6 +82,7 @@ public class SetMojo extends AbstractVersionsMojo {
     @Parameter(property = "properties")
     private String properties;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (newVersion == null || newVersion.length() == 0) {
             throw new MojoExecutionException("Missing required parameter newVersion");

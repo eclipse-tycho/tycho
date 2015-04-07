@@ -48,6 +48,7 @@ public class AuthoredIUAction extends AbstractPublisherAction implements IPublis
         iuProject = location;
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
         File iuFile = new File(iuProject, "p2iu.xml");

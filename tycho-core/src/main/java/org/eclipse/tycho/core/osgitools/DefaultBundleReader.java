@@ -42,6 +42,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     @Requirement
     private FileLockService fileLockService;
 
+    @Override
     public OsgiManifest loadManifest(File bundleLocation) {
         String locationPath = bundleLocation.getAbsolutePath();
         OsgiManifest manifest = manifestCache.get(locationPath);
@@ -104,6 +105,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         this.cacheDir = new File(basedir, CACHE_PATH);
     }
 
+    @Override
     public File getEntry(File bundleLocation, String path) {
         if (path.startsWith("external:")) {
             getLogger().warn("Ignoring Bundle-ClassPath entry '" + path + "' of bundle " + bundleLocation);

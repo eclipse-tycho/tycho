@@ -24,10 +24,12 @@ public class DependencyMetadata implements IDependencyMetadata {
     private Set<Object> secondaryMetadata;
     private Set<IArtifactDescriptor> artifacts;
 
+    @Override
     public Set<Object /* IInstallableUnit */> getMetadata(boolean primary) {
         return primary ? metadata : secondaryMetadata;
     }
 
+    @Override
     public Set<Object /* IInstallableUnit */> getMetadata() {
         LinkedHashSet<Object> result = new LinkedHashSet<Object>();
         result.addAll(metadata);

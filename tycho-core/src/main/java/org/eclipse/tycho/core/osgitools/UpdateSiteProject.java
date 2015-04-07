@@ -33,6 +33,7 @@ public class UpdateSiteProject extends AbstractArtifactBasedProject {
         final UpdateSite site = loadSite(project);
         return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
                 project, environment)) {
+            @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 traverseUpdateSite(site, visitor);
             }
@@ -48,6 +49,7 @@ public class UpdateSiteProject extends AbstractArtifactBasedProject {
         }
     }
 
+    @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
         // TODO this is an invalid type constant for an ArtifactKey
         return new DefaultArtifactKey(PackagingType.TYPE_ECLIPSE_UPDATE_SITE, project.getArtifactId(),

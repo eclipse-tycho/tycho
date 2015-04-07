@@ -26,6 +26,7 @@ import org.eclipse.tycho.versions.engine.Versions;
 @Component(role = MetadataManipulator.class, hint = "bundle-manifest")
 public class BundleManifestManipulator extends AbstractMetadataManipulator {
 
+    @Override
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         // only update bundle version for now
         if (isBundle(project) && isProjectVersionChange(project, change)) {
@@ -43,6 +44,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         }
     }
 
+    @Override
     public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
         if (isBundle(project) && isProjectVersionChange(project, change)) {
             String error = Versions.validateOsgiVersion(change.getNewVersion(), getManifestFile(project));
@@ -74,6 +76,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         return new File(project.getBasedir(), "META-INF/MANIFEST.MF");
     }
 
+    @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         MutableBundleManifest mf = project.getMetadata(MutableBundleManifest.class);
         if (mf != null) {

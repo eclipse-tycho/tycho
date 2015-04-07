@@ -25,6 +25,7 @@ import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 public class PropertiesComparator implements ContentsComparator {
     public static final String TYPE = "properties";
 
+    @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<String, ArtifactDelta>();
 

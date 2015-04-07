@@ -26,6 +26,7 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 @Mojo(name = "update-pom", aggregator = true, requiresDirectInvocation = true)
 public class UpdatePomMojo extends AbstractVersionsMojo {
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         PomVersionUpdater pomUpdater = newPomUpdater();
         ProjectMetadataReader metadataReader = newProjectMetadataReader();

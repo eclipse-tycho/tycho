@@ -33,6 +33,7 @@ public class ProxyServiceFacadeImpl implements ProxyServiceFacade {
 
     private IProxyService proxyService;
 
+    @Override
     public void configureProxy(String protocol, String host, int port, String user, String password,
             String nonProxyHosts) {
         ProxyData proxyData = new ProxyData(getProxyType(protocol));
@@ -88,6 +89,7 @@ public class ProxyServiceFacadeImpl implements ProxyServiceFacade {
         return type;
     }
 
+    @Override
     public void clearPersistentProxySettings() {
         Preferences netPreferences = ConfigurationScope.INSTANCE.getNode(Activator.ID);
         try {

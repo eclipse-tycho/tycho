@@ -33,18 +33,22 @@ public class MavenContextImpl implements MavenContext {
         this(localRepositoryRoot, false, mavenLogger, new Properties());
     }
 
+    @Override
     public File getLocalRepositoryRoot() {
         return localRepositoryRoot;
     }
 
+    @Override
     public MavenLogger getLogger() {
         return mavenLogger;
     }
 
+    @Override
     public boolean isOffline() {
         return offline;
     }
 
+    @Override
     public Properties getSessionProperties() {
         return mergedProperties;
     }

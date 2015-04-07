@@ -53,26 +53,32 @@ public class ArtifactMock implements IArtifactFacade {
                 .getPackaging(), classifier);
     }
 
+    @Override
     public File getLocation() {
         return location;
     }
 
+    @Override
     public String getGroupId() {
         return groupId;
     }
 
+    @Override
     public String getArtifactId() {
         return artifactId;
     }
 
+    @Override
     public String getVersion() {
         return version;
     }
 
+    @Override
     public String getPackagingType() {
         return packagingType;
     }
 
+    @Override
     public String getClassifier() {
         return classifier;
     }

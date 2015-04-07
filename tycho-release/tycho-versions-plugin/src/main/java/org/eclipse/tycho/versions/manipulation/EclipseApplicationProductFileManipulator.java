@@ -28,12 +28,14 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
 @Component(role = MetadataManipulator.class, hint = "eclipse-application")
 public class EclipseApplicationProductFileManipulator extends ProductFileManipulator {
 
+    @Override
     public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
         if (isEclipseApplication(project)) {
             applyChangeToProduct(project, getProductConfiguration(project), getProductFileName(project), change);
         }
     }
 
+    @Override
     public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
         if (isEclipseApplication(project)) {
             ProductConfiguration product = getProductConfiguration(project);
@@ -77,6 +79,7 @@ public class EclipseApplicationProductFileManipulator extends ProductFileManipul
         return PackagingType.TYPE_ECLIPSE_APPLICATION.equals(packaging);
     }
 
+    @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         ProductConfiguration product = project.getMetadata(ProductConfiguration.class);
         if (product != null) {

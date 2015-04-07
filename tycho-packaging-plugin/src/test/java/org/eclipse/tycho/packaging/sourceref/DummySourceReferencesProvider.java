@@ -21,6 +21,7 @@ import org.codehaus.plexus.component.annotations.Component;
 @Component(role = SourceReferencesProvider.class, hint = "dummy")
 public class DummySourceReferencesProvider implements SourceReferencesProvider {
 
+    @Override
     public String getSourceReferencesHeader(MavenProject project, ScmUrl scmUrl) throws MojoExecutionException {
         return scmUrl.getUrl() + ";path=\"dummy/path\"";
     }

@@ -79,6 +79,7 @@ import org.osgi.framework.BundleException;
 public class GeneratePomsMojo extends AbstractMojo {
 
     private static final class DirectoryFilter implements FileFilter {
+        @Override
         public boolean accept(File fileToTest) {
             return fileToTest.isDirectory() && !METADATA_DIR.equals(fileToTest.getName());
         }
@@ -178,6 +179,7 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private DefaultDependencyArtifacts platform = new DefaultDependencyArtifacts();
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         List<File> baseDirs = getBaseDirs();
         if (getLog().isDebugEnabled()) {

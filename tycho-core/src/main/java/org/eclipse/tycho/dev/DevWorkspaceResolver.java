@@ -78,6 +78,7 @@ public class DevWorkspaceResolver implements Initializable {
      */
     private Map<File, File> workspaceBasedirs;
 
+    @Override
     public void initialize() throws InitializationException {
         Map<File, String> workspaceDeventries = new HashMap<File, String>();
         Map<File, File> workspaceBasedirs = new HashMap<File, File>();

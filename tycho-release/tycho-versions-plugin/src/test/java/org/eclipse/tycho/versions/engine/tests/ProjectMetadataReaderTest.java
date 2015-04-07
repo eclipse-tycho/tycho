@@ -21,6 +21,7 @@ public class ProjectMetadataReaderTest extends PlexusTestCase {
 
     private ProjectMetadataReader reader;
 
+    @Override
     public void setUp() throws Exception {
         reader = lookup(ProjectMetadataReader.class);
     }

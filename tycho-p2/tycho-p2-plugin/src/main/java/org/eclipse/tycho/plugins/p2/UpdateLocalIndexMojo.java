@@ -33,6 +33,7 @@ public class UpdateLocalIndexMojo extends AbstractMojo {
     @Component
     private EquinoxServiceFactory serviceFactory;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         LocalRepositoryP2Indices localRepoIndices = serviceFactory.getService(LocalRepositoryP2Indices.class);
         GAV gav = new GAV(project.getGroupId(), project.getArtifactId(), project.getArtifact().getVersion());

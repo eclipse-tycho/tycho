@@ -273,6 +273,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
     protected abstract File getOutputDirectory();
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         // ----------------------------------------------------------------------
         // Look up the compiler. This is done before other code than can

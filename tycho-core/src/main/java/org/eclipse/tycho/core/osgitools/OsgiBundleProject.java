@@ -83,16 +83,19 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     @Requirement
     private DependencyComputer dependencyComputer;
 
+    @Override
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment) {
         return getDependencyWalker(project);
     }
 
+    @Override
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project) {
         final DependencyArtifacts artifacts = getDependencyArtifacts(project);
 
         final List<ClasspathEntry> cp = getClasspath(project);
 
         return new ArtifactDependencyWalker() {
+            @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 for (ClasspathEntry entry : cp) {
                     ArtifactDescriptor artifact = artifacts.getArtifact(entry.getArtifactKey());
@@ -110,17 +113,21 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 }
             }
 
+            @Override
             public void traverseFeature(File location, Feature feature, ArtifactDependencyVisitor visitor) {
             }
 
+            @Override
             public void traverseUpdateSite(UpdateSite site, ArtifactDependencyVisitor artifactDependencyVisitor) {
             }
 
+            @Override
             public void traverseProduct(ProductConfiguration productConfiguration, ArtifactDependencyVisitor visitor) {
             }
         };
     }
 
+    @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
         ArtifactKey key = (ArtifactKey) project.getContextValue(CTX_ARTIFACT_KEY);
         if (key == null) {
@@ -141,6 +148,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return mf.toArtifactKey();
     }
 
+    @Override
     public String getManifestValue(String key, MavenProject project) {
         return getManifest(project).getValue(key);
     }
@@ -272,6 +280,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return pdeProject;
     }
 
+    @Override
     public List<ClasspathEntry> getClasspath(MavenProject project) {
         @SuppressWarnings("unchecked")
         List<ClasspathEntry> classpath = (List<ClasspathEntry>) project
@@ -282,6 +291,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         return classpath;
     }
 
+    @Override
     public List<ClasspathEntry.AccessRule> getBootClasspathExtraAccessRules(MavenProject project) {
         @SuppressWarnings("unchecked")
         List<ClasspathEntry.AccessRule> rules = (List<AccessRule>) project

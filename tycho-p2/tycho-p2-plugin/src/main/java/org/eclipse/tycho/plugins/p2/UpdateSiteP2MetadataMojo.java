@@ -14,6 +14,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 
 @Mojo(name = "update-site-p2-metadata")
 public class UpdateSiteP2MetadataMojo extends AbstractP2MetadataMojo {
+    @Override
     protected String getPublisherApplication() {
         return "org.eclipse.equinox.p2.publisher.UpdateSitePublisher";
     }

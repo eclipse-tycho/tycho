@@ -39,6 +39,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      * The published repository is always under the id of the maven project: this published
      * repository can contain multiple products.
      */
+    @Override
     public ArtifactKey getArtifactKey(ReactorProject project) {
         String id = project.getArtifactId();
         String version = getOsgiVersion(project);
@@ -53,6 +54,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
         final List<Category> categories = loadCategories(project);
         return new AbstractArtifactDependencyWalker(getDependencyArtifacts(project, environment), getEnvironments(
                 project, environment)) {
+            @Override
             public void walk(ArtifactDependencyVisitor visitor) {
                 WalkbackPath visited = new WalkbackPath();
                 for (ProductConfiguration product : products) {

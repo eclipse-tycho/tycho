@@ -53,6 +53,7 @@ public class ManifestComparator implements ContentsComparator {
         IGNORED_KEYS = Collections.unmodifiableCollection(ignoredKeys);
     }
 
+    @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<String, ArtifactDelta>();
 

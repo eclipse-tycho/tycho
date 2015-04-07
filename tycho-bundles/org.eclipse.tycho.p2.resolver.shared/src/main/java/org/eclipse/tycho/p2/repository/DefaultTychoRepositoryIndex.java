@@ -35,16 +35,19 @@ public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryInde
         gavs = new LinkedHashSet<GAV>(initialContent);
     }
 
+    @Override
     public Set<GAV> getProjectGAVs() {
         return Collections.unmodifiableSet(new LinkedHashSet<GAV>(gavs));
     }
 
+    @Override
     public void addGav(GAV gav) {
         if (gav == null)
             throw new NullPointerException();
         gavs.add(gav);
     }
 
+    @Override
     public void removeGav(GAV gav) {
         gavs.remove(gav);
     }

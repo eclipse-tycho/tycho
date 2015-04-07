@@ -54,6 +54,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
     @Requirement
     private Map<String, ContentsComparator> comparators;
 
+    @Override
     public CompoundArtifactDelta getDelta(File baseline, File reactor) throws IOException {
         Map<String, ArtifactDelta> result = new LinkedHashMap<String, ArtifactDelta>();
 

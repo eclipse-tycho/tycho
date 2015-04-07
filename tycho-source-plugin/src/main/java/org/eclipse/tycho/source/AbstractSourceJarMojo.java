@@ -183,6 +183,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     // ----------------------------------------------------------------------
 
     /** {@inheritDoc} */
+    @Override
     public void execute() throws MojoExecutionException {
         packageSources(project);
     }

@@ -55,6 +55,7 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
     /**
      * @see ProjectType
      */
+    @Override
     public String getType() {
         return type;
     }
@@ -62,6 +63,7 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
     /**
      * Eclipse/OSGi artifact id. Can differ from Maven artifactId.
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -71,6 +73,7 @@ public class DefaultArtifactKey implements org.eclipse.tycho.ArtifactKey {
      * version corresponds to version specified in the project sources and does not reflect
      * qualifier expansion.
      */
+    @Override
     public String getVersion() {
         return version;
     }

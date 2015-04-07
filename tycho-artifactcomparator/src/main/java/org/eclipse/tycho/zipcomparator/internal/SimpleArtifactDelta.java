@@ -31,10 +31,12 @@ public class SimpleArtifactDelta implements ArtifactDelta {
         this.message = message;
     }
 
+    @Override
     public String getMessage() {
         return message;
     }
 
+    @Override
     public String getDetailedMessage() {
         return message;
     }

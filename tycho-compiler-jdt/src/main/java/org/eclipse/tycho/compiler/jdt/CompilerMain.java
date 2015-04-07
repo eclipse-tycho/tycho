@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 class CompilerMain extends Main {
 
     private static final FilenameFilter POTENTIAL_ZIP_FILTER = new FilenameFilter() {
+        @Override
         public boolean accept(File dir, String name) {
             return Util.isPotentialZipArchive(name);
         }
@@ -153,6 +154,7 @@ class CompilerMain extends Main {
         }
         File[] jars = classesDir.listFiles(new FilenameFilter() {
 
+            @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".jar") && new File(dir, name).isFile();
             }

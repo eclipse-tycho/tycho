@@ -98,6 +98,7 @@ public class P2MetadataMojo extends AbstractMojo {
     @Component
     private BaselineValidator baselineValidator;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         attachP2Metadata();
     }

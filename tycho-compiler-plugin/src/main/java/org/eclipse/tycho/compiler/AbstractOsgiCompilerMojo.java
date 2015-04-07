@@ -399,24 +399,29 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return roots;
     }
 
+    @Override
     public List<SourcepathEntry> getSourcepath() throws MojoExecutionException {
         ArrayList<SourcepathEntry> entries = new ArrayList<SourcepathEntry>();
         for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
             final File outputDirectory = jar.getOutputDirectory();
             for (final File sourcesRoot : jar.getSourceFolders()) {
                 SourcepathEntry entry = new SourcepathEntry() {
+                    @Override
                     public File getSourcesRoot() {
                         return sourcesRoot;
                     }
 
+                    @Override
                     public File getOutputDirectory() {
                         return outputDirectory;
                     }
 
+                    @Override
                     public List<String> getIncludes() {
                         return null;
                     }
 
+                    @Override
                     public List<String> getExcludes() {
                         return null;
                     }
@@ -613,6 +618,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return TychoProjectUtils.getExecutionEnvironmentConfiguration(project).getFullSpecification();
     }
 
+    @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         TychoProject projectType = getBundleProject();
         ArrayList<ClasspathEntry> classpath = new ArrayList<ClasspathEntry>(
@@ -652,10 +658,12 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return classpath;
     }
 
+    @Override
     public String getExecutionEnvironment() throws MojoExecutionException {
         return getTargetExecutionEnvironment().getProfileName();
     }
 
+    @Override
     public String getSourceLevel() throws MojoExecutionException {
         return getSourceLevel(getTargetExecutionEnvironment());
     }
@@ -679,6 +687,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         return DEFAULT_SOURCE_VERSION;
     }
 
+    @Override
     public String getTargetLevel() throws MojoExecutionException {
         return getTargetLevel(getTargetExecutionEnvironment());
     }
@@ -721,6 +730,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
         }
     }
 
+    @Override
     public <T> T getAdapter(Class<T> adapter) {
         if (adapter.isAssignableFrom(JavaCompilerConfiguration.class)) {
             return adapter.cast(this);

@@ -71,11 +71,13 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public IQueryable<IArtifactDescriptor> descriptorQueryable() {
         // TODO Auto-generated method stub
         return null;
@@ -109,6 +111,7 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
         }
     }
 
+    @Override
     public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
         throw new UnsupportedOperationException();
     }

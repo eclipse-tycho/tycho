@@ -50,10 +50,12 @@ public class FileLockerImpl implements FileLocker {
         }
     }
 
+    @Override
     public void lock() {
         lock(10000L);
     }
 
+    @Override
     public void lock(long timeout) {
         if (timeout < 0) {
             throw new IllegalArgumentException("timeout must not be negative");
@@ -93,6 +95,7 @@ public class FileLockerImpl implements FileLocker {
      * 
      * @see org.eclipse.tycho.p2.repository.IFileLocker#release()
      */
+    @Override
     public void release() {
         lockFileLocation.release();
         if (lockMarkerFile.isFile() && !lockMarkerFile.delete()) {
@@ -106,6 +109,7 @@ public class FileLockerImpl implements FileLocker {
      * 
      * @see org.eclipse.tycho.p2.repository.IFileLocker#isLocked()
      */
+    @Override
     public boolean isLocked() {
         try {
             return lockFileLocation.isLocked();

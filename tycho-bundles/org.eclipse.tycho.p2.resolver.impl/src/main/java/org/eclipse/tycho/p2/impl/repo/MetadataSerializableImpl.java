@@ -40,6 +40,7 @@ public class MetadataSerializableImpl implements MetadataSerializable {
         this.agent = Activator.newProvisioningAgent();
     }
 
+    @Override
     public void serialize(OutputStream stream, Set<?> installableUnits) throws IOException {
         final List<IInstallableUnit> units = toInstallableUnits(installableUnits);
 
@@ -54,10 +55,12 @@ public class MetadataSerializableImpl implements MetadataSerializable {
 
             }
 
+            @Override
             public Collection<IRepositoryReference> getReferences() {
                 return Collections.emptyList();
             }
 
+            @Override
             public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
                 return query.perform(units.iterator());
             }

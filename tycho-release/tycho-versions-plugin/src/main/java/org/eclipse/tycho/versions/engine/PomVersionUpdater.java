@@ -47,6 +47,7 @@ public class PomVersionUpdater {
 
     static {
         VersionAdaptor bundleVersionAdaptor = new VersionAdaptor() {
+            @Override
             public String getVersion(ProjectMetadata project) throws IOException {
                 MutableBundleManifest manifest = MutableBundleManifest.read(new File(project.getBasedir(),
                         "META-INF/MANIFEST.MF"));
@@ -57,6 +58,7 @@ public class PomVersionUpdater {
         updaters.put(PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, bundleVersionAdaptor);
 
         updaters.put(PackagingType.TYPE_ECLIPSE_FEATURE, new VersionAdaptor() {
+            @Override
             public String getVersion(ProjectMetadata project) throws IOException {
                 Feature feature = Feature.read(new File(project.getBasedir(), Feature.FEATURE_XML));
                 return feature.getVersion();
@@ -64,6 +66,7 @@ public class PomVersionUpdater {
         });
 
         updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, new VersionAdaptor() {
+            @Override
             public String getVersion(ProjectMetadata project) throws IOException {
                 MutablePomFile pom = project.getMetadata(MutablePomFile.class);
                 ProductConfiguration product = ProductConfiguration.read(new File(project.getBasedir(), pom

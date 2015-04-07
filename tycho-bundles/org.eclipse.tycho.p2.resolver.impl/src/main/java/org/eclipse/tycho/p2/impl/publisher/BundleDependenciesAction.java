@@ -145,18 +145,22 @@ public class BundleDependenciesAction extends BundlesAction {
         }
 
         publisherInfo.addAdvice(new ICapabilityAdvice() {
+            @Override
             public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
                 return symbolicName.equals(id) && bundleVersion.equals(version);
             }
 
+            @Override
             public IRequirement[] getRequiredCapabilities(InstallableUnitDescription iu) {
                 return required;
             }
 
+            @Override
             public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu) {
                 return provided;
             }
 
+            @Override
             public IRequirement[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
                 return null;
             }
