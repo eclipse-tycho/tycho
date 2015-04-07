@@ -8,7 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug363331_extraTargetPlatformRequirements;
+package org.eclipse.tycho.test.resolver;
 
 import java.util.Arrays;
 
@@ -17,13 +17,14 @@ import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
+@SuppressWarnings("unchecked")
 public class ExtraCompilerRequirementsTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testArtificial() throws Exception {
         // TODO this is an artificial test case - find a test closer to a real use case
         // TODO avoid remote repositories
-        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/artificial", false);
+        Verifier verifier = getVerifier("/resolver.extraRequirements/artificial", false);
         verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
         verifier.getCliOptions().add("-De352-repo=" + P2Repositories.ECLIPSE_352.toString());
         verifier.executeGoals(Arrays.asList("clean", "verify"));
@@ -32,7 +33,7 @@ public class ExtraCompilerRequirementsTest extends AbstractTychoIntegrationTest 
 
     @Test
     public void testDynamicImportPackage() throws Exception {
-        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/dynamicimport-package", false);
+        Verifier verifier = getVerifier("/resolver.extraRequirements/dynamicimport-package", false);
         verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
@@ -40,7 +41,7 @@ public class ExtraCompilerRequirementsTest extends AbstractTychoIntegrationTest 
 
     @Test
     public void testFragmentSplitPackage() throws Exception {
-        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/fragment-split-package", false);
+        Verifier verifier = getVerifier("/resolver.extraRequirements/fragment-split-package", false);
         verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
@@ -48,8 +49,7 @@ public class ExtraCompilerRequirementsTest extends AbstractTychoIntegrationTest 
 
     @Test
     public void testFragmentImportPackage() throws Exception {
-        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/implicit-fragment-import-package",
-                false);
+        Verifier verifier = getVerifier("/resolver.extraRequirements/implicit-fragment-import-package", false);
         verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
@@ -57,7 +57,7 @@ public class ExtraCompilerRequirementsTest extends AbstractTychoIntegrationTest 
 
     @Test
     public void testImportPackageDirectives() throws Exception {
-        Verifier verifier = getVerifier("/363331_extraTargetPlatformRequirements/import-package-directives", false);
+        Verifier verifier = getVerifier("/resolver.extraRequirements/import-package-directives", false);
         verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoals(Arrays.asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
