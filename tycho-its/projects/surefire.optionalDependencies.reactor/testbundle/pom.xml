@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>tycho-its-project.test.optionalDependencies</groupId>
-		<artifactId>tod.parent</artifactId>
+		<groupId>tycho-its-project.surefire.optionalDependencies.reactor</groupId>
+		<artifactId>sodr.parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>tod.testbundle</artifactId>
+	<artifactId>sodr.testbundle</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
 </project>

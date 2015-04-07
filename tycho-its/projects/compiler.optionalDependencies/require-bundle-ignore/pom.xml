@@ -7,10 +7,6 @@
   <version>1.0.0</version>
   <packaging>eclipse-plugin</packaging>
 
-  <properties>
-    <tycho-version>0.14.0</tycho-version>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

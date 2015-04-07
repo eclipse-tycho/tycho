@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,29 +8,31 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.compiler.optionalDependencies;
-
-import java.util.Arrays;
+package org.eclipse.tycho.test.compiler;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil.P2Repositories;
 import org.junit.Test;
 
+// tests that optional dependencies are put on the compile class path (bug 351842)
+@SuppressWarnings("unchecked")
 public class OptionalDependenciesTest extends AbstractTychoIntegrationTest {
 
     @Test
-    public void requireBundle() throws Exception {
+    public void testOptionallyRequiredBundleIsOnCompileClassPath() throws Exception {
         Verifier verifier = getVerifier("/compiler.optionalDependencies/require-bundle", false);
         verifier.getCliOptions().add("-De342-repo=" + P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoals(Arrays.asList("clean", "verify"));
+        verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     }
 
     @Test
-    public void requireBundleIgnore() throws Exception {
+    public void testOptionallyRequiredBundleCanBeIgnored() throws Exception {
         Verifier verifier = getVerifier("/compiler.optionalDependencies/require-bundle-ignore", false);
-        verifier.executeGoals(Arrays.asList("clean", "verify"));
+        // empty target platform -> dependency would not resolve if the project had not overridden the optionalDependencies=require default
+        verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
     }
+
 }

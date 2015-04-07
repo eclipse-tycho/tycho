@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2011 SAP AG and others.
+ - Copyright (c) 2011, 2015 SAP AG and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
@@ -13,23 +13,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>tycho-its-project.test.optionalDependencies</groupId>
-	<artifactId>tod.parent</artifactId>
+	<groupId>tycho-its-project.surefire.optionalDependencies.reactor</groupId>
+	<artifactId>sodr.parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-
-    <description>
-    Project dependency resolution must not be affected by optionalDependencies configuration of other reactor
-    projects.
-
-    'reactorbundle' has optional dependency on 'org.eclipse.equinox.frameworkadmin' bundle. Dependency resolution
-    of 'reactorbundle' bundles treats 'org.eclipse.equinox.frameworkadmin' dependency as required (see bug 351842 [1]).
-
-    'testbundle' test bundle, which depends on 'reactorbundle' is not expected to have 
-    'org.eclipse.equinox.frameworkadmin' as a dependency. 
-
-    [1] https://bugs.eclipse.org/bugs/show_bug.cgi?id=351842 
-    </description>
 
 	<properties>
 		<e342-repo>http://download.eclipse.org/eclipse/updates/3.4</e342-repo>
@@ -58,10 +45,15 @@
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-compiler-plugin</artifactId>
+				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<optionalDependencies>ignore</optionalDependencies>
+					<dependency-resolution>
+						<!-- when computing the test runtime, disable the test bundle's optional dependencies,
+						     but this must not be done for unrelated upstream reactor projects - see bug 367701 -->
+						<optionalDependencies>ignore</optionalDependencies>
+						<!-- remark: the configuration above is needed because the test runtime currently doesn't ignore optional dependencies by default - see bug 464061 -->
+					</dependency-resolution>
 				</configuration>
 			</plugin>
 		</plugins>
