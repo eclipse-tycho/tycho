@@ -8,24 +8,25 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug377357_pack200;
+package org.eclipse.tycho.test.packaging;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
+@SuppressWarnings("unchecked")
 public class RepositoryPackedArtifactsTest extends AbstractTychoIntegrationTest {
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("/377357_pack200", false);
+        Verifier verifier = getVerifier("/packaging.pack200", false);
         verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
         verifier.executeGoals(Arrays.asList("clean", "package"));
         verifier.verifyErrorFreeLog();
@@ -44,6 +45,6 @@ public class RepositoryPackedArtifactsTest extends AbstractTychoIntegrationTest 
 
     private void assertDirectory(File dir, String... expectedFiles) {
         Set<String> actualFiles = new HashSet<String>(Arrays.asList(dir.list()));
-        Assert.assertEquals(new HashSet<String>(Arrays.asList(expectedFiles)), actualFiles);
+        assertEquals(new HashSet<String>(Arrays.asList(expectedFiles)), actualFiles);
     }
 }
