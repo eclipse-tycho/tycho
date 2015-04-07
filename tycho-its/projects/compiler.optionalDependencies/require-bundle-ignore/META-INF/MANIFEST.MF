@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: 351842_optionalDependencies.require-bundle
 Bundle-SymbolicName: cod.require-bundle-ignore;singleton:=true
 Bundle-Version: 1.0.0
-Require-Bundle: org.eclipse.osgi;resolution:=optional
+Require-Bundle: org.eclipse.osgi;resolution:=optional;x-installation:=greedy
 Bundle-ActivationPolicy: lazy
