@@ -4,12 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>licenseFeature</groupId>
+    <groupId>tycho-its-project.licenseFeature</groupId>
     <artifactId>licenseFeature</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>repository</artifactId>
-  <packaging>eclipse-repository</packaging>
-
+  <artifactId>feature</artifactId>
+  <version>1.2.3-SNAPSHOT</version>
+  <packaging>eclipse-feature</packaging>
 </project>

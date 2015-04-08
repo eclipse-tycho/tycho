@@ -8,14 +8,13 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug368985_licenseFeature;
+package org.eclipse.tycho.test.licenseFeature;
 
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -27,12 +26,15 @@ import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+// tests the license feature support (bug 368985)
+@SuppressWarnings("unchecked")
 public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
+
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("/368985_licenseFeature", false);
+        Verifier verifier = getVerifier("/licenseFeature", false);
         verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
-        verifier.executeGoals(Arrays.asList("clean", "install"));
+        verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
 
         assertFeatureJar(new File(verifier.getBasedir(),
