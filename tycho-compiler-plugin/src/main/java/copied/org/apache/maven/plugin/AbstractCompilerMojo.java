@@ -57,9 +57,9 @@ import org.codehaus.plexus.util.StringUtils;
  */
 public abstract class AbstractCompilerMojo extends AbstractMojo {
 
-    public static final String DEFAULT_SOURCE_VERSION = "1.6";
+    public static final String DEFAULT_SOURCE_VERSION = "1.7";
 
-    public static final String DEFAULT_TARGET_VERSION = "1.6";
+    public static final String DEFAULT_TARGET_VERSION = "1.7";
 
     // ----------------------------------------------------------------------
     // Configurables
