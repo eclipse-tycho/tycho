@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2015 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ package org.eclipse.tycho.plugins.p2.director;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -83,8 +82,6 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     @Component
     private MavenProjectHelper helper;
 
-    private static final boolean HAS_JAVA_NIO = checkForJavaNio();
-
     public ProductArchiverMojo() {
         productArchivers = new HashMap<String, ProductArchiver>();
 
@@ -119,9 +116,6 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                     + "Configure the attachId or select a subset of products. Current configuration: "
                     + config.getProducts());
         }
-        if (!HAS_JAVA_NIO) {
-            warnThatTarGzWontHaveSymlinks(getEnvironments());
-        }
 
         for (Product product : config.getProducts()) {
             for (TargetEnvironment env : getEnvironments()) {
@@ -137,7 +131,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
                 try {
                     final File sourceDir = getProductMaterializeDirectory(product, env);
-                    if (HAS_JAVA_NIO && TAR_GZ_ARCHIVE_FORMAT.equals(format)
+                    if (TAR_GZ_ARCHIVE_FORMAT.equals(format)
                             && !"plexus".equals(getSession().getUserProperties().getProperty("tycho.tar"))) {
                         getLog().debug("Using commons-compress tar");
                         createCommonsCompressTarGz(productArchive, sourceDir);
@@ -155,24 +149,6 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
 
                 final String artifactClassifier = getArtifactClassifier(product, env);
                 helper.attachArtifact(getProject(), format, artifactClassifier, productArchive);
-            }
-        }
-    }
-
-    private static boolean checkForJavaNio() {
-        try {
-            return Class.forName("java.nio.file.Files") != null;
-        } catch (Throwable t) {
-            return false;
-        }
-    }
-
-    private void warnThatTarGzWontHaveSymlinks(List<TargetEnvironment> environments) {
-        for (TargetEnvironment environment : environments) {
-            if (TAR_GZ_ARCHIVE_FORMAT.equals(getArchiveFormat(environment))) {
-                getLog().warn(
-                        "JAVA_HOME is set to a JDK version older than 1.7. 'tar.gz' archives will not preserve symbolic links.");
-                return;
             }
         }
     }
