@@ -4,11 +4,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>tycho-its-project</groupId>
+    <groupId>tycho-its-project.sourceBundle.autoSkip</groupId>
     <artifactId>367637_autoNoSourceBundle</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>feature</artifactId>
-  <packaging>eclipse-feature</packaging>
+  <artifactId>bundle</artifactId>
+  <packaging>eclipse-plugin</packaging>
+
 </project>

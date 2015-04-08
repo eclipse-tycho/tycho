@@ -8,9 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug367637_autoNoSourceBundle;
-
-import java.util.Arrays;
+package org.eclipse.tycho.test.sourceBundle;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -22,11 +20,11 @@ public class AutoNoSourceBundleTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        // the point of the test is to make sure Tycho does NOT allow references to missing source bundles
+        // the point of the test is to make sure Tycho does NOT allow references to missing source bundles (see bug 367637)
 
-        Verifier verifier = getVerifier("/367637_autoNoSourceBundle", false);
+        Verifier verifier = getVerifier("/sourceBundles.autoSkip", false);
         try {
-            verifier.executeGoals(Arrays.asList("clean", "install"));
+            verifier.executeGoal("verify");
             Assert.fail("Reference to a missing source bundle did not fail the build");
         } catch (VerificationException expected) {
             verifier.verifyTextInLog("feature.feature.group 1.0.0.qualifier requires 'bundle.source 0.0.0' but it could not be found");

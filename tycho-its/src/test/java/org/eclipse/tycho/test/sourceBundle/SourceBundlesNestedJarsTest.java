@@ -8,8 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *******************************************************************************/
-
-package org.eclipse.tycho.test.sourcebundles;
+package org.eclipse.tycho.test.sourceBundle;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
@@ -29,7 +28,7 @@ public class SourceBundlesNestedJarsTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void testDistinctSourceRoots() throws Exception {
-        Verifier verifier = getVerifier("sourcebundle.nestedjars", false);
+        Verifier verifier = getVerifier("sourceBundles.nestedJars", false);
         verifier.executeGoal("package");
         verifier.verifyErrorFreeLog();
         File sourceJar = new File(verifier.getBasedir(), "target/test.distinct.sourceroots-1.0.0-sources.jar");
