@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- includes three bundles in different ways; note: the bundles do not require each other -->
+<site>
+   <category-def label="Test Category Label" name="Test Category">
+     <description>Test Category Description</description>
+   </category-def>
+   <iu>
+     <category name="Test Category" />
+     <query><expression type="match">id ~= /prr.example.*/</expression></query>
+   </iu>
+</site>
