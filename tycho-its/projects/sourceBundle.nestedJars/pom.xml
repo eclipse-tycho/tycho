@@ -2,7 +2,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   
-  <groupId>tychoits.sourcebundle.nestedjars</groupId>
+  <groupId>tycho-its-project.sourceBundle.nestedJars</groupId>
   <artifactId>test.distinct.sourceroots</artifactId>
   <version>1.0.0</version>
   
