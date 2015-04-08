@@ -8,7 +8,7 @@
  * Contributors:
  *    Andreas Sewe - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.test.bug424945_setLicenseFeatureVersion;
+package org.eclipse.tycho.test.licenseFeature;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,6 +20,8 @@ import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
+// TODO make this a unit test
+@SuppressWarnings("unchecked")
 public class SetLicenseFeatureVersionTest extends AbstractTychoIntegrationTest {
 
     private static final String NEW_MAVEN_VERSION = "1.0.1-SNAPSHOT";
@@ -27,7 +29,7 @@ public class SetLicenseFeatureVersionTest extends AbstractTychoIntegrationTest {
 
     @Test
     public void test() throws Exception {
-        Verifier verifier = getVerifier("/424945_setLicenseFeatureVersion", false);
+        Verifier verifier = getVerifier("/licenseFeature.setVersion", false);
 
         verifier.getCliOptions().add("-DnewVersion=" + NEW_MAVEN_VERSION);
         verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion()
