@@ -59,11 +59,11 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
     }
 
     @Test
-    public void testIncludeIUViaMatchQuery() throws Exception {
-        assertThat(p2Repo.getAllUnitIds(), hasItem("org.eclipse.equinox.app"));
+    public void testIncludeIUViaMatchQueryWithRegex() throws Exception {
+        assertThat(p2Repo.getAllUnitIds(), hasItem("javax.xml"));
 
         IU categoryIU = p2Repo.getUniqueIU("Test Category");
-        assertThat(categoryIU.getRequiredIds(), hasItem("org.eclipse.equinox.app"));
+        assertThat(categoryIU.getRequiredIds(), hasItem("javax.xml"));
     }
 
     @Test
@@ -80,4 +80,5 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
         assertThat(aboutFile, isFile());
         assertThat(FileUtils.fileRead(aboutFile).trim(), equalTo("About testrepo"));
     }
+
 }
