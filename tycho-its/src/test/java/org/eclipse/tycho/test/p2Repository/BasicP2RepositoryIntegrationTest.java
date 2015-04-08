@@ -80,4 +80,12 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
         assertThat(aboutFile, isFile());
         assertThat(FileUtils.fileRead(aboutFile).trim(), equalTo("About testrepo"));
     }
+
+    @Test
+    public void test371983BundleInclusionFromMatchQuery() {
+        // check that (separately!) included bundle is there
+        assertThat(p2Repo.getBundleArtifact("javax.servlet", "3.0.0.v201112011016"), isFile());
+        assertThat(p2Repo.getBundleArtifact("javax.transaction", "1.1.1.v201105210645"), isFile());
+        assertThat(p2Repo.getBundleArtifact("javax.xml.stream", "1.0.1.v201004272200"), isFile());
+    }
 }
