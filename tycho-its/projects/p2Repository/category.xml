@@ -3,7 +3,7 @@
 <site>
    <bundle id="osgi.enterprise" version="0.0.0"/>
    <iu>
-     <query> 
+     <query>
        <expression type="match">
          <![CDATA[
            id == $0
@@ -19,4 +19,8 @@
    <category-def label="Test Category Label" name="Test Category">
      <description>Test Category Description</description>
    </category-def>
+   <iu>
+     <category name="Test Category" />
+     <query><expression type="match">id ~= /javax.*/</expression></query>
+   </iu>
 </site>
