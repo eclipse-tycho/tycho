@@ -67,6 +67,11 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
     }
 
     @Test
+    public void testIncludeIUViaMatchQueryWithRegex() throws Exception {
+        assertThat(p2Repo.getAllUnitIds(), hasItem("javax.xml"));
+    }
+
+    @Test
     public void test347416CustomFinalName() throws Exception {
         File repositoryArchive = new File(verifier.getBasedir(), "target/" + CUSTOM_FINAL_NAME + ".zip");
         assertThat(repositoryArchive, isFile());
@@ -80,4 +85,5 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
         assertThat(aboutFile, isFile());
         assertThat(FileUtils.fileRead(aboutFile).trim(), equalTo("About testrepo"));
     }
+
 }
