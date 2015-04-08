@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: prr.example.bundle2
+Bundle-Version: 1.2.0.qualifier
+Bundle-ActivationPolicy: lazy
