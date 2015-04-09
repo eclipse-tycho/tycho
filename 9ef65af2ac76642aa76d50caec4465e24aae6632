@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_0eb59238",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/eeProfile/DependencyResolverEETest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T09:32:45Z",
+      "side": 0,
+      "message": "Deleted because we don\u0027t derive the EE from the JRE any more. Instead, there is a global default of 1.6 (currently being changed to 1.7)",
+      "range": {
+        "startLine": 39,
+        "startChar": 16,
+        "endLine": 39,
+        "endChar": 25
+      },
+      "revId": "9ef65af2ac76642aa76d50caec4465e24aae6632",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_aec39e9e",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/resolver/ExtraCompilerRequirementsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T09:32:45Z",
+      "side": 0,
+      "message": "Bug number is lost.",
+      "range": {
+        "startLine": 11,
+        "startChar": 34,
+        "endLine": 11,
+        "endChar": 40
+      },
+      "revId": "9ef65af2ac76642aa76d50caec4465e24aae6632",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
