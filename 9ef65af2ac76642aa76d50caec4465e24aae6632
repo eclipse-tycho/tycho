@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_c97ee41f",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/eeProfile/DependencyResolverEETest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T12:37:50Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "a7fb1785_89785c36",
+      "range": {
+        "startLine": 24,
+        "startChar": 42,
+        "endLine": 24,
+        "endChar": 48
+      },
+      "revId": "9ef65af2ac76642aa76d50caec4465e24aae6632",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_0eb59238",
         "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/eeProfile/DependencyResolverEETest.java",
         "patchSetId": 1
@@ -59,6 +83,30 @@
       "writtenOn": "2015-04-09T09:32:45Z",
       "side": 0,
       "message": "Bug number is lost.",
+      "range": {
+        "startLine": 11,
+        "startChar": 34,
+        "endLine": 11,
+        "endChar": 40
+      },
+      "revId": "9ef65af2ac76642aa76d50caec4465e24aae6632",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_294fa812",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/resolver/ExtraCompilerRequirementsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T12:37:50Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "a7fb1785_aec39e9e",
       "range": {
         "startLine": 11,
         "startChar": 34,
