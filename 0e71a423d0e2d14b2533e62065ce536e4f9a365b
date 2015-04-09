@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_89433cc6",
+        "filename": "tycho-compiler-plugin/src/main/java/copied/org/apache/maven/plugin/AbstractCompilerMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-04-09T13:05:41Z",
+      "side": 1,
+      "message": "-1\n\n I would not increase the default here, no need.\n\nIncreasing the source/target level Tycho is built with is something completely different and independent than changing the source/target of bundles built using Tycho.",
+      "revId": "0e71a423d0e2d14b2533e62065ce536e4f9a365b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_29de888b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/ExecutionEnvironmentConfigurationImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-04-09T13:05:41Z",
+      "side": 1,
+      "message": "same here, I would leave this untouched.",
+      "revId": "0e71a423d0e2d14b2533e62065ce536e4f9a365b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
