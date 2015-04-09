@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_a4845d18",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/InstallIntoLocalRepoAndCollectFromThereTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T14:18:57Z",
+      "side": 1,
+      "message": "I don\u0027t understand. Why do you expect this bundle to be present in the p2 repository? There is no reference to it as far as I can see.",
+      "range": {
+        "startLine": 50,
+        "startChar": 72,
+        "endLine": 50,
+        "endChar": 92
+      },
+      "revId": "bb43238091bf17e741abed7f54cea69d93b75d97",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
