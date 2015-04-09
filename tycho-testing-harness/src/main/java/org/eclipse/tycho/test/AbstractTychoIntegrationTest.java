@@ -154,7 +154,12 @@ public abstract class AbstractTychoIntegrationTest {
     }
 
     protected String getMavenHome() {
-        return EnvironmentUtil.getMavenHome();
+        String mavenHome = EnvironmentUtil.getMavenHome();
+        if (mavenHome == null) {
+            throw new IllegalStateException(
+                    "Generated test data for the integration tests is missing. Run the launch configuration 'tycho-its - prepare test resources' first.");
+        }
+        return mavenHome;
     }
 
     protected String getTychoVersion() {
