@@ -45,6 +45,30 @@
       "revId": "940a725cdd4bac51b5a91c66675bb43da82e83da",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_694530ed",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/packaging/RepositoryPackedArtifactsTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T12:38:55Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "a7fb1785_2ede8e8b",
+      "range": {
+        "startLine": 28,
+        "startChar": 42,
+        "endLine": 28,
+        "endChar": 48
+      },
+      "revId": "940a725cdd4bac51b5a91c66675bb43da82e83da",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
