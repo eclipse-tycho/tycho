@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_09774c7a",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/baseline/BaselineValidateAndReplaceTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T12:11:52Z",
+      "side": 0,
+      "message": "-1 bug number is lost",
+      "range": {
+        "startLine": 22,
+        "startChar": 42,
+        "endLine": 22,
+        "endChar": 48
+      },
+      "revId": "3d2f37f1933e2bce046ceedfc7d5cd739fbe9a32",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
