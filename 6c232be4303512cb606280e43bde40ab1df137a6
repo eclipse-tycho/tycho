@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_e98ac0a1",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/BasicP2RepositoryIntegrationTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T12:56:43Z",
+      "side": 1,
+      "message": "These bundles don\u0027t exist in the target platform, so they will certainly not be copied into the p2 repository.",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 98
+      },
+      "revId": "6c232be4303512cb606280e43bde40ab1df137a6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
