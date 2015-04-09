@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_290cc8cb",
+        "filename": "tycho-its/projects/p2Repository/category.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T12:59:26Z",
+      "side": 1,
+      "message": "I like this test case because it is more realistic than the expression above. But then, I\u0027d prefer that we remove the other one.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 8
+      },
+      "revId": "b8b9bacde8d2ccc393aef4759eaec8e60c1dccd5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
