@@ -22,6 +22,30 @@
       "revId": "bb43238091bf17e741abed7f54cea69d93b75d97",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_048c5112",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/InstallIntoLocalRepoAndCollectFromThereTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 17
+      },
+      "writtenOn": "2015-04-09T14:41:51Z",
+      "side": 1,
+      "message": "Sorry. My bad. I included the wrong category.xml. Will provide an updated patch.",
+      "parentUuid": "a7fb1785_a4845d18",
+      "range": {
+        "startLine": 50,
+        "startChar": 72,
+        "endLine": 50,
+        "endChar": 92
+      },
+      "revId": "bb43238091bf17e741abed7f54cea69d93b75d97",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
