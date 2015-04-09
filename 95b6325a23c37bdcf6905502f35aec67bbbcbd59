@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_e9b920b1",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/surefire/TestOptionalDependenciesTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-09T12:00:26Z",
+      "side": 0,
+      "message": "Bug number is lost",
+      "range": {
+        "startLine": 23,
+        "startChar": 42,
+        "endLine": 23,
+        "endChar": 48
+      },
+      "revId": "95b6325a23c37bdcf6905502f35aec67bbbcbd59",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
