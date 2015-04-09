@@ -22,6 +22,30 @@
       "revId": "6c232be4303512cb606280e43bde40ab1df137a6",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_64e1d58c",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/BasicP2RepositoryIntegrationTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 17
+      },
+      "writtenOn": "2015-04-09T14:54:11Z",
+      "side": 1,
+      "message": "They are in the Kepler repo available in the downloads area. Is that the one used for testing?",
+      "parentUuid": "a7fb1785_e98ac0a1",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 98
+      },
+      "revId": "6c232be4303512cb606280e43bde40ab1df137a6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
