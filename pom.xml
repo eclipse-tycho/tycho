@@ -88,19 +88,27 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
-		<equinoxVersion>3.10.0.v20140606-1445</equinoxVersion>
-		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
-		<equinoxCompatVersion>1.0.0.v20140403-1907</equinoxCompatVersion>
-		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<jdtVersion>3.10.0.v20140604-1726</jdtVersion>
-		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
-		<jdtAptVersion>1.1.0.v20140509-1235</jdtAptVersion>
-		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
+		<equinoxVersion>3.10.100.v20150318-0312</equinoxVersion>
+		<equinoxVersionMaven>${equinoxVersion}-SNAPSHOT</equinoxVersionMaven>
+		<equinoxCompatVersion>1.0.100.v20140702-1948</equinoxCompatVersion>
+		<equinoxCompatVersionMaven>${equinoxCompatVersion}-SNAPSHOT</equinoxCompatVersionMaven>
+		<jdtVersion>3.11.0.v20150317-0048</jdtVersion>
+		<jdtVersionMaven>${jdtVersion}-SNAPSHOT</jdtVersionMaven>
+		<jdtAptVersion>1.1.100.v20150316-1618</jdtAptVersion>
+		<jdtAptVersionMaven>${jdtAptVersion}-SNAPSHOT</jdtAptVersionMaven>
 
 		<!-- version of Tycho used by this build -->
 		<tychoBootstrapVersion>0.21.0</tychoBootstrapVersion>
 	</properties>
 
+	<repositories>
+			<repository>
+					<!-- TODO remove this before releasing, see bug 461101 -->
+					<id>tycho-snapshots</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			</repository>
+	</repositories>
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
