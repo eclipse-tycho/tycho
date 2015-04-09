@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_2905e887",
+        "filename": "tycho-compiler-plugin/src/main/java/copied/org/apache/maven/plugin/AbstractCompilerMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-04-09T13:10:29Z",
+      "side": 1,
+      "message": "Sorry, I missunderstood that, in that case, all the changes of this patchset are irrelevant and I will abort it.",
+      "parentUuid": "a7fb1785_89433cc6",
+      "revId": "0e71a423d0e2d14b2533e62065ce536e4f9a365b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_29de888b",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/ee/ExecutionEnvironmentConfigurationImpl.java",
         "patchSetId": 2
