@@ -34,7 +34,7 @@ public abstract class AbstractUpdateMojo extends AbstractMojo {
     @Component
     private Logger logger;
 
-    @Parameter(defaultValue = "JavaSE-1.7")
+    @Parameter(defaultValue = "JavaSE-1.6")
     protected String executionEnvironment;
 
     protected P2Resolver p2;

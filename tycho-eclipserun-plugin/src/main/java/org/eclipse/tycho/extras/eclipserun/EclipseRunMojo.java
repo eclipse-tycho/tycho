@@ -91,7 +91,7 @@ public class EclipseRunMojo extends AbstractMojo {
     /**
      * Execution environment profile name used to resolve dependencies.
      */
-    @Parameter(defaultValue = "JavaSE-1.7")
+    @Parameter(defaultValue = "JavaSE-1.6")
     private String executionEnvironment;
 
     /**
