@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_29e4c118",
+        "filename": "tycho-its/projects/461872_unknownpackagingzip/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-10T19:50:31Z",
+      "side": 1,
+      "message": "This test is not executed automatically. Was this intended? \n\nNote that I have renamed it to \"packaging.attachedZip\" in the meanwhile. Test projects should not have the bug number in the name.",
+      "revId": "9988e40feadd51bfa14ba6a5114efe0f331ef038",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_c9ea5de7",
+        "filename": "tycho-p2/tycho-p2-plugin/src/main/java/org/eclipse/tycho/plugins/p2/P2MetadataMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-10T19:50:31Z",
+      "side": 1,
+      "message": "Should have used the constant from PackagingType\n\nAnd even better than comparing for the packaging type would be to have a separate mojo that also handles zips. That mojo would then only be bound for the p2-instalable-unit packaging type. In this way, we would not stand in the way of someone who wanted to invent his own packaging types. Not sure this is worth to do here though because P2MetadataMojo is very un-extensible anyway. The publish mojos for categories and products are better in that concern.",
+      "range": {
+        "startLine": 136,
+        "startChar": 66,
+        "endLine": 136,
+        "endChar": 85
+      },
+      "revId": "9988e40feadd51bfa14ba6a5114efe0f331ef038",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
