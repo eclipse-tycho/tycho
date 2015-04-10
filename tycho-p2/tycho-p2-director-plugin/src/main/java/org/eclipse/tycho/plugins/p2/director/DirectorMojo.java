@@ -26,6 +26,7 @@ import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
+import org.eclipse.tycho.plugins.p2.director.runtime.DirectorVersion;
 import org.eclipse.tycho.plugins.p2.director.runtime.StandaloneDirectorRuntimeFactory;
 
 /**
@@ -56,9 +57,7 @@ public final class DirectorMojo extends AbstractProductMojo {
 
     // TODO rename to profileName
     /**
-     * <p>
      * The name of the p2 profile to be created.
-     * </p>
      */
     @Parameter(defaultValue = "DefaultProfile")
     private String profile;
@@ -68,16 +67,13 @@ public final class DirectorMojo extends AbstractProductMojo {
     private List<ProfileName> profileNames;
 
     /**
-     * <p>
      * Include the feature JARs in installation. (Technically, this sets the property
      * <tt>org.eclipse.update.install.features</tt> to <tt>true</tt> in the p2 profile.)
-     * </p>
      */
     @Parameter(defaultValue = "true")
     private boolean installFeatures;
 
     /**
-     * <p>
      * Source repositories to be used in the director calls. Can be
      * <ul>
      * <li><code>targetPlatform</code> - to use the target platform as source (default)</li>
@@ -90,7 +86,6 @@ public final class DirectorMojo extends AbstractProductMojo {
     private InstallationSource source;
 
     /**
-     * <p>
      * Runtime in which the director application is executed. Can be
      * <ul>
      * <li><code>internal</code> - to use the director application from Tycho's embedded OSGi
@@ -103,6 +98,19 @@ public final class DirectorMojo extends AbstractProductMojo {
      */
     @Parameter(defaultValue = "internal")
     private DirectorRuntimeType directorRuntime;
+
+    /**
+     * Version of the director application to be used. Can be
+     * <ul>
+     * <li><code>marsMacLayout</code> - for the current version of the director application
+     * (default)</li>
+     * <li><code>legacyMacLayout</code> - for the director application from Eclipse Luna (4.4),
+     * which still supports installations for MacOS with the legacy file system layout. Requires
+     * that the <code>directorRuntime</code> parameter is set to <code>standalone</code>.</li>
+     * </ul>
+     */
+    @Parameter(defaultValue = "marsMacLayout")
+    private DirectorVersion directorVersion;
 
     // TODO extract methods
     @Override
@@ -150,13 +158,18 @@ public final class DirectorMojo extends AbstractProductMojo {
     private DirectorRuntime getDirectorRuntime() throws MojoFailureException, MojoExecutionException {
         switch (directorRuntime) {
         case internal:
+            if (directorVersion != DirectorVersion.marsMacLayout) {
+                getLog().warn(
+                        "Ignoring 'directorVersion' configuration because attribute 'directorRuntime' is not 'standalone'");
+            }
+
             // director from Tycho's OSGi runtime
             return osgiServices.getService(DirectorRuntime.class);
 
         case standalone:
             // separate director installation in the target folder
-            return standaloneDirectorFactory.createStandaloneDirector(getBuildDirectory().getChild("director"),
-                    getSession().getLocalRepository(), getForkedProcessTimeoutInSeconds());
+            return standaloneDirectorFactory.createStandaloneDirector(directorVersion,
+                    getBuildDirectory().getChild("director"), getForkedProcessTimeoutInSeconds(), getSession());
 
         default:
             throw new MojoFailureException("Unsupported value for attribute 'directorRuntime': \"" + directorRuntime
