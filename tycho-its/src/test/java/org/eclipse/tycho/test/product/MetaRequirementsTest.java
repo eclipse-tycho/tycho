@@ -11,6 +11,7 @@
 package org.eclipse.tycho.test.product;
 
 import org.apache.maven.it.Verifier;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Test;
 
@@ -30,5 +31,9 @@ public class MetaRequirementsTest extends AbstractTychoIntegrationTest {
         verifier.executeGoal("verify");
         verifier.verifyErrorFreeLog();
         verifier.verifyTextInLog("The custom touchpoint action has been executed");
+
+        // version of the product in tycho-standalone-p2-director shall match the project version
+        verifier.verifyTextInLog("Installing tycho-standalone-p2-director " + TychoVersion.getTychoBaseVersion());
     }
+
 }

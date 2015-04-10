@@ -14,15 +14,16 @@ import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.sisu.equinox.launching.EquinoxLauncher;
+import org.eclipse.tycho.core.maven.MavenArtifactResolver;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.p2.tools.director.shared.DirectorCommandException;
@@ -32,7 +33,7 @@ import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 public class StandaloneDirectorRuntimeFactory {
 
     @Requirement
-    private RepositorySystem repositorySystem;
+    private MavenArtifactResolver mavenArtifactResolver;
 
     @Requirement
     private EquinoxServiceFactory osgiServices;
@@ -43,22 +44,23 @@ public class StandaloneDirectorRuntimeFactory {
     @Requirement
     private Logger logger;
 
-    public StandaloneDirectorRuntime createStandaloneDirector(File installLocation,
-            ArtifactRepository localMavenRepository, int forkedProcessTimeoutInSeconds) throws MojoExecutionException {
+    public StandaloneDirectorRuntime createStandaloneDirector(DirectorVersion directorVersion, File installLocation,
+            int forkedProcessTimeoutInSeconds, MavenSession session) throws MojoFailureException,
+            MojoExecutionException {
 
-        installStandaloneDirector(installLocation, localMavenRepository);
+        installStandaloneDirector(directorVersion, installLocation, session);
         return new StandaloneDirectorRuntime(installLocation, launchHelper, forkedProcessTimeoutInSeconds, logger);
     }
 
-    private void installStandaloneDirector(File installLocation, ArtifactRepository localMavenRepository)
-            throws MojoExecutionException {
+    private void installStandaloneDirector(DirectorVersion directorVersion, File installLocation, MavenSession session)
+            throws MojoFailureException, MojoExecutionException {
         // using the internal director...
         DirectorRuntime bootstrapDirector = osgiServices.getService(DirectorRuntime.class);
 
         try {
             // ... install from a zipped p2 repository obtained via Maven ...
-            URI directorRuntimeRepo = URI
-                    .create("jar:" + getDirectorRepositoryZip(localMavenRepository).toURI() + "!/");
+            URI directorRuntimeRepo = URI.create("jar:" + getDirectorRepositoryZip(directorVersion, session).toURI()
+                    + "!/");
             DirectorRuntime.Command command = bootstrapDirector.newInstallCommand();
             command.addMetadataSources(Arrays.asList(directorRuntimeRepo));
             command.addArtifactSources(Arrays.asList(directorRuntimeRepo));
@@ -81,10 +83,21 @@ public class StandaloneDirectorRuntimeFactory {
         }
     }
 
-    private File getDirectorRepositoryZip(ArtifactRepository localMavenRepository) {
-        // this artifact is a dependency of the Mojo, so we expect it in the local Maven repo
-        Artifact artifact = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-standalone-p2-director",
-                TychoVersion.getTychoVersion(), "eclipse-repository");
-        return new File(localMavenRepository.getBasedir(), localMavenRepository.pathOf(artifact));
+    private File getDirectorRepositoryZip(DirectorVersion directorVersion, MavenSession session)
+            throws MojoFailureException, MojoExecutionException {
+        String tychoVersionOfDirectorRepositoryZip = directorVersion.availableInTychoVersion;
+        if (tychoVersionOfDirectorRepositoryZip == null) {
+            // current Tycho version
+            tychoVersionOfDirectorRepositoryZip = TychoVersion.getTychoVersion();
+        }
+
+        Dependency repositoryZipReference = new Dependency();
+        repositoryZipReference.setGroupId("org.eclipse.tycho");
+        repositoryZipReference.setArtifactId("tycho-standalone-p2-director");
+        repositoryZipReference.setVersion(tychoVersionOfDirectorRepositoryZip);
+        repositoryZipReference.setType("zip");
+
+        return mavenArtifactResolver.getPluginArtifact(repositoryZipReference, session);
     }
+
 }
