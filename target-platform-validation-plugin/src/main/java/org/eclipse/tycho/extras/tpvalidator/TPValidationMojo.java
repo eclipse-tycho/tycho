@@ -63,7 +63,7 @@ public class TPValidationMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private boolean checkDependencies;
 
-    @Parameter(defaultValue = "JavaSE-1.6")
+    @Parameter(defaultValue = "JavaSE-1.7")
     private String executionEnvironment;
 
     @Component
