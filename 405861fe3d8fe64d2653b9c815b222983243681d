@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_c671aa01",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/InstallIntoLocalRepoAndCollectFromThereTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-10T19:03:17Z",
+      "side": 1,
+      "message": "If the project really needs the p2 repository \"test-data-repo\", you need to set this as a system property here.",
+      "revId": "405861fe3d8fe64d2653b9c815b222983243681d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
