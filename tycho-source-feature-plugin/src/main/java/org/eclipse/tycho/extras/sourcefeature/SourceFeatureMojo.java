@@ -117,7 +117,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     /**
      * Use this to explicitly set the <a href=
      * "http://help.eclipse.org/juno/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Feditors%2Ffeature_editor%2Ffeature_editor.htm"
-     * branding plugin attribute</a> of the generated source feature (overrides
+     * > branding plugin attribute</a> of the generated source feature (overrides
      * {@link #reuseBrandingPlugin}).
      */
     @Parameter
@@ -141,7 +141,6 @@ public class SourceFeatureMojo extends AbstractMojo {
      * </pre>
      * 
      */
-    @SuppressWarnings("unused")
     @Parameter
     private PlexusConfiguration excludes;
 
@@ -155,7 +154,6 @@ public class SourceFeatureMojo extends AbstractMojo {
      * source-feature mojo versions without prior notice.
      * 
      */
-    @SuppressWarnings("unused")
     @Parameter
     private PlexusConfiguration plugins;
 
@@ -193,6 +191,7 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Component
     private Logger logger;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!PackagingType.TYPE_ECLIPSE_FEATURE.equals(project.getPackaging()) || skip) {
             return;

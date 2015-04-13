@@ -50,7 +50,7 @@
 						<artifactId>maven-invoker-plugin</artifactId>
 						<configuration>
 							<goals>
-								<goal>${groupId}:${artifactId}:${version}:update-target</goal>
+								<goal>${project.groupId}:${project.artifactId}:${project.version}:update-target</goal>
 							</goals>
 							<properties>
 								<target>update-target.target</target>
