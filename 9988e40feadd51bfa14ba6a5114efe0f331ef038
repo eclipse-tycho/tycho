@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a7fb1785_d46150b3",
+        "filename": "tycho-its/projects/461872_unknownpackagingzip/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-04-13T08:14:37Z",
+      "side": 1,
+      "message": "this patch was submitted in a hurry due to blocker bug in eclipse platform build. So the test wasn\u0027t reviewed properly.",
+      "parentUuid": "a7fb1785_29e4c118",
+      "revId": "9988e40feadd51bfa14ba6a5114efe0f331ef038",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7fb1785_c9ea5de7",
         "filename": "tycho-p2/tycho-p2-plugin/src/main/java/org/eclipse/tycho/plugins/p2/P2MetadataMojo.java",
         "patchSetId": 1
