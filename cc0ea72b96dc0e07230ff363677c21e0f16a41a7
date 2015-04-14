@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_ba5e2d6f",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/DirectorMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-04-14T06:48:52Z",
+      "side": 1,
+      "message": "the naming seems confusing to me/ version and mac layout concerns seem mixed up into one. \n\n\"version\" makes me expect a number.\n\nCan we have either a version or the mac product layout aspect here?\n\nalso \"marsMacLayout\" seems mixed up to me.\n\n \"legacyMacLayout\", \"bundledAppMacLayout\" ?",
+      "revId": "cc0ea72b96dc0e07230ff363677c21e0f16a41a7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
