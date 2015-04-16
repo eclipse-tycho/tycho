@@ -14,6 +14,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.eclipse.tycho.buildversion.ValidateVersionMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ValidateVersionTest extends AbstractTychoMojoTestCase {
 
@@ -27,21 +29,36 @@ public class ValidateVersionTest extends AbstractTychoMojoTestCase {
         mojo.setLog(new SilentLog());
     }
 
-    public void testValidateVersion() throws MojoExecutionException {
-
+    @Test
+    public void testValidateVersionWithVersionMatches() throws MojoExecutionException {
         mojo.validateReleaseVersion("1.2.3", "1.2.3");
         mojo.validateSnapshotVersion("1.2.3-SNAPSHOT", "1.2.3.qualifier");
-
-        assertInvalidSnapshotVersion("1.2.3-SNAPSHOT", "1.2.3");
-        assertInvalidSnapshotVersion("1.2.3-SNAPSHOT", "1.2.0.qualifier");
     }
 
-    private void assertInvalidSnapshotVersion(String maven, String osgi) {
+    @Test
+    public void testValidateSnapshotVersionWithInvalidVersions() {
+        assertInvalidSnapshotVersion("1.2.3-SNAPSHOT", "1.2.3",
+                "OSGi version 1.2.3 must have .qualifier qualifier for SNAPSHOT builds");
+
+        assertInvalidSnapshotVersion("1.2.3", "1.2.3.qualifier",
+                "Maven version 1.2.3 must have -SNAPSHOT qualifier for SNAPSHOT builds");
+
+        assertInvalidSnapshotVersion("1.2.3-SNAPSHOT", "1.2.0.qualifier",
+                "Unqualified OSGi version 1.2.0.qualifier must match unqualified Maven version 1.2.3-SNAPSHOT for SNAPSHOT builds");
+
+        assertInvalidSnapshotVersion("1.2.3.qualifier", "1.2.3.qualifier",
+                "Maven version 1.2.3.qualifier must have -SNAPSHOT qualifier for SNAPSHOT builds");
+
+        assertInvalidSnapshotVersion("1.2.3-SNAPSHOT", "1.2.3.SNAPSHOT",
+                "OSGi version 1.2.3.SNAPSHOT must have .qualifier qualifier for SNAPSHOT builds");
+    }
+
+    private void assertInvalidSnapshotVersion(String maven, String osgi, String expectedMessage) {
         try {
             mojo.validateSnapshotVersion(maven, osgi);
             fail();
         } catch (MojoExecutionException e) {
-            // expected
+            Assert.assertEquals(expectedMessage, e.getMessage());
         }
     }
 }
