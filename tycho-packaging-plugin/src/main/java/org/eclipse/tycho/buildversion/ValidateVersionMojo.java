@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -44,7 +45,7 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
             return;
         }
 
-        if (project.getArtifact().isSnapshot()) {
+        if (project.getArtifact().isSnapshot() || osgiVersion.endsWith(VersioningHelper.QUALIFIER)) {
             validateSnapshotVersion(mavenVersion, osgiVersion);
         } else {
             validateReleaseVersion(mavenVersion, osgiVersion);
@@ -77,6 +78,9 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
     }
 
     public void validateSnapshotVersion(String mavenVersion, String osgiVersion) throws MojoExecutionException {
+        if (!mavenVersion.endsWith(Artifact.SNAPSHOT_VERSION)) {
+            fail("Maven version " + mavenVersion + " must have -SNAPSHOT qualifier for SNAPSHOT builds");
+        }
         if (!osgiVersion.endsWith(VersioningHelper.QUALIFIER)) {
             fail("OSGi version " + osgiVersion + " must have .qualifier qualifier for SNAPSHOT builds");
         } else {
