@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_cc9380dc",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/ValidateVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 598
+      },
+      "writtenOn": "2015-04-16T16:58:35Z",
+      "side": 1,
+      "message": "isn\u0027t that the same test as the previous line? perhaps my eyes can\u0027t see the diff.",
+      "range": {
+        "startLine": 44,
+        "startChar": 57,
+        "endLine": 44,
+        "endChar": 66
+      },
+      "revId": "95a8b840801612e74ba514a96dd2b2bb7bd91078",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
