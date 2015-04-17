@@ -188,7 +188,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         assertEquals("0.0.1", project.getProperties().get(QUALIFIED_VERSION_PROPERTY));
     }
 
-    public void testTimeZone() {
+    public void testTimeZone() throws MojoFailureException {
         final TimeZone oldTimeZone = TimeZone.getDefault();
         try {
             final Date date = new Date(0L);
@@ -265,6 +265,32 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         assertQualifier("201206180600", projects, "attachedfeature");
     }
 
+    public void testQualifierFormatWithSpace() {
+        BuildQualifierMojo mojo = new BuildQualifierMojo();
+        mojo.setFormat("yyyyMMdd HHmm");
+        try {
+            mojo.getQualifier(new Date(0L));
+            fail();
+        } catch (MojoFailureException e) {
+            assertEquals(
+                    "Invalid build qualifier format 'yyyyMMdd HHmm', it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')",
+                    e.getMessage());
+        }
+    }
+
+    public void testQualifierFormatWithInvalidChar() {
+        BuildQualifierMojo mojo = new BuildQualifierMojo();
+        mojo.setFormat("yyyyMMddHH:mm");
+        try {
+            mojo.getQualifier(new Date(0L));
+            fail();
+        } catch (MojoFailureException e) {
+            assertEquals(
+                    "Invalid build qualifier format 'yyyyMMddHH:mm', it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')",
+                    e.getMessage());
+        }
+    }
+
     private void assertQualifier(String expected, List<MavenProject> projects, String artifactId) {
         MavenProject project = getProject(projects, artifactId);
         assertEquals(expected, project.getProperties().getProperty(BUILD_QUALIFIER_PROPERTY));
@@ -281,7 +307,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         mojo.execute();
     }
 
-    private String createTimeStampInTimeZone(String timeZone, Date date) {
+    private String createTimeStampInTimeZone(String timeZone, Date date) throws MojoFailureException {
         TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
         BuildQualifierMojo mojo = new BuildQualifierMojo();
         mojo.setFormat("yyyyMMddHHmm");

@@ -179,8 +179,16 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
     }
 
-    String getQualifier(Date timestamp) {
-        return format.format(timestamp);
+    String getQualifier(Date timestamp) throws MojoFailureException {
+        String qualifier = format.format(timestamp);
+        // parse an empty version with the given qualifier to check if the qualifier is valid
+        try {
+            Version.parseVersion(Version.emptyVersion + "." + qualifier);
+        } catch (IllegalArgumentException e) {
+            throw new MojoFailureException("Invalid build qualifier format '" + format.toPattern()
+                    + "', it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')");
+        }
+        return qualifier;
     }
 
     private String getUnqualifiedVersion() {
