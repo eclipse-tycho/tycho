@@ -22,6 +22,30 @@
       "revId": "95a8b840801612e74ba514a96dd2b2bb7bd91078",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_726b4293",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/ValidateVersionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2015-04-17T05:50:50Z",
+      "side": 1,
+      "message": "Thanks for the hint, your eyes are ok, it\u0027s a copy/past issue and should test the opposite, that the qualifier is specified in the osgi version and the release in the maven version",
+      "parentUuid": "a7fb1785_cc9380dc",
+      "range": {
+        "startLine": 44,
+        "startChar": 57,
+        "endLine": 44,
+        "endChar": 66
+      },
+      "revId": "95a8b840801612e74ba514a96dd2b2bb7bd91078",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
