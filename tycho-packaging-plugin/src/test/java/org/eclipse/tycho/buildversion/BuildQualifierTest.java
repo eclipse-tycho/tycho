@@ -265,6 +265,46 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         assertQualifier("201206180600", projects, "attachedfeature");
     }
 
+    public void testWithInvalidQualifierFormat() throws Exception {
+        File basedir = getBasedir("projects/buildqualifier/invalidqualifierformat");
+        File pom = new File(basedir, "pom.xml");
+        MavenExecutionRequest request = newMavenExecutionRequest(pom);
+        request.getProjectBuildingRequest().setProcessPlugins(false);
+        MavenProject project = getProject(request);
+        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
+        projects.add(project);
+        MavenSession session = newMavenSession(projects.get(0), projects);
+        try {
+            executeMojo(session, project, "build-qualifier-aggregator");
+            fail();
+        } catch (MojoFailureException e) {
+            assertEquals(
+                    "Invalid build qualifier, it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')",
+                    e.getMessage());
+        }
+    }
+
+    public void testWithInvalidForcedQualifier() throws Exception {
+        File basedir = getBasedir("projects/buildqualifier");
+        File pom = new File(basedir, "p001/pom.xml");
+        MavenExecutionRequest request = newMavenExecutionRequest(pom);
+        request.getProjectBuildingRequest().setProcessPlugins(false);
+        MavenProject project = getProject(request);
+        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
+        projects.add(project);
+        MavenSession session = newMavenSession(projects.get(0), projects);
+        BuildQualifierMojo mojo = getMojo(project, session);
+        setVariableValueToObject(mojo, "forceContextQualifier", "invalid:Qualifier");
+        try {
+            mojo.execute();
+            fail();
+        } catch (MojoFailureException e) {
+            assertEquals(
+                    "Invalid build qualifier, it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')",
+                    e.getMessage());
+        }
+    }
+
     private void assertQualifier(String expected, List<MavenProject> projects, String artifactId) {
         MavenProject project = getProject(projects, artifactId);
         assertEquals(expected, project.getProperties().getProperty(BUILD_QUALIFIER_PROPERTY));

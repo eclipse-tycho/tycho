@@ -163,6 +163,8 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
             qualifier = getQualifier(timestamp);
         }
 
+        validateQualifier(qualifier);
+
         return new TychoProjectVersion(getUnqualifiedVersion(), qualifier);
     }
 
@@ -176,6 +178,16 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
             return Version.parseVersion(osgiVersionString);
         } catch (IllegalArgumentException e) {
             throw new MojoFailureException("Not a valid OSGi version " + osgiVersionString + " for project " + project);
+        }
+    }
+
+    void validateQualifier(String qualifier) throws MojoFailureException {
+        // parse an empty version with the given qualifier to check if the qualifier is valid
+        try {
+            Version.parseVersion(Version.emptyVersion + "." + qualifier);
+        } catch (IllegalArgumentException e) {
+            throw new MojoFailureException(
+                    "Invalid build qualifier, it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')");
         }
     }
 
