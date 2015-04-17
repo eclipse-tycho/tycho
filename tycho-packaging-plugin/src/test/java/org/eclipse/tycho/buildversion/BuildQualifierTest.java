@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.buildversion;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertThat;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,22 +48,9 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
          * property and setting forceContextQualifier using explicit mojo configuration.
          */
 
-        File basedir = getBasedir("projects/buildqualifier");
-
-        File pom = new File(basedir, "p001/pom.xml");
-
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-
-        MavenProject project = getProject(request);
+        MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
         project.getProperties().put(BUILD_QUALIFIER_PROPERTY, "garbage");
-
-        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
-        projects.add(project);
-
-        MavenSession session = new MavenSession(getContainer(), request, null, projects);
-
-        BuildQualifierMojo mojo = getMojo(project, session);
+        BuildQualifierMojo mojo = createMojoWithProject(project);
 
         setVariableValueToObject(mojo, "forceContextQualifier", "foo-bar");
 
@@ -69,22 +60,9 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     }
 
     public void testBuildProperties() throws Exception {
-        File basedir = getBasedir("projects/buildqualifier");
-
-        File pom = new File(basedir, "p002/pom.xml");
-
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-
-        MavenProject project = getProject(request);
+        MavenProject project = getProject("projects/buildqualifier", "p002/pom.xml");
         project.getProperties().put(BUILD_QUALIFIER_PROPERTY, "garbage");
-
-        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
-        projects.add(project);
-
-        MavenSession session = new MavenSession(getContainer(), request, null, projects);
-
-        BuildQualifierMojo mojo = getMojo(project, session);
+        BuildQualifierMojo mojo = createMojoWithProject(project);
 
         mojo.execute();
 
@@ -92,22 +70,14 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     }
 
     public void testTimestamp() throws Exception {
-        File basedir = getBasedir("projects/buildqualifier");
 
-        File pom = new File(basedir, "p001/pom.xml");
-
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-
-        MavenProject project = getProject(request);
+        MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
         project.getProperties().put(BUILD_QUALIFIER_PROPERTY, "garbage");
 
         ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
         projects.add(project);
 
-        MavenSession session = new MavenSession(getContainer(), request, null, projects);
-
-        BuildQualifierMojo mojo = getMojo(project, session);
+        BuildQualifierMojo mojo = createMojoWithProject(project);
 
         mojo.execute();
 
@@ -116,28 +86,17 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         // lets do it again
         Thread.sleep(500L);
 
-        project = getProject(request);
+        project = getProject("projects/buildqualifier", "p001/pom.xml");
         assertNull(project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
-        mojo = getMojo(project, session);
+        mojo = createMojoWithProject(project);
         mojo.execute();
 
         assertEquals(firstTimestamp, project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
     }
 
     public void testUnqualifiedVersion() throws Exception {
-        File basedir = getBasedir("projects/buildqualifier");
-        File pom = new File(basedir, "p002/pom.xml");
-
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-
-        MavenProject project = getProject(request);
-
-        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
-        projects.add(project);
-        MavenSession session = new MavenSession(getContainer(), request, null, projects);
-
-        BuildQualifierMojo mojo = getMojo(project, session);
+        MavenProject project = getProject("projects/buildqualifier", "p002/pom.xml");
+        BuildQualifierMojo mojo = createMojoWithProject(project);
 
         mojo.execute();
 
@@ -145,19 +104,8 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     }
 
     public void testFullyQualifiedVersion() throws Exception {
-        File basedir = getBasedir("projects/buildqualifier/fullyqualified");
-        File pom = new File(basedir, "pom.xml");
-
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-
-        MavenProject project = getProject(request);
-
-        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
-        projects.add(project);
-        MavenSession session = new MavenSession(getContainer(), request, null, projects);
-
-        BuildQualifierMojo mojo = getMojo(project, session);
+        MavenProject project = getProject("projects/buildqualifier/fullyqualified", "pom.xml");
+        BuildQualifierMojo mojo = createMojoWithProject(project);
 
         mojo.execute();
 
@@ -167,19 +115,8 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     }
 
     public void testNoQualifiedVersion() throws Exception {
-        File basedir = getBasedir("projects/buildqualifier/noqualifier");
-        File pom = new File(basedir, "pom.xml");
-
-        MavenExecutionRequest request = newMavenExecutionRequest(pom);
-        request.getProjectBuildingRequest().setProcessPlugins(false);
-
-        MavenProject project = getProject(request);
-
-        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
-        projects.add(project);
-        MavenSession session = new MavenSession(getContainer(), request, null, projects);
-
-        BuildQualifierMojo mojo = getMojo(project, session);
+        MavenProject project = getProject("projects/buildqualifier/noqualifier", "pom.xml");
+        BuildQualifierMojo mojo = createMojoWithProject(project);
 
         mojo.execute();
 
@@ -265,6 +202,38 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         assertQualifier("201206180600", projects, "attachedfeature");
     }
 
+    public void testWithInvalidQualifierFormat() throws Exception {
+        MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
+        BuildQualifierMojo mojo = createMojoWithProject(project);
+        mojo.setFormat("yyyyMMdd HHmm");
+        try {
+            mojo.execute();
+            fail();
+        } catch (MojoFailureException e) {
+            assertThat(e.getMessage(), containsString("Invalid build qualifier"));
+        }
+    }
+
+    public void testWithInvalidForcedQualifier() throws Exception {
+        MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
+        BuildQualifierMojo mojo = createMojoWithProject(project);
+        setVariableValueToObject(mojo, "forceContextQualifier", "invalid:Qualifier");
+        try {
+            mojo.execute();
+            fail();
+        } catch (MojoFailureException e) {
+            assertThat(e.getMessage(), containsString("Invalid build qualifier"));
+        }
+    }
+
+    private BuildQualifierMojo createMojoWithProject(MavenProject project) throws IOException, Exception {
+        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
+        projects.add(project);
+        MavenSession session = newMavenSession(projects.get(0), projects);
+        BuildQualifierMojo mojo = getMojo(project, session);
+        return mojo;
+    }
+
     private void assertQualifier(String expected, List<MavenProject> projects, String artifactId) {
         MavenProject project = getProject(projects, artifactId);
         assertEquals(expected, project.getProperties().getProperty(BUILD_QUALIFIER_PROPERTY));
@@ -288,7 +257,11 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         return mojo.getQualifier(date);
     }
 
-    private MavenProject getProject(MavenExecutionRequest request) throws Exception {
+    private MavenProject getProject(String baseDir, String pom) throws Exception {
+        File basedirFile = getBasedir(baseDir);
+        File pomFile = new File(basedirFile, pom);
+        MavenExecutionRequest request = newMavenExecutionRequest(pomFile);
+        request.getProjectBuildingRequest().setProcessPlugins(false);
         MavenExecutionResult result = maven.execute(request);
         return result.getProject();
     }
