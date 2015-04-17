@@ -179,8 +179,12 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         }
     }
 
-    String getQualifier(Date timestamp) {
-        return format.format(timestamp);
+    String getQualifier(Date timestamp) throws MojoFailureException {
+        String qualifier = format.format(timestamp);
+        if (qualifier.contains(" ")) {
+            throw new MojoFailureException("No spaces are allowed in build qualifier format " + format.toPattern());
+        }
+        return qualifier;
     }
 
     private String getUnqualifiedVersion() {
