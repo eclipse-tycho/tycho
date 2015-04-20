@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_0768bae5",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildQualifierMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-04-20T12:40:31Z",
+      "side": 1,
+      "message": "in calculateQualifiedVersion(), there are other ways to set the qualifier which are not being validated.\n\nrather pull this out into a dedicated validateQualifer method and call it after qualifier was determined.",
+      "revId": "380dfb168c5108c2d8d79e9440b55b8f2a88560d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
