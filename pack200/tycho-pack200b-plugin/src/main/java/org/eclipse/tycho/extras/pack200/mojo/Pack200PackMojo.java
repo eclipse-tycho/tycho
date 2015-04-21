@@ -49,6 +49,14 @@ public class Pack200PackMojo extends AbstractMojo {
     @Parameter(property = "plugin.artifacts")
     private List<Artifact> pluginArtifacts;
 
+    /**
+     * Whether to fork the pack operation in a separate process.
+     * 
+     * @since 0.23.0
+     */
+    @Parameter(defaultValue = "false")
+    private boolean fork;
+
     @Component
     private Pack200Archiver pack200;
 
@@ -67,7 +75,7 @@ public class Pack200PackMojo extends AbstractMojo {
 
         try {
             File packFile = new File(buildDirectory, jarFile.getName() + ".pack.gz");
-            if (pack200.pack(pluginArtifacts, jarFile, packFile)) {
+            if (pack200.pack(pluginArtifacts, jarFile, packFile, fork)) {
                 projectHelper.attachArtifact(project, RepositoryLayoutHelper.PACK200_EXTENSION,
                         RepositoryLayoutHelper.PACK200_CLASSIFIER, packFile);
             }

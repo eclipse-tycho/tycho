@@ -25,7 +25,6 @@ import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.IOUtil;
 
 @Component(role = Pack200Archiver.class)
 public class Pack200Archiver {
@@ -34,6 +33,7 @@ public class Pack200Archiver {
     private Logger log;
 
     private Pack200Wrapper packWrapper = new Pack200Wrapper();
+    private ForkedPack200Wrapper forkedPackWrapper = new ForkedPack200Wrapper();
 
     /**
      * @param file
@@ -43,44 +43,45 @@ public class Pack200Archiver {
      * @return <code>true</code> if the target pack file was created, <code>false</code> if the
      *         target file was not created
      */
-    public boolean normalize(List<Artifact> pluginArtifacts, File file, File packFile) throws IOException {
-        JarFile jarFile = new JarFile(file);
-        try {
-
+    public boolean normalize(List<Artifact> pluginArtifacts, File file, File packFile, boolean fork) throws IOException {
+        File jarToBePacked = file;
+        boolean shouldNormalize = false;
+        boolean jarToBePackedIsTempFile = false;
+        try (JarFile jarFile = new JarFile(file)) {
             EclipseInf eclipseInf = EclipseInf.readEclipseInf(jarFile);
             assertSupportedEclipseInf(eclipseInf);
             if (eclipseInf == null || (eclipseInf.shouldPack() && !eclipseInf.isPackNormalized())) {
                 if (isSigned(jarFile)) {
                     throw new IOException("pack200:normalize cannot be called for signed jar " + file);
                 }
-                log.info("Pack200 normalizing jar " + file.getAbsolutePath());
-
-                File tmpFile = null;
+                shouldNormalize = true;
                 if (eclipseInf != null) {
                     eclipseInf.setPackNormalized();
-                    tmpFile = File.createTempFile(file.getName(), ".prepack");
-                    updateEclipseInf(jarFile, eclipseInf, tmpFile);
+                    jarToBePacked = File.createTempFile(file.getName(), ".prepack");
+                    jarToBePackedIsTempFile = true;
+                    updateEclipseInf(jarFile, eclipseInf, jarToBePacked);
                 }
 
-                try {
-                    packWrapper.pack(pluginArtifacts, tmpFile != null ? tmpFile : file, packFile);
-                } finally {
-                    if (tmpFile != null) {
-                        if (!tmpFile.delete()) {
-                            throw new IOException("Could not delete temporary file " + tmpFile.getAbsolutePath());
-                        }
-                    }
-                }
-                return true;
-            }
-        } finally {
-            try {
-                jarFile.close();
-            } catch (IOException e) {
-                // ignore
             }
         }
+        if (shouldNormalize) {
+            try {
+                log.info("Pack200 normalizing jar " + file.getAbsolutePath());
+                getPackWrapper(fork).pack(pluginArtifacts, jarToBePacked, packFile);
+            } finally {
+                if (jarToBePackedIsTempFile) {
+                    if (!jarToBePacked.delete()) {
+                        throw new IOException("Could not delete temporary file " + jarToBePacked.getAbsolutePath());
+                    }
+                }
+            }
+            return true;
+        }
         return false;
+    }
+
+    private Pack200Wrapper getPackWrapper(boolean fork) {
+        return fork ? forkedPackWrapper : packWrapper;
     }
 
     protected void assertSupportedEclipseInf(EclipseInf eclipseInf) throws IOException {
@@ -91,8 +92,7 @@ public class Pack200Archiver {
     }
 
     private void updateEclipseInf(JarFile jarFile, EclipseInf eclipseInf, File tmpFile) throws IOException {
-        JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tmpFile)));
-        try {
+        try (JarOutputStream jos = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(tmpFile)))) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
@@ -104,8 +104,6 @@ public class Pack200Archiver {
             jos.putNextEntry(entry);
             jos.write(eclipseInf.toByteArray());
             jos.closeEntry();
-        } finally {
-            IOUtil.close(jos);
         }
     }
 
@@ -134,26 +132,20 @@ public class Pack200Archiver {
         jos.closeEntry();
     }
 
-    public void unpack(List<Artifact> pluginArtifacts, File packFile, File jarFile) throws IOException {
-        packWrapper.unpack(pluginArtifacts, packFile, jarFile);
+    public void unpack(List<Artifact> pluginArtifacts, File packFile, File jarFile, boolean fork) throws IOException {
+        getPackWrapper(fork).unpack(pluginArtifacts, packFile, jarFile);
     }
 
-    public boolean pack(List<Artifact> pluginArtifacts, File file, File packFile) throws IOException {
-        JarFile jarFile = new JarFile(file);
-        try {
-            EclipseInf eclipseInf = EclipseInf.readEclipseInf(jarFile);
-            assertSupportedEclipseInf(eclipseInf);
-            if (eclipseInf == null || (eclipseInf.shouldPack() && eclipseInf.isPackNormalized())) {
-                log.info("Pack200 packing jar " + file.getAbsolutePath());
-                packWrapper.pack(pluginArtifacts, file, packFile);
-                return true;
-            }
-        } finally {
-            try {
-                jarFile.close();
-            } catch (IOException e) {
-                // ignore
-            }
+    public boolean pack(List<Artifact> pluginArtifacts, File file, File packFile, boolean fork) throws IOException {
+        EclipseInf eclipseInf = null;
+        try (JarFile jarFile = new JarFile(file)) {
+            eclipseInf = EclipseInf.readEclipseInf(jarFile);
+        }
+        assertSupportedEclipseInf(eclipseInf);
+        if (eclipseInf == null || (eclipseInf.shouldPack() && eclipseInf.isPackNormalized())) {
+            log.info("Pack200 packing jar " + file.getAbsolutePath());
+            getPackWrapper(fork).pack(pluginArtifacts, file, packFile);
+            return true;
         }
         return false;
     }

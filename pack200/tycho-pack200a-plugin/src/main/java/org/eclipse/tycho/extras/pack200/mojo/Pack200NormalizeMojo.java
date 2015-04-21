@@ -54,6 +54,14 @@ public class Pack200NormalizeMojo extends AbstractMojo {
     private boolean skip;
 
     /**
+     * Whether to fork the pack operation in a separate process.
+     * 
+     * @since 0.23.0
+     */
+    @Parameter(defaultValue = "false")
+    private boolean fork;
+
+    /**
      * Project types which this plugin supports.
      */
     @Parameter
@@ -78,12 +86,12 @@ public class Pack200NormalizeMojo extends AbstractMojo {
         try {
             File packFile = File.createTempFile(jarFile.getName(), ".pack", buildDirectory);
             try {
-                if (pack200.normalize(pluginArtifacts, jarFile, packFile)) {
+                if (pack200.normalize(pluginArtifacts, jarFile, packFile, fork)) {
                     File normalizedFile = new File(buildDirectory, finalName + ".jar");
                     if (normalizedFile.exists()) {
                         normalizedFile.delete();
                     }
-                    pack200.unpack(pluginArtifacts, packFile, normalizedFile);
+                    pack200.unpack(pluginArtifacts, packFile, normalizedFile, fork);
                     project.getArtifact().setFile(normalizedFile);
                 }
             } finally {
