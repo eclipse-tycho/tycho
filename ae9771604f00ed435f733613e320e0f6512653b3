@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7fb1785_de5e74bd",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/BuildQualifierMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-22T08:43:13Z",
+      "side": 1,
+      "message": "This is only valid because the empty version is defined as \"0.0.0\". But AFAIK it could have been \"0\" as well.\n\nSo I\u0027d rather use a \"0.0.0\" (or \"1.0.0\") constant here.",
+      "range": {
+        "startLine": 187,
+        "startChar": 41,
+        "endLine": 187,
+        "endChar": 53
+      },
+      "revId": "ae9771604f00ed435f733613e320e0f6512653b3",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_bebf2848",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildversion/BuildQualifierTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-22T08:43:13Z",
+      "side": 1,
+      "message": "I don\u0027t like that this bulk is repeated. Wouldn\u0027t it be possible to extract a method for this?",
+      "range": {
+        "startLine": 290,
+        "startChar": 0,
+        "endLine": 296,
+        "endChar": 60
+      },
+      "revId": "ae9771604f00ed435f733613e320e0f6512653b3",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7fb1785_9ec4ecd9",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildversion/BuildQualifierTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-22T08:43:13Z",
+      "side": 1,
+      "message": "Asserting the full error message again is IMHO not compliant with DRY. Use containsString(\"Invalid build qualifier\") instead?",
+      "range": {
+        "startLine": 303,
+        "startChar": 20,
+        "endLine": 303,
+        "endChar": 123
+      },
+      "revId": "ae9771604f00ed435f733613e320e0f6512653b3",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
