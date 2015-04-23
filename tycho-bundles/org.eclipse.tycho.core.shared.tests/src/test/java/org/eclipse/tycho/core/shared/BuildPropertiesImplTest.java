@@ -18,28 +18,64 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.junit.Test;
 
 public class BuildPropertiesImplTest {
 
+    /**
+     * Simulate Properties with different key/entry iteration order in different JDKs.
+     */
+    private static class SortedProperties extends Properties {
+
+        private boolean reverse;
+
+        public SortedProperties(boolean reverseSortOrder) {
+            super();
+            this.reverse = reverseSortOrder;
+        }
+
+        @Override
+        public Set keySet() {
+            List sortedList = new ArrayList(super.keySet());
+            Collections.sort(sortedList);
+            if (reverse) {
+                Collections.reverse(sortedList);
+            }
+            return new LinkedHashSet(sortedList);
+        }
+
+        @Override
+        public Set<Map.Entry<Object, Object>> entrySet() {
+            List<Map.Entry<Object, Object>> sortedList = new ArrayList(super.entrySet());
+            Collections.sort(sortedList, new Comparator<Map.Entry<Object, Object>>() {
+
+                @Override
+                public int compare(java.util.Map.Entry<Object, Object> o1, java.util.Map.Entry<Object, Object> o2) {
+                    return ((String) o2.getKey()).compareTo((String) o1.getKey());
+                }
+            });
+            if (reverse) {
+                Collections.reverse(sortedList);
+            }
+            return new LinkedHashSet(sortedList);
+        }
+    }
+
     @Test
     public void testSupportedKeys() throws IOException {
-        FileInputStream in = null;
-        Properties properties = new Properties();
-        try {
-            in = new FileInputStream(new File("resources/testbuild.properties"));
-            properties.load(in);
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-        }
-        BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(properties);
+        BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(readProperties(new File(
+                "resources/testbuild.properties")));
         assertEquals("1.3", buildProperties.getJavacSource());
         assertEquals("1.1", buildProperties.getJavacTarget());
         assertEquals("JavaSE-1.6", buildProperties.getJreCompilationProfile());
@@ -65,8 +101,34 @@ public class BuildPropertiesImplTest {
     }
 
     @Test
+    public void testKeyOrderIsStable() throws Exception {
+        Properties sortedProperties = new SortedProperties(false);
+        sortedProperties.setProperty("source.a.jar", "source-a1/,source-a2/");
+        sortedProperties.setProperty("source.b.jar", "source-b1/,source-b2/");
+        sortedProperties.setProperty("source.c.jar", "source-c1/,source-c2/");
+
+        Properties reverseSortedProperties = new SortedProperties(true);
+        reverseSortedProperties.putAll(sortedProperties);
+
+        BuildPropertiesImpl buildProperties1 = new BuildPropertiesImpl(sortedProperties);
+        BuildPropertiesImpl buildProperties2 = new BuildPropertiesImpl(reverseSortedProperties);
+        List<String> sourceFolderKeys1 = new ArrayList<String>(buildProperties1.getJarToSourceFolderMap().keySet());
+        List<String> sourceFolderKeys2 = new ArrayList<String>(buildProperties2.getJarToSourceFolderMap().keySet());
+        assertEquals("keyset iteration order must be stable.", sourceFolderKeys1, sourceFolderKeys2);
+    }
+
+    @Test
     public void testNoBuildPropertiesFileFound() throws Exception {
         BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(new Properties());
         assertNotNull(buildProperties);
     }
+
+    private static Properties readProperties(File propsFile) throws IOException {
+        Properties properties = new Properties();
+        try (InputStream is = new FileInputStream(propsFile)) {
+            properties.load(is);
+        }
+        return properties;
+    }
+
 }

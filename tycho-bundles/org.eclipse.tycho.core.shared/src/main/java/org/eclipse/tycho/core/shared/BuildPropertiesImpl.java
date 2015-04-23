@@ -14,9 +14,9 @@ package org.eclipse.tycho.core.shared;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 public class BuildPropertiesImpl implements BuildProperties {
@@ -57,33 +57,35 @@ public class BuildPropertiesImpl implements BuildProperties {
         jarsExtraClasspath = splitAndTrimCommaSeparated(properties.getProperty("jars.extra.classpath"));
         jarsCompileOrder = splitAndTrimCommaSeparated(properties.getProperty("jars.compile.order"));
 
-        HashMap<String, List<String>> jarTosourceFolderTmp = new HashMap<String, List<String>>();
-        HashMap<String, List<String>> jarToExtraClasspathTmp = new HashMap<String, List<String>>();
-        HashMap<String, String> jarToJavacDefaultEncodingTmp = new HashMap<String, String>();
-        HashMap<String, String> jarToOutputFolderMapTmp = new HashMap<String, String>();
-        HashMap<String, String> jarToManifestMapTmp = new HashMap<String, String>();
-        HashMap<String, String> rootEntriesTmp = new HashMap<String, String>();
+        HashMap<String, List<String>> jarTosourceFolderTmp = new LinkedHashMap<String, List<String>>();
+        HashMap<String, List<String>> jarToExtraClasspathTmp = new LinkedHashMap<String, List<String>>();
+        HashMap<String, String> jarToJavacDefaultEncodingTmp = new LinkedHashMap<String, String>();
+        HashMap<String, String> jarToOutputFolderMapTmp = new LinkedHashMap<String, String>();
+        HashMap<String, String> jarToManifestMapTmp = new LinkedHashMap<String, String>();
+        HashMap<String, String> rootEntriesTmp = new LinkedHashMap<String, String>();
 
-        for (Entry<Object, Object> entry : properties.entrySet()) {
-            String key = ((String) entry.getKey()).trim();
-            String value = ((String) entry.getValue()).trim();
-            if (key.startsWith("source.")) {
-                String jarName = key.substring("source.".length());
+        List<String> sortedKeys = new ArrayList(properties.keySet());
+        Collections.sort(sortedKeys);
+        for (String key : sortedKeys) {
+            String trimmedKey = key.trim();
+            String value = properties.getProperty(key);
+            if (trimmedKey.startsWith("source.")) {
+                String jarName = trimmedKey.substring("source.".length());
                 jarTosourceFolderTmp.put(jarName, splitAndTrimCommaSeparated(value));
-            } else if (key.startsWith("extra.")) {
-                String jarName = key.substring("extra.".length());
+            } else if (trimmedKey.startsWith("extra.")) {
+                String jarName = trimmedKey.substring("extra.".length());
                 jarToExtraClasspathTmp.put(jarName, splitAndTrimCommaSeparated(value));
-            } else if (key.startsWith("javacDefaultEncoding.")) {
-                String jarName = key.substring("javacDefaultEncoding.".length());
+            } else if (trimmedKey.startsWith("javacDefaultEncoding.")) {
+                String jarName = trimmedKey.substring("javacDefaultEncoding.".length());
                 jarToJavacDefaultEncodingTmp.put(jarName, value);
-            } else if (key.startsWith("output.")) {
-                String jarName = key.substring("output.".length());
+            } else if (trimmedKey.startsWith("output.")) {
+                String jarName = trimmedKey.substring("output.".length());
                 jarToOutputFolderMapTmp.put(jarName, value);
-            } else if (key.startsWith("manifest.")) {
-                String jarName = key.substring("manifest.".length());
+            } else if (trimmedKey.startsWith("manifest.")) {
+                String jarName = trimmedKey.substring("manifest.".length());
                 jarToManifestMapTmp.put(jarName, value);
-            } else if (key.startsWith("root.") || key.equals("root")) {
-                rootEntriesTmp.put(key, value);
+            } else if (trimmedKey.startsWith("root.") || trimmedKey.equals("root")) {
+                rootEntriesTmp.put(trimmedKey, value);
             }
         }
         jarToSourceFolderMap = unmodifiableMap(jarTosourceFolderTmp);
