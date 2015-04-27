@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87f6139c_71a77093",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildversion/BuildQualifierTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-27T11:20:54Z",
+      "side": 1,
+      "message": "-82 lines. Nice!",
+      "revId": "8d5ab855ef9ed304f92f9c76c86e297cda24dee4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_316fa8a7",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildversion/BuildQualifierTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-04-27T11:20:54Z",
+      "side": 1,
+      "message": "assertThat(e.getMessage(), containsString(\"Invalid build qualifier\") ?",
+      "range": {
+        "startLine": 224,
+        "startChar": 12,
+        "endLine": 226,
+        "endChar": 36
+      },
+      "revId": "8d5ab855ef9ed304f92f9c76c86e297cda24dee4",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
