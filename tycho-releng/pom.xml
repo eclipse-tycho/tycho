@@ -93,7 +93,7 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/eclipse/updates/4.5milestones/S-4.5M6-201503200800/</url>
+							<url>http://download.eclipse.org/eclipse/updates/4.5milestones/S-4.5M7-201504301445/</url>
 							<layout>p2</layout>
 						</repository>
 					</source>

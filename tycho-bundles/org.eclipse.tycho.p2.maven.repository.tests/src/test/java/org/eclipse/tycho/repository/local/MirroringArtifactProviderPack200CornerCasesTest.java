@@ -13,6 +13,7 @@ package org.eclipse.tycho.repository.local;
 import static org.eclipse.tycho.p2.maven.repository.tests.TestRepositoryContent.BUNDLE_A_KEY;
 import static org.eclipse.tycho.repository.p2base.artifact.provider.formats.ArtifactTransferPolicy.isCanonicalFormat;
 import static org.eclipse.tycho.repository.testutil.ArtifactRepositoryTestUtils.packedDescriptorFor;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -86,6 +87,7 @@ public class MirroringArtifactProviderPack200CornerCasesTest {
 
         exceptionVerifier.expect(MirroringFailedException.class);
         exceptionVerifier.expectMessage(BUNDLE_A_KEY.toString());
+        logVerifier.expectError(containsString(BUNDLE_A_KEY.toString()));
 
         subject.getArtifactDescriptors(BUNDLE_A_KEY);
     }
