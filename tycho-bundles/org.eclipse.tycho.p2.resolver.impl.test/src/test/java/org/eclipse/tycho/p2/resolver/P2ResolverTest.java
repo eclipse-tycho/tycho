@@ -21,6 +21,7 @@ import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.NOOP_EE_
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.customEEResolutionHintProvider;
 import static org.eclipse.tycho.p2.target.ExecutionEnvironmentTestUtils.standardEEResolutionHintProvider;
 import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unitWithId;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -66,7 +67,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     @Rule
     public final LogVerifier logVerifier = new LogVerifier();
     @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
+    public ExpectedException expectedException = ExpectedException.none();
 
     private ReactorProject projectToResolve;
     private P2ResolutionResult result;
@@ -506,6 +507,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
                 "org.eclipse.tycho.p2.impl.resolver.test.bundle01");
 
         expectedException.expectMessage("could not be downloaded");
+        logVerifier.expectError(containsString("could not be downloaded"));
         impl.resolveDependencies(getTargetPlatform(), projectToResolve);
     }
 
