@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="25">
+<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="26">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.sdk.ide" version="0.0.0"/>
-<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.equinox.core.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.core.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.filetransfer.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.filetransfer.ssl.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.filetransfer.httpclient4.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.5milestones/S-4.5M6-201503200800/"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.200.v20150430-1829"/>
+<unit id="org.eclipse.sdk.ide" version="4.5.0.I20150430-1445"/>
+<unit id="org.eclipse.equinox.p2.sdk.feature.group" version="3.9.100.v20150430-1836"/>
+<unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.11.0.v20150428-1938"/>
+<unit id="org.eclipse.ecf.core.feature.feature.group" version="1.1.0.v20150428-1708"/>
+<unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="1.0.0.v20150428-1708"/>
+<unit id="org.eclipse.ecf.filetransfer.feature.feature.group" version="3.10.0.v20150428-1708"/>
+<unit id="org.eclipse.ecf.filetransfer.ssl.feature.feature.group" version="1.0.0.v20150428-1708"/>
+<unit id="org.eclipse.ecf.filetransfer.httpclient4.feature.feature.group" version="3.10.0.v20150428-1708"/>
+<unit id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature.feature.group" version="1.0.0.v20150428-1708"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.5milestones/S-4.5M7-201504301445"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.mockito" version="1.8.4.v201303031500"/>
