@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87f6139c_b1f9af90",
+        "filename": "tycho-bundles/tycho-bundles-target/tycho-bundles-target.target",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-05-07T16:44:00Z",
+      "side": 1,
+      "message": "Needs to be incremented - otherwise my PDE ignored the changes.",
+      "range": {
+        "startLine": 2,
+        "startChar": 88,
+        "endLine": 2,
+        "endChar": 90
+      },
+      "revId": "7690dc0f5cbcc7e69dd65c480e71cdef7fcfab50",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
