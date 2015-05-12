@@ -25,6 +25,7 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-packaging-plugin</artifactId>
 			<version>${tycho-version}</version>
+			<type>maven-plugin</type>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
