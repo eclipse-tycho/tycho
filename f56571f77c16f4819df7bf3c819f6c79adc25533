@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87f6139c_aa800c99",
+        "filename": "tycho-bundles/tycho-bundles-target/tycho-bundles-target.target",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-05-12T12:33:26Z",
+      "side": 1,
+      "message": "This file now has Windows line endings.\n\n@Jan: Could you verify that you have core.autocrlf\u003dinput configured in your Tycho repository clone?",
+      "revId": "f56571f77c16f4819df7bf3c819f6c79adc25533",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
