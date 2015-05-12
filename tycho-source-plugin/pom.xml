@@ -27,11 +27,11 @@
 	<description>A plugin for packing source on OSGi bundles</description>
 
 	<dependencies>
-        <dependency>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>tycho-p2-facade</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-p2-facade</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
@@ -68,6 +68,7 @@
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-packaging-plugin</artifactId>
 			<version>${project.version}</version>
+			<type>maven-plugin</type>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -75,12 +76,13 @@
 		</dependency>
 	</dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-component-metadata</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
