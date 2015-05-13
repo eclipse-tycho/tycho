@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87f6139c_9e890eb0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-05-13T09:27:58Z",
+      "side": 1,
+      "message": "Sorry, just found the answer here: https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d466977#c7",
+      "parentUuid": "87f6139c_de08b669",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 36
+      },
+      "revId": "0b5dbd6f39ff6867dc837af74e64d163776700b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87f6139c_1ed19ec6",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
