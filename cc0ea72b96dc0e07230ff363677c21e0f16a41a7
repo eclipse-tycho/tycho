@@ -16,6 +16,24 @@
       "revId": "cc0ea72b96dc0e07230ff363677c21e0f16a41a7",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_de41d663",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/main/java/org/eclipse/tycho/plugins/p2/director/DirectorMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 489
+      },
+      "writtenOn": "2015-05-13T08:55:32Z",
+      "side": 1,
+      "message": "I\u0027d rather have a \"version\" attribute than a special switch for the layout because in the end there is one p2 director that we use. In case we need to add \"version\" options, we\u0027d then have two switches that could be set to contradicting values.\n\nBut you are right that explicitly putting the mac layout into the version names is maybe not a good idea. Instead, we could use \"luna\" and \"current\", and only write in the documentation that \"luna\" would be needed for the legacy mac layout.",
+      "parentUuid": "a7fb1785_ba5e2d6f",
+      "revId": "cc0ea72b96dc0e07230ff363677c21e0f16a41a7",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
