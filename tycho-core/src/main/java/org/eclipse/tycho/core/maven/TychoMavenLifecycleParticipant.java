@@ -46,6 +46,9 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             "tycho-p2-director-plugin", "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin",
             "tycho-packaging-plugin", "tycho-pomgenerator-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
             "tycho-versions-plugin"));
+    private static final String P2_USER_AGENT_KEY = "p2.userAgent";
+    private static final String P2_USER_AGENT_VALUE = "eclipse/tycho/";
+    private static final String UNKNOWN_VERSION = "unknown";
 
     @Requirement
     private BundleReader bundleReader;
@@ -75,7 +78,14 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                 return;
             }
             List<MavenProject> projects = session.getProjects();
-            validate(projects);
+
+            String tychoVersion = validateConsistentTychoVersion(projects);
+            validateUniqueBaseDirs(projects);
+
+            // setting this system property to let EF figure out where the traffic 
+            // is coming from (#467418)
+            System.setProperty(P2_USER_AGENT_KEY, P2_USER_AGENT_VALUE + tychoVersion);
+
             configureComponents(session);
 
             for (MavenProject project : projects) {
@@ -93,12 +103,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         }
     }
 
-    private void validate(List<MavenProject> projects) throws MavenExecutionException {
-        validateConsistentTychoVersion(projects);
-        validateUniqueBaseDirs(projects);
-    }
-
-    protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
+    protected String validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
         Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<String, Set<MavenProject>>();
         for (MavenProject project : projects) {
             for (Plugin plugin : project.getBuild().getPlugins()) {
@@ -132,6 +137,10 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             throw new MavenExecutionException("All tycho plugins configured in one reactor must use the same version",
                     projects.get(0).getFile());
         }
+        if (versionToProjectsMap.size() == 1) {
+            return versionToProjectsMap.keySet().iterator().next();
+        }
+        return UNKNOWN_VERSION;
     }
 
     private void validateUniqueBaseDirs(List<MavenProject> projects) throws MavenExecutionException {

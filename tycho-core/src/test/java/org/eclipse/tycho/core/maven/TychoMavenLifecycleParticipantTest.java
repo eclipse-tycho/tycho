@@ -17,6 +17,7 @@ import org.apache.maven.model.Build;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.testing.SilentLog;
 import org.apache.maven.project.MavenProject;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TychoMavenLifecycleParticipantTest {
@@ -28,7 +29,8 @@ public class TychoMavenLifecycleParticipantTest {
         addTychoPlugin(project, "tycho-packaging-plugin", "0.22.0");
         addTychoPlugin(project, "tycho-versions-plugin", "0.22.0");
 
-        tycho.validateConsistentTychoVersion(Arrays.asList(project));
+        String version = tycho.validateConsistentTychoVersion(Arrays.asList(project));
+        Assert.assertEquals("0.22.0", version);
     }
 
     @Test
@@ -38,7 +40,8 @@ public class TychoMavenLifecycleParticipantTest {
         addTychoPlugin(project, "tycho-packaging-plugin", null);
         addTychoPlugin(project, "tycho-versions-plugin", "0.23.0");
 
-        tycho.validateConsistentTychoVersion(Arrays.asList(project));
+        String version = tycho.validateConsistentTychoVersion(Arrays.asList(project));
+        Assert.assertEquals("0.23.0", version);
     }
 
     @Test(expected = MavenExecutionException.class)
