@@ -36,6 +36,7 @@ import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultBundleReader;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.BuildFailureException;
+import org.eclipse.tycho.core.utils.TychoVersion;
 import org.eclipse.tycho.resolver.TychoResolver;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoMavenLifecycleListener")
@@ -46,6 +47,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             "tycho-p2-director-plugin", "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin",
             "tycho-packaging-plugin", "tycho-pomgenerator-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
             "tycho-versions-plugin"));
+    private static final String P2_USER_AGENT_KEY = "p2.userAgent";
+    private static final String P2_USER_AGENT_VALUE = "tycho/";
 
     @Requirement
     private BundleReader bundleReader;
@@ -76,6 +79,11 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             }
             List<MavenProject> projects = session.getProjects();
             validate(projects);
+
+            // setting this system property to let EF figure out where the traffic 
+            // is coming from (#467418)
+            System.setProperty(P2_USER_AGENT_KEY, P2_USER_AGENT_VALUE + TychoVersion.getTychoVersion());
+
             configureComponents(session);
 
             for (MavenProject project : projects) {
@@ -108,8 +116,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                     if (version == null) {
                         continue;
                     }
-                    log.debug(TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in "
-                            + project);
+                    log.debug(
+                            TYCHO_GROUPID + ":" + plugin.getArtifactId() + ":" + version + " configured in " + project);
                     Set<MavenProject> projectSet = versionToProjectsMap.get(version);
                     if (projectSet == null) {
                         projectSet = new LinkedHashSet<MavenProject>();
@@ -142,8 +150,8 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         for (MavenProject project : projects) {
             File basedir = project.getBasedir();
             if (baseDirs.contains(basedir)) {
-                throw new MavenExecutionException("Multiple modules within the same basedir are not supported: "
-                        + basedir, project.getFile());
+                throw new MavenExecutionException(
+                        "Multiple modules within the same basedir are not supported: " + basedir, project.getFile());
             } else {
                 baseDirs.add(basedir);
             }
