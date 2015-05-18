@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87f6139c_e296ab54",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-05-18T08:01:13Z",
+      "side": 1,
+      "message": "after successful validation, you could also simply use TychoVersion.getTychoVersion()",
+      "revId": "454287d17c8bc8679368804144638bd7a6cd1d31",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_42a69fc3",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/maven/TychoMavenLifecycleParticipant.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-05-18T08:01:13Z",
+      "side": 1,
+      "message": "unknown version should not happen.",
+      "revId": "454287d17c8bc8679368804144638bd7a6cd1d31",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
