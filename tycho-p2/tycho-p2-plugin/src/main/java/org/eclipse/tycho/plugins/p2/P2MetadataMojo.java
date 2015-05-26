@@ -44,12 +44,16 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
+import org.eclipse.tycho.plugins.p2.BaselineMode;
+import org.eclipse.tycho.plugins.p2.BaselineReplace;
+import org.eclipse.tycho.plugins.p2.BaselineValidator;
 
 @Mojo(name = "p2-metadata")
 public class P2MetadataMojo extends AbstractMojo {
@@ -132,9 +136,10 @@ public class P2MetadataMojo extends AbstractMojo {
             artifacts.add(projectDefaultArtifact);
 
             for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
-                if (attachedArtifact.getFile() != null && (attachedArtifact.getFile().getName().endsWith(".jar")
-                        || (attachedArtifact.getFile().getName().endsWith(".zip")
-                                && project.getPackaging().equals("p2-installable-unit")))) {
+                if (attachedArtifact.getFile() != null
+                        && (attachedArtifact.getFile().getName().endsWith(".jar") || (attachedArtifact.getFile()
+                                .getName().endsWith(".zip") && project.getPackaging().equals(
+                                ArtifactType.TYPE_INSTALLABLE_UNIT)))) {
                     artifacts.add(new ArtifactFacade(attachedArtifact));
                 }
             }
