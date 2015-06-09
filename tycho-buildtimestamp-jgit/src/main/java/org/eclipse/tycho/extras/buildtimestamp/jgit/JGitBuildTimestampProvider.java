@@ -152,12 +152,10 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                             logger.warn("Fallback to default timestamp provider");
                             return defaultTimestampProvider.getTimestamp(session, project, execution);
                         } else {
-                            throw new MojoExecutionException(
-                                    message
-                                            + "\n"
-                                            + "You are trying to use tycho-buildtimestamp-jgit on a directory that has uncommitted changes (see details above)."
-                                            + "\nEither commit all changes/add files to .gitignore, or enable fallback to default timestamp provider by configuring "
-                                            + "\njgit.dirtyWorkingTree=warning for tycho-packaging-plugin");
+                            throw new MojoExecutionException(message + "\n"
+                                    + "You are trying to use tycho-buildtimestamp-jgit on a directory that has uncommitted changes (see details above)."
+                                    + "\nEither commit all changes/add files to .gitignore, or enable fallback to default timestamp provider by configuring "
+                                    + "\njgit.dirtyWorkingTree=warning for tycho-packaging-plugin");
                         }
                     }
                 }
@@ -172,12 +170,13 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                     // When dirtyBehaviour==ignore and no commit was ever done, 
                     // the commit is null, so we fallback to the defaultTimestampProvider
                     if (commit == null) {
-                        logger.info("Fallback to default timestamp provider, because no commit could be found for that project (Shared but not commited yet).");
+                        logger.info(
+                                "Fallback to default timestamp provider, because no commit could be found for that project (Shared but not commited yet).");
                         return defaultTimestampProvider.getTimestamp(session, project, execution);
                     }
                     return new Date(commit.getCommitTime() * 1000L);
                 } finally {
-                    walk.release();
+                    walk.close();
                 }
             } finally {
                 repository.close();

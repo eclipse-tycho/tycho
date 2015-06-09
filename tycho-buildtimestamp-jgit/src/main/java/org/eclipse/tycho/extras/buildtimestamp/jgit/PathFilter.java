@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.ignore.IgnoreRule;
+import org.eclipse.jgit.ignore.FastIgnoreRule;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -27,16 +27,16 @@ public class PathFilter extends TreeFilter {
 
     private final byte[] basedir;
 
-    private final List<IgnoreRule> rules;
+    private final List<FastIgnoreRule> rules;
 
     public PathFilter(String basedir, String filters) {
         this.basedir = Constants.encode(basedir);
 
         if (filters != null) {
             StringTokenizer st = new StringTokenizer(filters, "\n\r\f", false);
-            List<IgnoreRule> rules = new ArrayList<IgnoreRule>();
+            List<FastIgnoreRule> rules = new ArrayList<FastIgnoreRule>();
             while (st.hasMoreTokens()) {
-                rules.add(new IgnoreRule(st.nextToken().trim()));
+                rules.add(new FastIgnoreRule(st.nextToken().trim()));
             }
             this.rules = Collections.unmodifiableList(rules);
         } else {
@@ -53,7 +53,7 @@ public class PathFilter extends TreeFilter {
 
         if (!tw.isSubtree() && rules != null) {
             String path = tw.getPathString();
-            for (IgnoreRule rule : rules) {
+            for (FastIgnoreRule rule : rules) {
                 if (rule.isMatch(path, tw.isSubtree())) {
                     return !rule.getResult();
                 }
