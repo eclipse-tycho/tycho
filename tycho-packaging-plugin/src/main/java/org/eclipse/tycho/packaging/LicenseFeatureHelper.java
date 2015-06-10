@@ -117,8 +117,7 @@ public class LicenseFeatureHelper {
         // mavenArchiver ignores license feature files that are also present in 'this' feature
         // i.e. if there is a conflict, files from 'this' feature win
 
-        DefaultArchivedFileSet result = new DefaultArchivedFileSet();
-        result.setArchive(licenseFeature);
+        DefaultArchivedFileSet result = new DefaultArchivedFileSet(licenseFeature);
         result.setIncludes(includes.toArray(new String[includes.size()]));
         result.setExcludes(excludes.toArray(new String[excludes.size()]));
 
