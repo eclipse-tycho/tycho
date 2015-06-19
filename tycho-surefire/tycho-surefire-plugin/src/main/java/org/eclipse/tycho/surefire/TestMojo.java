@@ -866,6 +866,7 @@ public class TestMojo extends AbstractMojo {
         List<String> defaultIncludes = Arrays.asList("**/Test*.class", "**/*Test.class", "**/*TestCase.class");
         List<String> defaultExcludes = Arrays.asList("**/*$*");
         List<String> includeList;
+        List<String> excludeList;
         if (test != null) {
             String test = this.test;
             test = test.replace('.', '/');
@@ -876,11 +877,18 @@ public class TestMojo extends AbstractMojo {
             includeList = Collections.singletonList(testClass.replace('.', '/') + ".class");
         } else if (includes != null) {
             includeList = includes;
+            includeList.removeAll(Collections.singleton(null));
         } else {
             includeList = defaultIncludes;
         }
-        DirectoryScanner scanner = new DirectoryScanner(testClassesDirectory, includeList, excludes != null ? excludes
-                : defaultExcludes, Collections.<String> emptyList());
+        if (excludes != null) {
+            excludeList = excludes;
+            excludeList.removeAll(Collections.singleton(null));
+        } else {
+            excludeList = defaultExcludes;
+        }
+        DirectoryScanner scanner = new DirectoryScanner(testClassesDirectory, includeList, excludeList,
+                Collections.<String> emptyList());
         DefaultScanResult scanResult = scanner.scan();
         return scanResult;
     }
