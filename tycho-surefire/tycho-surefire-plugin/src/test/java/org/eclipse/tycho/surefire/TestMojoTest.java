@@ -14,14 +14,18 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.surefire.util.ScanResult;
 import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
+import org.eclipse.tycho.testing.TestUtil;
 
 public class TestMojoTest extends TestCase {
 
@@ -96,6 +100,34 @@ public class TestMojoTest extends TestCase {
         TestMojo testMojo = new TestMojo();
         setParameter(testMojo, "skipExec", Boolean.TRUE);
         assertTrue(testMojo.shouldSkip());
+    }
+
+    public void testExcludes() throws Exception {
+        List<String> includes = new ArrayList<String>();
+        includes.add("*.*");
+        List<String> excludes = new ArrayList<String>();
+        // adding a null to simulate an unresolved parameter interpolation
+        excludes.add(null);
+        excludes.add("*Another*");
+        ScanResult result = executeScanForTests(includes, excludes);
+        assertEquals(1, result.size());
+    }
+
+    public void testIncludes() throws Exception {
+        List<String> includes = new ArrayList<String>();
+        includes.add("*Another*");
+        includes.add(null);
+        ScanResult result = executeScanForTests(includes, null);
+        assertEquals(1, result.size());
+    }
+
+    public ScanResult executeScanForTests(List<String> includes, List<String> excludes) throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "includes", includes);
+        setParameter(testMojo, "excludes", excludes);
+        setParameter(testMojo, "testClassesDirectory",
+                TestUtil.getTestResourceLocation("excludesIncludesTestDirectory"));
+        return testMojo.scanForTests();
     }
 
     private void setParameter(Object object, String variable, Object value) throws IllegalArgumentException,
