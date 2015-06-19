@@ -138,5 +138,10 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-testing-harness</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>
