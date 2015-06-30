@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,10 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
     }
 
     public void addEnvironmentVariables(Map<String, String> variables) {
-        env.putAll(variables);
+        for (String key : variables.keySet()) {
+            String value = variables.get(key);
+            env.put(key, (value != null) ? value : "");
+        }
     }
 
     @Override
