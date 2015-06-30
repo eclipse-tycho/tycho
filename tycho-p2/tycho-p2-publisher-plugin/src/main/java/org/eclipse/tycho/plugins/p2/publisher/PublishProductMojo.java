@@ -105,15 +105,16 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 "org.eclipse.equinox.executable", null);
 
         if (artifact == null) {
-            throw new MojoExecutionException("Unable to locate the equinox launcher feature (aka delta-pack)");
+            throw new MojoExecutionException(
+                    "Unable to locate feature 'org.eclipse.equinox.executable'. This feature is required for native product launchers.");
         }
 
         File equinoxExecFeature = artifact.getLocation();
         if (equinoxExecFeature.isDirectory()) {
             return equinoxExecFeature.getAbsoluteFile();
         } else {
-            File unzipped = new File(getProject().getBuild().getDirectory(), artifact.getKey().getId() + "-"
-                    + artifact.getKey().getVersion());
+            File unzipped = new File(getProject().getBuild().getDirectory(),
+                    artifact.getKey().getId() + "-" + artifact.getKey().getVersion());
             if (unzipped.exists()) {
                 return unzipped.getAbsoluteFile();
             }
