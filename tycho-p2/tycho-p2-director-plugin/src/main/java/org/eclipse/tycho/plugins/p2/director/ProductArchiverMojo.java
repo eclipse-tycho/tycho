@@ -26,7 +26,6 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
-import org.codehaus.plexus.archiver.tar.TarArchiver.TarCompressionMethod;
 import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.plugins.tar.TarGzArchiver;
@@ -96,9 +95,13 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         productArchivers.put(TAR_GZ_ARCHIVE_FORMAT, new ProductArchiver() {
             @Override
             Archiver getArchiver() throws ArchiverException {
-                tarArchiver.setCompression(TarCompressionMethod.gzip);
+                TarArchiver.TarCompressionMethod tarCompressionMethod = new TarArchiver.TarCompressionMethod();
+                tarCompressionMethod.setValue("gzip"); // surprisingly, compression names are private in plexus 
+                tarArchiver.setCompression(tarCompressionMethod);
                 // avoid lots of long file path (> 100 chars) warnings
-                tarArchiver.setLongfile(TarLongFileMode.gnu);
+                TarLongFileMode gnuMode = new TarLongFileMode();
+                gnuMode.setValue(TarLongFileMode.GNU);
+                tarArchiver.setLongfile(gnuMode);
                 return tarArchiver;
             }
         });
