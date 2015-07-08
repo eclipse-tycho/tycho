@@ -21,3 +21,5 @@ Building Tycho from sources:
     mvn clean install
 
 For more details, see [Developing Tycho](http://wiki.eclipse.org/Developing_Tycho)
+
+For instructions how to setting up the Tycho development environment using the Eclipse Installer see setup/README.md.
