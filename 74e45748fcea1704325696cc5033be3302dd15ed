@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "472a5bc0_f8433d14",
+        "filename": "setup/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2015-07-10T13:20:42Z",
+      "side": 1,
+      "message": "AFAIK is the first page on the Ooomph installer where you have to select the Eclipse is the product page where you have to select the RCP/Eclipse you want to install as \"base\". The Tycho.setup file only contains information about how to configure that selected Eclipse with the Tycho related stuff (cloning repos, working sets...) \nThats the reason why you get the error. When you do the same on the next page, the \"Projects\" page, you can add the Tycho.setup file. \nOnce the Tycho.setup file is part of the Eclipse Installer Project Catalog, the contributors can select on the 2nd page Tycho without having to download the setup file and add it per D\u0026D. If you start the installer, select the Eclipse you want to have, you see on the 2nd page other Eclipse Projects that could already be choosen.",
+      "parentUuid": "472a5bc0_b897051a",
+      "revId": "74e45748fcea1704325696cc5033be3302dd15ed",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "472a5bc0_d88e3906",
         "filename": "setup/README.md",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2015-07-10T12:59:44Z",
       "side": 1,
       "message": "installation went OK for me but there were no git repos cloned, just an empty workspace. I did not see \"Executing startup tasks\" in the progress view - looks like sth is missing.",
+      "revId": "74e45748fcea1704325696cc5033be3302dd15ed",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "472a5bc0_b8d425b7",
+        "filename": "setup/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2015-07-10T13:20:42Z",
+      "side": 1,
+      "message": "That\u0027s strange, I tried it on 2 different Windows PCs both Win8.1. What OS do you use?",
+      "parentUuid": "472a5bc0_d88e3906",
       "revId": "74e45748fcea1704325696cc5033be3302dd15ed",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
