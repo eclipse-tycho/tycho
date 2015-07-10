@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG and others.
+ * Copyright (c) 2015 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,21 +14,28 @@ package org.eclipse.tycho.source;
 import static java.util.Arrays.asList;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
+import org.eclipse.tycho.core.utils.TychoVersion;
+import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
-public class OsgiSourceMojoTest extends PlexusTestCase {
+public class OsgiSourceMojoTest extends AbstractTychoMojoTestCase {
 
     private OsgiSourceMojo mojo;
 
     @Override
     protected void setUp() throws Exception {
+        super.setUp();
         BuildPropertiesParser parser = lookup(BuildPropertiesParser.class);
         mojo = new OsgiSourceMojo();
         mojo.buildPropertiesParser = parser;
@@ -58,6 +65,27 @@ public class OsgiSourceMojoTest extends PlexusTestCase {
     public void testIsRelevantProjectRequireSourceRootsConfigured() throws Exception {
         MavenProject stubProject = createStubProject("eclipse-plugin", "noSources", true, true);
         assertTrue(mojo.isRelevantProject(stubProject));
+    }
+
+    public void testDefaultClassifier() throws Exception {
+        File basedir = getBasedir("bundle01");
+        File platform = new File("src/test/resources/eclipse");
+        List<MavenProject> projects = getSortedProjects(basedir, platform);
+
+        MavenSession session = newMavenSession(projects.get(0));
+        OsgiSourceMojo sourceMojo = (OsgiSourceMojo) lookupMojoWithDefaultConfiguration(projects.get(0), session,
+                "plugin-source");
+
+        assertEquals(ReactorProject.SOURCE_ARTIFACT_CLASSIFIER, sourceMojo.getClassifier());
+    }
+
+    public void testCustomClassifier() throws Exception {
+        Map<String, String> config = new HashMap<>();
+        config.put("classifier", "otherclassifier");
+        OsgiSourceMojo sourceMojo = (OsgiSourceMojo) lookupMojo("org.eclipse.tycho", "tycho-source-plugin",
+                TychoVersion.getTychoVersion(), "plugin-source", null);
+        setVariableValueToObject(sourceMojo, "classifier", "customclassifier");
+        assertEquals("customclassifier", sourceMojo.getClassifier());
     }
 
     private MavenProject createStubProjectWithSourceFolder(String packaging) {

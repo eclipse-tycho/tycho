@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -147,6 +147,13 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
      */
     @Parameter
     private DefaultFileSet[] additionalFileSets;
+
+    /**
+     * The source bundles classifier. The name of the source bundle will be <code>finalName-
+     * classifier.jar</code>
+     */
+    @Parameter(defaultValue = ReactorProject.SOURCE_ARTIFACT_CLASSIFIER)
+    private String classifier;
 
     @Component(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
@@ -314,7 +321,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
     /** {@inheritDoc} */
     @Override
     protected String getClassifier() {
-        return ReactorProject.SOURCE_ARTIFACT_CLASSIFIER;
+        return classifier;
     }
 
     @Override
