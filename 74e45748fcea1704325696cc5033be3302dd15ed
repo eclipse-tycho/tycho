@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "472a5bc0_b897051a",
+        "filename": "setup/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-07-10T12:59:44Z",
+      "side": 1,
+      "message": "I wonder why we need to use this as a base IDE. I also tried directly using Adavanced \u003e Add user products \u003e select Tycho.setup\nbut this results in error \"not a valid .setup file\"",
+      "revId": "74e45748fcea1704325696cc5033be3302dd15ed",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "472a5bc0_d88e3906",
+        "filename": "setup/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-07-10T12:59:44Z",
+      "side": 1,
+      "message": "installation went OK for me but there were no git repos cloned, just an empty workspace. I did not see \"Executing startup tasks\" in the progress view - looks like sth is missing.",
+      "revId": "74e45748fcea1704325696cc5033be3302dd15ed",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
