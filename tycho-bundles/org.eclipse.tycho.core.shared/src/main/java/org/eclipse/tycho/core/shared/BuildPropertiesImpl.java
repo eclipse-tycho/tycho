@@ -47,8 +47,8 @@ public class BuildPropertiesImpl implements BuildProperties {
         javacTarget = safeTrimValue("javacTarget", properties);
         forceContextQualifier = safeTrimValue("forceContextQualifier", properties);
         jreCompilationProfile = safeTrimValue("jre.compilation.profile", properties);
-        rootFilesUseDefaultExcludes = Boolean.parseBoolean(properties.getProperty("rootFiles.useDefaultExcludes",
-                "true"));
+        rootFilesUseDefaultExcludes = Boolean
+                .parseBoolean(properties.getProperty("rootFiles.useDefaultExcludes", "true"));
 
         sourceIncludes = splitAndTrimCommaSeparated(properties.getProperty("src.includes"));
         sourceExcludes = splitAndTrimCommaSeparated(properties.getProperty("src.excludes"));
@@ -57,12 +57,12 @@ public class BuildPropertiesImpl implements BuildProperties {
         jarsExtraClasspath = splitAndTrimCommaSeparated(properties.getProperty("jars.extra.classpath"));
         jarsCompileOrder = splitAndTrimCommaSeparated(properties.getProperty("jars.compile.order"));
 
-        HashMap<String, List<String>> jarTosourceFolderTmp = new LinkedHashMap<String, List<String>>();
-        HashMap<String, List<String>> jarToExtraClasspathTmp = new LinkedHashMap<String, List<String>>();
-        HashMap<String, String> jarToJavacDefaultEncodingTmp = new LinkedHashMap<String, String>();
-        HashMap<String, String> jarToOutputFolderMapTmp = new LinkedHashMap<String, String>();
-        HashMap<String, String> jarToManifestMapTmp = new LinkedHashMap<String, String>();
-        HashMap<String, String> rootEntriesTmp = new LinkedHashMap<String, String>();
+        HashMap<String, List<String>> jarTosourceFolderTmp = new LinkedHashMap<>();
+        HashMap<String, List<String>> jarToExtraClasspathTmp = new LinkedHashMap<>();
+        HashMap<String, String> jarToJavacDefaultEncodingTmp = new LinkedHashMap<>();
+        HashMap<String, String> jarToOutputFolderMapTmp = new LinkedHashMap<>();
+        HashMap<String, String> jarToManifestMapTmp = new LinkedHashMap<>();
+        HashMap<String, String> rootEntriesTmp = new LinkedHashMap<>();
 
         List<String> sortedKeys = new ArrayList(properties.keySet());
         Collections.sort(sortedKeys);
@@ -113,7 +113,7 @@ public class BuildPropertiesImpl implements BuildProperties {
     }
 
     private static List<String> splitAndTrimCommaSeparated(String rawValue) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (rawValue != null) {
             for (String element : rawValue.split(",")) {
                 result.add(element.trim());

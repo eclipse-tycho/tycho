@@ -57,7 +57,7 @@ public class BuildPropertiesImplTest {
 
         @Override
         public Set<Map.Entry<Object, Object>> entrySet() {
-            List<Map.Entry<Object, Object>> sortedList = new ArrayList(super.entrySet());
+            List<Map.Entry<Object, Object>> sortedList = new ArrayList<>(super.entrySet());
             Collections.sort(sortedList, new Comparator<Map.Entry<Object, Object>>() {
 
                 @Override
@@ -68,14 +68,14 @@ public class BuildPropertiesImplTest {
             if (reverse) {
                 Collections.reverse(sortedList);
             }
-            return new LinkedHashSet(sortedList);
+            return new LinkedHashSet<>(sortedList);
         }
     }
 
     @Test
     public void testSupportedKeys() throws IOException {
-        BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(readProperties(new File(
-                "resources/testbuild.properties")));
+        BuildPropertiesImpl buildProperties = new BuildPropertiesImpl(
+                readProperties(new File("resources/testbuild.properties")));
         assertEquals("1.3", buildProperties.getJavacSource());
         assertEquals("1.1", buildProperties.getJavacTarget());
         assertEquals("JavaSE-1.6", buildProperties.getJreCompilationProfile());
@@ -112,8 +112,8 @@ public class BuildPropertiesImplTest {
 
         BuildPropertiesImpl buildProperties1 = new BuildPropertiesImpl(sortedProperties);
         BuildPropertiesImpl buildProperties2 = new BuildPropertiesImpl(reverseSortedProperties);
-        List<String> sourceFolderKeys1 = new ArrayList<String>(buildProperties1.getJarToSourceFolderMap().keySet());
-        List<String> sourceFolderKeys2 = new ArrayList<String>(buildProperties2.getJarToSourceFolderMap().keySet());
+        List<String> sourceFolderKeys1 = new ArrayList<>(buildProperties1.getJarToSourceFolderMap().keySet());
+        List<String> sourceFolderKeys2 = new ArrayList<>(buildProperties2.getJarToSourceFolderMap().keySet());
         assertEquals("keyset iteration order must be stable.", sourceFolderKeys1, sourceFolderKeys2);
     }
 

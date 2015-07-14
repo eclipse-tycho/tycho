@@ -182,9 +182,9 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     private String proc;
 
     /**
-     * Qualified class names of annotation processors to run. If specified, the <a
-     * href="http://java.sun.com/javase/6/docs/api/javax/annotation/processing/Processor.html"
-     * >normal processor discovery process</a> will be skipped. This parameter requires a 1.6 VM or
+     * Qualified class names of annotation processors to run. If specified, the
+     * <a href="http://java.sun.com/javase/6/docs/api/javax/annotation/processing/Processor.html" >
+     * normal processor discovery process</a> will be skipped. This parameter requires a 1.6 VM or
      * above and is used only if the compliance is 1.6
      * 
      * @since 0.16.0
@@ -267,7 +267,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
     protected abstract SourceInclusionScanner getSourceInclusionScanner(String inputFileEnding);
 
-    protected abstract List getClasspathElements() throws MojoExecutionException;
+    protected abstract List<String> getClasspathElements() throws MojoExecutionException;
 
     protected abstract List getCompileSourceRoots() throws MojoExecutionException;
 
@@ -316,7 +316,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         CompilerConfiguration compilerConfiguration = getCompilerConfiguration(compileSourceRoots);
 
         // TODO: have an option to always compile (without need to clean)
-        Set staleSources;
+        Set<File> staleSources;
 
         boolean canUpdateTarget;
 
@@ -331,7 +331,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
                 // TODO: This second scan for source files is sub-optimal
                 String inputFileEnding = compiler.getInputFileEnding(compilerConfiguration);
 
-                Set sources = computeStaleSources(compilerConfiguration, compiler,
+                Set<File> sources = computeStaleSources(compilerConfiguration, compiler,
                         getSourceInclusionScanner(inputFileEnding));
 
                 compilerConfiguration.setSourceFiles(sources);
@@ -355,8 +355,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         if (getLog().isDebugEnabled()) {
             getLog().debug("Classpath:");
 
-            for (Iterator it = getClasspathElements().iterator(); it.hasNext();) {
-                String s = (String) it.next();
+            for (Iterator<String> it = getClasspathElements().iterator(); it.hasNext();) {
+                String s = it.next();
 
                 getLog().debug(" " + s);
             }
@@ -455,7 +455,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         compilerConfiguration.setSourceEncoding(getEncoding());
 
         if ((compilerArguments != null) || (compilerArgument != null) || compilerArgs != null) {
-            LinkedHashMap cplrArgsCopy = new LinkedHashMap();
+            LinkedHashMap<String, String> cplrArgsCopy = new LinkedHashMap<String, String>();
             if (compilerArguments != null) {
                 for (Iterator i = compilerArguments.entrySet().iterator(); i.hasNext();) {
                     Map.Entry me = (Map.Entry) i.next();
@@ -548,7 +548,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         return true;
     }
 
-    private Set computeStaleSources(CompilerConfiguration compilerConfiguration, Compiler compiler,
+    private Set<File> computeStaleSources(CompilerConfiguration compilerConfiguration, Compiler compiler,
             SourceInclusionScanner scanner) throws MojoExecutionException, CompilerException {
         CompilerOutputStyle outputStyle = compiler.getCompilerOutputStyle();
 
@@ -572,7 +572,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
         scanner.addSourceMapping(mapping);
 
-        Set staleSources = new HashSet();
+        Set<File> staleSources = new HashSet<File>();
 
         for (Iterator it = getCompileSourceRoots().iterator(); it.hasNext();) {
             String sourceRoot = (String) it.next();
@@ -586,8 +586,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
             try {
                 staleSources.addAll(scanner.getIncludedSources(rootFile, outputDirectory));
             } catch (InclusionScanException e) {
-                throw new MojoExecutionException("Error scanning source root: \'" + sourceRoot + "\' "
-                        + "for stale files to recompile.", e);
+                throw new MojoExecutionException(
+                        "Error scanning source root: \'" + sourceRoot + "\' " + "for stale files to recompile.", e);
             }
         }
 
@@ -598,8 +598,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
      * @todo also in ant plugin. This should be resolved at some point so that it does not need to
      *       be calculated continuously - or should the plugins accept empty source roots as is?
      */
-    protected static List removeEmptyCompileSourceRoots(List compileSourceRootsList) {
-        List newCompileSourceRootsList = new ArrayList();
+    protected static List<String> removeEmptyCompileSourceRoots(List compileSourceRootsList) {
+        List<String> newCompileSourceRootsList = new ArrayList<>();
         if (compileSourceRootsList != null) {
             // copy as I may be modifying it
             for (Iterator i = compileSourceRootsList.iterator(); i.hasNext();) {

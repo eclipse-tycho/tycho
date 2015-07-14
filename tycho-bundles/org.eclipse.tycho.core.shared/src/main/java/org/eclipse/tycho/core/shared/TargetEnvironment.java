@@ -78,7 +78,7 @@ public final class TargetEnvironment {
      * @return a new instance of {@link HashMap} with the target environment set
      */
     public HashMap<String, String> toFilterProperties() {
-        HashMap<String, String> result = new HashMap<String, String>();
+        HashMap<String, String> result = new HashMap<>();
 
         if (os != null)
             result.put(OSGI_OS, os);
@@ -96,7 +96,7 @@ public final class TargetEnvironment {
      *         environment.
      */
     public String toFilterExpression() {
-        ArrayList<String> conditions = new ArrayList<String>();
+        ArrayList<String> conditions = new ArrayList<>();
 
         if (os != null)
             conditions.add(OSGI_OS + "=" + os);

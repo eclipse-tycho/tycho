@@ -41,7 +41,7 @@ public class LRUCacheTest {
     }
 
     private Map<String, String> createPreFilledCacheSize5() {
-        Map<String, String> cache = new LRUCache<String, String>(5);
+        Map<String, String> cache = new LRUCache<>(5);
         cache.put("key1", "value1");
         cache.put("key2", "value2");
         cache.put("key3", "value3");

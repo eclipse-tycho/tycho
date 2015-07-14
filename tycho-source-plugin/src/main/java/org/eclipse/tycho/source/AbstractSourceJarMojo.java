@@ -93,8 +93,9 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     private JarArchiver jarArchiver;
 
     /**
-     * The archive configuration to use. See <a
-     * href="http://maven.apache.org/shared/maven-archiver/index.html">Maven Archiver Reference</a>.
+     * The archive configuration to use. See
+     * <a href="http://maven.apache.org/shared/maven-archiver/index.html">Maven Archiver
+     * Reference</a>.
      * 
      * @since 2.1
      */
@@ -111,7 +112,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     private File defaultManifestFile;
 
     /**
-     * Set this to <code>true</code> to enable the use of the <code>defaultManifestFile</code>. <br/>
+     * Set this to <code>true</code> to enable the use of the <code>defaultManifestFile</code>.
+     * <br/>
      * 
      * @since 2.1
      */
@@ -219,20 +221,19 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
 
     protected abstract boolean isRelevantProject(MavenProject p);
 
-    protected void packageSources(List projects) throws MojoExecutionException {
+    protected void packageSources(List<MavenProject> projects) throws MojoExecutionException {
         if (project.getArtifact().hasClassifier()) {
-            getLog().warn(
-                    "NOT adding sources to artifacts with classifier as Maven only supports one classifier "
-                            + "per artifact. Current artifact [" + project.getArtifact().getId() + "] has a ["
-                            + project.getArtifact().getClassifier() + "] classifier.");
+            getLog().warn("NOT adding sources to artifacts with classifier as Maven only supports one classifier "
+                    + "per artifact. Current artifact [" + project.getArtifact().getId() + "] has a ["
+                    + project.getArtifact().getClassifier() + "] classifier.");
 
             return;
         }
 
         MavenArchiver archiver = createArchiver();
 
-        for (Iterator i = projects.iterator(); i.hasNext();) {
-            MavenProject subProject = getProject((MavenProject) i.next());
+        for (Iterator<MavenProject> i = projects.iterator(); i.hasNext();) {
+            MavenProject subProject = getProject(i.next());
 
             if ("pom".equals(subProject.getPackaging())) {
                 continue;
@@ -401,7 +402,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      * @return The combined array of includes.
      */
     private String[] getCombinedIncludes(List additionalIncludes) {
-        ArrayList combinedIncludes = new ArrayList();
+        ArrayList<String> combinedIncludes = new ArrayList<>();
 
         if (includes != null && includes.length > 0) {
             combinedIncludes.addAll(Arrays.asList(includes));
@@ -416,7 +417,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
             combinedIncludes.addAll(Arrays.asList(DEFAULT_INCLUDES));
         }
 
-        return (String[]) combinedIncludes.toArray(new String[combinedIncludes.size()]);
+        return combinedIncludes.toArray(new String[combinedIncludes.size()]);
     }
 
     /**
@@ -429,7 +430,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      */
 
     private String[] getCombinedExcludes(List additionalExcludes) {
-        ArrayList combinedExcludes = new ArrayList();
+        ArrayList<String> combinedExcludes = new ArrayList<String>();
 
         if (useDefaultExcludes) {
             combinedExcludes.addAll(FileUtils.getDefaultExcludesAsList());
@@ -447,6 +448,6 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
             combinedExcludes.addAll(Arrays.asList(DEFAULT_EXCLUDES));
         }
 
-        return (String[]) combinedExcludes.toArray(new String[combinedExcludes.size()]);
+        return combinedExcludes.toArray(new String[combinedExcludes.size()]);
     }
 }
