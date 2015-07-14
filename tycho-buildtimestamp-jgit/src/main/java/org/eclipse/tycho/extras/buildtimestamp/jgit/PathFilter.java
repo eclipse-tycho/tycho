@@ -34,7 +34,7 @@ public class PathFilter extends TreeFilter {
 
         if (filters != null) {
             StringTokenizer st = new StringTokenizer(filters, "\n\r\f", false);
-            List<FastIgnoreRule> rules = new ArrayList<FastIgnoreRule>();
+            List<FastIgnoreRule> rules = new ArrayList<>();
             while (st.hasMoreTokens()) {
                 rules.add(new FastIgnoreRule(st.nextToken().trim()));
             }

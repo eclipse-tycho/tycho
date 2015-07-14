@@ -115,7 +115,7 @@ public class MirrorMojo extends AbstractMojo {
      * <code>osgi.os, osgi.ws, osgi.arch</code>.
      */
     @Parameter
-    private Map<String, String> filter = new HashMap<String, String>();
+    private Map<String, String> filter = new HashMap<>();
 
     /**
      * Follow only requirements which match the filter specified.
@@ -194,7 +194,7 @@ public class MirrorMojo extends AbstractMojo {
         if (ius == null) {
             return Collections.<IUDescription> emptyList();
         }
-        List<IUDescription> result = new ArrayList<IUDescription>();
+        List<IUDescription> result = new ArrayList<>();
         for (Iu iu : ius) {
             result.add(iu.toIUDescription());
         }

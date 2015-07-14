@@ -61,7 +61,7 @@ public class DocletArtifactsResolver {
      *             if one of the specified depenencies could not be resolved
      */
     public Set<String> resolveArtifacts(List<Dependency> dependencies) throws MojoExecutionException {
-        Set<String> files = new LinkedHashSet<String>();
+        Set<String> files = new LinkedHashSet<>();
 
         if (dependencies == null || dependencies.isEmpty()) {
             return files;

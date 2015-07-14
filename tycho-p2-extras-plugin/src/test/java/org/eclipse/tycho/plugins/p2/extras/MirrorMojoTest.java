@@ -90,7 +90,7 @@ public class MirrorMojoTest extends AbstractTychoMojoTestCase {
         Iu featureIU = new Iu();
         featureIU.id = "test.feature.feature.group";
         setVariableValueToObject(mirrorMojo, "ius", Collections.singletonList(featureIU));
-        Map<String, String> filter = new HashMap<String, String>();
+        Map<String, String> filter = new HashMap<>();
         filter.put("osgi.os", "linux");
         filter.put("osgi.ws", "gtk");
         filter.put("osgi.arch", "x86_64");

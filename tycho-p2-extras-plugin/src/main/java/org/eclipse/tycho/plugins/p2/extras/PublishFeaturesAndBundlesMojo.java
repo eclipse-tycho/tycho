@@ -111,7 +111,7 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
             File artifactRepositoryDir = new File(artifactRepositoryLocation).getCanonicalFile();
             File metadataRepositoryDir = new File(metadataRepositoryLocation).getCanonicalFile();
 
-            List<String> contentArgs = new ArrayList<String>();
+            List<String> contentArgs = new ArrayList<>();
             contentArgs.add("-source");
             contentArgs.add(sourceRepositoryDir.toString());
 

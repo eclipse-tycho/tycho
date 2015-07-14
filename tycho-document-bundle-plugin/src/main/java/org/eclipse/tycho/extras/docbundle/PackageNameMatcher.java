@@ -43,7 +43,7 @@ public class PackageNameMatcher {
             throw new IllegalArgumentException("null package name specifications");
         }
 
-        final List<Pattern> list = new ArrayList<Pattern>();
+        final List<Pattern> list = new ArrayList<>();
 
         for (String part : specs) {
             list.add(buildPattern(part));

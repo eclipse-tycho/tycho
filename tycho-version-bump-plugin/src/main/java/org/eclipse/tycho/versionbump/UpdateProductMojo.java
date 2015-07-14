@@ -66,7 +66,7 @@ public class UpdateProductMojo extends AbstractUpdateMojo {
 
         P2ResolutionResult result = p2.resolveMetadata(resolutionContext, executionEnvironment);
 
-        Map<String, String> ius = new HashMap<String, String>();
+        Map<String, String> ius = new HashMap<>();
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
             ius.put(entry.getId(), entry.getVersion());
         }

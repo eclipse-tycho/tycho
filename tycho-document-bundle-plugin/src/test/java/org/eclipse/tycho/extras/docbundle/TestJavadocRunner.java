@@ -51,9 +51,9 @@ public class TestJavadocRunner {
     public void testOptionsFile() throws Exception {
         JavadocRunner javadocRunner = buildTestRunner();
         JavadocOptions options = new JavadocOptions();
-        List<Dependency> docletArifacts = new LinkedList<Dependency>();
+        List<Dependency> docletArifacts = new LinkedList<>();
         DocletArtifactsResolver docletResolver = mock(DocletArtifactsResolver.class);
-        Set<String> docletArtifactsJarList = new LinkedHashSet<String>(Arrays.asList("path/to/docletArtifact.jar",
+        Set<String> docletArtifactsJarList = new LinkedHashSet<>(Arrays.asList("path/to/docletArtifact.jar",
                 "path/to/otherDocletArtifact.jar"));
         when(docletResolver.resolveArtifacts(docletArifacts)).thenReturn(docletArtifactsJarList);
         options.setAdditionalArguments(Arrays.asList("-docencoding \"UTF-8\""));
@@ -89,7 +89,7 @@ public class TestJavadocRunner {
         final JavadocRunner javadocRunner = buildTestRunner();
         final JavadocOptions options = new JavadocOptions();
 
-        final List<String> excludes = new LinkedList<String>();
+        final List<String> excludes = new LinkedList<>();
         excludes.add("*.internal");
         excludes.add("*.internal.*");
         excludes.add("*.xom");
@@ -97,7 +97,7 @@ public class TestJavadocRunner {
 
         javadocRunner.setOptions(options);
 
-        final Set<File> manifests = new HashSet<File>();
+        final Set<File> manifests = new HashSet<>();
         File file = getTestBundleRoot();
         manifests.add(file);
         javadocRunner.setManifestFiles(manifests);
@@ -115,7 +115,7 @@ public class TestJavadocRunner {
         final JavadocRunner javadocRunner = buildTestRunner();
         final JavadocOptions options = new JavadocOptions();
 
-        final List<String> includes = new LinkedList<String>();
+        final List<String> includes = new LinkedList<>();
         includes.add("com.example.*");
         includes.add("nu.xom");
         options.setIncludes(includes);

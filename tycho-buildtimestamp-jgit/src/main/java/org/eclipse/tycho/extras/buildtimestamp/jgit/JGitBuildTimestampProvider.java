@@ -229,7 +229,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
     private static String toGitStatusStyleOutput(IndexDiff diff) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        List<String> toBeCommitted = new ArrayList<String>(diff.getAdded());
+        List<String> toBeCommitted = new ArrayList<>(diff.getAdded());
         toBeCommitted.addAll(diff.getChanged());
         toBeCommitted.addAll(diff.getRemoved());
         if (toBeCommitted.size() > 0) {
@@ -238,7 +238,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
             printList(pw, "\tmodified:    ", diff.getChanged());
             printList(pw, "\tdeleted:     ", diff.getRemoved());
         }
-        List<String> notStaged = new ArrayList<String>(diff.getModified());
+        List<String> notStaged = new ArrayList<>(diff.getModified());
         notStaged.addAll(diff.getMissing());
         if (notStaged.size() > 0) {
             pw.println();

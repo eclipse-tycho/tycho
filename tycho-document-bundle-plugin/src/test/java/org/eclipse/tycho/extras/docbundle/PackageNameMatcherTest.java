@@ -65,7 +65,7 @@ public class PackageNameMatcherTest {
 
     @Test
     public void testPattern05() {
-        final List<String> specs = new ArrayList<String>();
+        final List<String> specs = new ArrayList<>();
         specs.add("com.example.*");
         specs.add("org.example.*");
         PackageNameMatcher matcher = PackageNameMatcher.compile(specs);
@@ -84,7 +84,7 @@ public class PackageNameMatcherTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPattern07() {
-        final List<String> specs = new ArrayList<String>();
+        final List<String> specs = new ArrayList<>();
         specs.add("com.example.*");
         specs.add("org.example.!");
         PackageNameMatcher.compile(specs);

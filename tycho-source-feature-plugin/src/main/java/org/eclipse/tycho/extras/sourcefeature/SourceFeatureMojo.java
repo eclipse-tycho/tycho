@@ -160,11 +160,11 @@ public class SourceFeatureMojo extends AbstractMojo {
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
 
-    private final Set<String> excludedPlugins = new HashSet<String>();
+    private final Set<String> excludedPlugins = new HashSet<>();
 
-    private final Set<String> excludedFeatures = new HashSet<String>();
+    private final Set<String> excludedFeatures = new HashSet<>();
 
-    private final Set<PluginRef> extraPlugins = new HashSet<PluginRef>();
+    private final Set<PluginRef> extraPlugins = new HashSet<>();
 
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
@@ -402,9 +402,9 @@ public class SourceFeatureMojo extends AbstractMojo {
         P2Resolver p2 = factory.createResolver(new MavenLoggerAdapter(this.logger, DebugUtils.isDebugEnabled(
                 this.session, this.project)));
 
-        List<PluginRef> missingSourcePlugins = new ArrayList<PluginRef>();
-        List<FeatureRef> missingSourceFeatures = new ArrayList<FeatureRef>();
-        List<PluginRef> missingExtraPlugins = new ArrayList<PluginRef>();
+        List<PluginRef> missingSourcePlugins = new ArrayList<>();
+        List<FeatureRef> missingSourceFeatures = new ArrayList<>();
+        List<PluginRef> missingExtraPlugins = new ArrayList<>();
 
         // include available source bundles
         for (PluginRef pluginRef : feature.getPlugins()) {

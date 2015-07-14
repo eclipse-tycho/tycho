@@ -77,7 +77,7 @@ public class TPValidationMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         this.factory = this.equinox.getService(P2ResolverFactory.class);
 
-        List<TPError> errors = new ArrayList<TPError>();
+        List<TPError> errors = new ArrayList<>();
         for (File targetFile : this.targetFiles) {
             try {
                 validateTarget(targetFile);

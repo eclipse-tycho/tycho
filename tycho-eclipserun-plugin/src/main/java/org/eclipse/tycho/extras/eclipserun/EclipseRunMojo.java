@@ -79,7 +79,7 @@ public class EclipseRunMojo extends AbstractMojo {
      * </pre>
      */
     @Parameter
-    private List<Dependency> dependencies = new ArrayList<Dependency>();
+    private List<Dependency> dependencies = new ArrayList<>();
 
     /**
      * Whether to add default dependencies to bundles org.eclipse.equinox.launcher, org.eclipse.osgi

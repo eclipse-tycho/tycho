@@ -171,7 +171,7 @@ public class TychoModelReader extends ModelReaderSupport {
         if (parentPom == null) {
             throw new FileNotFoundException("No parent pom file found in " + projectRoot.getParentFile());
         }
-        Map<String, File> options = new HashMap<String, File>(4);
+        Map<String, File> options = new HashMap<>(4);
         options.put(ModelProcessor.SOURCE, parentPom);
         ModelReader reader = polyglotModelManager.getReaderFor(options);
         Model parentModel = reader.read(parentPom, options);

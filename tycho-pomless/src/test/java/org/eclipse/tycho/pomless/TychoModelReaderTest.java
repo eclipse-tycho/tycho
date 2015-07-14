@@ -149,7 +149,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
     }
 
     private Map<String, String> createReaderOptions(File buildProperties) {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(ModelProcessor.SOURCE, buildProperties.getAbsolutePath());
         return options;
     }

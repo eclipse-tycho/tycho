@@ -27,19 +27,19 @@ public class JavadocOptions {
 
     private boolean ignoreError = true;
 
-    private List<String> jvmOptions = new LinkedList<String>();
+    private List<String> jvmOptions = new LinkedList<>();
 
-    private List<String> additionalArguments = new LinkedList<String>();
+    private List<String> additionalArguments = new LinkedList<>();
 
-    private List<Dependency> docletArtifacts = new LinkedList<Dependency>();
+    private List<Dependency> docletArtifacts = new LinkedList<>();
 
     private String doclet;
 
     private String encoding;
 
-    private List<String> includes = new LinkedList<String>();
+    private List<String> includes = new LinkedList<>();
 
-    private List<String> excludes = new LinkedList<String>();
+    private List<String> excludes = new LinkedList<>();
 
     public void setIgnoreError(final boolean ignoreError) {
         this.ignoreError = ignoreError;

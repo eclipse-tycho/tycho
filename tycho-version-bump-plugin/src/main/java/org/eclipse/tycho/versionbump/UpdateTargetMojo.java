@@ -56,7 +56,7 @@ public class UpdateTargetMojo extends AbstractUpdateMojo {
         resolutionContext.addTargetDefinition(target);
         P2ResolutionResult result = p2.getTargetPlatformAsResolutionResult(resolutionContext, executionEnvironment);
 
-        Map<String, String> ius = new HashMap<String, String>();
+        Map<String, String> ius = new HashMap<>();
         for (P2ResolutionResult.Entry entry : result.getArtifacts()) {
             ius.put(entry.getId(), entry.getVersion());
         }

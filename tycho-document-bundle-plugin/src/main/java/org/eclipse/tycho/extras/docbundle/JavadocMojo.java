@@ -81,13 +81,13 @@ public class JavadocMojo extends AbstractMojo {
      * The scopes that the dependencies must have in order to be included
      */
     @Parameter(property = "scopes", defaultValue = "compile,provided")
-    private Set<String> scopes = new HashSet<String>();
+    private Set<String> scopes = new HashSet<>();
 
     /**
      * Maven module types that will be used to include the source
      */
     @Parameter(property = "sourceTypes", defaultValue = "eclipse-plugin")
-    private Set<String> sourceTypes = new HashSet<String>();
+    private Set<String> sourceTypes = new HashSet<>();
 
     /**
      * Options for calling the javadoc application. Possible options are (all options are optional):
@@ -278,7 +278,7 @@ public class JavadocMojo extends AbstractMojo {
     }
 
     private class GatherSourcesVisitor implements ProjectVisitor {
-        private final Set<File> sourceFolders = new HashSet<File>();
+        private final Set<File> sourceFolders = new HashSet<>();
 
         public void visit(final MavenProject project) {
             if (JavadocMojo.this.sourceTypes.contains(project.getPackaging())) {
@@ -298,7 +298,7 @@ public class JavadocMojo extends AbstractMojo {
     }
 
     private class GatherManifestVisitor implements ProjectVisitor {
-        private final Set<File> manifestFiles = new HashSet<File>();
+        private final Set<File> manifestFiles = new HashSet<>();
 
         public void visit(final MavenProject project) {
             if (JavadocMojo.this.sourceTypes.contains(project.getPackaging())) {
@@ -312,7 +312,7 @@ public class JavadocMojo extends AbstractMojo {
     }
 
     private class GatherClasspathVisitor implements ProjectVisitor {
-        private final Set<String> classPath = new HashSet<String>();
+        private final Set<String> classPath = new HashSet<>();
 
         public void visit(final MavenProject project) throws MojoExecutionException {
             for (final Dependency dep : (List<Dependency>) project.getDependencies()) {

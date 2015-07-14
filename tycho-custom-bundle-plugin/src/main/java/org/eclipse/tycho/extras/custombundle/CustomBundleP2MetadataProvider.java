@@ -48,7 +48,7 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
 
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
-        Map<String, IDependencyMetadata> metadata = new LinkedHashMap<String, IDependencyMetadata>();
+        Map<String, IDependencyMetadata> metadata = new LinkedHashMap<>();
         Plugin plugin = project.getPlugin("org.eclipse.tycho.extras:tycho-custom-bundle-plugin");
         if (plugin != null) {
             // it is possible to configure manifest location at <plugin> level, but it does not make sense to do so
