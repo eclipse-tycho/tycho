@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "472a5bc0_5d5b4d02",
+        "filename": "README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-07-15T08:16:07Z",
+      "side": 1,
+      "message": "make this a (relative) link. sth like \n\n\"You can also [set up the Tycho Development Environment using the Eclipse Installer](setup/README.md)\"",
+      "revId": "dd0bafbe73a54a1c9f22cf5588007aefd9feb681",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
