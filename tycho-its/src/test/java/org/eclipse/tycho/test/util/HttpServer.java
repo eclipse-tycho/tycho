@@ -41,7 +41,7 @@ import org.eclipse.jetty.util.security.Password;
 
 public class HttpServer {
     private static class MonitoringServlet extends DefaultServlet {
-        private List<String> accessedURIs = new ArrayList<String>();
+        private List<String> accessedURIs = new ArrayList<>();
 
         @Override
         public String getInitParameter(String name) {
@@ -80,7 +80,7 @@ public class HttpServer {
 
     private final int port;
 
-    private final Map<String, MonitoringServlet> contextName2servletsMap = new HashMap<String, MonitoringServlet>();
+    private final Map<String, MonitoringServlet> contextName2servletsMap = new HashMap<>();
 
     private ContextHandlerCollection contexts;
 

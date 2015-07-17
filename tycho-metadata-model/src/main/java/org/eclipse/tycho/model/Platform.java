@@ -75,7 +75,7 @@ public class Platform {
         }
 
         public List<Feature> getFeatures() {
-            ArrayList<Feature> features = new ArrayList<Feature>();
+            ArrayList<Feature> features = new ArrayList<>();
             for (Xpp3Dom featureDom : dom.getChildren("feature")) {
                 features.add(new Feature(featureDom));
             }
@@ -83,7 +83,7 @@ public class Platform {
         }
 
         public List<String> getPlugins() {
-            ArrayList<String> plugins = new ArrayList<String>();
+            ArrayList<String> plugins = new ArrayList<>();
             String pluginsStr = getPluginsStr();
             if (pluginsStr != null) {
                 StringTokenizer st = new StringTokenizer(pluginsStr, ",");
@@ -196,7 +196,7 @@ public class Platform {
     }
 
     public List<Site> getSites() {
-        ArrayList<Site> sites = new ArrayList<Site>();
+        ArrayList<Site> sites = new ArrayList<>();
         for (Xpp3Dom siteDom : dom.getChildren("site")) {
             sites.add(new Site(siteDom));
         }

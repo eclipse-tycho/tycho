@@ -83,7 +83,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
     private MavenProjectHelper helper;
 
     public ProductArchiverMojo() {
-        productArchivers = new HashMap<String, ProductArchiver>();
+        productArchivers = new HashMap<>();
 
         productArchivers.put("zip", new ProductArchiver() {
             @Override

@@ -430,7 +430,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
      */
 
     private String[] getCombinedExcludes(List additionalExcludes) {
-        ArrayList<String> combinedExcludes = new ArrayList<String>();
+        ArrayList<String> combinedExcludes = new ArrayList<>();
 
         if (useDefaultExcludes) {
             combinedExcludes.addAll(FileUtils.getDefaultExcludesAsList());

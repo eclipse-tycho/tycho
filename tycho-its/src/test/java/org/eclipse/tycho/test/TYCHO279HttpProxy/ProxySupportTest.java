@@ -134,7 +134,7 @@ public class ProxySupportTest extends AbstractTychoIntegrationTest {
         proxyServer.setPort(proxyPort);
         proxyServer.initialize();
 
-        Map<String, String> authMap = new HashMap<String, String>();
+        Map<String, String> authMap = new HashMap<>();
         if (useAuthentication) {
             authMap.put(user, password);
         }

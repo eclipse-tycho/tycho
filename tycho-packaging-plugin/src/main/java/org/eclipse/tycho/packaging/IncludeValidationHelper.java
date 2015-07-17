@@ -50,7 +50,7 @@ public class IncludeValidationHelper {
     private void checkIncludesExist(String buildPropertiesKey, List<String> includePatterns, MavenProject project,
             boolean strict, String... ignoredIncludes) throws MojoExecutionException {
         File baseDir = project.getBasedir();
-        List<String> nonMatchingIncludes = new ArrayList<String>();
+        List<String> nonMatchingIncludes = new ArrayList<>();
         List<String> ignoreList = Arrays.asList(ignoredIncludes);
         if (includePatterns == null || includePatterns.isEmpty()) {
             String message = new File(baseDir, "build.properties").getAbsolutePath() + ": " + buildPropertiesKey

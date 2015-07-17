@@ -96,7 +96,7 @@ public final class Product {
 
     public void addInstallationSeed(DependencySeed seed) {
         if (extraInstallationSeeds == null) {
-            extraInstallationSeeds = new ArrayList<DependencySeed>();
+            extraInstallationSeeds = new ArrayList<>();
         }
         extraInstallationSeeds.add(seed);
     }

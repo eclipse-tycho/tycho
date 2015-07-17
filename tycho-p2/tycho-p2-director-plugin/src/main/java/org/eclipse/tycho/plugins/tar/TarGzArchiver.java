@@ -48,7 +48,7 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 public class TarGzArchiver {
 
     private File destFile;
-    private List<File> sourceDirs = new ArrayList<File>();
+    private List<File> sourceDirs = new ArrayList<>();
     private Log log = new SystemStreamLog();
 
     public TarGzArchiver() {

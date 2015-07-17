@@ -86,7 +86,7 @@ public class IU {
     }
 
     public List<Element> getSelfCapabilities() {
-        List<Element> selfCapabilities = new ArrayList<Element>(1);
+        List<Element> selfCapabilities = new ArrayList<>(1);
         List<Element> providedCapabilities = getProvidedCapabilites();
         if (providedCapabilities == null)
             return selfCapabilities;

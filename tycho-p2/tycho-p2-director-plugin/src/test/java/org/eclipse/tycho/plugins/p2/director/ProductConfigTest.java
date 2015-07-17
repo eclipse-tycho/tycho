@@ -27,7 +27,7 @@ public class ProductConfigTest {
 
     private ProductConfig subject;
 
-    private List<DependencySeed> projectSeeds = new ArrayList<DependencySeed>();
+    private List<DependencySeed> projectSeeds = new ArrayList<>();
 
     @Test
     public void testNoConfigAndNothingPublished() throws Exception {

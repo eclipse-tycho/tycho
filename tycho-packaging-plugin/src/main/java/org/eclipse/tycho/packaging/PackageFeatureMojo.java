@@ -231,7 +231,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
      *         automatically.
      */
     private FileSet getManuallyIncludedFiles(BuildProperties buildProperties) {
-        List<String> binExcludes = new ArrayList<String>(buildProperties.getBinExcludes());
+        List<String> binExcludes = new ArrayList<>(buildProperties.getBinExcludes());
         binExcludes.add(Feature.FEATURE_XML); // we'll include updated feature.xml
         binExcludes.add(FEATURE_PROPERTIES); // we'll include updated feature.properties
         return getFileSet(basedir, buildProperties.getBinIncludes(), binExcludes);

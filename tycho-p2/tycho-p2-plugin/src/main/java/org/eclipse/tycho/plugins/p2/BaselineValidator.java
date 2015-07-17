@@ -73,7 +73,7 @@ public class BaselineValidator {
         Map<String, IP2Artifact> result = reactorMetadata;
 
         if (baselineMode != disable && baselineRepositories != null && !baselineRepositories.isEmpty()) {
-            List<MavenRepositoryLocation> _repositories = new ArrayList<MavenRepositoryLocation>();
+            List<MavenRepositoryLocation> _repositories = new ArrayList<>();
             for (Repository repository : baselineRepositories) {
                 if (repository.getUrl() != null) {
                     _repositories.add(new MavenRepositoryLocation(repository.getId(), repository.getUrl()));
@@ -109,10 +109,10 @@ public class BaselineValidator {
                 }
 
                 if (baselineReplace != none) {
-                    result = new LinkedHashMap<String, IP2Artifact>();
+                    result = new LinkedHashMap<>();
 
                     // replace reactor artifacts with baseline
-                    ArrayList<String> replaced = new ArrayList<String>();
+                    ArrayList<String> replaced = new ArrayList<>();
                     for (Map.Entry<String, IP2Artifact> artifact : baselineMetadata.entrySet()) {
                         String classifier = artifact.getKey();
                         FileUtils.copyFile(artifact.getValue().getLocation(), reactorMetadata.get(classifier)
@@ -124,8 +124,8 @@ public class BaselineValidator {
                     }
 
                     // un-attach and delete artifacts present in reactor but not in baseline
-                    ArrayList<String> removed = new ArrayList<String>();
-                    ArrayList<String> inconsistent = new ArrayList<String>();
+                    ArrayList<String> removed = new ArrayList<>();
+                    ArrayList<String> inconsistent = new ArrayList<>();
                     for (Map.Entry<String, IP2Artifact> entry : reactorMetadata.entrySet()) {
                         String classifier = entry.getKey();
                         IP2Artifact artifact = entry.getValue();
@@ -195,7 +195,7 @@ public class BaselineValidator {
     private CompoundArtifactDelta getDelta(BaselineService baselineService, Map<String, IP2Artifact> baselineMetadata,
             Map<String, IP2Artifact> generatedMetadata) throws IOException {
 
-        Map<String, ArtifactDelta> result = new LinkedHashMap<String, ArtifactDelta>();
+        Map<String, ArtifactDelta> result = new LinkedHashMap<>();
 
         // baseline never includes more artifacts
         for (Entry<String, IP2Artifact> classifierEntry : generatedMetadata.entrySet()) {

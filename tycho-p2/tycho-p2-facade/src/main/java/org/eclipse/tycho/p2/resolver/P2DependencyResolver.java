@@ -129,8 +129,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         List<TargetEnvironment> environments = configuration.getEnvironments();
         Map<String, IDependencyMetadata> metadata = getDependencyMetadata(session, project, environments,
                 OptionalResolutionAction.OPTIONAL);
-        Set<Object> primaryMetadata = new LinkedHashSet<Object>();
-        Set<Object> secondaryMetadata = new LinkedHashSet<Object>();
+        Set<Object> primaryMetadata = new LinkedHashSet<>();
+        Set<Object> secondaryMetadata = new LinkedHashSet<>();
         for (Map.Entry<String, IDependencyMetadata> entry : metadata.entrySet()) {
             primaryMetadata.addAll(entry.getValue().getMetadata(true));
             secondaryMetadata.addAll(entry.getValue().getMetadata(false));
@@ -143,7 +143,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             final MavenProject project, final List<TargetEnvironment> environments,
             final OptionalResolutionAction optionalAction) {
 
-        final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<String, IDependencyMetadata>();
+        final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<>();
         metadata.put(null, generator.generateMetadata(new AttachedArtifact(project, project.getBasedir(), null),
                 environments, optionalAction));
 
@@ -233,8 +233,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
                 .getOptionalResolutionAction();
         Map<String, IDependencyMetadata> dependencyMetadata = getDependencyMetadata(session, project, environments,
                 optionalAction);
-        final Set<Object> metadata = new LinkedHashSet<Object>();
-        final Set<Object> secondaryMetadata = new LinkedHashSet<Object>();
+        final Set<Object> metadata = new LinkedHashSet<>();
+        final Set<Object> secondaryMetadata = new LinkedHashSet<>();
         for (Map.Entry<String, IDependencyMetadata> entry : dependencyMetadata.entrySet()) {
             metadata.addAll(entry.getValue().getMetadata(true));
             secondaryMetadata.addAll(entry.getValue().getMetadata(false));
@@ -250,19 +250,19 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
     private PomDependencyCollector collectPomDependencies(MavenProject project, List<ReactorProject> reactorProjects,
             MavenSession session) {
-        Set<String> projectIds = new HashSet<String>();
+        Set<String> projectIds = new HashSet<>();
         for (ReactorProject p : reactorProjects) {
             String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
             projectIds.add(key);
         }
 
-        ArrayList<String> scopes = new ArrayList<String>();
+        ArrayList<String> scopes = new ArrayList<>();
         scopes.add(Artifact.SCOPE_COMPILE);
         Collection<Artifact> artifacts;
         try {
             artifacts = projectDependenciesResolver.resolve(project, scopes, session);
         } catch (MultipleArtifactsNotFoundException e) {
-            Collection<Artifact> missing = new HashSet<Artifact>(e.getMissingArtifacts());
+            Collection<Artifact> missing = new HashSet<>(e.getMissingArtifacts());
 
             for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
                 Artifact a = it.next();
@@ -281,7 +281,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         } catch (AbstractArtifactResolutionException e) {
             throw new RuntimeException("Could not resolve project dependencies", e);
         }
-        List<Artifact> externalArtifacts = new ArrayList<Artifact>(artifacts.size());
+        List<Artifact> externalArtifacts = new ArrayList<>(artifacts.size());
         for (Artifact artifact : artifacts) {
             String key = ArtifactUtils.key(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
             if (projectIds.contains(key)) {
@@ -340,7 +340,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
             List<ReactorProject> reactorProjects, DependencyResolverConfiguration resolverConfiguration,
             TargetPlatform targetPlatform, P2Resolver resolver, TargetPlatformConfiguration configuration) {
 
-        Map<File, ReactorProject> projects = new HashMap<File, ReactorProject>();
+        Map<File, ReactorProject> projects = new HashMap<>();
 
         resolver.setEnvironments(configuration.getEnvironments());
         resolver.setAdditionalFilterProperties(configuration.getProfileProperties());
