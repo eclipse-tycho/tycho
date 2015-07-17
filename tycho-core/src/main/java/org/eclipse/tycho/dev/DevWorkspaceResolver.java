@@ -80,8 +80,8 @@ public class DevWorkspaceResolver implements Initializable {
 
     @Override
     public void initialize() throws InitializationException {
-        Map<File, String> workspaceDeventries = new HashMap<File, String>();
-        Map<File, File> workspaceBasedirs = new HashMap<File, File>();
+        Map<File, String> workspaceDeventries = new HashMap<>();
+        Map<File, File> workspaceBasedirs = new HashMap<>();
         ArtifactCollection workspaceBundles = new ArtifactCollection();
 
         String stateLocation = System.getProperty(SYSPROP_STATELOCATION);

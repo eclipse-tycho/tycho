@@ -76,7 +76,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      * @return
      */
     public List<Category> loadCategories(final MavenProject project) {
-        List<Category> categories = new ArrayList<Category>();
+        List<Category> categories = new ArrayList<>();
         for (File file : getCategoryFiles(project)) {
             try {
                 categories.add(Category.read(file));
@@ -94,7 +94,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      * @return
      */
     protected List<ProductConfiguration> loadProducts(final MavenProject project) {
-        List<ProductConfiguration> products = new ArrayList<ProductConfiguration>();
+        List<ProductConfiguration> products = new ArrayList<>();
         for (File file : getProductFiles(project)) {
             try {
                 products.add(ProductConfiguration.read(file));
@@ -106,7 +106,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
     }
 
     private List<File> getCategoryFiles(MavenProject project) {
-        List<File> res = new ArrayList<File>();
+        List<File> res = new ArrayList<>();
         File categoryFile = new File(project.getBasedir(), "category.xml");
         if (categoryFile.exists()) {
             res.add(categoryFile);
@@ -123,7 +123,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
      */
     public List<File> getProductFiles(MavenProject project) {
         File projectLocation = project.getBasedir();
-        List<File> res = new ArrayList<File>();
+        List<File> res = new ArrayList<>();
         for (File f : projectLocation.listFiles()) {
             if (f.isFile() && f.getName().endsWith(".product")) {
                 res.add(f);

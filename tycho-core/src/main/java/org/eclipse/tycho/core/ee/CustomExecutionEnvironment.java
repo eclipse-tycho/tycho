@@ -30,7 +30,7 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
     private static final Pattern JAVA_SECOND_EDITION_VERSIONS_PATTERN = Pattern.compile("(1\\.[0-5])");
 
     private final String profileName;
-    private final Set<String> systemPackages = new LinkedHashSet<String>();
+    private final Set<String> systemPackages = new LinkedHashSet<>();
     private final Properties properties = new Properties();
 
     // BEGIN construction
@@ -103,7 +103,7 @@ public class CustomExecutionEnvironment implements ExecutionEnvironment {
     }
 
     private void setOsgiSystemCapabilities(List<SystemCapability> systemCapabilities) {
-        Map<String, MultipleVersionsCapability> capabilityMap = new LinkedHashMap<String, MultipleVersionsCapability>();
+        Map<String, MultipleVersionsCapability> capabilityMap = new LinkedHashMap<>();
         for (SystemCapability capability : systemCapabilities) {
             if (capability.getType() == Type.OSGI_EE) {
                 String environmentName = capability.getName();

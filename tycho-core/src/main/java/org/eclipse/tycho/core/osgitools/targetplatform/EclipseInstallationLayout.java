@@ -72,7 +72,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
     }
 
     public Set<File> getFeatures(File site) {
-        Set<File> result = new LinkedHashSet<File>();
+        Set<File> result = new LinkedHashSet<>();
         File[] features = new File(site, FEATURES).listFiles(new FEATURE_FILTER());
         if (features != null) {
             result.addAll(Arrays.asList(features));
@@ -82,7 +82,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
     }
 
     public Set<File> getInstalledPlugins() {
-        Set<File> result = new LinkedHashSet<File>();
+        Set<File> result = new LinkedHashSet<>();
         try {
             result.addAll(readBundlesTxt(location));
         } catch (IOException e) {
@@ -92,7 +92,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
     }
 
     public Set<File> getPlugins(File site) {
-        Set<File> result = new LinkedHashSet<File>();
+        Set<File> result = new LinkedHashSet<>();
 
         addPlugins(result, new File(site, PLUGINS).listFiles());
 
@@ -121,7 +121,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
     }
 
     public Set<File> getSites() {
-        Set<File> result = new LinkedHashSet<File>();
+        Set<File> result = new LinkedHashSet<>();
 
         if (location == null) {
             return result;
@@ -283,7 +283,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
             return null;
         }
 
-        ArrayList<File> plugins = new ArrayList<File>();
+        ArrayList<File> plugins = new ArrayList<>();
 
         BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(bundlesInfo)));
         String line;

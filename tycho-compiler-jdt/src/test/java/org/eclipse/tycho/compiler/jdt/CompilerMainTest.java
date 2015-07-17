@@ -83,7 +83,7 @@ public class CompilerMainTest {
 
     private void checkClassPath(ArrayList classpath, String... expectedRelativePaths) {
         assertEquals(expectedRelativePaths.length, classpath.size());
-        Set<String> actualPaths = new HashSet<String>();
+        Set<String> actualPaths = new HashSet<>();
         for (Object cpo : classpath) {
             assertTrue(cpo instanceof ClasspathJar);
             String path = new String(((ClasspathJar) cpo).normalizedPath());

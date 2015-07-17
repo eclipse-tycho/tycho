@@ -22,7 +22,7 @@ public class TychoOsgiRuntimeMainArtifacts implements TychoOsgiRuntimeArtifacts 
     private static final List<Dependency> ARTIFACTS;
 
     static {
-        ARTIFACTS = new ArrayList<Dependency>();
+        ARTIFACTS = new ArrayList<>();
 
         String tychoVersion = TychoVersion.getTychoVersion();
 

@@ -45,7 +45,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     static {
         // http://help.eclipse.org/juno/topic/org.eclipse.jdt.doc.user/tasks/task-using_batch_compiler.htm
 
-        Map<String, String> targetAliases = new HashMap<String, String>();
+        Map<String, String> targetAliases = new HashMap<>();
         targetAliases.put("jsr14", "1.4");
         targetAliases.put("5", "1.5");
         targetAliases.put("5.0", "1.5");
@@ -74,7 +74,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-        this.systemPackages = new LinkedHashSet<String>(Arrays.asList(profileProperties.getProperty(
+        this.systemPackages = new LinkedHashSet<>(Arrays.asList(profileProperties.getProperty(
                 "org.osgi.framework.system.packages").split(",")));
         this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
         this.profileProperties = new Properties();
@@ -82,7 +82,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
     }
 
     private EEVersion parseEEVersion(String systemCaps) {
-        List<EEVersion> eeVersions = new ArrayList<EEVersion>();
+        List<EEVersion> eeVersions = new ArrayList<>();
         try {
             ManifestElement[] systemCapValues = ManifestElement.parseHeader("org.osgi.framework.system.capabilities",
                     systemCaps);
@@ -93,7 +93,7 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
                     version = Version.parseVersion(singleVersion);
                 } else {
                     String[] versions = systemCapValues[i].getAttribute("version:List<Version>").split(",");
-                    List<Version> osgiVersions = new ArrayList<Version>(versions.length);
+                    List<Version> osgiVersions = new ArrayList<>(versions.length);
                     for (String currentVersion : versions) {
                         osgiVersions.add(Version.parseVersion(currentVersion));
                     }

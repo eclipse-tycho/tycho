@@ -38,7 +38,7 @@ public class MavenSessionUtils {
     }
 
     public static Map<File, MavenProject> getBasedirMap(List<MavenProject> projects) {
-        HashMap<File, MavenProject> result = new HashMap<File, MavenProject>();
+        HashMap<File, MavenProject> result = new HashMap<>();
 
         for (MavenProject project : projects) {
             result.put(project.getBasedir(), project);

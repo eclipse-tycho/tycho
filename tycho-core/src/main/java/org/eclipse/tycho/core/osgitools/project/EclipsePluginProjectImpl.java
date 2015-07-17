@@ -28,7 +28,7 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
     private final ReactorProject project;
     private final BuildProperties buildProperties;
 
-    private final LinkedHashMap<String, BuildOutputJar> outputJars = new LinkedHashMap<String, BuildOutputJar>();
+    private final LinkedHashMap<String, BuildOutputJar> outputJars = new LinkedHashMap<>();
     private final BuildOutputJar dotOutputJar;
 
     public EclipsePluginProjectImpl(ReactorProject project, BuildPropertiesParser buildPropertiesParser)
@@ -36,12 +36,12 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
         this.project = project;
         this.buildProperties = buildPropertiesParser.parse(project.getBasedir());
 
-        LinkedHashMap<String, BuildOutputJar> jars = new LinkedHashMap<String, BuildOutputJar>();
+        LinkedHashMap<String, BuildOutputJar> jars = new LinkedHashMap<>();
         for (String jarName : buildProperties.getJarsCompileOrder()) {
             jars.put(jarName, null);
         }
 
-        List<String> extraClasspath = new ArrayList<String>();
+        List<String> extraClasspath = new ArrayList<>();
         extraClasspath.addAll(buildProperties.getJarsExtraClasspath());
 
         String dotJarName = null;
@@ -82,7 +82,7 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
     }
 
     private List<File> toFileList(File parent, List<String> names) throws IOException {
-        ArrayList<File> result = new ArrayList<File>();
+        ArrayList<File> result = new ArrayList<>();
         for (String name : names) {
             // don't call getCanonicalFile here because otherwise we'll be forced to call getCanonical* everywhere
             result.add(new File(new File(parent, name).toURI().normalize()));
@@ -97,7 +97,7 @@ public class EclipsePluginProjectImpl implements EclipsePluginProject {
 
     @Override
     public List<BuildOutputJar> getOutputJars() {
-        return new ArrayList<BuildOutputJar>(outputJars.values());
+        return new ArrayList<>(outputJars.values());
     }
 
     @Override

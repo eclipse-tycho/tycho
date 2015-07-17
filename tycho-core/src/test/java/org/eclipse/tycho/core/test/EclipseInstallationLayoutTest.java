@@ -56,7 +56,7 @@ public class EclipseInstallationLayoutTest extends PlexusTestCase {
         File targetPlatform = new File("src/test/resources/targetplatforms/wtp-3.0").getCanonicalFile();
         EclipseInstallationLayout finder = getPluginFinder(targetPlatform);
 
-        List<File> plugins = new ArrayList<File>();
+        List<File> plugins = new ArrayList<>();
         for (File site : finder.getSites()) {
             plugins.addAll(getCannonicalFiles(finder.getPlugins(site)));
         }
@@ -85,7 +85,7 @@ public class EclipseInstallationLayoutTest extends PlexusTestCase {
     }
 
     private List<File> getCannonicalFiles(Set<File> files) throws IOException {
-        ArrayList<File> result = new ArrayList<File>();
+        ArrayList<File> result = new ArrayList<>();
         for (File file : files) {
             result.add(file.getCanonicalFile());
         }
@@ -96,7 +96,7 @@ public class EclipseInstallationLayoutTest extends PlexusTestCase {
         File targetPlatform = new File("src/test/resources/targetplatforms/simple").getCanonicalFile();
         EclipseInstallationLayout finder = getPluginFinder(targetPlatform);
 
-        List<File> sites = new ArrayList<File>(finder.getSites());
+        List<File> sites = new ArrayList<>(finder.getSites());
 
         assertEquals(2, sites.size());
         assertEquals(targetPlatform, sites.get(0));

@@ -58,7 +58,7 @@ class WorkspaceTychoOsgiRuntimeLocator {
         // the above fails with IOException if .product file is not available or can't be read
         // we get here only when we have valid product instance
 
-        Set<String> missing = new LinkedHashSet<String>();
+        Set<String> missing = new LinkedHashSet<>();
         for (PluginRef pluginRef : product.getPlugins()) {
             DevBundleInfo bundleInfo = workspaceState.getBundleInfo(pluginRef.getId(), pluginRef.getVersion());
             if (bundleInfo != null) {

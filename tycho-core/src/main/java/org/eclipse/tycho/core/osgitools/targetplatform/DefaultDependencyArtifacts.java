@@ -25,12 +25,12 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
     /**
      * ArtifactKey cache used to correlate equal instances to reduce memory usage
      */
-    private static final WeakHashMap<ArtifactKey, ArtifactKey> KEY_CACHE = new WeakHashMap<ArtifactKey, ArtifactKey>();
+    private static final WeakHashMap<ArtifactKey, ArtifactKey> KEY_CACHE = new WeakHashMap<>();
 
     /**
      * ArtifactDescriptor cache used to correlate equal instances to reduce memory usage
      */
-    private static final WeakHashMap<ArtifactDescriptor, ArtifactDescriptor> ARTIFACT_CACHE = new WeakHashMap<ArtifactDescriptor, ArtifactDescriptor>();
+    private static final WeakHashMap<ArtifactDescriptor, ArtifactDescriptor> ARTIFACT_CACHE = new WeakHashMap<>();
 
     /**
      * 'this' project, i.e. the project the dependencies were resolved for. can be null.
@@ -41,7 +41,7 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
      * Set of installable unit in the target platform of the module that do not come from the local
      * reactor.
      */
-    protected final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<Object>();
+    protected final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<>();
 
     public DefaultDependencyArtifacts() {
         this(null);
@@ -80,7 +80,7 @@ public class DefaultDependencyArtifacts extends ArtifactCollection implements De
 
     @Override
     public Set<?/* IInstallableUnit */> getInstallableUnits() {
-        Set<Object> units = new LinkedHashSet<Object>();
+        Set<Object> units = new LinkedHashSet<>();
         for (ArtifactDescriptor artifact : artifacts.values()) {
             if (project == null || !project.equals(artifact.getMavenProject())) {
                 units.addAll(artifact.getInstallableUnits());

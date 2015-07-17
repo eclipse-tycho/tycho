@@ -152,9 +152,9 @@ public class EquinoxResolver {
             throws BundleException {
         State state = factory.createState(true);
 
-        Map<File, Dictionary<String, String>> systemBundles = new LinkedHashMap<File, Dictionary<String, String>>();
-        Map<File, Dictionary<String, String>> externalBundles = new LinkedHashMap<File, Dictionary<String, String>>();
-        Map<File, Dictionary<String, String>> projects = new LinkedHashMap<File, Dictionary<String, String>>();
+        Map<File, Dictionary<String, String>> systemBundles = new LinkedHashMap<>();
+        Map<File, Dictionary<String, String>> externalBundles = new LinkedHashMap<>();
+        Map<File, Dictionary<String, String>> projects = new LinkedHashMap<>();
 
         for (ArtifactDescriptor artifact : artifacts.getArtifacts(ArtifactType.TYPE_ECLIPSE_PLUGIN)) {
             File location = artifact.getLocation();
@@ -189,10 +189,10 @@ public class EquinoxResolver {
             addBundle(state, id++, entry.getKey(), entry.getValue(), true/* override */);
         }
 
-        List<Dictionary<Object, Object>> allProps = new ArrayList<Dictionary<Object, Object>>();
+        List<Dictionary<Object, Object>> allProps = new ArrayList<>();
 
         // force our system.bundle
-        Hashtable<Object, Object> platformProperties = new Hashtable<Object, Object>(properties);
+        Hashtable<Object, Object> platformProperties = new Hashtable<>(properties);
         platformProperties.put(StateImpl.STATE_SYSTEM_BUNDLE, state.getBundle(SYSTEM_BUNDLE_ID).getSymbolicName());
         allProps.add(platformProperties);
         if (ignoreEE) {
@@ -201,7 +201,7 @@ public class EquinoxResolver {
                 Properties envProps = ExecutionEnvironmentUtils.getExecutionEnvironment(profile).getProfileProperties();
                 String systemPackages = envProps.getProperty("org.osgi.framework.system.packages");
                 String execEnv = envProps.getProperty("org.osgi.framework.executionenvironment");
-                Dictionary<Object, Object> prop = new Hashtable<Object, Object>();
+                Dictionary<Object, Object> prop = new Hashtable<>();
                 prop.put("org.osgi.framework.system.packages", systemPackages);
                 prop.put("org.osgi.framework.executionenvironment", execEnv);
                 allProps.add(prop);
@@ -272,7 +272,7 @@ public class EquinoxResolver {
     private Dictionary<String, String> getSystemBundleManifest(Properties properties) {
         String systemPackages = properties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES);
 
-        Dictionary<String, String> systemBundleManifest = new Hashtable<String, String>();
+        Dictionary<String, String> systemBundleManifest = new Hashtable<>();
         systemBundleManifest.put(Constants.BUNDLE_SYMBOLICNAME, SYSTEM_BUNDLE_SYMBOLIC_NAME);
         systemBundleManifest.put(Constants.BUNDLE_VERSION, "0.0.0");
         systemBundleManifest.put(Constants.BUNDLE_MANIFESTVERSION, "2");
@@ -307,7 +307,7 @@ public class EquinoxResolver {
     }
 
     public ResolverError[] getResolverErrors(State state, BundleDescription bundle) {
-        Set<ResolverError> errors = new LinkedHashSet<ResolverError>();
+        Set<ResolverError> errors = new LinkedHashSet<>();
         getRelevantErrors(state, errors, bundle);
         return (ResolverError[]) errors.toArray(new ResolverError[errors.size()]);
     }

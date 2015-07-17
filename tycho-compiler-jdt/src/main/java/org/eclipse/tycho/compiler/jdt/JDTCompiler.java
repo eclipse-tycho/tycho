@@ -119,7 +119,7 @@ public class JDTCompiler extends AbstractCompiler {
 
     public String[] buildCompilerArguments(CompilerConfiguration config, CustomCompilerConfiguration custom,
             String[] sourceFiles) {
-        List<String> args = new ArrayList<String>();
+        List<String> args = new ArrayList<>();
 
         // ----------------------------------------------------------------------
         // Set output
@@ -371,7 +371,7 @@ public class JDTCompiler extends AbstractCompiler {
      * @throws IOException
      */
     protected static List<CompilerMessage> parseModernStream(BufferedReader input) throws IOException {
-        List<CompilerMessage> messages = new ArrayList<CompilerMessage>();
+        List<CompilerMessage> messages = new ArrayList<>();
         String type = null;
         String file = null;
         int lineNr = -1;
@@ -529,13 +529,13 @@ public class JDTCompiler extends AbstractCompiler {
                                 String enc = String.valueOf(content, encodeStart, end - encodeStart + 1);
                                 if (isFile) {
                                     if (custom.fileEncodings == null)
-                                        custom.fileEncodings = new HashMap<String, String>();
+                                        custom.fileEncodings = new HashMap<>();
                                     // use File to translate the string into a
                                     // path with the correct File.seperator
                                     custom.fileEncodings.put(str, enc);
                                 } else {
                                     if (custom.dirEncodings == null)
-                                        custom.dirEncodings = new HashMap<String, String>();
+                                        custom.dirEncodings = new HashMap<>();
                                     custom.dirEncodings.put(str, enc);
                                 }
                             }
@@ -549,7 +549,7 @@ public class JDTCompiler extends AbstractCompiler {
                                 String path = String.valueOf(content, start, accessStart - start);
                                 String access = String.valueOf(content, accessStart, end - accessStart + 1);
                                 if (custom.accessRules == null)
-                                    custom.accessRules = new ArrayList<String>();
+                                    custom.accessRules = new ArrayList<>();
                                 custom.accessRules.add(path);
                                 custom.accessRules.add(access);
                             }

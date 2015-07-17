@@ -43,7 +43,7 @@ import org.eclipse.tycho.resolver.TychoResolver;
 public class TychoMavenLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
     private static final String TYCHO_GROUPID = "org.eclipse.tycho";
-    private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<String>(Arrays.asList("tycho-maven-plugin",
+    private static final Set<String> TYCHO_PLUGIN_IDS = new HashSet<>(Arrays.asList("tycho-maven-plugin",
             "tycho-p2-director-plugin", "tycho-p2-plugin", "tycho-p2-publisher-plugin", "tycho-p2-repository-plugin",
             "tycho-packaging-plugin", "tycho-pomgenerator-plugin", "tycho-source-plugin", "tycho-surefire-plugin",
             "tycho-versions-plugin"));
@@ -107,7 +107,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
     }
 
     protected void validateConsistentTychoVersion(List<MavenProject> projects) throws MavenExecutionException {
-        Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<String, Set<MavenProject>>();
+        Map<String, Set<MavenProject>> versionToProjectsMap = new HashMap<>();
         for (MavenProject project : projects) {
             for (Plugin plugin : project.getBuild().getPlugins()) {
                 if (TYCHO_GROUPID.equals(plugin.getGroupId()) && TYCHO_PLUGIN_IDS.contains(plugin.getArtifactId())) {
@@ -120,7 +120,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
                             + project);
                     Set<MavenProject> projectSet = versionToProjectsMap.get(version);
                     if (projectSet == null) {
-                        projectSet = new LinkedHashSet<MavenProject>();
+                        projectSet = new LinkedHashSet<>();
                         versionToProjectsMap.put(version, projectSet);
                     }
                     projectSet.add(project);
@@ -128,7 +128,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
             }
         }
         if (versionToProjectsMap.size() > 1) {
-            List<String> versions = new ArrayList<String>(versionToProjectsMap.keySet());
+            List<String> versions = new ArrayList<>(versionToProjectsMap.keySet());
             Collections.sort(versions);
             log.error("Several versions of tycho plugins are configured " + versions + ":");
             for (String version : versions) {
@@ -146,7 +146,7 @@ public class TychoMavenLifecycleParticipant extends AbstractMavenLifecyclePartic
         // we store intermediate build results in the target/ folder and use the baseDir as unique key
         // so multiple modules in the same baseDir would lead to irreproducible/unexpected results
         // e.g. with mvn clean. This should really not be supported by maven core
-        Set<File> baseDirs = new HashSet<File>();
+        Set<File> baseDirs = new HashSet<>();
         for (MavenProject project : projects) {
             File basedir = project.getBasedir();
             if (baseDirs.contains(basedir)) {

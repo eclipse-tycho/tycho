@@ -224,7 +224,7 @@ public class TychoOsgiRuntimeLocator implements EquinoxRuntimeLocator {
     }
 
     protected List<ArtifactRepository> getPluginRepositories(MavenSession session) {
-        List<ArtifactRepository> repositories = new ArrayList<ArtifactRepository>();
+        List<ArtifactRepository> repositories = new ArrayList<>();
         for (MavenProject project : session.getProjects()) {
             repositories.addAll(project.getPluginArtifactRepositories());
         }
