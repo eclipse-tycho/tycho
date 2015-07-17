@@ -82,7 +82,7 @@ public class PublishProductToolImpl implements PublishProductTool {
         Collection<IInstallableUnit> allIUs = publisherRunner.executeAction(action, metadataRepository,
                 artifactRepository, advice);
 
-        List<DependencySeed> seeds = new ArrayList<DependencySeed>();
+        List<DependencySeed> seeds = new ArrayList<>();
         seeds.add(createSeed(ArtifactType.TYPE_ECLIPSE_PRODUCT, selectUnit(allIUs, expandedProduct.getId())));
         addRootFeatures(expandedProduct, seeds);
         return seeds;

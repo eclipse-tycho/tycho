@@ -95,7 +95,7 @@ public class AuthoredIUAction extends AbstractPublisherAction implements IPublis
     }
 
     private Set<IInstallableUnit> toIUs(InstallableUnitDescription description) {
-        Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>(1);
+        Set<IInstallableUnit> result = new LinkedHashSet<>(1);
         result.add(MetadataFactory.createInstallableUnit(description));
         return result;
     }

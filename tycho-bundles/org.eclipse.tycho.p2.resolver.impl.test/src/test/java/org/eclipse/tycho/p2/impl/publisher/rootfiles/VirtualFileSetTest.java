@@ -31,7 +31,7 @@ public class VirtualFileSetTest {
     }
 
     private List<IPath> createPathList(String... paths) {
-        List<IPath> result = new ArrayList<IPath>();
+        List<IPath> result = new ArrayList<>();
         for (String path : paths) {
             result.add(Path.fromPortableString(path));
         }
@@ -39,7 +39,7 @@ public class VirtualFileSetTest {
     }
 
     private Collection<IPath> createTestFileSystem() {
-        Collection<IPath> result = new ArrayList<IPath>();
+        Collection<IPath> result = new ArrayList<>();
         String[] paths = new String[] { "foo/bar/test.so", "lib1.so", "testme.txt" };
         for (String path : paths) {
             result.add(Path.fromPortableString(path));

@@ -84,7 +84,7 @@ public class ReactorRepositoryManagerTest extends MavenServiceStubbingTestBase {
     }
 
     private <T> T getService(Class<T> type) throws Exception {
-        ServiceTracker<T, T> tracker = new ServiceTracker<T, T>(FrameworkUtil.getBundle(this.getClass())
+        ServiceTracker<T, T> tracker = new ServiceTracker<>(FrameworkUtil.getBundle(this.getClass())
                 .getBundleContext(), type, null);
         tracker.open();
         try {

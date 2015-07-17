@@ -44,7 +44,7 @@ public abstract class AbstractResolutionStrategy {
 
     public Collection<IInstallableUnit> multiPlatformResolve(List<TargetEnvironment> environments,
             IProgressMonitor monitor) throws ResolverException {
-        Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        Set<IInstallableUnit> result = new LinkedHashSet<>();
 
         for (TargetEnvironment environment : environments) {
             result.addAll(resolve(getEffectiveFilterProperties(environment), monitor));

@@ -112,7 +112,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     }
 
     private List<PublishingRepository> getBuildResults(List<? extends ReactorProjectIdentities> projects) {
-        List<PublishingRepository> results = new ArrayList<PublishingRepository>(projects.size());
+        List<PublishingRepository> results = new ArrayList<>(projects.size());
         for (ReactorProjectIdentities project : projects) {
             results.add(getPublishingRepository(project));
         }

@@ -104,7 +104,7 @@ public class P2GeneratorImplTest {
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-import-package", units);
         assertNotNull(iu);
-        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
         assertEquals(1, requirements.size());
         IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
         assertTrue(requirement.isGreedy());
@@ -131,7 +131,7 @@ public class P2GeneratorImplTest {
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-import-package", units);
         assertNotNull(iu);
-        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
         assertEquals(0, requirements.size());
     }
 
@@ -146,7 +146,7 @@ public class P2GeneratorImplTest {
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
-        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
         assertEquals(1, requirements.size());
         IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
         assertTrue(requirement.isGreedy());
@@ -167,7 +167,7 @@ public class P2GeneratorImplTest {
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
-        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
         assertEquals(1, requirements.size());
         IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
         assertFalse(requirement.isGreedy());
@@ -188,7 +188,7 @@ public class P2GeneratorImplTest {
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-require-bundle", units);
         assertNotNull(iu);
-        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
         assertEquals(0, requirements.size());
     }
 
@@ -203,7 +203,7 @@ public class P2GeneratorImplTest {
         assertEquals(1, units.size());
         IInstallableUnit iu = getUnit("optional-reqiure-bundle-p2inf", units);
         assertNotNull(iu);
-        List<IRequirement> requirements = new ArrayList<IRequirement>(iu.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(iu.getRequirements());
         assertEquals(1, requirements.size());
         IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
         assertTrue(requirement.isGreedy());

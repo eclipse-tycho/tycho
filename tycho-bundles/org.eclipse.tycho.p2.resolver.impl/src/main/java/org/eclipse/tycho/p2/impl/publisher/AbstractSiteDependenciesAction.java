@@ -42,7 +42,7 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
 
     @Override
     protected Set<IRequirement> getRequiredCapabilities() {
-        Set<IRequirement> required = new LinkedHashSet<IRequirement>();
+        Set<IRequirement> required = new LinkedHashSet<>();
 
         for (SiteFeature feature : getSiteModel().getFeatures()) {
             String id = feature.getFeatureIdentifier() + FEATURE_GROUP_IU_SUFFIX; //$NON-NLS-1$

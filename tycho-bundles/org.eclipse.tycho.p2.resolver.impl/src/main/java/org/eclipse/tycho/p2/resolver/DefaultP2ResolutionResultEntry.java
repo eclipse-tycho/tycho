@@ -64,7 +64,7 @@ public class DefaultP2ResolutionResultEntry implements P2ResolutionResult.Entry 
 
     void addInstallableUnit(Object installableUnit) {
         if (installableUnits == null) {
-            installableUnits = new LinkedHashSet<Object>();
+            installableUnits = new LinkedHashSet<>();
         }
         installableUnits.add(installableUnit);
     }

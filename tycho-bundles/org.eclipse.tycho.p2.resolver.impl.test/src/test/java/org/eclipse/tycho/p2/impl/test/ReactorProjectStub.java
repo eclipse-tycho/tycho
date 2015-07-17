@@ -34,11 +34,11 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
 
     private String packagingType;
 
-    private Map<String, Object> contextValues = new HashMap<String, Object>();
+    private Map<String, Object> contextValues = new HashMap<>();
 
-    private Set<?> dependencyMetadata = new LinkedHashSet<Object>();
+    private Set<?> dependencyMetadata = new LinkedHashSet<>();
 
-    private Set<?> secondaryDependencyMetadata = new LinkedHashSet<Object>();
+    private Set<?> secondaryDependencyMetadata = new LinkedHashSet<>();
 
     public ReactorProjectStub(File basedir, String groupId, String artifactId, String version, String packagingType) {
         this.basedir = basedir;
@@ -94,8 +94,8 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = new LinkedHashSet<Object>(dependencyMetadata.getMetadata(true));
-        this.secondaryDependencyMetadata = new LinkedHashSet<Object>(dependencyMetadata.getMetadata(false));
+        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(true));
+        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(false));
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ReactorProjectStub extends ReactorProjectIdentities implements Reac
             return primary;
         }
 
-        LinkedHashSet<Object> result = new LinkedHashSet<Object>(primary);
+        LinkedHashSet<Object> result = new LinkedHashSet<>(primary);
         result.addAll(secondary);
         return result;
     }

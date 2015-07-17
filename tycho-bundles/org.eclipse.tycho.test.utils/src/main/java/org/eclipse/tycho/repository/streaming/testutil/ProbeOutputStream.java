@@ -52,7 +52,7 @@ public class ProbeOutputStream extends OutputStream implements IStateful {
      *         if written data was not a zip file.
      */
     public Set<String> getFilesInZip() throws IOException {
-        HashSet<String> result = new HashSet<String>();
+        HashSet<String> result = new HashSet<>();
 
         ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(byteBuffer.toByteArray()));
         try {

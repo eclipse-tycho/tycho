@@ -216,7 +216,7 @@ public class TargetDefinitionResolverTest {
     }
 
     static Collection<IVersionedId> versionedIdsOf(TargetDefinitionContent content) {
-        Collection<IVersionedId> result = new ArrayList<IVersionedId>();
+        Collection<IVersionedId> result = new ArrayList<>();
         for (IInstallableUnit unit : content.getUnits()) {
             result.add(new VersionedId(unit.getId(), unit.getVersion()));
         }
@@ -303,7 +303,7 @@ public class TargetDefinitionResolverTest {
 
         @Override
         public List<? extends Unit> getUnits() {
-            List<UnitStub> result = new ArrayList<UnitStub>();
+            List<UnitStub> result = new ArrayList<>();
             for (IVersionedId seedUnit : seedUnits) {
                 result.add(new UnitStub(seedUnit));
             }

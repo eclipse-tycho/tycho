@@ -27,7 +27,7 @@ public final class TestRepositoryContent {
     public static final IArtifactKey BUNDLE_B_KEY = new ArtifactKey("osgi.bundle", "org.eclipse.ecf",
             Version.parseVersion("3.1.300.v20120319-0616"));
 
-    public static final Set<String> BUNDLE_A_FILES = new HashSet<String>(Arrays.asList(new String[] { "about_files/",
+    public static final Set<String> BUNDLE_A_FILES = new HashSet<>(Arrays.asList(new String[] { "about_files/",
             "META-INF/", "META-INF/MANIFEST.MF", "org/", "org/eclipse/", "org/eclipse/core/",
             "org/eclipse/core/runtime/", "org/eclipse/core/runtime/adaptor/", "org/eclipse/core/runtime/internal/",
             "org/eclipse/core/runtime/internal/adaptor/", "org/eclipse/core/runtime/internal/stats/",
@@ -58,7 +58,7 @@ public final class TestRepositoryContent {
             "org/osgi/service/", "org/osgi/service/condpermadmin/", "org/osgi/service/packageadmin/",
             "org/osgi/service/permissionadmin/", "org/osgi/service/startlevel/", "org/osgi/service/url/",
             "org/osgi/util/", "org/osgi/util/tracker/", "systembundle.properties" }));
-    public static final Set<String> BUNDLE_B_FILES = new HashSet<String>(Arrays.asList(new String[] { "META-INF/",
+    public static final Set<String> BUNDLE_B_FILES = new HashSet<>(Arrays.asList(new String[] { "META-INF/",
             "META-INF/eclipse.inf", "META-INF/MANIFEST.MF" }));
 
     public static final String BUNDLE_A_CONTENT_MD5 = "58057045158895009b845b9a93f3eb6e";

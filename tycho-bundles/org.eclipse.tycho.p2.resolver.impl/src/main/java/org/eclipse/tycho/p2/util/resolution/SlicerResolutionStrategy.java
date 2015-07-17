@@ -83,7 +83,7 @@ public class SlicerResolutionStrategy extends AbstractSlicerResolutionStrategy {
 
         IQueryable<IInstallableUnit> slice = slice(properties, monitor);
 
-        Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>(slice.query(QueryUtil.ALL_UNITS, monitor)
+        Set<IInstallableUnit> result = new LinkedHashSet<>(slice.query(QueryUtil.ALL_UNITS, monitor)
                 .toUnmodifiableSet());
         result.removeAll(data.getEEResolutionHints().getTemporaryAdditions());
 

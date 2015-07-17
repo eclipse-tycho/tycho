@@ -52,7 +52,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
         }
 
         List<IArtifactRepository> loadRepositories() {
-            List<IArtifactRepository> result = new ArrayList<IArtifactRepository>(repositoryURLs.size());
+            List<IArtifactRepository> result = new ArrayList<>(repositoryURLs.size());
             for (URI repositoryURL : repositoryURLs) {
                 try {
                     result.add(repositoryManager.loadRepository(repositoryURL, null));
@@ -314,7 +314,7 @@ public class RepositoryArtifactProvider extends CompositeArtifactProviderBaseImp
             return repositories.get(0);
         } else {
             IArtifactRepository[] repositoriesArray = repositories.toArray(new IArtifactRepository[repositoryCount]);
-            return new CompoundQueryable<IArtifactKey>(repositoriesArray);
+            return new CompoundQueryable<>(repositoriesArray);
         }
     }
 

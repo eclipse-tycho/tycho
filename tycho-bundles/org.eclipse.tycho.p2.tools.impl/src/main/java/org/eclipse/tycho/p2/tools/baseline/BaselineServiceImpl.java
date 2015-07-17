@@ -102,7 +102,7 @@ public class BaselineServiceImpl implements BaselineService {
             throw new RuntimeException(e);
         }
 
-        Map<String, IP2Artifact> result = new LinkedHashMap<String, IP2Artifact>();
+        Map<String, IP2Artifact> result = new LinkedHashMap<>();
 
         for (Map.Entry<String, IP2Artifact> reactorArtifact : reactor.entrySet()) {
             IArtifactDescriptor descriptor = (IArtifactDescriptor) reactorArtifact.getValue().getArtifactDescriptor();
@@ -133,7 +133,7 @@ public class BaselineServiceImpl implements BaselineService {
                 throw new RuntimeException(e);
             }
 
-            List<IInstallableUnit> units = new ArrayList<IInstallableUnit>();
+            List<IInstallableUnit> units = new ArrayList<>();
             for (Object _unit : reactorArtifact.getValue().getInstallableUnits()) {
                 IInstallableUnit unit = (IInstallableUnit) _unit;
 

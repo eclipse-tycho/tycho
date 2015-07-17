@@ -90,7 +90,7 @@ public abstract class AbstractMetadataGenerator {
 
     private IRequirement[] extractExtraEntriesAsIURequirement(File location) {
         BuildProperties buildProps = buildPropertiesParser.parse(location);
-        ArrayList<IRequirement> result = new ArrayList<IRequirement>();
+        ArrayList<IRequirement> result = new ArrayList<>();
         for (Entry<String, List<String>> entry : buildProps.getJarToExtraClasspathMap().entrySet()) {
             createRequirementFromExtraClasspathProperty(result, entry.getValue());
         }

@@ -53,7 +53,7 @@ public class PublishingRepositoryImpl implements PublishingRepository {
 
     @Override
     public Set<Object> getInstallableUnits() {
-        Set<Object> result = new HashSet<Object>();
+        Set<Object> result = new HashSet<>();
         result.addAll(getMetadataRepository().query(QueryUtil.ALL_UNITS, null).toSet());
         return result;
     }

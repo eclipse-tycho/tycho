@@ -40,7 +40,7 @@ public class DefaultEquinoxInstallationFactoryTest {
 
     @Before
     public void setup() {
-        bundles = new HashMap<ArtifactKey, File>();
+        bundles = new HashMap<>();
         bundles.put(new DefaultArtifactKey("eclipse-plugin", "org.example.bundle1", "1.0"),
                 mockFile("absolute/path/to/bundle1"));
         bundles.put(new DefaultArtifactKey("eclipse-plugin", "org.example.bundle2", "1.0"),

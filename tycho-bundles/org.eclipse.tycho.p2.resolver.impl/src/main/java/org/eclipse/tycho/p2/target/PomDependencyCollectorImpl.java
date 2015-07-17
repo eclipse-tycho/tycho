@@ -35,7 +35,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     private final TargetPlatformBundlePublisher bundlesPublisher;
     private final MavenLogger logger;
 
-    private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<IInstallableUnit, IArtifactFacade>();
+    private Map<IInstallableUnit, IArtifactFacade> mavenInstallableUnits = new HashMap<>();
 
     // TODO 412416 get rid of this field
     private File projectLocation;
@@ -98,7 +98,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     }
 
     LinkedHashSet<IInstallableUnit> gatherMavenInstallableUnits() {
-        return new LinkedHashSet<IInstallableUnit>(getMavenInstallableUnits().keySet());
+        return new LinkedHashSet<>(getMavenInstallableUnits().keySet());
     }
 
     Map<IInstallableUnit, IArtifactFacade> getMavenInstallableUnits() {

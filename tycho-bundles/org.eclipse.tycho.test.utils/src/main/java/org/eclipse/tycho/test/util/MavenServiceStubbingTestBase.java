@@ -32,13 +32,13 @@ public class MavenServiceStubbingTestBase {
 
     // in the productive code, these services are provided from outside the OSGi runtime
     @Rule
-    public StubServiceRegistration<MavenContext> mavenContextRegistration = new StubServiceRegistration<MavenContext>(
+    public StubServiceRegistration<MavenContext> mavenContextRegistration = new StubServiceRegistration<>(
             MavenContext.class);
     @Rule
-    public StubServiceRegistration<MavenRepositorySettings> repositorySettingsRegistration = new StubServiceRegistration<MavenRepositorySettings>(
+    public StubServiceRegistration<MavenRepositorySettings> repositorySettingsRegistration = new StubServiceRegistration<>(
             MavenRepositorySettings.class, new MavenRepositorySettingsStub());
     @Rule
-    public StubServiceRegistration<FileLockService> fileLockServiceRegistration = new StubServiceRegistration<FileLockService>(
+    public StubServiceRegistration<FileLockService> fileLockServiceRegistration = new StubServiceRegistration<>(
             FileLockService.class, new NoopFileLockService());
 
     @Before

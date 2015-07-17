@@ -176,7 +176,7 @@ public class TargetPlatformFactoryTest {
         tpConfig.addFilters(Arrays.asList(filter));
         P2TargetPlatform preliminaryTP = subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, null, null);
 
-        Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = new HashMap<IInstallableUnit, ReactorProjectIdentities>();
+        Map<IInstallableUnit, ReactorProjectIdentities> finalUnits = new HashMap<>();
         finalUnits.put(InstallableUnitUtil.createIU("test.feature.feature.group"), DUMMY_PROJECT);
         finalUnits.put(InstallableUnitUtil.createIU("iu.p2.inf"), DUMMY_PROJECT);
         P2TargetPlatform finalTP = subject.createTargetPlatformWithUpdatedReactorUnits(preliminaryTP, finalUnits,
@@ -240,7 +240,7 @@ public class TargetPlatformFactoryTest {
         tpConfig.setForceIgnoreLocalArtifacts(true);
         Collection<IInstallableUnit> iusWithoutLocalRepo = subject.createTargetPlatform(tpConfig,
                 NOOP_EE_RESOLUTION_HANDLER, null, null).getInstallableUnits();
-        Set<IInstallableUnit> retainedIUs = new HashSet<IInstallableUnit>(iusIncludingLocalRepo);
+        Set<IInstallableUnit> retainedIUs = new HashSet<>(iusIncludingLocalRepo);
         retainedIUs.removeAll(iusWithoutLocalRepo);
         assertEquals(1, retainedIUs.size());
         assertEquals("locallyInstalledIU", retainedIUs.iterator().next().getId());
@@ -259,7 +259,7 @@ public class TargetPlatformFactoryTest {
 
     @Test(expected = DuplicateReactorIUsException.class)
     public void testDuplicateReactorUnits() throws Exception {
-        List<ReactorProject> reactorProjects = new ArrayList<ReactorProject>();
+        List<ReactorProject> reactorProjects = new ArrayList<>();
         reactorProjects.add(createReactorProject("project1", "unit.a", "unit.b"));
         reactorProjects.add(createReactorProject("project2", "unit.b", null));
         subject.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, null);
@@ -300,7 +300,7 @@ public class TargetPlatformFactoryTest {
         if (unitIds == null) {
             return Collections.emptyList();
         } else {
-            List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+            List<IInstallableUnit> result = new ArrayList<>();
             for (String unitId : unitIds) {
                 result.add(InstallableUnitUtil.createIU(unitId));
             }

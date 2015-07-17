@@ -27,14 +27,14 @@ public class PropertiesComparator implements ContentsComparator {
 
     @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
-        TreeMap<String, ArtifactDelta> result = new TreeMap<String, ArtifactDelta>();
+        TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Properties props = new Properties();
         props.load(baseline);
         Properties props2 = new Properties();
         props2.load(reactor);
 
-        Set<String> names = new LinkedHashSet<String>();
+        Set<String> names = new LinkedHashSet<>();
         addAll(names, props);
         addAll(names, props2);
 

@@ -66,8 +66,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     private static final IArtifactDescriptor[] EMPTY_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
 
-    protected Set<ArtifactDescriptorT> descriptors = new HashSet<ArtifactDescriptorT>();
-    protected Map<IArtifactKey, Set<ArtifactDescriptorT>> descriptorsMap = new HashMap<IArtifactKey, Set<ArtifactDescriptorT>>();
+    protected Set<ArtifactDescriptorT> descriptors = new HashSet<>();
+    protected Map<IArtifactKey, Set<ArtifactDescriptorT>> descriptorsMap = new HashMap<>();
 
     private ArtifactTransferPolicy transferPolicy;
 
@@ -173,7 +173,7 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         Set<ArtifactDescriptorT> mapEntry = descriptorsMap.get(key);
 
         if (mapEntry == null) {
-            mapEntry = new HashSet<ArtifactDescriptorT>();
+            mapEntry = new HashSet<>();
             descriptorsMap.put(key, mapEntry);
         }
         return mapEntry;

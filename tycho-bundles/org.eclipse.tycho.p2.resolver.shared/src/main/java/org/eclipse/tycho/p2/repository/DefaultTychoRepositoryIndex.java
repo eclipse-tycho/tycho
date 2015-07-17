@@ -32,12 +32,12 @@ public abstract class DefaultTychoRepositoryIndex implements TychoRepositoryInde
      *            must not contain <code>null</code>
      */
     public DefaultTychoRepositoryIndex(Set<GAV> initialContent) {
-        gavs = new LinkedHashSet<GAV>(initialContent);
+        gavs = new LinkedHashSet<>(initialContent);
     }
 
     @Override
     public Set<GAV> getProjectGAVs() {
-        return Collections.unmodifiableSet(new LinkedHashSet<GAV>(gavs));
+        return Collections.unmodifiableSet(new LinkedHashSet<>(gavs));
     }
 
     @Override

@@ -25,11 +25,11 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
 
     private File workingDirectory;
 
-    private final Map<String, String> env = new LinkedHashMap<String, String>();
+    private final Map<String, String> env = new LinkedHashMap<>();
 
-    private final List<Argument> args = new ArrayList<Argument>();
+    private final List<Argument> args = new ArrayList<>();
 
-    private final List<Argument> vmargs = new ArrayList<Argument>();
+    private final List<Argument> vmargs = new ArrayList<>();
 
     private final EquinoxInstallation installation;
 
@@ -85,7 +85,7 @@ public class EquinoxLaunchConfiguration implements LaunchConfiguration {
     }
 
     private static String[] toStringArray(List<Argument> args) {
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
         for (Argument arg : args) {
             for (String str : arg.getParts()) {
                 result.add(str);

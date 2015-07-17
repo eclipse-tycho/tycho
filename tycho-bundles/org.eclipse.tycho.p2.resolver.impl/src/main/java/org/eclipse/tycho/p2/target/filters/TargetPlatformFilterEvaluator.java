@@ -36,7 +36,7 @@ public class TargetPlatformFilterEvaluator {
     private final FilterLogger filterLogger;
 
     public TargetPlatformFilterEvaluator(List<TargetPlatformFilter> filters, MavenLogger logger) {
-        this.filters = Collections.unmodifiableList(new ArrayList<TargetPlatformFilter>(filters));
+        this.filters = Collections.unmodifiableList(new ArrayList<>(filters));
         this.logger = logger;
 
         // TODO 372035 enable debug logging; currently the filtering is done repeatedly on subsets of the target platform, leading to excessive amount of debug output
@@ -148,7 +148,7 @@ public class TargetPlatformFilterEvaluator {
 
     private List<IProvidedCapability> getPackageCapabilities(IInstallableUnit unit) {
         Collection<IProvidedCapability> allCapabilities = unit.getProvidedCapabilities();
-        List<IProvidedCapability> packageCapabilities = new ArrayList<IProvidedCapability>(allCapabilities.size());
+        List<IProvidedCapability> packageCapabilities = new ArrayList<>(allCapabilities.size());
 
         for (IProvidedCapability capability : allCapabilities) {
             if (PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(capability.getNamespace())) {
