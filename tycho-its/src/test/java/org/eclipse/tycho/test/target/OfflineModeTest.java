@@ -59,7 +59,7 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
         verifier.setLogFileName("log-offline.txt");
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
-        Set<String> urls = new LinkedHashSet<String>(server.getAccessedUrls("test"));
+        Set<String> urls = new LinkedHashSet<>(server.getAccessedUrls("test"));
         assertTrue(urls.toString(), urls.isEmpty());
     }
 

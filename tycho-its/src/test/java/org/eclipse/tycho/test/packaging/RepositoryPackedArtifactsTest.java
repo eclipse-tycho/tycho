@@ -45,7 +45,7 @@ public class RepositoryPackedArtifactsTest extends AbstractTychoIntegrationTest 
     }
 
     private void assertDirectory(File dir, String... expectedFiles) {
-        Set<String> actualFiles = new HashSet<String>(Arrays.asList(dir.list()));
-        assertEquals(new HashSet<String>(Arrays.asList(expectedFiles)), actualFiles);
+        Set<String> actualFiles = new HashSet<>(Arrays.asList(dir.list()));
+        assertEquals(new HashSet<>(Arrays.asList(expectedFiles)), actualFiles);
     }
 }
