@@ -330,7 +330,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
-        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
             @Override
@@ -365,7 +365,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
-        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
             @Override
@@ -395,7 +395,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
-        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
             @Override
@@ -414,7 +414,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.FALSE);
-        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
             @Override
@@ -433,7 +433,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         MavenProject project = projects.get(0);
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         setVariableValueToObject(mojo, "useProjectSettings", Boolean.TRUE);
-        final List<CharSequence> warnings = new ArrayList<CharSequence>();
+        final List<CharSequence> warnings = new ArrayList<>();
         mojo.setLog(new SystemStreamLog() {
 
             @Override

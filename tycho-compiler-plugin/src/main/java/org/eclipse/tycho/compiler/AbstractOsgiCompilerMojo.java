@@ -162,20 +162,20 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * A list of inclusion filters for the compiler.
      */
     @Parameter
-    private Set<String> includes = new HashSet<String>();
+    private Set<String> includes = new HashSet<>();
 
     /**
      * A list of exclusion filters for the compiler.
      */
     @Parameter
-    private Set<String> excludes = new HashSet<String>();
+    private Set<String> excludes = new HashSet<>();
 
     /**
      * A list of exclusion filters for non-java resource files which should not be copied to the
      * output directory.
      */
     @Parameter
-    private Set<String> excludeResources = new HashSet<String>();
+    private Set<String> excludeResources = new HashSet<>();
 
     /**
      * Whether a bundle is required to explicitly import non-java.* packages from the JDK. This is
@@ -319,7 +319,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                 continue;
             }
 
-            Set<String> excludes = new HashSet<String>();
+            Set<String> excludes = new HashSet<>();
             excludes.addAll(excludeResources);
             excludes.addAll(getEclipsePluginProject().getBuildProperties().getBinExcludes());
             excludes.add("**/*.java");
@@ -352,7 +352,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Override
     public List<String> getClasspathElements() throws MojoExecutionException {
-        final List<String> classpath = new ArrayList<String>();
+        final List<String> classpath = new ArrayList<>();
         for (ClasspathEntry cpe : getClasspath()) {
             for (File location : cpe.getLocations()) {
                 classpath.add(location.getAbsolutePath() + toString(cpe.getAccessRules()));
@@ -392,7 +392,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Override
     protected final List<String> getCompileSourceRoots() throws MojoExecutionException {
-        ArrayList<String> roots = new ArrayList<String>();
+        ArrayList<String> roots = new ArrayList<>();
         for (File folder : outputJar.getSourceFolders()) {
             roots.add(new File(folder.getAbsoluteFile().toURI().normalize()).toString());
         }
@@ -401,7 +401,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     @Override
     public List<SourcepathEntry> getSourcepath() throws MojoExecutionException {
-        ArrayList<SourcepathEntry> entries = new ArrayList<SourcepathEntry>();
+        ArrayList<SourcepathEntry> entries = new ArrayList<>();
         for (BuildOutputJar jar : getEclipsePluginProject().getOutputJars()) {
             final File outputDirectory = jar.getOutputDirectory();
             for (final File sourcesRoot : jar.getSourceFolders()) {
@@ -519,7 +519,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private void configureBootclasspathAccessRules(CompilerConfiguration compilerConfiguration)
             throws MojoExecutionException {
-        List<AccessRule> accessRules = new ArrayList<ClasspathEntry.AccessRule>();
+        List<AccessRule> accessRules = new ArrayList<>();
 
         if (requireJREPackageImports) {
             accessRules.addAll(getStrictBootClasspathAccessRules());
@@ -621,7 +621,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
     @Override
     public List<ClasspathEntry> getClasspath() throws MojoExecutionException {
         TychoProject projectType = getBundleProject();
-        ArrayList<ClasspathEntry> classpath = new ArrayList<ClasspathEntry>(
+        ArrayList<ClasspathEntry> classpath = new ArrayList<>(
                 ((BundleProject) projectType).getClasspath(project));
 
         if (extraClasspathElements != null) {
@@ -648,7 +648,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
                     if (b instanceof ProjectArtifact) {
                         bProject = ((ProjectArtifact) b).getProject();
                     }
-                    ArrayList<File> bLocations = new ArrayList<File>();
+                    ArrayList<File> bLocations = new ArrayList<>();
                     bLocations.add(b.getFile()); // TODO properly handle multiple project locations maybe
                     classpath.add(new DefaultClasspathEntry(DefaultReactorProject.adapt(bProject), null, bLocations,
                             null));
@@ -713,7 +713,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
 
     private void checkTargetLevelCompatibleWithManifestBREEs(String effectiveTargetLevel,
             StandardExecutionEnvironment[] manifestBREEs) throws MojoExecutionException {
-        List<String> incompatibleBREEs = new ArrayList<String>();
+        List<String> incompatibleBREEs = new ArrayList<>();
         for (StandardExecutionEnvironment ee : manifestBREEs) {
             if (!ee.isCompatibleCompilerTargetLevel(effectiveTargetLevel)) {
                 incompatibleBREEs.add(ee.getProfileName() + " (assumes " + ee.getCompilerTargetLevelDefault() + ")");

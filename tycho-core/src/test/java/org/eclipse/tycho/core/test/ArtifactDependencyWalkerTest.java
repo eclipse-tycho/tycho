@@ -38,8 +38,8 @@ import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
 public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
     public void testProductDepdendencies() throws Exception {
-        final ArrayList<PluginDescription> plugins = new ArrayList<PluginDescription>();
-        final ArrayList<FeatureDescription> features = new ArrayList<FeatureDescription>();
+        final ArrayList<PluginDescription> plugins = new ArrayList<>();
+        final ArrayList<FeatureDescription> features = new ArrayList<>();
         walkProduct("src/test/resources/dependencywalker/plugin_based.product", plugins, features);
 
         assertEquals(0, features.size());

@@ -150,7 +150,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
 
         if (configuration != null
                 && TargetPlatformConfiguration.POM_DEPENDENCIES_CONSIDER.equals(configuration.getPomDependencies())) {
-            Map<String, MavenProject> projectIds = new HashMap<String, MavenProject>(session.getProjects().size() * 2);
+            Map<String, MavenProject> projectIds = new HashMap<>(session.getProjects().size() * 2);
             // make a list of reactor projects
             for (MavenProject p : session.getProjects()) {
                 String key = ArtifactUtils.key(p.getGroupId(), p.getArtifactId(), p.getVersion());
@@ -176,13 +176,13 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
                 }
             }
             // handle rest of dependencies
-            ArrayList<String> scopes = new ArrayList<String>();
+            ArrayList<String> scopes = new ArrayList<>();
             scopes.add(Artifact.SCOPE_COMPILE);
             Collection<Artifact> artifacts;
             try {
                 artifacts = projectDependenciesResolver.resolve(project, scopes, session);
             } catch (MultipleArtifactsNotFoundException e) {
-                Collection<Artifact> missing = new HashSet<Artifact>(e.getMissingArtifacts());
+                Collection<Artifact> missing = new HashSet<>(e.getMissingArtifacts());
 
                 for (Iterator<Artifact> it = missing.iterator(); it.hasNext();) {
                     Artifact a = it.next();

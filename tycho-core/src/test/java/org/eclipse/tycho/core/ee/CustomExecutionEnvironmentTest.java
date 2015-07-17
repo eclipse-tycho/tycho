@@ -133,7 +133,7 @@ public class CustomExecutionEnvironmentTest {
 
     @Test
     public void testJavaSEVersionNameMappings() throws Exception {
-        List<SystemCapability> javaSeVersions = new ArrayList<SystemCapability>();
+        List<SystemCapability> javaSeVersions = new ArrayList<>();
         for (String version : new String[] { "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0" }) {
             SystemCapability capability = new SystemCapability(Type.OSGI_EE, "JavaSE", version);
             javaSeVersions.add(capability);

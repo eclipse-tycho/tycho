@@ -37,12 +37,12 @@ import org.osgi.framework.Version;
 public class ArtifactCollection {
     private static final Version VERSION_0_0_0 = new Version("0.0.0");
 
-    protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<ArtifactKey, ArtifactDescriptor>();
+    protected final Map<ArtifactKey, ArtifactDescriptor> artifacts = new LinkedHashMap<>();
 
-    protected final Map<File, Map<String, ArtifactDescriptor>> locations = new LinkedHashMap<File, Map<String, ArtifactDescriptor>>();
+    protected final Map<File, Map<String, ArtifactDescriptor>> locations = new LinkedHashMap<>();
 
     public List<ArtifactDescriptor> getArtifacts(String type) {
-        ArrayList<ArtifactDescriptor> result = new ArrayList<ArtifactDescriptor>();
+        ArrayList<ArtifactDescriptor> result = new ArrayList<>();
         for (Map.Entry<ArtifactKey, ArtifactDescriptor> entry : artifacts.entrySet()) {
             if (type.equals(entry.getKey().getType())) {
                 result.add(entry.getValue());
@@ -53,7 +53,7 @@ public class ArtifactCollection {
     }
 
     public List<ArtifactDescriptor> getArtifacts() {
-        return new ArrayList<ArtifactDescriptor>(artifacts.values());
+        return new ArrayList<>(artifacts.values());
     }
 
     public void addArtifactFile(ArtifactKey key, File location, Set<Object> installableUnits) {
@@ -95,7 +95,7 @@ public class ArtifactCollection {
                 throw new IllegalStateException("Inconsistent artifact with key " + artifact.getKey());
             }
 
-            units = new LinkedHashSet<Object>(original.getInstallableUnits());
+            units = new LinkedHashSet<>(original.getInstallableUnits());
             units.addAll(artifact.getInstallableUnits());
         } else {
             units = artifact.getInstallableUnits();
@@ -122,7 +122,7 @@ public class ArtifactCollection {
 
         Map<String, ArtifactDescriptor> classified = locations.get(location);
         if (classified == null) {
-            classified = new LinkedHashMap<String, ArtifactDescriptor>();
+            classified = new LinkedHashMap<>();
             locations.put(location, classified);
         }
 
@@ -186,7 +186,7 @@ public class ArtifactCollection {
         }
 
         // features with matching id, sorted by version, highest version first
-        SortedMap<Version, ArtifactDescriptor> relevantArtifacts = new TreeMap<Version, ArtifactDescriptor>(
+        SortedMap<Version, ArtifactDescriptor> relevantArtifacts = new TreeMap<>(
                 new Comparator<Version>() {
                     @Override
                     public int compare(Version o1, Version o2) {

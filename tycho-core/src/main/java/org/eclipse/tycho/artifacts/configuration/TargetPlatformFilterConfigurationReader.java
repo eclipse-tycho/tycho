@@ -24,7 +24,7 @@ import org.eclipse.tycho.artifacts.TargetPlatformFilterSyntaxException;
 public class TargetPlatformFilterConfigurationReader {
 
     public List<TargetPlatformFilter> parseFilterConfiguration(Xpp3Dom filtersElement) {
-        List<TargetPlatformFilter> result = new ArrayList<TargetPlatformFilter>();
+        List<TargetPlatformFilter> result = new ArrayList<>();
 
         for (Xpp3Dom filterDom : filtersElement.getChildren()) {
             parseFilter(filterDom, result);

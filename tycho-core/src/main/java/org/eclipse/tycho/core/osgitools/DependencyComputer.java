@@ -92,14 +92,14 @@ public class DependencyComputer {
     }
 
     public List<DependencyEntry> computeDependencies(StateHelper helper, BundleDescription desc) {
-        ArrayList<DependencyEntry> entries = new ArrayList<DependencyEntry>();
+        ArrayList<DependencyEntry> entries = new ArrayList<>();
 
         if (desc == null)
             return entries;
 
         Map<BundleDescription, ArrayList<AccessRule>> map = retrieveVisiblePackagesFromState(helper, desc);
 
-        HashSet<BundleDescription> added = new HashSet<BundleDescription>();
+        HashSet<BundleDescription> added = new HashSet<>();
 
         // to avoid cycles, e.g. when a bundle imports a package it exports
         added.add(desc);
@@ -119,7 +119,7 @@ public class DependencyComputer {
 
         // add Import-Package
         // sort by symbolicName_version to get a consistent order
-        Map<String, BundleDescription> sortedMap = new TreeMap<String, BundleDescription>();
+        Map<String, BundleDescription> sortedMap = new TreeMap<>();
         for (BundleDescription bundle : map.keySet()) {
             sortedMap.put(bundle.toString(), bundle);
         }
@@ -138,7 +138,7 @@ public class DependencyComputer {
 
     private Map<BundleDescription, ArrayList<AccessRule>> retrieveVisiblePackagesFromState(StateHelper helper,
             BundleDescription desc) {
-        Map<BundleDescription, ArrayList<AccessRule>> visiblePackages = new HashMap<BundleDescription, ArrayList<AccessRule>>();
+        Map<BundleDescription, ArrayList<AccessRule>> visiblePackages = new HashMap<>();
         addVisiblePackagesFromState(helper, desc, visiblePackages);
         if (desc.getHost() != null)
             addVisiblePackagesFromState(helper, (BundleDescription) desc.getHost().getSupplier(), visiblePackages);
@@ -156,7 +156,7 @@ public class DependencyComputer {
                 continue;
             ArrayList<AccessRule> list = visiblePackages.get(exporter);
             if (list == null)
-                list = new ArrayList<AccessRule>();
+                list = new ArrayList<>();
             AccessRule rule = getRule(helper, desc, exports[i]);
             if (!list.contains(rule))
                 list.add(rule);
@@ -290,7 +290,7 @@ public class DependencyComputer {
      * [1] http://blog.meschberger.ch/2008/10/osgi-bundles-require-classes-from.html
      */
     public List<AccessRule> computeBootClasspathExtraAccessRules(StateHelper helper, BundleDescription desc) {
-        List<AccessRule> result = new ArrayList<AccessRule>();
+        List<AccessRule> result = new ArrayList<>();
         ExportPackageDescription[] exports = helper.getVisiblePackages(desc);
         for (ExportPackageDescription export : exports) {
             BundleDescription host = export.getExporter();

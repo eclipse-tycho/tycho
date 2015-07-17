@@ -37,7 +37,7 @@ public class ExecutionEnvironmentUtils {
     private static Map<String, StandardExecutionEnvironment> fillEnvironmentsMap() {
         Properties listProps = readProperties(findInSystemBundle("profile.list"));
         String[] profileFiles = listProps.getProperty("java.profiles").split(",");
-        Map<String, StandardExecutionEnvironment> envMap = new LinkedHashMap<String, StandardExecutionEnvironment>();
+        Map<String, StandardExecutionEnvironment> envMap = new LinkedHashMap<>();
         for (String profileFile : profileFiles) {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));
             envMap.put(props.getProperty("osgi.java.profile.name").trim(), new StandardExecutionEnvironment(props));
@@ -85,7 +85,7 @@ public class ExecutionEnvironmentUtils {
     }
 
     public static List<String> getProfileNames() {
-        return new ArrayList<String>(executionEnvironmentsMap.keySet());
+        return new ArrayList<>(executionEnvironmentsMap.keySet());
     }
 
     public static void applyProfileProperties(Properties properties, Properties profileProps) {

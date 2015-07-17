@@ -33,11 +33,11 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private String resolver;
 
-    private List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+    private List<TargetEnvironment> environments = new ArrayList<>();
 
     private boolean implicitTargetEnvironment = true;
 
-    private final List<File> targets = new ArrayList<File>();
+    private final List<File> targets = new ArrayList<>();
     private IncludeSourceMode targetDefinitionIncludeSourceMode = IncludeSourceMode.ignore;
 
     private String pomDependencies;
@@ -53,11 +53,11 @@ public class TargetPlatformConfiguration implements DependencyResolverConfigurat
 
     private OptionalResolutionAction optionalAction = OptionalResolutionAction.REQUIRE;
 
-    private final List<Dependency> extraRequirements = new ArrayList<Dependency>();
+    private final List<Dependency> extraRequirements = new ArrayList<>();
 
     private boolean includePackedArtifacts;
 
-    private Map<String, String> resolverProfileProperties = new HashMap<String, String>();
+    private Map<String, String> resolverProfileProperties = new HashMap<>();
 
     /**
      * Returns the list of configured target environments, or the running environment if no
