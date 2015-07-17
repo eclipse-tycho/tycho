@@ -455,7 +455,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         compilerConfiguration.setSourceEncoding(getEncoding());
 
         if ((compilerArguments != null) || (compilerArgument != null) || compilerArgs != null) {
-            LinkedHashMap<String, String> cplrArgsCopy = new LinkedHashMap<String, String>();
+            LinkedHashMap<String, String> cplrArgsCopy = new LinkedHashMap<>();
             if (compilerArguments != null) {
                 for (Iterator i = compilerArguments.entrySet().iterator(); i.hasNext();) {
                     Map.Entry me = (Map.Entry) i.next();
@@ -572,7 +572,7 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
 
         scanner.addSourceMapping(mapping);
 
-        Set<File> staleSources = new HashSet<File>();
+        Set<File> staleSources = new HashSet<>();
 
         for (Iterator it = getCompileSourceRoots().iterator(); it.hasNext();) {
             String sourceRoot = (String) it.next();

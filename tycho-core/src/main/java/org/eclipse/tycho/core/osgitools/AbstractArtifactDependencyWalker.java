@@ -122,7 +122,7 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
             }
         }
 
-        Set<String> bundles = new HashSet<String>();
+        Set<String> bundles = new HashSet<>();
         for (ArtifactDescriptor artifact : visited.getVisited()) {
             ArtifactKey key = artifact.getKey();
             if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(key.getType())) {
@@ -240,16 +240,16 @@ public abstract class AbstractArtifactDependencyWalker implements ArtifactDepend
     }
 
     protected static class WalkbackPath {
-        private Map<ArtifactKey, ArtifactDescriptor> visited = new HashMap<ArtifactKey, ArtifactDescriptor>();
+        private Map<ArtifactKey, ArtifactDescriptor> visited = new HashMap<>();
 
-        private Stack<ArtifactDescriptor> walkback = new Stack<ArtifactDescriptor>();
+        private Stack<ArtifactDescriptor> walkback = new Stack<>();
 
         boolean visited(ArtifactKey key) {
             return visited.containsKey(key);
         }
 
         public List<ArtifactDescriptor> getWalkback() {
-            return new ArrayList<ArtifactDescriptor>(walkback);
+            return new ArrayList<>(walkback);
         }
 
         void enter(ArtifactDescriptor artifact) {

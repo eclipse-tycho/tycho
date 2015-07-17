@@ -166,12 +166,12 @@ public class StandardExecutionEnvironmentTest {
 
     @Test
     public void testCompare() throws Exception {
-        List<StandardExecutionEnvironment> expectedList = new ArrayList<StandardExecutionEnvironment>(Arrays.asList(
+        List<StandardExecutionEnvironment> expectedList = new ArrayList<>(Arrays.asList(
                 osgiMin10Environment, osgiMin11Environment, osgiMin12Environment, cdc10Environment, cdc11Environment,
                 jre11Environment, j2SE12Environment, j2SE13Environment, j2SE14Environment, j2SE5Enviroment,
                 javaSE6Enviroment, javaSE7Enviroment, javaSECompact1Enviroment, javaSECompact2Enviroment,
                 javaSECompact3Enviroment, javaSE8Enviroment));
-        List<StandardExecutionEnvironment> actualList = new ArrayList<StandardExecutionEnvironment>(expectedList);
+        List<StandardExecutionEnvironment> actualList = new ArrayList<>(expectedList);
         Collections.shuffle(actualList);
         Collections.sort(actualList);
         assertEquals(expectedList, actualList);

@@ -95,11 +95,11 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
         File pom = new File(getBasedir("projects/sourceFolders"), "pom.xml");
         List<MavenProject> projects = getSortedProjects(newMavenExecutionRequest(pom));
         MavenProject project = (MavenProject) projects.get(0);
-        List<File> sourceRootFiles = new ArrayList<File>();
+        List<File> sourceRootFiles = new ArrayList<>();
         for (String compileRoot : project.getCompileSourceRoots()) {
             sourceRootFiles.add(new File(compileRoot));
         }
-        List<File> testRootFiles = new ArrayList<File>();
+        List<File> testRootFiles = new ArrayList<>();
         for (String testCompileRoot : project.getTestCompileSourceRoots()) {
             testRootFiles.add(new File(testCompileRoot));
         }

@@ -50,7 +50,7 @@ public class DefaultReactorProject implements ReactorProject {
     }
 
     public static List<ReactorProject> adapt(MavenSession session) {
-        ArrayList<ReactorProject> result = new ArrayList<ReactorProject>();
+        ArrayList<ReactorProject> result = new ArrayList<>();
         for (MavenProject project : session.getProjects()) {
             result.add(adapt(project));
         }
@@ -155,7 +155,7 @@ public class DefaultReactorProject implements ReactorProject {
             return primary;
         }
 
-        LinkedHashSet<Object> result = new LinkedHashSet<Object>(primary);
+        LinkedHashSet<Object> result = new LinkedHashSet<>(primary);
         result.addAll(secondary);
         return result;
     }

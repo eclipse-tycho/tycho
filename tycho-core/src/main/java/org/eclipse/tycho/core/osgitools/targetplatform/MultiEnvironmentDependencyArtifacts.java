@@ -19,7 +19,7 @@ import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 public class MultiEnvironmentDependencyArtifacts extends DefaultDependencyArtifacts {
-    public Map<TargetEnvironment, DependencyArtifacts> platforms = new LinkedHashMap<TargetEnvironment, DependencyArtifacts>();
+    public Map<TargetEnvironment, DependencyArtifacts> platforms = new LinkedHashMap<>();
 
     public MultiEnvironmentDependencyArtifacts() {
         this(null);

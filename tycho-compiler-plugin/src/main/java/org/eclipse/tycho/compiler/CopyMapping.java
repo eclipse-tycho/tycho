@@ -26,7 +26,7 @@ import org.codehaus.plexus.compiler.util.scan.mapping.SourceMapping;
  */
 public class CopyMapping implements SourceMapping {
 
-    List<SourceTargetPair> sourceTargetMappings = new ArrayList<SourceTargetPair>();
+    List<SourceTargetPair> sourceTargetMappings = new ArrayList<>();
 
     @Override
     public Set getTargetFiles(File targetDir, String source) throws InclusionScanException {

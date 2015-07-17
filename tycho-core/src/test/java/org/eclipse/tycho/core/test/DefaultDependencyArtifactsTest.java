@@ -147,7 +147,7 @@ public class DefaultDependencyArtifactsTest {
     }
 
     private Set<Object> asSet(Object... values) {
-        Set<Object> result = new LinkedHashSet<Object>();
+        Set<Object> result = new LinkedHashSet<>();
         for (Object v : values) {
             result.add(v);
         }

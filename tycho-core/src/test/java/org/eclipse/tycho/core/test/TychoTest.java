@@ -120,7 +120,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
         List<MavenProject> projects = getSortedProjects(basedir);
 
-        List<String> artifactIds = new ArrayList<String>();
+        List<String> artifactIds = new ArrayList<>();
         for (MavenProject project : projects) {
             artifactIds.add(project.getArtifactId());
         }

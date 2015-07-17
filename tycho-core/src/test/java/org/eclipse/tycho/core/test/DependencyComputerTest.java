@@ -143,11 +143,11 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         List<DependencyEntry> bundle2Dependencies = computeDependencies(bundle2Project);
         assertEquals(1, bundle2Dependencies.size());
         DependencyEntry dependencyBundle2 = bundle2Dependencies.get(0);
-        Set<String> accessRules = new HashSet<String>();
+        Set<String> accessRules = new HashSet<>();
         for (AccessRule rule : dependencyBundle2.rules) {
             accessRules.add(rule.getPattern());
         }
-        assertEquals(new HashSet<String>(asList("javax/net/ssl/*", "org/osgi/framework/*")), accessRules);
+        assertEquals(new HashSet<>(asList("javax/net/ssl/*", "org/osgi/framework/*")), accessRules);
     }
 
     private List<DependencyEntry> computeDependencies(MavenProject project) throws BundleException {

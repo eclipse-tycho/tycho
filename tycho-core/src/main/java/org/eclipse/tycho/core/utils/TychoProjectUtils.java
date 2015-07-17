@@ -100,7 +100,7 @@ public class TychoProjectUtils {
         List<DependencySeed> dependencySeeds = (List<DependencySeed>) project
                 .getContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS);
         if (dependencySeeds == null) {
-            dependencySeeds = new ArrayList<DependencySeed>();
+            dependencySeeds = new ArrayList<>();
             project.setContextValue(TychoConstants.CTX_DEPENDENCY_SEEDS, dependencySeeds);
         }
         return dependencySeeds;

@@ -34,10 +34,10 @@ import org.eclipse.tycho.locking.facade.FileLocker;
 public class DefaultBundleReader extends AbstractLogEnabled implements BundleReader {
 
     public static final String CACHE_PATH = ".cache/tycho";
-    private final LRUCache<String, OsgiManifest> manifestCache = new LRUCache<String, OsgiManifest>(50);
+    private final LRUCache<String, OsgiManifest> manifestCache = new LRUCache<>(50);
 
     private File cacheDir;
-    private Set<String> extractedFiles = new HashSet<String>();
+    private Set<String> extractedFiles = new HashSet<>();
 
     @Requirement
     private FileLockService fileLockService;

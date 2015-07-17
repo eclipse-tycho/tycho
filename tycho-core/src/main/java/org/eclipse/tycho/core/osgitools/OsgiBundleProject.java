@@ -169,7 +169,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
         BundleDescription bundleDescription = state.getBundleByLocation(project.getBasedir().getAbsolutePath());
 
-        List<ClasspathEntry> classpath = new ArrayList<ClasspathEntry>();
+        List<ClasspathEntry> classpath = new ArrayList<>();
 
         // project itself
         ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(), bundleDescription.getSymbolicName());
@@ -181,7 +181,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         addExtraClasspathEntries(classpath, projectProxy, artifacts);
 
         // dependencies
-        List<AccessRule> strictBootClasspathAccessRules = new ArrayList<AccessRule>();
+        List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
         for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
             if (EquinoxResolver.SYSTEM_BUNDLE_ID == entry.desc.getBundleId()) {
@@ -306,7 +306,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
      * Returns project compile classpath entries.
      */
     private List<File> getThisProjectClasspath(ArtifactDescriptor bundle, ReactorProject project) {
-        LinkedHashSet<File> classpath = new LinkedHashSet<File>();
+        LinkedHashSet<File> classpath = new LinkedHashSet<>();
 
         EclipsePluginProject pdeProject = getEclipsePluginProject(project);
 
@@ -325,7 +325,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
         }
 
-        return new ArrayList<File>(classpath);
+        return new ArrayList<>(classpath);
     }
 
     /**
@@ -335,7 +335,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
      */
     private List<File> getOtherProjectClasspath(ArtifactDescriptor bundle, ReactorProject otherProject,
             String nestedPath) {
-        LinkedHashSet<File> classpath = new LinkedHashSet<File>();
+        LinkedHashSet<File> classpath = new LinkedHashSet<>();
 
         EclipsePluginProject pdeProject = getEclipsePluginProject(otherProject);
 
@@ -356,7 +356,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 classpath.add(new File(otherProject.getBasedir(), cp));
             }
         }
-        return new ArrayList<File>(classpath);
+        return new ArrayList<>(classpath);
     }
 
     private void addExtraClasspathEntries(List<ClasspathEntry> classpath, ReactorProject project,
@@ -410,7 +410,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     private List<File> getBundleClasspath(ArtifactDescriptor bundle) {
-        LinkedHashSet<File> classpath = new LinkedHashSet<File>();
+        LinkedHashSet<File> classpath = new LinkedHashSet<>();
 
         for (String cp : parseBundleClasspath(bundle)) {
             File entry;
@@ -425,11 +425,11 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             }
         }
 
-        return new ArrayList<File>(classpath);
+        return new ArrayList<>(classpath);
     }
 
     private List<File> getBundleEntry(ArtifactDescriptor bundle, String nestedPath) {
-        LinkedHashSet<File> classpath = new LinkedHashSet<File>();
+        LinkedHashSet<File> classpath = new LinkedHashSet<>();
 
         File entry;
         if (".".equals(nestedPath)) {
@@ -442,7 +442,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             classpath.add(entry);
         }
 
-        return new ArrayList<File>(classpath);
+        return new ArrayList<>(classpath);
     }
 
     private String[] parseBundleClasspath(ArtifactDescriptor bundle) {
@@ -468,7 +468,7 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
                 // validate if os/ws/arch are not null and actually match the filter
                 if (ws != null && os != null && arch != null) {
-                    Map<String, String> properties = new HashMap<String, String>();
+                    Map<String, String> properties = new HashMap<>();
                     properties.put(PlatformPropertiesUtils.OSGI_WS, ws);
                     properties.put(PlatformPropertiesUtils.OSGI_OS, os);
                     properties.put(PlatformPropertiesUtils.OSGI_ARCH, arch);

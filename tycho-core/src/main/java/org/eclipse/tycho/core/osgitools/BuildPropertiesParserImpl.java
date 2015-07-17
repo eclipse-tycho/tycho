@@ -41,7 +41,7 @@ public class BuildPropertiesParserImpl implements BuildPropertiesParser, Disposa
     @Requirement
     private Logger logger;
 
-    private final LRUCache<String, BuildProperties> cache = new LRUCache<String, BuildProperties>(50);
+    private final LRUCache<String, BuildProperties> cache = new LRUCache<>(50);
 
     public BuildPropertiesParserImpl() {
         // empty to let plexus create new instances

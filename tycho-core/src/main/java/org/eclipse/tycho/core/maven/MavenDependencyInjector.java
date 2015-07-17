@@ -65,7 +65,7 @@ public final class MavenDependencyInjector {
     }
 
     void addDependency(ArtifactDescriptor artifact) {
-        List<Dependency> dependencyList = new ArrayList<Dependency>();
+        List<Dependency> dependencyList = new ArrayList<>();
         if (artifact.getMavenProject() != null) {
             dependencyList.addAll(newProjectDependencies(artifact));
         } else {
@@ -84,7 +84,7 @@ public final class MavenDependencyInjector {
                     + " can not be represented in Maven model and will not be visible to non-OSGi aware Maven plugins");
             return NO_DEPENDENCIES;
         }
-        List<Dependency> result = new ArrayList<Dependency>();
+        List<Dependency> result = new ArrayList<>();
         if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(artifact.getKey().getType())) {
             for (String classpathElement : getClasspathElements(location)) {
                 if (".".equals(classpathElement)) {
@@ -134,7 +134,7 @@ public final class MavenDependencyInjector {
 
     private List<Dependency> newProjectDependencies(ArtifactDescriptor artifact) {
         ReactorProject dependentMavenProjectProxy = artifact.getMavenProject();
-        List<Dependency> result = new ArrayList<Dependency>();
+        List<Dependency> result = new ArrayList<>();
         if (!artifact.getMavenProject().sameProject(project)) {
             result.add(createProvidedScopeDependency(dependentMavenProjectProxy));
         }
