@@ -24,7 +24,7 @@ public class DependencyManagement {
 
     public List<GAV> getDependencies() {
 
-        List<GAV> result = new ArrayList<GAV>();
+        List<GAV> result = new ArrayList<>();
 
         Element dependencies = dependencyManagement.getChild("dependencies");
 

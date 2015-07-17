@@ -23,7 +23,7 @@ import org.eclipse.tycho.model.ProductConfiguration;
  */
 public class ProductConfigurations {
 
-    private Map<File, ProductConfiguration> productConfigurations = new HashMap<File, ProductConfiguration>();
+    private Map<File, ProductConfiguration> productConfigurations = new HashMap<>();
 
     public void addProductConfiguration(File productFile, ProductConfiguration productConfiguration) {
         productConfigurations.put(productFile, productConfiguration);

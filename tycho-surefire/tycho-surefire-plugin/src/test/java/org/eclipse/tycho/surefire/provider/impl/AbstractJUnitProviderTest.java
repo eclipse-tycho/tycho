@@ -44,7 +44,7 @@ public abstract class AbstractJUnitProviderTest {
     }
 
     static List<ClasspathEntry> classPath(String... entries) {
-        List<ClasspathEntry> result = new ArrayList<ClasspathEntry>();
+        List<ClasspathEntry> result = new ArrayList<>();
         for (String entry : entries) {
             int colonIndex = entry.indexOf(':');
             assertNotSame(-1, colonIndex);

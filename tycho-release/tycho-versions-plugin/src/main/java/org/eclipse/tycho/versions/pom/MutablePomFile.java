@@ -200,17 +200,17 @@ public class MutablePomFile {
     }
 
     public List<String> getModules() {
-        LinkedHashSet<String> result = new LinkedHashSet<String>();
+        LinkedHashSet<String> result = new LinkedHashSet<>();
         for (Element modules : project.getChildren("modules")) {
             for (Element module : modules.getChildren("module")) {
                 result.add(module.getTrimmedText());
             }
         }
-        return new ArrayList<String>(result);
+        return new ArrayList<>(result);
     }
 
     public List<Profile> getProfiles() {
-        ArrayList<Profile> result = new ArrayList<Profile>();
+        ArrayList<Profile> result = new ArrayList<>();
         for (Element profiles : project.getChildren("profiles")) {
             for (Element profile : profiles.getChildren("profile")) {
                 result.add(new Profile(profile));
