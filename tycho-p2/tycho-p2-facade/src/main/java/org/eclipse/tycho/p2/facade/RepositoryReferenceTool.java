@@ -125,7 +125,7 @@ public class RepositoryReferenceTool {
                         targetPlatform, DefaultReactorProject.adapt(session), resolverConfiguration);
 
                 // this contains dependency-only metadata for 'this' project
-                Set<Object> targetPlatformInstallableUnits = new HashSet<Object>(
+                Set<Object> targetPlatformInstallableUnits = new HashSet<>(
                         dependencyArtifacts.getInstallableUnits());
 
                 for (ArtifactDescriptor artifact : dependencyArtifacts.getArtifacts()) {

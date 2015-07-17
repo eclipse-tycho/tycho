@@ -109,7 +109,7 @@ public class LicenseFeatureHelper {
 
         List<String> includes = buildProperties.getBinIncludes();
 
-        Set<String> excludes = new HashSet<String>(buildProperties.getBinExcludes());
+        Set<String> excludes = new HashSet<>(buildProperties.getBinExcludes());
         excludes.add(Feature.FEATURE_XML);
         excludes.add("feature.properties");
         excludes.add(BuildPropertiesParser.BUILD_PROPERTIES);

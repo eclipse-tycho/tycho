@@ -38,7 +38,7 @@ public class SourceBundlesNestedJarsTest extends AbstractTychoIntegrationTest {
             String sourceBundleHeader = jar.getManifest().getMainAttributes().getValue("Eclipse-SourceBundle");
             ManifestElement element = ManifestElement.parseHeader("", sourceBundleHeader)[0];
             String[] roots = element.getDirective("roots").split(",");
-            assertEquals(new HashSet<String>(asList(".", "foosrc", "barsrc")), new HashSet<String>(asList(roots)));
+            assertEquals(new HashSet<>(asList(".", "foosrc", "barsrc")), new HashSet<>(asList(roots)));
             assertNotNull(jar.getEntry("Main.java"));
             assertNotNull(jar.getEntry("foosrc/Foo1.java"));
             assertNotNull(jar.getEntry("foosrc/Foo2.java"));

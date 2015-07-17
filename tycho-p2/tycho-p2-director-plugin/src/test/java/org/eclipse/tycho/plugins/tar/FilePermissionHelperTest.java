@@ -37,6 +37,6 @@ public class FilePermissionHelperTest {
     }
 
     private Set<PosixFilePermission> createPermissionSet(PosixFilePermission... perms) {
-        return new HashSet<PosixFilePermission>(asList(perms));
+        return new HashSet<>(asList(perms));
     }
 }

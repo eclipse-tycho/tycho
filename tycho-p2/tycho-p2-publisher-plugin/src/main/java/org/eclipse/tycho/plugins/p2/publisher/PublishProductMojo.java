@@ -76,7 +76,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
         PublishProductTool publisher = publisherServiceFactory.createProductPublisher(getReactorProject(),
                 getEnvironments(), getQualifier(), interpolator);
 
-        List<DependencySeed> seeds = new ArrayList<DependencySeed>();
+        List<DependencySeed> seeds = new ArrayList<>();
         for (File productFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);

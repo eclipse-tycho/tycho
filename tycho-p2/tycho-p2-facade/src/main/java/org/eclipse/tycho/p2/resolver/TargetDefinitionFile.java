@@ -61,7 +61,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
         @Override
         public List<? extends TargetDefinition.Unit> getUnits() {
-            ArrayList<Unit> units = new ArrayList<Unit>();
+            ArrayList<Unit> units = new ArrayList<>();
             for (Element unitDom : dom.getChildren("unit")) {
                 units.add(new Unit(unitDom));
             }
@@ -76,7 +76,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
         public List<Repository> getRepositoryImpls() {
             final List<Element> repositoryNodes = dom.getChildren("repository");
 
-            final List<Repository> repositories = new ArrayList<TargetDefinitionFile.Repository>(repositoryNodes.size());
+            final List<Repository> repositories = new ArrayList<>(repositoryNodes.size());
             for (Element node : repositoryNodes) {
                 repositories.add(new Repository(node));
             }
@@ -218,7 +218,7 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
     @Override
     public List<? extends TargetDefinition.Location> getLocations() {
-        ArrayList<TargetDefinition.Location> locations = new ArrayList<TargetDefinition.Location>();
+        ArrayList<TargetDefinition.Location> locations = new ArrayList<>();
         Element locationsDom = dom.getChild("locations");
         if (locationsDom != null) {
             for (Element locationDom : locationsDom.getChildren("location")) {

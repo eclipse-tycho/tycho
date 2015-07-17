@@ -67,7 +67,7 @@ class ProductConfig {
     }
 
     private static List<Product> getPublishedProduct(Collection<DependencySeed> projectSeeds) {
-        List<Product> result = new ArrayList<Product>(1);
+        List<Product> result = new ArrayList<>(1);
 
         // publishing results are added to the dependency seeds of the project, so we can find the products there
         for (DependencySeed seed : projectSeeds) {
@@ -91,7 +91,7 @@ class ProductConfig {
     }
 
     public boolean uniqueAttachIds() {
-        Set<String> attachIDs = new HashSet<String>();
+        Set<String> attachIDs = new HashSet<>();
         for (Product product : products) {
             if (!attachIDs.contains(product.getAttachId())) {
                 attachIDs.add(product.getAttachId());
