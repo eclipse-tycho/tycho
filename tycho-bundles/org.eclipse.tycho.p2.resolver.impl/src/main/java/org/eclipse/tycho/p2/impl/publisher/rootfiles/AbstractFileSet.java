@@ -70,7 +70,7 @@ public abstract class AbstractFileSet {
     }
 
     private List<Pattern> createDefaultExcludePatterns() {
-        List<Pattern> defaultExcludePatterns = new ArrayList<Pattern>();
+        List<Pattern> defaultExcludePatterns = new ArrayList<>();
         for (String exclude : DEFAULTEXCLUDES) {
             defaultExcludePatterns.add(convertToRegexPattern(exclude));
         }

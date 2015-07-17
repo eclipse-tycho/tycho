@@ -69,7 +69,7 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     public static LinkedHashSet<IInstallableUnit> collectAllInstallableUnits(
             Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectIUs,
             Collection<IInstallableUnit> externalIUs, ExecutionEnvironmentResolutionHints executionEnvironment) {
-        LinkedHashSet<IInstallableUnit> allius = new LinkedHashSet<IInstallableUnit>();
+        LinkedHashSet<IInstallableUnit> allius = new LinkedHashSet<>();
 
         allius.addAll(reactorProjectIUs.keySet());
 
@@ -104,7 +104,7 @@ public class PreliminaryTargetPlatformImpl extends TargetPlatformBaseImpl {
     }
 
     public LinkedHashSet<IInstallableUnit> getExternalUnits() {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
         result.addAll(externalIUs);
         // TODO are these "external units"?
         result.addAll(executionEnvironment.getMandatoryUnits());

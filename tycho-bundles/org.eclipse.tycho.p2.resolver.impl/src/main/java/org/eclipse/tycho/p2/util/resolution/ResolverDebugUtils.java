@@ -38,7 +38,7 @@ class ResolverDebugUtils {
             try {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 try {
-                    new MetadataIO().writeXML(new LinkedHashSet<IInstallableUnit>(ius), os);
+                    new MetadataIO().writeXML(new LinkedHashSet<>(ius), os);
                 } finally {
                     os.close();
                 }

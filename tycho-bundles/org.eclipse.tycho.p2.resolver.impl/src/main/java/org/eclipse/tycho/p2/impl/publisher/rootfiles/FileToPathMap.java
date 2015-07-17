@@ -27,7 +27,7 @@ public class FileToPathMap {
     private HashMap<File, IPath> map;
 
     public FileToPathMap() {
-        this.map = new HashMap<File, IPath>();
+        this.map = new HashMap<>();
     }
 
     public void put(File key, IPath value) {

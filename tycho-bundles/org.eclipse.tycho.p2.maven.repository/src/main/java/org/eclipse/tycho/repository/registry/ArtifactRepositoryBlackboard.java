@@ -24,7 +24,7 @@ import org.eclipse.tycho.repository.util.internal.RepositoryFactoryTools;
 
 public class ArtifactRepositoryBlackboard extends ArtifactRepositoryFactory {
 
-    private static HashMap<URI, IArtifactRepository> registry = new HashMap<URI, IArtifactRepository>();
+    private static HashMap<URI, IArtifactRepository> registry = new HashMap<>();
 
     public static synchronized void putRepository(RepositoryBlackboardKey key, IArtifactRepository repository) {
         registry.put(key.toURI(), repository);

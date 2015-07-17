@@ -71,10 +71,10 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
     }
 
     protected void doStart() throws Exception {
-        final List<File> installationLocations = new ArrayList<File>();
-        final List<File> bundleLocations = new ArrayList<File>();
-        final List<String> extraSystemPackages = new ArrayList<String>();
-        final Map<String, String> platformProperties = new LinkedHashMap<String, String>();
+        final List<File> installationLocations = new ArrayList<>();
+        final List<File> bundleLocations = new ArrayList<>();
+        final List<String> extraSystemPackages = new ArrayList<>();
+        final Map<String, String> platformProperties = new LinkedHashMap<>();
 
         equinoxLocator.locateRuntime(new EquinoxRuntimeDescription() {
             @Override
@@ -264,7 +264,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
                     + System.getProperty("java.io.tmpdir"), e);
         }
 
-        List<String> nonFrameworkArgs = new ArrayList<String>();
+        List<String> nonFrameworkArgs = new ArrayList<>();
         nonFrameworkArgs.add("-eclipse.keyring");
         nonFrameworkArgs.add(tempSecureStorage.getAbsolutePath());
         // TODO nonFrameworkArgs.add("-eclipse.password");

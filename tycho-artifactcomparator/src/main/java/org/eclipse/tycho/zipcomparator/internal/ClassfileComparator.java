@@ -66,7 +66,7 @@ public class ClassfileComparator implements ContentsComparator {
 
         // inner class list gets reordered during pack200 normalization
         if (clazz.innerClasses != null) {
-            List<InnerClassNode> sorted = new ArrayList<InnerClassNode>(clazz.innerClasses);
+            List<InnerClassNode> sorted = new ArrayList<>(clazz.innerClasses);
             Collections.sort(sorted, new Comparator<InnerClassNode>() {
                 @Override
                 public int compare(InnerClassNode o1, InnerClassNode o2) {

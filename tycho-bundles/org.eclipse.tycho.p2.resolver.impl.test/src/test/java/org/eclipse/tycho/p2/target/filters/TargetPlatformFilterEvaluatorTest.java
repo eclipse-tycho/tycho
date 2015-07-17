@@ -70,7 +70,7 @@ public class TargetPlatformFilterEvaluatorTest {
 
     @Before
     public void setUp() throws Exception {
-        workUnits = new LinkedHashSet<IInstallableUnit>(baselineUnits);
+        workUnits = new LinkedHashSet<>(baselineUnits);
     }
 
     private static Set<IInstallableUnit> loadTestUnits() throws Exception {
@@ -222,7 +222,7 @@ public class TargetPlatformFilterEvaluatorTest {
     }
 
     private Collection<String> removedUnits() {
-        HashSet<String> result = new HashSet<String>();
+        HashSet<String> result = new HashSet<>();
         for (IInstallableUnit unit : baselineUnits) {
             if (!workUnits.contains(unit)) {
                 result.add(unit.getId() + "_" + unit.getVersion());

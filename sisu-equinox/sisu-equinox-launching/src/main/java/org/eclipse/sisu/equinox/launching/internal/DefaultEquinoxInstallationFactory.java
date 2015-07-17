@@ -71,7 +71,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             defaultBundleStartLevel = new BundleStartLevel(null, 4, false);
         }
 
-        Map<ArtifactKey, File> effective = new LinkedHashMap<ArtifactKey, File>();
+        Map<ArtifactKey, File> effective = new LinkedHashMap<>();
 
         for (ArtifactDescriptor artifact : description.getBundles()) {
             ArtifactKey key = artifact.getKey();
@@ -203,7 +203,7 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
 
     private List<String> unpackFrameworkExtensions(File location, Collection<File> frameworkExtensions)
             throws IOException {
-        List<String> bundleNames = new ArrayList<String>();
+        List<String> bundleNames = new ArrayList<>();
 
         for (File bundleFile : frameworkExtensions) {
             OsgiManifest mf = manifestReader.loadManifest(bundleFile);

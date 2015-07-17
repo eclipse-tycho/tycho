@@ -24,15 +24,15 @@ public class CompoundArtifactDeltaTest {
 
     @Test
     public void testGetDetailedMessage() {
-        Map<String, ArtifactDelta> manifest = new TreeMap<String, ArtifactDelta>();
+        Map<String, ArtifactDelta> manifest = new TreeMap<>();
         manifest.put("name1", new SimpleArtifactDelta("present in baseline only"));
 
-        Map<String, ArtifactDelta> main = new TreeMap<String, ArtifactDelta>();
+        Map<String, ArtifactDelta> main = new TreeMap<>();
         main.put("path/file1", new SimpleArtifactDelta("different"));
         main.put("path/file2", new SimpleArtifactDelta("not present in baseline"));
         main.put("META-INF/MANIFEST.MF", new CompoundArtifactDelta("different", manifest));
 
-        Map<String, ArtifactDelta> delta = new TreeMap<String, ArtifactDelta>();
+        Map<String, ArtifactDelta> delta = new TreeMap<>();
         delta.put("<main>", new CompoundArtifactDelta("different", main));
         delta.put("sources", new SimpleArtifactDelta("different"));
 

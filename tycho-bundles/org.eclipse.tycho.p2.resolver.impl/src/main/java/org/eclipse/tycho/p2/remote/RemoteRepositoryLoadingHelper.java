@@ -29,7 +29,7 @@ class RemoteRepositoryLoadingHelper implements IRepositoryIdManager {
     private final MavenRepositorySettings settings;
     private final MavenLogger logger;
 
-    private Map<URI, String> knownMavenRepositoryIds = new HashMap<URI, String>();
+    private Map<URI, String> knownMavenRepositoryIds = new HashMap<>();
 
     public RemoteRepositoryLoadingHelper(MavenRepositorySettings settings, MavenLogger logger) {
         this.settings = settings;

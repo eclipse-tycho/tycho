@@ -25,10 +25,10 @@ public class TargetPlatformConfigurationStub {
 
     private boolean includePackedArtifacts;
     private List<TargetEnvironment> environments;
-    private final List<TargetPlatformFilter> iuFilters = new ArrayList<TargetPlatformFilter>();
+    private final List<TargetPlatformFilter> iuFilters = new ArrayList<>();
 
-    private final Set<MavenRepositoryLocation> repositories = new LinkedHashSet<MavenRepositoryLocation>();
-    private final List<TargetDefinition> targetDefinitions = new ArrayList<TargetDefinition>();
+    private final Set<MavenRepositoryLocation> repositories = new LinkedHashSet<>();
+    private final List<TargetDefinition> targetDefinitions = new ArrayList<>();
     private boolean forceIgnoreLocalArtifacts = false;
 
     public void setEnvironments(List<TargetEnvironment> environments) {

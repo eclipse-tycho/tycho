@@ -24,7 +24,7 @@ import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 @SuppressWarnings("restriction")
 public class MavenPropertiesAdvice implements IPropertyAdvice {
 
-    private final Map<String, String> properties = new LinkedHashMap<String, String>();
+    private final Map<String, String> properties = new LinkedHashMap<>();
 
     public MavenPropertiesAdvice(String groupId, String artifactId, String version) {
         properties.put(RepositoryLayoutHelper.PROP_GROUP_ID, groupId);

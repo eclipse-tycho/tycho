@@ -76,7 +76,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
      * @param executionEnvironment
      */
     private static Map<VersionedId, IInstallableUnit> computeAdditionalUnits(String executionEnvironment) {
-        Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<VersionedId, IInstallableUnit>();
+        Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<>();
         addIUsFromEnvironment(executionEnvironment, units);
         ensureEEWasKnownToJREAction(executionEnvironment, units.values());
         return units;
@@ -117,7 +117,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     private static Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(
             Map<VersionedId, IInstallableUnit> additionalUnits) {
-        Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<VersionedId, IInstallableUnit>();
+        Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<>();
 
         // Some notable installable units, like org.eclipse.sdk.ide, have hard dependency on the garbage JRE IUs.
         // We provide those IUs as empty shells, i.e. without any provided capabilities.

@@ -92,7 +92,7 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
 
     @Override
     protected Set<IRequirement> getRequiredCapabilities() {
-        Set<IRequirement> required = new LinkedHashSet<IRequirement>();
+        Set<IRequirement> required = new LinkedHashSet<>();
 
         if (feature.getLicenseFeature() != null) {
             String id = feature.getLicenseFeature() + FEATURE_GROUP_IU_SUFFIX;
@@ -169,7 +169,7 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
     }
 
     public static Set<String> getIncludedUIs(IInstallableUnit iu) {
-        Set<String> includedIUs = new LinkedHashSet<String>();
+        Set<String> includedIUs = new LinkedHashSet<>();
 
         String prop = iu.getProperty(INCLUDED_IUS);
         if (prop != null) {

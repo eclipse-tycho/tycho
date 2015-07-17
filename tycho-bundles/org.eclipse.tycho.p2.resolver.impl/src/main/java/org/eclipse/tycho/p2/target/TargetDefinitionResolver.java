@@ -113,7 +113,7 @@ public final class TargetDefinitionResolver {
     TargetDefinitionContent resolveContentWithExceptions(TargetDefinition definition)
             throws TargetDefinitionSyntaxException, TargetDefinitionResolutionException, ResolverException {
 
-        List<URI> artifactRepositories = new ArrayList<URI>();
+        List<URI> artifactRepositories = new ArrayList<>();
         ResolverRun resolverRun = new ResolverRun();
 
         for (Location locationDefinition : definition.getLocations()) {
@@ -138,8 +138,8 @@ public final class TargetDefinitionResolver {
 
     private class ResolverRun {
 
-        private List<IQueryable<IInstallableUnit>> availableUnitSources = new ArrayList<IQueryable<IInstallableUnit>>();
-        private Set<IInstallableUnit> rootIUs = new LinkedHashSet<IInstallableUnit>();
+        private List<IQueryable<IInstallableUnit>> availableUnitSources = new ArrayList<>();
+        private Set<IInstallableUnit> rootIUs = new LinkedHashSet<>();
 
         private IncludeMode includeMode = null;
         private Boolean includeAllEnvironments = null;
@@ -210,7 +210,7 @@ public final class TargetDefinitionResolver {
             // see org.eclipse.pde.internal.core.target.P2TargetUtils#createSourceIU()
             final IRequirement bundleRequirement = MetadataFactory.createRequirement(
                     "org.eclipse.equinox.p2.eclipse.type", "bundle", null, null, false, false, false);
-            ArrayList<IRequirement> sourceBundleRequirements = new ArrayList<IRequirement>();
+            ArrayList<IRequirement> sourceBundleRequirements = new ArrayList<>();
             for (IInstallableUnit unit : units) {
                 if (unit.satisfies(bundleRequirement)) {
                     final VersionRange perfectVersionMatch = new VersionRange(unit.getVersion(), true,
@@ -276,7 +276,7 @@ public final class TargetDefinitionResolver {
         public LoadedIULocation(InstallableUnitLocation locationDefinition) throws TargetDefinitionResolutionException {
             this.locationDefinition = locationDefinition;
 
-            loadedRepositories = new ArrayList<IMetadataRepository>();
+            loadedRepositories = new ArrayList<>();
             for (Repository repository : locationDefinition.getRepositories()) {
                 repositoryIdManager.addMapping(repository.getId(), repository.getLocation());
                 loadedRepositories.add(loadRepository(repository));
@@ -298,7 +298,7 @@ public final class TargetDefinitionResolver {
 
         public Collection<? extends IInstallableUnit> getRootIUs() throws TargetDefinitionSyntaxException,
                 TargetDefinitionResolutionException {
-            List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+            List<IInstallableUnit> result = new ArrayList<>();
             for (Unit unitReference : locationDefinition.getUnits()) {
                 result.add(findUnitInThisLocation(unitReference));
             }
@@ -343,6 +343,6 @@ public final class TargetDefinitionResolver {
 
     @SuppressWarnings("unchecked")
     static CompoundQueryable<IInstallableUnit> compoundQueriable(List<? extends IQueryable<IInstallableUnit>> queryable) {
-        return new CompoundQueryable<IInstallableUnit>(queryable.toArray(new IQueryable[queryable.size()]));
+        return new CompoundQueryable<>(queryable.toArray(new IQueryable[queryable.size()]));
     }
 }

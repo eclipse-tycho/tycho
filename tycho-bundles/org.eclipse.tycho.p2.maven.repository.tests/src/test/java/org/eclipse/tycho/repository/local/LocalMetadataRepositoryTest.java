@@ -88,7 +88,7 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
         repository = (LocalMetadataRepository) loadRepository(location);
 
         IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.ALL_UNITS, monitor);
-        ArrayList<IInstallableUnit> allius = new ArrayList<IInstallableUnit>(result.toSet());
+        ArrayList<IInstallableUnit> allius = new ArrayList<>(result.toSet());
         Assert.assertEquals(2, allius.size());
 
         // as of e3.5.2 Collector uses HashSet internally and does not guarantee collected results order

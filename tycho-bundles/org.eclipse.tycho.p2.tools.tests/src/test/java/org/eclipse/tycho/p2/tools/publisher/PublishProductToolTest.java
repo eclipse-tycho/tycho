@@ -108,7 +108,7 @@ public class PublishProductToolTest {
     }
 
     private PublishProductTool initPublisher(IInstallableUnit... tpUnits) {
-        LinkedHashSet<IInstallableUnit> contextUnits = new LinkedHashSet<IInstallableUnit>();
+        LinkedHashSet<IInstallableUnit> contextUnits = new LinkedHashSet<>();
         contextUnits.addAll(Arrays.asList(tpUnits));
         P2TargetPlatform targetPlatform = new FinalTargetPlatformImpl(contextUnits, null, null, null, null, null);
 
@@ -310,7 +310,7 @@ public class PublishProductToolTest {
     }
 
     private Set<IInstallableUnit> unitsIn(Collection<DependencySeed> seeds) {
-        Set<IInstallableUnit> result = new HashSet<IInstallableUnit>();
+        Set<IInstallableUnit> result = new HashSet<>();
         for (DependencySeed seed : seeds) {
             result.add((IInstallableUnit) seed.getInstallableUnit());
         }

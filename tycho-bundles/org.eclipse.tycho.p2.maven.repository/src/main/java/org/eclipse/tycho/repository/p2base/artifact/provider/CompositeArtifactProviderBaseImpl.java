@@ -35,7 +35,7 @@ public abstract class CompositeArtifactProviderBaseImpl implements IRawArtifactP
     // shell for getArtifactDescriptors
     @Override
     public final IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-        Set<IArtifactDescriptor> result = new HashSet<IArtifactDescriptor>();
+        Set<IArtifactDescriptor> result = new HashSet<>();
         getArtifactDescriptorsOfAllSources(key, result);
         return result.toArray(new IArtifactDescriptor[result.size()]);
     }
@@ -48,7 +48,7 @@ public abstract class CompositeArtifactProviderBaseImpl implements IRawArtifactP
         canWriteToSink(sink);
         canWriteCanonicalArtifactToSink(sink);
 
-        List<IStatus> statusOfAllAttempts = new ArrayList<IStatus>();
+        List<IStatus> statusOfAllAttempts = new ArrayList<>();
         getArtifactFromAnySource(sink, statusOfAllAttempts, nonNull(monitor));
 
         if (statusOfAllAttempts.size() == 1) {
@@ -66,7 +66,7 @@ public abstract class CompositeArtifactProviderBaseImpl implements IRawArtifactP
     public final IStatus getRawArtifact(IRawArtifactSink sink, IProgressMonitor monitor) throws ArtifactSinkException {
         canWriteToSink(sink);
 
-        List<IStatus> statusOfAllAttempts = new ArrayList<IStatus>();
+        List<IStatus> statusOfAllAttempts = new ArrayList<>();
         getRawArtifactFromAnySource(sink, nonNull(monitor), statusOfAllAttempts);
 
         if (statusOfAllAttempts.size() == 1) {

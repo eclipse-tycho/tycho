@@ -48,8 +48,8 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
     private final MavenLogger logger;
     private FileLocker fileLocker;
 
-    private Set<GAV> addedGavs = new HashSet<GAV>();
-    private Set<GAV> removedGavs = new HashSet<GAV>();
+    private Set<GAV> addedGavs = new HashSet<>();
+    private Set<GAV> removedGavs = new HashSet<>();
 
     private FileBasedTychoRepositoryIndex(File indexFile, FileLockService fileLockService, MavenLogger logger) {
         super();
@@ -145,7 +145,7 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
     }
 
     private Set<GAV> read(InputStream inStream) throws IOException {
-        LinkedHashSet<GAV> result = new LinkedHashSet<GAV>();
+        LinkedHashSet<GAV> result = new LinkedHashSet<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, ENCODING));
         try {
             String line;

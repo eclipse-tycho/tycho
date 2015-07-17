@@ -34,7 +34,7 @@ public class RootFilesProperties {
         }
 
         void resolveWildcards(Collection<IPath> virtualFiles, boolean useDefaultExcludes) {
-            resolvedPaths = new HashSet<String>();
+            resolvedPaths = new HashSet<>();
             VirtualFileSet virtualFileSet = new VirtualFileSet(pathPattern, virtualFiles, useDefaultExcludes);
             for (IPath path : virtualFileSet.getMatchingPaths()) {
                 resolvedPaths.add(path.toString());
@@ -46,7 +46,7 @@ public class RootFilesProperties {
             if (!isResolved) {
                 throw new IllegalStateException("must call resolveWildcards() first");
             }
-            List<String[]> p2Formats = new ArrayList<String[]>(resolvedPaths.size());
+            List<String[]> p2Formats = new ArrayList<>(resolvedPaths.size());
             for (String resolvedPath : resolvedPaths) {
                 String[] p2Format = new String[] { chmodPermissions, resolvedPath };
                 p2Formats.add(p2Format);
@@ -61,7 +61,7 @@ public class RootFilesProperties {
      */
     private FileToPathMap fileSourceToDestinationMap = new FileToPathMap();
 
-    private List<Permission> permissions = new ArrayList<Permission>();
+    private List<Permission> permissions = new ArrayList<>();
 
     private StringBuilder links = new StringBuilder();
 

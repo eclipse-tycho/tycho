@@ -31,7 +31,7 @@ public class TargetDefinitionResolverService {
 
     private static final String CACHE_MISS_MESSAGE = "Target definition content cache miss: ";
 
-    private Map<ResolutionArguments, TargetDefinitionContent> resolutionCache = new HashMap<TargetDefinitionResolverService.ResolutionArguments, TargetDefinitionContent>();
+    private Map<ResolutionArguments, TargetDefinitionContent> resolutionCache = new HashMap<>();
 
     // (static) collaborator
     private MavenLogger logger;
@@ -76,7 +76,7 @@ public class TargetDefinitionResolverService {
         }
 
         // find cache entries which differ only in one of the arguments
-        List<String> fieldsInWhichDistanceOneEntriesDiffer = new ArrayList<String>();
+        List<String> fieldsInWhichDistanceOneEntriesDiffer = new ArrayList<>();
         for (ResolutionArguments existingKey : resolutionCache.keySet()) {
             List<String> differingFields = arguments.getNonEqualFields(existingKey);
             if (differingFields.size() == 1) {
@@ -139,7 +139,7 @@ public class TargetDefinitionResolverService {
         }
 
         public List<String> getNonEqualFields(ResolutionArguments other) {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
             addIfNonEqual(result, "target definition", definition, other.definition);
             addIfNonEqual(result, "execution environment", jreIUs, other.jreIUs);
             addIfNonEqual(result, "target environments", environments, other.environments);

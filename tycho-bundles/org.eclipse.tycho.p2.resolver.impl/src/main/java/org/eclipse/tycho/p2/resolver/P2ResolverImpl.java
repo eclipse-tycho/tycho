@@ -72,9 +72,9 @@ public class P2ResolverImpl implements P2Resolver {
     private final IProgressMonitor monitor;
 
     private List<TargetEnvironment> environments;
-    private Map<String, String> additionalFilterProperties = new HashMap<String, String>();
+    private Map<String, String> additionalFilterProperties = new HashMap<>();
 
-    private final List<IRequirement> additionalRequirements = new ArrayList<IRequirement>();
+    private final List<IRequirement> additionalRequirements = new ArrayList<>();
 
     private TargetPlatformFactoryImpl targetPlatformFactory;
 
@@ -109,8 +109,8 @@ public class P2ResolverImpl implements P2Resolver {
             addDependenciesForTests();
         }
 
-        ArrayList<P2ResolutionResult> results = new ArrayList<P2ResolutionResult>();
-        usedTargetPlatformUnits = new LinkedHashSet<IInstallableUnit>();
+        ArrayList<P2ResolutionResult> results = new ArrayList<>();
+        usedTargetPlatformUnits = new LinkedHashSet<>();
 
         for (TargetEnvironment environment : environments) {
             results.add(resolveDependencies(project, new ProjectorResolutionStrategy(logger), environment));
@@ -179,7 +179,7 @@ public class P2ResolverImpl implements P2Resolver {
             Collection<IInstallableUnit> projectSecondaryIUs = (Collection<IInstallableUnit>) project
                     .getDependencyMetadata(false);
             if (!projectSecondaryIUs.isEmpty()) {
-                availableUnits = new LinkedHashSet<IInstallableUnit>(availableUnits);
+                availableUnits = new LinkedHashSet<>(availableUnits);
                 availableUnits.addAll(projectSecondaryIUs);
             }
         } else {
@@ -211,7 +211,7 @@ public class P2ResolverImpl implements P2Resolver {
 
     private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState, ReactorProject currentProject) {
         DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
-        Set<String> missingArtifacts = new TreeSet<String>();
+        Set<String> missingArtifacts = new TreeSet<>();
 
         for (IInstallableUnit iu : newState) {
             addUnit(result, iu, currentProject, missingArtifacts);

@@ -113,7 +113,7 @@ public class ModuleMetadataRepositoryTest {
 
     private static List<IVersionedId> unitsIn(IMetadataRepository repo) {
         IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.ALL_UNITS, null);
-        List<IVersionedId> unitIds = new ArrayList<IVersionedId>();
+        List<IVersionedId> unitIds = new ArrayList<>();
         for (Iterator<IInstallableUnit> unitIterator = units.iterator(); unitIterator.hasNext();) {
             IInstallableUnit unit = unitIterator.next();
             VersionedId unitId = new VersionedId(unit.getId(), unit.getVersion());
@@ -123,7 +123,7 @@ public class ModuleMetadataRepositoryTest {
     }
 
     private static List<IInstallableUnit> createIUs(IVersionedId... unitIds) {
-        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+        List<IInstallableUnit> result = new ArrayList<>();
         for (IVersionedId unitId : unitIds) {
             InstallableUnitDescription iuDescr = new InstallableUnitDescription();
             iuDescr.setId(unitId.getId());

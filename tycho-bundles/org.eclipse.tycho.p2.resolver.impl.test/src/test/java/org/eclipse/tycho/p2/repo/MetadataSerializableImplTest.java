@@ -54,7 +54,7 @@ public class MetadataSerializableImplTest {
 
         File tmpDir = createTempDir("repo");
         try {
-            Set<IInstallableUnit> units = new HashSet<IInstallableUnit>();
+            Set<IInstallableUnit> units = new HashSet<>();
             MetadataSerializableImpl subject = new MetadataSerializableImpl();
             serialize(subject, units, tmpDir);
             Assert.assertEquals(units, deserialize(tmpDir));
@@ -68,7 +68,7 @@ public class MetadataSerializableImplTest {
 
         File tmpDir = createTempDir("repo");
         try {
-            Set<IInstallableUnit> units = new HashSet<IInstallableUnit>(Arrays.asList(InstallableUnitUtil.createIU(
+            Set<IInstallableUnit> units = new HashSet<>(Arrays.asList(InstallableUnitUtil.createIU(
                     "org.example.test", "1.0.0")));
             MetadataSerializableImpl subject = new MetadataSerializableImpl();
             serialize(subject, units, tmpDir);

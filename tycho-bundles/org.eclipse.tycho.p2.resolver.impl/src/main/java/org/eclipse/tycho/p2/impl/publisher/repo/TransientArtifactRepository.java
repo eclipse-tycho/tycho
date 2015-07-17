@@ -34,9 +34,9 @@ import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository
 @SuppressWarnings("restriction")
 public class TransientArtifactRepository extends AbstractArtifactRepository {
 
-    protected Set<IArtifactDescriptor> descriptors = new LinkedHashSet<IArtifactDescriptor>();
+    protected Set<IArtifactDescriptor> descriptors = new LinkedHashSet<>();
 
-    private Set<IArtifactKey> keys = new LinkedHashSet<IArtifactKey>();
+    private Set<IArtifactKey> keys = new LinkedHashSet<>();
 
     public TransientArtifactRepository() {
         super(null, "TransientArtifactRepository", TransientArtifactRepository.class.getName(), "1.0.0", null, null,
@@ -46,7 +46,7 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
     }
 
     private static Map<String, String> newProperties() {
-        Map<String, String> properties = new LinkedHashMap<String, String>();
+        Map<String, String> properties = new LinkedHashMap<>();
         properties.put(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS, "true");
         return properties;
     }

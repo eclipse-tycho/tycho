@@ -71,7 +71,7 @@ public class MetadataSerializableImpl implements MetadataSerializable {
     }
 
     private List<IInstallableUnit> toInstallableUnits(Set<?> installableUnits) {
-        ArrayList<IInstallableUnit> units = new ArrayList<IInstallableUnit>();
+        ArrayList<IInstallableUnit> units = new ArrayList<>();
 
         for (Object o : installableUnits) {
             units.add((IInstallableUnit) o);

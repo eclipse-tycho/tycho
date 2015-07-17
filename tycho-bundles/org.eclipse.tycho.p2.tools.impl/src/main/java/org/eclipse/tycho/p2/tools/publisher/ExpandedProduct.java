@@ -128,7 +128,7 @@ class ExpandedProduct implements IProductDescriptor {
     }
 
     private Map<String, String> expandVariables(Map<String, String> originalMap) {
-        Map<String, String> expandedMap = new LinkedHashMap<String, String>();
+        Map<String, String> expandedMap = new LinkedHashMap<>();
         for (Entry<String, String> entry : originalMap.entrySet()) {
             expandedMap.put(entry.getKey(), interpolator.interpolate(entry.getValue()));
         }

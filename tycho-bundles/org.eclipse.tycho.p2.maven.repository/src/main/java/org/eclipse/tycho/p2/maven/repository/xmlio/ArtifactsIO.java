@@ -83,7 +83,7 @@ public class ArtifactsIO {
 
         protected class ArtifactsHandler extends RootHandler {
 
-            private Set<IArtifactDescriptor> artifacts = new LinkedHashSet<IArtifactDescriptor>();
+            private Set<IArtifactDescriptor> artifacts = new LinkedHashSet<>();
 
             public ArtifactsHandler() {
             }

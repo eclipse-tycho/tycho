@@ -25,7 +25,7 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.core.osgitools.targetplatform.DefaultDependencyArtifacts;
 
 public class DefaultEquinoxInstallationDescription implements EquinoxInstallationDescription {
-    private static final Map<String, BundleStartLevel> DEFAULT_START_LEVEL = new HashMap<String, BundleStartLevel>();
+    private static final Map<String, BundleStartLevel> DEFAULT_START_LEVEL = new HashMap<>();
 
     static {
         setDefaultStartLevel("org.eclipse.equinox.common", 2);
@@ -42,17 +42,17 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
 
     protected final DefaultDependencyArtifacts bundles = new DefaultDependencyArtifacts();
 
-    private final Map<String, BundleStartLevel> startLevel = new HashMap<String, BundleStartLevel>(DEFAULT_START_LEVEL);
+    private final Map<String, BundleStartLevel> startLevel = new HashMap<>(DEFAULT_START_LEVEL);
 
     private BundleStartLevel defaultBundleStartLevel = null;
 
-    private final List<File> frameworkExtensions = new ArrayList<File>();
+    private final List<File> frameworkExtensions = new ArrayList<>();
 
-    private final Set<String> bundlesToExplode = new HashSet<String>();
+    private final Set<String> bundlesToExplode = new HashSet<>();
 
-    private final Map<String, String> platformProperties = new HashMap<String, String>();
+    private final Map<String, String> platformProperties = new HashMap<>();
 
-    private final Map<String, String> devEntries = new HashMap<String, String>();
+    private final Map<String, String> devEntries = new HashMap<>();
 
     @Override
     public void addBundleStartLevel(BundleStartLevel level) {

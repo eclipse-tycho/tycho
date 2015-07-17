@@ -117,7 +117,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
     @Override
     public String[] getConfigurations() {
         Set<ConfigSpec> configSpecs = propertiesPerConfig.keySet();
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (ConfigSpec configSpec : configSpecs) {
             result.add(configSpec.toStringForAdvice());
         }

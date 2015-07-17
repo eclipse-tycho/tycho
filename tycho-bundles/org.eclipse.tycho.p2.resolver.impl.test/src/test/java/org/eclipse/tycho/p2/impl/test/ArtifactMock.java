@@ -30,9 +30,9 @@ public class ArtifactMock implements IArtifactFacade {
 
     private String classifier;
 
-    private Set<Object> dependencyMetadata = new LinkedHashSet<Object>();
+    private Set<Object> dependencyMetadata = new LinkedHashSet<>();
 
-    private Set<Object> secondaryDependencyMetadata = new LinkedHashSet<Object>();
+    private Set<Object> secondaryDependencyMetadata = new LinkedHashSet<>();
 
     public ArtifactMock(File location, String groupId, String artifactId, String version, String packagingType,
             String classifier) {
@@ -92,7 +92,7 @@ public class ArtifactMock implements IArtifactFacade {
     }
 
     public void setDependencyMetadata(IDependencyMetadata dependencyMetadata) {
-        this.dependencyMetadata = new LinkedHashSet<Object>(dependencyMetadata.getMetadata(true));
-        this.secondaryDependencyMetadata = new LinkedHashSet<Object>(dependencyMetadata.getMetadata(false));
+        this.dependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(true));
+        this.secondaryDependencyMetadata = new LinkedHashSet<>(dependencyMetadata.getMetadata(false));
     }
 }

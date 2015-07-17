@@ -73,7 +73,7 @@ public class RemoteArtifactTransferPolicyTest {
     }
 
     static Set<String> formatsOf(IArtifactDescriptor... descriptors) {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         for (IArtifactDescriptor descriptor : descriptors) {
             result.add(descriptor.getProperty(IArtifactDescriptor.FORMAT));
         }
@@ -81,7 +81,7 @@ public class RemoteArtifactTransferPolicyTest {
     }
 
     static Set<String> asSet(String... values) {
-        return new HashSet<String>(Arrays.asList(values));
+        return new HashSet<>(Arrays.asList(values));
     }
 
     static IArtifactDescriptor[] loadDescriptorsFromRepository(String repository, P2Context p2Context) throws Exception {

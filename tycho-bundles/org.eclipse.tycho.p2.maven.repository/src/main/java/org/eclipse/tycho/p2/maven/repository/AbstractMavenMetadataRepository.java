@@ -41,9 +41,9 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
 
     protected final RepositoryReader contentLocator;
 
-    protected Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
+    protected Set<IInstallableUnit> units = new LinkedHashSet<>();
 
-    protected Map<GAV, Set<IInstallableUnit>> unitsMap = new LinkedHashMap<GAV, Set<IInstallableUnit>>();
+    protected Map<GAV, Set<IInstallableUnit>> unitsMap = new LinkedHashMap<>();
 
     public AbstractMavenMetadataRepository(URI location, TychoRepositoryIndex metadataIndex,
             RepositoryReader contentLocator) {

@@ -55,8 +55,8 @@ public class TargetPlatformMojo extends AbstractMojo {
     }
 
     private List<ReactorProjectIdentities> getReferencedTychoProjects() throws MojoExecutionException {
-        List<ReactorProjectIdentities> result = new ArrayList<ReactorProjectIdentities>();
-        HashSet<GAV> considered = new HashSet<GAV>();
+        List<ReactorProjectIdentities> result = new ArrayList<>();
+        HashSet<GAV> considered = new HashSet<>();
 
         getTransitivelyReferencedTychoProjects(project.getProjectReferences().values(), considered, result);
 

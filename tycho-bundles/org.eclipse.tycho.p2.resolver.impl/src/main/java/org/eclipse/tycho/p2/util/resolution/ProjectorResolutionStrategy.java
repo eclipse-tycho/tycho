@@ -65,8 +65,8 @@ public class ProjectorResolutionStrategy extends AbstractSlicerResolutionStrateg
 
         IQueryable<IInstallableUnit> slice = slice(properties, monitor);
 
-        Set<IInstallableUnit> seedUnits = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
-        List<IRequirement> seedRequires = new ArrayList<IRequirement>();
+        Set<IInstallableUnit> seedUnits = new LinkedHashSet<>(data.getRootIUs());
+        List<IRequirement> seedRequires = new ArrayList<>();
         if (data.getAdditionalRequirements() != null) {
             seedRequires.addAll(data.getAdditionalRequirements());
         }

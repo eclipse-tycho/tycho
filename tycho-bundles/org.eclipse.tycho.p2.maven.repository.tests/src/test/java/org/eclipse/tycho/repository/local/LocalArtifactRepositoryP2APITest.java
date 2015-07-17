@@ -96,9 +96,9 @@ public class LocalArtifactRepositoryP2APITest {
     private static final IArtifactKey NEW_KEY = TestRepositoryContent.NOT_CONTAINED_ARTIFACT_KEY;
     private static final IArtifactDescriptor NEW_DESCRIPTOR = localPackedDescriptorFor(NEW_KEY);
 
-    private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<IArtifactKey>(Arrays.asList(ARTIFACT_A_KEY,
+    private static final Set<IArtifactKey> ORIGINAL_KEYS = new HashSet<>(Arrays.asList(ARTIFACT_A_KEY,
             ARTIFACT_B_KEY));
-    private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = new HashSet<IArtifactDescriptor>(
+    private static final Set<IArtifactDescriptor> ORIGINAL_DESCRIPTORS = new HashSet<>(
             Arrays.asList(ARTIFACT_A_CANONICAL, ARTIFACT_A_PACKED, ARTIFACT_B_PACKED));
 
     @Rule

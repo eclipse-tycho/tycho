@@ -69,7 +69,7 @@ public class PublisherServiceTest {
     public void initSubject() throws Exception {
         File projectDirectory = tempManager.newFolder("projectDir");
 
-        LinkedHashSet<IInstallableUnit> installableUnits = new LinkedHashSet<IInstallableUnit>();
+        LinkedHashSet<IInstallableUnit> installableUnits = new LinkedHashSet<>();
         installableUnits.add(InstallableUnitUtil.createFeatureIU("org.eclipse.example.original_feature", "1.0.0"));
         IMetadataRepository context = new ImmutableInMemoryMetadataRepository(installableUnits);
 
@@ -129,7 +129,7 @@ public class PublisherServiceTest {
      * units's IDs.
      */
     private static Map<String, IInstallableUnit> unitsById(Collection<DependencySeed> seeds) {
-        Map<String, IInstallableUnit> result = new HashMap<String, IInstallableUnit>();
+        Map<String, IInstallableUnit> result = new HashMap<>();
         for (DependencySeed seed : seeds) {
             IInstallableUnit iu = (IInstallableUnit) seed.getInstallableUnit();
             result.put(iu.getId(), iu);
