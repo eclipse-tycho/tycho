@@ -32,7 +32,7 @@ public class VirtualFileSet extends AbstractFileSet {
     }
 
     public List<IPath> getMatchingPaths() {
-        List<IPath> matchingPaths = new ArrayList<IPath>();
+        List<IPath> matchingPaths = new ArrayList<>();
         for (IPath path : paths) {
             if (matches(path)) {
                 matchingPaths.add(path);

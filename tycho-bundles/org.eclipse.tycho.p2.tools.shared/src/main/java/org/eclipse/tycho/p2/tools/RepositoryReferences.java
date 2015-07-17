@@ -23,9 +23,9 @@ import org.eclipse.tycho.repository.registry.facade.RepositoryBlackboardKey;
  * artifact repositories each, preserving the order in which the repositories were added.
  */
 public final class RepositoryReferences {
-    private final List<URI> metadataRepos = new ArrayList<URI>();
+    private final List<URI> metadataRepos = new ArrayList<>();
 
-    private final List<URI> artifactRepos = new ArrayList<URI>();
+    private final List<URI> artifactRepos = new ArrayList<>();
 
     /**
      * Adds the metadata repository at the given location.

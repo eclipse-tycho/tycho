@@ -187,7 +187,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
 
         assertEquals(3, result.getArtifacts().size());
-        List<P2ResolutionResult.Entry> entries = new ArrayList<P2ResolutionResult.Entry>(result.getArtifacts());
+        List<P2ResolutionResult.Entry> entries = new ArrayList<>(result.getArtifacts());
         Collections.sort(entries, new Comparator<Entry>() {
 
             @Override
@@ -417,7 +417,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testFeatureMultienvP2Inf() throws Exception {
-        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+        List<TargetEnvironment> environments = new ArrayList<>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
         impl.setEnvironments(environments);
@@ -431,13 +431,13 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertEquals(2, results.size());
 
         P2ResolutionResult linux = results.get(0);
-        List<Entry> linuxEntries = new ArrayList<Entry>(linux.getArtifacts());
+        List<Entry> linuxEntries = new ArrayList<>(linux.getArtifacts());
         assertEquals(1, linuxEntries.size());
         assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
         assertEquals(0, linux.getNonReactorUnits().size());
 
         P2ResolutionResult macosx = results.get(1);
-        List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
+        List<Entry> macosxEntries = new ArrayList<>(macosx.getArtifacts());
         assertEquals(1, macosxEntries.size());
         assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
         assertEquals(0, macosx.getNonReactorUnits().size());
@@ -445,7 +445,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testProductMultienvP2Inf() throws Exception {
-        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+        List<TargetEnvironment> environments = new ArrayList<>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         environments.add(new TargetEnvironment("macosx", "cocoa", "x86_64"));
         impl.setEnvironments(environments);
@@ -459,13 +459,13 @@ public class P2ResolverTest extends P2ResolverTestBase {
         assertEquals(2, results.size());
 
         P2ResolutionResult linux = results.get(0);
-        List<Entry> linuxEntries = new ArrayList<Entry>(linux.getArtifacts());
+        List<Entry> linuxEntries = new ArrayList<>(linux.getArtifacts());
         assertEquals(1, linuxEntries.size());
         assertEquals(1, linuxEntries.get(0).getInstallableUnits().size());
         assertEquals(0, linux.getNonReactorUnits().size());
 
         P2ResolutionResult macosx = results.get(1);
-        List<Entry> macosxEntries = new ArrayList<Entry>(macosx.getArtifacts());
+        List<Entry> macosxEntries = new ArrayList<>(macosx.getArtifacts());
         assertEquals(1, macosxEntries.size());
         assertEquals(2, macosxEntries.get(0).getInstallableUnits().size());
         assertEquals(0, macosx.getNonReactorUnits().size());
@@ -525,7 +525,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     private static P2ResolutionResult.Entry getClassifiedArtifact(P2ResolutionResult resolutionResult, String classifier) {
-        Set<String> availableClassifiers = new HashSet<String>();
+        Set<String> availableClassifiers = new HashSet<>();
         P2ResolutionResult.Entry selectedEntry = null;
         for (Entry entry : resolutionResult.getArtifacts()) {
             availableClassifiers.add(entry.getClassifier());
@@ -557,7 +557,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     private static List<IInstallableUnit> getInstallableUnits(String unitID, Set<?> units) {
-        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+        List<IInstallableUnit> result = new ArrayList<>();
         for (Object unitObject : units) {
             IInstallableUnit unit = (IInstallableUnit) unitObject;
             if (unitID.equals(unit.getId())) {

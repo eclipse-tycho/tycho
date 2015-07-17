@@ -33,7 +33,7 @@ public class ManifestComparator implements ContentsComparator {
     private static final Collection<Name> IGNORED_KEYS;
 
     static {
-        ArrayList<Name> ignoredKeys = new ArrayList<Name>();
+        ArrayList<Name> ignoredKeys = new ArrayList<>();
 
         // these keys are added by plexus archiver
         ignoredKeys.add(new Name("Archiver-Version"));
@@ -55,7 +55,7 @@ public class ManifestComparator implements ContentsComparator {
 
     @Override
     public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
-        TreeMap<String, ArtifactDelta> result = new TreeMap<String, ArtifactDelta>();
+        TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Manifest manifest = new Manifest(baseline);
         Manifest manifest2 = new Manifest(reactor);
@@ -63,7 +63,7 @@ public class ManifestComparator implements ContentsComparator {
         Attributes attributes = manifest.getMainAttributes();
         Attributes attributes2 = manifest2.getMainAttributes();
 
-        Set<Name> names = new LinkedHashSet<Name>();
+        Set<Name> names = new LinkedHashSet<>();
         names.addAll(getNames(attributes));
         names.addAll(getNames(attributes2));
 
@@ -93,7 +93,7 @@ public class ManifestComparator implements ContentsComparator {
     }
 
     protected Set<Name> getNames(Attributes attributes) {
-        Set<Name> result = new LinkedHashSet<Name>();
+        Set<Name> result = new LinkedHashSet<>();
         for (Object key : attributes.keySet()) {
             Name name = (Name) key;
             if (!IGNORED_KEYS.contains(name)) {

@@ -137,7 +137,7 @@ public class MetadataIO {
 
         private final class InstallableUnitsHandler extends RootHandler {
 
-            private List<InstallableUnitDescription> units = new ArrayList<InstallableUnitDescription>();
+            private List<InstallableUnitDescription> units = new ArrayList<>();
 
             @Override
             protected void handleRootAttributes(Attributes attributes) {
@@ -176,7 +176,7 @@ public class MetadataIO {
 
         parser.parse(is, new NullProgressMonitor());
 
-        Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
+        Set<IInstallableUnit> units = new LinkedHashSet<>();
 
         for (InstallableUnitDescription desc : parser.getUnits()) {
             units.add(MetadataFactory.createInstallableUnit(desc));

@@ -134,7 +134,7 @@ public class P2ResolverAdditionalRequirementsTest {
         iud.setId(TARGET_UNIT_ID);
         Version osgiVersion = Version.create(version);
         iud.setVersion(osgiVersion);
-        List<IProvidedCapability> list = new ArrayList<IProvidedCapability>();
+        List<IProvidedCapability> list = new ArrayList<>();
         list.add(MetadataFactory.createProvidedCapability(IU_NAMESPACE, TARGET_UNIT_ID, osgiVersion));
         list.add(MetadataFactory.createProvidedCapability(BUNDLE_NAMESPACE, TARGET_UNIT_ID, osgiVersion));
         iud.addProvidedCapabilities(list);

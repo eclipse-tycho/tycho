@@ -35,7 +35,7 @@ class ProductVersionExpansionRun {
     }
 
     public List<IVersionedId> resolveReferences(String elementName, String artifactType, List<IVersionedId> references) {
-        final List<IVersionedId> result = new ArrayList<IVersionedId>();
+        final List<IVersionedId> result = new ArrayList<>();
         for (IVersionedId reference : references) {
             IInstallableUnit resolvedUnit = resolveReferenceWithErrorHandling(elementName, artifactType, reference);
             if (resolvedUnit != null) {
@@ -47,7 +47,7 @@ class ProductVersionExpansionRun {
 
     public List<IInstallableUnit> resolveReferencesToIUs(String elementName, String artifactType,
             List<IVersionedId> references) {
-        final List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+        final List<IInstallableUnit> result = new ArrayList<>();
         for (IVersionedId reference : references) {
             IInstallableUnit resolvedUnit = resolveReferenceWithErrorHandling(elementName, artifactType, reference);
             if (resolvedUnit != null) {

@@ -18,7 +18,7 @@ import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
 
 public class MavenRepositorySettingsStub implements MavenRepositorySettings {
-    private Map<String, URI> idToMirrorMap = new HashMap<String, URI>();
+    private Map<String, URI> idToMirrorMap = new HashMap<>();
 
     public void addMirror(String repositoryId, URI mirroredUrl) {
         idToMirrorMap.put(repositoryId, mirroredUrl);

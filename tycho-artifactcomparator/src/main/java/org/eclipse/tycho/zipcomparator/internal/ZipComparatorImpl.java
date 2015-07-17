@@ -41,7 +41,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
     private static final Collection<String> IGNORED_PATTERNS;
 
     static {
-        ArrayList<String> ignoredPatterns = new ArrayList<String>();
+        ArrayList<String> ignoredPatterns = new ArrayList<>();
 
         ignoredPatterns.add("meta-inf/maven/**");
 
@@ -56,7 +56,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
 
     @Override
     public CompoundArtifactDelta getDelta(File baseline, File reactor) throws IOException {
-        Map<String, ArtifactDelta> result = new LinkedHashMap<String, ArtifactDelta>();
+        Map<String, ArtifactDelta> result = new LinkedHashMap<>();
 
         ZipFile jar = new ZipFile(baseline);
         try {
@@ -65,7 +65,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
                 Map<String, ZipEntry> entries = toEntryMap(jar);
                 Map<String, ZipEntry> entries2 = toEntryMap(jar2);
 
-                Set<String> names = new TreeSet<String>();
+                Set<String> names = new TreeSet<>();
                 names.addAll(entries.keySet());
                 names.addAll(entries2.keySet());
 
@@ -134,7 +134,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
     }
 
     private Map<String, ZipEntry> toEntryMap(ZipFile zip) {
-        Map<String, ZipEntry> result = new LinkedHashMap<String, ZipEntry>();
+        Map<String, ZipEntry> result = new LinkedHashMap<>();
         Enumeration<? extends ZipEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();

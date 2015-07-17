@@ -19,7 +19,7 @@ abstract class ArtifactTransferPolicyBase extends ArtifactTransferPolicy {
 
     @Override
     public final List<IArtifactDescriptor> sortFormatsByPreference(IArtifactDescriptor[] artifactDescriptors) {
-        LinkedList<IArtifactDescriptor> result = new LinkedList<IArtifactDescriptor>();
+        LinkedList<IArtifactDescriptor> result = new LinkedList<>();
 
         IArtifactDescriptor canonical = null;
         IArtifactDescriptor packed = null;

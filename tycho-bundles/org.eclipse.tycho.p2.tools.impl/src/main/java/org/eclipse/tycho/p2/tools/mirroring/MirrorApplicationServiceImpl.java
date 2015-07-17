@@ -94,7 +94,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         if (sourceIUs == null || sourceIUs.isEmpty()) {
             return null;
         }
-        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+        List<IInstallableUnit> result = new ArrayList<>();
         for (IUDescription iu : sourceIUs) {
             IQuery<IInstallableUnit> iuQuery = createQuery(iu);
             Iterator<IInstallableUnit> queryResult = repository.query(iuQuery, null).iterator();
@@ -203,7 +203,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     }
 
     private static List<RepositoryDescriptor> createSourceDescriptors(RepositoryReferences sources) {
-        List<RepositoryDescriptor> result = new ArrayList<RepositoryDescriptor>();
+        List<RepositoryDescriptor> result = new ArrayList<>();
         createSourceRepositories(result, sources.getMetadataRepositories(), RepositoryDescriptor.KIND_METADATA);
         createSourceRepositories(result, sources.getArtifactRepositories(), RepositoryDescriptor.KIND_ARTIFACT);
         return result;
@@ -221,7 +221,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
 
     private static List<IInstallableUnit> toInstallableUnitList(Collection<DependencySeed> seeds,
             IMetadataRepository sourceRepository, RepositoryReferences sourceRepositoryNames) throws FacadeException {
-        List<IInstallableUnit> result = new ArrayList<IInstallableUnit>(seeds.size());
+        List<IInstallableUnit> result = new ArrayList<>(seeds.size());
 
         for (DependencySeed seed : seeds) {
             if (seed.getInstallableUnit() == null) {

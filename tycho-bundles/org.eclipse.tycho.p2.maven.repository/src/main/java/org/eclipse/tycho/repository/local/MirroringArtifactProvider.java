@@ -111,7 +111,7 @@ public class MirroringArtifactProvider implements IRawArtifactFileProvider {
     @SuppressWarnings({ "restriction", "unchecked" })
     public final IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
         IQueryable<IArtifactKey>[] sources = new IQueryable[] { localArtifactRepository, remoteProviders };
-        return new CompoundQueryable<IArtifactKey>(sources).query(query, nonNull(monitor));
+        return new CompoundQueryable<>(sources).query(query, nonNull(monitor));
     }
 
     // mirroring methods

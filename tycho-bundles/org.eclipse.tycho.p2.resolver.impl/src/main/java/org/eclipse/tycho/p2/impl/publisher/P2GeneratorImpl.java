@@ -78,7 +78,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     @Override
     public Map<String, IP2Artifact> generateMetadata(List<IArtifactFacade> artifacts, final File targetDir)
             throws IOException {
-        Map<String, IP2Artifact> result = new LinkedHashMap<String, IP2Artifact>();
+        Map<String, IP2Artifact> result = new LinkedHashMap<>();
 
         for (IArtifactFacade artifact : artifacts) {
             PublisherInfo publisherInfo = new PublisherInfo();
@@ -157,7 +157,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                     throw new IllegalArgumentException();
                 }
                 // workaround for bug 412497
-                Map<String, String> additionalProperties = new HashMap<String, String>(5);
+                Map<String, String> additionalProperties = new HashMap<>(5);
                 additionalProperties.put(RepositoryLayoutHelper.PROP_GROUP_ID, artifact.getGroupId());
                 additionalProperties.put(RepositoryLayoutHelper.PROP_ARTIFACT_ID, artifact.getArtifactId());
                 additionalProperties.put(RepositoryLayoutHelper.PROP_VERSION, artifact.getVersion());
@@ -199,8 +199,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     @Override
     public void persistMetadata(Map<String, IP2Artifact> metadata, File unitsXml, File artifactsXml) throws IOException {
-        Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
-        Set<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<IArtifactDescriptor>();
+        Set<IInstallableUnit> units = new LinkedHashSet<>();
+        Set<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<>();
         for (IP2Artifact artifact : metadata.values()) {
             for (Object unit : artifact.getInstallableUnits()) {
                 units.add((IInstallableUnit) unit);
@@ -227,7 +227,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             throw new IllegalArgumentException();
         }
 
-        List<IPublisherAction> actions = new ArrayList<IPublisherAction>();
+        List<IPublisherAction> actions = new ArrayList<>();
 
         String packaging = artifact.getPackagingType();
         File location = artifact.getLocation();
@@ -318,7 +318,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
      * @return The list of product files to parse for an eclipse-repository project
      */
     private List<File> getProductFiles(File projectLocation) {
-        List<File> res = new ArrayList<File>();
+        List<File> res = new ArrayList<>();
         for (File f : projectLocation.listFiles()) {
             if (f.isFile() && f.getName().endsWith(".product")) {
                 res.add(f);
@@ -328,7 +328,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     }
 
     private List<File> getCategoryFiles(File projectLocation) {
-        List<File> res = new ArrayList<File>();
+        List<File> res = new ArrayList<>();
         File categoryFile = new File(projectLocation, "category.xml");
         if (categoryFile.exists()) {
             res.add(categoryFile);
@@ -338,7 +338,7 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
     @Override
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact) {
-        ArrayList<IPublisherAdvice> advice = new ArrayList<IPublisherAdvice>();
+        ArrayList<IPublisherAdvice> advice = new ArrayList<>();
         advice.add(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
                 artifact.getClassifier()));
         advice.add(getExtraEntriesAdvice(artifact));

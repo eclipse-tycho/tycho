@@ -204,7 +204,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
     private List<TargetDefinitionContent> resolveTargetDefinitions(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHints eeResolutionHints) {
-        List<TargetDefinitionContent> result = new ArrayList<TargetDefinitionContent>();
+        List<TargetDefinitionContent> result = new ArrayList<>();
 
         for (TargetDefinition definition : tpConfiguration.getTargetDefinitions()) {
             if (logger.isDebugEnabled()) {
@@ -259,13 +259,13 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     private LinkedHashSet<IInstallableUnit> gatherExternalInstallableUnits(
             Set<MavenRepositoryLocation> completeRepositories, List<TargetDefinitionContent> targetDefinitionsContent,
             PomDependencyCollectorImpl pomDependenciesContent, boolean includeLocalMavenRepo) {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
 
         for (TargetDefinitionContent targetDefinitionContent : targetDefinitionsContent) {
             result.addAll(targetDefinitionContent.getUnits());
         }
 
-        List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
+        List<IMetadataRepository> metadataRepositories = new ArrayList<>();
         for (MavenRepositoryLocation location : completeRepositories) {
             metadataRepositories.add(loadMetadataRepository(location));
         }
@@ -326,7 +326,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      */
     private RepositoryArtifactProvider createRemoteArtifactProvider(Set<MavenRepositoryLocation> completeRepositories,
             List<TargetDefinitionContent> targetDefinitionsContent) {
-        List<URI> allRemoteArtifactRepositories = new ArrayList<URI>();
+        List<URI> allRemoteArtifactRepositories = new ArrayList<>();
 
         for (MavenRepositoryLocation location : completeRepositories) {
             if (!offline || URIUtil.isFileURI(location.getURL())) {
@@ -347,8 +347,8 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
             return Collections.emptyMap();
         }
 
-        Map<IInstallableUnit, ReactorProjectIdentities> reactorUIs = new HashMap<IInstallableUnit, ReactorProjectIdentities>();
-        Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<IInstallableUnit, Set<File>>();
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorUIs = new HashMap<>();
+        Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<>();
 
         for (ReactorProject project : reactorProjects) {
             @SuppressWarnings("unchecked")
@@ -362,7 +362,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 if (otherOrigin != null && !otherOrigin.equals(project.getIdentities())) {
                     Set<File> duplicateLocations = duplicateReactorUIs.get(iu);
                     if (duplicateLocations == null) {
-                        duplicateLocations = new LinkedHashSet<File>();
+                        duplicateLocations = new LinkedHashSet<>();
                         duplicateReactorUIs.put(iu, duplicateLocations);
                     }
                     duplicateLocations.add(otherOrigin.getBasedir());
@@ -382,7 +382,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     private void applyFilters(TargetPlatformFilterEvaluator filter, Collection<IInstallableUnit> collectionToModify,
             Set<IInstallableUnit> reactorProjectUIs, ExecutionEnvironmentResolutionHints eeResolutionHints) {
 
-        Set<String> reactorIUIDs = new HashSet<String>();
+        Set<String> reactorIUIDs = new HashSet<>();
         for (IInstallableUnit unit : reactorProjectUIs) {
             reactorIUIDs.add(unit.getId());
         }
@@ -449,7 +449,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
         // external units are already filtered, only reactor units need to be filtered again
         if (reactorUnitsMap != null) {
-            Collection<IInstallableUnit> reactorUnits = new LinkedList<IInstallableUnit>(reactorUnitsMap.keySet());
+            Collection<IInstallableUnit> reactorUnits = new LinkedList<>(reactorUnitsMap.keySet());
 
             TargetPlatformFilterEvaluator configuredFilters = preliminaryTP.getFilter();
             if (configuredFilters != null) {
@@ -473,7 +473,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
     private static Map<IInstallableUnit, ReactorProjectIdentities> extractProjectResultIUs(
             List<PublishingRepository> projectResults) {
-        Map<IInstallableUnit, ReactorProjectIdentities> reactorUnits = new LinkedHashMap<IInstallableUnit, ReactorProjectIdentities>();
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorUnits = new LinkedHashMap<>();
         for (PublishingRepository projectResult : projectResults) {
             Set<IInstallableUnit> projectUnits = projectResult.getMetadataRepository().query(QueryUtil.ALL_UNITS, null)
                     .toUnmodifiableSet();
@@ -487,7 +487,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
 
     private static List<IRawArtifactFileProvider> getProjectArtifactProviders(
             List<PublishingRepository> upstreamProjectResults) {
-        List<IRawArtifactFileProvider> artifactProviders = new ArrayList<IRawArtifactFileProvider>();
+        List<IRawArtifactFileProvider> artifactProviders = new ArrayList<>();
         for (PublishingRepository upstreamProject : upstreamProjectResults) {
             artifactProviders.add(upstreamProject.getArtifacts());
         }

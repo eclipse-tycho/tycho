@@ -59,9 +59,9 @@ public class P2ApplicationLauncher {
 
     private String applicationName;
 
-    private final List<String> vmargs = new ArrayList<String>();
+    private final List<String> vmargs = new ArrayList<>();
 
-    private final List<String> args = new ArrayList<String>();
+    private final List<String> args = new ArrayList<>();
 
     public void setWorkingDirectory(File workingDirectory) {
         this.workingDirectory = workingDirectory;

@@ -32,7 +32,7 @@ public class AllKnownEEsResolutionHints implements ExecutionEnvironmentResolutio
     private final Map<VersionedId, IInstallableUnit> temporaryUnits;
 
     public AllKnownEEsResolutionHints() {
-        temporaryUnits = new LinkedHashMap<VersionedId, IInstallableUnit>();
+        temporaryUnits = new LinkedHashMap<>();
         for (String env : getAllKnownExecutionEnvironments()) {
             StandardEEResolutionHints.addIUsFromEnvironment(env, temporaryUnits);
         }
@@ -69,7 +69,7 @@ public class AllKnownEEsResolutionHints implements ExecutionEnvironmentResolutio
     private static List<String> getAllKnownExecutionEnvironments() {
         ClassLoader loader = BundleActivator.class.getClassLoader();
         Properties listProps = readProperties(loader.getResource("profile.list"));
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (String profileFile : listProps.getProperty("java.profiles").split(",")) {
             Properties props = readProperties(loader.getResource(profileFile.trim()));
             String profileName = props.getProperty("osgi.java.profile.name");

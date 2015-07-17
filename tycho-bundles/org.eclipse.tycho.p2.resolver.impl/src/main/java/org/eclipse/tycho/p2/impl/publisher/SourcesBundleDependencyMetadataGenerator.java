@@ -44,14 +44,14 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     @Override
     protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
-        ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
+        ArrayList<IPublisherAction> actions = new ArrayList<>();
 
         String id = artifact.getArtifactId();
         String version = toCanonicalVersion(artifact.getVersion());
         try {
             // generated source bundle is not available at this point in filesystem yet, need to create
             // in-memory BundleDescription instead
-            Dictionary<String, String> manifest = new Hashtable<String, String>();
+            Dictionary<String, String> manifest = new Hashtable<>();
             manifest.put("Manifest-Version", "1.0");
             manifest.put("Bundle-ManifestVersion", "2");
             String sourceBundleSymbolicName = id + ".source";
@@ -77,7 +77,7 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
 
     @Override
     protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact) {
-        ArrayList<IPublisherAdvice> advice = new ArrayList<IPublisherAdvice>();
+        ArrayList<IPublisherAdvice> advice = new ArrayList<>();
 
         advice.add(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
                 "sources"));

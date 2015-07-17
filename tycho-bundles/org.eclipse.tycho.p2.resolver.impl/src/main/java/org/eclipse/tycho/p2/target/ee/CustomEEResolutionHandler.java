@@ -52,7 +52,7 @@ class CustomEEResolutionHandler extends ExecutionEnvironmentResolutionHandler {
     }
 
     private List<SystemCapability> readCapabilities(IInstallableUnit specificationUnit) {
-        List<SystemCapability> result = new ArrayList<SystemCapability>();
+        List<SystemCapability> result = new ArrayList<>();
 
         for (IProvidedCapability capability : specificationUnit.getProvidedCapabilities()) {
             String namespace = capability.getNamespace();

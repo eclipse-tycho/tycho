@@ -34,7 +34,7 @@ public class HttpServer extends ExternalResource {
         final Server server;
         final ServletContextHandler context;
         final int port;
-        final Map<String, FileServerServlet> servlets = new HashMap<String, FileServerServlet>();
+        final Map<String, FileServerServlet> servlets = new HashMap<>();
 
         RunningServer(int port, Server jettyIntance, ServletContextHandler context) {
             this.port = port;

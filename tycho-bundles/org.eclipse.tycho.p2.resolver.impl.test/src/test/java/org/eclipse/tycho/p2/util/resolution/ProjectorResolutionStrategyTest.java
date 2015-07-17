@@ -56,14 +56,14 @@ public class ProjectorResolutionStrategyTest {
         strategy.setData(data);
         data.setRootIUs(Collections.<IInstallableUnit> emptyList());
 
-        selectedIUs = new ArrayList<IInstallableUnit>();
+        selectedIUs = new ArrayList<>();
     }
 
     @Test
     public void testFixSwt() throws Exception {
         selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "3.103.1.v20140903-1938")); // a Luna version
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
-        final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
+        final List<IInstallableUnit> availableIUs = new ArrayList<>();
         availableIUs.addAll(selectedIUs);
         availableIUs.add(swtImplFragment);
         strategy.fixSWT(availableIUs, selectedIUs, createSelectionContext("linux", "gtk", "x86_64"), monitor);
@@ -75,7 +75,7 @@ public class ProjectorResolutionStrategyTest {
     public void testFixSwtDisabledForNonBrokenSWTVersion() throws Exception {
         selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "3.104.0.v20141125-0639")); // SWT bug 361901 is fixed since Mars
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
-        final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
+        final List<IInstallableUnit> availableIUs = new ArrayList<>();
         availableIUs.addAll(selectedIUs);
         availableIUs.add(swtImplFragment);
         // this is a synthetic setup to test that fixSWT doesn't do anything -> it doesn't need to do anything because the selectedIUs would already contain the right fragment
@@ -89,7 +89,7 @@ public class ProjectorResolutionStrategyTest {
         selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0"));
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
         IInstallableUnit swtNLSFragment = createSwtFragment("linux", "gtk", "x86_64", "de");
-        final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
+        final List<IInstallableUnit> availableIUs = new ArrayList<>();
         availableIUs.addAll(selectedIUs);
         availableIUs.add(swtNLSFragment);
         availableIUs.add(swtImplFragment);
@@ -101,7 +101,7 @@ public class ProjectorResolutionStrategyTest {
     @Test
     public void testFixSwtNoSwtDependency() throws Exception {
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
-        final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
+        final List<IInstallableUnit> availableIUs = new ArrayList<>();
         availableIUs.add(swtImplFragment);
         strategy.fixSWT(availableIUs, selectedIUs, createSelectionContext("linux", "gtk", "x86_64"), monitor);
         assertThat(selectedIUs.size(), is(0));
@@ -112,7 +112,7 @@ public class ProjectorResolutionStrategyTest {
         selectedIUs.add(InstallableUnitUtil.createIU("org.eclipse.swt", "1.0.0"));
         // fragment does not match selection context
         IInstallableUnit swtImplFragmentWindows = createSwtFragment("win32", "win32", "x86_64", null);
-        final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
+        final List<IInstallableUnit> availableIUs = new ArrayList<>();
         availableIUs.addAll(selectedIUs);
         availableIUs.add(swtImplFragmentWindows);
         try {
@@ -145,7 +145,7 @@ public class ProjectorResolutionStrategyTest {
 
     private void invokefixSwtWithLinuxFragmentPresent(IInstallableUnit rootIU, final List<IInstallableUnit> selectedIUs) {
         data.setRootIUs(Collections.singleton(rootIU));
-        final List<IInstallableUnit> availableIUs = new ArrayList<IInstallableUnit>();
+        final List<IInstallableUnit> availableIUs = new ArrayList<>();
         IInstallableUnit swtImplFragment = createSwtFragment("linux", "gtk", "x86_64", null);
         availableIUs.addAll(selectedIUs);
         availableIUs.add(swtImplFragment);
@@ -153,7 +153,7 @@ public class ProjectorResolutionStrategyTest {
     }
 
     private IInstallableUnit createSwtFragment(String os, String ws, String arch, String nls) {
-        Map<String, String> capsMap = new HashMap<String, String>();
+        Map<String, String> capsMap = new HashMap<>();
         capsMap.put("osgi.fragment", "org.eclipse.swt");
         if (nls == null) {
             // NLS fragments do not provide packages
@@ -171,7 +171,7 @@ public class ProjectorResolutionStrategyTest {
     }
 
     private static HashMap<String, String> createSelectionContext(String os, String ws, String arch) {
-        HashMap<String, String> selectionContext = new HashMap<String, String>();
+        HashMap<String, String> selectionContext = new HashMap<>();
         selectionContext.put("osgi.os", os);
         selectionContext.put("osgi.ws", ws);
         selectionContext.put("osgi.arch", arch);
@@ -179,7 +179,7 @@ public class ProjectorResolutionStrategyTest {
     }
 
     private static Collection<IProvidedCapability> createCapabilities(Map<String, String> namespace2NameMap) {
-        List<IProvidedCapability> result = new ArrayList<IProvidedCapability>();
+        List<IProvidedCapability> result = new ArrayList<>();
         for (Map.Entry<String, String> entry : namespace2NameMap.entrySet()) {
             result.add(new ProvidedCapability(entry.getKey(), entry.getValue(), Version.create("1.0.0")));
         }

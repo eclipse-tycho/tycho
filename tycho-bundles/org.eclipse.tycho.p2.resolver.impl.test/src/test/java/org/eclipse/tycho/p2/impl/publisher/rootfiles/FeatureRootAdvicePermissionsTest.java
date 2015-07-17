@@ -129,7 +129,7 @@ public class FeatureRootAdvicePermissionsTest {
 
     private static List<String[]> getSortedPermissions(IFeatureRootAdvice advice, String configSpec) {
         String[][] permissionsArray = advice.getDescriptor(configSpec).getPermissions();
-        ArrayList<String[]> permissionsList = new ArrayList<String[]>();
+        ArrayList<String[]> permissionsList = new ArrayList<>();
         permissionsList.addAll(Arrays.asList(permissionsArray));
         Collections.sort(permissionsList, new PermissionEntryComparator());
         return permissionsList;

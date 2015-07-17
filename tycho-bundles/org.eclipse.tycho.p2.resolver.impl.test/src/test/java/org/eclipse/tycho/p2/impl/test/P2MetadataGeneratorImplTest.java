@@ -35,12 +35,12 @@ public class P2MetadataGeneratorImplTest {
         String groupId = "org.eclipse.tycho.p2.impl.test";
         String artifactId = "bundle";
         String version = "1.0.0-SNAPSHOT";
-        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+        List<TargetEnvironment> environments = new ArrayList<>();
         DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(location, groupId, artifactId, version,
                 PackagingType.TYPE_ECLIPSE_PLUGIN), environments);
 
-        List<IInstallableUnit> units = new ArrayList<IInstallableUnit>(metadata.getInstallableUnits());
-        List<IArtifactDescriptor> artifacts = new ArrayList<IArtifactDescriptor>(metadata.getArtifactDescriptors());
+        List<IInstallableUnit> units = new ArrayList<>(metadata.getInstallableUnits());
+        List<IArtifactDescriptor> artifacts = new ArrayList<>(metadata.getArtifactDescriptors());
 
         Assert.assertEquals(1, units.size());
         IInstallableUnit unit = units.iterator().next();

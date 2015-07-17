@@ -40,9 +40,9 @@ public class DependencyCollector extends AbstractResolutionStrategy {
 
     @Override
     public Collection<IInstallableUnit> resolve(Map<String, String> properties, IProgressMonitor monitor) {
-        Set<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        Set<IInstallableUnit> result = new LinkedHashSet<>();
 
-        LinkedHashSet<IStatus> errors = new LinkedHashSet<IStatus>();
+        LinkedHashSet<IStatus> errors = new LinkedHashSet<>();
 
         if (logger.isExtendedDebugEnabled()) {
             logger.debug("Available IUs:\n" + ResolverDebugUtils.toDebugString(data.getAvailableIUs(), false));

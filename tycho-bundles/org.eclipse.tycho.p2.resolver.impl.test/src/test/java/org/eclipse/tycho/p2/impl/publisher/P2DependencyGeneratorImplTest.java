@@ -52,12 +52,12 @@ public class P2DependencyGeneratorImplTest {
         ArtifactMock reactorProject = new ArtifactMock(reactorProjectRoot, DEFAULT_GROUP_ID, testProjectId,
                 DEFAULT_VERSION, packagingType, DEFAULT_CLASSIFIER);
 
-        ArrayList<TargetEnvironment> emptyEnvironments = new ArrayList<TargetEnvironment>();
+        ArrayList<TargetEnvironment> emptyEnvironments = new ArrayList<>();
 
         DependencyMetadata metadata = subject.generateMetadata(reactorProject, emptyEnvironments);
 
-        this.units = new ArrayList<IInstallableUnit>(metadata.getInstallableUnits());
-        this.artifacts = new ArrayList<IArtifactDescriptor>(metadata.getArtifactDescriptors());
+        this.units = new ArrayList<>(metadata.getInstallableUnits());
+        this.artifacts = new ArrayList<>(metadata.getArtifactDescriptors());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class P2DependencyGeneratorImplTest {
         assertNotNull(unit);
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
-        List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
         assertEquals(1, requirements.size());
         IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
         assertEquals(IInstallableUnit.NAMESPACE_IU_ID, requirement.getNamespace());
@@ -116,7 +116,7 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
         assertEquals(DEFAULT_CLASSIFIER, unit.getProperty(RepositoryLayoutHelper.PROP_CLASSIFIER));
 
-        List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
         assertEquals(6, requirements.size());
 
         IRequiredCapability capability = getRequiredCapability("another.required.feature.feature.group", requirements);
@@ -134,7 +134,7 @@ public class P2DependencyGeneratorImplTest {
     public void feature_with_p2_inf() throws Exception {
         generateDependencies("feature-p2-inf", PackagingType.TYPE_ECLIPSE_FEATURE);
 
-        List<IInstallableUnit> units = new ArrayList<IInstallableUnit>(this.units);
+        List<IInstallableUnit> units = new ArrayList<>(this.units);
 
         // no feature.jar IU because dependencyOnly=true
         assertEquals(2, units.size());
@@ -144,7 +144,7 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("org.eclipse.tycho.p2.impl.test.feature-p2-inf.feature.group", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
-        List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
         assertEquals(1, requirements.size());
         IRequiredCapability requirement = (IRequiredCapability) requirements.get(0);
         assertEquals(IInstallableUnit.NAMESPACE_IU_ID, requirement.getNamespace());
@@ -179,7 +179,7 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("org.eclipse.tycho.p2.impl.test.rcp-bundle", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
-        List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
 
         assertEquals(2, requirements.size());
         assertNotNull(getRequiredCapability("included.bundle", requirements));
@@ -200,7 +200,7 @@ public class P2DependencyGeneratorImplTest {
         assertNotNull(unit);
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
-        List<IRequirement> requirements = new ArrayList<IRequirement>(unit.getRequirements());
+        List<IRequirement> requirements = new ArrayList<>(unit.getRequirements());
 
         assertEquals(1, requirements.size());
         IRequiredCapability p2InfCapability = getRequiredCapability("required.p2.inf", requirements);
@@ -248,7 +248,7 @@ public class P2DependencyGeneratorImplTest {
         assertEquals("org.eclipse.tycho.p2.impl.test.rcp-no-launchers", unit.getId());
         assertEquals("1.0.0.qualifier", unit.getVersion().toString());
 
-        List<IRequirement> requirement = new ArrayList<IRequirement>(unit.getRequirements());
+        List<IRequirement> requirement = new ArrayList<>(unit.getRequirements());
 
         assertEquals(0, requirement.size());
 

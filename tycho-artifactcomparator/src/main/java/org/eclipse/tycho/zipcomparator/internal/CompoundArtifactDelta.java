@@ -28,7 +28,7 @@ public class CompoundArtifactDelta extends SimpleArtifactDelta {
         if (members == null || members.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        this.members = Collections.unmodifiableMap(new LinkedHashMap<String, ArtifactDelta>(members));
+        this.members = Collections.unmodifiableMap(new LinkedHashMap<>(members));
     }
 
     public Map<String, ArtifactDelta> getMembers() {

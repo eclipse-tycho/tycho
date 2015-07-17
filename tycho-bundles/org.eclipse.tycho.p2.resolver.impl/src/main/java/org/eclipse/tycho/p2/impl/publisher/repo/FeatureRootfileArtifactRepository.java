@@ -47,7 +47,7 @@ public class FeatureRootfileArtifactRepository extends TransientArtifactReposito
 
     private final PublisherInfo publisherInfo;
 
-    private Map<String, IP2Artifact> publishedArtifacts = new HashMap<String, IP2Artifact>();
+    private Map<String, IP2Artifact> publishedArtifacts = new HashMap<>();
 
     public FeatureRootfileArtifactRepository(PublisherInfo publisherInfo, File outputDirectory) {
         this.publisherInfo = publisherInfo;

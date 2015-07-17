@@ -31,7 +31,7 @@ public class DependencyMetadata implements IDependencyMetadata {
 
     @Override
     public Set<Object /* IInstallableUnit */> getMetadata() {
-        LinkedHashSet<Object> result = new LinkedHashSet<Object>();
+        LinkedHashSet<Object> result = new LinkedHashSet<>();
         result.addAll(metadata);
         result.addAll(secondaryMetadata);
         return result;
@@ -46,7 +46,7 @@ public class DependencyMetadata implements IDependencyMetadata {
     }
 
     public void setArtifacts(Collection<IArtifactDescriptor> artifacts) {
-        this.artifacts = new LinkedHashSet<IArtifactDescriptor>(artifacts);
+        this.artifacts = new LinkedHashSet<>(artifacts);
     }
 
     public Set<IArtifactDescriptor> getArtifactDescriptors() {
@@ -54,7 +54,7 @@ public class DependencyMetadata implements IDependencyMetadata {
     }
 
     public Set<IInstallableUnit> getInstallableUnits() {
-        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<IInstallableUnit>();
+        LinkedHashSet<IInstallableUnit> result = new LinkedHashSet<>();
         for (Object unit : metadata) {
             result.add((IInstallableUnit) unit);
         }
