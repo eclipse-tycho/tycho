@@ -25,13 +25,13 @@ public class Profile {
     }
 
     public List<String> getModules() {
-        LinkedHashSet<String> result = new LinkedHashSet<String>();
+        LinkedHashSet<String> result = new LinkedHashSet<>();
         for (Element modules : dom.getChildren("modules")) {
             for (Element module : modules.getChildren("module")) {
                 result.add(module.getTrimmedText());
             }
         }
-        return new ArrayList<String>(result);
+        return new ArrayList<>(result);
     }
 
     public String getId() {

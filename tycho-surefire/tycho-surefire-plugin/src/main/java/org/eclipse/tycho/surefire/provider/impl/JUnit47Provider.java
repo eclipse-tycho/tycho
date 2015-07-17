@@ -61,7 +61,7 @@ public class JUnit47Provider extends AbstractJUnitProvider {
 
     @Override
     protected Set<String> getJUnitBundleNames() {
-        return new HashSet<String>(asList("org.junit", "org.junit4"));
+        return new HashSet<>(asList("org.junit", "org.junit4"));
     }
 
     @Override

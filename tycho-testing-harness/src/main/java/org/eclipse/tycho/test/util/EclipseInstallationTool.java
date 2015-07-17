@@ -40,7 +40,7 @@ public class EclipseInstallationTool {
     }
 
     public List<String> getInstalledFeatureIds() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (File file : new File(installationRoot, "features").listFiles()) {
             int separator = file.getName().lastIndexOf('_');
             if (separator > 0) {

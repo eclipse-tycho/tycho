@@ -103,9 +103,9 @@ public class TestMojoTest extends TestCase {
     }
 
     public void testExcludes() throws Exception {
-        List<String> includes = new ArrayList<String>();
+        List<String> includes = new ArrayList<>();
         includes.add("*.*");
-        List<String> excludes = new ArrayList<String>();
+        List<String> excludes = new ArrayList<>();
         // adding a null to simulate an unresolved parameter interpolation
         excludes.add(null);
         excludes.add("*Another*");
@@ -114,7 +114,7 @@ public class TestMojoTest extends TestCase {
     }
 
     public void testIncludes() throws Exception {
-        List<String> includes = new ArrayList<String>();
+        List<String> includes = new ArrayList<>();
         includes.add("*Another*");
         includes.add(null);
         ScanResult result = executeScanForTests(includes, null);

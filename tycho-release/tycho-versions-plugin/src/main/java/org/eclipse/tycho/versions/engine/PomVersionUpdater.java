@@ -41,7 +41,7 @@ public class PomVersionUpdater {
         String getVersion(ProjectMetadata project) throws IOException;
     }
 
-    private static final Map<String, VersionAdaptor> updaters = new HashMap<String, PomVersionUpdater.VersionAdaptor>();
+    private static final Map<String, VersionAdaptor> updaters = new HashMap<>();
 
     private Collection<ProjectMetadata> projects;
 

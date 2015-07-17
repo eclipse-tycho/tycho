@@ -115,7 +115,7 @@ public class SetMojo extends AbstractVersionsMojo {
     }
 
     private static List<String> split(String str) {
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
         if (str != null) {
             StringTokenizer st = new StringTokenizer(str, ",");
             while (st.hasMoreTokens()) {

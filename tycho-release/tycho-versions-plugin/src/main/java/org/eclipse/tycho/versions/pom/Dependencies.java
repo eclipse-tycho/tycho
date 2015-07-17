@@ -17,7 +17,7 @@ import de.pdark.decentxml.Element;
 
 public class Dependencies {
     public static List<GAV> getDependencies(Element dom) {
-        ArrayList<GAV> result = new ArrayList<GAV>();
+        ArrayList<GAV> result = new ArrayList<>();
         Element dependencies = dom.getChild("dependencies");
         if (dependencies != null) {
             for (Element dependency : dependencies.getChildren("dependency"))

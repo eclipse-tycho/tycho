@@ -681,7 +681,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private List<String> getIUsToInstall(Set<Artifact> testHarnessArtifacts) {
-        List<String> iusToInstall = new ArrayList<String>();
+        List<String> iusToInstall = new ArrayList<>();
         // 1. test bundle
         iusToInstall.add(getTestBundleSymbolicName());
         // 2. test harness bundles
@@ -782,7 +782,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private List<Dependency> getExtraDependencies() {
-        final List<Dependency> dependencies = new ArrayList<Dependency>();
+        final List<Dependency> dependencies = new ArrayList<>();
         if (this.dependencies != null) {
             dependencies.addAll(Arrays.asList(this.dependencies));
         }
@@ -805,7 +805,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private List<Dependency> getTestDependencies() {
-        ArrayList<Dependency> result = new ArrayList<Dependency>();
+        ArrayList<Dependency> result = new ArrayList<>();
 
         // see also P2ResolverImpl.addDependenciesForTests()
         result.add(newBundleDependency("org.eclipse.osgi"));
@@ -1033,7 +1033,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private Map<String, String> getMergedSystemProperties() {
-        Map<String, String> result = new LinkedHashMap<String, String>();
+        Map<String, String> result = new LinkedHashMap<>();
         // bug 415489: use osgi.clean=true by default
         result.put("osgi.clean", "true");
         if (systemProperties != null) {
@@ -1107,7 +1107,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private List<String> getBundlesToExplode() {
-        List<String> bundles = new ArrayList<String>();
+        List<String> bundles = new ArrayList<>();
 
         if (explodedBundles != null) {
             bundles.addAll(Arrays.asList(explodedBundles));
@@ -1117,7 +1117,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private List<File> getFrameworkExtensions() throws MojoExecutionException {
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
 
         if (frameworkExtensions != null) {
             for (Dependency frameworkExtension : frameworkExtensions) {

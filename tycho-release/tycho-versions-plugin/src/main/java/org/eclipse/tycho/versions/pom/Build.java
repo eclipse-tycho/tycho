@@ -23,7 +23,7 @@ public class Build {
     }
 
     public List<Plugin> getPlugins() {
-        List<Plugin> result = new ArrayList<Plugin>();
+        List<Plugin> result = new ArrayList<>();
         Element plugins = dom.getChild("plugins");
         if (plugins != null) {
             for (Element plugin : plugins.getChildren("plugin"))

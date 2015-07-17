@@ -36,7 +36,7 @@ import org.osgi.framework.Constants;
 
 public class MutableBundleManifest {
 
-    private final List<ManifestAttribute> attributes = new ArrayList<ManifestAttribute>();
+    private final List<ManifestAttribute> attributes = new ArrayList<>();
 
     private String lineEnding = "";
     private String unparsed;

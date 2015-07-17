@@ -161,11 +161,11 @@ public class ProviderHelperTest extends PlexusTestCase {
                 new JUnit3Provider(),
                 asList(booterArtifact(), junit3Artifact(), junit4Artifact(), createMockArtifact("foo", "bar")));
         assertEquals(2, junitSurefireBundles.size());
-        Set<String> fileNames = new HashSet<String>();
+        Set<String> fileNames = new HashSet<>();
         for (org.apache.maven.artifact.Artifact artifact : junitSurefireBundles) {
             fileNames.add(artifact.getFile().getName());
         }
-        HashSet<String> expectedFileNames = new HashSet<String>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
+        HashSet<String> expectedFileNames = new HashSet<>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
                 TYCHO_GROUPID + "_" + JUNIT3_FRAGMENT));
         assertEquals(expectedFileNames, fileNames);
     }
@@ -175,11 +175,11 @@ public class ProviderHelperTest extends PlexusTestCase {
                 new JUnit4Provider(),
                 asList(booterArtifact(), junit3Artifact(), junit4Artifact(), createMockArtifact("foo", "bar")));
         assertEquals(2, junitSurefireBundles.size());
-        Set<String> fileNames = new HashSet<String>();
+        Set<String> fileNames = new HashSet<>();
         for (org.apache.maven.artifact.Artifact artifact : junitSurefireBundles) {
             fileNames.add(artifact.getFile().getName());
         }
-        HashSet<String> expectedFileNames = new HashSet<String>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
+        HashSet<String> expectedFileNames = new HashSet<>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
                 TYCHO_GROUPID + "_" + JUNIT4_FRAGMENT));
         assertEquals(expectedFileNames, fileNames);
     }

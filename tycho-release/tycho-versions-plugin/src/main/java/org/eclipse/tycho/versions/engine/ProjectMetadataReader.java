@@ -31,7 +31,7 @@ public class ProjectMetadataReader {
     @Requirement
     private Logger log;
 
-    private Map<File, ProjectMetadata> projects = new LinkedHashMap<File, ProjectMetadata>();
+    private Map<File, ProjectMetadata> projects = new LinkedHashMap<>();
 
     public void addBasedir(File basedir) throws IOException {
         // Unfold configuration inheritance
@@ -72,7 +72,7 @@ public class ProjectMetadataReader {
     }
 
     private Set<File> getChildren(File basedir, MutablePomFile project) throws IOException {
-        LinkedHashSet<File> children = new LinkedHashSet<File>();
+        LinkedHashSet<File> children = new LinkedHashSet<>();
         for (String module : project.getModules()) {
             children.add(canonify(new File(basedir, module)));
         }

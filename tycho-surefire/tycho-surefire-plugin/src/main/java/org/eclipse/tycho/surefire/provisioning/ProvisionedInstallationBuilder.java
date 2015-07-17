@@ -34,16 +34,16 @@ public class ProvisionedInstallationBuilder {
     private BundleReader bundleReader;
     private DirectorRuntime directorRuntime;
 
-    private List<URI> metadataRepos = new ArrayList<URI>();
-    private List<URI> artifactRepos = new ArrayList<URI>();
-    private List<String> ius = new ArrayList<String>();
+    private List<URI> metadataRepos = new ArrayList<>();
+    private List<URI> artifactRepos = new ArrayList<>();
+    private List<String> ius = new ArrayList<>();
     private File workingDir;
     private File effectiveDestination;
     private String profileName;
     private boolean installFeatures = true;
 
     private BundlesPublisher bundlesPublisher;
-    private List<File> bundleJars = new ArrayList<File>();
+    private List<File> bundleJars = new ArrayList<>();
 
     public void setWorkingDir(File workingDir) {
         this.workingDir = workingDir;
