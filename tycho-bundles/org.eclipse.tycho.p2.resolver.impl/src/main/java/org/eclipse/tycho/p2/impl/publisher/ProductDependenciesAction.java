@@ -46,7 +46,7 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
 
     @Override
     protected Set<IRequirement> getRequiredCapabilities() {
-        Set<IRequirement> required = new LinkedHashSet<IRequirement>();
+        Set<IRequirement> required = new LinkedHashSet<>();
 
         if (product.useFeatures()) {
             for (IVersionedId feature : product.getFeatures()) {

@@ -174,6 +174,6 @@ public class TargetPlatformTest {
     }
 
     private static LinkedHashSet<IInstallableUnit> createSet(IInstallableUnit... units) {
-        return new LinkedHashSet<IInstallableUnit>(Arrays.asList(units));
+        return new LinkedHashSet<>(Arrays.asList(units));
     }
 }

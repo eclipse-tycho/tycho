@@ -60,7 +60,7 @@ public class ResolutionDataImpl implements ResolutionData {
      * @see #setAvailableIUs(Collection)
      */
     public void setAvailableIUsAndFilter(IQueryable<IInstallableUnit> unfilteredAvailableUnits) {
-        this.availableIUs = new LinkedHashSet<IInstallableUnit>();
+        this.availableIUs = new LinkedHashSet<>();
 
         IQueryResult<IInstallableUnit> allUnits = unfilteredAvailableUnits.query(QueryUtil.ALL_UNITS,
                 new NullProgressMonitor());

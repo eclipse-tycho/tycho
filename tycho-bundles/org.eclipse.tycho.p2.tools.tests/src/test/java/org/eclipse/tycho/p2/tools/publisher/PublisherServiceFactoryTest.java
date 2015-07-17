@@ -24,7 +24,7 @@ public class PublisherServiceFactoryTest extends MavenServiceStubbingTestBase {
 
     @Test
     public void testThatRequiredServicesAreAvailable() throws Exception {
-        ServiceTracker<PublisherServiceFactory, PublisherServiceFactory> tracker = new ServiceTracker<PublisherServiceFactory, PublisherServiceFactory>(
+        ServiceTracker<PublisherServiceFactory, PublisherServiceFactory> tracker = new ServiceTracker<>(
                 Activator.getContext(), PublisherServiceFactory.class, null);
         tracker.open();
         try {

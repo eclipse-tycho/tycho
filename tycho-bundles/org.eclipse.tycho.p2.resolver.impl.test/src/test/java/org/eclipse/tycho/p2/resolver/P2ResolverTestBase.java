@@ -49,7 +49,7 @@ public class P2ResolverTestBase {
     protected P2Resolver impl;
     protected TargetPlatformConfigurationStub tpConfig;
     protected PomDependencyCollectorImpl pomDependencies;
-    protected List<ReactorProject> reactorProjects = new ArrayList<ReactorProject>();
+    protected List<ReactorProject> reactorProjects = new ArrayList<>();
     protected TargetPlatformFactoryImpl tpFactory;
 
     @Before
@@ -65,7 +65,7 @@ public class P2ResolverTestBase {
     }
 
     protected static List<TargetEnvironment> getEnvironments() {
-        List<TargetEnvironment> environments = new ArrayList<TargetEnvironment>();
+        List<TargetEnvironment> environments = new ArrayList<>();
         environments.add(new TargetEnvironment("linux", "gtk", "x86_64"));
         return environments;
     }

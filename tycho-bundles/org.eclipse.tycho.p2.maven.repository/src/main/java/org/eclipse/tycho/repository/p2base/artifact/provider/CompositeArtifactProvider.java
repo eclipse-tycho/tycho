@@ -41,12 +41,12 @@ public class CompositeArtifactProvider extends CompositeArtifactProviderBaseImpl
     }
 
     public CompositeArtifactProvider(List<IRawArtifactFileProvider> providers) {
-        this.components = new ArrayList<IRawArtifactFileProvider>(providers);
+        this.components = new ArrayList<>(providers);
     }
 
     public CompositeArtifactProvider(List<IRawArtifactFileProvider> providers1,
             List<IRawArtifactFileProvider> providers2) {
-        this.components = new ArrayList<IRawArtifactFileProvider>(providers1.size() + providers2.size());
+        this.components = new ArrayList<>(providers1.size() + providers2.size());
         this.components.addAll(providers1);
         this.components.addAll(providers2);
     }
@@ -160,7 +160,7 @@ public class CompositeArtifactProvider extends CompositeArtifactProviderBaseImpl
             return components.get(0);
         } else {
             IArtifactProvider[] repositoriesArray = components.toArray(new IArtifactProvider[repositoryCount]);
-            return new CompoundQueryable<IArtifactKey>(repositoriesArray);
+            return new CompoundQueryable<>(repositoriesArray);
         }
     }
 

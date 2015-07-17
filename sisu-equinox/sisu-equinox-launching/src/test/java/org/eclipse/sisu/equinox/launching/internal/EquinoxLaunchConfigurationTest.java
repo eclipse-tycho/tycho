@@ -23,7 +23,7 @@ public class EquinoxLaunchConfigurationTest {
     @Test
     public void testAddEnvironmentVariables() {
         EquinoxLaunchConfiguration config = new EquinoxLaunchConfiguration(null);
-        Map<String, String> envVariables = new HashMap<String, String>();
+        Map<String, String> envVariables = new HashMap<>();
         envVariables.put("key1", "value1");
         envVariables.put("key2", null);
         config.addEnvironmentVariables(envVariables);

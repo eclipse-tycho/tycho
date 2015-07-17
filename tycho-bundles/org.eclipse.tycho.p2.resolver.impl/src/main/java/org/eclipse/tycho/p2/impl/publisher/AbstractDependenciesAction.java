@@ -78,7 +78,7 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
         iud.setId(getId());
         iud.setVersion(getVersion());
 
-        Set<IProvidedCapability> provided = new LinkedHashSet<IProvidedCapability>();
+        Set<IProvidedCapability> provided = new LinkedHashSet<>();
         addProvidedCapabilities(provided);
         provided.add(MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, iud.getId(),
                 iud.getVersion()));

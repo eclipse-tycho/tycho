@@ -97,7 +97,7 @@ public class VerifierServiceImpl implements VerifierService {
     private boolean verifyAllArtifactContent(IArtifactRepository repository, MavenLogger logger) {
         boolean valid = true;
 
-        IQueryResult<IArtifactKey> allKeys = repository.query(new ExpressionMatchQuery<IArtifactKey>(
+        IQueryResult<IArtifactKey> allKeys = repository.query(new ExpressionMatchQuery<>(
                 IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION), null);
         for (Iterator<IArtifactKey> keyIt = allKeys.iterator(); keyIt.hasNext();) {
             IArtifactKey key = keyIt.next();

@@ -95,7 +95,7 @@ public class BundleDependenciesAction extends BundlesAction {
             return;
         }
 
-        Map<String, String> advice = new LinkedHashMap<String, String>();
+        Map<String, String> advice = new LinkedHashMap<>();
 
         try {
             InputStream is = new BufferedInputStream(new FileInputStream(adviceFile));

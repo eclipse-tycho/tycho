@@ -57,11 +57,11 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
             }
         }
 
-        Set<IInstallableUnit> availableIUs = new LinkedHashSet<IInstallableUnit>(data.getAvailableIUs());
+        Set<IInstallableUnit> availableIUs = new LinkedHashSet<>(data.getAvailableIUs());
         availableIUs.addAll(data.getEEResolutionHints().getTemporaryAdditions());
         availableIUs.addAll(data.getEEResolutionHints().getMandatoryUnits());
 
-        Set<IInstallableUnit> seedIUs = new LinkedHashSet<IInstallableUnit>(data.getRootIUs());
+        Set<IInstallableUnit> seedIUs = new LinkedHashSet<>(data.getRootIUs());
         if (data.getAdditionalRequirements() != null && !data.getAdditionalRequirements().isEmpty()) {
             seedIUs.add(createUnitRequiring("tycho-extra", null, data.getAdditionalRequirements()));
         }
@@ -99,7 +99,7 @@ abstract class AbstractSlicerResolutionStrategy extends AbstractResolutionStrate
         result.setId(name + "-" + time);
         result.setVersion(Version.createOSGi(0, 0, 0, time));
 
-        ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
+        ArrayList<IRequirement> requirements = new ArrayList<>();
         if (units != null) {
             for (IInstallableUnit unit : units) {
                 requirements.add(createStrictRequirementTo(unit));

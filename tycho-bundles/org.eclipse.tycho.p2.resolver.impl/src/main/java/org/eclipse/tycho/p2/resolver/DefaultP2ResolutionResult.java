@@ -24,13 +24,13 @@ import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 
 public class DefaultP2ResolutionResult implements P2ResolutionResult {
 
-    private final Map<ClassifiedLocation, Entry> entries = new LinkedHashMap<ClassifiedLocation, P2ResolutionResult.Entry>();
+    private final Map<ClassifiedLocation, Entry> entries = new LinkedHashMap<>();
 
     /**
      * Set of installable unit in the target platform of the module that do not come from the local
      * reactor.
      */
-    private final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<Object>();
+    private final Set<Object/* IInstallableUnit */> nonReactorUnits = new LinkedHashSet<>();
 
     @Override
     public Collection<Entry> getArtifacts() {

@@ -34,7 +34,7 @@ public class QueryableCollection extends IndexProvider<IInstallableUnit> {
     private TranslationSupport translationSupport;
 
     public QueryableCollection(Collection<IInstallableUnit> ius) {
-        dataSet = new ArrayList<IInstallableUnit>(ius);
+        dataSet = new ArrayList<>(ius);
     }
 
     @Override

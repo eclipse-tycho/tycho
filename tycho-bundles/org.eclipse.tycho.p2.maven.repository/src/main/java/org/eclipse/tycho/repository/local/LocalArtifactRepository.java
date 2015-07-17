@@ -104,7 +104,7 @@ public class LocalArtifactRepository extends ArtifactRepositoryBaseImpl<GAVArtif
         Set<IArtifactDescriptor> changedDescriptors = new HashSet<IArtifactDescriptor>(descriptors);
         changedDescriptors.removeAll(descriptorsOnLastSave);
 
-        Set<IArtifactKey> changedKeys = new HashSet<IArtifactKey>();
+        Set<IArtifactKey> changedKeys = new HashSet<>();
         for (IArtifactDescriptor changedDescriptor : changedDescriptors) {
             changedKeys.add(changedDescriptor.getArtifactKey());
         }

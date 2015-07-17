@@ -102,7 +102,7 @@ public class VerifierServiceImplTest {
     }
 
     class ErrorStoreMemoryLog implements MavenLogger {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
 
         @Override
         public void error(String message) {

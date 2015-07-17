@@ -25,7 +25,7 @@ public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
     /**
      * Map of resolution result entries keyed by (type,id,version) tuple
      */
-    private final Map<List<String>, Entry> entries = new HashMap<List<String>, Entry>();
+    private final Map<List<String>, Entry> entries = new HashMap<>();
 
     /**
      * @param type
@@ -53,7 +53,7 @@ public class MetadataOnlyP2ResolutionResult implements P2ResolutionResult {
     }
 
     private List<String> newKey(String type, String id, String version) {
-        ArrayList<String> key = new ArrayList<String>();
+        ArrayList<String> key = new ArrayList<>();
         key.add(type);
         key.add(id);
         key.add(version);

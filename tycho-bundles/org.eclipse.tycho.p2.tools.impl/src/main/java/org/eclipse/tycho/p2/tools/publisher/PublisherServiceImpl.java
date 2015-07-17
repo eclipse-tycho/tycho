@@ -120,7 +120,7 @@ class PublisherServiceImpl implements PublisherService {
     }
 
     private static Collection<DependencySeed> toSeeds(String type, Collection<IInstallableUnit> units) {
-        Collection<DependencySeed> result = new ArrayList<DependencySeed>(units.size());
+        Collection<DependencySeed> result = new ArrayList<>(units.size());
         for (IInstallableUnit unit : units) {
             result.add(DependencySeedUtil.createSeed(type, unit));
         }

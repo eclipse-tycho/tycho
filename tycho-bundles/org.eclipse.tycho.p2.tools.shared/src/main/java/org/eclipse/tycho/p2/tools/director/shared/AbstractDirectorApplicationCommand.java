@@ -130,7 +130,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     }
 
     private static class CommandLineArguments {
-        List<String> arguments = new ArrayList<String>();
+        List<String> arguments = new ArrayList<>();
 
         void add(String flag) {
             arguments.add(flag);
@@ -149,7 +149,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         }
 
         public List<String> asList() {
-            return new ArrayList<String>(arguments);
+            return new ArrayList<>(arguments);
         }
     }
 }

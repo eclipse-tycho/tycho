@@ -27,7 +27,7 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
 public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
 
-    private Set<GAV> changedGAVs = new LinkedHashSet<GAV>();
+    private Set<GAV> changedGAVs = new LinkedHashSet<>();
 
     /**
      * Create new repository
@@ -65,7 +65,7 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
 
         Set<IInstallableUnit> gavUnits = unitsMap.get(gav);
         if (gavUnits == null) {
-            gavUnits = new LinkedHashSet<IInstallableUnit>();
+            gavUnits = new LinkedHashSet<>();
             unitsMap.put(gav, gavUnits);
         }
         gavUnits.add(unit);

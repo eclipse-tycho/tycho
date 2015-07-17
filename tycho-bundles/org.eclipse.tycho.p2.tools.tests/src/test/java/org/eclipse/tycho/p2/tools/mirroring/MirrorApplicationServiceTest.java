@@ -163,7 +163,7 @@ public class MirrorApplicationServiceTest {
     }
 
     private static Collection<DependencySeed> seedFor(VersionedId... units) {
-        Collection<DependencySeed> result = new ArrayList<DependencySeed>();
+        Collection<DependencySeed> result = new ArrayList<>();
 
         for (VersionedId unit : units) {
             InstallableUnitDescription seedDescriptor = new InstallableUnitDescription();

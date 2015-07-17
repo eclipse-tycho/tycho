@@ -53,7 +53,7 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
 
     private File storage;
 
-    private Set<IInstallableUnit> units = new LinkedHashSet<IInstallableUnit>();
+    private Set<IInstallableUnit> units = new LinkedHashSet<>();
 
     public ModuleMetadataRepository(IProvisioningAgent agent, File location) throws ProvisionException {
         super(agent, generateName(location), REPOSITORY_TYPE, location);

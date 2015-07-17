@@ -40,7 +40,7 @@ import org.eclipse.tycho.p2.repository.RepositoryReader;
 class ModuleArtifactMap {
 
     private File mapFile;
-    private final Map<String, File> artifacts = new LinkedHashMap<String, File>();
+    private final Map<String, File> artifacts = new LinkedHashMap<>();
 
     private File automaticArtifactFolder;
 
@@ -73,7 +73,7 @@ class ModuleArtifactMap {
     }
 
     public Map<String, File> getLocalArtifactLocations() {
-        return new HashMap<String, File>(artifacts);
+        return new HashMap<>(artifacts);
     }
 
     public boolean contains(String classifier) {

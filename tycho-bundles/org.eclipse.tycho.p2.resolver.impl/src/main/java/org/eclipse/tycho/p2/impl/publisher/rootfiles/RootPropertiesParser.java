@@ -23,7 +23,7 @@ import org.eclipse.tycho.core.shared.BuildProperties;
 
 public class RootPropertiesParser {
     static class ParsingResult {
-        private HashMap<ConfigSpec, RootFilesProperties> propertiesPerConfig = new HashMap<ConfigSpec, RootFilesProperties>();
+        private HashMap<ConfigSpec, RootFilesProperties> propertiesPerConfig = new HashMap<>();
 
         RootFilesProperties getPropertiesForWriting(ConfigSpec config) {
             RootFilesProperties properties = propertiesPerConfig.get(config);

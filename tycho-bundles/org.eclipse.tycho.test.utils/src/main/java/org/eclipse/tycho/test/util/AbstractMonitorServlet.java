@@ -30,7 +30,7 @@ public abstract class AbstractMonitorServlet extends GenericServlet {
     private final List<String> accessedUrls;
 
     public AbstractMonitorServlet() {
-        this.accessedUrls = new ArrayList<String>();
+        this.accessedUrls = new ArrayList<>();
     }
 
     public List<String> getAccessedUrls() {

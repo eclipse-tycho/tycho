@@ -98,12 +98,12 @@ public class LogVerifier extends Verifier {
         MemoryLog logger;
 
         boolean expectNoErrors = true;
-        List<Matcher<? super String>> loggedErrorsMatchers = new ArrayList<Matcher<? super String>>();
+        List<Matcher<? super String>> loggedErrorsMatchers = new ArrayList<>();
 
         boolean expectNoWarnings = false;
-        List<Matcher<? super String>> loggedWarningsMatchers = new ArrayList<Matcher<? super String>>();
+        List<Matcher<? super String>> loggedWarningsMatchers = new ArrayList<>();
 
-        List<Matcher<? super String>> loggedInfosMatchers = new ArrayList<Matcher<? super String>>();
+        List<Matcher<? super String>> loggedInfosMatchers = new ArrayList<>();
 
         MemoryLog getInitializedLogger() {
             if (logger == null) {

@@ -41,7 +41,7 @@ public class DependencyCollectorTest {
         iud.setId(time);
         iud.setVersion(Version.createOSGi(0, 0, 0, time));
 
-        ArrayList<IRequirement> requirements = new ArrayList<IRequirement>();
+        ArrayList<IRequirement> requirements = new ArrayList<>();
 
         VersionRange range = new VersionRange("[1.2.3,1.2.4)");
         requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "this.is.a.missing.iu",
@@ -49,7 +49,7 @@ public class DependencyCollectorTest {
 
         iud.setRequirements(requirements.toArray(new IRequirement[requirements.size()]));
 
-        HashSet<IInstallableUnit> rootUIs = new HashSet<IInstallableUnit>();
+        HashSet<IInstallableUnit> rootUIs = new HashSet<>();
         rootUIs.add(MetadataFactory.createInstallableUnit(iud));
 
         ResolutionDataImpl data = new ResolutionDataImpl(ExecutionEnvironmentTestUtils.NOOP_EE_RESOLUTION_HINTS);
