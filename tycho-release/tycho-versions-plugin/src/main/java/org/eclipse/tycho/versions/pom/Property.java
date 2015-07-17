@@ -31,7 +31,7 @@ public class Property {
     }
 
     public static List<Property> getProperties(Element dom) {
-        List<Property> result = new ArrayList<Property>();
+        List<Property> result = new ArrayList<>();
         Element properties = dom.getChild("properties");
         if (properties != null) {
             for (Element property : properties.getChildren()) {

@@ -68,7 +68,7 @@ public class LocalMavenRepositoryTool {
     }
 
     public void removeLinesFromArtifactsIndex(String... linesToBeRemoved) throws IOException {
-        Set<String> toBeRemoved = new HashSet<String>(Arrays.asList(linesToBeRemoved));
+        Set<String> toBeRemoved = new HashSet<>(Arrays.asList(linesToBeRemoved));
         File indexFile = getArtifactIndexFile();
         filterLinesFromIndex(indexFile, toBeRemoved);
     }
@@ -88,7 +88,7 @@ public class LocalMavenRepositoryTool {
      *             if index file could not be saved
      */
     public void removeLinesFromMetadataIndex(String... linesToBeRemoved) throws IOException {
-        Set<String> toBeRemoved = new HashSet<String>(Arrays.asList(linesToBeRemoved));
+        Set<String> toBeRemoved = new HashSet<>(Arrays.asList(linesToBeRemoved));
         File indexFile = new File(localRepo, ".meta/p2-local-metadata.properties");
         filterLinesFromIndex(indexFile, toBeRemoved);
     }
@@ -112,7 +112,7 @@ public class LocalMavenRepositoryTool {
 
     private Set<String> readLines(File indexFile) throws UnsupportedEncodingException, FileNotFoundException,
             IOException {
-        Set<String> lines = new LinkedHashSet<String>();
+        Set<String> lines = new LinkedHashSet<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile), "UTF-8"));
         try {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {

@@ -92,7 +92,7 @@ public class P2RepositoryTool {
 
         List<Node> units = getNodes(contentXml, "/repository/units/unit");
 
-        List<IdAndVersion> result = new ArrayList<IdAndVersion>();
+        List<IdAndVersion> result = new ArrayList<>();
         for (Node node : units) {
             result.add(new IdAndVersion(getAttribute(node, "@id"), getAttribute(node, "@version")));
         }
@@ -175,7 +175,7 @@ public class P2RepositoryTool {
     List<Node> getNodes(Object startingPoint, String expression) throws XPathExpressionException {
         NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
 
-        List<Node> result = new ArrayList<Node>(nodeList.getLength());
+        List<Node> result = new ArrayList<>(nodeList.getLength());
         for (int ix = 0; ix < nodeList.getLength(); ++ix) {
             result.add(nodeList.item(ix));
         }
@@ -185,7 +185,7 @@ public class P2RepositoryTool {
     List<String> getValues(Object startingPoint, String expression) throws XPathExpressionException {
         NodeList nodeList = (NodeList) getXPathTool().evaluate(expression, startingPoint, XPathConstants.NODESET);
 
-        List<String> result = new ArrayList<String>(nodeList.getLength());
+        List<String> result = new ArrayList<>(nodeList.getLength());
         for (int ix = 0; ix < nodeList.getLength(); ++ix) {
             result.add(nodeList.item(ix).getNodeValue());
         }
@@ -241,7 +241,7 @@ public class P2RepositoryTool {
         public List<String> getProperties() throws Exception {
             List<Node> propertyNodes = getNodes(unitElement, "properties/property");
 
-            List<String> result = new ArrayList<String>(propertyNodes.size());
+            List<String> result = new ArrayList<>(propertyNodes.size());
             for (Node node : propertyNodes) {
                 result.add(getAttribute(node, "@name") + "=" + getAttribute(node, "@value"));
             }
@@ -249,7 +249,7 @@ public class P2RepositoryTool {
         }
 
         public List<String> getRequiredIds() throws Exception {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
 
             List<Node> requiredIds = getNodes(unitElement, "requires/required/@name");
             for (Node id : requiredIds) {
@@ -263,7 +263,7 @@ public class P2RepositoryTool {
          * Returns the IDs of IUs required with strict version range.
          */
         public List<String> getInclusionIds() throws Exception {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
 
             List<Node> requires = getNodes(unitElement, "requires/required");
             for (Node require : requires) {
@@ -281,7 +281,7 @@ public class P2RepositoryTool {
          * Returns units required with strict version range.
          */
         public List<IdAndVersion> getInclusions() throws Exception {
-            List<IdAndVersion> result = new ArrayList<IdAndVersion>();
+            List<IdAndVersion> result = new ArrayList<>();
 
             List<Node> requires = getNodes(unitElement, "requires/required");
             for (Node require : requires) {
@@ -296,7 +296,7 @@ public class P2RepositoryTool {
         }
 
         public List<String> getArtifacts() throws Exception {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
 
             List<Node> artifacts = getNodes(unitElement, "artifacts/artifact");
             for (Node node : artifacts) {
@@ -308,7 +308,7 @@ public class P2RepositoryTool {
         }
 
         public List<String> getProvidedCapabilities() throws Exception {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
 
             List<Node> provides = getNodes(unitElement, "provides/provided");
             for (Node node : provides) {

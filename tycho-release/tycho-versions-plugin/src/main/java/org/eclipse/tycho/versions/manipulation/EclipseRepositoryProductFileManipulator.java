@@ -45,7 +45,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
     @Override
     public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
         if (isEclipseRepository(project)) {
-            ArrayList<String> errors = new ArrayList<String>();
+            ArrayList<String> errors = new ArrayList<>();
             for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
                 if (isSameProject(project, change.getProject())
                         && change.getVersion().equals(entry.getValue().getVersion())) {

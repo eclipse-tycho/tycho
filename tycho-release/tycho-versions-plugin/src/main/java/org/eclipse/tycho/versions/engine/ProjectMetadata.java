@@ -17,7 +17,7 @@ import java.util.Map;
 public class ProjectMetadata {
     private final File basedir;
 
-    private Map<Object, Object> metadata = new LinkedHashMap<Object, Object>();
+    private Map<Object, Object> metadata = new LinkedHashMap<>();
 
     public ProjectMetadata(File basedir) {
         this.basedir = basedir;

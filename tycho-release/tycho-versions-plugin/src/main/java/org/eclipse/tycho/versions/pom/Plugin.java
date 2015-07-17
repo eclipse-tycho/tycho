@@ -27,7 +27,7 @@ public class Plugin {
     }
 
     public List<GAV> getDependencies() {
-        ArrayList<GAV> result = new ArrayList<GAV>();
+        ArrayList<GAV> result = new ArrayList<>();
         Element dependencies = plugin.getChild("dependencies");
         if (dependencies != null) {
             for (Element dependency : dependencies.getChildren("dependency")) {

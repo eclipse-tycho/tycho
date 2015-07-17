@@ -57,9 +57,9 @@ public class VersionsEngine {
 
     private Collection<ProjectMetadata> projects;
 
-    private Set<VersionChange> versionChanges = new LinkedHashSet<VersionChange>();
+    private Set<VersionChange> versionChanges = new LinkedHashSet<>();
 
-    private Set<PropertyChange> propertyChanges = new LinkedHashSet<PropertyChange>();
+    private Set<PropertyChange> propertyChanges = new LinkedHashSet<>();
 
     public void setProjects(Collection<ProjectMetadata> projects) {
         this.projects = projects;
@@ -93,7 +93,7 @@ public class VersionsEngine {
         boolean newChanges = true;
         while (newChanges) {
             newChanges = false;
-            for (VersionChange change : new ArrayList<VersionChange>(versionChanges)) {
+            for (VersionChange change : new ArrayList<>(versionChanges)) {
                 for (ProjectMetadata project : projects) {
                     for (MetadataManipulator manipulator : manipulators) {
                         newChanges |= manipulator.addMoreChanges(project, change, versionChanges);
@@ -103,7 +103,7 @@ public class VersionsEngine {
         }
 
         // validate version changes can be implemented
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         for (ProjectMetadata project : projects) {
             for (VersionChange change : versionChanges) {
                 for (MetadataManipulator manipulator : manipulators) {
@@ -121,7 +121,7 @@ public class VersionsEngine {
         // make changes to the metadata
         for (ProjectMetadata project : projects) {
             logger.info("Making changes in " + project.getBasedir().getAbsolutePath());
-            Set<VersionChange> applied = new HashSet<VersionChange>();
+            Set<VersionChange> applied = new HashSet<>();
 
             MutablePomFile pom = project.getMetadata(MutablePomFile.class);
 

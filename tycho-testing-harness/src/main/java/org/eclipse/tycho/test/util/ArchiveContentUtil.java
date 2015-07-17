@@ -25,7 +25,7 @@ public class ArchiveContentUtil {
      * Returns a list of file and folder entries in the given zip archive.
      */
     public static Set<String> getFilesInZip(File archive) throws Exception {
-        final HashSet<String> result = new HashSet<String>();
+        final HashSet<String> result = new HashSet<>();
 
         visitEntries(archive, new ZipEntryVisitor() {
             @Override

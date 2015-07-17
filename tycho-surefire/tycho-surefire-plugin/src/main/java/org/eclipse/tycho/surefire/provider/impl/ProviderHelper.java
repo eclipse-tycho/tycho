@@ -57,7 +57,7 @@ public class ProviderHelper {
                 return provider;
             }
         }
-        List<TestFrameworkProvider> candidates = new ArrayList<TestFrameworkProvider>();
+        List<TestFrameworkProvider> candidates = new ArrayList<>();
         for (TestFrameworkProvider provider : providers.values()) {
             if (provider.isEnabled(classpath, providerProperties)) {
                 candidates.add(provider);
@@ -81,8 +81,8 @@ public class ProviderHelper {
 
     public Set<Artifact> filterTestFrameworkBundles(TestFrameworkProvider provider, List<Artifact> pluginArtifacts)
             throws MojoExecutionException {
-        Set<Artifact> result = new LinkedHashSet<Artifact>();
-        List<Dependency> requiredArtifacts = new ArrayList<Dependency>();
+        Set<Artifact> result = new LinkedHashSet<>();
+        List<Dependency> requiredArtifacts = new ArrayList<>();
         requiredArtifacts.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.osgibooter"));
         requiredArtifacts.addAll(provider.getRequiredBundles());
         for (Dependency dependency : requiredArtifacts) {
@@ -138,7 +138,7 @@ public class ProviderHelper {
     }
 
     public List<String> getSymbolicNames(Set<Artifact> bundleArtifacts) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (Artifact artifact : bundleArtifacts) {
             result.add(bundleReader.loadManifest(artifact.getFile()).getBundleSymbolicName());
         }

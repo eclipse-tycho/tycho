@@ -29,7 +29,7 @@ import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
 public class BundlesPublisher {
 
     private P2ApplicationLauncher launcher;
-    private List<File> bundles = new ArrayList<File>();
+    private List<File> bundles = new ArrayList<>();
     private File workingDir;
     private int timeoutInSeconds = 300;
     private Logger log;
