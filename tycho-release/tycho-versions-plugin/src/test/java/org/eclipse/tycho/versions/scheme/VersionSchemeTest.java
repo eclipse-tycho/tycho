@@ -26,10 +26,36 @@ public class VersionSchemeTest {
     }
 
     @Test
+    public void testMavenQualifierDashInteger2() {
+        final String olderVersionString = "1.9.0-20150613";
+        DefaultArtifactVersion mavenVersionOlder = new DefaultArtifactVersion(olderVersionString);
+        final String newerVersionString = "1.10.0-20150614";
+        DefaultArtifactVersion mavenVersionNewer = new DefaultArtifactVersion(newerVersionString);
+        assertTrue(mavenVersionOlder.compareTo(mavenVersionNewer) < 0);
+
+        Version osgiVersionOlder = Version.parseVersion(olderVersionString.replaceFirst("-", "."));
+        Version osgiVersionNewer = Version.parseVersion(newerVersionString.replaceFirst("-", "."));
+        assertTrue(osgiVersionOlder.compareTo(osgiVersionNewer) < 0);
+    }
+
+    @Test
     public void testMavenQualifierDotInteger() {
         final String olderVersionString = "1.0.0.20150613";
         DefaultArtifactVersion versionOlder = new DefaultArtifactVersion(olderVersionString);
         final String newerVersionString = "1.0.0.20150614";
+        DefaultArtifactVersion versionNewer = new DefaultArtifactVersion(newerVersionString);
+        assertTrue(versionOlder.compareTo(versionNewer) < 0);
+
+        Version osgiVersionOlder = Version.parseVersion(olderVersionString);
+        Version osgiVersionNewer = Version.parseVersion(newerVersionString);
+        assertTrue(osgiVersionOlder.compareTo(osgiVersionNewer) < 0);
+    }
+
+    @Test
+    public void testMavenQualifierDotInteger2() {
+        final String olderVersionString = "1.9.0.20150613";
+        DefaultArtifactVersion versionOlder = new DefaultArtifactVersion(olderVersionString);
+        final String newerVersionString = "1.10.0.20150614";
         DefaultArtifactVersion versionNewer = new DefaultArtifactVersion(newerVersionString);
         assertTrue(versionOlder.compareTo(versionNewer) < 0);
 
