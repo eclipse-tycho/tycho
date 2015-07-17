@@ -135,12 +135,12 @@ public class EclipseModelTest extends TestCase {
         Platform.Site transientSite = new Platform.Site("file:/xxx");
         transientPlatform.addSite(transientSite);
 
-        List<String> transientPlugins = new ArrayList<String>();
+        List<String> transientPlugins = new ArrayList<>();
         transientPlugins.add("plugins/yyy/");
         transientPlugins.add("plugins/zzz/");
         transientSite.setPlugins(transientPlugins);
 
-        List<Platform.Feature> transientFeatures = new ArrayList<Platform.Feature>();
+        List<Platform.Feature> transientFeatures = new ArrayList<>();
 
         Platform.Feature transientFeature = new Platform.Feature();
         transientFeature.setId("transient.feature");

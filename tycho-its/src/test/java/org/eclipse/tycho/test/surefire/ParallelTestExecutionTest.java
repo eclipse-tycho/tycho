@@ -54,7 +54,7 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
         });
         assertEquals(2, surefireXmlReports.length);
         Set<String> actualTests = extractExecutedTests(surefireXmlReports);
-        Set<String> expectedTests = new HashSet<String>(asList("org.eclipse.tychoits.FirstTest#firstTest",
+        Set<String> expectedTests = new HashSet<>(asList("org.eclipse.tychoits.FirstTest#firstTest",
                 "org.eclipse.tychoits.SecondTest#secondTest"));
         assertEquals(expectedTests, actualTests);
     }
@@ -62,7 +62,7 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
     private Set<String> extractExecutedTests(File[] xmlReports) throws FileNotFoundException, XPathExpressionException,
             IOException {
         XPath xpath = XPathFactory.newInstance().newXPath();
-        Set<String> actualTests = new HashSet<String>();
+        Set<String> actualTests = new HashSet<>();
         for (File xmlReportFile : xmlReports) {
             FileInputStream xmlStream = new FileInputStream(xmlReportFile);
             NodeList testCaseNodes;

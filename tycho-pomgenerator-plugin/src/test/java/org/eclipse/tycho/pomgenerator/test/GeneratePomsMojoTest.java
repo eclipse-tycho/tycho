@@ -93,7 +93,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
     public void testUpdateSite() throws Exception {
         File baseDir = getBasedir("projects/simple/p003");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group-p003");
         params.put("version", "1.0.0");
         params.put("aggregator", Boolean.FALSE);
@@ -108,7 +108,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
     public void testRepository() throws Exception {
         File baseDir = getBasedir("projects/simple/p006");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group-p006");
         params.put("version", "1.0.0");
         params.put("aggregator", Boolean.FALSE);
@@ -123,7 +123,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
     public void testMultibase_1_2() throws Exception {
         File baseDir = getBasedir("projects/multibase");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group");
         params.put("version", "1.0.0");
         params.put("aggregator", Boolean.TRUE);
@@ -144,7 +144,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
     public void testRecursive() throws Exception {
         File baseDir = getBasedir("projects/multibase");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group");
         params.put("version", "1.0.0");
         params.put("aggregator", Boolean.TRUE);
@@ -156,7 +156,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
     public void testParent() throws Exception {
         File baseDir = getBasedir("projects/simple");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group");
         params.put("version", "1.0.0");
         params.put("aggregator", Boolean.TRUE);
@@ -196,7 +196,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
     public void testTests() throws Exception {
         File baseDir = getBasedir("projects/tests");
 
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group");
         params.put("version", "1.0.0");
         params.put("aggregator", Boolean.TRUE);
@@ -215,7 +215,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
     public void testRootProjects() throws Exception {
         File baseDir = getBasedir("projects/rootprojects");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group");
         params.put("version", "1.0.0");
         params.put("aggregator", Boolean.TRUE);
@@ -232,7 +232,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
     public void testDeepModule() throws Exception {
         File baseDir = getBasedir("projects/deepmodule");
 
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group");
         params.put("version", "1.0.0");
         generate(baseDir, new File[] { new File(baseDir, "base") }, params);
@@ -245,7 +245,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
 
     public void testMalformedManifest() throws Exception {
         File baseDir = getBasedir("projects/malformed");
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("groupId", "group");
         params.put("version", "1.0.0");
         try {

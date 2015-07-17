@@ -144,7 +144,7 @@ public class ProductConfigurationTest {
     }
 
     private static Map<String, InstallMode> getInstallModes(ProductConfiguration config) {
-        Map<String, InstallMode> modes = new HashMap<String, InstallMode>();
+        Map<String, InstallMode> modes = new HashMap<>();
         for (FeatureRef featureRef : config.getFeatures()) {
             modes.put(featureRef.getId(), featureRef.getInstallMode());
         }

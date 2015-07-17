@@ -85,7 +85,7 @@ public abstract class AbstractTychoPackagingMojo extends AbstractMojo {
             fileSet.setIncludes(includes.toArray(new String[includes.size()]));
         }
 
-        Set<String> allExcludes = new LinkedHashSet<String>();
+        Set<String> allExcludes = new LinkedHashSet<>();
         if (excludes != null) {
             allExcludes.addAll(excludes);
         }

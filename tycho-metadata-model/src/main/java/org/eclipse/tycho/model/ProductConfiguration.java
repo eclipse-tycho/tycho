@@ -97,7 +97,7 @@ public class ProductConfiguration {
             return Collections.emptyList();
         }
 
-        ArrayList<FeatureRef> features = new ArrayList<FeatureRef>();
+        ArrayList<FeatureRef> features = new ArrayList<>();
         for (Element featureDom : featuresDom.getChildren()) {
             features.add(parseFeature(featureDom));
         }
@@ -153,7 +153,7 @@ public class ProductConfiguration {
             return Collections.emptyList();
         }
 
-        ArrayList<PluginRef> plugins = new ArrayList<PluginRef>();
+        ArrayList<PluginRef> plugins = new ArrayList<>();
         for (Element pluginDom : pluginsDom.getChildren("plugin")) {
             plugins.add(new PluginRef(pluginDom));
         }
@@ -187,7 +187,7 @@ public class ProductConfiguration {
         if (win == null) {
             return null;
         }
-        List<String> icons = new ArrayList<String>();
+        List<String> icons = new ArrayList<>();
         String useIco = win.getAttributeValue("useIco");
         if (Boolean.valueOf(useIco)) {
             // for (Element ico : win.getChildren("ico"))
@@ -226,7 +226,7 @@ public class ProductConfiguration {
             return null;
         }
 
-        Map<String, BundleConfiguration> configs = new HashMap<String, BundleConfiguration>();
+        Map<String, BundleConfiguration> configs = new HashMap<>();
         for (Element pluginDom : configurationsDom.getChildren("plugin")) {
             configs.put(pluginDom.getAttributeValue("id"), new BundleConfiguration(pluginDom));
         }
@@ -244,7 +244,7 @@ public class ProductConfiguration {
             return null;
         }
 
-        List<ConfigurationProperty> properties = new ArrayList<ConfigurationProperty>();
+        List<ConfigurationProperty> properties = new ArrayList<>();
         for (Element properyDom : propertyDoms) {
             properties.add(new ConfigurationProperty(properyDom));
         }

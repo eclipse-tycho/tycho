@@ -22,7 +22,7 @@ public class EnvVarTest extends AbstractTychoIntegrationTest {
     @Test
     public void testEnvironmentVariablesInheritance() throws Exception {
         Verifier verifier = getVerifier("surefire.envVars");
-        Map<String, String> env = new HashMap<String, String>();
+        Map<String, String> env = new HashMap<>();
         env.put("KEY_1", "value_1");
         verifier.executeGoal("integration-test", env);
         // project contains a test doing the assertions

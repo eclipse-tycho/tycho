@@ -46,7 +46,7 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
                 getEnvironments());
 
         try {
-            List<DependencySeed> categoryIUs = new ArrayList<DependencySeed>();
+            List<DependencySeed> categoryIUs = new ArrayList<>();
             for (Category category : getCategories()) {
                 final File buildCategoryFile = prepareBuildCategory(category, getBuildDirectory());
 

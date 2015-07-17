@@ -45,7 +45,7 @@ public class P2MetadataMojoTest {
 
     @Test
     public void testWriteArtifactLocations() throws Exception {
-        Map<String, File> artifactLocations = new HashMap<String, File>();
+        Map<String, File> artifactLocations = new HashMap<>();
         artifactLocations.put(null, MAIN_ARTIFACT);
         artifactLocations.put("source", SOURCE_ARTIFACT);
         artifactLocations.put("other-classifier", OTHER_ARTIFACT);
@@ -61,7 +61,7 @@ public class P2MetadataMojoTest {
 
     @Test
     public void testWriteOnlyAttachedArtifactLocation() throws Exception {
-        Map<String, File> artifactLocations = new HashMap<String, File>();
+        Map<String, File> artifactLocations = new HashMap<>();
         artifactLocations.put("other-classifier", OTHER_ARTIFACT);
 
         P2MetadataMojo.writeArtifactLocations(testFile, artifactLocations);

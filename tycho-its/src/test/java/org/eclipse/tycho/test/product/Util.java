@@ -56,7 +56,7 @@ class Util {
     }
 
     static public Set<Element> findIU(Document contentXML, String iuId) {
-        Set<Element> foundIUs = new HashSet<Element>();
+        Set<Element> foundIUs = new HashSet<>();
 
         Element repository = contentXML.getRootElement();
         for (Element unit : repository.getChild("units").getChildren("unit")) {

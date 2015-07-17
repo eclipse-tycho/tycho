@@ -209,7 +209,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
                     }
                 }
             }
-            List<String> binIncludesIgnoredForValidation = new ArrayList<String>();
+            List<String> binIncludesIgnoredForValidation = new ArrayList<>();
             // 2. handle dir classpath entries and "."
             for (BuildOutputJar outputJar : pdeProject.getOutputJarMap().values()) {
                 String jarName = outputJar.getName();

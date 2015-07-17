@@ -131,7 +131,7 @@ public class P2MetadataMojo extends AbstractMojo {
         ArtifactFacade projectDefaultArtifact = new ArtifactFacade(project.getArtifact());
 
         try {
-            List<IArtifactFacade> artifacts = new ArrayList<IArtifactFacade>();
+            List<IArtifactFacade> artifacts = new ArrayList<>();
 
             artifacts.add(projectDefaultArtifact);
 
@@ -161,7 +161,7 @@ public class P2MetadataMojo extends AbstractMojo {
 
             ReactorProject reactorProject = DefaultReactorProject.adapt(project);
 
-            Set<Object> installableUnits = new LinkedHashSet<Object>();
+            Set<Object> installableUnits = new LinkedHashSet<>();
             for (Map.Entry<String, IP2Artifact> entry : generatedMetadata.entrySet()) {
                 String classifier = entry.getKey();
                 IP2Artifact p2artifact = entry.getValue();
@@ -209,7 +209,7 @@ public class P2MetadataMojo extends AbstractMojo {
      * <code>null</code> is mapped to the project's main artifact.
      */
     private static Map<String, File> getAllProjectArtifacts(MavenProject project) {
-        Map<String, File> artifacts = new HashMap<String, File>();
+        Map<String, File> artifacts = new HashMap<>();
         Artifact mainArtifact = project.getArtifact();
         if (mainArtifact != null) {
             artifacts.put(null, mainArtifact.getFile());

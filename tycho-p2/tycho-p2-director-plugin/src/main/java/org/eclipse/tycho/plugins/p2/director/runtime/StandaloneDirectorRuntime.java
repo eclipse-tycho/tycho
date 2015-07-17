@@ -49,7 +49,7 @@ public class StandaloneDirectorRuntime implements DirectorRuntime {
             @Override
             public void execute() throws DirectorCommandException {
 
-                List<String> programArguments = new ArrayList<String>();
+                List<String> programArguments = new ArrayList<>();
                 programArguments.add("-application");
                 programArguments.add("org.eclipse.equinox.p2.director");
                 programArguments.addAll(getDirectorApplicationArguments());
