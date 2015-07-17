@@ -176,7 +176,7 @@ public class TarGzArchiverTest {
 
     private void setPermissionsTo700() {
         try {
-            Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+            Set<PosixFilePermission> perms = new HashSet<>();
             perms.add(PosixFilePermission.OWNER_READ);
             perms.add(PosixFilePermission.OWNER_WRITE);
             perms.add(PosixFilePermission.OWNER_EXECUTE);
@@ -209,7 +209,7 @@ public class TarGzArchiverTest {
     private Map<String, TarArchiveEntry> getTarEntries() throws IOException, FileNotFoundException {
         TarArchiveInputStream tarStream = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(
                 tarGzArchive)));
-        Map<String, TarArchiveEntry> entries = new HashMap<String, TarArchiveEntry>();
+        Map<String, TarArchiveEntry> entries = new HashMap<>();
         try {
             TarArchiveEntry tarEntry = null;
             while ((tarEntry = tarStream.getNextTarEntry()) != null) {

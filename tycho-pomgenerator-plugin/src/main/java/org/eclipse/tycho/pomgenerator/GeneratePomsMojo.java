@@ -175,7 +175,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     MavenXpp3Reader modelReader = new MavenXpp3Reader();
     MavenXpp3Writer modelWriter = new MavenXpp3Writer();
 
-    private Map<File, Model> updateSites = new LinkedHashMap<File, Model>();
+    private Map<File, Model> updateSites = new LinkedHashMap<>();
 
     private DefaultDependencyArtifacts platform = new DefaultDependencyArtifacts();
 
@@ -193,7 +193,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         }
 
         // find all candidate folders
-        List<File> candidateDirs = new ArrayList<File>();
+        List<File> candidateDirs = new ArrayList<>();
         for (File basedir : baseDirs) {
             findAndAddCandidates(candidateDirs, basedir);
         }
@@ -225,7 +225,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             }
         }
 
-        Set<File> projects = new LinkedHashSet<File>();
+        Set<File> projects = new LinkedHashSet<>();
 
         // always add baseDir
         projects.add(baseDirs.get(0));
@@ -350,7 +350,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private List<File> getBaseDirs() {
-        ArrayList<File> dirs = new ArrayList<File>();
+        ArrayList<File> dirs = new ArrayList<>();
         dirs.add(baseDir);
         if (extraDirs != null) {
             dirs.addAll(toFileList(extraDirs));
@@ -359,7 +359,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private List<File> toFileList(String str) {
-        ArrayList<File> dirs = new ArrayList<File>();
+        ArrayList<File> dirs = new ArrayList<>();
         if (str != null) {
             StringTokenizer st = new StringTokenizer(str, ",");
             while (st.hasMoreTokens()) {
@@ -490,7 +490,7 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private Set<File> getSiteFeaturesAndPlugins(File basedir) throws MojoExecutionException {
         try {
-            Set<File> result = new LinkedHashSet<File>();
+            Set<File> result = new LinkedHashSet<>();
 
             UpdateSite site;
             File siteFile = new File(basedir, "site.xml");
@@ -520,7 +520,7 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private File getModuleDir(String name) throws MojoExecutionException {
-        ArrayList<File> moduleDirs = new ArrayList<File>();
+        ArrayList<File> moduleDirs = new ArrayList<>();
         for (File basedir : getBaseDirs()) {
             File dir = new File(basedir, name);
             if (dir.exists() && dir.isDirectory() && isProjectDir(dir)) {
@@ -542,7 +542,7 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private Set<File> getFeatureFeaturesAndPlugins(File basedir) throws MojoExecutionException {
         try {
-            Set<File> result = new LinkedHashSet<File>();
+            Set<File> result = new LinkedHashSet<>();
 
             Feature feature = Feature.read(new File(basedir, "feature.xml"));
 

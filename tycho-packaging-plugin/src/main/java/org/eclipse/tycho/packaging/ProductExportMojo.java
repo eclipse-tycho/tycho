@@ -470,7 +470,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         Map<String, BundleConfiguration> bundlesToStart = productConfiguration.getPluginConfiguration();
 
         if (bundlesToStart == null) {
-            bundlesToStart = new HashMap<String, BundleConfiguration>();
+            bundlesToStart = new HashMap<>();
 
             // This is the wellknown set of bundles for Eclipse based application for 3.3 and 3.4 without p2
             bundlesToStart.put("org.eclipse.equinox.common", // 
@@ -481,7 +481,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                     new BundleConfiguration("org.eclipse.core.runtime", -1, true));
         }
 
-        Map<String, PluginDescription> bundles = new LinkedHashMap<String, PluginDescription>(getBundles(environment));
+        Map<String, PluginDescription> bundles = new LinkedHashMap<>(getBundles(environment));
 
         StringBuilder osgiBundles = new StringBuilder();
         for (PluginDescription plugin : bundles.values()) {
@@ -521,7 +521,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
     }
 
     private Map<String, PluginDescription> getBundles(TargetEnvironment environment) {
-        final Map<String, PluginDescription> bundles = new LinkedHashMap<String, PluginDescription>();
+        final Map<String, PluginDescription> bundles = new LinkedHashMap<>();
         getDependencyWalker(environment).walk(new ArtifactDependencyVisitor() {
             @Override
             public void visitPlugin(PluginDescription plugin) {

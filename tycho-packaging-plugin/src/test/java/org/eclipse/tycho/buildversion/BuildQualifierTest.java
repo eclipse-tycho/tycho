@@ -74,7 +74,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
         project.getProperties().put(BUILD_QUALIFIER_PROPERTY, "garbage");
 
-        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
+        ArrayList<MavenProject> projects = new ArrayList<>();
         projects.add(project);
 
         BuildQualifierMojo mojo = createMojoWithProject(project);
@@ -227,7 +227,7 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
     }
 
     private BuildQualifierMojo createMojoWithProject(MavenProject project) throws IOException, Exception {
-        ArrayList<MavenProject> projects = new ArrayList<MavenProject>();
+        ArrayList<MavenProject> projects = new ArrayList<>();
         projects.add(project);
         MavenSession session = newMavenSession(projects.get(0), projects);
         BuildQualifierMojo mojo = getMojo(project, session);

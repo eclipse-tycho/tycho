@@ -61,7 +61,7 @@ public class Launcher {
         if (linuxDom == null) {
             return Collections.emptyMap();
         }
-        Map<String, String> linux = new HashMap<String, String>();
+        Map<String, String> linux = new HashMap<>();
         putIfNotNull(linux, ICON_LINUX, linuxDom.getAttributeValue(ICON_LINUX));
         return Collections.unmodifiableMap(linux);
     }
@@ -71,7 +71,7 @@ public class Launcher {
         if (macosxDom == null) {
             return Collections.emptyMap();
         }
-        Map<String, String> mac = new HashMap<String, String>();
+        Map<String, String> mac = new HashMap<>();
         putIfNotNull(mac, ICON_LINUX, macosxDom.getAttributeValue(ICON_LINUX));
         return Collections.unmodifiableMap(mac);
     }
@@ -81,7 +81,7 @@ public class Launcher {
         if (solarisDom == null) {
             return Collections.emptyMap();
         }
-        Map<String, String> solaris = new HashMap<String, String>();
+        Map<String, String> solaris = new HashMap<>();
         putIfNotNull(solaris, ICON_SOLARIS_LARGE, solarisDom.getAttributeValue(ICON_SOLARIS_LARGE));
         putIfNotNull(solaris, ICON_SOLARIS_MEDIUM, solarisDom.getAttributeValue(ICON_SOLARIS_MEDIUM));
         putIfNotNull(solaris, ICON_SOLARIS_SMALL, solarisDom.getAttributeValue(ICON_SOLARIS_SMALL));
@@ -103,7 +103,7 @@ public class Launcher {
         if (winDom == null) {
             return Collections.emptyMap();
         }
-        Map<String, String> windows = new HashMap<String, String>();
+        Map<String, String> windows = new HashMap<>();
         if (getWindowsUseIco()) {
             Element ico = winDom.getChild("ico");
             if (ico != null) {

@@ -64,7 +64,7 @@ public class Feature {
 
     public List<PluginRef> getPlugins() {
         if (plugins == null) {
-            plugins = new ArrayList<PluginRef>();
+            plugins = new ArrayList<>();
             for (Element pluginDom : dom.getChildren("plugin")) {
                 plugins.add(new PluginRef(pluginDom));
             }
@@ -78,7 +78,7 @@ public class Feature {
 
     public List<FeatureRef> getIncludedFeatures() {
         if (features == null) {
-            features = new ArrayList<FeatureRef>();
+            features = new ArrayList<>();
             for (Element featureDom : dom.getChildren("includes")) {
                 features.add(new FeatureRef(featureDom));
             }
@@ -87,7 +87,7 @@ public class Feature {
     }
 
     public List<RequiresRef> getRequires() {
-        ArrayList<RequiresRef> requires = new ArrayList<RequiresRef>();
+        ArrayList<RequiresRef> requires = new ArrayList<>();
         for (Element requiresDom : dom.getChildren("requires")) {
             requires.add(new RequiresRef(requiresDom));
         }
@@ -103,7 +103,7 @@ public class Feature {
         }
 
         public List<ImportRef> getImports() {
-            ArrayList<ImportRef> imports = new ArrayList<ImportRef>();
+            ArrayList<ImportRef> imports = new ArrayList<>();
             for (Element importsDom : dom.getChildren("import")) {
                 imports.add(new ImportRef(importsDom));
             }

@@ -175,7 +175,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
 
     protected List<Resource> getSources(MavenProject p, boolean requireSourceRoots, BuildProperties buildProperties)
             throws MojoExecutionException {
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : buildProperties.getJarToSourceFolderMap().entrySet()) {
             for (String sourceFolder : entry.getValue()) {
                 Resource resource = new Resource();
@@ -204,7 +204,7 @@ public class OsgiSourceMojo extends AbstractSourceJarMojo {
         }
         BuildProperties buildProperties = buildPropertiesParser.parse(p.getBasedir());
         List<String> srcIncludesList = buildProperties.getSourceIncludes();
-        List<Resource> resources = new ArrayList<Resource>();
+        List<Resource> resources = new ArrayList<>();
         if (!srcIncludesList.isEmpty()) {
             includeValidationHelper.checkSourceIncludesExist(p, buildProperties, strictSrcIncludes);
             resources.add(createResource(project.getBasedir().getAbsolutePath(), srcIncludesList,

@@ -59,7 +59,7 @@ public class UpdateSite {
     }
 
     public List<SiteFeatureRef> getFeatures() {
-        ArrayList<SiteFeatureRef> features = new ArrayList<SiteFeatureRef>();
+        ArrayList<SiteFeatureRef> features = new ArrayList<>();
         for (Element featureDom : dom.getChildren("feature")) {
             features.add(new SiteFeatureRef(featureDom));
         }
@@ -67,7 +67,7 @@ public class UpdateSite {
     }
 
     public Map<String, String> getArchives() {
-        Map<String, String> archives = new HashMap<String, String>();
+        Map<String, String> archives = new HashMap<>();
         for (Element archiveDom : dom.getChildren("archive")) {
             String path = archiveDom.getAttributeValue("path");
             String url = archiveDom.getAttributeValue("url");

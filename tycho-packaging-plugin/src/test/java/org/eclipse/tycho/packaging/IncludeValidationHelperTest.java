@@ -89,7 +89,7 @@ public class IncludeValidationHelperTest {
 
     @Test
     public void testWarning() throws Exception {
-        final List<String> warnings = new ArrayList<String>();
+        final List<String> warnings = new ArrayList<>();
 
         Logger log = new AbstractLogger(Logger.LEVEL_DEBUG, null) {
 

@@ -49,7 +49,7 @@ public class Category {
     }
 
     public List<SiteFeatureRef> getFeatures() {
-        ArrayList<SiteFeatureRef> features = new ArrayList<SiteFeatureRef>();
+        ArrayList<SiteFeatureRef> features = new ArrayList<>();
         for (Element featureDom : dom.getChildren("feature")) {
             features.add(new SiteFeatureRef(featureDom));
         }
@@ -57,7 +57,7 @@ public class Category {
     }
 
     public List<PluginRef> getPlugins() {
-        ArrayList<PluginRef> plugins = new ArrayList<PluginRef>();
+        ArrayList<PluginRef> plugins = new ArrayList<>();
         for (Element pluginDom : dom.getChildren("bundle")) {
             plugins.add(new PluginRef(pluginDom));
         }
