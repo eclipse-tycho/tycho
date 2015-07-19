@@ -150,10 +150,6 @@
 			<artifactId>tycho-testing-harness</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.tycho</groupId>
-			<artifactId>tycho-testing-harness</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.tycho.extras</groupId>
 			<artifactId>tycho-pomless</artifactId>
 		</dependency>
