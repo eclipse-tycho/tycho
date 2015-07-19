@@ -127,9 +127,26 @@ public class EclipseRunMojo extends AbstractMojo {
 
     /**
      * Arbitrary applications arguments to set on the command line.
+     * 
+     * @deprecated use {@link #applicationsArgs} instead.
      */
     @Parameter
     private String appArgLine;
+
+    /**
+     * List of applications arguments set on the command line. Example:
+     * 
+     * <pre>
+     * &lt;applicationsArgs&gt;
+     *   &lt;args&gt;-buildfile&lt;/args&gt;
+     *   &lt;args&gt;build-test.xml&lt;/args&gt;
+     * &lt;/applicationsArgs&gt;
+     * </pre>
+     * 
+     * @since 0.24.0
+     */
+    @Parameter
+    private List<String> applicationsArgs;
 
     /**
      * Kill the forked process after a certain number of seconds. If set to 0, wait forever for the
@@ -194,8 +211,8 @@ public class EclipseRunMojo extends AbstractMojo {
         for (Repository repository : repositories) {
             tpConfiguration.addP2Repository(new MavenRepositoryLocation(repository.getId(), repository.getLocation()));
         }
-        TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(
-                tpConfiguration, new ExecutionEnvironmentConfigurationStub(executionEnvironment), null, null);
+        TargetPlatform targetPlatform = resolverFactory.getTargetPlatformFactory().createTargetPlatform(tpConfiguration,
+                new ExecutionEnvironmentConfigurationStub(executionEnvironment), null, null);
         P2Resolver resolver = resolverFactory.createResolver(new MavenLoggerAdapter(logger, false));
         for (Dependency dependency : dependencies) {
             try {
@@ -210,8 +227,9 @@ public class EclipseRunMojo extends AbstractMojo {
         for (P2ResolutionResult result : resolver.resolveDependencies(targetPlatform, null)) {
             for (Entry entry : result.getArtifacts()) {
                 if (ArtifactType.TYPE_ECLIPSE_PLUGIN.equals(entry.getType())) {
-                    installationDesc.addBundle(new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getId(),
-                            entry.getVersion()), entry.getLocation());
+                    installationDesc.addBundle(
+                            new DefaultArtifactKey(ArtifactType.TYPE_ECLIPSE_PLUGIN, entry.getId(), entry.getVersion()),
+                            entry.getLocation());
                 }
             }
         }
@@ -233,8 +251,8 @@ public class EclipseRunMojo extends AbstractMojo {
         }
     }
 
-    LaunchConfiguration createCommandLine(EquinoxInstallation runtime) throws MalformedURLException,
-            MojoExecutionException {
+    LaunchConfiguration createCommandLine(EquinoxInstallation runtime)
+            throws MalformedURLException, MojoExecutionException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(runtime);
 
         String executable = null;
@@ -248,10 +266,15 @@ public class EclipseRunMojo extends AbstractMojo {
 
         cli.addVMArguments(splitArgLine(argLine));
 
-        addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration", new File(work,
-                "configuration").getAbsolutePath());
+        addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration",
+                new File(work, "configuration").getAbsolutePath());
 
         cli.addProgramArguments(splitArgLine(appArgLine));
+        if (applicationsArgs != null) {
+            for (String args : applicationsArgs) {
+                cli.addProgramArguments(splitArgLine(args));
+            }
+        }
 
         if (environmentVariables != null) {
             cli.addEnvironmentVariables(environmentVariables);

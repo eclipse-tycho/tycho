@@ -51,7 +51,11 @@
 							<url>http://download.eclipse.org/releases/juno</url>
 						</repository>
 					</repositories>
-					<appArgLine>-application org.eclipse.ant.core.antRunner -buildfile build-test.xml</appArgLine>
+					<appArgLine>-application org.eclipse.ant.core.antRunner</appArgLine>
+					<applicationsArgs>
+						<args>-buildfile</args>
+						<args>build-test.xml</args>
+					</applicationsArgs>
 					<dependencies>
 						<dependency>
 							<artifactId>org.eclipse.ant.core</artifactId>
