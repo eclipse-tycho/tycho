@@ -89,25 +89,18 @@
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
 		<equinoxVersion>3.10.100.v20150529-1857</equinoxVersion>
-		<equinoxVersionMaven>${equinoxVersion}-SNAPSHOT</equinoxVersionMaven>
+		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.0.100.v20150402-1551</equinoxCompatVersion>
-		<equinoxCompatVersionMaven>${equinoxCompatVersion}-SNAPSHOT</equinoxCompatVersionMaven>
+		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
 		<jdtVersion>3.11.0.v20150602-1242</jdtVersion>
-		<jdtVersionMaven>${jdtVersion}-SNAPSHOT</jdtVersionMaven>
+		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
 		<jdtAptVersion>1.2.0.v20150514-0146</jdtAptVersion>
-		<jdtAptVersionMaven>${jdtAptVersion}-SNAPSHOT</jdtAptVersionMaven>
+		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
 
 		<!-- version of Tycho used by this build -->
-		<tychoBootstrapVersion>0.21.0</tychoBootstrapVersion>
+		<tychoBootstrapVersion>0.23.1</tychoBootstrapVersion>
 	</properties>
 
-   <repositories>
-                 <repository>
-                                 <!-- TODO remove this before releasing, see bug 461101 -->
-                                 <id>tycho-snapshots</id>
-                                 <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
-                 </repository>
-  </repositories>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
