@@ -26,6 +26,7 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
+import org.codehaus.plexus.archiver.tar.TarArchiver.TarCompressionMethod;
 import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.plugins.tar.TarGzArchiver;
@@ -95,13 +96,9 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
         productArchivers.put(TAR_GZ_ARCHIVE_FORMAT, new ProductArchiver() {
             @Override
             Archiver getArchiver() throws ArchiverException {
-                TarArchiver.TarCompressionMethod tarCompressionMethod = new TarArchiver.TarCompressionMethod();
-                tarCompressionMethod.setValue("gzip"); // surprisingly, compression names are private in plexus 
-                tarArchiver.setCompression(tarCompressionMethod);
+                tarArchiver.setCompression(TarCompressionMethod.gzip);
                 // avoid lots of long file path (> 100 chars) warnings
-                TarLongFileMode gnuMode = new TarLongFileMode();
-                gnuMode.setValue(TarLongFileMode.GNU);
-                tarArchiver.setLongfile(gnuMode);
+                tarArchiver.setLongfile(TarLongFileMode.gnu);
                 return tarArchiver;
             }
         });
@@ -122,12 +119,12 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                 String format = getArchiveFormat(env);
                 ProductArchiver productArchiver = productArchivers.get(format);
                 if (productArchiver == null) {
-                    throw new MojoExecutionException("Unknown or unsupported archive format os=" + env.getOs()
-                            + " format=" + format);
+                    throw new MojoExecutionException(
+                            "Unknown or unsupported archive format os=" + env.getOs() + " format=" + format);
                 }
 
-                File productArchive = new File(getProductsBuildDirectory(), getArchiveFileName(product) + "-"
-                        + getOsWsArch(env, '.') + "." + format);
+                File productArchive = new File(getProductsBuildDirectory(),
+                        getArchiveFileName(product) + "-" + getOsWsArch(env, '.') + "." + format);
 
                 try {
                     final File sourceDir = getProductMaterializeDirectory(product, env);
