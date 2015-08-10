@@ -15,10 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-
-import org.codehaus.plexus.archiver.zip.ZipEntry;
-import org.codehaus.plexus.archiver.zip.ZipFile;
+import java.util.zip.ZipFile;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
@@ -36,11 +35,7 @@ class Util {
         try {
             ZipEntry contentXmlEntry = zip.getEntry(xmlFile);
             InputStream entryStream = zip.getInputStream(contentXmlEntry);
-            try {
-                return parser.parse(new XMLIOSource(entryStream));
-            } finally {
-                entryStream.close();
-            }
+            return parser.parse(new XMLIOSource(entryStream));
         } finally {
             zip.close();
         }
