@@ -78,6 +78,9 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "repository-product-only"));
         assertProductFile(new File(basedir, "repository-product-only"), "product2.product");
 
+        assertPom(new File(basedir, "iu"));
+        assertP2IuXml(new File(basedir, "iu"));
+
     }
 
     public void testUpdateVersionRanges() throws Exception {
