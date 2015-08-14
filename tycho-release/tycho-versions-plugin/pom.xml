@@ -45,6 +45,12 @@
 			<artifactId>tycho-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-metadata-model</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
