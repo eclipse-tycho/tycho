@@ -15,6 +15,7 @@
     <module>product</module>
     <module>repository</module>
     <module>repository-product-only</module>
+    <module>iu</module>
   </modules>
 
 </project>

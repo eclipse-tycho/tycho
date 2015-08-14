@@ -49,6 +49,10 @@ public abstract class AbstractVersionChangeTest extends PlexusTestCase {
         assertEquals(toAsciiString(expected), toAsciiString(actual));
     }
 
+    protected static void assertP2IuXml(File basedir) throws IOException {
+        assertFileContent(new File(basedir, "p2iu.xml"));
+    }
+
     private static String toAsciiString(File file) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
