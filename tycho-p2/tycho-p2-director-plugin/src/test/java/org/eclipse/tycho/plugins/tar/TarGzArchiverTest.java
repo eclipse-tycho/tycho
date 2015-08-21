@@ -86,10 +86,8 @@ public class TarGzArchiverTest {
         archiver.createArchive();
         Map<String, TarArchiveEntry> tarEntries = getTarEntries();
         assertEquals(7, tarEntries.size());
-        assertThat(
-                tarEntries.keySet(),
-                hasItems("dir2/", "dir2/test.txt", "dir2/dir3/", "dir2/dir3/test.sh", "dir2/testPermissions",
-                        "dir2/testLastModified", "dir2/testOwnerAndGroupName"));
+        assertThat(tarEntries.keySet(), hasItems("dir2/", "dir2/test.txt", "dir2/dir3/", "dir2/dir3/test.sh",
+                "dir2/testPermissions", "dir2/testLastModified", "dir2/testOwnerAndGroupName"));
         TarArchiveEntry dirArchiveEntry = tarEntries.get("dir2/");
         assertTrue(dirArchiveEntry.isDirectory());
         TarArchiveEntry textFileEntry = tarEntries.get("dir2/test.txt");
@@ -156,15 +154,6 @@ public class TarGzArchiverTest {
     }
 
     @Test
-    public void testCreateArchiveOwnerAndGroupPreserved() throws Exception {
-        PosixFileAttributes attrs = getPosixFileAttributes(testOwnerAndGroupFile);
-        archiver.createArchive();
-        TarArchiveEntry testOwnerAndGroupNameEntry = getTarEntries().get("dir2/testOwnerAndGroupName");
-        assertEquals(attrs.owner().getName(), testOwnerAndGroupNameEntry.getUserName());
-        assertEquals(attrs.group().getName(), testOwnerAndGroupNameEntry.getGroupName());
-    }
-
-    @Test
     public void testLongPathEntry() throws Exception {
         final String longPath = "very/long/path/exceeding/100/chars/very/long/path/exceeding/100/chars/very/long/path/exceeding/100/chars/test.txt";
         File longPathFile = new File(archiveRoot, longPath);
@@ -207,8 +196,8 @@ public class TarGzArchiverTest {
     }
 
     private Map<String, TarArchiveEntry> getTarEntries() throws IOException, FileNotFoundException {
-        TarArchiveInputStream tarStream = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(
-                tarGzArchive)));
+        TarArchiveInputStream tarStream = new TarArchiveInputStream(
+                new GzipCompressorInputStream(new FileInputStream(tarGzArchive)));
         Map<String, TarArchiveEntry> entries = new HashMap<>();
         try {
             TarArchiveEntry tarEntry = null;
@@ -222,8 +211,8 @@ public class TarGzArchiverTest {
     }
 
     private byte[] getTarEntry(String name) throws IOException {
-        TarArchiveInputStream tarStream = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(
-                tarGzArchive)));
+        TarArchiveInputStream tarStream = new TarArchiveInputStream(
+                new GzipCompressorInputStream(new FileInputStream(tarGzArchive)));
         try {
             TarArchiveEntry tarEntry = null;
             while ((tarEntry = tarStream.getNextTarEntry()) != null) {

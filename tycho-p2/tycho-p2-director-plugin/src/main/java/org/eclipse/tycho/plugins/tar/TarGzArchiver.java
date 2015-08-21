@@ -36,7 +36,6 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
  * 
  * <ul>
  * <li>POSIX file permissions</li>
- * <li>Owner name and group name</li>
  * <li>Symbolic links (if the link target points inside the archive)</li>
  * <li>Last modification timestamp</li>
  * </ul>
@@ -72,8 +71,8 @@ public class TarGzArchiver {
         TarArchiveOutputStream tarStream = null;
         try {
             destFile.getAbsoluteFile().getParentFile().mkdirs();
-            GzipCompressorOutputStream gzipStream = new GzipCompressorOutputStream(new BufferedOutputStream(
-                    new FileOutputStream(destFile)));
+            GzipCompressorOutputStream gzipStream = new GzipCompressorOutputStream(
+                    new BufferedOutputStream(new FileOutputStream(destFile)));
             tarStream = new TarArchiveOutputStream(gzipStream, "UTF-8");
             // allow "long" file paths (> 100 chars)
             tarStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
@@ -97,7 +96,8 @@ public class TarGzArchiver {
         }
     }
 
-    private void addToTarRecursively(File tarRootDir, File source, TarArchiveOutputStream tarStream) throws IOException {
+    private void addToTarRecursively(File tarRootDir, File source, TarArchiveOutputStream tarStream)
+            throws IOException {
         TarArchiveEntry tarEntry = createTarEntry(tarRootDir, source);
         tarStream.putArchiveEntry(tarEntry);
         if (source.isFile() && !tarEntry.isSymbolicLink()) {
@@ -127,8 +127,6 @@ public class TarGzArchiver {
         }
         PosixFileAttributes attrs = getAttributes(source);
         if (attrs != null) {
-            tarEntry.setUserName(attrs.owner().getName());
-            tarEntry.setGroupName(attrs.group().getName());
             tarEntry.setMode(FilePermissionHelper.toOctalFileMode(attrs.permissions()));
         }
         tarEntry.setModTime(source.lastModified());
