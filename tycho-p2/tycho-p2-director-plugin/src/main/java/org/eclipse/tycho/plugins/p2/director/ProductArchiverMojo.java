@@ -28,6 +28,7 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.tar.TarArchiver.TarCompressionMethod;
 import org.codehaus.plexus.archiver.tar.TarLongFileMode;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.plugins.tar.TarGzArchiver;
 
@@ -135,7 +136,9 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
                     } else {
                         Archiver archiver = productArchiver.getArchiver();
                         archiver.setDestFile(productArchive);
-                        archiver.addDirectory(sourceDir);
+                        DefaultFileSet fileSet = new DefaultFileSet(sourceDir);
+                        fileSet.setUsingDefaultExcludes(false);
+                        archiver.addFileSet(fileSet);
                         archiver.createArchive();
                     }
                 } catch (ArchiverException e) {
