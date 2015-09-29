@@ -7,13 +7,14 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - add setter with {@link MutableManifestElement}
  *******************************************************************************/
 package org.eclipse.tycho.versions.bundle;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
-import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
 
 public class ManifestAttribute {
@@ -77,17 +78,20 @@ public class ManifestAttribute {
         return null;
     }
 
-    public void set(String name, String value) {
+    public void set(String name, List<MutableManifestElement> manifestElements) {
         content.setLength(0);
+        content.append(name);
+        content.append(": ");
+        for (MutableManifestElement element : manifestElements) {
+            content.append(element.toString());
+            content.append(ELEMENT_SEPARATOR);
+        }
+        content.setLength(content.length() - ELEMENT_SEPARATOR.length());
+    }
+
+    public void set(String name, String value) {
         try {
-            ManifestElement[] elements = ManifestElement.parseHeader(name, value);
-            content.append(name);
-            content.append(": ");
-            for (ManifestElement element : elements) {
-                content.append(element.toString());
-                content.append(ELEMENT_SEPARATOR);
-            }
-            content.setLength(content.length() - ELEMENT_SEPARATOR.length());
+            set(name, MutableManifestElement.parseHeader(name, value));
         } catch (BundleException e) {
             throw new RuntimeException(e);
         }

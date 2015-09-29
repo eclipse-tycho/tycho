@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - introduce VersionChangesDescriptor
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -14,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
@@ -22,6 +22,7 @@ import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 
@@ -29,19 +30,23 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
 public class EclipseApplicationProductFileManipulator extends ProductFileManipulator {
 
     @Override
-    public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
+    public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isEclipseApplication(project)) {
-            applyChangeToProduct(project, getProductConfiguration(project), getProductFileName(project), change);
+            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+                applyChangeToProduct(project, getProductConfiguration(project), getProductFileName(project), change);
+            }
         }
     }
 
     @Override
-    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+    public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isEclipseApplication(project)) {
-            ProductConfiguration product = getProductConfiguration(project);
-            if (isSameProject(project, change.getProject()) && change.getVersion().equals(product.getVersion())) {
-                String error = Versions.validateOsgiVersion(change.getNewVersion(), getProductFile(project));
-                return error != null ? Collections.singleton(error) : null;
+            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+                ProductConfiguration product = getProductConfiguration(project);
+                if (isSameProject(project, change.getProject()) && change.getVersion().equals(product.getVersion())) {
+                    String error = Versions.validateOsgiVersion(change.getNewVersion(), getProductFile(project));
+                    return error != null ? Collections.singleton(error) : null;
+                }
             }
         }
         return null;
