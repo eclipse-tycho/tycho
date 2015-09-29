@@ -73,4 +73,9 @@ public class VersionChange {
         return version.equals(other.version) && newVersion.equals(other.newVersion)
                 && pom.getGroupId().equals(other.pom.getGroupId()) && pom.getArtifactId().equals(other.getArtifactId());
     }
+
+    @Override
+    public String toString() {
+        return pom.getGroupId() + ":" + pom.getArtifactId() + ":" + version + " => " + newVersion;
+    }
 }

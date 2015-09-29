@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle01
+Bundle-SymbolicName: fragment-name
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.package1;version="1.0.1",
+ com.package2;version="1.1.1",
+ com.untouched;version="1.1.3"

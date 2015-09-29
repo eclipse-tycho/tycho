@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,13 +8,13 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Beat Strasser (Inventage AG) - preserve feature url in site.xml
+ *    Sebastien Arod - introduce VersionChangesDescriptor
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
@@ -24,30 +24,33 @@ import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-update-site")
 public class SiteXmlManipulator extends AbstractMetadataManipulator {
 
     @Override
-    public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
+    public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isSite(project)) {
-            if (isFeature(change.getProject().getPackaging())) {
-                UpdateSite site = getSiteXml(project);
+            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+                if (isFeature(change.getProject().getPackaging())) {
+                    UpdateSite site = getSiteXml(project);
 
-                for (FeatureRef feature : site.getFeatures()) {
-                    if (change.getArtifactId().equals(feature.getId())
-                            && change.getVersion().equals(feature.getVersion())) {
-                        logger.info("  site.xml//site/feature/@id=" + feature.getId() + "/@version: "
-                                + change.getVersion() + " => " + change.getNewVersion());
-                        feature.setVersion(change.getNewVersion());
+                    for (FeatureRef feature : site.getFeatures()) {
+                        if (change.getArtifactId().equals(feature.getId())
+                                && change.getVersion().equals(feature.getVersion())) {
+                            logger.info("  site.xml//site/feature/@id=" + feature.getId() + "/@version: "
+                                    + change.getVersion() + " => " + change.getNewVersion());
+                            feature.setVersion(change.getNewVersion());
 
-                        SiteFeatureRef siteFeature = (SiteFeatureRef) feature;
-                        String oldUrl = siteFeature.getUrl();
-                        String newUrl = rewriteFeatureUrl(oldUrl, change);
-                        logger.info("  site.xml//site/feature/@id=" + feature.getId() + "/@url: " + oldUrl + " => "
-                                + newUrl);
-                        siteFeature.setUrl(newUrl);
+                            SiteFeatureRef siteFeature = (SiteFeatureRef) feature;
+                            String oldUrl = siteFeature.getUrl();
+                            String newUrl = rewriteFeatureUrl(oldUrl, change);
+                            logger.info("  site.xml//site/feature/@id=" + feature.getId() + "/@url: " + oldUrl + " => "
+                                    + newUrl);
+                            siteFeature.setUrl(newUrl);
+                        }
                     }
                 }
             }
@@ -95,7 +98,7 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
     }
 
     @Override
-    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+    public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         return null; // there is no project version in site.xml
     }
 }

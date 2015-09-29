@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - introduce VersionChangesDescriptor
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -17,12 +18,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.Build;
 import org.eclipse.tycho.versions.pom.DependencyManagement;
@@ -38,58 +39,65 @@ public class PomManipulator extends AbstractMetadataManipulator {
     public static final String HINT = "pom";
 
     @Override
-    public boolean addMoreChanges(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
+    public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
         GAV parent = pom.getParent();
-        if (parent != null && isGavEquals(parent, change)) {
-            if (isVersionEquals(pom.getVersion(), change.getVersion())) {
-                return allChanges.add(new VersionChange(pom, change.getVersion(), change.getNewVersion()));
+
+        boolean moreChanges = false;
+        for (VersionChange change : versionChangeContext.getVersionChanges()) {
+            if (parent != null && isGavEquals(parent, change)) {
+                if (isVersionEquals(pom.getVersion(), change.getVersion())) {
+                    moreChanges |= versionChangeContext
+                            .addVersionChange(new VersionChange(pom, change.getVersion(), change.getNewVersion()));
+                }
             }
         }
-
-        return false;
+        return moreChanges;
     }
 
     @Override
-    public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
+    public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
 
         // TODO visitor pattern is a better way to implement this
 
-        String version = Versions.toMavenVersion(change.getVersion());
-        String newVersion = Versions.toMavenVersion(change.getNewVersion());
-        if (isGavEquals(pom, change)) {
-            logger.info("  pom.xml//project/version: " + version + " => " + newVersion);
-            pom.setVersion(newVersion);
-        } else {
-            GAV parent = pom.getParent();
-            if (parent != null && isGavEquals(parent, change)) {
-                logger.info("  pom.xml//project/parent/version: " + version + " => " + newVersion);
-                parent.setVersion(newVersion);
+        for (VersionChange change : versionChangeContext.getVersionChanges()) {
+            String version = Versions.toMavenVersion(change.getVersion());
+            String newVersion = Versions.toMavenVersion(change.getNewVersion());
+            if (isGavEquals(pom, change)) {
+                logger.info("  pom.xml//project/version: " + version + " => " + newVersion);
+                pom.setVersion(newVersion);
+            } else {
+                GAV parent = pom.getParent();
+                if (parent != null && isGavEquals(parent, change)) {
+                    logger.info("  pom.xml//project/parent/version: " + version + " => " + newVersion);
+                    parent.setVersion(newVersion);
+                }
+            }
+
+            //
+            // Dependencies and entries inside dependencyManagement sections are not
+            // OSGI related. Nevertheless it might happen that dependencies like this
+            // does occur inside OSGI related project. Hence we must be able to handle
+            // it.
+            //
+
+            changeDependencies("  pom.xml//project/dependencies", pom.getDependencies(), change, version, newVersion);
+            changeDependencyManagement("  pom.xml//project/dependencyManagement", pom.getDependencyManagement(), change,
+                    version, newVersion);
+
+            changeBuild("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
+
+            for (Profile profile : pom.getProfiles()) {
+                String profileId = profile.getId() != null ? profile.getId() : "<null>";
+                String pomPath = "  pom.xml//project/profiles/profile[ " + profileId + " ]";
+                changeDependencies(pomPath + "/dependencies", profile.getDependencies(), change, version, newVersion);
+                changeDependencyManagement(pomPath + "/dependencyManagement", profile.getDependencyManagement(), change,
+                        version, newVersion);
+                changeBuild(pomPath + "/build", profile.getBuild(), change, version, newVersion);
             }
         }
 
-        //
-        // Dependencies and entries inside dependencyManagement sections are not
-        // OSGI related. Nevertheless it might happen that dependencies like this
-        // does occur inside OSGI related project. Hence we must be able to handle
-        // it.
-        //
-
-        changeDependencies("  pom.xml//project/dependencies", pom.getDependencies(), change, version, newVersion);
-        changeDependencyManagement("  pom.xml//project/dependencyManagement", pom.getDependencyManagement(), change,
-                version, newVersion);
-
-        changeBuild("  pom.xml//project/build", pom.getBuild(), change, version, newVersion);
-
-        for (Profile profile : pom.getProfiles()) {
-            String profileId = profile.getId() != null ? profile.getId() : "<null>";
-            String pomPath = "  pom.xml//project/profiles/profile[ " + profileId + " ]";
-            changeDependencies(pomPath + "/dependencies", profile.getDependencies(), change, version, newVersion);
-            changeDependencyManagement(pomPath + "/dependencyManagement", profile.getDependencyManagement(), change,
-                    version, newVersion);
-            changeBuild(pomPath + "/build", profile.getBuild(), change, version, newVersion);
-        }
     }
 
     protected void changeDependencyManagement(String pomPath, DependencyManagement dependencyManagment,
@@ -118,8 +126,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
         changePlugins(pomPath + "/plugins/plugin", build.getPlugins(), change, version, newVersion);
         PluginManagement pluginManagement = build.getPluginManagement();
         if (pluginManagement != null) {
-            changePlugins(pomPath + "/pluginManagemment/plugins/plugin", pluginManagement.getPlugins(), change,
-                    version, newVersion);
+            changePlugins(pomPath + "/pluginManagemment/plugins/plugin", pluginManagement.getPlugins(), change, version,
+                    newVersion);
         }
     }
 
@@ -128,8 +136,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
         for (Plugin plugin : plugins) {
             GAV pluginGAV = plugin.getGAV();
             if (isPluginGavEquals(pluginGAV, change)) {
-                logger.info(pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] "
-                        + version + " => " + newVersion);
+                logger.info(pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] " + version
+                        + " => " + newVersion);
                 pluginGAV.setVersion(newVersion);
             }
 
@@ -177,7 +185,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void changeProperties(String pomPath, List<Property> properties, String propertyName, String propertyValue) {
+    private void changeProperties(String pomPath, List<Property> properties, String propertyName,
+            String propertyValue) {
         for (Property property : properties) {
             if (propertyName.equals(property.getName())) {
                 logger.info(pomPath + "/[ " + propertyName + " ] " + property.getValue() + " => " + propertyValue);
@@ -187,7 +196,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
     }
 
     @Override
-    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+    public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         return null; // there are no restrictions on maven version format
     }
 }
