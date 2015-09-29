@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
- * All rights reserved. This program and the accompanying materials
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * All rights reserved. T5his program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - updateVersionRangeMatchingBounds 
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +28,7 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
  * Applies direct and indirect version changes to a set of projects.
  * 
  * @TODO find more specific name that reflects what this class actually does.
+ * 
  */
 @Component(role = VersionsEngine.class, instantiationStrategy = "per-lookup")
 public class VersionsEngine {
@@ -57,9 +58,19 @@ public class VersionsEngine {
 
     private Collection<ProjectMetadata> projects;
 
-    private Set<VersionChange> versionChanges = new LinkedHashSet<>();
+    private Set<VersionChange> originalVersionChanges = new LinkedHashSet<>();
 
     private Set<PropertyChange> propertyChanges = new LinkedHashSet<>();
+
+    private boolean updateVersionRangeMatchingBounds;
+
+    public boolean isUpdateVersionRangeMatchingBounds() {
+        return updateVersionRangeMatchingBounds;
+    }
+
+    public void setUpdateVersionRangeMatchingBounds(boolean updateVersionRangeMatchingBounds) {
+        this.updateVersionRangeMatchingBounds = updateVersionRangeMatchingBounds;
+    }
 
     public void setProjects(Collection<ProjectMetadata> projects) {
         this.projects = projects;
@@ -85,19 +96,21 @@ public class VersionsEngine {
     }
 
     public void addVersionChange(VersionChange change) {
-        versionChanges.add(change);
+        originalVersionChanges.add(change);
     }
 
     public void apply() throws IOException {
+
+        VersionChangesDescriptor versionChangeContext = new VersionChangesDescriptor(originalVersionChanges,
+                new DefaultVersionRangeUpdateStrategy(updateVersionRangeMatchingBounds));
+
         // collecting secondary changes
         boolean newChanges = true;
         while (newChanges) {
             newChanges = false;
-            for (VersionChange change : new ArrayList<>(versionChanges)) {
-                for (ProjectMetadata project : projects) {
-                    for (MetadataManipulator manipulator : manipulators) {
-                        newChanges |= manipulator.addMoreChanges(project, change, versionChanges);
-                    }
+            for (ProjectMetadata project : projects) {
+                for (MetadataManipulator manipulator : manipulators) {
+                    newChanges |= manipulator.addMoreChanges(project, versionChangeContext);
                 }
             }
         }
@@ -105,12 +118,10 @@ public class VersionsEngine {
         // validate version changes can be implemented
         List<String> errors = new ArrayList<>();
         for (ProjectMetadata project : projects) {
-            for (VersionChange change : versionChanges) {
-                for (MetadataManipulator manipulator : manipulators) {
-                    Collection<String> error = manipulator.validateChange(project, change);
-                    if (error != null) {
-                        errors.addAll(error);
-                    }
+            for (MetadataManipulator manipulator : manipulators) {
+                Collection<String> error = manipulator.validateChanges(project, versionChangeContext);
+                if (error != null) {
+                    errors.addAll(error);
                 }
             }
         }
@@ -121,11 +132,11 @@ public class VersionsEngine {
         // make changes to the metadata
         for (ProjectMetadata project : projects) {
             logger.info("Making changes in " + project.getBasedir().getAbsolutePath());
-            Set<VersionChange> applied = new HashSet<>();
 
             MutablePomFile pom = project.getMetadata(MutablePomFile.class);
 
             // make changes to pom properties, assume project/version and project/parent/version are constants for now
+            // TODO property changes should be added as a new type of change in VersionChangeDescriptors
             for (PropertyChange propertyChange : propertyChanges) {
                 if (pom == propertyChange.pom) {
                     ((PomManipulator) pomManipulator).applyPropertyChange(pom, propertyChange.propertyName,
@@ -133,11 +144,9 @@ public class VersionsEngine {
                 }
             }
 
-            // apply version changes
-            for (VersionChange change : versionChanges) {
-                if (!applied.contains(change)) {
-                    applyChange(project, change);
-                }
+            // apply changes
+            for (MetadataManipulator manipulator : manipulators) {
+                manipulator.applyChanges(project, versionChangeContext);
             }
         }
 
@@ -148,12 +157,6 @@ public class VersionsEngine {
             }
         }
 
-    }
-
-    private void applyChange(ProjectMetadata project, VersionChange change) {
-        for (MetadataManipulator manipulator : manipulators) {
-            manipulator.applyChange(project, change, versionChanges);
-        }
     }
 
     private ProjectMetadata getProject(String artifactId) {

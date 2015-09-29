@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - update version ranges
  *******************************************************************************/
 package org.eclipse.tycho.versions;
 
@@ -44,6 +45,13 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
  * <li>When an <tt>eclipse-plugin</tt> project is changed and the plugin exports a package with a
  * version which is the same as the unqualified project version, the version of the package is also
  * changed.
+ * <li>Require-Bundle and Fragment-Host Version Range in references to an <tt>eclipse-plugin</tt>
+ * that changed version will be updated:
+ * <ul>
+ * <li>if the newVersion becomes out of the original VersionRange
+ * <li>or if {@link #updateVersionRangeMatchingBounds} is true and one of the bounds is matching the
+ * original version
+ * </ul>
  * <li>When an <tt>eclipse-repository</tt> project is changed and a product file in the project has
  * an equivalent version, the version in the product file is also changed.</li>
  * </ul>
@@ -72,6 +80,15 @@ public class SetMojo extends AbstractVersionsMojo {
 
     /**
      * <p>
+     * When true bounds of OSGI version ranges referencing the version of an element that changed
+     * version will be updated to match the newVersion.
+     * </p>
+     */
+    @Parameter(property = "updateVersionRangeMatchingBounds", defaultValue = "false")
+    private boolean updateVersionRangeMatchingBounds;
+
+    /**
+     * <p>
      * Comma separated list of names of POM properties to set the new version to. Note that
      * properties are only changed in the projects explicitly listed by the {@link #artifacts}
      * parameter.
@@ -89,6 +106,7 @@ public class SetMojo extends AbstractVersionsMojo {
         }
 
         VersionsEngine engine = newEngine();
+        engine.setUpdateVersionRangeMatchingBounds(updateVersionRangeMatchingBounds);
         ProjectMetadataReader metadataReader = newProjectMetadataReader();
 
         try {

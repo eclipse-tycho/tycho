@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *     Sebastien Arod - update version ranges
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine.tests;
 
@@ -73,6 +74,24 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
 
         assertPom(new File(basedir, "repository-product-only"));
         assertProductFile(new File(basedir, "repository-product-only"), "product2.product");
+
+    }
+
+    public void testUpdateVersionRanges() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/versionranges");
+
+        VersionsEngine engine = newEngine(basedir);
+        engine.addVersionChange("parent", "1.0.1.qualifier");
+        engine.setUpdateVersionRangeMatchingBounds(true);
+        engine.apply();
+
+        assertBundleManifest(new File(basedir, "bundle1"));
+
+        assertBundleManifest(new File(basedir, "bundle2"));
+
+        assertBundleManifest(new File(basedir, "bundle3"));
+
+        assertBundleManifest(new File(basedir, "fragment"));
 
     }
 
