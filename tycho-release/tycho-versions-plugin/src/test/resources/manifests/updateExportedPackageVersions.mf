@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle01
+Bundle-SymbolicName: TYCHO0214
+ versionChange.bundle01
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: com.package1;version="1.0.0",
+ com.package2;version="1.0.0";
+  uses:="org.eclipse.whatever1,
+   org.eclipse.whatever2,
+   org.eclipse.whatever3,
+   org.eclipse.whatever2,
+   org.eclipse.whatever4",
+ com.package3;version="100.0",
+ com.package4

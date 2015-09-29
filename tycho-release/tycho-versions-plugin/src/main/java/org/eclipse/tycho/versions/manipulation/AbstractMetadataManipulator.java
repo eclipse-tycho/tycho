@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,17 +7,16 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - introduce VersionChangesDescriptor
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
-
-import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
-import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 
 public abstract class AbstractMetadataManipulator implements MetadataManipulator {
@@ -46,7 +45,7 @@ public abstract class AbstractMetadataManipulator implements MetadataManipulator
     }
 
     @Override
-    public boolean addMoreChanges(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
+    public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         return false;
     }
 }
