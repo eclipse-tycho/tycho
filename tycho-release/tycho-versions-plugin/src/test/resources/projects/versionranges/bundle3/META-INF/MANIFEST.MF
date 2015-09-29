@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-Version: 2.0.0.qualifier
+Bundle-Name: bundle3
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: bundle3
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: bundle1,
+ bundle2;bundle-version="1.0.0"

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Sebastien Arod - introduce VersionChangesDescriptor
  *******************************************************************************/
 
 package org.eclipse.tycho.versions.manipulation;
@@ -17,7 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
@@ -26,6 +26,7 @@ import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProductConfigurations;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 
@@ -33,30 +34,34 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
 public class EclipseRepositoryProductFileManipulator extends ProductFileManipulator {
 
     @Override
-    public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
+    public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (!isEclipseRepository(project)) {
             return;
         }
-        for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
-            applyChangeToProduct(project, entry.getValue(), entry.getKey().getName(), change);
+        for (VersionChange change : versionChangeContext.getVersionChanges()) {
+            for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
+                applyChangeToProduct(project, entry.getValue(), entry.getKey().getName(), change);
+            }
         }
     }
 
     @Override
-    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+    public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isEclipseRepository(project)) {
-            ArrayList<String> errors = new ArrayList<>();
-            for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
-                if (isSameProject(project, change.getProject())
-                        && change.getVersion().equals(entry.getValue().getVersion())) {
-                    String error = Versions.validateOsgiVersion(change.getNewVersion(), entry.getKey());
-                    if (error != null) {
-                        errors.add(error);
+            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+                ArrayList<String> errors = new ArrayList<>();
+                for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
+                    if (isSameProject(project, change.getProject())
+                            && change.getVersion().equals(entry.getValue().getVersion())) {
+                        String error = Versions.validateOsgiVersion(change.getNewVersion(), entry.getKey());
+                        if (error != null) {
+                            errors.add(error);
+                        }
                     }
                 }
-            }
-            if (!errors.isEmpty()) {
-                return errors;
+                if (!errors.isEmpty()) {
+                    return errors;
+                }
             }
         }
         return null;

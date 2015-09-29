@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - update version ranges
  *******************************************************************************/
 package org.eclipse.tycho.versions.bundle.tests;
 
@@ -15,6 +16,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.versions.bundle.ManifestAttribute;
@@ -37,33 +40,72 @@ public class MutableBundleManifestTest {
 
         Assert.assertEquals("1.0.0.qualifier", mf.getVersion());
         Assert.assertEquals("TYCHO0214versionChange.bundle01", mf.getSymbolicName());
+        Assert.assertEquals("host-bundle", mf.getFragmentHostSymbolicName());
+        Assert.assertEquals("1.0.0.qualifier", mf.getFragmentHostVersion());
+
+        Map<String, String> expectedRequiredBundleVersion = new HashMap<>();
+        expectedRequiredBundleVersion.put("bundle1", "1.0.0");
+        expectedRequiredBundleVersion.put("bundle2", "1.1.0");
+        expectedRequiredBundleVersion.put("bundle3", null);
+        Assert.assertEquals(expectedRequiredBundleVersion, mf.getRequiredBundleVersions());
+
+        Map<String, String> expectedImportPackage = new HashMap<>();
+        expectedImportPackage.put("com.package1", null);
+        expectedImportPackage.put("com.package2", "2.6.0");
+        Assert.assertEquals(expectedImportPackage, mf.getImportPackagesVersions());
+
     }
 
     @Test
-    public void setExportedVersion() throws Exception {
-        MutableBundleManifest mf = getManifest("/manifests/setExportedPackage.mf");
-
-        mf.setExportedPackageVersion("1.0.0", "1.0.1");
-        assertContents(mf, "/manifests/setExportedPackage.mf_expected");
+    public void setFragmentHostVersion() throws IOException {
+        MutableBundleManifest mf = getManifest("/manifests/setFragmentHostVersion.mf");
+        mf.setFragmentHostVersion("1.0.1");
+        assertContents(mf, "/manifests/setFragmentHostVersion.mf_expected");
     }
 
     @Test
-    public void setExportedVersionWithQualifiers() throws Exception {
-        MutableBundleManifest mf = getManifest("/manifests/setExportedPackage.mf");
-
-        // omit ".qualifier" from package exports (because they are not expanded on exported packages and so can't be used)
-        mf.setExportedPackageVersion("1.0.0.qualifier", "1.0.1.qualifier");
-        assertContents(mf, "/manifests/setExportedPackage.mf_expected");
+    public void updateRequiredBundleVersions() throws IOException {
+        MutableBundleManifest mf = getManifest("/manifests/updateRequiredBundleVersions.mf");
+        Map<String, String> requiredBundleVersionChanges = new HashMap<>();
+        requiredBundleVersionChanges.put("bundle1", "1.0.1");
+        requiredBundleVersionChanges.put("bundle2", "1.1.1");
+        mf.updateRequiredBundleVersions(requiredBundleVersionChanges);
+        assertContents(mf, "/manifests/updateRequiredBundleVersions.mf_expected");
     }
 
     @Test
-    public void setExportedVersionDoesNotReformatIfNotNecessary() throws Exception {
-        MutableBundleManifest mf = getManifest("/manifests/setExportedPackage.mf");
+    public void updateImportedPackageVersions() throws IOException {
+        MutableBundleManifest mf = getManifest("/manifests/updateImportedPackageVersions.mf");
 
-        // change nothing: the version 2.0.0 does not exist as package version 
-        mf.setExportedPackageVersion("2.0.0", "1.0.0");
+        Map<String, String> importPackageVersionChanges = new HashMap<>();
+        importPackageVersionChanges.put("com.package1", "1.0.1");
+        importPackageVersionChanges.put("com.package2", "1.1.1");
+        mf.updateImportedPackageVersions(importPackageVersionChanges);
+        assertContents(mf, "/manifests/updateImportedPackageVersions.mf_expected");
+    }
+
+    @Test
+    public void updateExportedPackageVersions() throws IOException {
+        MutableBundleManifest mf = getManifest("/manifests/updateExportedPackageVersions.mf");
+
+        Map<String, String> importPackageVersionChanges = new HashMap<>();
+        importPackageVersionChanges.put("com.package1", "1.0.1");
+        importPackageVersionChanges.put("com.package2", "1.1.0");
+        mf.updateExportedPackageVersions(importPackageVersionChanges);
+        assertContents(mf, "/manifests/updateExportedPackageVersions.mf_expected");
+    }
+
+    @Test
+    public void updateExportedPackageVersionsDoesNotReformatIfNotNecessary() throws Exception {
+        MutableBundleManifest mf = getManifest("/manifests/updateExportedPackageVersions.mf");
+
+        // change nothing: the specified versions are already the version presents in the manifest
+        Map<String, String> importPackageVersionChanges = new HashMap<>();
+        importPackageVersionChanges.put("com.package1", "1.0.0");
+        importPackageVersionChanges.put("com.package2", "1.0.0");
+
         // expect that nothing is changed (that is the formatting remains intact)
-        assertContents(mf, "/manifests/setExportedPackage.mf");
+        assertContents(mf, "/manifests/updateExportedPackageVersions.mf");
     }
 
     @Test
@@ -142,7 +184,8 @@ public class MutableBundleManifestTest {
         assertContents(mf, path);
     }
 
-    private void assertContents(MutableBundleManifest mf, String path) throws UnsupportedEncodingException, IOException {
+    private void assertContents(MutableBundleManifest mf, String path)
+            throws UnsupportedEncodingException, IOException {
         Assert.assertEquals(toAsciiString(toByteArray(path)), toAsciiString(mf));
     }
 
