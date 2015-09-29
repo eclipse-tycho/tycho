@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - introduce VersionChangesDescriptor
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -15,7 +16,6 @@ import static org.eclipse.tycho.versions.manipulation.SiteXmlManipulator.rewrite
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
@@ -25,18 +25,21 @@ import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.MutablePomFile;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-repository")
 public class CategoryXmlManipulator extends AbstractMetadataManipulator {
 
     @Override
-    public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
+    public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isEclipseRepository(project)) {
-            if (isFeature(change.getProject().getPackaging())) {
-                updateFeatureReferences(change, project);
-            } else if (isBundle(change.getProject())) {
-                updatePluginReferences(change, project);
+            for (VersionChange versionChange : versionChangeContext.getVersionChanges()) {
+                if (isFeature(versionChange.getProject().getPackaging())) {
+                    updateFeatureReferences(versionChange, project);
+                } else if (isBundle(versionChange.getProject())) {
+                    updatePluginReferences(versionChange, project);
+                }
             }
         }
     }
@@ -112,7 +115,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
     }
 
     @Override
-    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+    public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         // this manipulator does not add any restrictions on version changes allowed for eclipse-repository projects
         return null;
     }

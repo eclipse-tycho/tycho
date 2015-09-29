@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Sebastien Arod - introduce VersionChangesDescriptor
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -14,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.model.Feature;
@@ -23,36 +23,44 @@ import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-feature")
 public class FeatureXmlManipulator extends AbstractMetadataManipulator {
+
     @Override
-    public void applyChange(ProjectMetadata project, VersionChange change, Set<VersionChange> allChanges) {
+    public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isFeature(project)) {
             Feature feature = getFeatureXml(project);
-            if (isFeature(change.getProject().getPackaging())) {
-                if (change.getArtifactId().equals(feature.getId()) && change.getVersion().equals(feature.getVersion())) {
-                    logger.info("  feature.xml//feature/@version: " + change.getVersion() + " => "
-                            + change.getNewVersion());
-                    feature.setVersion(change.getNewVersion());
+            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+                if (isFeature(change.getProject().getPackaging())) {
+                    if (change.getArtifactId().equals(feature.getId())
+                            && change.getVersion().equals(feature.getVersion())) {
+                        logger.info("  feature.xml//feature/@version: " + change.getVersion() + " => "
+                                + change.getNewVersion());
+                        feature.setVersion(change.getNewVersion());
+                    }
+                    changeLicenseFeature(change, feature);
+                    // could be included feature
+                    changeIncludedFeatures(change, feature);
+                } else if (isBundle(change.getProject())) {
+                    changeIncludedPlugins(change, feature);
                 }
-                changeLicenseFeature(change, feature);
-                // could be included feature
-                changeIncludedFeatures(change, feature);
-            } else if (isBundle(change.getProject())) {
-                changeIncludedPlugins(change, feature);
             }
         }
     }
 
     @Override
-    public Collection<String> validateChange(ProjectMetadata project, VersionChange change) {
+    public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isFeature(project)) {
             Feature feature = getFeatureXml(project);
-            if (change.getArtifactId().equals(feature.getId()) && change.getVersion().equals(feature.getVersion())) {
-                String error = Versions.validateOsgiVersion(change.getNewVersion(), getFeatureFile(project));
-                return error != null ? Collections.singleton(error) : null;
+            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+                if (change.getArtifactId().equals(feature.getId())
+                        && change.getVersion().equals(feature.getVersion())) {
+                    String error = Versions.validateOsgiVersion(change.getNewVersion(), getFeatureFile(project));
+                    return error != null ? Collections.singleton(error) : null;
+                }
             }
         }
         return null;
@@ -70,8 +78,8 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
     private void changeIncludedFeatures(VersionChange change, Feature feature) {
         for (FeatureRef ref : feature.getIncludedFeatures()) {
             if (change.getArtifactId().equals(ref.getId()) && change.getVersion().equals(ref.getVersion())) {
-                logger.info("  feature.xml//feature/includes/@id='" + ref.getId() + "'/@version: "
-                        + change.getVersion() + " => " + change.getNewVersion());
+                logger.info("  feature.xml//feature/includes/@id='" + ref.getId() + "'/@version: " + change.getVersion()
+                        + " => " + change.getNewVersion());
                 ref.setVersion(change.getNewVersion());
             }
         }
