@@ -62,6 +62,10 @@
 										http://www.osgi.org/javadoc/r4v43/ ${basedir}/input/osgi-r4v43</additionalArgument>
 								</additionalArguments>
 							</javadocOptions>
+							<tocOptions>
+							  <mainLabel>The custom main label</mainLabel>
+							  <mainFilename>custom-overview.html</mainFilename>
+							</tocOptions>
 							<jvmOptions>
 									<jvmOption>
 										-Xms8m</jvmOption>

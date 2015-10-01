@@ -12,6 +12,7 @@ package org.eclipse.tycho.extras.docbundle;
 
 public class TocOptions {
     private String mainLabel = "API Reference";
+    private String mainFilename = "overview-summary.html";
 
     public void setMainLabel(final String label) {
         this.mainLabel = label;
@@ -19,5 +20,14 @@ public class TocOptions {
 
     public String getMainLabel() {
         return this.mainLabel;
+    }
+
+    public void setMainFilename(final String location) {
+        this.mainFilename = location;
+
+    }
+
+    public String getMainFilename() {
+        return this.mainFilename;
     }
 }

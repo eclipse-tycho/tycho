@@ -41,5 +41,9 @@
  checkFile ( "docbundle1/target/gen-doc/toc/javadoc.xml", "Missing expected toc file" ); 
  checkFile ( "docbundle1/target/gen-doc/reference/api/package-list", "Missing package list file" );
  checkFile ( "docbundle1/target/gen-doc/reference/api/bundle1/SampleClass1.html", "Missing doc file" );
+ 
+ // check if the toc file contains the custom label and custom summary file
+ checkFileContains ( "docbundle1/target/gen-doc/toc/javadoc.xml", "reference/api/custom-overview.html" );
+ checkFileContains ( "docbundle1/target/gen-doc/toc/javadoc.xml", "The custom main label" );
   
  return true;

@@ -136,6 +136,22 @@ public class JavadocMojo extends AbstractMojo {
 
     /**
      * Options for creating the toc files.
+     * <ul>
+     * <li><tt>mainLabel</tt>, specifies the main label of the toc file (default: "API Reference")
+     * </li>
+     * <li><tt>mainFilename</tt>, specifies the filename of the TOC file (default:
+     * "overview-summary.html")
+     * </ul>
+     * Example configuration:
+     * 
+     * <pre>
+     * &lt;configuration&gt;
+     *    &lt;tocOptions&gt;
+     *       &lt;mainLabel&gt;My own label&lt;/mainLabel&gt;
+     *       &lt;mainFilename&gt;myOverviewSummary.html&lt;/mainFilename&gt;
+     *    &lt;/tocOptions&gt;
+     * &lt;/configuration&gt;
+     * </pre>
      */
     @Parameter(property = "tocOptions")
     private TocOptions tocOptions = new TocOptions();

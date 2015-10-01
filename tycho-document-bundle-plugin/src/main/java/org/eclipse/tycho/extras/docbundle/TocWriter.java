@@ -100,7 +100,7 @@ public class TocWriter {
         doc.appendChild(toc);
         toc.setAttribute("label", this.options.getMainLabel());
 
-        final Element main = createTopic(doc, toc, this.options.getMainLabel(), "overview-summary.html");
+        final Element main = createTopic(doc, toc, this.options.getMainLabel(), this.options.getMainFilename());
         final Element packages = createTopic(doc, main, "Packages", null);
         createTopic(doc, main, "Constant Values", "constant-values.html");
         createTopic(doc, main, "Deprecated List", "deprecated-list.html");
