@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 
 /**
  * Value object for the configuration of this Maven plug-in. Used to select products to be
@@ -79,15 +80,25 @@ public final class Product {
     }
 
     public String getRootFolder(String os) {
+        String result = null;
         if (rootFolders == null) {
-            return rootFolder;
+            result = rootFolder;
         } else {
             if (rootFolders.get(os) == null) {
-                return rootFolder;
+                result = rootFolder;
             } else {
-                return rootFolders.get(os);
+                result = rootFolders.get(os);
             }
         }
+        // bug 461606 - always force folder ending with .app on MacOSX
+        if (PlatformPropertiesUtils.OS_MACOSX.equals(os)) {
+            if (result == null) {
+                result = "Eclipse.app";
+            } else if (!result.endsWith(".app")) {
+                result = result + ".app";
+            }
+        }
+        return result;
     }
 
     public String getArchiveFileName() {
