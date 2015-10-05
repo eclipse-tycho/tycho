@@ -31,13 +31,16 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.Interpolator;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublishProductTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
+import org.osgi.framework.Version;
 
 /**
  * <p>
@@ -49,6 +52,9 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  */
 @Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE)
 public final class PublishProductMojo extends AbstractPublishMojo {
+
+    // as per http://download.eclipse.org/releases/mars/201506241002/features/org.eclipse.equinox.executable_3.6.200.v20150602-1417.jar
+    private static final Version MARS_EXECUTABLE_FEATURE_VERSION = Version.parseVersion("3.6.200.v20150602-1417");
 
     /**
      * <p>
@@ -108,7 +114,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             throw new MojoExecutionException(
                     "Unable to locate feature 'org.eclipse.equinox.executable'. This feature is required for native product launchers.");
         }
-
+        checkMacOSLauncherCompatibility(artifact);
         File equinoxExecFeature = artifact.getLocation();
         if (equinoxExecFeature.isDirectory()) {
             return equinoxExecFeature.getAbsoluteFile();
@@ -135,6 +141,28 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 throw new MojoFailureException("Unable to unzip the eqiuinox executable feature", e);
             }
         }
+    }
+
+    private void checkMacOSLauncherCompatibility(ArtifactDescriptor executablesFeature) throws MojoExecutionException {
+        if (!macOSConfigured()) {
+            return;
+        }
+        Version featureVersion = Version.parseVersion(executablesFeature.getKey().getVersion());
+        if (featureVersion.compareTo(MARS_EXECUTABLE_FEATURE_VERSION) < 0) {
+            throw new MojoExecutionException(
+                    "Detected pre-Mars launcher feature org.eclipse.equinox.executable version " + featureVersion
+                            + ".\n Native product launchers for MacOSX can only be built against Eclipse Mars or newer."
+                            + "\nTo fix this, you can either build against Eclipse Mars or newer (recommended) or go back to Tycho <= 0.22.0");
+        }
+    }
+
+    private boolean macOSConfigured() {
+        for (TargetEnvironment env : getEnvironments()) {
+            if (PlatformPropertiesUtils.OS_MACOSX.equals(env.getOs())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
