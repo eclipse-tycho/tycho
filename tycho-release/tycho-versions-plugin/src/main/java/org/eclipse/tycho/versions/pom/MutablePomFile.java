@@ -38,6 +38,7 @@ import de.pdark.decentxml.XMLWriter;
 public class MutablePomFile {
 
     public static final String POM_XML = "pom.xml";
+    private static final String DEFAULT_XML_ENCODING = "UTF-8";
 
     private static XMLParser parser = new XMLParser();
 
@@ -75,8 +76,8 @@ public class MutablePomFile {
     }
 
     public static void write(MutablePomFile pom, OutputStream out) throws IOException {
-        Writer w = pom.document.getEncoding() != null ? new OutputStreamWriter(out, pom.document.getEncoding())
-                : new OutputStreamWriter(out);
+        String encoding = pom.document.getEncoding() != null ? pom.document.getEncoding() : DEFAULT_XML_ENCODING;
+        Writer w = new OutputStreamWriter(out, encoding);
         XMLWriter xw = new XMLWriter(w);
         try {
             pom.setVersionInXML();
