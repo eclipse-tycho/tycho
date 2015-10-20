@@ -88,12 +88,12 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
-		<equinoxVersion>3.10.100.v20150529-1857</equinoxVersion>
-		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
+		<equinoxVersion>3.10.101.v20150820-1432</equinoxVersion>
+		<equinoxVersionMaven>${equinoxVersion}-SNAPSHOT</equinoxVersionMaven>
 		<equinoxCompatVersion>1.0.100.v20150402-1551</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<jdtVersion>3.11.0.v20150602-1242</jdtVersion>
-		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
+		<jdtVersion>3.11.1.v20150902-1521</jdtVersion>
+		<jdtVersionMaven>${jdtVersion}-SNAPSHOT</jdtVersionMaven>
 		<jdtAptVersion>1.2.0.v20150514-0146</jdtAptVersion>
 		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
 
