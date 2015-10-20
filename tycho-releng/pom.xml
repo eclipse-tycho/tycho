@@ -93,7 +93,7 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/releases/mars/</url>
+							<url>http://download.eclipse.org/releases/mars/201510021000/</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
