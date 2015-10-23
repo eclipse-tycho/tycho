@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.remote;
 
+import static org.eclipse.tycho.TychoParameters.TYCHO_DISABLE_P2_MIRRORS;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositorySettings;
@@ -48,12 +50,12 @@ public class RemoteAgentManager {
     }
 
     private boolean getDisableP2MirrorsConfiguration() {
-        String key = "tycho.disableP2Mirrors";
-        String value = mavenContext.getSessionProperties().getProperty(key);
+        String value = mavenContext.getSessionProperties().getProperty(TYCHO_DISABLE_P2_MIRRORS);
 
         boolean disableP2Mirrors = Boolean.parseBoolean(value);
         if (disableP2Mirrors && mavenContext.getLogger().isDebugEnabled()) {
-            String message = key + "=" + value + " -> ignoring mirrors specified in p2 artifact repositories";
+            String message = TYCHO_DISABLE_P2_MIRRORS + "=" + value
+                    + " -> ignoring mirrors specified in p2 artifact repositories";
             mavenContext.getLogger().debug(message);
         }
         return disableP2Mirrors;

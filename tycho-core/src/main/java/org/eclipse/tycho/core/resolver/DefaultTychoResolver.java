@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.resolver;
 
+import static org.eclipse.tycho.TychoProperties.TYCHO_ENV_OSGI_ARCH;
+import static org.eclipse.tycho.TychoProperties.TYCHO_ENV_OSGI_OS;
+import static org.eclipse.tycho.TychoProperties.TYCHO_ENV_OSGI_WS;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -53,10 +57,6 @@ public class DefaultTychoResolver implements TychoResolver {
     @Requirement(role = TychoProject.class)
     private Map<String, TychoProject> projectTypes;
 
-    public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
-    public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
-    public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
-
     @Override
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
         AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
@@ -83,8 +83,8 @@ public class DefaultTychoResolver implements TychoResolver {
 
         setTychoEnvironmentProperties(properties, project);
 
-        TargetPlatformConfiguration configuration = configurationReader
-                .getTargetPlatformConfiguration(session, project);
+        TargetPlatformConfiguration configuration = configurationReader.getTargetPlatformConfiguration(session,
+                project);
         project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, configuration);
 
         ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger,

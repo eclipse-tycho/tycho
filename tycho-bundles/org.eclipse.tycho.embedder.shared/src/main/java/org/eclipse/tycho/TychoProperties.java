@@ -22,4 +22,17 @@ public final class TychoProperties {
      */
     public static final String QUALIFIED_VERSION = "qualifiedVersion";
 
+    /**
+     * The windowing system <tt>osgi.ws</tt> of the machine that is running the build.
+     */
+    public static final String TYCHO_ENV_OSGI_WS = "tycho.env.osgi.ws";
+    /**
+     * The operating system <tt>osgi.os</tt> of the machine that is running the build.
+     */
+    public static final String TYCHO_ENV_OSGI_OS = "tycho.env.osgi.os";
+    /**
+     * The processor architecture <tt>osgi.arch</tt> of the machine that is running the build.
+     */
+    public static final String TYCHO_ENV_OSGI_ARCH = "tycho.env.osgi.arch";
+
 }

@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
+import org.eclipse.tycho.TychoProperties;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,9 +44,9 @@ public class DefaultTychoResolverTest {
 
         defaultTychoResolver.setTychoEnvironmentProperties(mergedProperties, project);
 
-        Object ws = projectProperties.getProperty(DefaultTychoResolver.TYCHO_ENV_OSGI_WS);
-        Object os = projectProperties.getProperty(DefaultTychoResolver.TYCHO_ENV_OSGI_OS);
-        Object arch = projectProperties.getProperty(DefaultTychoResolver.TYCHO_ENV_OSGI_ARCH);
+        Object ws = projectProperties.getProperty(TychoProperties.TYCHO_ENV_OSGI_WS);
+        Object os = projectProperties.getProperty(TychoProperties.TYCHO_ENV_OSGI_OS);
+        Object arch = projectProperties.getProperty(TychoProperties.TYCHO_ENV_OSGI_ARCH);
 
         Assert.assertEquals(3, projectProperties.size());
         Assert.assertEquals(PlatformPropertiesUtils.ARCH_X86_64, arch);
