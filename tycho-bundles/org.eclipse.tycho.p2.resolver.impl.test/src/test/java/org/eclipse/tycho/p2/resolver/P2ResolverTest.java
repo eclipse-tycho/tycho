@@ -125,9 +125,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testDuplicateInstallableUnit() throws Exception {
-        projectToResolve = createReactorProject(resourceFile("duplicate-iu/featureA"), TYPE_ECLIPSE_FEATURE, "featureA");
-        reactorProjects.add(createReactorProject(resourceFile("duplicate-iu/featureA2"), TYPE_ECLIPSE_FEATURE,
-                "featureA2"));
+        projectToResolve = createReactorProject(resourceFile("duplicate-iu/featureA"), TYPE_ECLIPSE_FEATURE,
+                "featureA");
+        reactorProjects
+                .add(createReactorProject(resourceFile("duplicate-iu/featureA2"), TYPE_ECLIPSE_FEATURE, "featureA2"));
 
         // TODO 353889 make the duplicate detection work without having the current project IUs in the target platform
         reactorProjects.add(projectToResolve);
@@ -179,8 +180,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         reactorProjects.add(createReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId));
 
         ReactorProjectStub sb = new ReactorProjectStub(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN);
-        DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator().generateMetadata(new ArtifactMock(
-                sb, "source"), getEnvironments(), null);
+        DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator()
+                .generateMetadata(new ArtifactMock(sb, "source"), getEnvironments(), null);
         sb.setDependencyMetadata(metadata);
         reactorProjects.add(sb);
 
@@ -244,7 +245,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         tpConfig.addP2Repository(resourceFile("repositories/e361").toURI());
 
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
-        projectToResolve = createReactorProject(resourceFile("resolver/bundleUsesSWT"), TYPE_ECLIPSE_PLUGIN, artifactId);
+        projectToResolve = createReactorProject(resourceFile("resolver/bundleUsesSWT"), TYPE_ECLIPSE_PLUGIN,
+                artifactId);
 
         result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
 
@@ -512,11 +514,12 @@ public class P2ResolverTest extends P2ResolverTestBase {
     }
 
     private P2TargetPlatform getTargetPlatform() {
-        return tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, pomDependencies);
+        return tpFactory.createTargetPlatform(tpConfig, NOOP_EE_RESOLUTION_HANDLER, reactorProjects, pomDependencies,
+                null);
     }
 
     private P2TargetPlatform getTargetPlatform(ExecutionEnvironmentResolutionHandler eeResolutionHandler) {
-        return tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorProjects, pomDependencies);
+        return tpFactory.createTargetPlatform(tpConfig, eeResolutionHandler, reactorProjects, pomDependencies, null);
     }
 
     private static P2ResolutionResult singleEnv(List<P2ResolutionResult> results) {
@@ -524,7 +527,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         return results.get(0);
     }
 
-    private static P2ResolutionResult.Entry getClassifiedArtifact(P2ResolutionResult resolutionResult, String classifier) {
+    private static P2ResolutionResult.Entry getClassifiedArtifact(P2ResolutionResult resolutionResult,
+            String classifier) {
         Set<String> availableClassifiers = new HashSet<>();
         P2ResolutionResult.Entry selectedEntry = null;
         for (Entry entry : resolutionResult.getArtifacts()) {

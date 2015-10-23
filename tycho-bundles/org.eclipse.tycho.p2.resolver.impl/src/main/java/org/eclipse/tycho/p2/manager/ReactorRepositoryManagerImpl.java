@@ -21,8 +21,10 @@ import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
+import org.eclipse.tycho.TychoParameters;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.P2TargetPlatform;
 import org.eclipse.tycho.p2.target.PreliminaryTargetPlatformImpl;
@@ -40,6 +42,8 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
             + "/dependencyOnlyTargetPlatform";
     private static final String FINAL_TARGET_PLATFORM_KEY = TargetPlatform.FINAL_TARGET_PLATFORM_KEY;
 
+    private MavenContext mavenContext;
+
     private IProvisioningAgentProvider agentFactory;
     private File agentDir;
     private IProvisioningAgent agent;
@@ -51,7 +55,11 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
     }
 
     public void bindP2ResolverFactory(P2ResolverFactory p2ResolverFactory) {
-        tpFactory = p2ResolverFactory.getTargetPlatformFactory();
+        this.tpFactory = p2ResolverFactory.getTargetPlatformFactory();
+    }
+
+    public void bindMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
     }
 
     public void activateManager() throws IOException, ProvisionException {
@@ -82,7 +90,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
             List<ReactorProject> reactorProjects, PomDependencyCollector pomDependencies) {
         // at this point, there is only incomplete ("dependency-only") metadata for the reactor projects
         TargetPlatform result = tpFactory.createTargetPlatform(tpConfiguration, eeConfiguration, reactorProjects,
-                pomDependencies);
+                pomDependencies, new PreliminaryTargetPlatformLogConfig(project.getBasedir()));
         project.setContextValue(PRELIMINARY_TARGET_PLATFORM_KEY, result);
         return result;
     }
@@ -137,6 +145,28 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
             throw new IOException("Failed to create temporary directory: " + tempFile);
         }
         return tempFile;
+    }
+
+    private class PreliminaryTargetPlatformLogConfig implements TargetPlatformFactory.LogConfiguration {
+
+        private final File projectRoot;
+
+        public PreliminaryTargetPlatformLogConfig(File projectRoot) {
+            this.projectRoot = projectRoot;
+        }
+
+        @Override
+        public boolean diskLoggingEnabled() {
+            // TODO use getUserProperties - option only makes sense on the command line
+            return Boolean
+                    .valueOf(mavenContext.getSessionProperties().getProperty(TychoParameters.DEBUG_PRELIMINARY_TP));
+        }
+
+        @Override
+        public String getFilePrefix() {
+            return projectRoot + "/tycho.debug.preliminaryTP";
+        }
+
     }
 
 }

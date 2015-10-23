@@ -39,4 +39,6 @@ public class TychoParameters {
      */
     public static final String TYCHO_DISABLE_P2_MIRRORS = "tycho.disableP2Mirrors";
 
+    public static final String DEBUG_PRELIMINARY_TP = "tycho.debug.preliminaryTP";
+
 }

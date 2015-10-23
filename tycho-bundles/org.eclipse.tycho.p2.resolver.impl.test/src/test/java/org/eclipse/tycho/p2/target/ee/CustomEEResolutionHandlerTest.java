@@ -59,7 +59,7 @@ public class CustomEEResolutionHandlerTest {
          * (which is wrapped around the eeConfigurationCapture argument by the called method)
          * correctly reads the custom profile specification from the target platform.
          */
-        tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null);
+        tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null, null);
 
         List<SystemCapability> result = eeConfigurationCapture.capturedSystemCapabilities;
 
@@ -77,12 +77,12 @@ public class CustomEEResolutionHandlerTest {
         ExecutionEnvironmentConfigurationCapture eeConfigurationCapture = new ExecutionEnvironmentConfigurationCapture(
                 "MissingProfile-1.2.3");
 
-        thrownException
-                .expectMessage("Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'");
-        tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null);
+        thrownException.expectMessage(
+                "Could not find specification for custom execution environment profile 'MissingProfile-1.2.3'");
+        tpFactory.createTargetPlatform(tpConfig, eeConfigurationCapture, null, null, null);
     }
 
-    static class ExecutionEnvironmentConfigurationCapture implements ExecutionEnvironmentConfiguration {
+    public static class ExecutionEnvironmentConfigurationCapture implements ExecutionEnvironmentConfiguration {
 
         private final String profileName;
         List<SystemCapability> capturedSystemCapabilities;

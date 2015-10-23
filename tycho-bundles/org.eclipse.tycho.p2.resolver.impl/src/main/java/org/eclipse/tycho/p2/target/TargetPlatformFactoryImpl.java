@@ -15,6 +15,8 @@ package org.eclipse.tycho.p2.target;
 import static org.eclipse.tycho.TychoParameters.TYCHO_LOCAL_ARTIFACTS;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -126,9 +129,9 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     @Override
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
-            PomDependencyCollector pomDependencies) {
+            PomDependencyCollector pomDependencies, LogConfiguration logConfig) {
         return createTargetPlatform(tpConfiguration, ExecutionEnvironmentResolutionHandler.adapt(eeConfiguration),
-                reactorProjects, pomDependencies);
+                reactorProjects, pomDependencies, logConfig);
     }
 
     /**
@@ -147,13 +150,15 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
      *            may be <code>null</code>
      * @param pomDependencies
      *            may be <code>null</code>
+     * @param logConfig
+     *            may be <code>null</code>
      * 
      * @see #createTargetPlatform(TargetPlatformConfigurationStub,
      *      ExecutionEnvironmentConfiguration, List, PomDependencyCollector)
      */
     public P2TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentResolutionHandler eeResolutionHandler, List<ReactorProject> reactorProjects,
-            PomDependencyCollector pomDependencies) {
+            PomDependencyCollector pomDependencies, LogConfiguration logConfig) {
         List<TargetDefinitionContent> targetFileContent = resolveTargetDefinitions(tpConfiguration,
                 eeResolutionHandler.getResolutionHints());
 
@@ -179,7 +184,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 targetFileContent, pomDependenciesContent, includeLocalMavenRepo);
 
         Map<IInstallableUnit, ReactorProjectIdentities> reactorProjectUIs = getPreliminaryReactorProjectUIs(
-                reactorProjects);
+                reactorProjects, logConfig);
 
         List<TargetPlatformFilter> iuFilters = tpConfiguration.getFilters();
         TargetPlatformFilterEvaluator filter = !iuFilters.isEmpty()
@@ -345,12 +350,12 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
     }
 
     private Map<IInstallableUnit, ReactorProjectIdentities> getPreliminaryReactorProjectUIs(
-            List<ReactorProject> reactorProjects) throws DuplicateReactorIUsException {
+            List<ReactorProject> reactorProjects, LogConfiguration logConfig) throws DuplicateReactorIUsException {
         if (reactorProjects == null) {
             return Collections.emptyMap();
         }
 
-        Map<IInstallableUnit, ReactorProjectIdentities> reactorUIs = new HashMap<>();
+        Map<IInstallableUnit, ReactorProjectIdentities> reactorIUs = new LinkedHashMap<>();
         Map<IInstallableUnit, Set<File>> duplicateReactorUIs = new HashMap<>();
 
         for (ReactorProject project : reactorProjects) {
@@ -360,7 +365,7 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 continue;
 
             for (IInstallableUnit iu : projectIUs) {
-                ReactorProjectIdentities otherOrigin = reactorUIs.put(iu, project.getIdentities());
+                ReactorProjectIdentities otherOrigin = reactorIUs.put(iu, project.getIdentities());
 
                 if (otherOrigin != null && !otherOrigin.equals(project.getIdentities())) {
                     Set<File> duplicateLocations = duplicateReactorUIs.get(iu);
@@ -373,13 +378,16 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
                 }
             }
         }
+        if (logConfig != null && logConfig.diskLoggingEnabled()) {
+            writeReactorIUOrigins(reactorIUs, logConfig);
+        }
 
         if (!duplicateReactorUIs.isEmpty()) {
             // TODO 392320 we should only fail if IUs with same id and version but different content are found
             throw new DuplicateReactorIUsException(duplicateReactorUIs);
         }
 
-        return reactorUIs;
+        return reactorIUs;
     }
 
     private void applyFilters(TargetPlatformFilterEvaluator filter, Collection<IInstallableUnit> collectionToModify,
@@ -496,4 +504,19 @@ public class TargetPlatformFactoryImpl implements TargetPlatformFactory {
         }
         return artifactProviders;
     }
+
+    private void writeReactorIUOrigins(Map<IInstallableUnit, ReactorProjectIdentities> reactorIUs,
+            LogConfiguration logConfig) {
+        String fileName = logConfig.getFilePrefix() + ".reactorUnits.origins.txt";
+        mavenContext.getLogger().debug("Writing debug information to " + fileName);
+        try (FileWriter writer = new FileWriter(new File(fileName))) {
+            for (Entry<IInstallableUnit, ReactorProjectIdentities> unitOrigin : reactorIUs.entrySet()) {
+                writer.write(unitOrigin.getKey().getId() + "/" + unitOrigin.getKey().getVersion() + "="
+                        + unitOrigin.getValue().getBasedir() + "\n");
+            }
+        } catch (IOException e) {
+            mavenContext.getLogger().warn("Could not write debug information to " + fileName);
+        }
+    }
+
 }

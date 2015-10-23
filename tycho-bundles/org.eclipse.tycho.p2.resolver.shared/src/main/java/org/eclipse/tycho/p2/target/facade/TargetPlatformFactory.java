@@ -16,7 +16,6 @@ import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 
-// TODO 412416 javadoc
 public interface TargetPlatformFactory {
 
     /**
@@ -24,8 +23,29 @@ public interface TargetPlatformFactory {
      */
     public PomDependencyCollector newPomDependencyCollector();
 
+    /**
+     * Computes the target platform from the given configuration and content.
+     * 
+     * @param tpConfiguration
+     * @param eeConfiguration
+     *            The target execution environment profile.
+     * @param reactorProjects
+     *            may be <code>null</code>
+     * @param pomDependencies
+     *            may be <code>null</code>
+     * @param logConfig
+     *            may be <code>null</code>
+     */
     public TargetPlatform createTargetPlatform(TargetPlatformConfigurationStub tpConfiguration,
             ExecutionEnvironmentConfiguration eeConfiguration, List<ReactorProject> reactorProjects,
-            PomDependencyCollector pomDependencies);
+            PomDependencyCollector pomDependencies, LogConfiguration logConfig);
+
+    public interface LogConfiguration {
+
+        boolean diskLoggingEnabled();
+
+        String getFilePrefix();
+
+    }
 
 }

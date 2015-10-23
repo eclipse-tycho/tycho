@@ -82,9 +82,9 @@ public class PomDependencyCollectorTest {
     }
 
     static ArtifactMock artifactWithClassifier(String classifier) throws Exception {
-        return new ArtifactMock(new File(
-                "resources/platformbuilder/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"), "groupId",
-                "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, classifier);
+        return new ArtifactMock(
+                new File("resources/platformbuilder/pom-dependencies/org.eclipse.osgi_3.5.2.R35x_v20100126.jar"),
+                "groupId", "artifactId", "1", PackagingType.TYPE_ECLIPSE_PLUGIN, classifier);
     }
 
     static ArtifactMock existingMetadata() {
@@ -95,7 +95,7 @@ public class PomDependencyCollectorTest {
     private Collection<IInstallableUnit> getTargetPlatformUnits() {
         TestResolverFactory resolverFactory = new TestResolverFactory(logVerifier.getLogger());
         P2TargetPlatform platform = resolverFactory.getTargetPlatformFactoryImpl().createTargetPlatform(
-                new TargetPlatformConfigurationStub(), NOOP_EE_RESOLUTION_HANDLER, null, subject);
+                new TargetPlatformConfigurationStub(), NOOP_EE_RESOLUTION_HANDLER, null, subject, null);
         return platform.getInstallableUnits();
     }
 }
