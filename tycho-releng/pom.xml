@@ -17,7 +17,7 @@
 	<parent>
 		<artifactId>tycho</artifactId>
 		<groupId>org.eclipse.tycho</groupId>
-		<version>0.24.0</version>
+		<version>0.25.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>tycho-releng</artifactId>
@@ -255,7 +255,7 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
 								</configuration>
 							</execution>
-							<execution>
+              <!--<execution>
 								<id>deploy-jdt-apt</id>
 								<phase>deploy</phase>
 								<goals>
@@ -266,7 +266,7 @@
 									<sources>${downloaded}/org.eclipse.jdt.compiler.apt.source_${jdtAptVersion}.jar</sources>
 									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
 								</configuration>
-							</execution>
+              </execution>-->
 							<execution>
 								<id>deploy-equinox</id>
 								<phase>deploy</phase>
@@ -279,7 +279,7 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.pom</pomFile>
 								</configuration>
 							</execution>
-							<execution>
+              <!--<execution>
 								<id>deploy-equinox-compat</id>
 								<phase>deploy</phase>
 								<goals>
@@ -290,7 +290,7 @@
 									<sources>${downloaded}/org.eclipse.osgi.compatibility.state.source_${equinoxCompatVersion}.jar</sources>
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.compatibility.state.pom</pomFile>
 								</configuration>
-							</execution>
+              </execution>-->
 						</executions>
 					</plugin>
 				</plugins>
