@@ -69,6 +69,14 @@
 	<name>Tycho (Incubation)</name>
 	<description>Tycho integrates Maven with Eclipse and OSGi</description>
 
+	<repositories>
+		<repository>
+			<!-- TODO remove this before releasing -->
+			<id>tycho-snapshots</id>
+			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+		</repository>
+	</repositories>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<min.jdk.version>1.7</min.jdk.version>
@@ -89,13 +97,13 @@
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
 		<equinoxVersion>3.10.101.v20150820-1432</equinoxVersion>
-		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
+		<equinoxVersionMaven>${equinoxVersion}-SNAPSHOT</equinoxVersionMaven>
 		<equinoxCompatVersion>1.0.100.v20150402-1551</equinoxCompatVersion>
-		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
+		<equinoxCompatVersionMaven>${equinoxCompatVersion}-SNAPSHOT</equinoxCompatVersionMaven>
 		<jdtVersion>3.11.1.v20150902-1521</jdtVersion>
-		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
+		<jdtVersionMaven>${jdtVersion}-SNAPSHOT</jdtVersionMaven>
 		<jdtAptVersion>1.2.0.v20150514-0146</jdtAptVersion>
-		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
+		<jdtAptVersionMaven>${jdtAptVersion}-SNAPSHOT</jdtAptVersionMaven>
 
 		<!-- version of Tycho used by this build -->
 		<tychoBootstrapVersion>0.23.1</tychoBootstrapVersion>
