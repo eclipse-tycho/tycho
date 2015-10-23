@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -69,8 +69,7 @@ public class ReactorRepositoryManagerImpl implements ReactorRepositoryManager {
 
     public void deactivateManager() {
         agent.stop();
-        // TODO use IOUtils
-        FileUtils.deleteAll(agentDir);
+        FileUtils.deleteQuietly(agentDir);
     }
 
     // TODO hide?

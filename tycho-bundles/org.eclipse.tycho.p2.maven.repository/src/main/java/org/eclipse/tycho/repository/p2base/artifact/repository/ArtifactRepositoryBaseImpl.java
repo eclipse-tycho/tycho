@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -61,8 +61,8 @@ import org.eclipse.tycho.repository.p2base.artifact.provider.streaming.IRawArtif
  * </ul>
  */
 @SuppressWarnings("restriction")
-public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IArtifactDescriptor> extends
-        AbstractArtifactRepository2 implements IFileArtifactRepository, IRawArtifactFileProvider {
+public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IArtifactDescriptor>
+        extends AbstractArtifactRepository2 implements IFileArtifactRepository, IRawArtifactFileProvider {
 
     private static final IArtifactDescriptor[] EMPTY_DESCRIPTOR_ARRAY = new IArtifactDescriptor[0];
 
@@ -71,7 +71,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
     private ArtifactTransferPolicy transferPolicy;
 
-    protected ArtifactRepositoryBaseImpl(IProvisioningAgent agent, URI location, ArtifactTransferPolicy transferPolicy) {
+    protected ArtifactRepositoryBaseImpl(IProvisioningAgent agent, URI location,
+            ArtifactTransferPolicy transferPolicy) {
         super(agent, null, null, null, location, null, null, null);
         this.transferPolicy = transferPolicy;
     }
@@ -130,7 +131,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
         // TODO 397355 copy collection for thread-safety
         return new IQueryable<IArtifactDescriptor>() {
             @Override
-            public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
+            public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query,
+                    IProgressMonitor monitor) {
                 return query.perform((Iterator<IArtifactDescriptor>) descriptors.iterator());
             }
         };
@@ -280,7 +282,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
      */
     @Deprecated
     @Override
-    public final IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+    public final IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination,
+            IProgressMonitor monitor) {
         /*
          * TODO remove this method?
          * 
@@ -372,12 +375,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     private IStatus readRawArtifact(IArtifactDescriptor descriptor, OutputStream destination) {
-        try {
-            InputStream source = new FileInputStream(internalGetArtifactStorageLocation(descriptor));
-
-            // copy to destination and close source
-            FileUtils.copyStream(source, true, destination, false);
-
+        try (InputStream source = new FileInputStream(internalGetArtifactStorageLocation(descriptor))) {
+            IOUtils.copy(source, destination);
         } catch (IOException e) {
             return errorStatus("I/O exception while reading artifact " + descriptor, e);
         }
@@ -405,7 +404,8 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
     }
 
     @Override
-    public final IRawArtifactSink newAddingRawArtifactSink(IArtifactDescriptor newDescriptor) throws ProvisionException {
+    public final IRawArtifactSink newAddingRawArtifactSink(IArtifactDescriptor newDescriptor)
+            throws ProvisionException {
         ArtifactDescriptorT newInternalDescriptorToBeAdded = getInternalDescriptorForAdding(newDescriptor);
         return new RawAddingArtifactSink(newInternalDescriptorToBeAdded);
     }
@@ -417,8 +417,9 @@ public abstract class ArtifactRepositoryBaseImpl<ArtifactDescriptorT extends IAr
 
         AddingArtifactSink(ArtifactDescriptorT newDescriptor) throws ProvisionException {
             if (contains(newDescriptor)) {
-                IStatus status = errorStatus("Artifact " + newDescriptor + " already exists in repository "
-                        + getLocation(), null, ProvisionException.ARTIFACT_EXISTS);
+                IStatus status = errorStatus(
+                        "Artifact " + newDescriptor + " already exists in repository " + getLocation(), null,
+                        ProvisionException.ARTIFACT_EXISTS);
                 throw new ProvisionException(status);
             }
 

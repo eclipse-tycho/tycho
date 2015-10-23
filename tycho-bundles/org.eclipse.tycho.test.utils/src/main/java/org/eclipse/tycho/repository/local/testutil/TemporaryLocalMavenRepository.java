@@ -13,7 +13,7 @@ package org.eclipse.tycho.repository.local.testutil;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.repository.local.LocalArtifactRepository;
 import org.eclipse.tycho.repository.local.index.LocalRepositoryP2IndicesImpl;
@@ -27,7 +27,6 @@ import org.junit.rules.TemporaryFolder;
  * repository directory, or other objects needed for testing an {@link LocalArtifactRepository}
  * instance.
  */
-@SuppressWarnings("restriction")
 public class TemporaryLocalMavenRepository extends ExternalResource {
     private final TemporaryFolder tempManager = new TemporaryFolder();
     private File repoRoot;
@@ -45,7 +44,7 @@ public class TemporaryLocalMavenRepository extends ExternalResource {
     }
 
     public void initContentFromResourceFolder(File resourceFolder) throws IOException {
-        FileUtils.copy(resourceFolder, getLocalRepositoryRoot(), new File("."), true);
+        FileUtils.copyDirectory(resourceFolder, getLocalRepositoryRoot());
     }
 
     public File getLocalRepositoryRoot() {
