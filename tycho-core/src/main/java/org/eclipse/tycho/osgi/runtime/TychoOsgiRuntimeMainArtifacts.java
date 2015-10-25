@@ -11,14 +11,18 @@
 package org.eclipse.tycho.osgi.runtime;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.apache.maven.model.Dependency;
-import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.core.utils.TychoVersion;
+
+import org.apache.maven.model.Dependency;
+
+import org.codehaus.plexus.component.annotations.Component;
 
 @Component(role = TychoOsgiRuntimeArtifacts.class, hint = TychoOsgiRuntimeArtifacts.HINT_FRAMEWORK)
 public class TychoOsgiRuntimeMainArtifacts implements TychoOsgiRuntimeArtifacts {
+
     private static final List<Dependency> ARTIFACTS;
 
     static {
@@ -32,9 +36,32 @@ public class TychoOsgiRuntimeMainArtifacts implements TychoOsgiRuntimeArtifacts 
         ARTIFACTS.add(newDependency("org.eclipse.tycho", "org.eclipse.tycho.p2.tools.impl", tychoVersion, "jar"));
     }
 
+    private static final List<String> SYSTEM_PACKAGES_EXTRA = Arrays.asList("org.eclipse.tycho", //
+            "org.eclipse.tycho.artifacts", //
+            "org.eclipse.tycho.core.ee.shared", //
+            "org.eclipse.tycho.core.shared", //
+            "org.eclipse.tycho.core.resolver.shared", //
+            "org.eclipse.tycho.locking.facade", //
+            "org.eclipse.tycho.p2.metadata", //
+            "org.eclipse.tycho.p2.repository", //
+            "org.eclipse.tycho.p2.resolver.facade", //
+            "org.eclipse.tycho.p2.target.facade", //
+            "org.eclipse.tycho.p2.tools", //
+            "org.eclipse.tycho.p2.tools.director.shared", //
+            "org.eclipse.tycho.p2.tools.publisher.facade", //
+            "org.eclipse.tycho.p2.tools.mirroring.facade", //
+            "org.eclipse.tycho.p2.tools.verifier.facade", //
+            "org.eclipse.tycho.repository.registry.facade", //
+            "org.eclipse.tycho.p2.tools.baseline.facade");
+
     @Override
     public List<Dependency> getRuntimeArtifacts() {
         return ARTIFACTS;
+    }
+
+    @Override
+    public List<String> getExtraSystemPackages() {
+        return SYSTEM_PACKAGES_EXTRA;
     }
 
     private static Dependency newDependency(String groupId, String artifactId, String version, String type) {

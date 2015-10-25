@@ -37,4 +37,12 @@ public interface TychoOsgiRuntimeArtifacts {
      * the runtime as is.
      */
     public List<Dependency> getRuntimeArtifacts();
+
+    /**
+     * Returns a list of packages exported by the shared bundles. The shared bundles are loaded by
+     * the Maven class loader but their classes are also exposed to the implementation bundles in in
+     * Tycho's OSGi runtime (see {@link TychoOsgiRuntimeArtifacts#getRuntimeArtifacts()}) via the
+     * system packages extra option.
+     */
+    public List<String> getExtraSystemPackages();
 }
