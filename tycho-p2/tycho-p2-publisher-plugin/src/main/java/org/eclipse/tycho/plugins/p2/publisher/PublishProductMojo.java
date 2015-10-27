@@ -53,8 +53,8 @@ import org.osgi.framework.Version;
 @Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE)
 public final class PublishProductMojo extends AbstractPublishMojo {
 
-    // as per http://download.eclipse.org/releases/mars/201506241002/features/org.eclipse.equinox.executable_3.6.200.v20150602-1417.jar
-    private static final Version MARS_EXECUTABLE_FEATURE_VERSION = Version.parseVersion("3.6.200.v20150602-1417");
+    // as per http://download.eclipse.org/releases/luna/201502271000/features/org.eclipse.equinox.executable_3.6.102.v20150204-1316.jar
+    private static final Version LUNA_SR2_EXECUTABLE_FEATURE_VERSION = Version.parseVersion("3.6.102.v20150204-1316");
 
     /**
      * <p>
@@ -148,12 +148,16 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             return;
         }
         Version featureVersion = Version.parseVersion(executablesFeature.getKey().getVersion());
-        if (featureVersion.compareTo(MARS_EXECUTABLE_FEATURE_VERSION) < 0) {
+        if (isLunaOrOlder(featureVersion)) {
             throw new MojoExecutionException(
-                    "Detected pre-Mars launcher feature org.eclipse.equinox.executable version " + featureVersion
+                    "Detected Luna or older launcher feature org.eclipse.equinox.executable version " + featureVersion
                             + ".\n Native product launchers for MacOSX can only be built against Eclipse Mars or newer."
                             + "\nTo fix this, you can either build against Eclipse Mars or newer (recommended) or go back to Tycho <= 0.22.0");
         }
+    }
+
+    static boolean isLunaOrOlder(Version featureVersion) {
+        return featureVersion.compareTo(LUNA_SR2_EXECUTABLE_FEATURE_VERSION) <= 0;
     }
 
     private boolean macOSConfigured() {
