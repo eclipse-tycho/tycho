@@ -3,15 +3,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.eclipse.tycho.its</groupId>
-  <artifactId>offlinemode.simplerepo.parent</artifactId>
+  <artifactId>offlinemode.compositerepo.parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
     <module>bundle</module>
     <module>feature</module>
-    <module>site</module>
   </modules>
+
   <build>
     <plugins>
       <plugin>
@@ -28,7 +28,7 @@
           <target>
             <artifact>
               <groupId>org.eclipse.tycho.its</groupId>
-              <artifactId>offlinemode.simplerepo.parent</artifactId>
+              <artifactId>offlinemode.compositerepo.parent</artifactId>
               <version>0.0.1-SNAPSHOT</version>
               <classifier>platform</classifier>
             </artifact>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="offlinemode.simplerepo.feature"
+      id="offlinemode.compositerepo.feature"
       label="Feature Feature"
       version="0.0.1.qualifier">
 
@@ -15,14 +15,14 @@
    <license url="http://www.example.com/license">
       [Enter License Description here.]
    </license>
-
    <requires>
-      <import plugin="tycho338.bundle"/>
-      <import feature="tycho338.feature" version="0.0.1"/>
+      <import plugin="offlinemode.compositerepo.child1.bundle"/>
+      <import feature="offlinemode.compositerepo.child1.feature" version="0.0.1"/>
+      <import plugin="offlinemode.compositerepo.child2.bundle"/>
+      <import feature="offlinemode.compositerepo.child2.feature" version="0.0.1"/>
    </requires>
-
    <plugin
-         id="offlinemode.simplerepo.bundle"
+         id="offlinemode.compositerepo.bundle"
          download-size="0"
          install-size="0"
          version="0.0.0"

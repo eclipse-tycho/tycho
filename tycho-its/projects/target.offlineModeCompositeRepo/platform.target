@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="platform">
+  <locations>
+    <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+      <unit id="offlinemode.compositerepo.child1.feature.feature.group" version="1.0.0.201511062052"/>
+      <unit id="offlinemode.compositerepo.child2.feature.feature.group" version="1.0.0.201511062052"/>
+      <repository id="test" location="[url]" />
+    </location>
+  </locations>
+</target>

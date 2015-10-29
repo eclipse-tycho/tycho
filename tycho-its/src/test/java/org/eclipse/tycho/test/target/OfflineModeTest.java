@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,9 +14,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.HttpServer;
@@ -40,27 +42,56 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    public void test() throws Exception {
-        Verifier verifier = getVerifier("target.offlineMode", false);
-        String url = server.addServer("test", new File(verifier.getBasedir(), "repo"));
+    public void testWithSimpleRepository() throws Exception {
+        Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineMode", "repo");
+        runAndVerifyOnlineBuild(verifier);
+        runAndVerifyOfflineBuild(verifier);
+    }
+
+    @Test
+    public void testWithXZRepository() throws Exception {
+        Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineModeXZRepo", "repo");
+        runAndVerifyOnlineBuild(verifier);
+        runAndVerifyOfflineBuild(verifier);
+    }
+
+    @Test
+    public void testWithCompositeRepository() throws Exception {
+        Verifier verifier = getVerifierAndSetupServerAndRepo("target.offlineModeCompositeRepo", "compositeRepo");
+        server.addServer("test/childOne", new File(verifier.getBasedir(), "compositeRepo/child1"));
+        server.addServer("test/childTwo", new File(verifier.getBasedir(), "compositeRepo/child2"));
+
+        runAndVerifyOnlineBuild(verifier);
+        runAndVerifyOfflineBuild(verifier);
+
+    }
+
+    private Verifier getVerifierAndSetupServerAndRepo(String basedir, String repoName) throws Exception, IOException {
+        Verifier verifier = getVerifier(basedir, false);
+        String url = server.addServer("test", new File(verifier.getBasedir(), repoName));
         verifier.getSystemProperties().setProperty("p2.repo", url);
 
         File platformFile = new File(verifier.getBasedir(), "platform.target");
         TargetDefinitionUtil.setRepositoryURLs(platformFile, url);
+        return verifier;
+    }
 
-        verifier.setLogFileName("log-online.txt");
-        verifier.executeGoal("integration-test");
-        verifier.verifyErrorFreeLog();
-        assertFalse(server.getAccessedUrls("test").isEmpty());
-        server.getAccessedUrls("test").clear();
-
+    @SuppressWarnings("unchecked")
+    private void runAndVerifyOfflineBuild(Verifier verifier) throws VerificationException {
         verifier.getCliOptions().add("--offline");
         verifier.setLogFileName("log-offline.txt");
         verifier.executeGoal("integration-test");
         verifier.verifyErrorFreeLog();
         Set<String> urls = new LinkedHashSet<>(server.getAccessedUrls("test"));
         assertTrue(urls.toString(), urls.isEmpty());
+    }
+
+    private void runAndVerifyOnlineBuild(Verifier verifier) throws VerificationException {
+        verifier.setLogFileName("log-online.txt");
+        verifier.executeGoal("integration-test");
+        verifier.verifyErrorFreeLog();
+        assertFalse(server.getAccessedUrls("test").isEmpty());
+        server.getAccessedUrls("test").clear();
     }
 
 }
