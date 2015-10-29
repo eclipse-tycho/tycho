@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2015 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,11 +15,14 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.repository.CacheManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.impl.Activator;
 
 /**
  * p2 {@link CacheManager} instance caching the p2 repository indices (i.e. <tt>content.xml</tt> and
@@ -46,16 +49,14 @@ class RemoteRepositoryCacheManager extends CacheManager {
     }
 
     @Override
-    public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor) throws IOException,
-            ProvisionException {
+    public File createCache(URI repositoryLocation, String prefix, IProgressMonitor monitor)
+            throws IOException, ProvisionException {
         File cacheFile = getCache(repositoryLocation, prefix);
         if (offline) {
             if (cacheFile != null) {
                 return cacheFile;
             }
-
-            throw new ProvisionException("Repository system is offline and no local cache available for "
-                    + repositoryLocation.toString());
+            throw new ProvisionException(getFailureStatus(repositoryLocation));
         } else {
             /**
              * Here, we could implement a cache refreshment policy, but the
@@ -72,7 +73,34 @@ class RemoteRepositoryCacheManager extends CacheManager {
         }
     }
 
-    private <T extends Exception> File handleCreateCacheException(File cacheFile, URI repositoryLocation, T e) throws T {
+    @Override
+    public File createCacheFromFile(URI remoteFile, IProgressMonitor monitor) throws ProvisionException, IOException {
+        if (offline) {
+            File cacheFile = getCacheFile(remoteFile);
+            if (cacheFile != null) {
+                return cacheFile;
+            }
+            throw new ProvisionException(getFailureStatus(remoteFile));
+        }
+        return super.createCacheFromFile(remoteFile, monitor);
+    }
+
+    private Status getFailureStatus(URI uri) throws ProvisionException {
+        return new Status(IStatus.ERROR, Activator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND,
+                "Repository system is offline and no local cache available for " + uri.toString(), null);
+    }
+
+    // this method is copied from the super class, because its private there
+    // we calculate the hashcode the same way as p2 and we must 
+    // keep the hashcode calculation in sync with them
+    private File getCacheFile(URI url) {
+        File dataAreaFile = getCacheDirectory();
+        int hashCode = url.hashCode();
+        return new File(dataAreaFile, Integer.toString(hashCode));
+    }
+
+    private <T extends Exception> File handleCreateCacheException(File cacheFile, URI repositoryLocation, T e)
+            throws T {
         if (cacheFile != null) {
             String message = "Failed to access p2 repository " + repositoryLocation.toASCIIString()
                     + ", use local cache.";

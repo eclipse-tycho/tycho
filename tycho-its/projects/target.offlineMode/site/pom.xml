@@ -4,10 +4,10 @@
 
   <parent>
     <groupId>org.eclipse.tycho.its</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>offlinemode.simplerepo.parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>site</artifactId>
+  <artifactId>offlinemode.simplerepo.site</artifactId>
   <packaging>eclipse-update-site</packaging>
 </project>

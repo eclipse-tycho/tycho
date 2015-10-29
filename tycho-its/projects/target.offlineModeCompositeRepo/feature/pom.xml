@@ -4,10 +4,10 @@
 
   <parent>
     <groupId>org.eclipse.tycho.its</groupId>
-    <artifactId>offlinemode.simplerepo.parent</artifactId>
+    <artifactId>offlinemode.compositerepo.parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>offlinemode.simplerepo.bundle</artifactId>
-  <packaging>eclipse-plugin</packaging>
+  <artifactId>offlinemode.compositerepo.feature</artifactId>
+  <packaging>eclipse-feature</packaging>
 </project>

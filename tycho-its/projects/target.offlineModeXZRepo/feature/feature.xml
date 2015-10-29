@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="offlinemode.simplerepo.feature"
+      id="offlinemode.xzrepo.feature"
       label="Feature Feature"
       version="0.0.1.qualifier">
 
@@ -17,12 +17,12 @@
    </license>
 
    <requires>
-      <import plugin="tycho338.bundle"/>
-      <import feature="tycho338.feature" version="0.0.1"/>
+      <import plugin="offlinemode.xzrepo.bundlefromrepo"/>
+      <import feature="offlinemode.xzrepo.featurefromrepo" version="1.0.0"/>
    </requires>
 
    <plugin
-         id="offlinemode.simplerepo.bundle"
+         id="offlinemode.xzrepo.bundle"
          download-size="0"
          install-size="0"
          version="0.0.0"
