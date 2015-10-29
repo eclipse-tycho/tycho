@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='Unnamed - org.eclipse.tycho.its:tycho338.child1.site:eclipse-update-site:0.0.1-SNAPSHOT Artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1266449202906'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='2'>
+    <artifact classifier='org.eclipse.update.feature' id='tycho338.child1.feature' version='0.0.1.201002180026'>
+      <properties size='4'>
+        <property name='artifact.size' value='1867'/>
+        <property name='download.size' value='1867'/>
+        <property name='download.md5' value='970fe06db006f5e0a713ebcc6b881734'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='tycho338.child1.bundle' version='0.0.1.201002180026'>
+      <properties size='3'>
+        <property name='artifact.size' value='1676'/>
+        <property name='download.size' value='1676'/>
+        <property name='download.md5' value='f788d864d6dab57e3bc380fc6229cd7d'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>
