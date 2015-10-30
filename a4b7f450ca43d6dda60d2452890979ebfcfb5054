@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0724e3f1_a348f582",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/remote/RemoteRepositoryCacheManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-10-30T09:33:31Z",
+      "side": 1,
+      "message": "is this seems an implementation detail copied from p2?\ndoes it rely on the way hashcode is being used in p2 for computing the cached file name or is it completely up to us how we name the cache file?\n\nIn case it needs to be kept in sync with how p2 names the cache files I guess we should add a comment here.",
+      "range": {
+        "startLine": 95,
+        "startChar": 27,
+        "endLine": 95,
+        "endChar": 35
+      },
+      "revId": "a4b7f450ca43d6dda60d2452890979ebfcfb5054",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0724e3f1_e39f8d3d",
+        "filename": "tycho-its/projects/target.offlineModeCompositeRepo/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-10-30T09:33:31Z",
+      "side": 1,
+      "message": "if this was copied from another IT (?)\nand the GAV was not changed, it will conflict with the other IT when \u0027mvn install\u0027 installs it into the local repo.\n\nIt\u0027s a good idea to make all GAVs used  in test projects specific to the IT that is being run to avoid unwanted crosstalk/side-effects between unrelated ITs, esp. when they are being run in parallel. (and I know some ITs we have are not good examples for this...)\n\nI.e. same comment applies to all pom.xmls used here for test projects.",
+      "range": {
+        "startLine": 6,
+        "startChar": 14,
+        "endLine": 6,
+        "endChar": 20
+      },
+      "revId": "a4b7f450ca43d6dda60d2452890979ebfcfb5054",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0724e3f1_c3d249fc",
+        "filename": "tycho-its/projects/target.offlineModeXZRepo/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-10-30T09:33:31Z",
+      "side": 1,
+      "message": "comment rearding the xz compressed repo:\n\nI\u0027m surprised that this works without p2.index.\n\nI thought p2 repos with .xz compression require a p2.index file otherwise p2 will not try to load the xz compressed files (the default used to be only .xml and .jar, but maybe this was changed with Mars).\n\nI may be wrong but the eclipse platform repo uses:\n\nhttp://download.eclipse.org/releases/mars/201510021000/p2.index\n\nwhich has\n\nversion\u003d1\nmetadata.repository.factory.order\u003d content.xml.xz,content.xml,!\nartifact.repository.factory.order\u003d artifacts.xml.xz,artifacts.xml,!\n\nOTOH maybe this is only a performance optimization (changing the order in which p2 should try to download files)\n\nIn our case (xz files only)  we would have\n\nversion\u003d1\nmetadata.repository.factory.order\u003d content.xml.xz,!\nartifact.repository.factory.order\u003d artifacts.xml.xz,!\n\nIn real life, xz compressed repos I saw up to now always also have jar compression (for backwards compat with older p2 clients)\nso if we want this test to be closer to real usage, maybe it\u0027s a good idea to have both xz compressed and jar compressed files and a p2.index similar to the eclipse platform repo above.",
+      "revId": "a4b7f450ca43d6dda60d2452890979ebfcfb5054",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0724e3f1_c38b69fa",
+        "filename": "tycho-its/projects/target.offlineModeXZRepo/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-10-30T09:33:31Z",
+      "side": 1,
+      "message": "I don\u0027t understand why have both a p2 repo here and a target below. I think we need only one of both here (side effect of copy-paste?)",
+      "range": {
+        "startLine": 16,
+        "startChar": 5,
+        "endLine": 16,
+        "endChar": 15
+      },
+      "revId": "a4b7f450ca43d6dda60d2452890979ebfcfb5054",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0724e3f1_83c4d135",
+        "filename": "tycho-its/projects/target.offlineModeXZRepo/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-10-30T09:33:31Z",
+      "side": 1,
+      "message": "not needed as it\u0027s the default",
+      "range": {
+        "startLine": 36,
+        "startChar": 10,
+        "endLine": 36,
+        "endChar": 33
+      },
+      "revId": "a4b7f450ca43d6dda60d2452890979ebfcfb5054",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0724e3f1_838df10b",
+        "filename": "tycho-its/projects/target.offlineModeXZRepo/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-10-30T09:33:31Z",
+      "side": 1,
+      "message": "I don\u0027t see how this target artifact is made available here (we use packaging type pom, not eclipse-target-definition.\n\nmaybe it\u0027s only using an artifact being installed to the local repo by another test this was originally copied from?",
+      "range": {
+        "startLine": 38,
+        "startChar": 13,
+        "endLine": 38,
+        "endChar": 21
+      },
+      "revId": "a4b7f450ca43d6dda60d2452890979ebfcfb5054",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
