@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
+import org.eclipse.equinox.p2.internal.repository.tools.RecreateRepositoryApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -56,7 +58,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     @Override
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
-            throws FacadeException {
+                    throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent,
@@ -132,8 +134,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, includePacked);
 
             // mirror scope: seed units...
-            mirrorApp.setSourceIUs(toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(),
-                    sources));
+            mirrorApp.setSourceIUs(
+                    toInstallableUnitList(projectSeeds, mirrorApp.getCompositeMetadataRepository(), sources));
 
             // TODO the p2 mirror tool should support mirroring multiple environments at once
             for (TargetEnvironment environment : context.getEnvironments()) {
@@ -154,10 +156,20 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                     IStatus returnStatus = mirrorApp.run(null);
                     checkStatus(returnStatus);
                     logListener.showHelpForLoggedMessages();
+                    // bug 357513 - force artifact repo recreation which will
+                    // create the missing md5 checksums
+                    RepositoryDescriptor descriptor = new RepositoryDescriptor();
+                    descriptor.setAppend(true);
+                    descriptor.setFormat(null);
+                    descriptor.setKind("artifact"); //$NON-NLS-1$
+                    descriptor.setLocation(destination.getLocation().toURI());
 
+                    RecreateRepositoryApplication application = new RecreateRepositoryApplication();
+                    application.setArtifactRepository(descriptor);
+                    application.run(new NullProgressMonitor());
                 } catch (ProvisionException e) {
-                    throw new FacadeException(
-                            MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
+                    throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()),
+                            e);
                 }
             }
         } finally {
@@ -209,8 +221,8 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         return result;
     }
 
-    private static void createSourceRepositories(List<RepositoryDescriptor> result,
-            Collection<URI> repositoryLocations, String repositoryKind) {
+    private static void createSourceRepositories(List<RepositoryDescriptor> result, Collection<URI> repositoryLocations,
+            String repositoryKind) {
         for (URI repositoryLocation : repositoryLocations) {
             RepositoryDescriptor repository = new RepositoryDescriptor();
             repository.setKind(repositoryKind);
