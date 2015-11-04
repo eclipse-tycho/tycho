@@ -20,9 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
+import org.eclipse.equinox.p2.internal.repository.tools.RecreateRepositoryApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.internal.repository.tools.SlicingOptions;
 import org.eclipse.equinox.p2.internal.repository.tools.XZCompressor;
@@ -58,7 +60,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     @Override
     public void mirrorStandalone(RepositoryReferences sources, DestinationRepositoryDescriptor destination,
             Collection<IUDescription> seedIUs, MirrorOptions mirrorOptions, BuildOutputDirectory tempDirectory)
-                    throws FacadeException {
+            throws FacadeException {
         IProvisioningAgent agent = Activator.createProvisioningAgent(tempDirectory);
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent,
@@ -156,7 +158,17 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                     IStatus returnStatus = mirrorApp.run(null);
                     checkStatus(returnStatus);
                     logListener.showHelpForLoggedMessages();
+                    // bug 357513 - force artifact repo recreation which will
+                    // create the missing md5 checksums
+                    RepositoryDescriptor descriptor = new RepositoryDescriptor();
+                    descriptor.setAppend(true);
+                    descriptor.setFormat(null);
+                    descriptor.setKind("artifact"); //$NON-NLS-1$
+                    descriptor.setLocation(destination.getLocation().toURI());
 
+                    RecreateRepositoryApplication application = new RecreateRepositoryApplication();
+                    application.setArtifactRepository(descriptor);
+                    application.run(new NullProgressMonitor());
                 } catch (ProvisionException e) {
                     throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()),
                             e);
