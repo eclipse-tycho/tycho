@@ -7,12 +7,15 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Lars Vogel <Lars.Vogel@vogella.com> - Bug 481498
  *******************************************************************************/
 package org.eclipse.tycho.core.shared;
 
 public class VersioningHelper {
 
     public static final String QUALIFIER = "qualifier";
+
+    public static final String SNAPSHOT_QUALIFIER = "SNAPSHOT";
 
     public static String expandQualifier(String version, String buildQualifier) {
         String unqualifiedVersion = stripQualifier(version);
@@ -25,14 +28,19 @@ public class VersioningHelper {
     }
 
     /**
-     * @return the version without '.qualifier' suffix, or <code>null</code> if the version didn't
-     *         have that suffix.
+     * @return the version without '.qualifier' suffix or '.SNAPSHOT', or <code>null</code> if the
+     *         version didn't have that suffix.
      */
     private static String stripQualifier(String version) {
         if (version.endsWith("." + QUALIFIER)) {
             int qualifierIndex = version.length() - VersioningHelper.QUALIFIER.length();
             return version.substring(0, qualifierIndex - 1);
         }
+        if (version.endsWith("." + SNAPSHOT_QUALIFIER)) {
+            int qualifierIndex = version.length() - VersioningHelper.SNAPSHOT_QUALIFIER.length();
+            return version.substring(0, qualifierIndex - 1);
+        }
+
         return null;
     }
 
