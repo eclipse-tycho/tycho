@@ -84,7 +84,11 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
         if (!osgiVersion.endsWith(VersioningHelper.QUALIFIER)) {
             fail("OSGi version " + osgiVersion + " must have .qualifier qualifier for SNAPSHOT builds");
         } else {
-            String unqualifiedMavenVersion = mavenVersion.substring(0, mavenVersion.length() - "-SNAPSHOT".length());
+            String unqualifiedMavenVersion = mavenVersion;
+            if (mavenVersion.endsWith(Artifact.SNAPSHOT_VERSION)) {
+                unqualifiedMavenVersion = mavenVersion.substring(0,
+                        mavenVersion.length() - Artifact.SNAPSHOT_VERSION.length() - 1);
+            }
             String unqualifiedOSGiVersion = osgiVersion.substring(0,
                     osgiVersion.length() - VersioningHelper.QUALIFIER.length() - 1);
             if (!unqualifiedMavenVersion.equals(unqualifiedOSGiVersion)) {
