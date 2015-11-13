@@ -14,9 +14,6 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -24,7 +21,12 @@ import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
+
 import org.osgi.framework.Version;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * <p>
@@ -50,6 +52,9 @@ import org.osgi.framework.Version;
  */
 @Mojo(name = "build-qualifier-aggregator", defaultPhase = LifecyclePhase.VALIDATE)
 public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
+
+    private final TimestampFinder timestampFinder = new TimestampFinder();
+
     @Override
     protected Date getBuildTimestamp() throws MojoExecutionException {
         Date timestamp = super.getBuildTimestamp();
@@ -91,14 +96,18 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
             private void visitArtifact(ArtifactDescriptor artifact) {
                 ReactorProject otherProject = artifact.getMavenProject();
-                String otherVersion = (otherProject != null) ? otherProject.getExpandedVersion() : artifact.getKey()
-                        .getVersion();
+                String otherVersion = (otherProject != null) ? otherProject.getExpandedVersion()
+                        : artifact.getKey().getVersion();
                 Version v = Version.parseVersion(otherVersion);
                 String otherQualifier = v.getQualifier();
                 if (otherQualifier != null) {
                     Date timestamp = parseQualifier(otherQualifier);
                     if (timestamp != null) {
                         if (latestTimestamp[0].compareTo(timestamp) < 0) {
+                            if (getLog().isDebugEnabled()) {
+                                getLog().debug("Found '" + format.format(timestamp) + "' from qualifier '"
+                                        + otherQualifier + "' for artifact " + artifact);
+                            }
                             latestTimestamp[0] = timestamp;
                         }
                     } else {
@@ -108,7 +117,11 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
             }
 
             private Date parseQualifier(String qualifier) {
-                return parseQualifier(qualifier, format);
+                Date timestamp = parseQualifier(qualifier, format);
+                if (timestamp != null) {
+                    return timestamp;
+                }
+                return discoverTimestamp(qualifier);
             }
 
             private Date parseQualifier(String qualifier, SimpleDateFormat format) {
@@ -118,6 +131,10 @@ public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
                     return timestamp;
                 }
                 return null;
+            }
+
+            private Date discoverTimestamp(String qualifier) {
+                return timestampFinder.findInString(qualifier);
             }
         });
 
