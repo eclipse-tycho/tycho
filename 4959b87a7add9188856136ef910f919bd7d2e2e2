@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67ccbf7d_8127f83d",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/TimestampFinder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-11-13T13:22:05Z",
+      "side": 1,
+      "message": "I wonder if we can even make this configurable via parameter in the mojo?",
+      "range": {
+        "startLine": 28,
+        "startChar": 50,
+        "endLine": 28,
+        "endChar": 65
+      },
+      "revId": "4959b87a7add9188856136ef910f919bd7d2e2e2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
