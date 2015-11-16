@@ -46,6 +46,29 @@
       "revId": "4959b87a7add9188856136ef910f919bd7d2e2e2",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67ccbf7d_b3b28e79",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/buildversion/TimestampFinder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-11-16T09:25:17Z",
+      "side": 1,
+      "message": "may want to add a comment that order is important here. If yyyyMMdd would be tested first it would win over more precise formats with hours and minutes.",
+      "range": {
+        "startLine": 32,
+        "startChar": 15,
+        "endLine": 32,
+        "endChar": 18
+      },
+      "revId": "4959b87a7add9188856136ef910f919bd7d2e2e2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
