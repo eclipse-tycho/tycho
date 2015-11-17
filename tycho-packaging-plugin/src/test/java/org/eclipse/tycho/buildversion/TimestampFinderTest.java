@@ -1,6 +1,7 @@
 package org.eclipse.tycho.buildversion;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -34,6 +35,15 @@ public class TimestampFinderTest {
 
         assertEquals(utcTimestamp(2012, 05, 06, 22, 00),
                 finder.findInString("scdasdcasdc.sd0320-sdva-201205062200-dscsadvj0239inacslj"));
+    }
+
+    public void testFindInStringNotFindingAmbiguousDate() {
+        TimestampFinder finder = new TimestampFinder();
+
+        assertNull(finder.findInString("blah"));
+
+        // two timestamps should not match
+        assertNull(finder.findInString("2_11_0_v20150518-0831_v20150608-0917"));
     }
 
     private Date utcTimestamp(int year, int month, int day, int hourOfDay, int minute) {
