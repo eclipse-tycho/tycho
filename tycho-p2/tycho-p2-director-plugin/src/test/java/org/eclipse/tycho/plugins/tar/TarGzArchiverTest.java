@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Alexander Nyßen (itemis AG) - Fix for bug #482469
  *******************************************************************************/
 package org.eclipse.tycho.plugins.tar;
 
@@ -129,6 +130,16 @@ public class TarGzArchiverTest {
     }
 
     @Test
+    public void testRelativeSymbolicLinkToFolderWithinArchivePreserved() throws Exception {
+        createSymbolicLink(new File(archiveRoot, "dir2/testSymLink"), Paths.get("../"));
+        archiver.createArchive();
+        TarArchiveEntry symLinkEntry = getTarEntries().get("dir2/testSymLink");
+        assertTrue(symLinkEntry.isSymbolicLink());
+        assertEquals("..", symLinkEntry.getLinkName());
+        assertEquals("Expect 8 entries in the archive", 8, getTarEntries().size());
+    }
+
+    @Test
     public void testSymbolicLinkAbsoluteTargetConvertedToRelative() throws Exception {
         // use absolute path as symlink target
         Path absoluteLinkTarget = new File(archiveRoot, "dir2/dir3/test.sh").getAbsoluteFile().toPath();
@@ -150,6 +161,19 @@ public class TarGzArchiverTest {
         assertFalse(inlinedSymLinkEntry.isSymbolicLink());
         assertTrue(inlinedSymLinkEntry.isFile());
         String content = new String(getTarEntry("testSymLink"), "UTF-8");
+        assertEquals("testContent", content);
+    }
+
+    @Test
+    public void testSymbolicLinkToDirOutsideArchiveInlined() throws Exception {
+        File linkTargetDir = tempFolder.newFolder("dirLinkTargetOutsideArchiveRoot");
+        FileUtils.fileWrite(new File(linkTargetDir, "test.txt"), "testContent");
+        createSymbolicLink(new File(archiveRoot, "testDirSymLink"), linkTargetDir.toPath());
+        archiver.createArchive();
+        TarArchiveEntry inlinedSymLinkEntry = getTarEntries().get("testDirSymLink/");
+        assertFalse(inlinedSymLinkEntry.isSymbolicLink());
+        assertTrue(inlinedSymLinkEntry.isDirectory());
+        String content = new String(getTarEntry("testDirSymLink/test.txt"), "UTF-8");
         assertEquals("testContent", content);
     }
 
