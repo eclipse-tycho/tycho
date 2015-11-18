@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Alexander Nyßen (itemis AG) - Fix for bug #482469
  *******************************************************************************/
 package org.eclipse.tycho.plugins.tar;
 
@@ -126,6 +127,16 @@ public class TarGzArchiverTest {
         TarArchiveEntry symLinkEntry = getTarEntries().get("dir2/testSymLink");
         assertTrue(symLinkEntry.isSymbolicLink());
         assertEquals("../test.sh", symLinkEntry.getLinkName());
+    }
+
+    @Test
+    public void testRelativeSymbolicLinkToFolderWithinArchivePreserved() throws Exception {
+        createSymbolicLink(new File(archiveRoot, "dir2/testSymLink"), Paths.get("../"));
+        archiver.createArchive();
+        TarArchiveEntry symLinkEntry = getTarEntries().get("dir2/testSymLink");
+        assertTrue(symLinkEntry.isSymbolicLink());
+        assertEquals("..", symLinkEntry.getLinkName());
+        assertEquals("Expect 8 entries in the archive", 8, getTarEntries().size());
     }
 
     @Test
