@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Alexander Nyßen (itemis AG) - Fix for bug #482469
  *******************************************************************************/
 package org.eclipse.tycho.plugins.tar;
 
@@ -104,7 +105,7 @@ public class TarGzArchiver {
             copyFileContentToTarStream(source, tarStream);
         }
         tarStream.closeArchiveEntry();
-        if (source.isDirectory()) {
+        if (source.isDirectory() && (!tarEntry.isSymbolicLink() || !resolvesBelow(source, tarRootDir))) {
             File[] children = source.listFiles();
             if (children != null) {
                 for (File child : children) {

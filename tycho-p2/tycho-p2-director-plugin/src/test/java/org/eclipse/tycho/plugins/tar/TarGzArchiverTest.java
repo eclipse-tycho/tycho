@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Alexander Nyßen (itemis AG) - Fix for bug #482469
  *******************************************************************************/
 package org.eclipse.tycho.plugins.tar;
 
@@ -129,6 +130,16 @@ public class TarGzArchiverTest {
     }
 
     @Test
+    public void testRelativeSymbolicLinkToFolderWithinArchivePreserved() throws Exception {
+        createSymbolicLink(new File(archiveRoot, "dir2/testSymLink"), Paths.get("../"));
+        archiver.createArchive();
+        TarArchiveEntry symLinkEntry = getTarEntries().get("dir2/testSymLink");
+        assertTrue(symLinkEntry.isSymbolicLink());
+        assertEquals("..", symLinkEntry.getLinkName());
+        assertEquals("Expect 8 entries in the archive", 8, getTarEntries().size());
+    }
+
+    @Test
     public void testSymbolicLinkAbsoluteTargetConvertedToRelative() throws Exception {
         // use absolute path as symlink target
         Path absoluteLinkTarget = new File(archiveRoot, "dir2/dir3/test.sh").getAbsoluteFile().toPath();
@@ -138,6 +149,10 @@ public class TarGzArchiverTest {
         assertTrue(symLinkEntry.isSymbolicLink());
         final String relativeLinkTarget = "dir3/test.sh";
         assertEquals(relativeLinkTarget, symLinkEntry.getLinkName());
+    }
+
+    public void testRelativeSymbolicPointingUpwards() throws Exception {
+
     }
 
     @Test
