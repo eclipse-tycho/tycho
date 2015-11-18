@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67ccbf7d_ef517f5b",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildversion/TimestampFinderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-11-18T10:27:50Z",
+      "side": 1,
+      "message": "@Test annotation missing\n\nif you add it, the test actually fails because the timestamp \"2_11_0_v20150518-0831_v20150608-0917\" matches",
+      "range": {
+        "startLine": 40,
+        "startChar": 16,
+        "endLine": 40,
+        "endChar": 55
+      },
+      "revId": "1b667940b85fc0a5291cdb09cf279a0e21ec654e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
