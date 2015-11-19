@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67ccbf7d_c627403d",
+        "filename": "tycho-p2/tycho-p2-director-plugin/src/test/java/org/eclipse/tycho/plugins/tar/TarGzArchiverTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-11-19T10:11:41Z",
+      "side": 1,
+      "message": "either remove this method (or was the intention to add another test?)\n\nI think the case that a directory symlink is pointing outside of the archive root dir should also be tested. In this case I would expect the directory contents are inlined into the archive instead of added as a symlink archive entry.",
+      "range": {
+        "startLine": 154,
+        "startChar": 16,
+        "endLine": 154,
+        "endChar": 51
+      },
+      "revId": "61adcc67b70d8a521b74d2150e06bef543648f24",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
