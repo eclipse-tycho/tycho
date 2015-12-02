@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47cfbb72_1bc8d3b8",
+        "filename": "tycho-bundles/org.eclipse.tycho.embedder.shared/src/main/java/org/eclipse/tycho/PackagingType.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 857
+      },
+      "writtenOn": "2015-12-02T10:43:43Z",
+      "side": 1,
+      "message": "For some reason this was missing.\n\nIt would come in handy in the validate-target-definition mojo at Tycho extras.",
+      "revId": "9c0bbf371cc67f0a219793d2399c68390fb08696",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
