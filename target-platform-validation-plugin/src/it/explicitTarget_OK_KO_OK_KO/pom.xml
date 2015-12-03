@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.eclipse.tycho.extras.its</groupId>
-	<artifactId>validationOK</artifactId>
+	<artifactId>explicitTarget_OK_KO_OK_KO</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Test for validation plugin: 1 target, validation OK</name>
+	<name>Test for validation plugin: 4 explicit targets, validation 2x OK, 2x KO</name>
 	<packaging>pom</packaging>
 
 	<build>

@@ -21,9 +21,11 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.resolver.shared.IncludeSourceMode;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -40,10 +42,15 @@ import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
  */
 @Mojo(name = "validate-target-platform", defaultPhase = LifecyclePhase.VALIDATE)
 public class TPValidationMojo extends AbstractMojo {
+    @Parameter(property = "project")
+    private MavenProject project;
+
     /**
-     * .target files to validate
+     * The .target files to validate. If not specified and the project packaging is
+     * "eclipse-target-definition", the goal will validate project's primary target file will be
+     * validated.
      */
-    @Parameter(required = true)
+    @Parameter
     private File[] targetFiles;
 
     /**
@@ -78,7 +85,19 @@ public class TPValidationMojo extends AbstractMojo {
         this.factory = this.equinox.getService(P2ResolverFactory.class);
 
         List<TPError> errors = new ArrayList<>();
-        for (File targetFile : this.targetFiles) {
+        File[] targetFilesToValidate;
+        if (this.targetFiles != null) {
+            targetFilesToValidate = this.targetFiles;
+        } else if (this.project != null
+                && PackagingType.TYPE_ECLIPSE_TARGET_DEFINITION.equals(this.project.getPackaging())) {
+            File defaultTargetFile = new File(project.getBasedir(), project.getArtifactId() + ".target");
+            targetFilesToValidate = new File[] { defaultTargetFile };
+        } else {
+            this.logger.info("No targetFiles configured. Skipping execution.");
+            return;
+        }
+
+        for (File targetFile : targetFilesToValidate) {
             try {
                 validateTarget(targetFile);
                 this.logger.info("OK!");

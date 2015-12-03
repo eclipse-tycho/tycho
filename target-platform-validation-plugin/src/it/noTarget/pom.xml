@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.eclipse.tycho.extras.its</groupId>
-	<artifactId>validationOK</artifactId>
+	<artifactId>noTarget</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Test for validation plugin: 1 target, validation OK</name>
+	<name>Test for validation plugin: no target</name>
 	<packaging>pom</packaging>
 
 	<build>
@@ -28,9 +28,6 @@
 							<goal>validate-target-platform</goal>
 						</goals>
 						<configuration>
-							<targetFiles>
-								<param>ko.target</param>
-							</targetFiles>
 							<failOnError>true</failOnError>
 						</configuration>
 					</execution>
