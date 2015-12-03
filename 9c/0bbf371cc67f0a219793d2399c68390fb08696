@@ -1,0 +1,9 @@
+Code-Review+1: Mickael Istria <mistria@redhat.com>
+Code-Review+1: Andreas Sewe <andreas.sewe@codetrails.com>
+Verified+1: Hudson CI
+Code-Review+2: Jan Sievers <jan.sievers@sap.com>
+Submitted-by: Jan Sievers <jan.sievers@sap.com>
+Submitted-at: Thu, 03 Dec 2015 03:15:52 -0500
+Reviewed-on: https://git.eclipse.org/r/61746
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
