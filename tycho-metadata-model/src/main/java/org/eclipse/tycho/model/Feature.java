@@ -132,6 +132,10 @@ public class Feature {
             return dom.getAttributeValue("version");
         }
 
+        public void setVersion(String version) {
+            dom.setAttribute("version", version);
+        }
+
         public String getMatch() {
             String match = dom.getAttributeValue("match");
             if (match == null) {
@@ -139,6 +143,10 @@ public class Feature {
             } else {
                 return match;
             }
+        }
+
+        public void setMatch(String match) {
+            dom.setAttribute("match", match);
         }
 
         public String getPatch() {
