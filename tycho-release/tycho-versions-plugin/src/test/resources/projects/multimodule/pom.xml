@@ -10,6 +10,7 @@
     <module>bundle</module>
     <module>feature01</module>
     <module>feature02</module>
+    <module>feature03</module>
     <module>site</module>
     <module>product</module>
     <module>repository</module>

@@ -94,4 +94,36 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
     private VersionRange updateRightBound(VersionRange range, char rightType, Version rightVersion) {
         return new VersionRange(range.getLeftType(), range.getLeft(), rightVersion, rightType);
     }
+
+    @Override
+    public ImportRefVersionConstraint computeNewImportRefVersionConstraint(
+            ImportRefVersionConstraint originalVersionConstraint, String originalReferencedVersion,
+            String newReferencedVersion) {
+
+        if (originalVersionConstraint.getVersion() == null) {
+            return originalVersionConstraint;
+        }
+
+        ImportRefVersionConstraint versionConstraintUsingBaseVersion = toBaseVersionConstraint(
+                originalVersionConstraint);
+        String referencedBaseVersion = Versions.toBaseVersion(originalReferencedVersion);
+        String newReferencedBaseVersion = Versions.toBaseVersion(newReferencedVersion);
+
+        if ((updateMatchingBounds && versionConstraintUsingBaseVersion.getVersion().equals(referencedBaseVersion))
+                || versionConstraintUsingBaseVersion.matches(referencedBaseVersion)
+                        && !versionConstraintUsingBaseVersion.matches(newReferencedBaseVersion)) {
+            return originalVersionConstraint.withVersion(newReferencedBaseVersion);
+        } else {
+            return originalVersionConstraint;
+        }
+    }
+
+    private ImportRefVersionConstraint toBaseVersionConstraint(ImportRefVersionConstraint originalVersionConstraint) {
+        if (originalVersionConstraint.getVersion() != null) {
+            return new ImportRefVersionConstraint(Versions.toBaseVersion(originalVersionConstraint.getVersion()),
+                    originalVersionConstraint.getMatch());
+        } else {
+            return originalVersionConstraint;
+        }
+    }
 }
