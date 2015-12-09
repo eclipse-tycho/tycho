@@ -18,4 +18,8 @@ public interface VersionRangeUpdateStrategy {
 
     public String computeNewVersionRange(String originalVersionRange, String originalReferencedVersion,
             String newReferencedVersion);
+
+    public ImportRefVersionConstraint computeNewImportRefVersionConstraint(
+            ImportRefVersionConstraint originalVersionConstraint, String originalReferencedVersion,
+            String newReferencedVersion);
 }

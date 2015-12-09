@@ -61,6 +61,9 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         assertPom(new File(basedir, "feature02"));
         assertFeatureXml(new File(basedir, "feature02"));
 
+        assertPom(new File(basedir, "feature03"));
+        assertFeatureXml(new File(basedir, "feature03"));
+
         assertPom(new File(basedir, "site"));
         assertSiteXml(new File(basedir, "site"));
 

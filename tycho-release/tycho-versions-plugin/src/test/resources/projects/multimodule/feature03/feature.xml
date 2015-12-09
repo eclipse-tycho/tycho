@@ -1,0 +1,7 @@
+<feature id="feature03" version="1.0.0.qualifier">
+	<requires>
+		<import feature="feature02" 
+			version="1.0.0" match="perfect" />
+		<import plugin="bundle" version="1.0.0" match="perfect"/>
+	</requires>
+</feature>

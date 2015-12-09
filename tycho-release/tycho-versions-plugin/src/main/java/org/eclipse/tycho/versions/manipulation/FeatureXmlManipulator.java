@@ -18,12 +18,16 @@ import java.util.Collections;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.model.Feature.ImportRef;
+import org.eclipse.tycho.model.Feature.RequiresRef;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
+import org.eclipse.tycho.versions.engine.ImportRefVersionConstraint;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
+import org.eclipse.tycho.versions.engine.VersionRangeUpdateStrategy;
 import org.eclipse.tycho.versions.engine.Versions;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-feature")
@@ -44,8 +48,10 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
                     changeLicenseFeature(change, feature);
                     // could be included feature
                     changeIncludedFeatures(change, feature);
+                    changeRequiredFeatures(change, feature, versionChangeContext.getVersionRangeUpdateStrategy());
                 } else if (isBundle(change.getProject())) {
                     changeIncludedPlugins(change, feature);
+                    changeRequiredPlugins(change, feature, versionChangeContext.getVersionRangeUpdateStrategy());
                 }
             }
         }
@@ -91,6 +97,67 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
                 logger.info("  feature.xml//feature/plugin/@id='" + plugin.getId() + "'/@version: "
                         + change.getVersion() + " => " + change.getNewVersion());
                 plugin.setVersion(change.getNewVersion());
+            }
+        }
+    }
+
+    private void changeRequiredFeatures(VersionChange featureVersionChange, Feature feature,
+            VersionRangeUpdateStrategy versionRangeUpdateStrategy) {
+
+        for (RequiresRef ref : feature.getRequires()) {
+            for (ImportRef importRef : ref.getImports()) {
+                if (importRef.getFeature() != null
+                        && importRef.getFeature().equals(featureVersionChange.getArtifactId())) {
+
+                    boolean isPatch = importRef.getPatch().equals("true");
+                    ImportRefVersionConstraint originalVersionConstraint = new ImportRefVersionConstraint(
+                            importRef.getVersion(),
+                            isPatch ? ImportRefVersionConstraint.MATCH_PERFECT : importRef.getMatch());
+
+                    ImportRefVersionConstraint newImportRefVersionConstraint = versionRangeUpdateStrategy
+                            .computeNewImportRefVersionConstraint(originalVersionConstraint,
+                                    featureVersionChange.getVersion(), featureVersionChange.getNewVersion());
+
+                    if (!originalVersionConstraint.equals(newImportRefVersionConstraint)) {
+                        logger.info("  feature.xml//feature/requires/import/@feature='" + importRef.getFeature()
+                                + "'/@version: " + originalVersionConstraint + " => " + newImportRefVersionConstraint);
+                        importRef.setVersion(newImportRefVersionConstraint.getVersion());
+                        if (!isPatch) {
+                            // When patch is true match should not be set
+                            importRef.setMatch(newImportRefVersionConstraint.getMatch());
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    /**
+     * @param bundleVersionChange
+     * @param feature
+     * @param versionRangeUpdateStrategy
+     */
+    private void changeRequiredPlugins(VersionChange bundleVersionChange, Feature feature,
+            VersionRangeUpdateStrategy versionRangeUpdateStrategy) {
+        for (RequiresRef ref : feature.getRequires()) {
+            for (ImportRef importRef : ref.getImports()) {
+                if (importRef.getPlugin() != null
+                        && importRef.getPlugin().equals(bundleVersionChange.getArtifactId())) {
+
+                    ImportRefVersionConstraint originalVersionConstraint = new ImportRefVersionConstraint(
+                            importRef.getVersion(), importRef.getMatch());
+                    ImportRefVersionConstraint newImportRefVersionConstraint = versionRangeUpdateStrategy
+                            .computeNewImportRefVersionConstraint(originalVersionConstraint,
+                                    bundleVersionChange.getVersion(), bundleVersionChange.getNewVersion());
+
+                    if (!originalVersionConstraint.equals(newImportRefVersionConstraint)) {
+                        logger.info("  feature.xml//feature/requires/import/@plugin='" + importRef.getPlugin()
+                                + "'/@version: " + originalVersionConstraint + " => " + newImportRefVersionConstraint);
+                        importRef.setVersion(newImportRefVersionConstraint.getVersion());
+                        importRef.setMatch(newImportRefVersionConstraint.getMatch());
+                    }
+                }
             }
         }
     }

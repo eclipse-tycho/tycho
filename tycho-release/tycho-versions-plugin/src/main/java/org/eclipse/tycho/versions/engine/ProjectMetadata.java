@@ -35,4 +35,9 @@ public class ProjectMetadata {
         return basedir;
     }
 
+    @Override
+    public String toString() {
+        return basedir.toString();
+    }
+
 }
