@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27d6470d_2d4d4894",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/ImportRefVersionConstraint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-12-10T08:58:35Z",
+      "side": 1,
+      "message": "(very minor) could use a switch statement with Strings here since we are using Java 7",
+      "range": {
+        "startLine": 61,
+        "startChar": 2,
+        "endLine": 61,
+        "endChar": 4
+      },
+      "revId": "abeb94f2d84c2e5b8e3abfaef3401d1e82a59729",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27d6470d_ad415864",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/java/org/eclipse/tycho/versions/manipulation/FeatureXmlManipulatorTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-12-10T08:58:35Z",
+      "side": 1,
+      "message": "remove empty class or maybe add tests for added methods in FeatureXmlManipulator here?",
+      "range": {
+        "startLine": 3,
+        "startChar": 13,
+        "endLine": 3,
+        "endChar": 38
+      },
+      "revId": "abeb94f2d84c2e5b8e3abfaef3401d1e82a59729",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
