@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -28,7 +29,6 @@ import java.util.Set;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.locking.facade.FileLockService;
 import org.eclipse.tycho.locking.facade.FileLocker;
-import org.eclipse.tycho.p2.repository.DefaultTychoRepositoryIndex;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 
@@ -36,7 +36,7 @@ import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
  * Simplistic local Maven repository index to allow efficient lookup of all installed Tycho
  * projects. The content is persisted in a local file.
  */
-public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
+public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
 
     public static final String ARTIFACTS_INDEX_RELPATH = ".meta/p2-artifacts.properties";
     public static final String METADATA_INDEX_RELPATH = ".meta/p2-local-metadata.properties";
@@ -48,8 +48,9 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
     private final MavenLogger logger;
     private FileLocker fileLocker;
 
-    private Set<GAV> addedGavs = new HashSet<>();
-    private Set<GAV> removedGavs = new HashSet<>();
+    private Set<GAV> addedGavs = new HashSet<GAV>();
+    private Set<GAV> removedGavs = new HashSet<GAV>();
+    private Set<GAV> gavs = new HashSet<GAV>();
 
     private FileBasedTychoRepositoryIndex(File indexFile, FileLockService fileLockService, MavenLogger logger) {
         super();
@@ -59,7 +60,7 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
         if (indexFile.isFile()) {
             lock();
             try {
-                setGavs(read(new FileInputStream(indexFile)));
+                gavs = read(new FileInputStream(indexFile));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -77,8 +78,13 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
     }
 
     @Override
-    public void addGav(GAV gav) {
-        super.addGav(gav);
+    public synchronized Set<GAV> getProjectGAVs() {
+        return Collections.unmodifiableSet(new LinkedHashSet<>(gavs));
+    }
+
+    @Override
+    public synchronized void addGav(GAV gav) {
+        gavs.add(gav);
         this.addedGavs.add(gav);
         if (removedGavs.contains(gav)) {
             removedGavs.remove(gav);
@@ -86,8 +92,8 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
     }
 
     @Override
-    public void removeGav(GAV gav) {
-        super.removeGav(gav);
+    public synchronized void removeGav(GAV gav) {
+        gavs.remove(gav);
         this.removedGavs.add(gav);
         if (addedGavs.contains(gav)) {
             addedGavs.remove(gav);
@@ -115,11 +121,11 @@ public class FileBasedTychoRepositoryIndex extends DefaultTychoRepositoryIndex {
         }
     }
 
-    private void reconcile() throws IOException {
+    private synchronized void reconcile() throws IOException {
         // re-read index from file system so that changes from other
         // processes which happened in the meantime are not discarded
         if (indexFile.isFile()) {
-            setGavs(read(new FileInputStream(indexFile)));
+            gavs = read(new FileInputStream(indexFile));
             for (GAV addedGav : addedGavs) {
                 addGav(addedGav);
             }
