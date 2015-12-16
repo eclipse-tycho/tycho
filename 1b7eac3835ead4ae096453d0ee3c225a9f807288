@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27d6470d_6ddf3ed2",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/index/FileBasedTychoRepositoryIndex.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-12-16T12:00:00Z",
+      "side": 1,
+      "message": "all accesses to the gav fields need to be synchronized (both read and write access)",
+      "range": {
+        "startLine": 53,
+        "startChar": 21,
+        "endLine": 53,
+        "endChar": 25
+      },
+      "revId": "1b7eac3835ead4ae096453d0ee3c225a9f807288",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27d6470d_8ddc82dd",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/index/FileBasedTychoRepositoryIndex.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-12-16T12:00:00Z",
+      "side": 1,
+      "message": "synchronized",
+      "range": {
+        "startLine": 81,
+        "startChar": 20,
+        "endLine": 81,
+        "endChar": 34
+      },
+      "revId": "1b7eac3835ead4ae096453d0ee3c225a9f807288",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
