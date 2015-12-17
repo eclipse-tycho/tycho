@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27d6470d_f1ede42e",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/index/FileBasedTychoRepositoryIndex.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2015-12-17T08:19:50Z",
+      "side": 1,
+      "message": "diamond operator is enough here. Not necessary to add \u003cGAV\u003e back",
+      "range": {
+        "startLine": 51,
+        "startChar": 45,
+        "endLine": 51,
+        "endChar": 48
+      },
+      "revId": "98c17e4c7af6773aa42f1ecc13261158098b3561",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
