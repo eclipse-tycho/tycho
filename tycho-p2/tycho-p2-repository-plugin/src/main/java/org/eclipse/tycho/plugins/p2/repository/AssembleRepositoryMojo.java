@@ -38,14 +38,12 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  * </p>
  * <p>
  * <ol>
- * <li>
- * Copies resources (if any) from <code>${project.build.outputDirectory}</code> to
+ * <li>Copies resources (if any) from <code>${project.build.outputDirectory}</code> to
  * <code>${project.build.directory}/repository</code>. This allows to include additional files such
  * as <code>index.html</code> or about files from <code>src/main/resources</code> (or elsewhere)
  * into the p2 repository.</li>
- * <li>
- * The p2 aggregation into <code>${project.build.directory}/repository</code> runs recursively: it
- * starts with the content published in the current module, and traverses all artifacts that are
+ * <li>The p2 aggregation into <code>${project.build.directory}/repository</code> runs recursively:
+ * it starts with the content published in the current module, and traverses all artifacts that are
  * marked as <em>included</em> in already aggregated artifacts. (The following artifacts can include
  * other artifacts: categories, products, and features. Note: Dependencies with a strict version
  * range, i.e. a range which only matches exactly one version of an artifact, are also considered as
@@ -82,6 +80,16 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
      */
     @Parameter(defaultValue = "true")
     private boolean compress;
+
+    /**
+     * <p>
+     * Add XZ-compressed repository index files (but preserve original jar/xml files for backwards
+     * compatibility with older p2 clients). XZ offers better compression ratios esp. for highly redundant
+     * file content.
+     * </p>
+     */
+    @Parameter(defaultValue = "false")
+    private boolean xzCompression;
 
     /**
      * <p>
@@ -122,8 +130,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
             TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(getProject());
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
-            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
-                    destination, repositoryName, compress, !createArtifactRepository, true);
+            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
+                    repositoryName, compress, xzCompression, !createArtifactRepository, true);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
         } catch (FacadeException e) {
