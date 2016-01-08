@@ -21,8 +21,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Request;
-
 public abstract class AbstractMonitorServlet extends GenericServlet {
 
     private static final long serialVersionUID = -7271350776954812609L;
@@ -42,7 +40,7 @@ public abstract class AbstractMonitorServlet extends GenericServlet {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        String uri = ((Request) req).getUri().toString();
+        String uri = req.getRequestURI().toString();
         if (!uri.endsWith(".sha1") && !uri.endsWith(".md5")) {
             accessedUrls.add(uri);
         }
@@ -51,7 +49,7 @@ public abstract class AbstractMonitorServlet extends GenericServlet {
     }
 
     protected void addUri(HttpServletRequest req) {
-        String uri = ((Request) req).getUri().toString();
+        String uri = req.getRequestURI().toString();
         if (!accessedUrls.contains(uri)) {
             accessedUrls.add(uri);
         }

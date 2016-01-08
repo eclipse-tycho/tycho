@@ -37,8 +37,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
 @Component(role = EquinoxServiceFactory.class)
-public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements EquinoxServiceFactory, EmbeddedEquinox,
-        Disposable {
+public class DefaultEquinoxEmbedder extends AbstractLogEnabled
+        implements EquinoxServiceFactory, EmbeddedEquinox, Disposable {
     @Requirement(role = EquinoxLifecycleListener.class)
     private Map<String, EquinoxLifecycleListener> lifecycleListeners;
 
@@ -135,8 +135,8 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
 
             platformProperties.put("osgi.install.area", frameworkLocation);
             platformProperties.put("osgi.syspath", frameworkLocation + "/plugins");
-            platformProperties
-                    .put("osgi.configuration.area", copyToTempFolder(new File(frameworkDir, "configuration")));
+            platformProperties.put("osgi.configuration.area",
+                    copyToTempFolder(new File(frameworkDir, "configuration")));
 
             // platformProperties.put( "eclipse.p2.data.area", dataArea.getAbsolutePath() );
 
@@ -260,8 +260,8 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
             tempSecureStorage = File.createTempFile("tycho", "secure_storage");
             tempSecureStorage.deleteOnExit();
         } catch (IOException e) {
-            throw new EquinoxEmbedderException("Could not create Tycho secure store file in temp dir "
-                    + System.getProperty("java.io.tmpdir"), e);
+            throw new EquinoxEmbedderException(
+                    "Could not create Tycho secure store file in temp dir " + System.getProperty("java.io.tmpdir"), e);
         }
 
         List<String> nonFrameworkArgs = new ArrayList<>();
@@ -286,7 +286,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled implements Equino
         checkStarted();
 
         // TODO technically, we're leaking service references here
-        ServiceReference[] serviceReferences;
+        ServiceReference<?>[] serviceReferences;
         try {
             serviceReferences = frameworkContext.getServiceReferences(clazz.getName(), filter);
         } catch (InvalidSyntaxException e) {
