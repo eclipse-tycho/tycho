@@ -81,4 +81,12 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
         assertThat(FileUtils.fileRead(aboutFile).trim(), equalTo("About testrepo"));
     }
 
+    @Test
+    public void testXZCompression() throws Exception {
+        File repository = new File(verifier.getBasedir(), "target/repository");
+        assertThat(new File(repository, "content.xml.xz"), isFile());
+        assertThat(new File(repository, "artifacts.xml.xz"), isFile());
+        assertThat(new File(repository, "p2.index"), isFile());
+    }
+
 }
