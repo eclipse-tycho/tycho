@@ -71,7 +71,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<min.jdk.version>1.7</min.jdk.version>
+		<min.jdk.version>1.8</min.jdk.version>
 
 		<!-- copy&paste from maven/pom.xml file. I wish import scope worked in 3.0 -->
 		<classWorldsVersion>2.2.3</classWorldsVersion>
