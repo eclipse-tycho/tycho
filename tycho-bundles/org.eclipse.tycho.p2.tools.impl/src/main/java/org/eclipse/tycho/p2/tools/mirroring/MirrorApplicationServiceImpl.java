@@ -165,7 +165,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                 if (destination.isXZCompress()) {
                     try {
                         XZCompressor xzCompressor = new XZCompressor();
-                        xzCompressor.setPreserveOriginalFile(true);
+                        xzCompressor.setPreserveOriginalFile(destination.shouldKeepNonXzIndexFiles());
                         xzCompressor.setRepoFolder(destination.getLocation().getAbsolutePath());
                         xzCompressor.compressRepo();
                     } catch (IOException e) {

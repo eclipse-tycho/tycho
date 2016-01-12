@@ -83,13 +83,22 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     /**
      * <p>
-     * Add XZ-compressed repository index files (but preserve original jar/xml files for backwards
-     * compatibility with older p2 clients). XZ offers better compression ratios esp. for highly redundant
-     * file content.
+     * Add XZ-compressed repository index files. XZ offers better compression ratios esp. for highly
+     * redundant file content.
      * </p>
      */
-    @Parameter(defaultValue = "false")
+    @Parameter(defaultValue = "true")
     private boolean xzCompress;
+
+    /**
+     * <p>
+     * If {@link #xzCompress} is <code>true</code>, whether jar or xml index files should be kept in
+     * addition to XZ-compressed index files. This fallback provides backwards compatibility for
+     * pre-Mars p2 clients which cannot read XZ-compressed index files.
+     * </p>
+     */
+    @Parameter(defaultValue = "true")
+    private boolean keepNonXzIndexFiles;
 
     /**
      * <p>
@@ -131,7 +140,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
             DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
-                    repositoryName, compress, xzCompress, !createArtifactRepository, true);
+                    repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
         } catch (FacadeException e) {

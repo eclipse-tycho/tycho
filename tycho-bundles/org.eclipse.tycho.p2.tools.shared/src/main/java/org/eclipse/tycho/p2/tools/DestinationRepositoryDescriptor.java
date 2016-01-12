@@ -18,21 +18,23 @@ public class DestinationRepositoryDescriptor {
     final String name;
     private final boolean compress;
     private final boolean xzCompress;
+    private final boolean keepNonXzIndexFiles;
     private final boolean metaDataOnly;
     private final boolean append;
 
     public DestinationRepositoryDescriptor(File location, String name, boolean compress, boolean xzCompress,
-            boolean metaDataOnly, boolean append) {
+            boolean keepNonXzIndexFiles, boolean metaDataOnly, boolean append) {
         this.location = location;
         this.name = name;
         this.compress = compress;
         this.xzCompress = xzCompress;
+        this.keepNonXzIndexFiles = keepNonXzIndexFiles;
         this.metaDataOnly = metaDataOnly;
         this.append = append;
     }
 
     public DestinationRepositoryDescriptor(File location, String name) {
-        this(location, name, true, false, false, true);
+        this(location, name, true, true, false, false, true);
     }
 
     public File getLocation() {
@@ -49,6 +51,10 @@ public class DestinationRepositoryDescriptor {
 
     public boolean isXZCompress() {
         return xzCompress;
+    }
+
+    public boolean shouldKeepNonXzIndexFiles() {
+        return keepNonXzIndexFiles;
     }
 
     public boolean isMetaDataOnly() {
