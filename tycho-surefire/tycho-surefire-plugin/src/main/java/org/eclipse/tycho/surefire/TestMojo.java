@@ -195,6 +195,23 @@ public class TestMojo extends AbstractMojo {
     private boolean failIfNoTests;
 
     /**
+     * (junit47 provider with JUnit4.8+ only) Groups/categories for this test (comma-separated).
+     * Only classes/methods/etc decorated with one of the group/category specified here will be
+     * included in test run, if specified. For JUnit, this parameter forces the use of the junit47
+     * provider
+     */
+    @Parameter(property = "groups")
+    private String groups;
+
+    /**
+     * (junit47 provider with JUnit4.8+ only) Excluded groups/categories (comma-separated). Any
+     * methods/classes/etc with one of the groups/categories specified in this list will
+     * specifically not be run. For JUnit, this parameter forces the use of the junit47 provider
+     */
+    @Parameter(property = "excludedGroups")
+    private String excludedGroups;
+
+    /**
      * Set this to true to ignore a failure during testing. Its use is NOT RECOMMENDED, but quite
      * convenient on occasion.
      */
@@ -569,12 +586,12 @@ public class TestMojo extends AbstractMojo {
      * <code>BREE</code> .
      * <p/>
      * <ul>
-     * <li>SYSTEM: Use the currently running JVM (or from <a
-     * href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchain</a> if
+     * <li>SYSTEM: Use the currently running JVM (or from
+     * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchain</a> if
      * configured in pom.xml)</li>
      * <li>BREE: use MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code> to lookup the
-     * JDK from <a
-     * href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>.
+     * JDK from
+     * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>.
      * The value of BREE will be matched against the id of the toolchain elements in toolchains.xml.
      * </li>
      * </ul>
@@ -724,7 +741,8 @@ public class TestMojo extends AbstractMojo {
                 reactorProjects, resolverConfiguration);
 
         if (testRuntimeArtifacts == null) {
-            throw new MojoExecutionException("Cannot determinate build target platform location -- not executing tests");
+            throw new MojoExecutionException(
+                    "Cannot determinate build target platform location -- not executing tests");
         }
 
         work.mkdirs();
@@ -859,6 +877,12 @@ public class TestMojo extends AbstractMojo {
             result.put(/* JUnitCoreParameters.USEUNLIMITEDTHREADS_KEY */"useUnlimitedThreads",
                     String.valueOf(useUnlimitedThreads));
         }
+        if (groups != null) {
+            result.put(ProviderParameterNames.TESTNG_GROUPS_PROP, groups);
+        }
+        if (excludedGroups != null) {
+            result.put(ProviderParameterNames.TESTNG_EXCLUDEDGROUPS_PROP, excludedGroups);
+        }
         return result;
     }
 
@@ -976,8 +1000,8 @@ public class TestMojo extends AbstractMojo {
         return toolChain;
     }
 
-    LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime) throws MalformedURLException,
-            MojoExecutionException {
+    LaunchConfiguration createCommandLine(EquinoxInstallation testRuntime)
+            throws MalformedURLException, MojoExecutionException {
         EquinoxLaunchConfiguration cli = new EquinoxLaunchConfiguration(testRuntime);
 
         String executable = null;
@@ -1134,8 +1158,8 @@ public class TestMojo extends AbstractMojo {
                 try {
                     resolutionErrorHandler.throwErrors(request, result);
                 } catch (ArtifactResolutionException e) {
-                    throw new MojoExecutionException("Failed to resolve framework extension "
-                            + frameworkExtension.getManagementKey(), e);
+                    throw new MojoExecutionException(
+                            "Failed to resolve framework extension " + frameworkExtension.getManagementKey(), e);
                 }
                 files.add(artifact.getFile());
             }
