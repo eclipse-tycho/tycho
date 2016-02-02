@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -115,9 +115,26 @@ public class EclipseRunMojo extends AbstractMojo {
 
     /**
      * Arbitrary JVM options to set on the command line.
+     * 
+     * @deprecated use {@link #jvmArgs} instead.
      */
     @Parameter
     private String argLine;
+
+    /**
+     * List of JVM arguments set on the command line. Example:
+     * 
+     * <pre>
+     * &lt;jvmArgs&gt;
+     *   &lt;args&gt;-Xdebug&lt;/args&gt;
+     *   &lt;args&gt;-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044&lt;/args&gt;
+     * &lt;/jvmArgs&gt;
+     * </pre>
+     * 
+     * @since 0.25.0
+     */
+    @Parameter
+    private List<String> jvmArgs;
 
     /**
      * Whether to skip mojo execution.
@@ -265,6 +282,9 @@ public class EclipseRunMojo extends AbstractMojo {
         cli.setWorkingDirectory(project.getBasedir());
 
         cli.addVMArguments(splitArgLine(argLine));
+        if (jvmArgs != null) {
+            cli.addVMArguments(jvmArgs.toArray(new String[jvmArgs.size()]));
+        }
 
         addProgramArgs(cli, "-install", runtime.getLocation().getAbsolutePath(), "-configuration",
                 new File(work, "configuration").getAbsolutePath());
