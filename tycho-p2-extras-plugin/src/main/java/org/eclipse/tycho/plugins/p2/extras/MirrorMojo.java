@@ -150,6 +150,29 @@ public class MirrorMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private boolean append;
 
+    /**
+     * <p>
+     * Add XZ-compressed repository index files. XZ offers better compression ratios esp. for highly
+     * redundant file content.
+     * </p>
+     * 
+     * @since 0.25.0
+     */
+    @Parameter(defaultValue = "true")
+    private boolean xzCompress;
+
+    /**
+     * <p>
+     * If {@link #xzCompress} is <code>true</code>, whether jar or xml index files should be kept in
+     * addition to XZ-compressed index files. This fallback provides backwards compatibility for
+     * pre-Mars p2 clients which cannot read XZ-compressed index files.
+     * </p>
+     * 
+     * @since 0.25.0
+     */
+    @Parameter(defaultValue = "true")
+    private boolean keepNonXzIndexFiles;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         final MirrorApplicationService mirrorService = p2.getService(MirrorApplicationService.class);
 
@@ -167,7 +190,7 @@ public class MirrorMojo extends AbstractMojo {
             name = "";
         }
         final DestinationRepositoryDescriptor destinationDescriptor = new DestinationRepositoryDescriptor(destination,
-                name, compress, mirrorMetadataOnly, append);
+                name, compress, xzCompress, keepNonXzIndexFiles, mirrorMetadataOnly, append);
         getLog().info("Mirroring to " + destination + "...");
         try {
             mirrorService.mirrorStandalone(sourceDescriptor, destinationDescriptor, createIUDescriptions(),
