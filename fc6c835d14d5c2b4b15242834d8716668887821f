@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7dfcf21_c14aab2c",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/resources/projects/multimodule/iu/p2iu.xml_expected",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-03-08T16:22:43Z",
+      "side": 1,
+      "message": "shouldn\u0027t his be \n\n1.0.1.qualifier\n\ninstead? (analogous to the pom.xml version change?)",
+      "range": {
+        "startLine": 2,
+        "startChar": 35,
+        "endLine": 2,
+        "endChar": 50
+      },
+      "revId": "fc6c835d14d5c2b4b15242834d8716668887821f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
