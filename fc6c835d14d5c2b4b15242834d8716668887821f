@@ -22,6 +22,30 @@
       "revId": "fc6c835d14d5c2b4b15242834d8716668887821f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7dfcf21_5a5044ac",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/resources/projects/multimodule/iu/p2iu.xml_expected",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2016-03-09T11:36:29Z",
+      "side": 1,
+      "message": "Well that was kind of a negative test (the expected and original p2iu.xml files are the same. The version sould not be updated, since it does not match the original version from the pom and the unit \"multimodule.ui\" is not a reactor project. \n\nBut I changed the test so that it tests what it should, so that the version within the p2iu.xml gets updated.",
+      "parentUuid": "e7dfcf21_c14aab2c",
+      "range": {
+        "startLine": 2,
+        "startChar": 35,
+        "endLine": 2,
+        "endChar": 50
+      },
+      "revId": "fc6c835d14d5c2b4b15242834d8716668887821f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
