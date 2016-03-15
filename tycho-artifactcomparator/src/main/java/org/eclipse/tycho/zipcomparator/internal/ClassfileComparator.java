@@ -51,7 +51,7 @@ public class ClassfileComparator implements ContentsComparator {
             baselineDisassemble = disassemble(baselineBytes);
             reactorDisassemble = disassemble(reactorBytes);
             equal = baselineDisassemble.equals(reactorDisassemble);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             // asm could not disassemble one of the classes, fallback to byte-to-byte comparison
             equal = Arrays.equals(baselineBytes, reactorBytes);
         }
