@@ -35,6 +35,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.submodule.SubmoduleWalk.IgnoreSubmoduleMode;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -139,6 +140,8 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                 if (dirtyBehaviour != DirtyBehavior.IGNORE) {
                     // 1. check if 'git status' is clean for relPath
                     IndexDiff diff = new IndexDiff(repository, headId, new FileTreeIterator(repository));
+                    // Ignore all the submodules (together with the pathFilter this will ignore changes done in not related submodules #480951)
+                    diff.setIgnoreSubmoduleMode(IgnoreSubmoduleMode.ALL);
                     if (pathFilter != null) {
                         diff.setFilter(pathFilter);
                     }
