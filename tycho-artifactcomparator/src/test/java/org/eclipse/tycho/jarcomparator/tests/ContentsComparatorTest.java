@@ -49,6 +49,15 @@ public class ContentsComparatorTest extends PlexusTestCase {
                 "src/test/resources/properties/props3.properties"));
     }
 
+    public void testWithMalformedClasses() throws Exception {
+        Assert.assertTrue(
+                isContentEqual(ClassfileComparator.TYPE, "src/test/resources/classfiles/MalformedClass1.class",
+                        "src/test/resources/classfiles/MalformedClass1.class"));
+        Assert.assertFalse(
+                isContentEqual(ClassfileComparator.TYPE, "src/test/resources/classfiles/MalformedClass1.class",
+                        "src/test/resources/classfiles/MalformedClass2.class"));
+    }
+
     private boolean isContentEqual(String type, String baseline, String reactor) throws Exception {
         ContentsComparator comparator = lookup(ContentsComparator.class, type);
         InputStream is = new FileInputStream(baseline);
