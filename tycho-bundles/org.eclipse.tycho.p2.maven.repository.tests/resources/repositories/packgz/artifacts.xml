@@ -29,6 +29,7 @@
         <property name='artifact.size' value='11034'/>
         <property name='download.size' value='11034'/>
         <property name='download.md5' value='58057045158895009b845b9a93f3eb6e'/>
+        <property name='download.sha256' value='60f1a6ad89d4044c54e58cf23129f9d9f4c01cb4406affa8c24c1ce0e47a3212'/>
         <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
