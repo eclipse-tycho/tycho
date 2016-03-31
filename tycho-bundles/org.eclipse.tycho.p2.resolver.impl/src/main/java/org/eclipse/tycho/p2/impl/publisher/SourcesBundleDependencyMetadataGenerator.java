@@ -11,8 +11,10 @@
 package org.eclipse.tycho.p2.impl.publisher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
@@ -29,8 +31,8 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.osgi.framework.BundleException;
 
 @SuppressWarnings("restriction")
-public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator implements
-        DependencyMetadataGenerator {
+public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator
+        implements DependencyMetadataGenerator {
     private static final String SUFFIX_QUALIFIER = ".qualifier";
 
     private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
@@ -42,8 +44,8 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     }
 
     @Override
-    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
+    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact, List<TargetEnvironment> environments,
+            OptionalResolutionAction optionalAction) {
         ArrayList<IPublisherAction> actions = new ArrayList<>();
 
         String id = artifact.getArtifactId();
@@ -64,7 +66,8 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
             bundleDescription.setUserObject(manifest);
             actions.add(new BundlesAction(new BundleDescription[] { bundleDescription }) {
                 @Override
-                protected void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo publisherInfo) {
+                protected void createAdviceFileAdvice(BundleDescription bundleDescription,
+                        IPublisherInfo publisherInfo) {
                     // 367255 p2.inf is not applicable to sources bundles
                 }
             });
@@ -85,14 +88,36 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
         return advice;
     }
 
-    private static String toCanonicalVersion(String version) {
+    protected static String toCanonicalVersion(String version) {
         if (version == null) {
             return null;
         }
         if (version.endsWith(SUFFIX_SNAPSHOT)) {
             return version.substring(0, version.length() - SUFFIX_SNAPSHOT.length()) + SUFFIX_QUALIFIER;
         }
+        if (version.contains("-") && !version.endsWith(SUFFIX_SNAPSHOT)) {
+            return processVersionWithDashes(version);
+        }
         return version;
+    }
+
+    private static String processVersionWithDashes(String version) {
+        List<String> splittedVersion = Arrays.asList(version.split("-"));
+        String validOsgiVersion = "";
+        if (!splittedVersion.isEmpty() && splittedVersion.size() > 1) {
+            String osgiVersion = "";
+            if (splittedVersion.get(0).matches("^[0-9]{1}.[0-9]{1}.[0-9]{1}$")) {
+                osgiVersion = splittedVersion.get(0) + ".";
+            }
+            String qualifier = "";
+            Iterator<String> iterator = splittedVersion.iterator();
+            iterator.next();
+            while (iterator.hasNext()) {
+                qualifier += iterator.next() + "-";
+            }
+            validOsgiVersion = osgiVersion + qualifier.substring(0, qualifier.length() - 1);
+        }
+        return validOsgiVersion;
     }
 
     public long createId(String sourceBundleSymbolicName, String version) {
