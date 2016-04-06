@@ -88,10 +88,10 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
                 if (isEmpty(productConfiguration.getId())) {
                     throw new MojoExecutionException("The product file " + productFile.getName()
-                            + " does not contain the mandatory attribute 'uid'");
+                            + " does not contain the mandatory attribute 'uid'. Please ensure you entered an id in the product file.");
                 } else if (isEmpty(productConfiguration.getVersion())) {
                     throw new MojoExecutionException("The product file " + productFile.getName()
-                            + " does not contain the mandatory attribute 'version'");
+                            + " does not contain the mandatory attribute 'version'. Please ensure you entered a version in the product file.");
                 }
 
                 seeds.addAll(publisher.publishProduct(productFile,
