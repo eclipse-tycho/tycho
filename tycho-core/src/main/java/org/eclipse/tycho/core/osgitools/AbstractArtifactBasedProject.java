@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.core.osgitools;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.maven.project.MavenProject;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -33,7 +37,8 @@ public abstract class AbstractArtifactBasedProject extends AbstractTychoProject 
         return newDependencyWalker(project, environment);
     }
 
-    protected abstract ArtifactDependencyWalker newDependencyWalker(MavenProject project, TargetEnvironment environment);
+    protected abstract ArtifactDependencyWalker newDependencyWalker(MavenProject project,
+            TargetEnvironment environment);
 
     @Override
     public void checkForMissingDependencies(MavenProject project) {
@@ -49,6 +54,28 @@ public abstract class AbstractArtifactBasedProject extends AbstractTychoProject 
         if (version.endsWith(SNAPSHOT_VERSION)) {
             version = version.substring(0, version.length() - SNAPSHOT_VERSION.length()) + ".qualifier";
         }
+        if (version.contains("-") && !version.endsWith(SNAPSHOT_VERSION)) {
+            return processVersionWithDashes(version);
+        }
         return version;
+    }
+
+    private String processVersionWithDashes(String version) {
+        List<String> splittedVersion = Arrays.asList(version.split("-"));
+        String validOsgiVersion = "";
+        if (!splittedVersion.isEmpty() && splittedVersion.size() > 1) {
+            String osgiVersion = "";
+            if (splittedVersion.get(0).matches("^[0-9]{1}.[0-9]{1}.[0-9]{1}$")) {
+                osgiVersion = splittedVersion.get(0) + ".";
+            }
+            String qualifier = "";
+            Iterator<String> iterator = splittedVersion.iterator();
+            iterator.next();
+            while (iterator.hasNext()) {
+                qualifier += iterator.next() + "-";
+            }
+            validOsgiVersion = osgiVersion + qualifier.substring(0, qualifier.length() - 1);
+        }
+        return validOsgiVersion;
     }
 }

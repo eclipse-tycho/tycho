@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: hellotycho
+Bundle-Version: 1.0.0.123-99
+Bundle-Name: Hello Tycho Bundle
+Bundle-Vendor: Hello Tycho Vendor

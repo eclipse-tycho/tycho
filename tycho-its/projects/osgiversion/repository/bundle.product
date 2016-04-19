@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="OSGi version bundle" uid="osgiversion" version="1.0.0.123-99" useFeatures="false" includeLaunchers="false">
+
+   <configIni use="">
+   </configIni>
+
+   <plugins>
+      <plugin id="hellotycho"/>
+   </plugins>
+
+
+</product>
