@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,9 +29,11 @@ import java.util.Set;
 
 import org.apache.maven.plugin.surefire.StartupReportConfiguration;
 import org.apache.maven.plugin.surefire.report.DefaultReporterFactory;
+import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
 import org.apache.maven.surefire.booter.ClasspathConfiguration;
 import org.apache.maven.surefire.booter.ForkedBooter;
+import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.apache.maven.surefire.booter.ProviderConfiguration;
 import org.apache.maven.surefire.booter.ProviderFactory;
 import org.apache.maven.surefire.booter.StartupConfiguration;
@@ -60,6 +62,8 @@ public class OsgiSurefireBooter {
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
         String provider = testProps.getProperty("testprovider");
         String runOrder = testProps.getProperty("runOrder");
+        PropertiesWrapper wrapper = new PropertiesWrapper(testProps);
+        List<String> suiteXmlFiles = wrapper.getStringList(BooterConstants.TEST_SUITE_XML_FILES);
 
         boolean forkRequested = true;
         boolean inForkedVM = true;
@@ -78,7 +82,7 @@ public class OsgiSurefireBooter {
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir, emptyList(),
                 emptyList(), emptyList(), failIfNoTests, runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStacktrace);
-        TestRequest testRequest = new TestRequest(null, testClassesDir, null);
+        TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir, null);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
                 new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false);
