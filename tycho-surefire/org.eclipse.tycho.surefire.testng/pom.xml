@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- - Copyright (c) 2016 Bachmann electronic GmbH and others. - All rights 
+	reserved. This program and the accompanying materials - are made available 
+	under the terms of the Eclipse Public License v1.0 - which accompanies this 
+	distribution, and is available at - http://www.eclipse.org/legal/epl-v10.html 
+	- - Contributors: - Bachmann electronic Gmbh - initial API and implementation -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.tycho</groupId>
+		<artifactId>tycho-surefire</artifactId>
+		<version>0.26.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>org.eclipse.tycho.surefire.testng</artifactId>
+	<packaging>eclipse-plugin</packaging>
+
+	<name>Tycho Surefire OSGi TestNG Runner (Incubation)</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-testng-utils</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-testng</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-grouper</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
