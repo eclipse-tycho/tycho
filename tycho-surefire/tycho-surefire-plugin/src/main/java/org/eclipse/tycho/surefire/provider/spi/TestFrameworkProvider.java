@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP SE and others.
+ * Copyright (c) 2012, 2016 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,5 +60,13 @@ public interface TestFrameworkProvider {
      * the plugin dependencies of tycho-surefire-plugin.
      */
     public List<Dependency> getRequiredBundles();
+
+    /**
+     * Provider specific properties that are added to the generic test properties. Implementations
+     * must not return null.
+     * 
+     * @return
+     */
+    public Properties getProviderSpecificProperties();
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SAP SE and others.
+ * Copyright (c) 2012, 2016 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,8 +60,8 @@ public class ProviderHelperTest extends PlexusTestCase {
     public void testSelectJunit47() throws Exception {
         Properties providerProperties = new Properties();
         providerProperties.setProperty("parallel", "classes");
-        TestFrameworkProvider provider = providerHelper.selectProvider(
-                classPath("org.junit:3.8.2", "org.junit4:4.8.1"), providerProperties, null);
+        TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.junit:3.8.2", "org.junit4:4.8.1"),
+                providerProperties, null);
         assertEquals(JUnit47Provider.class, provider.getClass());
     }
 
@@ -133,6 +133,11 @@ public class ProviderHelperTest extends PlexusTestCase {
             public List<Dependency> getRequiredBundles() {
                 return emptyList();
             }
+
+            @Override
+            public Properties getProviderSpecificProperties() {
+                return new Properties();
+            }
         };
         PlexusContainer container = getContainer();
         container.addComponent(anotherProvider, TestFrameworkProvider.class, "another_test_fwk");
@@ -165,8 +170,8 @@ public class ProviderHelperTest extends PlexusTestCase {
         for (org.apache.maven.artifact.Artifact artifact : junitSurefireBundles) {
             fileNames.add(artifact.getFile().getName());
         }
-        HashSet<String> expectedFileNames = new HashSet<>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
-                TYCHO_GROUPID + "_" + JUNIT3_FRAGMENT));
+        HashSet<String> expectedFileNames = new HashSet<>(
+                asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID, TYCHO_GROUPID + "_" + JUNIT3_FRAGMENT));
         assertEquals(expectedFileNames, fileNames);
     }
 
@@ -179,14 +184,14 @@ public class ProviderHelperTest extends PlexusTestCase {
         for (org.apache.maven.artifact.Artifact artifact : junitSurefireBundles) {
             fileNames.add(artifact.getFile().getName());
         }
-        HashSet<String> expectedFileNames = new HashSet<>(asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID,
-                TYCHO_GROUPID + "_" + JUNIT4_FRAGMENT));
+        HashSet<String> expectedFileNames = new HashSet<>(
+                asList(TYCHO_GROUPID + "_" + BOOTER_ARTIFACTID, TYCHO_GROUPID + "_" + JUNIT4_FRAGMENT));
         assertEquals(expectedFileNames, fileNames);
     }
 
     public void testGetSymbolicNames() throws MojoExecutionException {
-        List<String> symbolicNames = providerHelper.getSymbolicNames(Collections.singleton(createMockArtifact("foo",
-                "bar", new File("src/test/resources/org.junit_3.8.2.v20090203-1005"))));
+        List<String> symbolicNames = providerHelper.getSymbolicNames(Collections.singleton(
+                createMockArtifact("foo", "bar", new File("src/test/resources/org.junit_3.8.2.v20090203-1005"))));
         assertEquals(1, symbolicNames.size());
         assertEquals("org.junit", symbolicNames.get(0));
     }
