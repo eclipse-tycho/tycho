@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >  
+<suite name="Suite1" verbose="1" >
+  <test name="TychoITTest" >
+  <classes>
+    <class name="bundle.test.SuitesTest">
+      <methods>
+        <include name=".*enabledTestMethod.*"/>
+        <exclude name=".*dissabledTestMethod.*"/>
+      </methods>
+     </class>
+  </classes>
+  </test>
+</suite>

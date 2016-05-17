@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,6 +44,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.surefire.booter.BooterConstants;
+import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.apache.maven.surefire.booter.ProviderParameterNames;
 import org.apache.maven.surefire.util.DefaultScanResult;
 import org.apache.maven.surefire.util.ScanResult;
@@ -622,6 +624,23 @@ public class TestMojo extends AbstractMojo {
     @Parameter(defaultValue = "SYSTEM")
     private JDKUsage useJDK;
 
+    /**
+     * Only supported by the TestNG test provider. The values specified are passed to TestNG as test
+     * suite files. The suite files will overwrite the {@link #includes} and {@link #excludes}
+     * patterns. The path to the suite file(s) could be relative (test bundle classpath) or an
+     * absolute path to xml files outside the test bundle.
+     * 
+     * <pre>
+     * &lt;configuration&gt;
+     *   &lt;suiteXmlFiles&gt;
+     *     &lt;suiteXmlFile&gt;myTestSuite.xml&lt;/suiteXmlFile&gt;
+     *   &lt;/suiteXmlFiles&gt;
+     * &lt;/configuration&gt;
+     * </pre>
+     */
+    @Parameter
+    private List<String> suiteXmlFiles;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (shouldSkip()) {
@@ -845,23 +864,25 @@ public class TestMojo extends AbstractMojo {
     }
 
     private void createSurefireProperties(TestFrameworkProvider provider) throws MojoExecutionException {
-        Properties p = new Properties();
-        p.put("testpluginname", getTestBundleSymbolicName());
-        p.put("testclassesdirectory", testClassesDirectory.getAbsolutePath());
-        p.put("reportsdirectory", reportsDirectory.getAbsolutePath());
-        p.put("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
+        PropertiesWrapper wrapper = new PropertiesWrapper(new Properties());
+        wrapper.setProperty("testpluginname", getTestBundleSymbolicName());
+        wrapper.setProperty("testclassesdirectory", testClassesDirectory.getAbsolutePath());
+        wrapper.setProperty("reportsdirectory", reportsDirectory.getAbsolutePath());
+        wrapper.setProperty("redirectTestOutputToFile", String.valueOf(redirectTestOutputToFile));
 
-        p.put("failifnotests", String.valueOf(failIfNoTests));
-        p.put("runOrder", runOrder);
+        wrapper.setProperty("failifnotests", String.valueOf(failIfNoTests));
+        wrapper.setProperty("runOrder", runOrder);
         Properties mergedProviderProperties = getMergedProviderProperties();
+        mergedProviderProperties.putAll(provider.getProviderSpecificProperties());
         ScanResult scanResult = scanForTests();
         scanResult.writeTo(mergedProviderProperties);
         for (Map.Entry<?, ?> entry : mergedProviderProperties.entrySet()) {
-            p.put("__provider." + entry.getKey(), entry.getValue());
+            wrapper.setProperty("__provider." + entry.getKey(), entry.getValue().toString());
         }
-        p.setProperty("testprovider", provider.getSurefireProviderClassName());
+        wrapper.setProperty("testprovider", provider.getSurefireProviderClassName());
         getLog().debug("Using test framework provider " + provider.getClass().getName());
-        storeProperties(p, surefireProperties);
+        wrapper.addList(suiteXmlFiles, BooterConstants.TEST_SUITE_XML_FILES);
+        storeProperties(wrapper.getProperties(), surefireProperties);
     }
 
     private Properties getMergedProviderProperties() {

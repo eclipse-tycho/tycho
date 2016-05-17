@@ -14,9 +14,13 @@ import java.io.File;
 
 public class SurefireUtil {
 
+    private static final String TEST_REPORT_PATH = "target/surefire-reports/TEST-";
+
     public static File testResultFile(String baseDir, String packageName, String className) {
-        return new File(baseDir, "target/surefire-reports/TEST-" + packageName + "."
-                + className + ".xml");
+        return new File(baseDir, TEST_REPORT_PATH + packageName + "." + className + ".xml");
     }
 
+    public static File testResultFile(String baseDir, String testSuffix) {
+        return new File(baseDir, TEST_REPORT_PATH + testSuffix + ".xml");
+    }
 }
