@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87e453f8_8f93c5ae",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provider/impl/TestNGProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-17T07:36:20Z",
+      "side": 1,
+      "message": "IIRC in the JUnit case we would analyse the classPath/dependencies to see if junit was part of the dependencies (with a hardcoded \"org.junit\" bundle name)\n\nyou may want to do sth similar (may need to make the testng bundle symbolicname configurable if there is no standard testng OSGi bundle)",
+      "range": {
+        "startLine": 47,
+        "startChar": 16,
+        "endLine": 47,
+        "endChar": 20
+      },
+      "revId": "fe08d1a0840c760fec443aca236c2320496b79ed",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_afa7a107",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/test/java/org/eclipse/tycho/surefire/provider/impl/ProviderHelperTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-17T07:36:20Z",
+      "side": 1,
+      "message": "\"Specifc\" - typo",
+      "range": {
+        "startLine": 138,
+        "startChar": 30,
+        "endLine": 138,
+        "endChar": 58
+      },
+      "revId": "fe08d1a0840c760fec443aca236c2320496b79ed",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
