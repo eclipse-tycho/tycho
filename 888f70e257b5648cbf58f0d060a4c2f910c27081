@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87e453f8_7a1390e8",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testng/.gitignore",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-18T06:53:00Z",
+      "side": 1,
+      "message": "should be simialr to other proejcts. Also, .settings/ with JDT compiler and formatter settings are missing I think",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 1,
+        "endChar": 4
+      },
+      "revId": "888f70e257b5648cbf58f0d060a4c2f910c27081",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_fa26c041",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testng/META-INF/MANIFEST.MF",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-18T06:53:00Z",
+      "side": 1,
+      "message": "why is dynamic needed here (as opposed to just plain Import-Package) ?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 13
+      },
+      "revId": "888f70e257b5648cbf58f0d060a4c2f910c27081",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_1a89acad",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provider/impl/AbstractJUnitProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-18T06:53:00Z",
+      "side": 1,
+      "message": "returning an empty list by default would be nicer here IMHO, no need for null check on the invoker side.",
+      "range": {
+        "startLine": 52,
+        "startChar": 15,
+        "endLine": 52,
+        "endChar": 19
+      },
+      "revId": "888f70e257b5648cbf58f0d060a4c2f910c27081",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
