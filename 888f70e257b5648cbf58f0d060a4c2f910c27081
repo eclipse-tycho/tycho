@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "87e453f8_3a94a899",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testng/META-INF/MANIFEST.MF",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2016-05-18T07:50:44Z",
+      "side": 1,
+      "message": "The testng is not an OSGi bundle. So my options was 1) include the testng jar into this plugin like the others but then I had some class loading issues during test execution. 2) the \"Import-Package\" gave me a build error, that org.testng could not be found but maybe I missed something...",
+      "parentUuid": "87e453f8_fa26c041",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 13
+      },
+      "revId": "888f70e257b5648cbf58f0d060a4c2f910c27081",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87e453f8_1a89acad",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provider/impl/AbstractJUnitProvider.java",
         "patchSetId": 4
