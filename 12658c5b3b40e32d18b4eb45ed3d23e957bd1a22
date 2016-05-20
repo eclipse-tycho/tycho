@@ -62,6 +62,30 @@
       "revId": "12658c5b3b40e32d18b4eb45ed3d23e957bd1a22",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_ac3f9871",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testnghelper/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2016-05-20T19:44:29Z",
+      "side": 1,
+      "message": "I think we have to go with 2) because I requested the CQ only for testing propose and it was approved excluding the jquery.js file. That was also the reason why I unpacked the testng and removed that file. \nLongterm it might be helpful to file a new CQ and also a request to add the TestNG jar to the Orbit project so that we can just reference the TestNG bundle. \nThe next patchset contains a \"bogus\" bundle that just exports the two required packages to make the build process happy. \n\nFor the ITs I am still building a TestNG bundle to \"OSGIify\" the TestNG jar as part of the TestNG Test. \nIf you think I should to it not the way you mentioned above by using the \"publish-features-and-bundles\" goal I can do that but what would be the benefit in doing it that way? To have a TestNG update site that can be used by different IT Tests?",
+      "parentUuid": "87e453f8_22f0f602",
+      "range": {
+        "startLine": 42,
+        "startChar": 18,
+        "endLine": 42,
+        "endChar": 24
+      },
+      "revId": "12658c5b3b40e32d18b4eb45ed3d23e957bd1a22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
