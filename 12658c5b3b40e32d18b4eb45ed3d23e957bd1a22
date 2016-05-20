@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87e453f8_6202fe81",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testnghelper/META-INF/MANIFEST.MF",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-20T12:18:25Z",
+      "side": 1,
+      "message": "if I understood correctly this file is only needed at compile time (make sure it\u0027s not added to each testng testrun because the users must be able to bring their own testNG bundle)\n\nif this is true, don\u0027t export all packages but only those that are really  needed for compilation of bundle org.eclipse.tycho.surefire.testng (packages org.testng, org.testng.xml if I am not mistaken)",
+      "range": {
+        "startLine": 9,
+        "startChar": 16,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "12658c5b3b40e32d18b4eb45ed3d23e957bd1a22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_62ad9ef4",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testnghelper/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-20T12:18:25Z",
+      "side": 1,
+      "message": "maybe add some description here that this is only used for compilation purposes and is Tycho-internal (not intended for public use).",
+      "revId": "12658c5b3b40e32d18b4eb45ed3d23e957bd1a22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_22f0f602",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testnghelper/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-20T12:18:25Z",
+      "side": 1,
+      "message": "this looks dangerous to me (what if testng has e.g. properties files or other non-class files?)\n\nwhat I understood is that you want to filter out certain files, so rather use excludes here?\n\nAs I see ti we have two options:\n\n1. Either provide a real testNG bundle that also works at runtime \n\nor\n\n2. just to make dependency resolution happy, provide an empty \"bogus\" bundle that exports the two testng packages that are required. Since there is no actual compilation happening against these packages, no need to provide a real testNG bundle.",
+      "range": {
+        "startLine": 42,
+        "startChar": 18,
+        "endLine": 42,
+        "endChar": 24
+      },
+      "revId": "12658c5b3b40e32d18b4eb45ed3d23e957bd1a22",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
