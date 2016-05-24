@@ -22,6 +22,30 @@
       "revId": "8fc7261dedde506cb22d53559c5a5316abf03f5a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_bf03334b",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testnghelper/src/org/testng/dummy.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2016-05-24T09:47:31Z",
+      "side": 1,
+      "message": "When I do not have any files in the packages, the JDT complains that the exported packages specified in the MANIFEST.MF could not be found in that plugin",
+      "parentUuid": "87e453f8_3bdf38d3",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 5
+      },
+      "revId": "8fc7261dedde506cb22d53559c5a5316abf03f5a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
