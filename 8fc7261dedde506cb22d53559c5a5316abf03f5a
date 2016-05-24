@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87e453f8_3bdf38d3",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.testnghelper/src/org/testng/dummy.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-24T07:33:43Z",
+      "side": 1,
+      "message": "are the dummy files necessary?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 5
+      },
+      "revId": "8fc7261dedde506cb22d53559c5a5316abf03f5a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
