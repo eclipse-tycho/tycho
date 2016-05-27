@@ -42,8 +42,17 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter(property = "project.build.finalName")
     private String finalName;
 
+    /**
+     * Whether or not to archive the repository. True by default.
+     */
+    @Parameter(defaultValue = "true")
+    private boolean createArchive;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (!createArchive) {
+            return;
+        }
 
         File destFile = getBuildDirectory().getChild(finalName + ".zip");
 
