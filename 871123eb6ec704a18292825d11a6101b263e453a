@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87e453f8_1a8fc33a",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/ArchiveRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-05-30T08:07:43Z",
+      "side": 1,
+      "message": "I\u0027d call the parameter \"skip\" to be consistent with how other maven plugins (and Tycho maven plugins) work. Effectively this skips the whole execution of the mojo.",
+      "range": {
+        "startLine": 49,
+        "startChar": 20,
+        "endLine": 49,
+        "endChar": 33
+      },
+      "revId": "871123eb6ec704a18292825d11a6101b263e453a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
