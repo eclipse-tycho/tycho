@@ -22,6 +22,30 @@
       "revId": "871123eb6ec704a18292825d11a6101b263e453a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_e651a25b",
+        "filename": "tycho-p2/tycho-p2-repository-plugin/src/main/java/org/eclipse/tycho/plugins/p2/repository/ArchiveRepositoryMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 598
+      },
+      "writtenOn": "2016-05-31T02:36:34Z",
+      "side": 1,
+      "message": "just \u0027skip\u0027 would be ambiguous with the other mojos, implying that others would be skipped too. What I mean is that is would look like this:\n\n        \u003cplugin\u003e\n          \u003cgroupId\u003eorg.eclipse.tycho\u003c/groupId\u003e\n          \u003cartifactId\u003etycho-p2-repository-plugin\u003c/artifactId\u003e\n          \u003cversion\u003e${tycho-version}\u003c/version\u003e\n          \u003cconfiguration\u003e\n            \u003cskip\u003etrue\u003c/skip\u003e\n          \u003c/configuration\u003e\n        \u003c/plugin\u003e\n\nWhich could be confused with skipping the old set of mojos for this plugin.\nHow about skipArchive?",
+      "parentUuid": "87e453f8_1a8fc33a",
+      "range": {
+        "startLine": 49,
+        "startChar": 20,
+        "endLine": 49,
+        "endChar": 33
+      },
+      "revId": "871123eb6ec704a18292825d11a6101b263e453a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
