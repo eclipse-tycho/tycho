@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- - Copyright (c) 2014 SAP AG and others.
- - All rights reserved. This program and the accompanying materials
- - are made available under the terms of the Eclipse Public License v1.0
- - which accompanies this distribution, and is available at
- - http://www.eclipse.org/legal/epl-v10.html
- -
- - Contributors:
- -    SAP AG - initial API and implementation
- -->
+<!-- - Copyright (c) 2014 SAP AG and others. - All rights reserved. This 
+	program and the accompanying materials - are made available under the terms 
+	of the Eclipse Public License v1.0 - which accompanies this distribution, 
+	and is available at - http://www.eclipse.org/legal/epl-v10.html - - Contributors: 
+	- SAP AG - initial API and implementation -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -26,25 +21,22 @@
 	<name>Tycho Releng (Incubation)</name>
 	<description>Helper POM for deploying Eclipse artifacts which Tycho needs to get from a Maven repository</description>
 
-	<!--
-	To update the Eclipse artifacts needed by the Maven class-loader side of Tycho:
-
-	1. If needed, update the source p2 repository below
-	2. Update Equinox and JDT/APT versions in the parent POM:
-	   ${equinoxVersion[Maven]}, ${jdtVersion[Maven]}, ${jdtAptVersion[Maven]}
-	3a. For deploying snapshots (to be used by Tycho snapshots)
-	    - In tycho-releng/, execute
-	      mvn clean deploy -DforgeSnapshotUrl=https://oss.sonatype.org/content/repositories/snapshots -DforgeSnapshotId=forge-snapshots
-	3b. For deploying releases (to be used by Tycho releases):
-	    - Prerequisite: you need to have GPG properly set up, see https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven
-	    - Make sure that ${jdtVersionMaven}, ${jdtAptVersionMaven}, ${equinoxVersionMaven} in the parent POM don't have a '-SNAPSHOT' suffix
-	    - In tycho-releng/, execute
-	      mvn clean deploy -Pdeploy-releases -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DforgeReleaseId=forge-releases -Dgpg.passphrase=<your_passphrase>
-	    - Close and release staged artifacts into repository 'Releases'
-	-->
+	<!-- To update the Eclipse artifacts needed by the Maven class-loader side 
+		of Tycho: 1. If needed, update the source p2 repository below 2. Update Equinox 
+		and JDT/APT versions in the parent POM: ${equinoxVersion[Maven]}, ${jdtVersion[Maven]}, 
+		${jdtAptVersion[Maven]} 3a. For deploying snapshots (to be used by Tycho 
+		snapshots) - In tycho-releng/, execute mvn clean deploy -DforgeSnapshotUrl=https://oss.sonatype.org/content/repositories/snapshots 
+		-DforgeSnapshotId=forge-snapshots 3b. For deploying releases (to be used 
+		by Tycho releases): - Prerequisite: you need to have GPG properly set up, 
+		see https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven 
+		- Make sure that ${jdtVersionMaven}, ${jdtAptVersionMaven}, ${equinoxVersionMaven} 
+		in the parent POM don't have a '-SNAPSHOT' suffix - In tycho-releng/, execute 
+		mvn clean deploy -Pdeploy-releases -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ 
+		-DforgeReleaseId=forge-releases -Dgpg.passphrase=<your_passphrase> - Close 
+		and release staged artifacts into repository 'Releases' -->
 	<properties>
 		<downloaded>${project.build.directory}/repository/plugins/</downloaded>
-		<!-- don't deploy this helper pom  -->
+		<!-- don't deploy this helper pom -->
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
@@ -93,7 +85,7 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/releases/mars/201510021000/</url>
+							<url>http://download.eclipse.org/releases/neon/201606031000/</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
@@ -255,7 +247,7 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
 								</configuration>
 							</execution>
-              <!--<execution>
+							<execution>
 								<id>deploy-jdt-apt</id>
 								<phase>deploy</phase>
 								<goals>
@@ -266,7 +258,7 @@
 									<sources>${downloaded}/org.eclipse.jdt.compiler.apt.source_${jdtAptVersion}.jar</sources>
 									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
 								</configuration>
-              </execution>-->
+							</execution>
 							<execution>
 								<id>deploy-equinox</id>
 								<phase>deploy</phase>
@@ -279,7 +271,7 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.pom</pomFile>
 								</configuration>
 							</execution>
-              <!--<execution>
+							<execution>
 								<id>deploy-equinox-compat</id>
 								<phase>deploy</phase>
 								<goals>
@@ -290,7 +282,7 @@
 									<sources>${downloaded}/org.eclipse.osgi.compatibility.state.source_${equinoxCompatVersion}.jar</sources>
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.compatibility.state.pom</pomFile>
 								</configuration>
-              </execution>-->
+							</execution>
 						</executions>
 					</plugin>
 				</plugins>
