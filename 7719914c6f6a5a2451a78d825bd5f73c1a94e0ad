@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87e453f8_8bd6f9bc",
+        "filename": "tycho-releng/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 598
+      },
+      "writtenOn": "2016-06-10T15:13:02Z",
+      "side": 1,
+      "message": "This reformatting was probably not intentional?",
+      "range": {
+        "startLine": 24,
+        "startChar": 1,
+        "endLine": 36,
+        "endChar": 61
+      },
+      "revId": "7719914c6f6a5a2451a78d825bd5f73c1a94e0ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
