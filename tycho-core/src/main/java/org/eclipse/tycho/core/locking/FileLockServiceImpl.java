@@ -12,8 +12,11 @@
 package org.eclipse.tycho.core.locking;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.osgi.internal.framework.EquinoxConfiguration.ConfigValues;
 import org.eclipse.osgi.internal.framework.EquinoxContainer;
 import org.eclipse.osgi.internal.location.BasicLocation;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -26,7 +29,8 @@ public class FileLockServiceImpl implements FileLockService {
     private Location anyLocation;
 
     public FileLockServiceImpl() {
-        anyLocation = new BasicLocation(null, null, false, null, new EquinoxContainer(null).getConfiguration());
+        anyLocation = new BasicLocation(null, null, false, null, new ConfigValues(new HashMap<String, String>()),
+                new EquinoxContainer(null), new AtomicBoolean(false));
     }
 
     /*
