@@ -26,6 +26,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.maven.model.Build;
+import org.apache.maven.model.InputLocation;
+import org.apache.maven.model.InputSource;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
@@ -89,6 +91,7 @@ public class TychoModelReader extends ModelReaderSupport {
         String bundleVersion = getRequiredHeaderValue("Bundle-Version", headers, manifestFile);
         model.setVersion(getPomVersion(bundleVersion));
         model.setPackaging(getPackagingType(bundleSymbolicName));
+        setLocation(model, manifestFile);
         return model;
     }
 
@@ -149,6 +152,7 @@ public class TychoModelReader extends ModelReaderSupport {
         }
         model.setVersion(getPomVersion(versionNode.getValue()));
         // groupId is inherited from parent pom
+        setLocation(model, xmlFile);
         return model;
     }
 
@@ -236,5 +240,12 @@ public class TychoModelReader extends ModelReaderSupport {
         }
         parentReference.setVersion(version);
         return parentReference;
+    }
+
+    private void setLocation(Model model, File modelSource) {
+        InputSource inputSource = new InputSource();
+        inputSource.setLocation(modelSource.toString());
+        inputSource.setModelId(model.getParent().getGroupId() + ":" + model.getArtifactId() + ":" + model.getVersion());
+        model.setLocation("", new InputLocation(0, 0, inputSource));
     }
 }

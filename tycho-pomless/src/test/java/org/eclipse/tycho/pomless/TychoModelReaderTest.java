@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 SAP SE and others.
+ * Copyright (c) 2015, 2019 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.maven.model.InputLocation;
+import org.apache.maven.model.InputSource;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.ModelProcessor;
@@ -45,6 +47,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-plugin", model.getPackaging());
         assertParent(model.getParent());
+        assertLocation("bundle1/META-INF/MANIFEST.MF", model.getLocation(""));
     }
 
     @Test
@@ -55,6 +58,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
         assertEquals("1.0.1", model.getVersion());
         assertEquals("eclipse-test-plugin", model.getPackaging());
         assertParent(model.getParent());
+        assertLocation("bundle1.tests/META-INF/MANIFEST.MF", model.getLocation(""));
     }
 
     @Test
@@ -65,6 +69,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
         assertEquals("1.0.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-feature", model.getPackaging());
         assertParent(model.getParent());
+        assertLocation("feature/feature.xml", model.getLocation(""));
     }
 
     @Test
@@ -202,6 +207,17 @@ public class TychoModelReaderTest extends PlexusTestCase {
         assertEquals("testParent.groupId", parent.getGroupId());
         assertEquals("testparent", parent.getArtifactId());
         assertEquals("0.0.1-SNAPSHOT", parent.getVersion());
+    }
+
+    private void assertLocation(String expectedLocation, InputLocation location) {
+        assertNotNull(location);
+        assertEquals(0, location.getLineNumber());
+        assertEquals(0, location.getColumnNumber());
+        InputSource source = location.getSource();
+        assertNotNull(source);
+        assertEquals(new File(getPolyglotTestDir(), expectedLocation).toString(), source.getLocation());
+        assertNotNull(source.getModelId());
+        assertTrue(source.getModelId().matches("^testParent.groupId:.*:.*"));
     }
 
     private Map<String, String> createReaderOptions(File buildProperties) {
