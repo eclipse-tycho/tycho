@@ -22,6 +22,30 @@
       "revId": "7719914c6f6a5a2451a78d825bd5f73c1a94e0ad",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e453f8_ec8eb305",
+        "filename": "tycho-releng/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-06-13T07:28:55Z",
+      "side": 1,
+      "message": "no. will try to make the comment in a way that doesn\u0027t mess it up when formatting/turn of comment formatting altogether if possible.",
+      "parentUuid": "87e453f8_8bd6f9bc",
+      "range": {
+        "startLine": 24,
+        "startChar": 1,
+        "endLine": 36,
+        "endChar": 61
+      },
+      "revId": "7719914c6f6a5a2451a78d825bd5f73c1a94e0ad",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
