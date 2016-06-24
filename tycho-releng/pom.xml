@@ -85,7 +85,7 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/releases/neon/201606031000/</url>
+							<url>http://download.eclipse.org/releases/neon/201606221000/</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
