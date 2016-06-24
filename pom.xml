@@ -98,7 +98,7 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
-		<equinoxVersion>3.11.0.v20160504-1419</equinoxVersion>
+		<equinoxVersion>3.11.0.v20160603-1336</equinoxVersion>
 		<equinoxVersionMaven>${equinoxVersion}-SNAPSHOT</equinoxVersionMaven>
 		<equinoxCompatVersion>1.0.200.v20160504-1419</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}-SNAPSHOT</equinoxCompatVersionMaven>
