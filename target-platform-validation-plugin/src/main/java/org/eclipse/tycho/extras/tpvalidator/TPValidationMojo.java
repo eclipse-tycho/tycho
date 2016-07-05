@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 Red Hat, Inc and others.
+ * Copyright (c) 2012, 2016 Red Hat, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,8 +34,11 @@ import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolverFactory;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.InstallableUnitLocation;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Location;
+import org.eclipse.tycho.p2.target.facade.TargetDefinition.Repository;
 import org.eclipse.tycho.p2.target.facade.TargetDefinition.Unit;
 import org.eclipse.tycho.p2.target.facade.TargetPlatformConfigurationStub;
+import org.eclipse.tycho.p2.tools.RepositoryReferences;
+import org.eclipse.tycho.p2.tools.director.shared.DirectorRuntime;
 
 /**
  * Validates that specified target platforms (.target files) contents can be resolved.
@@ -69,6 +72,15 @@ public class TPValidationMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "false")
     private boolean checkDependencies;
+
+    /**
+     * Check that the content of the target-platform can be installed together in a same
+     * provisioning operation.
+     *
+     * @since 0.26.0
+     */
+    @Parameter(defaultValue = "false")
+    private boolean checkProvisioning;
 
     @Parameter(defaultValue = "JavaSE-1.7")
     private String executionEnvironment;
@@ -133,6 +145,10 @@ public class TPValidationMojo extends AbstractMojo {
         try {
             // create resolver
             this.logger.info("Validating " + targetFile + "...");
+            RepositoryReferences ref = new RepositoryReferences();
+            DirectorRuntime director = this.equinox.getService(DirectorRuntime.class);
+            DirectorRuntime.Command directorCommand = director.newInstallCommand();
+
             TargetPlatformConfigurationStub tpConfiguration = new TargetPlatformConfigurationStub();
             tpConfiguration.setEnvironments(Collections.singletonList(TargetEnvironment.getRunningEnvironment()));
 
@@ -140,20 +156,38 @@ public class TPValidationMojo extends AbstractMojo {
             tpConfiguration.addTargetDefinition(targetDefinition);
 
             P2Resolver resolver = this.factory.createResolver(new MavenLoggerAdapter(this.logger, false));
-            if (checkDependencies) {
-                for (Location location : targetDefinition.getLocations()) {
-                    if (location instanceof InstallableUnitLocation) {
-                        InstallableUnitLocation p2Loc = (InstallableUnitLocation) location;
-                        for (Unit unit : p2Loc.getUnits()) {
+
+            for (Location location : targetDefinition.getLocations()) {
+                if (location instanceof InstallableUnitLocation) {
+                    InstallableUnitLocation p2Loc = (InstallableUnitLocation) location;
+                    for (Repository repo : p2Loc.getRepositories()) {
+                        ref.addArtifactRepository(repo.getLocation());
+                        ref.addMetadataRepository(repo.getLocation());
+                    }
+                    for (Unit unit : p2Loc.getUnits()) {
+                        if (checkDependencies) {
                             // make dependency resolver resolve everything simultaneously
                             resolver.addDependency(ArtifactType.TYPE_INSTALLABLE_UNIT, unit.getId(), unit.getVersion());
+                        }
+                        if (checkProvisioning) {
+                            directorCommand.addUnitToInstall(unit.getId() + '/' + unit.getVersion());
                         }
                     }
                 }
             }
             resolver.resolveMetadata(tpConfiguration, executionEnvironment);
-        } catch (Exception ex) {
-            throw new TPError(targetFile, ex);
+            if (checkProvisioning) {
+                directorCommand.addMetadataSources(ref.getMetadataRepositories());
+                directorCommand.addArtifactSources(ref.getArtifactRepositories());
+                directorCommand.setDestination(
+                        new File(project.getBuild().getDirectory(), targetFile.getName() + ".provisioning"));
+                directorCommand.setProfileName(project.getArtifactId());
+                directorCommand.setVerifyOnly(true);
+                directorCommand.setInstallFeatures(true);
+                directorCommand.execute();
+            }
+        } catch (Exception e) {
+            throw new TPError(targetFile, e);
         }
     }
 
