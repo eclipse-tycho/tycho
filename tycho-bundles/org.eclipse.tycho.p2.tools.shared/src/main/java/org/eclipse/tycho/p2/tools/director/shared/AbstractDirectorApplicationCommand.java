@@ -31,6 +31,7 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     private String profileName;
     private TargetEnvironment environment;
     private boolean installFeatures;
+    private boolean verifyOnly;
 
     private File destination;
 
@@ -82,6 +83,11 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
     }
 
     @Override
+    public final void setVerifyOnly(boolean verifyOnly) {
+        this.verifyOnly = verifyOnly;
+    }
+
+    @Override
     public final void setDestination(File path) {
         this.destination = path;
     }
@@ -99,6 +105,9 @@ public abstract class AbstractDirectorApplicationCommand implements DirectorRunt
         args.add("-profile", profileName);
         args.add("-profileProperties", "org.eclipse.update.install.features=" + String.valueOf(installFeatures));
         args.add("-roaming");
+        if (verifyOnly) {
+        	args.add("-verifyOnly");
+        }
 
         if (environment != null) {
             args.add("-p2.os", environment.getOs());
