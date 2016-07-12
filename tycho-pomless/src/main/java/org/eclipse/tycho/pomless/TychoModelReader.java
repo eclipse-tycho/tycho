@@ -57,6 +57,7 @@ public class TychoModelReader extends ModelReaderSupport {
     public TychoModelReader() {
     }
 
+    @Override
     public Model read(Reader input, Map<String, ?> options) throws IOException, ModelParseException {
         File projectRoot = new File(PolyglotModelUtil.getLocation(options)).getParentFile();
         File manifestFile = new File(projectRoot, "META-INF/MANIFEST.MF");
