@@ -49,6 +49,11 @@
 									<artifactId>surefire-grouper</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>common-java5</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
