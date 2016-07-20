@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.sisu.equinox.launching.EquinoxInstallation;
+import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 
@@ -36,6 +37,8 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
         installation = mock(EquinoxInstallation.class);
         MavenProject project = mock(MavenProject.class);
         setVariableValueToObject(runMojo, "project", project);
+        ToolchainProvider toolchainProvider = mock(ToolchainProvider.class);
+        setVariableValueToObject(runMojo, "toolchainProvider", toolchainProvider);
         when(installation.getLocation()).thenReturn(new File("installpath"));
     }
 
@@ -57,5 +60,4 @@ public class EclipseRunMojoTest extends AbstractTychoMojoTestCase {
         LaunchConfiguration commandLine = runMojo.createCommandLine(installation);
         assertTrue(commandLine.getVMArguments().length == 0);
     }
-
 }

@@ -27,7 +27,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
-import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -43,6 +42,7 @@ import org.eclipse.tycho.DefaultArtifactKey;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
+import org.eclipse.tycho.core.maven.ToolchainProvider;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
 import org.eclipse.tycho.launching.LaunchConfiguration;
 import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
@@ -185,7 +185,7 @@ public class EclipseRunMojo extends AbstractMojo {
     private EquinoxLauncher launcher;
 
     @Component
-    private ToolchainManager toolchainManager;
+    private ToolchainProvider toolchainProvider;
 
     @Component
     private EquinoxServiceFactory equinox;
@@ -321,12 +321,8 @@ public class EclipseRunMojo extends AbstractMojo {
         }
     }
 
-    private Toolchain getToolchain() {
-        Toolchain tc = null;
-        if (toolchainManager != null) {
-            tc = toolchainManager.getToolchainFromBuildContext("jdk", session);
-        }
-        return tc;
+    private Toolchain getToolchain() throws MojoExecutionException {
+        return toolchainProvider.findMatchingJavaToolChain(session, executionEnvironment);
     }
 
 }
