@@ -22,17 +22,21 @@
 	<description>Helper POM for deploying Eclipse artifacts which Tycho needs to get from a Maven repository</description>
 
 	<!-- To update the Eclipse artifacts needed by the Maven class-loader side 
-		of Tycho: 1. If needed, update the source p2 repository below 2. Update Equinox 
-		and JDT/APT versions in the parent POM: ${equinoxVersion[Maven]}, ${jdtVersion[Maven]}, 
-		${jdtAptVersion[Maven]} 3a. For deploying snapshots (to be used by Tycho 
+		of Tycho: 
+		1. If needed, update the source p2 repository below 
+		2. Update Equinox and JDT/APT versions in the parent POM: ${equinoxVersion[Maven]}, ${jdtVersion[Maven]}, 
+		${jdtAptVersion[Maven]} 
+		3a. For deploying snapshots (to be used by Tycho 
 		snapshots) - In tycho-releng/, execute mvn clean deploy -DforgeSnapshotUrl=https://oss.sonatype.org/content/repositories/snapshots 
-		-DforgeSnapshotId=forge-snapshots 3b. For deploying releases (to be used 
-		by Tycho releases): - Prerequisite: you need to have GPG properly set up, 
+		-DforgeSnapshotId=forge-snapshots 
+		3b. For deploying releases (to be used 
+		by Tycho releases): 
+		- Prerequisite: you need to have GPG properly set up, 
 		see https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven 
 		- Make sure that ${jdtVersionMaven}, ${jdtAptVersionMaven}, ${equinoxVersionMaven} 
 		in the parent POM don't have a '-SNAPSHOT' suffix - In tycho-releng/, execute 
-		mvn clean deploy -Pdeploy-releases -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ 
-		-DforgeReleaseId=forge-releases -Dgpg.passphrase=<your_passphrase> - Close 
+		mvn clean deploy -Pdeploy-releases -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DforgeReleaseId=forge-releases -Dgpg.passphrase=<your_passphrase> 
+		- Close 
 		and release staged artifacts into repository 'Releases' -->
 	<properties>
 		<downloaded>${project.build.directory}/repository/plugins/</downloaded>
