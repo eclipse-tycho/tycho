@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho Surefire OSGi TestNG Runner (Incubation)
 Bundle-SymbolicName: org.eclipse.tycho.surefire.testng;singleton:=true
-Bundle-Version: 0.26.0.qualifier
+Bundle-Version: 0.26.0
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
