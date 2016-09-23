@@ -9,9 +9,9 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>bundle</artifactId>
+	<artifactId>feature</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
-	<packaging>eclipse-plugin</packaging>
+	<packaging>eclipse-feature</packaging>
 
 	<profiles>
 		<profile>
@@ -33,12 +33,12 @@
 								<configuration>
 									<tasks>
 										<copy
-											file="${basedir}/../repo/target/repository/plugins/${project.artifactId}_1.0.1.original.jar"
+											file="${basedir}/../repo/target/repository/features/${project.artifactId}_1.0.1.original.jar"
 											tofile="${project.build.directory}/${project.artifactId}-${project.version}.jar"
 											overwrite="true"/>
                                         <copy
-                                            file="${basedir}/../repo/target/repository/plugins/${project.artifactId}.source_1.0.1.original.jar"
-                                            tofile="${project.build.directory}/${project.artifactId}-${project.version}-sources.jar"
+                                            file="${basedir}/../repo/target/repository/features/${project.artifactId}.source_1.0.1.original.jar"
+                                            tofile="${project.build.directory}/${project.artifactId}-${project.version}-sources-feature.jar"
                                             overwrite="true"/>
 									</tasks>
 								</configuration>
@@ -64,6 +64,16 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+		    <id>with-repo</id>
+	        <repositories>
+                <repository>
+                    <id>p2-repo</id>
+                    <layout>p2</layout>
+                    <url>${project.baseUri}/../repo/target/repository</url>
+                </repository>
+            </repositories>
 		</profile>
 	</profiles>
 
