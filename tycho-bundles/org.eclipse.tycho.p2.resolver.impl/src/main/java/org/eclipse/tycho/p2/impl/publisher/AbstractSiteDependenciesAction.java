@@ -14,6 +14,7 @@ package org.eclipse.tycho.p2.impl.publisher;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.updatesite.SiteBundle;
 import org.eclipse.equinox.internal.p2.updatesite.SiteFeature;
 import org.eclipse.equinox.internal.p2.updatesite.SiteIU;
@@ -25,6 +26,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 @SuppressWarnings("restriction")
 public abstract class AbstractSiteDependenciesAction extends AbstractDependenciesAction {
@@ -48,16 +50,21 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
             String id = feature.getFeatureIdentifier() + FEATURE_GROUP_IU_SUFFIX; //$NON-NLS-1$
 
             VersionRange range = getVersionRange(createVersion(feature.getFeatureVersion()));
-
-            required.add(
-                    MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null, false, false));
+            String filter = new TargetEnvironment(feature.getOS(), feature.getWS(), feature.getOSArch())
+                    .toFilterExpression();
+            // boolean optional = feature.isOptional();
+            required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range,
+                    InstallableUnit.parseFilter(filter), false, false));
         }
 
         for (SiteBundle bundle : getSiteModel().getBundles()) {
             String id = bundle.getBundleIdentifier();
             VersionRange range = getVersionRange(createVersion(bundle.getBundleVersion()));
-            required.add(
-                    MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null, false, false));
+            String filter = new TargetEnvironment(bundle.getOS(), bundle.getWS(), bundle.getOSArch())
+                    .toFilterExpression();
+            // boolean optional = feature.isOptional();
+            required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range,
+                    InstallableUnit.parseFilter(filter), false, false));
         }
 
         for (SiteIU iu : getSiteModel().getIUs()) {
