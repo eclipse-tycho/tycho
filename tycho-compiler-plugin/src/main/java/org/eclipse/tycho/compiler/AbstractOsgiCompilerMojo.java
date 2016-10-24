@@ -199,7 +199,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * ${project.basedir}/.settings/org.eclipse.jdt.core.prefs will be passed to the compiler. If
      * the file is not present, the build will not fail.
      */
-    @Parameter(defaultValue = "false")
+    @Parameter(defaultValue = "true")
     private boolean useProjectSettings;
 
     /**
