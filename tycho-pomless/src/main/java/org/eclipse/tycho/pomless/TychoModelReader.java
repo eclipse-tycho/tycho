@@ -13,8 +13,10 @@ package org.eclipse.tycho.pomless;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.Attributes;
@@ -24,8 +26,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
@@ -62,12 +67,16 @@ public class TychoModelReader extends ModelReaderSupport {
         File projectRoot = new File(PolyglotModelUtil.getLocation(options)).getParentFile();
         File manifestFile = new File(projectRoot, "META-INF/MANIFEST.MF");
         File featureXml = new File(projectRoot, "feature.xml");
+        File productXml = getProductFile(projectRoot);
         if (manifestFile.isFile()) {
             return createPomFromManifest(manifestFile);
         } else if (featureXml.isFile()) {
             return createPomFromFeatureXml(featureXml);
+        } else if (productXml != null) {
+            return createPomFromProductXml(productXml);
         } else {
-            throw new IOException("Neither META-INF/MANIFEST.MF nor feature.xml found in " + projectRoot);
+            throw new IOException(
+                    "Neither META-INF/MANIFEST.MF nor feature.xml nor .product file found in " + projectRoot);
         }
     }
 
@@ -85,10 +94,41 @@ public class TychoModelReader extends ModelReaderSupport {
     }
 
     private Model createPomFromFeatureXml(File featureXml) throws IOException, ModelParseException {
+        Model model = createPomFromXmlFile(featureXml, "id", "version");
+        model.setPackaging("eclipse-feature");
+        return model;
+    }
+
+    private Model createPomFromProductXml(File productXml) throws IOException, ModelParseException {
+        Model model = createPomFromXmlFile(productXml, "uid", "version");
+        model.setPackaging("eclipse-repository");
+
+        Build build = new Build();
+        Plugin plugin = new Plugin();
+        build.addPlugin(plugin);
+        plugin.setArtifactId("tycho-p2-director-plugin");
+        plugin.setGroupId("org.eclipse.tycho");
+
+        PluginExecution materialize = new PluginExecution();
+        materialize.setId("materialize-prodcuts");
+        materialize.setGoals(Arrays.asList("materialize-products"));
+        plugin.addExecution(materialize);
+
+        PluginExecution archive = new PluginExecution();
+        archive.setId("archive-prodcuts");
+        archive.setGoals(Arrays.asList("archive-products"));
+        plugin.addExecution(archive);
+
+        model.setBuild(build);
+        return model;
+    }
+
+    private Model createPomFromXmlFile(File xmlFile, String idAttributeName, String versionAttributeName)
+            throws IOException, ModelParseException {
         Document doc;
         try {
             DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            doc = parser.parse(featureXml);
+            doc = parser.parse(xmlFile);
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
         } catch (SAXException e) {
@@ -96,18 +136,19 @@ public class TychoModelReader extends ModelReaderSupport {
         }
         Element root = doc.getDocumentElement();
         Model model = createModel();
-        model.setParent(findParent(featureXml.getParentFile()));
-        Attr featureIdNode = root.getAttributeNode("id");
-        if (featureIdNode == null) {
-            throw new ModelParseException("missing feature id in " + featureXml.getAbsolutePath(), -1, -1);
+        model.setParent(findParent(xmlFile.getParentFile()));
+        Attr idNode = root.getAttributeNode(idAttributeName);
+        if (idNode == null) {
+            throw new ModelParseException(String.format("missing %s attribute in root element (%s)", idAttributeName,
+                    xmlFile.getAbsolutePath()), -1, -1);
         }
-        model.setArtifactId(featureIdNode.getValue());
-        Attr featureVersionNode = root.getAttributeNode("version");
-        if (featureVersionNode == null) {
-            throw new ModelParseException("missing feature version in " + featureXml.getAbsolutePath(), -1, -1);
+        model.setArtifactId(idNode.getValue());
+        Attr versionNode = root.getAttributeNode(versionAttributeName);
+        if (versionNode == null) {
+            throw new ModelParseException(String.format("missing %s attribute in root element (%s)",
+                    versionAttributeName, xmlFile.getAbsolutePath()), -1, -1);
         }
-        model.setVersion(getPomVersion(featureVersionNode.getValue()));
-        model.setPackaging("eclipse-feature");
+        model.setVersion(getPomVersion(versionNode.getValue()));
         // groupId is inherited from parent pom
         return model;
     }
@@ -163,6 +204,20 @@ public class TychoModelReader extends ModelReaderSupport {
         } else {
             return "eclipse-plugin";
         }
+    }
+
+    private File getProductFile(File projectRoot) {
+        File[] productFiles = projectRoot.listFiles(new FilenameFilter() {
+
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".product");
+            }
+        });
+        if (productFiles.length > 0 && productFiles[0].isFile()) {
+            return productFiles[0];
+        }
+        return null;
     }
 
     Parent findParent(File projectRoot) throws ModelParseException, IOException {

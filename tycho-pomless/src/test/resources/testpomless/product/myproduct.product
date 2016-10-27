@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="pomless.product.validproduct" version="0.0.2.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <plugins>
+   </plugins>
+
+
+</product>
