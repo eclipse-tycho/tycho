@@ -77,6 +77,12 @@ public class ProviderHelperTest extends PlexusTestCase {
         assertEquals(JUnit3Provider.class, provider.getClass());
     }
 
+    public void testSelectTestNG() throws Exception {
+        TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.testng:6.9.12"), new Properties(),
+                null);
+        assertEquals(TestNGProvider.class, provider.getClass());
+    }
+
     public void testSelectWithNonExistingHint() {
         try {
             providerHelper.selectProvider(classPath(), new Properties(), "NON_EXISTING");

@@ -18,6 +18,7 @@ import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.tycho.ArtifactKey;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
@@ -25,6 +26,7 @@ import org.osgi.framework.Version;
 @Component(role = TestFrameworkProvider.class, hint = "testng")
 public class TestNGProvider implements TestFrameworkProvider {
 
+    private static final String TESTNG_BSN = "org.testng";
     private static final Version VERSION = Version.parseVersion("6.9.10");
 
     @Override
@@ -44,10 +46,12 @@ public class TestNGProvider implements TestFrameworkProvider {
 
     @Override
     public boolean isEnabled(List<ClasspathEntry> testBundleClassPath, Properties surefireProperties) {
-        //TODO: Find a way to automatically enable this provider 
-        // For now the user must provide the tycho surefire parameter 
-        // <providerHint>testng</providerHint> 
-        // in order to enable this testprovider
+        for (ClasspathEntry classpathEntry : testBundleClassPath) {
+            ArtifactKey artifactKey = classpathEntry.getArtifactKey();
+            if (TESTNG_BSN.equals(artifactKey.getId())) {
+                return true;
+            }
+        }
         return false;
     }
 
