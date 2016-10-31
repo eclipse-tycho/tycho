@@ -16,6 +16,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.layout.ArtifactRepositoryLayout;
 import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.repository.MirrorSelector;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
@@ -47,6 +48,9 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
     @Requirement(hint = "p2")
     private ArtifactRepositoryLayout p2layout;
 
+    @Requirement(role = MirrorSelector.class, hint = "tycho")
+    private MirrorSelector mirrorSelector;
+
     @Override
     public void afterFrameworkStarted(EmbeddedEquinox framework) {
         framework.registerService(MavenRepositorySettings.class, new MavenRepositorySettingsProvider());
@@ -63,8 +67,8 @@ public class RepositorySettingsConfigurator extends EquinoxLifecycleListener {
 
             ArtifactRepository locationAsMavenRepository = repositorySystem.createArtifactRepository(location.getId(),
                     location.getURL().toString(), p2layout, P2_REPOSITORY_POLICY, P2_REPOSITORY_POLICY);
-            Mirror mirror = repositorySystem.getMirror(locationAsMavenRepository, context.getSession().getRequest()
-                    .getMirrors());
+            Mirror mirror = mirrorSelector.getMirror(locationAsMavenRepository,
+                    context.getSession().getRequest().getMirrors());
 
             if (mirror != null) {
                 return new MavenRepositoryLocation(mirror.getId(), URI.create(mirror.getUrl()));
