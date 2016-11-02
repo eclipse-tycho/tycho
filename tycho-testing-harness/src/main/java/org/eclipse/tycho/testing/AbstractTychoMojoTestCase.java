@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -88,6 +89,7 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
         request.setSystemProperties(systemProps);
         request.setUserProperties(userProps);
         request.setLocalRepository(getLocalRepository());
+        request.setStartTime(new Date());
         File settingsFile = getUserSettingsFile();
         if (settingsFile.isFile()) {
             request.setUserSettingsFile(settingsFile);
