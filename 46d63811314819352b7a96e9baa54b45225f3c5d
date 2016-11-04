@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7c23755_1dc1b7fb",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/TychoMirrorSelector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-11-04T16:16:58Z",
+      "side": 1,
+      "message": "although very unlikely to happen in real life, this replaces all occurrences, not just the first one",
+      "range": {
+        "startLine": 77,
+        "startChar": 36,
+        "endLine": 77,
+        "endChar": 43
+      },
+      "revId": "46d63811314819352b7a96e9baa54b45225f3c5d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c23755_5d1def23",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/TychoMirrorSelector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-11-04T16:16:58Z",
+      "side": 1,
+      "message": "not sure where the ID is used. you may want to check docs that Tobias wrote\nhttps://wiki.eclipse.org/Tycho/Target_Platform/Authentication_and_Mirrors\n\nand the details of what was done for \nhttps://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d356016\n\nI hope this is all covered by existing tests...",
+      "range": {
+        "startLine": 78,
+        "startChar": 15,
+        "endLine": 78,
+        "endChar": 20
+      },
+      "revId": "46d63811314819352b7a96e9baa54b45225f3c5d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
