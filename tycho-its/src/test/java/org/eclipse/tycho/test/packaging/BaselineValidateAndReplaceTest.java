@@ -92,6 +92,23 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
     }
 
     @Test
+    public void testCorruptedBaselineRepo() throws Exception {
+        File corruptedBaselineRepo = new File("projects/packaging.reproducibleArtifacts/baseline/repository_corrupted")
+                .getCanonicalFile();
+        Verifier verifier = getVerifier("baseline/src", corruptedBaselineRepo);
+        try {
+            verifier.executeGoals(Arrays.asList("clean", "package"));
+            Assert.fail("should not reach here");
+        } catch (VerificationException expected) {
+        }
+        File locallyBuiltJar = new File(verifier.getBasedir(), "bundle01/target/baseline.bundle01-1.0.0-SNAPSHOT.jar");
+        Assert.assertTrue(locallyBuiltJar.isFile());
+        // locally built jar must not be replaced with corrupted 0-byte baseline jar
+        Assert.assertTrue(locallyBuiltJar.length() > 0);
+        verifier.verifyTextInLog("Error trying to download baseline.bundle01 version 1.0.0.1");
+    }
+
+    @Test
     public void testContentChangedStrict() throws Exception {
         Verifier verifier = getVerifier("contentchanged", baselineRepo);
 

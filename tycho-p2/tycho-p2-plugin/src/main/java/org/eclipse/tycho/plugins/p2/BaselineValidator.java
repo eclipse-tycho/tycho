@@ -95,8 +95,8 @@ public class BaselineValidator {
                         log.info("Artifact comparison detailed log directory " + logdir.getAbsolutePath());
                         for (Map.Entry<String, ArtifactDelta> classifier : delta.getMembers().entrySet()) {
                             if (classifier.getValue() instanceof CompoundArtifactDelta) {
-                                ((CompoundArtifactDelta) classifier.getValue()).writeDetails(new File(logdir,
-                                        classifier.getKey()));
+                                ((CompoundArtifactDelta) classifier.getValue())
+                                        .writeDetails(new File(logdir, classifier.getKey()));
                             }
                         }
                     }
@@ -114,12 +114,19 @@ public class BaselineValidator {
                     // replace reactor artifacts with baseline
                     ArrayList<String> replaced = new ArrayList<>();
                     for (Map.Entry<String, IP2Artifact> artifact : baselineMetadata.entrySet()) {
+                        File baseLineFile = artifact.getValue().getLocation();
                         String classifier = artifact.getKey();
-                        FileUtils.copyFile(artifact.getValue().getLocation(), reactorMetadata.get(classifier)
-                                .getLocation());
-                        result.put(classifier, artifact.getValue());
-                        if (classifier != null) {
-                            replaced.add(classifier);
+                        File reactorFile = reactorMetadata.get(classifier).getLocation();
+                        if (baseLineFile.isFile() && baseLineFile.length() == 0L) {
+                            // workaround for possibly corrupted download - bug 484003
+                            log.error("baseline file " + baseLineFile.getAbsolutePath() + " is empty. Will not replace "
+                                    + reactorFile);
+                        } else {
+                            FileUtils.copyFile(baseLineFile, reactorFile);
+                            result.put(classifier, artifact.getValue());
+                            if (classifier != null) {
+                                replaced.add(classifier);
+                            }
                         }
                     }
 
@@ -159,12 +166,14 @@ public class BaselineValidator {
                         msg.append(project.toString());
                         msg.append("\n    The main artifact has been replaced with the baseline version.\n");
                         if (!replaced.isEmpty()) {
-                            msg.append("    The following attached artifacts have been replaced with the baseline version: ");
+                            msg.append(
+                                    "    The following attached artifacts have been replaced with the baseline version: ");
                             msg.append(replaced.toString());
                             msg.append("\n");
                         }
                         if (!removed.isEmpty()) {
-                            msg.append("    The following attached artifacts are not present in the baseline and have been removed: ");
+                            msg.append(
+                                    "    The following attached artifacts are not present in the baseline and have been removed: ");
                             msg.append(removed.toString());
                             msg.append("\n");
                         }
