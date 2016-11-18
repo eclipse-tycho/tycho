@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
@@ -41,11 +42,13 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.core.shared.MavenContext;
 import org.eclipse.tycho.p2.impl.publisher.P2Artifact;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.remote.IRepositoryIdManager;
 import org.eclipse.tycho.p2.remote.RemoteAgentManager;
 import org.eclipse.tycho.p2.tools.baseline.facade.BaselineService;
+import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
 public class BaselineServiceImpl implements BaselineService {
@@ -54,6 +57,7 @@ public class BaselineServiceImpl implements BaselineService {
 
     // @Inject
     private RemoteAgentManager remoteAgentManager;
+    private MavenContext mavenContext;
 
     @Override
     public Map<String, IP2Artifact> getProjectBaseline(Collection<MavenRepositoryLocation> baselineLocations,
@@ -95,7 +99,7 @@ public class BaselineServiceImpl implements BaselineService {
                     baselineArtifacts.addChild(url);
                 } catch (ProvisionException e) {
                     // baseline repository may not exist yet
-                    // TODO log a warning message
+                    mavenContext.getLogger().warn(e.getMessage(), e);
                 }
             }
         } catch (ProvisionException e) {
@@ -121,7 +125,16 @@ public class BaselineServiceImpl implements BaselineService {
                 baselineArtifact.getParentFile().mkdirs();
                 OutputStream os = new BufferedOutputStream(new FileOutputStream(baselineArtifact));
                 try {
-                    baselineArtifacts.getRawArtifact(baselineDescriptor, os, monitor);
+                    IStatus status = baselineArtifacts.getRawArtifact(baselineDescriptor, os, monitor);
+                    if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
+                        String repository = baselineDescriptor.getRepository().getLocation().toString();
+                        String artifactId = baselineDescriptor.getArtifactKey().getId();
+                        String artifactVersion = baselineDescriptor.getArtifactKey().getVersion().toString();
+                        String statusMessage = StatusTool.toLogMessage(status);
+                        throw new RuntimeException(String.format("Error trying to download %s version %s from %s:\n%s",
+                                artifactId, artifactVersion, repository, statusMessage),
+                                StatusTool.findException(status));
+                    }
                 } finally {
                     try {
                         os.close();
@@ -195,6 +208,10 @@ public class BaselineServiceImpl implements BaselineService {
 
     public void setRemoteAgentManager(RemoteAgentManager remoteAgentManager) {
         this.remoteAgentManager = remoteAgentManager;
+    }
+
+    public void setMavenContext(MavenContext mavenContext) {
+        this.mavenContext = mavenContext;
     }
 
 }
