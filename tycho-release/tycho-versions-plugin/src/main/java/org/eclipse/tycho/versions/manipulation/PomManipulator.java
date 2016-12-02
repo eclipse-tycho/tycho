@@ -172,8 +172,9 @@ public class PomManipulator extends AbstractMetadataManipulator {
     @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
         MutablePomFile pom = project.getMetadata(MutablePomFile.class);
-        if (pom != null) {
-            MutablePomFile.write(pom, new File(project.getBasedir(), "pom.xml"));
+        File pomFile = new File(project.getBasedir(), "pom.xml");
+        if (pom != null && pomFile.exists()) {
+            MutablePomFile.write(pom, pomFile);
         }
     }
 

@@ -60,7 +60,15 @@ public class ProjectMetadataReader {
         ProjectMetadata project = new ProjectMetadata(basedir);
         projects.put(basedir, project);
 
-        MutablePomFile pom = MutablePomFile.read(new File(basedir, MutablePomFile.POM_XML));
+        File pomFile = new File(basedir, MutablePomFile.POM_XML);
+        if (!pomFile.exists()) {
+            pomFile = new File(basedir, ".polyglot.build.properties");
+        }
+        if (!pomFile.exists()) {
+            log.info("No pom file found at " + basedir);
+            return;
+        }
+        MutablePomFile pom = MutablePomFile.read(pomFile);
         project.putMetadata(pom);
 
         String packaging = pom.getPackaging();
