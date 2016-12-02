@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7c23755_b75a5079",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/ProjectMetadataReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-12-02T08:26:35Z",
+      "side": 1,
+      "message": "that\u0027s an implmentation detail of maven polyglot/tycho-pomless I would rahter not rely on here",
+      "range": {
+        "startLine": 65,
+        "startChar": 42,
+        "endLine": 65,
+        "endChar": 50
+      },
+      "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
