@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Sebastien Arod - introduce VersionChangesDescriptor
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -28,9 +29,9 @@ import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.Build;
 import org.eclipse.tycho.versions.pom.DependencyManagement;
 import org.eclipse.tycho.versions.pom.GAV;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
 import org.eclipse.tycho.versions.pom.Plugin;
 import org.eclipse.tycho.versions.pom.PluginManagement;
+import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.Profile;
 import org.eclipse.tycho.versions.pom.Property;
 
@@ -40,7 +41,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
 
     @Override
     public boolean addMoreChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
-        MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+        PomFile pom = project.getMetadata(PomFile.class);
         GAV parent = pom.getParent();
 
         boolean moreChanges = false;
@@ -57,8 +58,12 @@ public class PomManipulator extends AbstractMetadataManipulator {
 
     @Override
     public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
-        MutablePomFile pom = project.getMetadata(MutablePomFile.class);
-
+        PomFile pom = project.getMetadata(PomFile.class);
+        // only do the real change if the pom file is mutable
+        // e.g. not for polyglot pom files
+        if (!pom.isMutable()) {
+            return;
+        }
         // TODO visitor pattern is a better way to implement this
 
         for (VersionChange change : versionChangeContext.getVersionChanges()) {
@@ -152,7 +157,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private static boolean isGavEquals(MutablePomFile pom, VersionChange change) {
+    private static boolean isGavEquals(PomFile pom, VersionChange change) {
         // TODO replace with isGavEquals(pom.getEffectiveGav(), change)
         return eq(change.getGroupId(), pom.getGroupId()) && eq(change.getArtifactId(), pom.getArtifactId())
                 && isVersionEquals(change.getVersion(), pom.getVersion());
@@ -171,13 +176,14 @@ public class PomManipulator extends AbstractMetadataManipulator {
 
     @Override
     public void writeMetadata(ProjectMetadata project) throws IOException {
-        MutablePomFile pom = project.getMetadata(MutablePomFile.class);
-        if (pom != null) {
-            MutablePomFile.write(pom, new File(project.getBasedir(), "pom.xml"));
+        PomFile pom = project.getMetadata(PomFile.class);
+        File pomFile = new File(project.getBasedir(), "pom.xml");
+        if (pom != null && pomFile.exists()) {
+            PomFile.write(pom, pomFile);
         }
     }
 
-    public void applyPropertyChange(MutablePomFile pom, String propertyName, String propertyValue) {
+    public void applyPropertyChange(PomFile pom, String propertyName, String propertyValue) {
         changeProperties("  pom.xml//project/properties", pom.getProperties(), propertyName, propertyValue);
         for (Profile profile : pom.getProfiles()) {
             String pomPath = "  pom.xml//project/profiles/profile[ " + profile.getId() + " ]/properties";

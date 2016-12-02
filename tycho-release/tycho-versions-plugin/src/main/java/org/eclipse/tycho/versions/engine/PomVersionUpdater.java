@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
@@ -23,7 +24,7 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 
 /**
  * Updates pom version to match Eclipse/OSGi metadata.
@@ -68,7 +69,7 @@ public class PomVersionUpdater {
         updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, new VersionAdaptor() {
             @Override
             public String getVersion(ProjectMetadata project) throws IOException {
-                MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+                PomFile pom = project.getMetadata(PomFile.class);
                 ProductConfiguration product = ProductConfiguration.read(new File(project.getBasedir(), pom
                         .getArtifactId() + ".product"));
                 return product.getVersion();
@@ -83,7 +84,7 @@ public class PomVersionUpdater {
 
     public void apply() throws IOException {
         for (ProjectMetadata project : projects) {
-            MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+            PomFile pom = project.getMetadata(PomFile.class);
 
             if (pom == null) {
                 logger.info("Not a maven project " + project.getBasedir());
