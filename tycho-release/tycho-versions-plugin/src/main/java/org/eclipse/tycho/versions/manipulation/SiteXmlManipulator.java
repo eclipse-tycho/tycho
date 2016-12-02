@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Beat Strasser (Inventage AG) - preserve feature url in site.xml
  *    Sebastien Arod - introduce VersionChangesDescriptor
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -25,7 +26,7 @@ import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-update-site")
 public class SiteXmlManipulator extends AbstractMetadataManipulator {
@@ -80,7 +81,7 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
     }
 
     private boolean isSite(ProjectMetadata project) {
-        MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+        PomFile pom = project.getMetadata(PomFile.class);
         return isSite(pom.getPackaging());
     }
 

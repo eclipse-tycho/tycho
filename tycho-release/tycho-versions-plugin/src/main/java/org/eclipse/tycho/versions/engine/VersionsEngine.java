@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. T5his program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Sebastien Arod - updateVersionRangeMatchingBounds 
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
@@ -22,7 +23,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.versions.manipulation.PomManipulator;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 
 /**
  * Applies direct and indirect version changes to a set of projects.
@@ -34,13 +35,13 @@ import org.eclipse.tycho.versions.pom.MutablePomFile;
 public class VersionsEngine {
 
     private static class PropertyChange {
-        final MutablePomFile pom;
+        final PomFile pom;
 
         final String propertyName;
 
         String propertyValue;
 
-        public PropertyChange(MutablePomFile pom, String propertyName, String propertyValue) {
+        public PropertyChange(PomFile pom, String propertyName, String propertyValue) {
             this.pom = pom;
             this.propertyName = propertyName;
             this.propertyValue = propertyValue;
@@ -77,14 +78,14 @@ public class VersionsEngine {
     }
 
     public void addVersionChange(String artifactId, String newVersion) throws IOException {
-        MutablePomFile pom = getMutablePom(artifactId);
+        PomFile pom = getMutablePom(artifactId);
 
         if (!newVersion.equals(pom.getVersion())) {
             addVersionChange(new VersionChange(pom, newVersion));
         }
     }
 
-    private MutablePomFile getMutablePom(String artifactId) throws IOException {
+    private PomFile getMutablePom(String artifactId) throws IOException {
         ProjectMetadata project = getProject(artifactId);
 
         if (project == null) {
@@ -92,7 +93,7 @@ public class VersionsEngine {
             throw new IOException("Project with artifactId=" + artifactId + " cound not be found");
         }
 
-        return project.getMetadata(MutablePomFile.class);
+        return project.getMetadata(PomFile.class);
     }
 
     public void addVersionChange(VersionChange change) {
@@ -133,7 +134,7 @@ public class VersionsEngine {
         for (ProjectMetadata project : projects) {
             logger.info("Making changes in " + project.getBasedir().getAbsolutePath());
 
-            MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+            PomFile pom = project.getMetadata(PomFile.class);
 
             // make changes to pom properties, assume project/version and project/parent/version are constants for now
             // TODO property changes should be added as a new type of change in VersionChangeDescriptors
@@ -162,7 +163,7 @@ public class VersionsEngine {
     private ProjectMetadata getProject(String artifactId) {
         // TODO detect ambiguous artifactId
         for (ProjectMetadata project : projects) {
-            MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+            PomFile pom = project.getMetadata(PomFile.class);
             if (artifactId.equals(pom.getArtifactId())) {
                 return project;
             }
@@ -171,7 +172,7 @@ public class VersionsEngine {
     }
 
     public void addPropertyChange(String artifactId, String propertyName, String propertyValue) throws IOException {
-        MutablePomFile pom = getMutablePom(artifactId);
+        PomFile pom = getMutablePom(artifactId);
         propertyChanges.add(new PropertyChange(pom, propertyName, propertyValue));
     }
 

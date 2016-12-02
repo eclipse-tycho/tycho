@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom;
 
@@ -35,9 +36,10 @@ import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
-public class MutablePomFile {
+public class PomFile {
 
     public static final String POM_XML = "pom.xml";
+    public static final String POLYGLOT_POM_XML = ".polyglot.build.properties";
     private static final String DEFAULT_XML_ENCODING = "UTF-8";
 
     private static XMLParser parser = new XMLParser();
@@ -48,9 +50,11 @@ public class MutablePomFile {
     /** The (effective) project version */
     private String version;
     private final boolean preferExplicitProjectVersion;
+    private final boolean isMutable;
 
-    public MutablePomFile(Document pom) {
+    public PomFile(Document pom, boolean isMutable) {
         this.document = pom;
+        this.isMutable = isMutable;
         this.project = document.getRootElement();
 
         this.version = this.getExplicitVersionFromXML();
@@ -62,20 +66,20 @@ public class MutablePomFile {
         }
     }
 
-    public static MutablePomFile read(File file) throws IOException {
+    public static PomFile read(File file, boolean isMutable) throws IOException {
         InputStream is = new BufferedInputStream(new FileInputStream(file));
         try {
-            return read(is);
+            return read(is, isMutable);
         } finally {
             IOUtil.close(is);
         }
     }
 
-    public static MutablePomFile read(InputStream input) throws IOException {
-        return new MutablePomFile(parser.parse(new XMLIOSource(input)));
+    public static PomFile read(InputStream input, boolean isMutable) throws IOException {
+        return new PomFile(parser.parse(new XMLIOSource(input)), isMutable);
     }
 
-    public static void write(MutablePomFile pom, OutputStream out) throws IOException {
+    public static void write(PomFile pom, OutputStream out) throws IOException {
         String encoding = pom.document.getEncoding() != null ? pom.document.getEncoding() : DEFAULT_XML_ENCODING;
         Writer w = new OutputStreamWriter(out, encoding);
         XMLWriter xw = new XMLWriter(w);
@@ -87,7 +91,7 @@ public class MutablePomFile {
         }
     }
 
-    public static void write(MutablePomFile pom, File file) throws IOException {
+    public static void write(PomFile pom, File file) throws IOException {
         OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
         try {
             write(pom, os);
@@ -239,5 +243,9 @@ public class MutablePomFile {
     private String getElementValue(String name) {
         Element child = project.getChild(name);
         return child != null ? child.getTrimmedText() : null;
+    }
+
+    public boolean isMutable() {
+        return isMutable;
     }
 }

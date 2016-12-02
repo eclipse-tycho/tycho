@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,23 +7,24 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 
 public class VersionChange {
     protected final String newVersion;
 
-    private final MutablePomFile pom;
+    private final PomFile pom;
 
     private final String version;
 
-    public VersionChange(MutablePomFile pom, String newVersion) {
+    public VersionChange(PomFile pom, String newVersion) {
         this(pom, pom.getVersion(), newVersion);
     }
 
-    public VersionChange(MutablePomFile pom, String version, String newVersion) {
+    public VersionChange(PomFile pom, String version, String newVersion) {
         this.pom = pom;
         this.version = Versions.toCanonicalVersion(version);
         this.newVersion = Versions.toCanonicalVersion(newVersion);
@@ -41,7 +42,7 @@ public class VersionChange {
         return version;
     }
 
-    public MutablePomFile getProject() {
+    public PomFile getProject() {
         return pom;
     }
 

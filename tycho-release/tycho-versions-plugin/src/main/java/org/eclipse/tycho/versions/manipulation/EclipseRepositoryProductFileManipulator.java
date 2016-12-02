@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG and others.
+ * Copyright (c) 2013, 2016 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *     Sebastien Arod - introduce VersionChangesDescriptor
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 
 package org.eclipse.tycho.versions.manipulation;
@@ -28,7 +29,7 @@ import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-repository-products")
 public class EclipseRepositoryProductFileManipulator extends ProductFileManipulator {
@@ -68,7 +69,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
     }
 
     private boolean isEclipseRepository(ProjectMetadata project) {
-        return PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(project.getMetadata(MutablePomFile.class).getPackaging());
+        return PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(project.getMetadata(PomFile.class).getPackaging());
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
@@ -21,7 +22,7 @@ import java.util.Set;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 import org.eclipse.tycho.versions.pom.Profile;
 
 @Component(role = ProjectMetadataReader.class, instantiationStrategy = "per-lookup")
@@ -44,7 +45,7 @@ public class ProjectMetadataReader {
         // normalize basedir to allow modules that explicitly point at pom.xml file
 
         if (basedir.isFile()) {
-            if (!MutablePomFile.POM_XML.equals(basedir.getName())) {
+            if (!PomFile.POM_XML.equals(basedir.getName())) {
                 // TODO support custom pom.xml file names
                 log.info("Custom pom.xml file name is not supported at " + basedir);
                 return;
@@ -60,7 +61,15 @@ public class ProjectMetadataReader {
         ProjectMetadata project = new ProjectMetadata(basedir);
         projects.put(basedir, project);
 
-        MutablePomFile pom = MutablePomFile.read(new File(basedir, MutablePomFile.POM_XML));
+        File pomFile = new File(basedir, PomFile.POM_XML);
+        if (!pomFile.exists()) {
+            pomFile = new File(basedir, PomFile.POLYGLOT_POM_XML);
+        }
+        if (!pomFile.exists()) {
+            log.info("No pom file found at " + basedir);
+            return;
+        }
+        PomFile pom = PomFile.read(pomFile, PomFile.POM_XML.equals(pomFile.getName()));
         project.putMetadata(pom);
 
         String packaging = pom.getPackaging();
@@ -71,7 +80,7 @@ public class ProjectMetadataReader {
         }
     }
 
-    private Set<File> getChildren(File basedir, MutablePomFile project) throws IOException {
+    private Set<File> getChildren(File basedir, PomFile project) throws IOException {
         LinkedHashSet<File> children = new LinkedHashSet<>();
         for (String module : project.getModules()) {
             children.add(canonify(new File(basedir, module)));

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Sebastien Arod - introduce VersionChangesDescriptor
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -26,7 +27,7 @@ import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-repository")
 public class CategoryXmlManipulator extends AbstractMetadataManipulator {
@@ -101,7 +102,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
     }
 
     private boolean isEclipseRepository(ProjectMetadata project) {
-        MutablePomFile pom = project.getMetadata(MutablePomFile.class);
+        PomFile pom = project.getMetadata(PomFile.class);
         return PackagingType.TYPE_ECLIPSE_REPOSITORY.equals(pom.getPackaging());
     }
 

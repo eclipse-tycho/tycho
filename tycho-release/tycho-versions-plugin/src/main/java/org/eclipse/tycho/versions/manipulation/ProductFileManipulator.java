@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds    
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -15,7 +16,7 @@ import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 
 public abstract class ProductFileManipulator extends AbstractMetadataManipulator {
 
@@ -47,8 +48,8 @@ public abstract class ProductFileManipulator extends AbstractMetadataManipulator
         }
     }
 
-    protected boolean isSameProject(ProjectMetadata project1, MutablePomFile project2) {
-        MutablePomFile project1Pom = project1.getMetadata(MutablePomFile.class);
+    protected boolean isSameProject(ProjectMetadata project1, PomFile project2) {
+        PomFile project1Pom = project1.getMetadata(PomFile.class);
         return project1Pom.getArtifactId().equals(project2.getArtifactId())
                 && project1Pom.getGroupId().equals(project2.getGroupId());
     }

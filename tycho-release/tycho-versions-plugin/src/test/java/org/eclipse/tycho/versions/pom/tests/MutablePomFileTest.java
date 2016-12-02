@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom.tests;
 
@@ -19,13 +20,13 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.codehaus.plexus.util.IOUtil;
-import org.eclipse.tycho.versions.pom.MutablePomFile;
+import org.eclipse.tycho.versions.pom.PomFile;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class MutablePomFileTest {
 
-    private MutablePomFile subject;
+    private PomFile subject;
 
     @Test
     public void testWhitespacesInValuesAreIgnored() throws Exception {
@@ -131,19 +132,19 @@ public class MutablePomFileTest {
         assertContent(subject, "/poms/inheritedVersion.xml");
     }
 
-    private MutablePomFile getPom(String path) throws IOException {
+    private PomFile getPom(String path) throws IOException {
         InputStream is = getClass().getResourceAsStream(path);
         try {
-            return MutablePomFile.read(is);
+            return PomFile.read(is, true);
         } finally {
             IOUtil.close(is);
         }
     }
 
-    private static void assertContent(MutablePomFile pom, String path) throws IOException {
+    private static void assertContent(PomFile pom, String path) throws IOException {
         byte[] expected = toByteArray(path);
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        MutablePomFile.write(pom, buf);
+        PomFile.write(pom, buf);
         byte[] actual = buf.toByteArray();
 
         Assert.assertEquals(toAsciiString(expected), toAsciiString(actual));
