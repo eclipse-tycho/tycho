@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="example-feature"
+      label="Example Feature"
+      version="0.1.0.qualifier">
+
+   <description url="http://www.example.com/description">
+      Description of Example Feature
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      Copyright of Example Feature
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      License Description of Example Feature
+   </license>
+
+   <plugin
+         id="example-bundle"
+         os="linux,win32"
+         ws="cocoa,win32"
+         arch="x86,x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
