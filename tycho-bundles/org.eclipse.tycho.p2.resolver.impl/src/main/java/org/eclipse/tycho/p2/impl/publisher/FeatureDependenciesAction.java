@@ -24,13 +24,13 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 @SuppressWarnings("restriction")
 public class FeatureDependenciesAction extends AbstractDependenciesAction {
@@ -115,12 +115,9 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
             }
             String id = getInstallableUnitId(entry);
             // TODO 391283 without enhancement 391283, additional filters will always evaluate to false -> ignore for now
-            // TODO 392357 warn that osgi.nl filters don't work in the build
-//            String filter = getFilter(entry.getFilter(), entry.getOS(), entry.getWS(), entry.getArch(), entry.getNL());
-            String filter = new TargetEnvironment(entry.getOS(), entry.getWS(), entry.getArch()).toFilterExpression();
             boolean optional = entry.isOptional();
             required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range,
-                    InstallableUnit.parseFilter(filter), optional, false));
+                    createFilter(entry), optional, false));
         }
         return required;
     }
@@ -165,6 +162,38 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
         AdviceFileAdvice advice = new AdviceFileAdvice(groupId, version, location, new Path("p2.inf"));
         if (advice.containsAdvice()) {
             publisherInfo.addAdvice(advice);
+        }
+    }
+
+    private IMatchExpression<IInstallableUnit> createFilter(FeatureEntry entry) {
+        final StringBuffer result = new StringBuffer();
+        result.append("(&"); //$NON-NLS-1$
+        if (entry.getFilter() != null) {
+            result.append(entry.getFilter());
+        }
+        expandFilter(entry.getOS(), "osgi.os", result); //$NON-NLS-1$
+        expandFilter(entry.getWS(), "osgi.ws", result); //$NON-NLS-1$
+        expandFilter(entry.getArch(), "osgi.arch", result);//$NON-NLS-1$
+        expandFilter(entry.getNL(), "osgi.nl", result); //$NON-NLS-1$
+        if (result.length() == 2) {
+            return null;
+        }
+        result.append(')');
+        return InstallableUnit.parseFilter(result.toString());
+    }
+
+    private void expandFilter(String filter, String osgiFilterValue, StringBuffer result) {
+        if (filter != null && filter.length() != 0) {
+            final StringTokenizer token = new StringTokenizer(filter, ","); //$NON-NLS-1$
+            if (token.countTokens() == 1) {
+                result.append('(' + osgiFilterValue + '=' + filter + ')');
+            } else {
+                result.append("(|"); //$NON-NLS-1$
+                while (token.hasMoreElements()) {
+                    result.append('(' + osgiFilterValue + '=' + token.nextToken() + ')');
+                }
+                result.append(')');
+            }
         }
     }
 
