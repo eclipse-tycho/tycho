@@ -22,6 +22,29 @@
       "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c23755_e6dcfc5b",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/ProjectMetadataReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-12-12T09:03:15Z",
+      "side": 1,
+      "message": "just another quick thought: IIRC MavenProject.getFile() should give you the generated pom file without having to know the impl detail of pomless. Not sure if you have access to that here.",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 9
+      },
+      "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
