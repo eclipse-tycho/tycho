@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7c23755_5b74a9f1",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/FeatureDependenciesAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-12-12T08:47:25Z",
+      "side": 1,
+      "message": "(minor) generally prefer to use StringBuilder (StringBuffer is unnecessarily thread-safe)",
+      "range": {
+        "startLine": 169,
+        "startChar": 40,
+        "endLine": 169,
+        "endChar": 52
+      },
+      "revId": "3738b21523b4218c3458de1a0ca76f2b3ccd3adf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c23755_3b8e0d83",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/publisher/FeatureDependenciesAction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-12-12T08:47:25Z",
+      "side": 1,
+      "message": "this is hard to read. Can we make the if expression more explicit? i.e. \"(\u0026\".equals(result.toString())",
+      "revId": "3738b21523b4218c3458de1a0ca76f2b3ccd3adf",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
