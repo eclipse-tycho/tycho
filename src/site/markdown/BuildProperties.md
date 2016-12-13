@@ -49,7 +49,7 @@ javacWarnings.library | not supported - use [compilerArgument](https://wiki.ecli
 javacErrors.library | not supported - use [compilerArgument](https://wiki.eclipse.org/Tycho/FAQ#How_to_configure_warning.2Ferror_settings_of_the_OSGi_compiler.3F) instead.
 javacDefaultEncoding.library | supported
 javacCustomEncodings.library | not supported
-javacProjectSettings | not supported. Use [compilerArgument](https://wiki.eclipse.org/Tycho/FAQ#How_to_configure_warning.2Ferror_settings_of_the_OSGi_compiler.3F) instead. Also see [bug 414718](https://bugs.eclipse.org/bugs/show_bug.cgi?id=414718)
+javacProjectSettings | not supported. Use [useProjectSettings](tycho-compiler-plugin/compile-mojo.html#useProjectSettings) or [compilerArgs](tycho-compiler-plugin/compile-mojo.html#compilerArgs) instead. 
 compilerArg | not supported. Use [compilerArgs](tycho-compiler-plugin/compile-mojo.html#compilerArgs) instead
 compilerAdapter | not supported. Use [compilerId](tycho-compiler-plugin/compile-mojo.html#compilerId) instead
 compilerAdapter.useLog | not supported
