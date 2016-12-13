@@ -45,6 +45,30 @@
       "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c23755_1cbce422",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/ProjectMetadataReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2016-12-13T12:44:16Z",
+      "side": 1,
+      "message": "Yes that\u0027s right, but the MavenProjects from the MavenSession are only the ones from the reactor. The set-version plugin does also support changing pom files e.g. within non active maven profiles (see getChildren Method in this class).\n\nI tried to use the PolyglotModelManager to read the Model:\n\n        File polyglotPomFile \u003d modelManager.locatePom(basedir);\n        Map\u003cString, File\u003e options \u003d new HashMap\u003c\u003e();\n        options.put(ModelProcessor.SOURCE, polyglotPomFile);\n        Model model \u003d modelManager.getReaderFor(options).read(polyglotPomFile, options);\n\nThat does work fine, but only if I add the tycho-extras pomless maven plugin as a dependency for the tycho-version plugin. The reason is, that the TychoMapping/TychoModelReader are only injected if that dependency exists, which we might not want - right?",
+      "parentUuid": "a7c23755_e6dcfc5b",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 9
+      },
+      "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
