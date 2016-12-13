@@ -93,6 +93,30 @@
       "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c23755_8ffd18a6",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/ProjectMetadataReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2016-12-13T13:26:05Z",
+      "side": 1,
+      "message": "Well, we need at least the artifactId, groupId, version and packaging and parent coordinates for each project the version should be changed. I thought using the PolyglotModelManager to get this information and store the Model in the projectmetadata map. This model would be used at any place where we need artifactid, groupid, version or the packaging type. The PomManipluator would only come into play if there is a \"real\" pom file available. So IMHO the message about changing polyglot files would not appear. \n\nDo you think it would be better to get the artifactId, groupId the same way as it is done in the pomless TychoModelReader class? But than that\u0027s kind of code duplication we are doing for the tycho-version plugin.\n\nSo the code to read the model and the pom would look like that:\n\nProjectMetadata project \u003d new ProjectMetadata(basedir);\n        projects.put(basedir, project);\n\n        File polyglotPomFile \u003d modelManager.locatePom(basedir);\n        Map\u003cString, File\u003e options \u003d new HashMap\u003c\u003e();\n        options.put(ModelProcessor.SOURCE, polyglotPomFile);\n        Model model \u003d modelManager.getReaderFor(options).read(polyglotPomFile, options);\n\n        project.putMetadata(model);\n\n        File pomFile \u003d new File(basedir, MutablePomFile.POM_XML);\n\n        if (pomFile.exists()) {\n            MutablePomFile pom \u003d MutablePomFile.read(pomFile);\n            project.putMetadata(pom);\n            String packaging \u003d pom.getPackaging();\n            if (PACKAGING_POM.equals(packaging)) {\n                for (File child : getChildren(basedir, pom)) {\n                    addBasedir(child);\n                }\n            }\n        }",
+      "parentUuid": "a7c23755_bc805050",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 9
+      },
+      "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
