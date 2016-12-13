@@ -69,6 +69,30 @@
       "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c23755_bc805050",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/ProjectMetadataReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2016-12-13T12:53:56Z",
+      "side": 1,
+      "message": "does not sound straightforward neither.\n\nIf you use the code as proposed now, I guess it works but I wonder if the user would get confusing messages about .polyglot.build.properties files being updated which are supposed to be hidden/temporary and will be deleted on VM exit anyway?",
+      "parentUuid": "a7c23755_1cbce422",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 9
+      },
+      "revId": "c0d334b480a70b30313bea7b39e081dd1931363c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
