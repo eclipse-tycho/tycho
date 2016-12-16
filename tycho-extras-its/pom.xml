@@ -197,6 +197,16 @@
 			<artifactId>tycho-pomless</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-versions-plugin</artifactId>
+			<version>${tycho-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-core</artifactId>
+			<version>${tycho-version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>apache-maven</artifactId>
 			<version>${its-maven-version}</version>
