@@ -66,15 +66,20 @@ public class PomVersionUpdater {
             }
         });
 
-        updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, new VersionAdaptor() {
+        VersionAdaptor productVersionAdapter = new VersionAdaptor() {
             @Override
             public String getVersion(ProjectMetadata project) throws IOException {
                 PomFile pom = project.getMetadata(PomFile.class);
-                ProductConfiguration product = ProductConfiguration.read(new File(project.getBasedir(), pom
-                        .getArtifactId() + ".product"));
+                File productFile = new File(project.getBasedir(), pom.getArtifactId() + ".product");
+                if (!productFile.exists()) {
+                    return null;
+                }
+                ProductConfiguration product = ProductConfiguration.read(productFile);
                 return product.getVersion();
             }
-        });
+        };
+        updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, productVersionAdapter);
+        updaters.put(PackagingType.TYPE_ECLIPSE_REPOSITORY, productVersionAdapter);
     }
 
     public void setProjects(Collection<ProjectMetadata> projects) {
