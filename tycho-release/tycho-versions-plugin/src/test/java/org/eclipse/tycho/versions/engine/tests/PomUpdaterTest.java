@@ -42,5 +42,8 @@ public class PomUpdaterTest extends AbstractVersionChangeTest {
 
         assertPom(new File(basedir, "product"));
         assertProductFile(new File(basedir, "product"), "product.product");
+
+        assertPom(new File(basedir, "repository"));
+        assertProductFile(new File(basedir, "repository"), "repository.product");
     }
 }
