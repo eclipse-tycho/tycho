@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ - Copyright (c) 2008, 2016 Sonatype Inc. and others.
  - All rights reserved. This program and the accompanying materials
  - are made available under the terms of the Eclipse Public License v1.0
  - which accompanies this distribution, and is available at
@@ -88,11 +88,11 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
-		<equinoxVersion>3.11.0.v20160603-1336</equinoxVersion>
+		<equinoxVersion>3.11.2.v20161107-1947</equinoxVersion>
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.0.200.v20160504-1419</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<jdtVersion>3.12.0.v20160516-2131</jdtVersion>
+		<jdtVersion>3.12.2.v20161117-1814</jdtVersion>
 		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
 		<jdtAptVersion>1.2.100.v20160418-1457</jdtAptVersion>
 		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
