@@ -15,6 +15,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -91,7 +92,14 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         mojo = createMojoWithProject(project);
         mojo.execute();
 
-        assertEquals(firstTimestamp, project.getProperties().get(BUILD_QUALIFIER_PROPERTY));
+        String secondTimestamp = (String) project.getProperties().get(BUILD_QUALIFIER_PROPERTY);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+        Date firstDate = dateFormat.parse(firstTimestamp);
+        Date secondDate = dateFormat.parse(secondTimestamp);
+
+        // 2nd build time must be the same (within the same minute)
+        // or higher than the 1st build time
+        assertTrue(secondDate.compareTo(firstDate) >= 0);
     }
 
     public void testUnqualifiedVersion() throws Exception {
@@ -243,8 +251,8 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         executeMojo(session, project, "build-qualifier");
     }
 
-    protected void executeMojo(MavenSession session, MavenProject project, String goal) throws Exception,
-            ComponentConfigurationException, MojoExecutionException, MojoFailureException {
+    protected void executeMojo(MavenSession session, MavenProject project, String goal)
+            throws Exception, ComponentConfigurationException, MojoExecutionException, MojoFailureException {
         session.setCurrentProject(project);
         BuildQualifierMojo mojo = (BuildQualifierMojo) lookupConfiguredMojo(session, newMojoExecution(goal));
         mojo.execute();
