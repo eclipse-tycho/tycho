@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
@@ -28,12 +29,8 @@ import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 
 /**
  * This class handles definitions of root files in build.properties according to
- * http://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles.htm <br>
- * Currently <b>not supported</b> build.property key for root files
- * <ul>
- * <li>root.folder.&lt;subfolder&gt;
- * <li>root.&lt;config&gt;.folder.&lt;subfolder&gt;
- * </ul>
+ * http://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.pde.doc.user/tasks/pde_rootfiles.htm
+ * <br>
  */
 @SuppressWarnings("restriction")
 public class FeatureRootAdvice implements IFeatureRootAdvice {

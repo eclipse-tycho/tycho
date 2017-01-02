@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
@@ -23,12 +24,14 @@ import org.eclipse.core.runtime.Path;
 public class FileSet extends AbstractFileSet {
 
     private File baseDir;
+    private String destinationDir;
 
     /**
-     * Equivalent to {@link #FileSet(File, String, boolean)} with useDefaultExludes == true.
+     * Equivalent to {@link #FileSet(File, String, boolean)} with useDefaultExludes == true;
+     * destinationDir = ""
      */
     public FileSet(File baseDir, String pattern) {
-        this(baseDir, pattern, true);
+        this(baseDir, pattern, "", true);
     }
 
     /**
@@ -42,9 +45,10 @@ public class FileSet extends AbstractFileSet {
      * @param useDefaultExcludes
      *            whether to use default file excludes for typical SCM metadata files.
      */
-    public FileSet(File baseDir, String pattern, boolean useDefaultExcludes) {
+    public FileSet(File baseDir, String pattern, String destinationDir, boolean useDefaultExcludes) {
         super(pattern, useDefaultExcludes);
         this.baseDir = baseDir;
+        this.destinationDir = destinationDir;
     }
 
     public File getBaseDir() {
@@ -58,28 +62,29 @@ public class FileSet extends AbstractFileSet {
      */
     public FileToPathMap scan() {
         FileToPathMap result = new FileToPathMap();
-        recursiveScan(baseDir, result, Path.fromOSString(baseDir.getAbsolutePath()));
+        recursiveScan(baseDir, result, Path.fromOSString(baseDir.getAbsolutePath()), Path.fromOSString(destinationDir));
         return result;
     }
 
-    private void recursiveScan(File file, FileToPathMap result, IPath baseDirPath) {
+    private void recursiveScan(File file, FileToPathMap result, IPath baseDirPath, IPath destinationPath) {
         if (file.isDirectory()) {
             for (File subFile : file.listFiles()) {
                 if (subFile.isDirectory()) {
-                    recursiveScan(subFile, result, baseDirPath);
+                    recursiveScan(subFile, result, baseDirPath, destinationPath);
                 } else if (subFile.isFile()) {
-                    addFileIfMatch(subFile, result, baseDirPath);
+                    addFileIfMatch(subFile, result, baseDirPath, destinationPath);
                 }
             }
         } else if (file.isFile()) {
-            addFileIfMatch(file, result, baseDirPath);
+            addFileIfMatch(file, result, baseDirPath, destinationPath);
         }
     }
 
-    private void addFileIfMatch(File file, FileToPathMap result, IPath baseDir) {
+    private void addFileIfMatch(File file, FileToPathMap result, IPath baseDir, IPath destination) {
         IPath relativePath = Path.fromOSString(file.getAbsolutePath()).makeRelativeTo(baseDir);
+        IPath destinationPath = destination.append(relativePath);
         if (matches(relativePath)) {
-            result.put(file, relativePath);
+            result.put(file, destinationPath);
         }
     }
 }

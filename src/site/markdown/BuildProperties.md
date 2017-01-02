@@ -62,7 +62,8 @@ Key | Value
 --- | ---
 root | supported
 root.config | supported
-root.folder | not supported, see [bug 386263](https://bugs.eclipse.org/bugs/show_bug.cgi?id=386263)
+root.folder | supported (since Tycho 0.27.0)
+root.config.folder | supported (since Tycho 0.27.0)
 root.permissions | supported
 root.link | supported
 generate.feature | not supported - use [Tycho Source Feature Plugin](https://www.eclipse.org/tycho/sitedocs-extras/tycho-source-feature-plugin/plugin-info.html) instead

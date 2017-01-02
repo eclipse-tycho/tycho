@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
@@ -38,10 +39,11 @@ public class RootFilePatternParser {
      * <li>root=file:license.html
      * <li>root=absolute:/rootfiles1
      * <li>root=absolute:file:/eclipse/about.html
+     * <li>root.folder.adir:rootfiles1
      * </ul>
-     * Configurations like root.<os.ws.arch> is also supported here but subfolders so far are not
-     * supported. <br>
-     * Following wrongly specified cases are simply ignored when trying to find root files<br>
+     * Configurations like root.&lt;os.ws.arch&gt; is also supported here as well as
+     * root.&lt;os.ws.arch&gt;.folder.&lt;subfolder&gt; Following wrongly specified cases are simply
+     * ignored when trying to find root files<br>
      * <ol>
      * <li>root = license.html -> licence.html exists but is not a directory (contrary to PDE
      * product export where build fails )
@@ -55,10 +57,13 @@ public class RootFilePatternParser {
      * 
      * @param paths
      *            root file paths
+     * @param destinationPath
+     *            the relative path where the root files should be placed into or "" if they should
+     *            be placed in the installation root folder
      */
-    void addFilesFromPatterns(String[] paths) {
+    void addFilesFromPatterns(String[] paths, String destinationDir) {
         for (String path : paths) {
-            RootFilePath rootFilePath = new RootFilePath(path, baseDir);
+            RootFilePath rootFilePath = new RootFilePath(path, baseDir, destinationDir);
             target.addFiles(rootFilePath.toFileSet(useDefaultExcludes).scan());
         }
     }
@@ -72,8 +77,10 @@ public class RootFilePatternParser {
         private File baseDir;
         private boolean isAbsolute = false;
         private boolean isFile = false;
+        private String destinationDir;
 
-        public RootFilePath(String path, File baseDir) {
+        public RootFilePath(String path, File baseDir, String destinationDir) {
+            this.destinationDir = destinationDir;
             this.path = parse(path);
             this.baseDir = baseDir;
         }
@@ -89,7 +96,7 @@ public class RootFilePatternParser {
                 fileSetBasedir = file;
                 pattern = "**/*";
             }
-            return new FileSet(fileSetBasedir, pattern, useDefaultExcludes);
+            return new FileSet(fileSetBasedir, pattern, destinationDir, useDefaultExcludes);
         }
 
         private String parse(String path) {
