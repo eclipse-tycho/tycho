@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
@@ -145,11 +146,14 @@ public class RootPropertiesParser {
         switch (keyType) {
         case FILE:
             RootFilePatternParser filePatternParser = new RootFilePatternParser(baseDir, target, useDefaultExcludes);
-            filePatternParser.addFilesFromPatterns(valueSegments);
+            filePatternParser.addFilesFromPatterns(valueSegments, "");
             break;
         case FOLDER:
-            throw new UnsupportedOperationException(
-                    "root.folder.<subfolder> and root.<config>.folder.<subfolder> are not yet supported in build.properties");
+            RootFilePatternParser filePatternParserWithinFolder = new RootFilePatternParser(baseDir, target, useDefaultExcludes);
+            // last element in keySegments is the destination subdirectory
+            // (root.folder.<subdir> and root.<config>.folder.<subdir>)
+            filePatternParserWithinFolder.addFilesFromPatterns(valueSegments, keySegments[keySegments.length - 1]);
+            break;
         case PERMISSION:
             target.addPermission(parameterInKey, valueSegments);
             break;

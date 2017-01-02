@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
@@ -122,6 +123,37 @@ public class FeatureRootAdviceFilesTest {
         FileToPathMap filesMap = createAdviceAndGetFilesMap(properties, GLOBAL_SPEC);
 
         assertEquals(2, filesMap.keySet().size());
+    }
+
+    @Test
+    public void testRootFilesWithFolders() {
+        Properties buildProperties = createBuildPropertiesWithoutRootKeys();
+        buildProperties.put("root.folder.foo/bar", "file:rootfiles/file1.txt");
+        FileToPathMap filesMap = createAdviceAndGetFilesMap(buildProperties, GLOBAL_SPEC);
+        assertEquals(1, filesMap.keySet().size());
+        assertRootFileEntry(filesMap, "rootfiles/file1.txt", "foo/bar/file1.txt");
+    }
+
+    @Test
+    public void testRootFilesWithFoldersAndConfig() {
+        Properties buildProperties = createBuildPropertiesWithoutRootKeys();
+        buildProperties.put("root.folder.foo", "file:rootfiles/dir/file3.txt");
+        buildProperties.put("root." + WINDOWS_SPEC_FOR_PROPERTIES_KEY + ".folder.windir", "file:rootfiles/file1.txt");
+        buildProperties.put("root." + LINUX_SPEC_FOR_PROPERTIES_KEY + ".folder.linuxdir", "file:rootfiles/file2.txt");
+
+        IFeatureRootAdvice advice = createAdvice(buildProperties);
+
+        FileToPathMap winFilesMap = getSourceToDestinationMap(advice, WINDOWS_SPEC_FOR_ADVICE);
+        assertEquals(1, winFilesMap.size());
+        assertRootFileEntry(winFilesMap, "rootfiles/file1.txt", "windir/file1.txt");
+
+        FileToPathMap linuxFilesMap = getSourceToDestinationMap(advice, LINUX_SPEC_FOR_ADVICE);
+        assertEquals(1, linuxFilesMap.size());
+        assertRootFileEntry(linuxFilesMap, "rootfiles/file2.txt", "linuxdir/file2.txt");
+
+        FileToPathMap globalFilesMap = getSourceToDestinationMap(advice, GLOBAL_SPEC);
+        assertEquals(1, globalFilesMap.size());
+        assertRootFileEntry(globalFilesMap, "rootfiles/dir/file3.txt", "foo/file3.txt");
     }
 
     private static FileToPathMap createAdviceAndGetFilesMap(Properties buildProperties, String configSpec) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
@@ -25,7 +26,7 @@ public class RootFilePathTest {
 
     @Test
     public void testAbsoluteFile() {
-        RootFilePath rootFilePath = new RootFilePath("absolute:file:/tmp/test.txt", new File("/basedir"));
+        RootFilePath rootFilePath = new RootFilePath("absolute:file:/tmp/test.txt", new File("/basedir"), "");
         FileSet fileSet = rootFilePath.toFileSet(true);
         assertTrue(fileSet.matches(new Path("test.txt")));
         IPath normalizedBaseDir = Path.fromOSString(fileSet.getBaseDir().getAbsolutePath()).setDevice(null);
@@ -34,7 +35,7 @@ public class RootFilePathTest {
 
     @Test
     public void testRelativeFile() {
-        RootFilePath rootFilePath = new RootFilePath("file:foo/test.txt", new File("/basedir"));
+        RootFilePath rootFilePath = new RootFilePath("file:foo/test.txt", new File("/basedir"), "");
         FileSet fileSet = rootFilePath.toFileSet(true);
         assertTrue(fileSet.matches(new Path("test.txt")));
         assertFalse(fileSet.matches(new Path("second_test.txt")));
@@ -44,7 +45,7 @@ public class RootFilePathTest {
 
     @Test
     public void testAbsoluteDir() {
-        RootFilePath rootFilePath = new RootFilePath("absolute:/tmp/bar/", new File("/basedir"));
+        RootFilePath rootFilePath = new RootFilePath("absolute:/tmp/bar/", new File("/basedir"), "");
         FileSet fileSet = rootFilePath.toFileSet(true);
         assertTrue(fileSet.matches(new Path("anyfile")));
         IPath normalizedBaseDir = Path.fromOSString(fileSet.getBaseDir().getAbsolutePath()).setDevice(null);
@@ -53,7 +54,7 @@ public class RootFilePathTest {
 
     @Test
     public void testRelativeDir() {
-        RootFilePath rootFilePath = new RootFilePath("foo/baz/", new File("/basedir"));
+        RootFilePath rootFilePath = new RootFilePath("foo/baz/", new File("/basedir"), "");
         FileSet fileSet = rootFilePath.toFileSet(true);
         assertTrue(fileSet.matches(new Path("anyfileName")));
         IPath normalizedBaseDir = Path.fromOSString(fileSet.getBaseDir().getAbsolutePath()).setDevice(null);

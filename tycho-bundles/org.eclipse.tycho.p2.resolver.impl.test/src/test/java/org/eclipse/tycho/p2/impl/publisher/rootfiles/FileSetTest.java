@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG and others.
+ * Copyright (c) 2011, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,14 +7,14 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
 import org.eclipse.core.runtime.Path;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class FileSetTest {
@@ -82,7 +82,7 @@ public class FileSetTest {
 
     @Test
     public void testNoDefaultExcludes() {
-        FileSet recursiveFileSet = new FileSet(null, "test/**", false);
+        FileSet recursiveFileSet = new FileSet(null, "test/**", "", false);
         Assert.assertTrue(recursiveFileSet.matches(new Path("test/CVS/foo.txt")));
         Assert.assertTrue(recursiveFileSet.matches(new Path("test/.git/foo.txt")));
         Assert.assertTrue(recursiveFileSet.matches(new Path("test/.svn/foo.txt")));

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Bachmann electronic GmbH - adding support for root.folder and root.<config>.folder
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher.rootfiles;
 
@@ -147,22 +148,6 @@ public class FeatureRootAdviceTest {
     public void testParseBuildPropertiesWithTrailingDots() {
         Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
         buildProperties.put("root..", "file:rootfiles/file1.txt");
-
-        createAdvice(buildProperties);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedFolderBuildProperties() {
-        Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
-        buildProperties.put("root.folder.dir", "file:rootfiles/file1.txt");
-
-        createAdvice(buildProperties);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedFolderBuildProperties2() {
-        Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
-        buildProperties.put("root.win32.win32.x86.folder.dir", "file:rootfiles/file1.txt");
 
         createAdvice(buildProperties);
     }
