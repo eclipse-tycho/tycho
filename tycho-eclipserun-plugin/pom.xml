@@ -20,7 +20,7 @@
 
   <artifactId>tycho-eclipserun-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <name>Eclipserun Plugin (Incubation)</name>
+  <name>Eclipserun Plugin</name>
       <dependencies>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>

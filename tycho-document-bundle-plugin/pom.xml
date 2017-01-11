@@ -23,7 +23,7 @@
 	<artifactId>tycho-document-bundle-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho Document Bundle Plugin (Incubation)</name>
+	<name>Tycho Document Bundle Plugin</name>
 
 	<dependencies>
 		<dependency>

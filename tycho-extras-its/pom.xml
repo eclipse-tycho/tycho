@@ -22,7 +22,7 @@
 
 	<artifactId>tycho-extras-its</artifactId>
 
-	<name>Tycho Extras Integration Tests (Incubation)</name>
+	<name>Tycho Extras Integration Tests</name>
 
 	<properties>
 		<its-maven-version>3.3.3</its-maven-version>

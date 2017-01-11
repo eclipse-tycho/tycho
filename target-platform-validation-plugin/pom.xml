@@ -20,7 +20,7 @@
 	</parent>
 
 	<artifactId>target-platform-validation-plugin</artifactId>
-	<name>Target Platform Validation Plugin (Incubation)</name>
+	<name>Target Platform Validation Plugin</name>
 	<packaging>maven-plugin</packaging>
 
 	<dependencies>

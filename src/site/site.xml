@@ -14,9 +14,6 @@
         <item name="Pack Plugin" href="tycho-pack200/tycho-pack200b-plugin/plugin-info.html"/>
       </item>
     </menu>
-	<links>
-	  <item name="This content is PRELIMINARY API and still subject to change" href="http://wiki.eclipse.org/Development_Resources/HOWTO/Incubation_Phase#.281.29_What_Is_Incubation.3F"/>
-	</links>
   </body>
   <skin>
     <groupId>org.apache.maven.skins</groupId>

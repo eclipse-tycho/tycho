@@ -63,7 +63,7 @@
 		</developer>
 	</developers>
 
-	<name>Tycho Extras (Incubation)</name>
+	<name>Tycho Extras</name>
 	<description>Additional tools for Tycho</description>
 
 	<prerequisites>

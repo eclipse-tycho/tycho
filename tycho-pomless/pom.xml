@@ -22,7 +22,7 @@
 	
   <artifactId>tycho-pomless</artifactId>
 
-  <name>Tycho POM-less build extension (Incubation)</name>
+  <name>Tycho POM-less build extension</name>
   <description>A build extension which allows to omit pom.xml files for bundles and features. 
   Maven groupId is inherited from the mandatory parent pom in the parent directory, artifactId and version are derived from MANIFEST.MF and feature.xml
   </description>

@@ -23,7 +23,7 @@
 	<artifactId>tycho-version-bump-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho Version Bump Plugin (Incubation)</name>
+	<name>Tycho Version Bump Plugin</name>
 
 	<dependencies>
 		<dependency>
