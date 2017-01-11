@@ -23,7 +23,7 @@
 	<artifactId>target-platform-configuration</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho Target Platform Configuration Plugin (Incubation)</name>
+	<name>Tycho Target Platform Configuration Plugin</name>
 
 	<dependencies>
 		<dependency>

@@ -23,7 +23,7 @@
 	<artifactId>org.eclipse.tycho.surefire.osgibooter</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho Surefire OSGi Booter Eclipse Application (Incubation)</name>
+	<name>Tycho Surefire OSGi Booter Eclipse Application</name>
 
 	<build>
 		<plugins>

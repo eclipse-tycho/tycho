@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-Version: 0.27.0.qualifier
-Bundle-Name: Tycho p2 Tools Bundle (Incubation)
+Bundle-Name: Tycho p2 Tools Bundle
 Bundle-ManifestVersion: 2
 Bundle-Description: Implementation of tools for generating, copying, and using p2 repositories in Tycho
 Bundle-SymbolicName: org.eclipse.tycho.p2.tools.impl

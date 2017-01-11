@@ -23,7 +23,7 @@
 	<artifactId>org.eclipse.tycho.test.utils</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho Test Utilities (Incubation)</name>
+	<name>Tycho Test Utilities</name>
 	<description>Utility classes for the tests of Tycho's OSGi bundles.</description>
 
 </project>

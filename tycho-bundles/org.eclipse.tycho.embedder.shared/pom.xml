@@ -23,7 +23,7 @@
 	<artifactId>org.eclipse.tycho.embedder.shared</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho Embedder API Maven/OSGi Shared Classes (Incubation)</name>
+	<name>Tycho Embedder API Maven/OSGi Shared Classes</name>
 	<description>Classes shared between the tycho-embedder-api module and Tycho's OSGi bundles.</description>
 
 </project>

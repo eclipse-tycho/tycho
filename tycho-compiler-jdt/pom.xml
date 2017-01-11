@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>tycho-compiler-jdt</artifactId>
 
-	<name>Tycho JDT Compiler Component (Incubation)</name>
+	<name>Tycho JDT Compiler Component</name>
 
 	<build>
 		<plugins>

@@ -23,6 +23,6 @@
 	<artifactId>org.eclipse.tycho.p2.resolver.shared.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
-	<name>Tycho p2 Resolver Maven/OSGi Shared Classes Tests (Incubation)</name>
+	<name>Tycho p2 Resolver Maven/OSGi Shared Classes Tests</name>
 
 </project>

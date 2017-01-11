@@ -23,6 +23,6 @@
 	<artifactId>org.eclipse.tycho.p2.tools.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
-	<name>Tycho p2 Tools Tests (Incubation)</name>
+	<name>Tycho p2 Tools Tests</name>
 
 </project>

@@ -23,7 +23,7 @@
 	<artifactId>tycho-p2</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Tycho p2 Tools Parent (Incubation)</name>
+	<name>Tycho p2 Tools Parent</name>
 
 	<modules>
 		<module>tycho-p2-facade</module>

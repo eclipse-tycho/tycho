@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>sisu-equinox-embedder</artifactId>
 
-	<name>Sisu Equinox Embedder (Incubation)</name>
+	<name>Sisu Equinox Embedder</name>
 	<description>Support for embedding an Equinox runtime in Plexus</description>
 
 	<dependencies>

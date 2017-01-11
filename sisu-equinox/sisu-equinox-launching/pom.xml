@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>sisu-equinox-launching</artifactId>
 
-	<name>Sisu Equinox Launching (Incubation)</name>
+	<name>Sisu Equinox Launching</name>
 	<description>Support for launching an Equinox runtime as new process</description>
 
 	<dependencies>

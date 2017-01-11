@@ -23,7 +23,7 @@
 	<artifactId>tycho-standalone-p2-director</artifactId>
 	<packaging>eclipse-repository</packaging>
 
-	<name>Repository with p2 Director Bundles (Incubation)</name>
+	<name>Repository with p2 Director Bundles</name>
 	<description>Repository with bundles required for installing a standalone p2 director application</description>
 
 	<build>

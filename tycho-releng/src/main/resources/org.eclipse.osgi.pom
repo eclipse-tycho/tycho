@@ -7,7 +7,7 @@
   <artifactId>org.eclipse.osgi</artifactId>
   <version>${equinoxVersionMaven}</version>
 
-  <name>Tycho org.eclipse.osgi dependency (Incubation)</name>
+  <name>Tycho org.eclipse.osgi dependency</name>
   <description>This is org.eclipse.osgi jar used by Tycho</description>
   <url>http://www.eclipse.org/tycho/</url>
 

@@ -23,6 +23,6 @@
 	<artifactId>org.eclipse.tycho.p2.maven.repository</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho Maven/p2 Repository Integration (Incubation)</name>
+	<name>Tycho Maven/p2 Repository Integration</name>
 
 </project>

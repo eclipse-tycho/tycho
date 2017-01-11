@@ -23,7 +23,7 @@
 	<artifactId>org.eclipse.tycho.p2.tools.shared</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho p2 Tools Maven/OSGi Shared Classes (Incubation)</name>
+	<name>Tycho p2 Tools Maven/OSGi Shared Classes</name>
 	<description>Exposes tools for manipulating p2 data, which are implemented in OSGi bundles, to Maven plug-ins</description>
 
 </project>

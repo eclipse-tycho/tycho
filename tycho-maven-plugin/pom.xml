@@ -23,7 +23,7 @@
 	<artifactId>tycho-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho Maven Build Extension (Incubation)</name>
+	<name>Tycho Maven Build Extension</name>
 	<description>The Tycho Maven Plugin provides extensions to build Eclipse projects.</description>
 
 	<dependencies>

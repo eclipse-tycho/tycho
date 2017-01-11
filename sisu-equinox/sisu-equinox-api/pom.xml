@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>sisu-equinox-api</artifactId>
 
-	<name>Sisu Equinox Services API (Incubation)</name>
+	<name>Sisu Equinox Services API</name>
 	<description>API for accessing OSGi services from Plexus</description>
 
 	<build>

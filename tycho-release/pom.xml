@@ -23,7 +23,7 @@
 	<artifactId>tycho-release</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Tycho Release Parent (Incubation)</name>
+	<name>Tycho Release Parent</name>
 
 	<modules>
 		<module>tycho-versions-plugin</module>

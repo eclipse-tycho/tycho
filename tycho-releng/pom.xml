@@ -18,7 +18,7 @@
 	<artifactId>tycho-releng</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Tycho Releng (Incubation)</name>
+	<name>Tycho Releng</name>
 	<description>Helper POM for deploying Eclipse artifacts which Tycho needs to get from a Maven repository</description>
 
 	<!-- To update the Eclipse artifacts needed by the Maven class-loader side 

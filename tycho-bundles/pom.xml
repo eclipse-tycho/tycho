@@ -23,7 +23,7 @@
 	<artifactId>tycho-bundles</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Tycho OSGi Bundles Parent (Incubation)</name>
+	<name>Tycho OSGi Bundles Parent</name>
 
 	<modules>
 		<module>tycho-bundles-target</module>

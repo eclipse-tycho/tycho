@@ -23,7 +23,7 @@
 	<artifactId>tycho-pomgenerator-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho POM Generator Plugin (Incubation)</name>
+	<name>Tycho POM Generator Plugin</name>
 	<description>The tycho-pomgenerator-plugin provides tools for integrating Maven, Eclipse and OSGi.</description>
 
 	<dependencies>

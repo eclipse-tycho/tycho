@@ -23,7 +23,7 @@
 	<artifactId>tycho-source-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho OSGi Source Plugin (Incubation)</name>
+	<name>Tycho OSGi Source Plugin</name>
 	<description>A plugin for packing source on OSGi bundles</description>
 
 	<dependencies>

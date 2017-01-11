@@ -23,7 +23,7 @@
 	<artifactId>sisu-equinox</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Sisu Equinox/Plexus bridge (Incubation)</name>
+	<name>Sisu Equinox/Plexus bridge</name>
 
 	<modules>
 		<module>sisu-equinox-api</module>

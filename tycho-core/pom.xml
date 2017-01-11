@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>tycho-core</artifactId>
 
-	<name>Tycho Core (Incubation)</name>
+	<name>Tycho Core</name>
 	<description>Core Tycho components</description>
 
 	<build>

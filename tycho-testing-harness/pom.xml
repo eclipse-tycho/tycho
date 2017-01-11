@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>tycho-testing-harness</artifactId>
 
-	<name>Tycho Testing Harness (Incubation)</name>
+	<name>Tycho Testing Harness</name>
 
 	<dependencies>
 		<dependency>

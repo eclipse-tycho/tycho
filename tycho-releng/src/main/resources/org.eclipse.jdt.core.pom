@@ -7,7 +7,7 @@
   <artifactId>org.eclipse.jdt.core</artifactId>
   <version>${jdtVersionMaven}</version>
 
-  <name>Tycho org.eclipse.jdt.core dependency (Incubation)</name>
+  <name>Tycho org.eclipse.jdt.core dependency</name>
   <description>This is org.eclipse.jdt.core jar used by Tycho</description>
   <url>http://www.eclipse.org/tycho/</url>
 

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tycho p2 Resolver Bundle (Incubation)
+Bundle-Name: Tycho p2 Resolver Bundle
 Bundle-SymbolicName: org.eclipse.tycho.p2.resolver.impl;singleton:=true
 Bundle-Version: 0.27.0.qualifier
 Bundle-Activator: org.eclipse.tycho.p2.impl.Activator

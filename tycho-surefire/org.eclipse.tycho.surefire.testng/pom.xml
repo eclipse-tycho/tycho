@@ -18,7 +18,7 @@
 	<artifactId>org.eclipse.tycho.surefire.testng</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho Surefire OSGi TestNG Runner (Incubation)</name>
+	<name>Tycho Surefire OSGi TestNG Runner</name>
 
 	<build>
 		<plugins>

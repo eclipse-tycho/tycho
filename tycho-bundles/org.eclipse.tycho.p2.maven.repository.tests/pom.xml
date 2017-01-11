@@ -23,6 +23,6 @@
 	<artifactId>org.eclipse.tycho.p2.maven.repository.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
-	<name>Tycho Maven/p2 Repository Integration Tests (Incubation)</name>
+	<name>Tycho Maven/p2 Repository Integration Tests</name>
 
 </project>

@@ -23,7 +23,7 @@
 	<artifactId>tycho-bundles-external</artifactId>
 	<packaging>eclipse-application</packaging>
 
-	<name>Tycho OSGi Runtime External Bundles (Incubation)</name>
+	<name>Tycho OSGi Runtime External Bundles</name>
 
 	<build>
 		<plugins>

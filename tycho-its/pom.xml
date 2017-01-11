@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>tycho-its</artifactId>
 
-	<name>Tycho Integration Tests (Incubation)</name>
+	<name>Tycho Integration Tests</name>
 
 	<properties>
 		<!-- 

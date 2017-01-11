@@ -23,7 +23,7 @@
 	<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho p2 Tools Bundle (Incubation)</name>
+	<name>Tycho p2 Tools Bundle</name>
 	<description>Implementation of tools for generating, copying, and using p2 repositories in Tycho</description>
 
 </project>

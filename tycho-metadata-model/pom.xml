@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>tycho-metadata-model</artifactId>
 
-	<name>Tycho Eclipse Project Metadata Model (Incubation)</name>
+	<name>Tycho Eclipse Project Metadata Model</name>
 
 	<dependencies>
 		<dependency>

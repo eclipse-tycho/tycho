@@ -23,7 +23,7 @@
 	<artifactId>tycho-surefire-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho Surefire Plugin (Incubation)</name>
+	<name>Tycho Surefire Plugin</name>
 
 	<build>
 		<plugins>

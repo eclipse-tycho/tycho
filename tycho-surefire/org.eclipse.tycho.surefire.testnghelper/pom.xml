@@ -18,7 +18,7 @@
 	<artifactId>org.eclipse.tycho.surefire.testnghelper</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
-	<name>Tycho Surefire TestNG Helper (Incubation)</name>
+	<name>Tycho Surefire TestNG Helper</name>
 	
 	<description>
 		This bundle is a Tycho internal bundle that is required to build Tycho itself

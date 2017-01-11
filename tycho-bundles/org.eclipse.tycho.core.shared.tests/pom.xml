@@ -23,5 +23,5 @@
 	<artifactId>org.eclipse.tycho.core.shared.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
-	<name>Tycho Core Maven/OSGi Shared Classes Tests (Incubation)</name>
+	<name>Tycho Core Maven/OSGi Shared Classes Tests</name>
 </project>

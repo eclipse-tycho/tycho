@@ -21,7 +21,7 @@
 	</parent>
 	<artifactId>tycho-embedder-api</artifactId>
 
-	<name>Tycho Embedder API (Incubation)</name>
+	<name>Tycho Embedder API</name>
 
 	<properties>
 		<tycho-api-version>0.11.0</tycho-api-version>

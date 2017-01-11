@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tycho Maven/p2 Repository Integration Tests (Incubation)
+Bundle-Name: Tycho Maven/p2 Repository Integration Tests
 Bundle-SymbolicName: org.eclipse.tycho.p2.maven.repository.tests;singleton:=true
 Bundle-Version: 0.27.0.qualifier
 Bundle-Vendor: %providerName

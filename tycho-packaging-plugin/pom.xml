@@ -23,7 +23,7 @@
 	<artifactId>tycho-packaging-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho OSGi Packaging Plugin (Incubation)</name>
+	<name>Tycho OSGi Packaging Plugin</name>
 	<description>A plugin for packaging OSGi bundles</description>
 
 	<dependencies>

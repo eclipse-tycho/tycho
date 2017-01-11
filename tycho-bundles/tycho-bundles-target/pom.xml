@@ -12,5 +12,5 @@
 	<artifactId>tycho-bundles-target</artifactId>
 	<packaging>eclipse-target-definition</packaging>
 
-	<name>Tycho OSGi Bundles Target Platform (Incubation)</name>
+	<name>Tycho OSGi Bundles Target Platform</name>
 </project>

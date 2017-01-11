@@ -23,6 +23,6 @@
 	<artifactId>org.eclipse.tycho.p2.resolver.impl.test</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
-	<name>Tycho p2 Resolver Bundle Tests (Incubation)</name>
+	<name>Tycho p2 Resolver Bundle Tests</name>
 
 </project>

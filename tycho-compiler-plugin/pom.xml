@@ -23,7 +23,7 @@
 	<artifactId>tycho-compiler-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>Tycho OSGi Compiler Plugin (Incubation)</name>
+	<name>Tycho OSGi Compiler Plugin</name>
 	<description>A plugin for compiling OSGi bundles</description>
 
 	<dependencies>

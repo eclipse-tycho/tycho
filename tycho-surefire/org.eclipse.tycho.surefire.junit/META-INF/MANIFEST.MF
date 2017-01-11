@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tycho Surefire OSGi JUnit3 Runner (Incubation)
+Bundle-Name: Tycho Surefire OSGi JUnit3 Runner
 Bundle-SymbolicName: org.eclipse.tycho.surefire.junit;singleton:=true
 Bundle-Version: 0.27.0.qualifier
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter;bundle-version="0.14.0"
