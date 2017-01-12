@@ -65,6 +65,13 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>1.7</version>
+			<exclusions>
+				<!-- we do not use XZ compression -->
+				<exclusion>
+					<groupId>org.tukaani</groupId>
+					<artifactId>xz</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- for crypto reasons, we have to include sources, see https://dev.eclipse.org/ipzilla/show_bug.cgi?id=8090  -->
 		<dependency>
@@ -72,6 +79,13 @@
 			<artifactId>commons-compress</artifactId>
 			<version>1.7</version>
 			<classifier>sources</classifier>
+			<exclusions>
+				<!-- we do not use XZ compression -->
+				<exclusion>
+					<groupId>org.tukaani</groupId>
+					<artifactId>xz</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
