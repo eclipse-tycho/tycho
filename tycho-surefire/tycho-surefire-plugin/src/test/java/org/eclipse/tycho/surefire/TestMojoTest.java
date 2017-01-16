@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP SE and others.
+ * Copyright (c) 2010, 2017 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Bachmann electrontic GmbH - Adding tests for the parallel mode
  *******************************************************************************/
 package org.eclipse.tycho.surefire;
 
@@ -16,16 +17,18 @@ import static org.junit.Assert.assertThat;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.TestCase;
+import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.surefire.booter.ProviderParameterNames;
 import org.apache.maven.surefire.util.ScanResult;
 import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
 import org.eclipse.tycho.testing.TestUtil;
+
+import junit.framework.TestCase;
 
 public class TestMojoTest extends TestCase {
 
@@ -119,6 +122,47 @@ public class TestMojoTest extends TestCase {
         includes.add(null);
         ScanResult result = executeScanForTests(includes, null);
         assertEquals(1, result.size());
+    }
+
+    public void testParallelModeMissingThreadCountParameter() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "parallel", ParallelMode.both);
+        try {
+            testMojo.getMergedProviderProperties();
+            fail("MojoExecutionException expected since threadCount parameter is missing");
+        } catch (MojoExecutionException e) {
+            // Success
+        }
+    }
+
+    public void testParallelModeThreadCountSetTo1() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "parallel", ParallelMode.both);
+        setParameter(testMojo, "threadCount", 1);
+        try {
+            testMojo.getMergedProviderProperties();
+            fail("MojoExecutionException expected since threadCount parameter is missing");
+        } catch (MojoExecutionException e) {
+            // Success
+        }
+    }
+
+    public void testParallelModeWithThreadCountSet() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "parallel", ParallelMode.both);
+        setParameter(testMojo, "threadCount", 2);
+        Properties providerProperties = testMojo.getMergedProviderProperties();
+        assertEquals("both", providerProperties.get(ProviderParameterNames.PARALLEL_PROP));
+        assertEquals("2", providerProperties.get(ProviderParameterNames.THREADCOUNT_PROP));
+    }
+
+    public void testParallelModeWithUseUnlimitedThreads() throws Exception {
+        TestMojo testMojo = new TestMojo();
+        setParameter(testMojo, "parallel", ParallelMode.both);
+        setParameter(testMojo, "useUnlimitedThreads", Boolean.TRUE);
+        Properties providerProperties = testMojo.getMergedProviderProperties();
+        assertEquals("both", providerProperties.get(ProviderParameterNames.PARALLEL_PROP));
+        assertEquals("true", providerProperties.get("useUnlimitedThreads"));
     }
 
     public ScanResult executeScanForTests(List<String> includes, List<String> excludes) throws Exception {

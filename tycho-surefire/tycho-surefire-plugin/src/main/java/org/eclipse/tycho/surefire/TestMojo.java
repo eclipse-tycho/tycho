@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2017 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - port to surefire 2.10
  *    Mickael Istria (Red Hat Inc.) - 386988 Support for provisioned applications
+ *    Bachmann electrontic GmbH - 510425 parallel mode requires threadCount>1 or useUnlimitedThreads=true
  ******************************************************************************/
 package org.eclipse.tycho.surefire;
 
@@ -885,11 +886,14 @@ public class TestMojo extends AbstractMojo {
         storeProperties(wrapper.getProperties(), surefireProperties);
     }
 
-    private Properties getMergedProviderProperties() {
+    protected Properties getMergedProviderProperties() throws MojoExecutionException {
         Properties result = new Properties();
         result.putAll(providerProperties);
         if (parallel != null) {
             result.put(ProviderParameterNames.PARALLEL_PROP, parallel.name());
+            if (threadCount <= 1 && !useUnlimitedThreads) {
+                throw new MojoExecutionException("Parallel mode requires threadCount>1 or useUnlimitedThreads=true");
+            }
             if (threadCount > 0) {
                 result.put(ProviderParameterNames.THREADCOUNT_PROP, String.valueOf(threadCount));
             }
