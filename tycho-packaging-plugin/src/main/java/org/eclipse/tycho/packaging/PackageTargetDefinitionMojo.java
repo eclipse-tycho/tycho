@@ -21,8 +21,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Registers the target definition file &lt;artifactId&gt;.target expected in the basedir of a
- * project as maven artifact.
+ * Registers the target definition file &lt;artifactId&gt;.target expected in the location defined
+ * by parameter source as maven artifact.
  * 
  */
 @Mojo(name = "package-target-definition", defaultPhase = LifecyclePhase.PACKAGE)
@@ -33,12 +33,20 @@ public class PackageTargetDefinitionMojo extends AbstractMojo {
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
 
+    /**
+     * The input directory of the target definition file.
+     * 
+     * By default this is Maven's basedir.
+     */
+    @Parameter(property = "source", required = false, defaultValue = "${basedir}")
+    private File source;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File targetFile = new File(project.getBasedir(), project.getArtifactId() + FILE_EXTENSION);
+        File targetFile = new File(source, project.getArtifactId() + FILE_EXTENSION);
         if (!targetFile.isFile()) {
-            throw new MojoExecutionException("Expected target definition file '" + targetFile.getAbsolutePath()
-                    + "' could not be found.");
+            throw new MojoExecutionException(
+                    "Expected target definition file '" + targetFile.getAbsolutePath() + "' could not be found.");
         }
         project.getArtifact().setFile(targetFile);
     }
