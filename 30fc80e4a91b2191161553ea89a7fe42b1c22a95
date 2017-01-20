@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7c23755_cdb6df43",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageTargetDefinitionMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-01-20T08:38:29Z",
+      "side": 1,
+      "message": "shorthand ${basedir} is deprecated, see\nhttp://maven.apache.org/ref/3.1.1/maven-model-builder/\n\nuse ${project.basedir}",
+      "range": {
+        "startLine": 41,
+        "startChar": 72,
+        "endLine": 41,
+        "endChar": 79
+      },
+      "revId": "30fc80e4a91b2191161553ea89a7fe42b1c22a95",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
