@@ -23,8 +23,8 @@ public class TychoMapping extends MappingSupport {
         super("tycho");
         // can't check for META-INF/MANIFEST.MF as this is in a subfolder and maven (and tycho) assumes
         // in many places that the pom file is located in the project base dir, so we just use build.properties as a marker file
-        setPomNames("build.properties");
-        setAcceptLocationExtensions("build.properties", ".product");
+        setPomNames("build.properties", "category.xml");
+        setAcceptLocationExtensions("build.properties", ".product", "category.xml");
         // make sure priority is lower than pom.xml (XmlMapping) so we can still override and use pom.xml if needed
         setPriority(-2);
     }

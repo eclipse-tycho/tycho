@@ -47,6 +47,7 @@ import org.sonatype.maven.polyglot.io.ModelReaderSupport;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -72,6 +73,7 @@ public class TychoModelReader extends ModelReaderSupport {
         File projectRoot = new File(PolyglotModelUtil.getLocation(options)).getParentFile();
         File manifestFile = new File(projectRoot, "META-INF/MANIFEST.MF");
         File featureXml = new File(projectRoot, "feature.xml");
+        File categoryXml = new File(projectRoot, "category.xml");
         File productXml = getProductFile(projectRoot);
         if (manifestFile.isFile()) {
             return createPomFromManifest(manifestFile);
@@ -79,9 +81,11 @@ public class TychoModelReader extends ModelReaderSupport {
             return createPomFromFeatureXml(featureXml);
         } else if (productXml != null) {
             return createPomFromProductXml(productXml);
+        } else if (categoryXml.isFile()) {
+            return createPomFromCategoryXml(categoryXml);
         } else {
-            throw new IOException(
-                    "Neither META-INF/MANIFEST.MF nor feature.xml nor .product file found in " + projectRoot);
+            throw new IOException("Neither META-INF/MANIFEST.MF, feature.xml, .product nor category.xml file found in "
+                    + projectRoot);
         }
     }
 
@@ -180,16 +184,7 @@ public class TychoModelReader extends ModelReaderSupport {
 
     private Model createPomFromXmlFile(File xmlFile, String idAttributeName, String versionAttributeName,
             String nameAttributeName, String vendorAttributeName) throws IOException, ModelParseException {
-        Document doc;
-        try {
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            doc = parser.parse(xmlFile);
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        } catch (SAXException e) {
-            throw new ModelParseException(e.getMessage(), -1, -1);
-        }
-        Element root = doc.getDocumentElement();
+        Element root = getRootXmlElement(xmlFile);
         Model model = createModel();
         model.setParent(findParent(xmlFile.getParentFile()));
         String id = getXMLAttributeValue(root, idAttributeName);
@@ -233,6 +228,43 @@ public class TychoModelReader extends ModelReaderSupport {
             }
         }
         return null;
+    }
+
+    private Model createPomFromCategoryXml(File categoryXml) throws ModelParseException, IOException {
+        Model model = createModel();
+        model.setPackaging("eclipse-repository");
+        Parent parent = findParent(categoryXml.getParentFile());
+        model.setParent(parent);
+        String projectName = getProjectName(categoryXml.getParentFile());
+        model.setArtifactId(projectName);
+        model.setVersion(parent.getVersion());
+        return model;
+    }
+
+    private String getProjectName(File projectRoot) throws IOException {
+        File projectFile = new File(projectRoot, ".project");
+        if (!projectFile.isFile()) {
+            throw new IOException("No .project file could be found in project directory: " + projectRoot);
+        }
+        Element projectDescription = getRootXmlElement(projectFile);
+        Node nameNode = projectDescription.getElementsByTagName("name").item(0);
+        if (nameNode == null) {
+            throw new IOException("No name element found in .project file " + projectFile);
+        }
+        return nameNode.getTextContent();
+    }
+
+    private Element getRootXmlElement(File xmlFile) throws IOException, ModelParseException {
+        Document doc;
+        try {
+            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            doc = parser.parse(xmlFile);
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        } catch (SAXException e) {
+            throw new ModelParseException(e.getMessage(), -1, -1);
+        }
+        return doc.getDocumentElement();
     }
 
     private Model createModel() {

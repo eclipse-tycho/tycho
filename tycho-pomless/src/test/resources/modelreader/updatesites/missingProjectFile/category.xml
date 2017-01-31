@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="pomless.feature" version="0.1.0.qualifier">
+      <category name="myCategory"/>
+   </feature>
+   <category-def name="myCategory" label="A Category"/>
+</site>
