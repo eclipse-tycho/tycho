@@ -32,6 +32,8 @@ import org.eclipse.tycho.versions.pom.PomFile;
 @Component(role = MetadataManipulator.class, hint = "eclipse-repository")
 public class CategoryXmlManipulator extends AbstractMetadataManipulator {
 
+    private static final String SOURCE_FEATURE_SUFFIX = ".source";
+
     @Override
     public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isEclipseRepository(project)) {
@@ -51,7 +53,9 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
             return;
         }
         for (SiteFeatureRef feature : categoryXml.getFeatures()) {
-            if (featureVersionChange.getArtifactId().equals(feature.getId())
+            String featureId = featureVersionChange.getArtifactId();
+            String srcFeatureId = featureId + SOURCE_FEATURE_SUFFIX;
+            if ((featureId.equals(feature.getId()) || srcFeatureId.equals(feature.getId())) 
                     && featureVersionChange.getVersion().equals(feature.getVersion())) {
                 logger.info("  category.xml//site/feature[@id=" + feature.getId() + "]/@version: "
                         + featureVersionChange.getVersion() + " => " + featureVersionChange.getNewVersion());
