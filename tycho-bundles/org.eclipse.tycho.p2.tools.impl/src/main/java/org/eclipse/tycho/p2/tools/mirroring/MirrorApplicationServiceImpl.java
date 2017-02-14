@@ -158,17 +158,19 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                     IStatus returnStatus = mirrorApp.run(null);
                     checkStatus(returnStatus);
                     logListener.showHelpForLoggedMessages();
-                    // bug 357513 - force artifact repo recreation which will
-                    // create the missing md5 checksums
-                    RepositoryDescriptor descriptor = new RepositoryDescriptor();
-                    descriptor.setAppend(true);
-                    descriptor.setFormat(null);
-                    descriptor.setKind("artifact"); //$NON-NLS-1$
-                    descriptor.setLocation(destination.getLocation().toURI());
+                    if (!destination.isMetaDataOnly()) {
+                        // bug 357513 - force artifact repo recreation which will
+                        // create the missing md5 checksums
+                        RepositoryDescriptor descriptor = new RepositoryDescriptor();
+                        descriptor.setAppend(true);
+                        descriptor.setFormat(null);
+                        descriptor.setKind("artifact"); //$NON-NLS-1$
+                        descriptor.setLocation(destination.getLocation().toURI());
 
-                    RecreateRepositoryApplication application = new RecreateRepositoryApplication();
-                    application.setArtifactRepository(descriptor);
-                    application.run(new NullProgressMonitor());
+                        RecreateRepositoryApplication application = new RecreateRepositoryApplication();
+                        application.setArtifactRepository(descriptor);
+                        application.run(new NullProgressMonitor());
+                    }
                 } catch (ProvisionException e) {
                     throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()),
                             e);
