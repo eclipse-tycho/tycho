@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2017 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronics GmbH. - Bug #512326 Support product file names other than artifact id
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine.tests;
 
@@ -45,5 +46,8 @@ public class PomUpdaterTest extends AbstractVersionChangeTest {
 
         assertPom(new File(basedir, "repository"));
         assertProductFile(new File(basedir, "repository"), "repository.product");
+
+        assertPom(new File(basedir, "repository2"));
+        assertProductFile(new File(basedir, "repository2"), "anotherNameThanArtifactId.product");
     }
 }

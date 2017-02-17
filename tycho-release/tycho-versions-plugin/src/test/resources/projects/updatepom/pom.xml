@@ -11,6 +11,7 @@
     <module>feature</module>
     <module>product</module>
     <module>repository</module>
+    <module>repository2</module>
   </modules>
 
 </project>

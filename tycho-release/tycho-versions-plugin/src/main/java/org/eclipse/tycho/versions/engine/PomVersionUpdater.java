@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2017 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
+ *    Bachmann electronic GmbH. - #472579 Support setting the version for pomless builds
+ *    Bachmann electronic GmbH. - #512326 Support product file names other than artifact id
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
@@ -25,6 +26,7 @@ import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
 import org.eclipse.tycho.versions.pom.PomFile;
+import org.eclipse.tycho.versions.utils.ProductFileFilter;
 
 /**
  * Updates pom version to match Eclipse/OSGi metadata.
@@ -70,10 +72,7 @@ public class PomVersionUpdater {
             @Override
             public String getVersion(ProjectMetadata project) throws IOException {
                 PomFile pom = project.getMetadata(PomFile.class);
-                File productFile = new File(project.getBasedir(), pom.getArtifactId() + ".product");
-                if (!productFile.exists()) {
-                    return null;
-                }
+                File productFile = findProductFile(project, pom);
                 ProductConfiguration product = ProductConfiguration.read(productFile);
                 return product.getVersion();
             }
@@ -110,5 +109,17 @@ public class PomVersionUpdater {
         }
 
         engine.apply();
+    }
+
+    private static File findProductFile(ProjectMetadata project, PomFile pom) throws IOException {
+        File productFile = new File(project.getBasedir(), pom.getArtifactId() + ".product");
+        if (productFile.exists()) {
+            return productFile;
+        }
+        File[] productFiles = project.getBasedir().listFiles(new ProductFileFilter());
+        if (productFiles != null && productFiles.length > 0) {
+            return productFiles[0];
+        }
+        throw new IOException("Could not find a .product file in directory " + project.getBasedir());
     }
 }
