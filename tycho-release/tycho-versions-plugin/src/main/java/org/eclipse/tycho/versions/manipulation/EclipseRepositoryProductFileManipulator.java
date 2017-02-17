@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 SAP AG and others.
+ * Copyright (c) 2013, 2017 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,13 +8,12 @@
  * Contributors:
  *     SAP AG - initial API and implementation
  *     Sebastien Arod - introduce VersionChangesDescriptor
- *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
+ *     Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
  *******************************************************************************/
 
 package org.eclipse.tycho.versions.manipulation;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +29,7 @@ import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.PomFile;
+import org.eclipse.tycho.versions.utils.ProductFileFilter;
 
 @Component(role = MetadataManipulator.class, hint = "eclipse-repository-products")
 public class EclipseRepositoryProductFileManipulator extends ProductFileManipulator {
@@ -86,13 +86,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
         ProductConfigurations products = project.getMetadata(ProductConfigurations.class);
         if (products == null) {
             products = new ProductConfigurations();
-            File[] productFiles = project.getBasedir().listFiles(new FileFilter() {
-
-                @Override
-                public boolean accept(File file) {
-                    return file.isFile() && file.getName().endsWith(".product");
-                }
-            });
+            File[] productFiles = project.getBasedir().listFiles(new ProductFileFilter());
             if (productFiles != null) {
                 for (File productFile : productFiles) {
                     try {
