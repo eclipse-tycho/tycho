@@ -158,37 +158,50 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                     IStatus returnStatus = mirrorApp.run(null);
                     checkStatus(returnStatus);
                     logListener.showHelpForLoggedMessages();
-                    if (!destination.isMetaDataOnly()) {
-                        // bug 357513 - force artifact repo recreation which will
-                        // create the missing md5 checksums
-                        RepositoryDescriptor descriptor = new RepositoryDescriptor();
-                        descriptor.setAppend(true);
-                        descriptor.setFormat(null);
-                        descriptor.setKind("artifact"); //$NON-NLS-1$
-                        descriptor.setLocation(destination.getLocation().toURI());
-
-                        RecreateRepositoryApplication application = new RecreateRepositoryApplication();
-                        application.setArtifactRepository(descriptor);
-                        application.run(new NullProgressMonitor());
-                    }
                 } catch (ProvisionException e) {
                     throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()),
                             e);
                 }
-
-                if (destination.isXZCompress()) {
-                    try {
-                        XZCompressor xzCompressor = new XZCompressor();
-                        xzCompressor.setPreserveOriginalFile(destination.shouldKeepNonXzIndexFiles());
-                        xzCompressor.setRepoFolder(destination.getLocation().getAbsolutePath());
-                        xzCompressor.compressRepo();
-                    } catch (IOException e) {
-                        throw new FacadeException("XZ compression failed", e);
-                    }
-                }
             }
+            recreateArtifactRepository(destination);
+            xzCompress(destination);
         } finally {
             agent.stop();
+        }
+    }
+
+    private void xzCompress(DestinationRepositoryDescriptor destination) throws FacadeException {
+        if (!destination.isXZCompress()) {
+            return;
+        }
+        try {
+            XZCompressor xzCompressor = new XZCompressor();
+            xzCompressor.setPreserveOriginalFile(destination.shouldKeepNonXzIndexFiles());
+            xzCompressor.setRepoFolder(destination.getLocation().getAbsolutePath());
+            xzCompressor.compressRepo();
+        } catch (IOException e) {
+            throw new FacadeException("XZ compression failed", e);
+        }
+    }
+
+    private void recreateArtifactRepository(DestinationRepositoryDescriptor destination) throws FacadeException {
+        // bug 357513 - force artifact repo recreation which will
+        // create the missing md5 checksums
+        if (destination.isMetaDataOnly()) {
+            return;
+        }
+        RepositoryDescriptor descriptor = new RepositoryDescriptor();
+        descriptor.setAppend(true);
+        descriptor.setFormat(null);
+        descriptor.setKind("artifact"); //$NON-NLS-1$
+        descriptor.setLocation(destination.getLocation().toURI());
+
+        RecreateRepositoryApplication application = new RecreateRepositoryApplication();
+        application.setArtifactRepository(descriptor);
+        try {
+            application.run(new NullProgressMonitor());
+        } catch (ProvisionException e) {
+            throw new FacadeException("Recreate artifact repository failed", e);
         }
     }
 
