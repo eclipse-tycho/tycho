@@ -891,8 +891,15 @@ public class TestMojo extends AbstractMojo {
         result.putAll(providerProperties);
         if (parallel != null) {
             result.put(ProviderParameterNames.PARALLEL_PROP, parallel.name());
-            if (threadCount <= 1 && !useUnlimitedThreads) {
-                throw new MojoExecutionException("Parallel mode requires threadCount>1 or useUnlimitedThreads=true");
+            if (!useUnlimitedThreads) {
+                if (perCoreThreadCount && threadCount < 1) {
+                    throw new MojoExecutionException(
+                            "Parallel mode with perCoreThreadCount=true requiures threadCount>=1");
+                }
+                if (!perCoreThreadCount && threadCount <= 1) {
+                    throw new MojoExecutionException(
+                            "Parallel mode requires threadCount>1 or useUnlimitedThreads=true");
+                }
             }
             if (threadCount > 0) {
                 result.put(ProviderParameterNames.THREADCOUNT_PROP, String.valueOf(threadCount));
