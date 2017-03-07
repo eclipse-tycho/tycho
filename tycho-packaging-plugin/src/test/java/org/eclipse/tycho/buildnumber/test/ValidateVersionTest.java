@@ -19,6 +19,7 @@ import org.eclipse.tycho.buildversion.ValidateVersionMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.osgi.framework.Version;
 
 public class ValidateVersionTest extends AbstractTychoMojoTestCase {
 
@@ -50,6 +51,11 @@ public class ValidateVersionTest extends AbstractTychoMojoTestCase {
     public void testValidateSnapshotVersionWithInvalidVersionsUsingNonStrictVersions()
             throws MojoExecutionException, IllegalAccessException {
         testValidateSnapshotVersionWithInvalidVersions(false);
+    }
+
+    @Test
+    public void testValidateVersionWithLeadingZero() throws MojoExecutionException {
+        mojo.validateSnapshotVersion("1.02.3-SNAPSHOT", Version.parseVersion("1.02.3.qualifier").toString());
     }
 
     private void testValidateSnapshotVersionWithInvalidVersions(Boolean strictVersions)

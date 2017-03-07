@@ -20,6 +20,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.VersioningHelper;
 import org.eclipse.tycho.model.IU;
+import org.osgi.framework.Version;
 
 /**
  * Validates project Maven and OSGi versions. For SNAPSHOT versions, OSGi version qualifier must be
@@ -91,9 +92,12 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
             }
             String unqualifiedOSGiVersion = osgiVersion.substring(0,
                     osgiVersion.length() - VersioningHelper.QUALIFIER.length() - 1);
+
+            unqualifiedMavenVersion = Version.parseVersion(unqualifiedMavenVersion).toString();
+
             if (!unqualifiedMavenVersion.equals(unqualifiedOSGiVersion)) {
-                fail("Unqualified OSGi version " + osgiVersion + " must match unqualified Maven version "
-                        + mavenVersion + " for SNAPSHOT builds");
+                fail("Unqualified OSGi version " + osgiVersion + " must match unqualified Maven version " + mavenVersion
+                        + " for SNAPSHOT builds");
             }
         }
     }
