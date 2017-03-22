@@ -31,8 +31,8 @@ import org.eclipse.tycho.versions.pom.PomFile;
  * @TODO find more specific name that reflects what this class actually does.
  * 
  */
-@Component(role = VersionsEngine.class, instantiationStrategy = "per-lookup")
-public class VersionsEngine {
+@Component(role = SynchronizeVersionsEngine.class, instantiationStrategy = "per-lookup")
+public class SynchronizeVersionsEngine {
 
     private static class PropertyChange {
         final PomFile pom;
@@ -51,7 +51,7 @@ public class VersionsEngine {
     @Requirement
     private Logger logger;
 
-    @Requirement(hints = { "pom", "bundle-manifest", "eclipse-repository", "eclipse-application",
+    @Requirement(hints = { "bundle-manifest-synchronizer", "eclipse-repository", "eclipse-application",
             "eclipse-repository-products", "eclipse-feature", "p2-installable-unit", "eclipse-update-site" })
     private List<MetadataManipulator> manipulators;
 
@@ -81,9 +81,10 @@ public class VersionsEngine {
     public void addVersionChange(String artifactId, String newVersion) throws IOException {
         PomFile pom = getMutablePom(artifactId);
 
-        if (!newVersion.equals(pom.getVersion())) {
-            addVersionChange(new VersionChange(pom, newVersion));
-        }
+        //if (!newVersion.equals(pom.getVersion())) {
+        //We want to synchronize metadata
+        addVersionChange(new VersionChange(pom, newVersion));
+        //}
     }
 
     private PomFile getMutablePom(String artifactId) throws IOException {
@@ -107,14 +108,9 @@ public class VersionsEngine {
                 new DefaultVersionRangeUpdateStrategy(updateVersionRangeMatchingBounds));
 
         // collecting secondary changes
-        boolean newChanges = true;
-        while (newChanges) {
-            newChanges = false;
-            for (ProjectMetadata project : projects) {
-                for (MetadataManipulator manipulator : manipulators) {
-                    newChanges |= manipulator.addMoreChanges(project, versionChangeContext);
-                }
-            }
+        for (ProjectMetadata project : projects) {
+            PomFile pom = project.getMetadata(PomFile.class);
+            versionChangeContext.addVersionChange(new VersionChange(pom, pom.getVersion(), pom.getVersion()));
         }
 
         // validate version changes can be implemented

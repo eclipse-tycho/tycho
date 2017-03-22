@@ -76,7 +76,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private Set<PackageVersionChange> computeExportedPackageChanges(ProjectMetadata project,
+    protected Set<PackageVersionChange> computeExportedPackageChanges(ProjectMetadata project,
             VersionChangesDescriptor versionChangeContext) {
         VersionChange versionChangeForProject = findVersionChangeForProject(project, versionChangeContext);
         if (versionChangeForProject == null) {
@@ -100,7 +100,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         return packageVersionChanges;
     }
 
-    private VersionChange findVersionChangeForProject(ProjectMetadata project,
+    protected VersionChange findVersionChangeForProject(ProjectMetadata project,
             VersionChangesDescriptor versionChangeContext) {
         MutableBundleManifest mf = getBundleManifest(project);
         VersionChange versionChangeForProject = versionChangeContext
@@ -112,7 +112,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void updateBundleAndExportPackageVersions(ProjectMetadata project,
+    protected void updateBundleAndExportPackageVersions(ProjectMetadata project,
             VersionChangesDescriptor versionChangeContext) {
         MutableBundleManifest mf = getBundleManifest(project);
         VersionChange versionChangeForProject = findVersionChangeForProject(project, versionChangeContext);
@@ -136,7 +136,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void updateFragmentHostVersion(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
+    protected void updateFragmentHostVersion(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         MutableBundleManifest mf = getBundleManifest(project);
         if (mf.isFragment()) {
             VersionChange versionChange = versionChangeContext
@@ -152,7 +152,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void updateRequireBundleVersions(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
+    protected void updateRequireBundleVersions(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         MutableBundleManifest mf = getBundleManifest(project);
         Map<String, String> requiredBundleVersions = mf.getRequiredBundleVersions();
         Map<String, String> versionsToUpdate = new HashMap<>();
@@ -168,7 +168,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         mf.updateRequiredBundleVersions(versionsToUpdate);
     }
 
-    private void updateImportPackageVersions(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
+    protected void updateImportPackageVersions(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         MutableBundleManifest mf = getBundleManifest(project);
         Map<String, String> importedPackageNewVersions = new HashMap<>();
         for (Entry<String, String> importPackageVersions : mf.getImportPackagesVersions().entrySet()) {
@@ -189,7 +189,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         mf.updateImportedPackageVersions(importedPackageNewVersions);
     }
 
-    private MutableBundleManifest getBundleManifest(ProjectMetadata project) {
+    protected MutableBundleManifest getBundleManifest(ProjectMetadata project) {
         MutableBundleManifest mf = project.getMetadata(MutableBundleManifest.class);
         if (mf == null) {
             File file = getManifestFile(project);
@@ -203,7 +203,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         return mf;
     }
 
-    private File getManifestFile(ProjectMetadata project) {
+    protected File getManifestFile(ProjectMetadata project) {
         return new File(project.getBasedir(), "META-INF/MANIFEST.MF");
     }
 
