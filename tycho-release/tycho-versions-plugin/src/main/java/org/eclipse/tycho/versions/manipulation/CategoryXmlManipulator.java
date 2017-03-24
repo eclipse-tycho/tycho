@@ -47,7 +47,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void updateFeatureReferences(VersionChange featureVersionChange, ProjectMetadata project) {
+    protected void updateFeatureReferences(VersionChange featureVersionChange, ProjectMetadata project) {
         Category categoryXml = getCategoryXml(project);
         if (categoryXml == null) {
             return;
@@ -55,7 +55,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         for (SiteFeatureRef feature : categoryXml.getFeatures()) {
             String featureId = featureVersionChange.getArtifactId();
             String srcFeatureId = featureId + SOURCE_FEATURE_SUFFIX;
-            if ((featureId.equals(feature.getId()) || srcFeatureId.equals(feature.getId())) 
+            if ((featureId.equals(feature.getId()) || srcFeatureId.equals(feature.getId()))
                     && featureVersionChange.getVersion().equals(feature.getVersion())) {
                 logger.info("  category.xml//site/feature[@id=" + feature.getId() + "]/@version: "
                         + featureVersionChange.getVersion() + " => " + featureVersionChange.getNewVersion());
