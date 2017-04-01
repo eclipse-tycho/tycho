@@ -15,14 +15,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.versions.pom.PomFile;
 import org.junit.Assert;
 import org.junit.Test;
+
+import de.pdark.decentxml.XMLParseException;
 
 public class MutablePomFileTest {
 
@@ -130,6 +134,19 @@ public class MutablePomFileTest {
         subject = getPom("/poms/inheritedVersion_changedProjectVersionWithoutFollowingSpace.xml");
         subject.setVersion("1.0.2");
         assertContent(subject, "/poms/inheritedVersion.xml");
+    }
+
+    @Test(expected = XMLParseException.class)
+    public void testCompileMessage() throws Exception {
+        File pomFile = null;
+        try {
+            URL url = getClass().getResource("/poms/compilemessage.xml");
+            pomFile = new File(url.toURI());
+            PomFile.read(pomFile, true);
+        } catch (Exception pe) {
+            Assert.assertEquals("This Pom " + pomFile.getAbsolutePath() + " is in the Wrong Format", pe.getMessage());
+            throw pe;
+        }
     }
 
     private PomFile getPom(String path) throws IOException {
