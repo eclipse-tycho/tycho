@@ -33,6 +33,7 @@ import de.pdark.decentxml.Element;
 import de.pdark.decentxml.Node;
 import de.pdark.decentxml.Text;
 import de.pdark.decentxml.XMLIOSource;
+import de.pdark.decentxml.XMLParseException;
 import de.pdark.decentxml.XMLParser;
 import de.pdark.decentxml.XMLWriter;
 
@@ -70,6 +71,8 @@ public class PomFile {
         InputStream is = new BufferedInputStream(new FileInputStream(file));
         try {
             return read(is, isMutable);
+        } catch (XMLParseException xpe) {
+            throw new XMLParseException("This Pom " + file.getAbsolutePath() + " is in the Wrong Format", xpe);
         } finally {
             IOUtil.close(is);
         }
