@@ -353,6 +353,21 @@ public class VersionsEngineTest extends AbstractVersionChangeTest {
         engine.apply();
     }
 
+    public void testTargetPlatform() throws Exception {
+        File basedir = TestUtil.getBasedir("projects/targetplatform");
+
+        VersionsEngine engine = newEngine(basedir);
+        engine.addVersionChange("parent", "0.2.0.qualifier");
+        engine.apply();
+
+        assertPom(basedir);
+
+        assertPom(new File(basedir, "bundle01"));
+        assertBundleManifest(new File(basedir, "bundle01"));
+
+        assertPom(new File(basedir, "targetplatform"));
+    }
+
     private VersionsEngine newEngine(File basedir) throws Exception {
         VersionsEngine engine = lookup(VersionsEngine.class);
         ProjectMetadataReader reader = lookup(ProjectMetadataReader.class);

@@ -146,13 +146,23 @@ public class PomManipulator extends AbstractMetadataManipulator {
                 pluginGAV.setVersion(newVersion);
             }
 
-            for (GAV dependency : plugin.getDependencies()) {
-                if (isGavEquals(dependency, change)) {
-                    logger.info(pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId()
-                            + " ] /dependencies/dependency/[ " + dependency.getGroupId() + ":"
-                            + dependency.getArtifactId() + " ] " + version + " => " + newVersion);
-                    dependency.setVersion(newVersion);
-                }
+            changePlugins(pomPath, pluginGAV, change, version, newVersion, "/dependencies/dependency/",
+                    plugin.getDependencies());
+            changePlugins(pomPath, pluginGAV, change, version, newVersion, "/configuration/target/artifact/",
+                    plugin.getTargetArtifacts());
+
+        }
+    }
+
+    // change version of list of GAV in a plugin
+    private void changePlugins(String pomPath, GAV pluginGAV, VersionChange change, String version, String newVersion,
+            String subPath, List<GAV> gavs) {
+        for (GAV targetArtifact : gavs) {
+            if (isGavEquals(targetArtifact, change)) {
+                logger.info(pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] " + subPath
+                        + "[ " + targetArtifact.getGroupId() + ":" + targetArtifact.getArtifactId() + " ] " + version
+                        + " => " + newVersion);
+                targetArtifact.setVersion(newVersion);
             }
         }
     }
