@@ -36,4 +36,20 @@ public class Plugin {
         }
         return result;
     }
+
+    public List<GAV> getTargetArtifacts() {
+        ArrayList<GAV> result = new ArrayList<>();
+        Element configuration = plugin.getChild("configuration");
+        if (configuration == null) {
+            return result;
+        }
+        Element target = configuration.getChild("target");
+        if (target == null) {
+            return result;
+        }
+        for (Element artifact : target.getChildren("artifact")) {
+            result.add(new GAV(artifact));
+        }
+        return result;
+    }
 }
