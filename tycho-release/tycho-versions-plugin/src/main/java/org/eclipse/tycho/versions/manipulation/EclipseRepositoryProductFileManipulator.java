@@ -23,9 +23,9 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProductConfigurations;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
-import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.PomFile;
@@ -39,7 +39,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
         if (!isEclipseRepository(project)) {
             return;
         }
-        for (VersionChange change : versionChangeContext.getVersionChanges()) {
+        for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
             for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
                 applyChangeToProduct(project, entry.getValue(), entry.getKey().getName(), change);
             }
@@ -49,7 +49,7 @@ public class EclipseRepositoryProductFileManipulator extends ProductFileManipula
     @Override
     public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isEclipseRepository(project)) {
-            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+            for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
                 ArrayList<String> errors = new ArrayList<>();
                 for (Map.Entry<File, ProductConfiguration> entry : getProductConfigurations(project).entrySet()) {
                     if (isSameProject(project, change.getProject())

@@ -14,14 +14,14 @@ package org.eclipse.tycho.versions.manipulation;
 import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.ProductConfiguration;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
-import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.pom.PomFile;
 
 public abstract class ProductFileManipulator extends AbstractMetadataManipulator {
 
     protected void applyChangeToProduct(ProjectMetadata project, ProductConfiguration product, String productFileName,
-            VersionChange change) {
+            PomVersionChange change) {
         if (isSameProject(project, change.getProject())) {
             // in eclipse-repository, change.getArtifactId() doesn't have to match product.getId()
             if (change.getVersion().equals(product.getVersion())) {
@@ -39,7 +39,8 @@ public abstract class ProductFileManipulator extends AbstractMetadataManipulator
             }
         } else if (isFeature(change.getProject().getPackaging())) {
             for (FeatureRef feature : product.getFeatures()) {
-                if (change.getArtifactId().equals(feature.getId()) && change.getVersion().equals(feature.getVersion())) {
+                if (change.getArtifactId().equals(feature.getId())
+                        && change.getVersion().equals(feature.getVersion())) {
                     logger.info("  " + productFileName + "//product/features/feature/@id=" + feature.getId()
                             + "/@version: " + change.getVersion() + " => " + change.getNewVersion());
                     feature.setVersion(change.getNewVersion());

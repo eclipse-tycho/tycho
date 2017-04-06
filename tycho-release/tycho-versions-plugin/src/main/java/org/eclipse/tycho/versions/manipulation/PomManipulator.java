@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
-import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.Versions;
 import org.eclipse.tycho.versions.pom.Build;
@@ -45,11 +45,11 @@ public class PomManipulator extends AbstractMetadataManipulator {
         GAV parent = pom.getParent();
 
         boolean moreChanges = false;
-        for (VersionChange change : versionChangeContext.getVersionChanges()) {
+        for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
             if (parent != null && isGavEquals(parent, change)) {
                 if (isVersionEquals(pom.getVersion(), change.getVersion())) {
                     moreChanges |= versionChangeContext
-                            .addVersionChange(new VersionChange(pom, change.getVersion(), change.getNewVersion()));
+                            .addVersionChange(new PomVersionChange(pom, change.getVersion(), change.getNewVersion()));
                 }
             }
         }
@@ -66,7 +66,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
         }
         // TODO visitor pattern is a better way to implement this
 
-        for (VersionChange change : versionChangeContext.getVersionChanges()) {
+        for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
             String version = Versions.toMavenVersion(change.getVersion());
             String newVersion = Versions.toMavenVersion(change.getNewVersion());
             if (isGavEquals(pom, change)) {
@@ -106,14 +106,14 @@ public class PomManipulator extends AbstractMetadataManipulator {
     }
 
     protected void changeDependencyManagement(String pomPath, DependencyManagement dependencyManagment,
-            VersionChange change, String version, String newVersion) {
+            PomVersionChange change, String version, String newVersion) {
         if (dependencyManagment != null) {
             changeDependencies(pomPath + "/dependencies", dependencyManagment.getDependencies(), change, version,
                     newVersion);
         }
     }
 
-    protected void changeDependencies(String pomPath, List<GAV> dependencies, VersionChange change, String version,
+    protected void changeDependencies(String pomPath, List<GAV> dependencies, PomVersionChange change, String version,
             String newVersion) {
         for (GAV dependency : dependencies) {
             if (isGavEquals(dependency, change)) {
@@ -124,7 +124,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void changeBuild(String pomPath, Build build, VersionChange change, String version, String newVersion) {
+    private void changeBuild(String pomPath, Build build, PomVersionChange change, String version, String newVersion) {
         if (build == null) {
             return;
         }
@@ -136,7 +136,7 @@ public class PomManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void changePlugins(String pomPath, List<Plugin> plugins, VersionChange change, String version,
+    private void changePlugins(String pomPath, List<Plugin> plugins, PomVersionChange change, String version,
             String newVersion) {
         for (Plugin plugin : plugins) {
             GAV pluginGAV = plugin.getGAV();
@@ -155,8 +155,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
     }
 
     // change version of list of GAV in a plugin
-    private void changePlugins(String pomPath, GAV pluginGAV, VersionChange change, String version, String newVersion,
-            String subPath, List<GAV> gavs) {
+    private void changePlugins(String pomPath, GAV pluginGAV, PomVersionChange change, String version,
+            String newVersion, String subPath, List<GAV> gavs) {
         for (GAV targetArtifact : gavs) {
             if (isGavEquals(targetArtifact, change)) {
                 logger.info(pomPath + "/[ " + pluginGAV.getGroupId() + ":" + pluginGAV.getArtifactId() + " ] " + subPath
@@ -167,18 +167,18 @@ public class PomManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private static boolean isGavEquals(PomFile pom, VersionChange change) {
+    private static boolean isGavEquals(PomFile pom, PomVersionChange change) {
         // TODO replace with isGavEquals(pom.getEffectiveGav(), change)
         return eq(change.getGroupId(), pom.getGroupId()) && eq(change.getArtifactId(), pom.getArtifactId())
                 && isVersionEquals(change.getVersion(), pom.getVersion());
     }
 
-    public static boolean isGavEquals(GAV gav, VersionChange change) {
+    public static boolean isGavEquals(GAV gav, PomVersionChange change) {
         return eq(change.getGroupId(), gav.getGroupId()) && eq(change.getArtifactId(), gav.getArtifactId())
                 && isVersionEquals(change.getVersion(), gav.getVersion());
     }
 
-    public static boolean isPluginGavEquals(GAV gav, VersionChange change) {
+    public static boolean isPluginGavEquals(GAV gav, PomVersionChange change) {
         String groupId = gav.getGroupId() != null ? gav.getGroupId() : "org.apache.maven.plugins";
         return eq(change.getGroupId(), groupId) && eq(change.getArtifactId(), gav.getArtifactId())
                 && isVersionEquals(change.getVersion(), gav.getVersion());
