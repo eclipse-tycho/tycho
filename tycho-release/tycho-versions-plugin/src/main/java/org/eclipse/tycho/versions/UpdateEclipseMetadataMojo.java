@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Sonatype Inc. - initial API and implementation
+ *    Guillaume Dufour - Support for release-process like Maven
  *******************************************************************************/
 package org.eclipse.tycho.versions;
 
@@ -19,33 +19,31 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.eclipse.tycho.versions.engine.PomVersionUpdater;
+import org.eclipse.tycho.versions.engine.EclipseVersionUpdater;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 
 /**
- * Update pom.xml version to match corresponding Eclipse/OSGi metadata.
- * 
- * @author igor
+ * Update Eclipse/OSGi metadata (MANIFEST.MF, feature.xml, product.xml) version to match
+ * corresponding pom.xml.
  */
-@Mojo(name = "update-pom", aggregator = true, requiresDirectInvocation = true)
-public class UpdatePomMojo extends AbstractMojo {
+@Mojo(name = "update-eclipse-metadata", aggregator = true, requiresDirectInvocation = true)
+public class UpdateEclipseMetadataMojo extends AbstractMojo {
 
     @Parameter(property = "session", readonly = true)
-    protected MavenSession session;
+    private MavenSession session;
 
     @Component
-    protected ProjectMetadataReader pomReader;
+    private ProjectMetadataReader pomReader;
 
-    @Requirement
-    private PomVersionUpdater pomUpdater;
+    @Component
+    private EclipseVersionUpdater metadataUpdater;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             pomReader.addBasedir(session.getCurrentProject().getBasedir());
-            pomUpdater.setProjects(pomReader.getProjects());
-            pomUpdater.apply();
+            metadataUpdater.setProjects(pomReader.getProjects());
+            metadataUpdater.apply();
         } catch (IOException e) {
             throw new MojoExecutionException("Could not set version", e);
         }

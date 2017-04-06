@@ -16,8 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
@@ -58,14 +61,14 @@ import org.eclipse.tycho.versions.engine.VersionsEngine;
  * 
  */
 @Mojo(name = "set-version", aggregator = true, requiresDirectInvocation = true)
-public class SetMojo extends AbstractVersionsMojo {
+public class SetMojo extends AbstractMojo {
     /**
      * <p>
      * The new version to set to the current project and other entities which have the same version
      * as the current project.
      * </p>
      */
-    @Parameter(property = "newVersion", required = true)
+    @Parameter(property = "newVersion", required = true, alias = "developmentVersion")
     private String newVersion;
 
     /**
@@ -99,15 +102,22 @@ public class SetMojo extends AbstractVersionsMojo {
     @Parameter(property = "properties")
     private String properties;
 
+    @Component
+    private VersionsEngine engine;
+
+    @Parameter(property = "session", readonly = true)
+    private MavenSession session;
+
+    @Component
+    private ProjectMetadataReader metadataReader;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (newVersion == null || newVersion.length() == 0) {
             throw new MojoExecutionException("Missing required parameter newVersion");
         }
 
-        VersionsEngine engine = newEngine();
         engine.setUpdateVersionRangeMatchingBounds(updateVersionRangeMatchingBounds);
-        ProjectMetadataReader metadataReader = newProjectMetadataReader();
 
         try {
             metadataReader.addBasedir(session.getCurrentProject().getBasedir());
@@ -126,10 +136,6 @@ public class SetMojo extends AbstractVersionsMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("Could not set version", e);
         }
-    }
-
-    private VersionsEngine newEngine() throws MojoFailureException {
-        return lookup(VersionsEngine.class);
     }
 
     private static List<String> split(String str) {
