@@ -20,29 +20,29 @@ import java.util.Set;
  */
 public class VersionChangesDescriptor {
 
-    private final Set<VersionChange> aritfactsVersionChanges;
+    private final Set<PomVersionChange> aritfactsVersionChanges;
     private final Set<PackageVersionChange> packageVersionChanges;
 
     private final VersionRangeUpdateStrategy versionRangeUpdateStrategy;
 
-    public VersionChangesDescriptor(Set<VersionChange> originalVersionChanges,
+    public VersionChangesDescriptor(Set<PomVersionChange> originalVersionChanges,
             VersionRangeUpdateStrategy versionRangeUpdateStrategy) {
         this.aritfactsVersionChanges = new HashSet<>(originalVersionChanges);
         this.versionRangeUpdateStrategy = versionRangeUpdateStrategy;
         this.packageVersionChanges = new HashSet<>();
     }
 
-    public Set<VersionChange> getVersionChanges() {
+    public Set<PomVersionChange> getVersionChanges() {
         // Creates a copy to avoid concurrent modification exception if used during addMoreChanges phase
         return Collections.unmodifiableSet(new HashSet<>(aritfactsVersionChanges));
     }
 
-    public boolean addVersionChange(VersionChange versionChange) {
+    public boolean addVersionChange(PomVersionChange versionChange) {
         return aritfactsVersionChanges.add(versionChange);
     }
 
     public VersionChange findVersionChangeByArtifactId(String symbolicName) {
-        for (VersionChange versionChange : aritfactsVersionChanges) {
+        for (PomVersionChange versionChange : aritfactsVersionChanges) {
             if (versionChange.getArtifactId().equals(symbolicName)) {
                 return versionChange;
             }

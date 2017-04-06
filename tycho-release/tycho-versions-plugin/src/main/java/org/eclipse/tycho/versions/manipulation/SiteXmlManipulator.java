@@ -23,6 +23,7 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.UpdateSite;
 import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
@@ -34,7 +35,7 @@ public class SiteXmlManipulator extends AbstractMetadataManipulator {
     @Override
     public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isSite(project)) {
-            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+            for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
                 if (isFeature(change.getProject().getPackaging())) {
                     UpdateSite site = getSiteXml(project);
 

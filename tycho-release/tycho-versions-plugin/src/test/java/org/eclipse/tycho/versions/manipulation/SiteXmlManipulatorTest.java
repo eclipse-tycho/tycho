@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import junit.framework.TestCase;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
 
-import org.eclipse.tycho.versions.engine.VersionChange;
+import junit.framework.TestCase;
 
 public class SiteXmlManipulatorTest extends TestCase {
 
@@ -29,7 +29,7 @@ public class SiteXmlManipulatorTest extends TestCase {
 
     private void assertFeatureUrlRewriting(String expectedUrl, String oldUrl, String oldVersion) {
         assertEquals(expectedUrl,
-                new SiteXmlManipulator().rewriteFeatureUrl(oldUrl, new VersionChange(null, oldVersion, "NEW")));
+                new SiteXmlManipulator().rewriteFeatureUrl(oldUrl, new PomVersionChange(null, oldVersion, "NEW")));
     }
 
 }
