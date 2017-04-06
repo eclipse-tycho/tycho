@@ -65,7 +65,7 @@ public class SetMojo extends AbstractVersionsMojo {
      * as the current project.
      * </p>
      */
-    @Parameter(property = "newVersion", required = true)
+    @Parameter(property = "newVersion", required = true, alias = "developmentVersion")
     private String newVersion;
 
     /**

@@ -11,39 +11,18 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
-import org.eclipse.tycho.versions.pom.PomFile;
-
 public class VersionChange {
-    protected final String newVersion;
-
-    private final PomFile pom;
+    private final String newVersion;
 
     private final String version;
 
-    public VersionChange(PomFile pom, String newVersion) {
-        this(pom, pom.getVersion(), newVersion);
-    }
-
-    public VersionChange(PomFile pom, String version, String newVersion) {
-        this.pom = pom;
+    public VersionChange(String version, String newVersion) {
         this.version = Versions.toCanonicalVersion(version);
         this.newVersion = Versions.toCanonicalVersion(newVersion);
     }
 
-    public String getGroupId() {
-        return pom.getGroupId();
-    }
-
-    public String getArtifactId() {
-        return pom.getArtifactId();
-    }
-
     public String getVersion() {
         return version;
-    }
-
-    public PomFile getProject() {
-        return pom;
     }
 
     public String getNewVersion() {
@@ -54,8 +33,6 @@ public class VersionChange {
     public int hashCode() {
         int hash = version.hashCode();
         hash = 17 * hash + newVersion.hashCode();
-        hash = 17 * hash + pom.getGroupId().hashCode();
-        hash = 17 * hash + pom.getArtifactId().hashCode();
         return hash;
     }
 
@@ -71,12 +48,11 @@ public class VersionChange {
 
         VersionChange other = (VersionChange) obj;
 
-        return version.equals(other.version) && newVersion.equals(other.newVersion)
-                && pom.getGroupId().equals(other.pom.getGroupId()) && pom.getArtifactId().equals(other.getArtifactId());
+        return version.equals(other.version) && newVersion.equals(other.newVersion);
     }
 
     @Override
     public String toString() {
-        return pom.getGroupId() + ":" + pom.getArtifactId() + ":" + version + " => " + newVersion;
+        return version + " => " + newVersion;
     }
 }

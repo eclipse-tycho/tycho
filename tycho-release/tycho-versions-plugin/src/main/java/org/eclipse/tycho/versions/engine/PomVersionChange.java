@@ -1,0 +1,68 @@
+/*******************************************************************************
+ * Copyright (c) 2008, 2016 Sonatype Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
+ *******************************************************************************/
+package org.eclipse.tycho.versions.engine;
+
+import org.eclipse.tycho.versions.pom.PomFile;
+
+public class PomVersionChange extends VersionChange {
+    private final PomFile pom;
+
+    public PomVersionChange(PomFile pom, String newVersion) {
+        this(pom, pom.getVersion(), newVersion);
+    }
+
+    public PomVersionChange(PomFile pom, String version, String newVersion) {
+        super(version, newVersion);
+        this.pom = pom;
+    }
+
+    public String getGroupId() {
+        return pom.getGroupId();
+    }
+
+    public String getArtifactId() {
+        return pom.getArtifactId();
+    }
+
+    public PomFile getProject() {
+        return pom;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 17 * hash + pom.getGroupId().hashCode();
+        hash = 17 * hash + pom.getArtifactId().hashCode();
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof PomVersionChange)) {
+            return false;
+        }
+
+        PomVersionChange other = (PomVersionChange) obj;
+
+        return super.equals(other) && pom.getGroupId().equals(other.pom.getGroupId())
+                && pom.getArtifactId().equals(other.getArtifactId());
+    }
+
+    @Override
+    public String toString() {
+        return pom.getGroupId() + ":" + pom.getArtifactId() + ":" + super.toString();
+    }
+}

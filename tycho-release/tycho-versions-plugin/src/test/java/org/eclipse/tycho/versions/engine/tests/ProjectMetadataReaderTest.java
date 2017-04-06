@@ -12,7 +12,7 @@ package org.eclipse.tycho.versions.engine.tests;
 
 import java.io.File;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.codehaus.plexus.PlexusTestCase;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
