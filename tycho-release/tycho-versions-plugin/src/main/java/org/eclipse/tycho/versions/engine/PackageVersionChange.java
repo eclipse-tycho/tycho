@@ -16,18 +16,15 @@ package org.eclipse.tycho.versions.engine;
  * FIXME the equals/hashcode are including the version to follow what was done in
  * {@link VersionChange} however it seems strange to do so even for VersionChange.
  */
-public class PackageVersionChange {
+public class PackageVersionChange extends VersionChange {
 
     private final String packageName;
-    private final String version;
-    private final String newVersion;
     private String bundleSymbolicName;
 
     public PackageVersionChange(String bundleSymbolicName, String packageName, String version, String newVersion) {
+        super(version, newVersion);
         this.bundleSymbolicName = bundleSymbolicName;
         this.packageName = packageName;
-        this.version = version;
-        this.newVersion = newVersion;
     }
 
     public String getBundleSymbolicName() {
@@ -38,22 +35,12 @@ public class PackageVersionChange {
         return packageName;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public String getNewVersion() {
-        return newVersion;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
+        int result = super.hashCode();
         result = prime * result + ((bundleSymbolicName == null) ? 0 : bundleSymbolicName.hashCode());
-        result = prime * result + ((newVersion == null) ? 0 : newVersion.hashCode());
         result = prime * result + ((packageName == null) ? 0 : packageName.hashCode());
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
         return result;
     }
 
@@ -67,12 +54,12 @@ public class PackageVersionChange {
             return false;
         PackageVersionChange other = (PackageVersionChange) obj;
         return bundleSymbolicName.equals(other.bundleSymbolicName) && packageName.equals(other.packageName)
-                && version.equals(other.version) && newVersion.equals(other.newVersion);
+                && super.equals(other);
     }
 
     @Override
     public String toString() {
-        return "PackageVersionChange [" + packageName + ";version=" + version + " => " + newVersion + "]";
+        return "PackageVersionChange [" + packageName + ";version=" + super.toString() + "]";
     }
 
 }

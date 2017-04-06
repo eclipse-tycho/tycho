@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
-import org.eclipse.tycho.versions.engine.VersionChange;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
+import org.junit.Test;
 
-public class SiteXmlManipulatorTest extends TestCase {
+public class SiteXmlManipulatorTest {
 
+    @Test
     public void testFeatureUrlRewriting() {
         assertFeatureUrlRewriting("features/id_NEW.jar", "features/id_1.2.3.jar", "1.2.3");
         assertFeatureUrlRewriting("features/id_NEW.jar", "features/id_1.2.3.qualifier.jar", "1.2.3.qualifier");
@@ -28,8 +30,9 @@ public class SiteXmlManipulatorTest extends TestCase {
     }
 
     private void assertFeatureUrlRewriting(String expectedUrl, String oldUrl, String oldVersion) {
+        new SiteXmlManipulator();
         assertEquals(expectedUrl,
-                new SiteXmlManipulator().rewriteFeatureUrl(oldUrl, new VersionChange(null, oldVersion, "NEW")));
+                SiteXmlManipulator.rewriteFeatureUrl(oldUrl, new PomVersionChange(null, oldVersion, "NEW")));
     }
 
 }

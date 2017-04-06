@@ -24,8 +24,8 @@ import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.model.UpdateSite.SiteFeatureRef;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
-import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.pom.PomFile;
 
@@ -37,7 +37,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
     @Override
     public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isEclipseRepository(project)) {
-            for (VersionChange versionChange : versionChangeContext.getVersionChanges()) {
+            for (PomVersionChange versionChange : versionChangeContext.getVersionChanges()) {
                 if (isFeature(versionChange.getProject().getPackaging())) {
                     updateFeatureReferences(versionChange, project);
                 } else if (isBundle(versionChange.getProject())) {
@@ -47,7 +47,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void updateFeatureReferences(VersionChange featureVersionChange, ProjectMetadata project) {
+    private void updateFeatureReferences(PomVersionChange featureVersionChange, ProjectMetadata project) {
         Category categoryXml = getCategoryXml(project);
         if (categoryXml == null) {
             return;
@@ -55,7 +55,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         for (SiteFeatureRef feature : categoryXml.getFeatures()) {
             String featureId = featureVersionChange.getArtifactId();
             String srcFeatureId = featureId + SOURCE_FEATURE_SUFFIX;
-            if ((featureId.equals(feature.getId()) || srcFeatureId.equals(feature.getId())) 
+            if ((featureId.equals(feature.getId()) || srcFeatureId.equals(feature.getId()))
                     && featureVersionChange.getVersion().equals(feature.getVersion())) {
                 logger.info("  category.xml//site/feature[@id=" + feature.getId() + "]/@version: "
                         + featureVersionChange.getVersion() + " => " + featureVersionChange.getNewVersion());
@@ -72,7 +72,7 @@ public class CategoryXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void updatePluginReferences(VersionChange pluginVersionChange, ProjectMetadata project) {
+    private void updatePluginReferences(PomVersionChange pluginVersionChange, ProjectMetadata project) {
         Category categoryXml = getCategoryXml(project);
         if (categoryXml == null) {
             return;

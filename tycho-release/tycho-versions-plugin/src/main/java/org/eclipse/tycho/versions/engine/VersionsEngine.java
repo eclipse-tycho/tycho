@@ -59,7 +59,7 @@ public class VersionsEngine {
 
     private Collection<ProjectMetadata> projects;
 
-    private Set<VersionChange> originalVersionChanges = new LinkedHashSet<>();
+    private Set<PomVersionChange> originalVersionChanges = new LinkedHashSet<>();
 
     private Set<PropertyChange> propertyChanges = new LinkedHashSet<>();
 
@@ -81,7 +81,7 @@ public class VersionsEngine {
         PomFile pom = getMutablePom(artifactId);
 
         if (!newVersion.equals(pom.getVersion())) {
-            addVersionChange(new VersionChange(pom, newVersion));
+            addVersionChange(new PomVersionChange(pom, newVersion));
         }
     }
 
@@ -96,7 +96,7 @@ public class VersionsEngine {
         return project.getMetadata(PomFile.class);
     }
 
-    public void addVersionChange(VersionChange change) {
+    public void addVersionChange(PomVersionChange change) {
         originalVersionChanges.add(change);
     }
 

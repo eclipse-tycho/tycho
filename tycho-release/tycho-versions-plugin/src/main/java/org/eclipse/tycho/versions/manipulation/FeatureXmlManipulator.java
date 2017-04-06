@@ -24,8 +24,8 @@ import org.eclipse.tycho.model.FeatureRef;
 import org.eclipse.tycho.model.PluginRef;
 import org.eclipse.tycho.versions.engine.ImportRefVersionConstraint;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
-import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
 import org.eclipse.tycho.versions.engine.VersionRangeUpdateStrategy;
 import org.eclipse.tycho.versions.engine.Versions;
@@ -37,7 +37,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
     public void applyChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isFeature(project)) {
             Feature feature = getFeatureXml(project);
-            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+            for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
                 if (isFeature(change.getProject().getPackaging())) {
                     if (change.getArtifactId().equals(feature.getId())
                             && change.getVersion().equals(feature.getVersion())) {
@@ -61,7 +61,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
     public Collection<String> validateChanges(ProjectMetadata project, VersionChangesDescriptor versionChangeContext) {
         if (isFeature(project)) {
             Feature feature = getFeatureXml(project);
-            for (VersionChange change : versionChangeContext.getVersionChanges()) {
+            for (PomVersionChange change : versionChangeContext.getVersionChanges()) {
                 if (change.getArtifactId().equals(feature.getId())
                         && change.getVersion().equals(feature.getVersion())) {
                     String error = Versions.validateOsgiVersion(change.getNewVersion(), getFeatureFile(project));
@@ -72,7 +72,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
         return null;
     }
 
-    private void changeLicenseFeature(VersionChange change, Feature feature) {
+    private void changeLicenseFeature(PomVersionChange change, Feature feature) {
         if (change.getArtifactId().equals(feature.getLicenseFeature())
                 && change.getVersion().equals(feature.getLicenseFeatureVersion())) {
             logger.info("  feature.xml//feature/@license-feature='" + feature.getLicenseFeature()
@@ -81,7 +81,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void changeIncludedFeatures(VersionChange change, Feature feature) {
+    private void changeIncludedFeatures(PomVersionChange change, Feature feature) {
         for (FeatureRef ref : feature.getIncludedFeatures()) {
             if (change.getArtifactId().equals(ref.getId()) && change.getVersion().equals(ref.getVersion())) {
                 logger.info("  feature.xml//feature/includes/@id='" + ref.getId() + "'/@version: " + change.getVersion()
@@ -91,7 +91,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void changeIncludedPlugins(VersionChange change, Feature feature) {
+    private void changeIncludedPlugins(PomVersionChange change, Feature feature) {
         for (PluginRef plugin : feature.getPlugins()) {
             if (change.getArtifactId().equals(plugin.getId()) && change.getVersion().equals(plugin.getVersion())) {
                 logger.info("  feature.xml//feature/plugin/@id='" + plugin.getId() + "'/@version: "
@@ -101,7 +101,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
         }
     }
 
-    private void changeRequiredFeatures(VersionChange featureVersionChange, Feature feature,
+    private void changeRequiredFeatures(PomVersionChange featureVersionChange, Feature feature,
             VersionRangeUpdateStrategy versionRangeUpdateStrategy) {
 
         for (RequiresRef ref : feature.getRequires()) {
@@ -138,7 +138,7 @@ public class FeatureXmlManipulator extends AbstractMetadataManipulator {
      * @param feature
      * @param versionRangeUpdateStrategy
      */
-    private void changeRequiredPlugins(VersionChange bundleVersionChange, Feature feature,
+    private void changeRequiredPlugins(PomVersionChange bundleVersionChange, Feature feature,
             VersionRangeUpdateStrategy versionRangeUpdateStrategy) {
         for (RequiresRef ref : feature.getRequires()) {
             for (ImportRef importRef : ref.getImports()) {

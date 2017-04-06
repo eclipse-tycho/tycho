@@ -25,6 +25,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
 import org.eclipse.tycho.versions.engine.MetadataManipulator;
 import org.eclipse.tycho.versions.engine.PackageVersionChange;
+import org.eclipse.tycho.versions.engine.PomVersionChange;
 import org.eclipse.tycho.versions.engine.ProjectMetadata;
 import org.eclipse.tycho.versions.engine.VersionChange;
 import org.eclipse.tycho.versions.engine.VersionChangesDescriptor;
@@ -156,7 +157,7 @@ public class BundleManifestManipulator extends AbstractMetadataManipulator {
         MutableBundleManifest mf = getBundleManifest(project);
         Map<String, String> requiredBundleVersions = mf.getRequiredBundleVersions();
         Map<String, String> versionsToUpdate = new HashMap<>();
-        for (VersionChange versionChange : versionChangeContext.getVersionChanges()) {
+        for (PomVersionChange versionChange : versionChangeContext.getVersionChanges()) {
             String bundleSymbolicName = versionChange.getArtifactId();
             if (requiredBundleVersions.containsKey(bundleSymbolicName)) {
                 String originalVersionRange = requiredBundleVersions.get(bundleSymbolicName);
