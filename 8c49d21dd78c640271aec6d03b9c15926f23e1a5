@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87bd33cc_16f6d102",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/SetMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-04-07T10:03:48Z",
+      "side": 1,
+      "message": "is the alias needed for consistency with other maven plugins?",
+      "range": {
+        "startLine": 68,
+        "startChar": 57,
+        "endLine": 68,
+        "endChar": 62
+      },
+      "revId": "8c49d21dd78c640271aec6d03b9c15926f23e1a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87bd33cc_36ccaddf",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/UpdateEclipseMetadataMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-04-07T10:03:48Z",
+      "side": 1,
+      "message": "correct copyright header",
+      "range": {
+        "startLine": 10,
+        "startChar": 1,
+        "endLine": 10,
+        "endChar": 81
+      },
+      "revId": "8c49d21dd78c640271aec6d03b9c15926f23e1a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87bd33cc_16cfb1d6",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/UpdateEclipseMetadataMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-04-07T10:03:48Z",
+      "side": 1,
+      "message": "remove copied @author tag",
+      "range": {
+        "startLine": 25,
+        "startChar": 3,
+        "endLine": 25,
+        "endChar": 15
+      },
+      "revId": "8c49d21dd78c640271aec6d03b9c15926f23e1a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87bd33cc_9602e17e",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/UpdateEclipseMetadataMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-04-07T10:03:48Z",
+      "side": 1,
+      "message": "looks to me like this class is similar to another proposed patch https://git.eclipse.org/r/#/c/93786/\n\nIf we do not need https://git.eclipse.org/r/#/c/93786/ anymore please abandon (or handle the two separately).  Don\u0027t mix up things across several proposed changes in gerrit as this makes them very hard to review.",
+      "range": {
+        "startLine": 28,
+        "startChar": 13,
+        "endLine": 28,
+        "endChar": 38
+      },
+      "revId": "8c49d21dd78c640271aec6d03b9c15926f23e1a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87bd33cc_b607dd8e",
+        "filename": "tycho-release/tycho-versions-plugin/src/main/java/org/eclipse/tycho/versions/engine/EclipseVersionUpdater.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-04-07T10:03:48Z",
+      "side": 1,
+      "message": "fix copyright",
+      "range": {
+        "startLine": 12,
+        "startChar": 1,
+        "endLine": 12,
+        "endChar": 81
+      },
+      "revId": "8c49d21dd78c640271aec6d03b9c15926f23e1a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87bd33cc_d6fc59e7",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/java/org/eclipse/tycho/versions/engine/tests/EclipseVersionUpdaterTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-04-07T10:03:48Z",
+      "side": 1,
+      "message": "fix copyright",
+      "revId": "8c49d21dd78c640271aec6d03b9c15926f23e1a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87bd33cc_f6015579",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/java/org/eclipse/tycho/versions/manipulation/SiteXmlManipulatorTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-04-07T10:03:48Z",
+      "side": 1,
+      "message": "looks like an unrelated junit3-\u003ejunit4 refactoring to me",
+      "range": {
+        "startLine": 20,
+        "startChar": 5,
+        "endLine": 20,
+        "endChar": 9
+      },
+      "revId": "8c49d21dd78c640271aec6d03b9c15926f23e1a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
