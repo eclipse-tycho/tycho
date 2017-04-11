@@ -14,22 +14,17 @@ Tycho.setup is an Eclipse Installer (Oomph) setup file that does
 Usage for contributors:
 -----------------------
 
-The Tycho.setup file is not part of the Eclipse Installer Project Catalog yet, so the Tycho.setup file must be downloaded and opened by the Eclipse Installer manually. 
+The Tycho.setup file is part of the Eclipse Installer Project Catalog, so the Tycho.setup file doesn't have to be downloaded manually.
 
   * Download the [Eclipse Installer](https://wiki.eclipse.org/Eclipse_Installer)
-  * Download the Tycho.setup file
   * Run the Eclipse Installer
   * Switch to the Advanced Mode (Menu->"Advanced Mode...")
   * Select "Eclipse IDE for Eclipse Committers"
-  * Select "Latest Release (Mars)" as "Product Version" and select either 32 or 64 bit version.
-  * Choose one of the installed JREs (must be 1.7+) as "Java 1.7+ VM"
+  * Select "Latest Release (Neon)" as "Product Version" and select either 32 or 64 bit version.
+  * Choose one of the installed JREs (must be 1.8+) as "Java 1.8+ VM"
   * Click "Next"
-  * The "Eclipse Projects" and "Github Projects" catalogs are shown. Since the Tycho.setup file is not part of the catalog yet, 
-    you have to Drag and Drop the Tycho.setup file into this view 
-    (Note: It must be dropped either on the folder "Eclipse.org" or the "Github.com")
-  * Now there must be a <User>/Tycho entry in the container where you dropped the Tycho.setup file. 
-  * Double click (Single click is not enough!) on the <User>/Tycho entry will select the Tycho.setup to be executed. Make sure that <User>/Tycho is shown in the table on the bottom.
-  * Click "Next" to get the the Variables page
+  * Find and select "Tycho" under the "Eclipse Projects" catalog. Make sure that Tycho is shown in the table on the bottom.
+  * Click "Next" to get the Variables page
   * You can edit the values used by the setup process (e.g. the "Installation Folder"). If you want to choose the Install Folder and "Root install folder", you have to select "Show all variables" at the bottom of the page. Then you are also able to specify the location where Eclipse will be installed. You do not have to select the Target Platform here, this will be set later automatically.
   * Click "Next"
   * Pressing "Finished" on the "Confirmation" page will start the installation process. 
