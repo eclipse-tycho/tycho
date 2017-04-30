@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="osgi.enterprise" version="0.0.0"/>
+   <category-def name="Test Category" label="Test Category Label">
+      <description>
+         Test Category Description
+      </description>
+   </category-def>
+   <repository-reference location="http://download.eclipse.org/releases/neon/" enabled="true" />
+   <repository-reference location="http://download.eclipse.org/releases/luna/" enabled="false" />
+</site>
