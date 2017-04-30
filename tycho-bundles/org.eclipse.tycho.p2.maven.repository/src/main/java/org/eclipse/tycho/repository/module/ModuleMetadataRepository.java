@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -29,9 +30,11 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.tycho.p2.maven.repository.AbstractMetadataRepository2;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
+import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO.ReadXmlResult;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 
 /**
@@ -54,17 +57,14 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
     private File storage;
 
     private Set<IInstallableUnit> units = new LinkedHashSet<>();
+    private Set<IRepositoryReference> repositories = new LinkedHashSet<IRepositoryReference>();
 
     public ModuleMetadataRepository(IProvisioningAgent agent, File location) throws ProvisionException {
         super(agent, generateName(location), REPOSITORY_TYPE, location);
         setLocation(location.toURI());
 
         this.storage = getStorageFile(location);
-        if (storage.isFile()) {
-            load();
-        } else {
-            storeOrThrowProvisioningException();
-        }
+        save();
     }
 
     private static String generateName(File location) {
@@ -76,7 +76,9 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
         try {
             MetadataIO io = new MetadataIO();
             FileInputStream is = new FileInputStream(storage);
-            units.addAll(io.readXML(is));
+            ReadXmlResult xmlResult = io.readXML(is);
+            units.addAll(xmlResult.getUnits());
+            repositories.addAll(xmlResult.getRepoRefs());
 
         } catch (IOException e) {
             String message = "I/O error while reading repository from " + storage;
@@ -110,7 +112,7 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
     private void storeWithoutExceptionHandling() throws IOException {
         storage.getParentFile().mkdirs();
         MetadataIO io = new MetadataIO();
-        io.writeXML(units, storage);
+        io.writeXML(units, repositories, storage);
     }
 
     @Override
@@ -142,8 +144,6 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
         storeOrThrowRuntimeException();
     }
 
-    // TODO support references? they could come from feature.xmls...
-
     File getPersistenceFile() {
         return storage;
     }
@@ -155,5 +155,30 @@ class ModuleMetadataRepository extends AbstractMetadataRepository2 {
 
     private static File getStorageFile(File repositoryDir) {
         return new File(repositoryDir, RepositoryLayoutHelper.FILE_NAME_P2_METADATA);
+    }
+
+    @Override
+    public void addReferences(Collection<? extends IRepositoryReference> references) {
+        if (repositories.addAll(references)) {
+            try {
+                save();
+            } catch (ProvisionException e) {
+                String message = "Unable to add repository references in " + storage;
+                throw new RuntimeException(message, e);
+            }
+        }
+    }
+
+    private void save() throws ProvisionException {
+        if (storage.isFile()) {
+            load();
+        } else {
+            storeOrThrowProvisioningException();
+        }
+    }
+
+    @Override
+    public Collection<IRepositoryReference> getReferences() {
+        return Collections.unmodifiableSet(repositories);
     }
 }

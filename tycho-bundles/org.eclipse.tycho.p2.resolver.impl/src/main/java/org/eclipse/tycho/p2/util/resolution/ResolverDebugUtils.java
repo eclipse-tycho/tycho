@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 
 class ResolverDebugUtils {
@@ -38,7 +39,7 @@ class ResolverDebugUtils {
             try {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 try {
-                    new MetadataIO().writeXML(new LinkedHashSet<>(ius), os);
+                    new MetadataIO().writeXML(new LinkedHashSet<>(ius), new LinkedHashSet<IRepositoryReference>(), os);
                 } finally {
                     os.close();
                 }
