@@ -18,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.tycho.p2.maven.repository.AbstractMavenMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
 import org.eclipse.tycho.p2.repository.GAV;
@@ -80,6 +81,7 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
 
         for (GAV gav : changedGAVs) {
             Set<IInstallableUnit> gavUnits = unitsMap.get(gav);
+            Set<IRepositoryReference> repoRefUnits = repoRefMap.get(gav);
 
             if (gavUnits != null && !gavUnits.isEmpty()) {
                 String relpath = RepositoryLayoutHelper.getRelativePath(gav,
@@ -89,7 +91,7 @@ public class LocalMetadataRepository extends AbstractMavenMetadataRepository {
                 file.getParentFile().mkdirs();
 
                 try {
-                    io.writeXML(gavUnits, file);
+                    io.writeXML(gavUnits, repoRefUnits, file);
 
                     metadataIndex.addGav(gav);
                 } catch (IOException e) {
