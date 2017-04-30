@@ -76,7 +76,7 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
         FileInputStream inputStream = new FileInputStream(p2MetadataFile.getLocation());
         try {
             MetadataIO io = new MetadataIO();
-            return io.readXML(inputStream);
+            return io.readXML(inputStream).getUnits();
         } finally {
             inputStream.close();
         }
@@ -88,10 +88,12 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
             if (classifier == null ? artifact.getClassifier() == null : classifier.equals(artifact.getClassifier())) {
                 mavenInstallableUnits.put(unit, artifact);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("P2Resolver: artifact "
-                            + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion())
-                                    .toString() + " at location " + artifact.getLocation()
-                            + " resolves installable unit " + new VersionedId(unit.getId(), unit.getVersion()));
+                    logger.debug(
+                            "P2Resolver: artifact "
+                                    + new GAV(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion())
+                                            .toString()
+                                    + " at location " + artifact.getLocation() + " resolves installable unit "
+                                    + new VersionedId(unit.getId(), unit.getVersion()));
                 }
             }
         }
