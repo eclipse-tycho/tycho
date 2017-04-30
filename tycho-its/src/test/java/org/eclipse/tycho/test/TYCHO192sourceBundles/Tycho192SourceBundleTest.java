@@ -68,7 +68,7 @@ public class Tycho192SourceBundleTest extends AbstractTychoIntegrationTest {
     private void checkP2ContentXml(File p2Content) throws Exception {
         assertTrue(p2Content.isFile());
         Document p2ContentDOM = docBuilder.parse(p2Content);
-        XPathExpression sourceBundleUnitExpression = xpath.compile("/units/unit[@id = 'helloworld.source']");
+        XPathExpression sourceBundleUnitExpression = xpath.compile("/repository/units/unit[@id = 'helloworld.source']");
         Element sourceBundleUnitNode = (Element) sourceBundleUnitExpression.evaluate(p2ContentDOM.getDocumentElement(),
                 XPathConstants.NODE);
         assertNotNull("unit with id 'helloworld.source' not found", sourceBundleUnitNode);

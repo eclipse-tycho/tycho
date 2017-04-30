@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO;
+import org.eclipse.tycho.p2.maven.repository.xmlio.MetadataIO.ReadXmlResult;
 import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.RepositoryReader;
@@ -42,8 +43,10 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
     protected final RepositoryReader contentLocator;
 
     protected Set<IInstallableUnit> units = new LinkedHashSet<>();
+    protected Set<IRepositoryReference> repositories = new LinkedHashSet<>();
 
     protected Map<GAV, Set<IInstallableUnit>> unitsMap = new LinkedHashMap<>();
+    protected Map<GAV, Set<IRepositoryReference>> repoRefMap = new LinkedHashMap<>();
 
     public AbstractMavenMetadataRepository(URI location, TychoRepositoryIndex metadataIndex,
             RepositoryReader contentLocator) {
@@ -77,10 +80,11 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
                 } else {
                     InputStream is = new FileInputStream(localArtifactFileLocation);
                     try {
-                        Set<IInstallableUnit> gavUnits = io.readXML(is);
-
-                        unitsMap.put(gav, gavUnits);
-                        units.addAll(gavUnits);
+                        ReadXmlResult result = io.readXML(is);
+                        unitsMap.put(gav, result.getUnits());
+                        repoRefMap.put(gav, result.getRepoRefs());
+                        units.addAll(result.getUnits());
+                        repositories.addAll(result.getRepoRefs());
                     } finally {
                         is.close();
                     }
