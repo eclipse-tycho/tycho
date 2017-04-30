@@ -64,6 +64,14 @@ public class Category {
         return Collections.unmodifiableList(plugins);
     }
 
+    public List<RepositoryRef> getRepositories() {
+        ArrayList<RepositoryRef> repos = new ArrayList<>();
+        for (Element repoDom : dom.getChildren("repository-reference")) {
+            repos.add(new RepositoryRef(repoDom));
+        }
+        return Collections.unmodifiableList(repos);
+    }
+
     public static Category read(File file) throws IOException {
         return read(new BufferedInputStream(new FileInputStream(file)));
     }
