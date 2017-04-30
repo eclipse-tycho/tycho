@@ -28,6 +28,7 @@ import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 
@@ -158,5 +159,7 @@ public abstract class AbstractDependenciesAction extends AbstractPublisherAction
     protected Version createVersion(String version) {
         return Version.create(version);
     }
+
+    protected abstract Set<IRepositoryReference> getRepositoryReferences();
 
 }

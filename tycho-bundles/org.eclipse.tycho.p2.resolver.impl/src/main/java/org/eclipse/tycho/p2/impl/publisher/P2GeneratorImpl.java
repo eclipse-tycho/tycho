@@ -38,6 +38,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
@@ -87,8 +88,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
 
             // meta data handling for root files
             if (PackagingType.TYPE_ECLIPSE_FEATURE.equals(artifact.getPackagingType())) {
-                publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH
-                        | IPublisherInfo.A_NO_MD5);
+                publisherInfo.setArtifactOptions(
+                        IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_NO_MD5);
                 FeatureRootfileArtifactRepository artifactsRepository = new FeatureRootfileArtifactRepository(
                         publisherInfo, targetDir);
                 publisherInfo.setArtifactRepository(artifactsRepository);
@@ -150,8 +151,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
             if (packed != null) {
                 File packedLocation = new File(artifact.getLocation().getAbsolutePath() + ".pack.gz");
                 if (!packedLocation.canRead()) {
-                    throw new IllegalArgumentException("Could not find packed artifact " + packed + " at "
-                            + packedLocation);
+                    throw new IllegalArgumentException(
+                            "Could not find packed artifact " + packed + " at " + packedLocation);
                 }
                 if (result.containsKey(RepositoryLayoutHelper.PACK200_CLASSIFIER)) {
                     throw new IllegalArgumentException();
@@ -198,8 +199,10 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     }
 
     @Override
-    public void persistMetadata(Map<String, IP2Artifact> metadata, File unitsXml, File artifactsXml) throws IOException {
+    public void persistMetadata(Map<String, IP2Artifact> metadata, File unitsXml, File artifactsXml)
+            throws IOException {
         Set<IInstallableUnit> units = new LinkedHashSet<>();
+        Set<IRepositoryReference> repoRefs = new LinkedHashSet<>();
         Set<IArtifactDescriptor> artifactDescriptors = new LinkedHashSet<>();
         for (IP2Artifact artifact : metadata.values()) {
             for (Object unit : artifact.getInstallableUnits()) {
@@ -220,8 +223,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
     }
 
     @Override
-    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
+    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact, List<TargetEnvironment> environments,
+            OptionalResolutionAction optionalAction) {
 
         if (!dependenciesOnly && optionalAction != null) {
             throw new IllegalArgumentException();
@@ -284,8 +287,8 @@ public class P2GeneratorImpl extends AbstractMetadataGenerator implements P2Gene
                     try {
                         ins = new FileInputStream(categoryFile);
                         SiteModel siteModel = cp.parse(ins);
-                        actions.add(new CategoryDependenciesAction(siteModel, artifact.getArtifactId(), artifact
-                                .getVersion()));
+                        actions.add(new CategoryDependenciesAction(siteModel, artifact.getArtifactId(),
+                                artifact.getVersion()));
                     } finally {
                         if (ins != null) {
                             ins.close();

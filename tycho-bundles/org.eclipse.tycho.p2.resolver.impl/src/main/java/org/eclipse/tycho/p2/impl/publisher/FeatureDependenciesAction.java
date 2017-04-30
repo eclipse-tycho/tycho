@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.publisher;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -30,6 +31,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 @SuppressWarnings("restriction")
@@ -120,6 +122,11 @@ public class FeatureDependenciesAction extends AbstractDependenciesAction {
                     createFilter(entry), optional, false));
         }
         return required;
+    }
+
+    @Override
+    protected Set<IRepositoryReference> getRepositoryReferences() {
+        return Collections.emptySet();
     }
 
     @Override

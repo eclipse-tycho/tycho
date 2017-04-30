@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AdviceFileAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 
 @SuppressWarnings("restriction")
 public class ProductDependenciesAction extends AbstractDependenciesAction {
@@ -65,6 +66,16 @@ public class ProductDependenciesAction extends AbstractDependenciesAction {
             addRequiredCapability(required, "org.eclipse.equinox.executable.feature.group", null, null, false);
         }
         return required;
+    }
+
+    @Override
+    protected Set<IRepositoryReference> getRepositoryReferences() {
+        Set<IRepositoryReference> repoRefs = new LinkedHashSet<>();
+        for (IRepositoryReference repoRef : product.getRepositoryEntries()) {
+            if (repoRef != null)
+                repoRefs.add(repoRef);
+        }
+        return repoRefs;
     }
 
     @Override

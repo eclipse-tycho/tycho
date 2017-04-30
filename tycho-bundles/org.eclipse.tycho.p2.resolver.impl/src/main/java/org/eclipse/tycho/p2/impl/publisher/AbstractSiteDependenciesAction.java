@@ -26,6 +26,8 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 
 @SuppressWarnings("restriction")
@@ -74,6 +76,16 @@ public abstract class AbstractSiteDependenciesAction extends AbstractDependencie
         }
 
         return required;
+    }
+
+    @Override
+    protected Set<IRepositoryReference> getRepositoryReferences() {
+        Set<IRepositoryReference> repoRefs = new LinkedHashSet<>();
+        for (RepositoryReference repoRef : getSiteModel().getRepositoryReferences()) {
+            if (repoRef != null)
+                repoRefs.add(repoRef);
+        }
+        return repoRefs;
     }
 
     //This is roughly inspired from org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction

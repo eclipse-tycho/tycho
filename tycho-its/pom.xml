@@ -353,7 +353,11 @@
 			<artifactId>org.eclipse.tycho.p2.tools.impl</artifactId>
 			<version>${tycho-build-version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.equinox.p2.metadata</artifactId>
+			<version>2.3.100</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>
