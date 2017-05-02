@@ -19,7 +19,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.eclipse.tycho.versions.engine.PomVersionUpdater;
 import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
 
@@ -37,7 +36,7 @@ public class UpdatePomMojo extends AbstractMojo {
     @Component
     protected ProjectMetadataReader pomReader;
 
-    @Requirement
+    @Component
     private PomVersionUpdater pomUpdater;
 
     @Override
