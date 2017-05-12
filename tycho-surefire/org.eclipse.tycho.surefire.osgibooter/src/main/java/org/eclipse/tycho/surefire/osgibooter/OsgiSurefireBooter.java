@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.surefire.osgibooter;
 
-import static java.util.Collections.emptyList;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +19,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -37,6 +37,7 @@ import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.apache.maven.surefire.booter.ProviderConfiguration;
 import org.apache.maven.surefire.booter.ProviderFactory;
 import org.apache.maven.surefire.booter.StartupConfiguration;
+import org.apache.maven.surefire.cli.CommandLineOption;
 import org.apache.maven.surefire.report.ReporterConfiguration;
 import org.apache.maven.surefire.report.ReporterFactory;
 import org.apache.maven.surefire.suite.RunResult;
@@ -62,7 +63,13 @@ public class OsgiSurefireBooter {
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
         String provider = testProps.getProperty("testprovider");
         String runOrder = testProps.getProperty("runOrder");
-        PropertiesWrapper wrapper = new PropertiesWrapper(testProps);
+        int skipAfterFailureCount = Integer.parseInt(testProps.getProperty("skipAfterFailureCount", "0"));
+        int rerunFailingTestsCount = Integer.parseInt(testProps.getProperty("rerunFailingTestsCount", "0"));
+        Map<String, String> propertiesMap = new HashMap<String, String>();
+        for (String key : testProps.stringPropertyNames()) {
+            propertiesMap.put(key, testProps.getProperty(key));
+        }
+        PropertiesWrapper wrapper = new PropertiesWrapper(propertiesMap);
         List<String> suiteXmlFiles = wrapper.getStringList(BooterConstants.TEST_SUITE_XML_FILES);
 
         boolean forkRequested = true;
@@ -79,16 +86,18 @@ public class OsgiSurefireBooter {
                 new ClassLoaderConfiguration(useSystemClassloader, useManifestOnlyJar), forkRequested, inForkedVM);
         // TODO dir scanning with no includes done here (done in TestMojo already) 
         // but without dirScannerParams we get an NPE accessing runOrder
-        DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir, emptyList(),
-                emptyList(), emptyList(), failIfNoTests, runOrder);
+        DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
+                Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
+                failIfNoTests, runOrder);
         ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStacktrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir, null);
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
                 new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
-                extractProviderProperties(testProps), null, false);
+                extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
+                skipAfterFailureCount, null);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
                 StartupReportConfiguration.PLAIN_REPORT_FORMAT, redirectTestOutputToFile, disableXmlReport, reportsDir,
-                trimStacktrace, null, "TESTHASH", false);
+                trimStacktrace, null, "TESTHASH", false, rerunFailingTestsCount);
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig);
         // API indicates we should use testClassLoader below but surefire also tries 
         // to load surefire classes using this classloader
@@ -107,12 +116,11 @@ public class OsgiSurefireBooter {
     /*
      * See TestMojo#mergeProviderProperties
      */
-    private static Properties extractProviderProperties(Properties surefireProps) {
-        Properties providerProps = new Properties();
-        for (Map.Entry entry : surefireProps.entrySet()) {
-            String key = (String) entry.getKey();
-            if (key.startsWith("__provider.")) {
-                providerProps.put(key.substring("__provider.".length()), entry.getValue());
+    private static Map<String, String> extractProviderProperties(Properties surefireProps) {
+        Map<String, String> providerProps = new HashMap<String, String>();
+        for (String entry : surefireProps.stringPropertyNames()) {
+            if (entry.startsWith("__provider.")) {
+                providerProps.put(entry.substring("__provider.".length()), surefireProps.getProperty(entry));
             }
         }
         return providerProps;
