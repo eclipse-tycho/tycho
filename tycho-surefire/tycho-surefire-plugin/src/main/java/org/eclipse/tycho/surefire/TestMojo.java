@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.PropertiesWrapper;
 import org.apache.maven.surefire.booter.ProviderParameterNames;
+import org.apache.maven.surefire.testset.TestListResolver;
 import org.apache.maven.surefire.util.DefaultScanResult;
 import org.apache.maven.surefire.util.ScanResult;
 import org.apache.maven.toolchain.Toolchain;
@@ -408,6 +410,23 @@ public class TestMojo extends AbstractMojo {
      */
     @Parameter
     private BundleStartLevel defaultStartLevel;
+
+    /**
+     * Flaky tests will re-run until they pass or the number of reruns has been exhausted. See
+     * surefire documentation for details.
+     * <p>
+     * Note: This feature is supported only for JUnit 4.x
+     * </p>
+     */
+    @Parameter(property = "surefire.rerunFailingTestsCount", defaultValue = "0")
+    private Integer rerunFailingTestsCount;
+
+    /**
+     * Skips the remaining tests after the Nth failure or error. See surefire documentation for
+     * details.
+     */
+    @Parameter(property = "surefire.skipAfterFailureCount", defaultValue = "0")
+    private Integer skipAfterFailureCount;
 
     @Component
     private RepositorySystem repositorySystem;
@@ -865,7 +884,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private void createSurefireProperties(TestFrameworkProvider provider) throws MojoExecutionException {
-        PropertiesWrapper wrapper = new PropertiesWrapper(new Properties());
+        PropertiesWrapper wrapper = new PropertiesWrapper(new HashMap<String, String>());
         wrapper.setProperty("testpluginname", getTestBundleSymbolicName());
         wrapper.setProperty("testclassesdirectory", testClassesDirectory.getAbsolutePath());
         wrapper.setProperty("reportsdirectory", reportsDirectory.getAbsolutePath());
@@ -873,10 +892,12 @@ public class TestMojo extends AbstractMojo {
 
         wrapper.setProperty("failifnotests", String.valueOf(failIfNoTests));
         wrapper.setProperty("runOrder", runOrder);
+        wrapper.setProperty("skipAfterFailureCount", String.valueOf(skipAfterFailureCount));
+        wrapper.setProperty("rerunFailingTestsCount", String.valueOf(rerunFailingTestsCount));
         Properties mergedProviderProperties = getMergedProviderProperties();
         mergedProviderProperties.putAll(provider.getProviderSpecificProperties());
         ScanResult scanResult = scanForTests();
-        scanResult.writeTo(mergedProviderProperties);
+        scanResult.writeTo(propertiesAsMap(mergedProviderProperties));
         for (Map.Entry<?, ?> entry : mergedProviderProperties.entrySet()) {
             wrapper.setProperty("__provider." + entry.getKey(), entry.getValue().toString());
         }
@@ -943,13 +964,15 @@ public class TestMojo extends AbstractMojo {
         } else {
             excludeList = defaultExcludes;
         }
-        DirectoryScanner scanner = new DirectoryScanner(testClassesDirectory, includeList, excludeList,
-                Collections.<String> emptyList());
+        TestListResolver resolver = new TestListResolver(includeList, excludeList);
+        DirectoryScanner scanner = new DirectoryScanner(testClassesDirectory, resolver);
         DefaultScanResult scanResult = scanner.scan();
         return scanResult;
     }
 
-    private void storeProperties(Properties p, File file) throws MojoExecutionException {
+    private void storeProperties(Map<String, String> propertiesMap, File file) throws MojoExecutionException {
+        Properties p = new Properties();
+        p.putAll(propertiesMap);
         try {
             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
             try {
@@ -1103,9 +1126,17 @@ public class TestMojo extends AbstractMojo {
         if (eeConfig.isCustomProfile()) {
             Properties customProfileProps = eeConfig.getFullSpecification().getProfileProperties();
             File profileFile = new File(new File(project.getBuild().getDirectory()), "custom.profile");
-            storeProperties(customProfileProps, profileFile);
+            storeProperties(propertiesAsMap(customProfileProps), profileFile);
             cli.addVMArguments("-D" + EquinoxConfiguration.PROP_OSGI_JAVA_PROFILE + "=" + profileFile.toURI());
         }
+    }
+
+    private Map<String, String> propertiesAsMap(Properties p) {
+        Map<String, String> result = new HashMap<String, String>();
+        for (String entry : p.stringPropertyNames()) {
+            result.put(entry, p.getProperty(entry));
+        }
+        return result;
     }
 
     void addProgramArgs(EquinoxLaunchConfiguration cli, String... arguments) {
