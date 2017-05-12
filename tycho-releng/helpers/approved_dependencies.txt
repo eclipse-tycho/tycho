@@ -5,8 +5,8 @@ org.apache.commons:commons-compress:jar:sources:1.15:compile https://dev.eclipse
 org.apache.commons:commons-exec:jar:1.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=7907
 org.apache.commons:commons-lang3:jar:3.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=9077
 org.apache.maven.plugins:maven-source-plugin:maven-plugin:2.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5179
-org.apache.maven.surefire:maven-surefire-common:jar:2.17:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=8565
-org.apache.maven.surefire:surefire-api:jar:2.17:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=8561
+org.apache.maven.surefire:maven-surefire-common:jar:2.19.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=12887
+org.apache.maven.surefire:surefire-api:jar:2.19.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=12888
 org.apache.maven.surefire:surefire-booter:jar:2.17:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=8560
 org.apache.maven.wagon:wagon-provider-api:jar:1.0-beta-6:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.apache.maven:maven-archiver:jar:2.5:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=6822
