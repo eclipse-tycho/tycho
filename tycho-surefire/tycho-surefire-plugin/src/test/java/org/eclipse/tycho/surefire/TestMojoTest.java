@@ -19,7 +19,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -31,7 +33,6 @@ import org.codehaus.plexus.util.ReflectionUtils;
 import org.eclipse.sisu.equinox.launching.DefaultEquinoxInstallationDescription;
 import org.eclipse.sisu.equinox.launching.internal.DefaultEquinoxInstallation;
 import org.eclipse.sisu.equinox.launching.internal.EquinoxLaunchConfiguration;
-import org.eclipse.tycho.testing.TestUtil;
 import org.junit.Test;
 
 public class TestMojoTest {
@@ -122,12 +123,12 @@ public class TestMojoTest {
     @Test
     public void testExcludes() throws Exception {
         List<String> includes = new ArrayList<>();
-        includes.add("*.*");
+        includes.add("*");
         List<String> excludes = new ArrayList<>();
         // adding a null to simulate an unresolved parameter interpolation
         excludes.add(null);
         excludes.add("*Another*");
-        ScanResult result = executeScanForTests(includes, excludes);
+        ScanResult result = createDirectoryAndScanForTests(includes, excludes);
         assertEquals(1, result.size());
     }
 
@@ -136,7 +137,7 @@ public class TestMojoTest {
         List<String> includes = new ArrayList<>();
         includes.add("*Another*");
         includes.add(null);
-        ScanResult result = executeScanForTests(includes, null);
+        ScanResult result = createDirectoryAndScanForTests(includes, null);
         assertEquals(1, result.size());
     }
 
@@ -205,17 +206,29 @@ public class TestMojoTest {
         assertEquals("true", providerProperties.get("perCoreThreadCount"));
     }
 
-    public ScanResult executeScanForTests(List<String> includes, List<String> excludes) throws Exception {
-        TestMojo testMojo = new TestMojo();
-        setParameter(testMojo, "includes", includes);
-        setParameter(testMojo, "excludes", excludes);
-        setParameter(testMojo, "testClassesDirectory",
-                TestUtil.getTestResourceLocation("excludesIncludesTestDirectory"));
-        return testMojo.scanForTests();
+    public ScanResult createDirectoryAndScanForTests(List<String> includes, List<String> excludes) throws Exception {
+        File directory = null;
+        try {
+            TestMojo testMojo = new TestMojo();
+            directory = Files.createTempDirectory(this.getClass().getName()).toFile();
+            File aTestFile = new File(directory, "ATest.class");
+            aTestFile.createNewFile();
+            File anotherTestcase = new File(directory, "AnotherTestCase.class");
+            anotherTestcase.createNewFile();
+
+            setParameter(testMojo, "includes", includes);
+            setParameter(testMojo, "excludes", excludes);
+            setParameter(testMojo, "testClassesDirectory", directory);
+            return testMojo.scanForTests();
+        } finally {
+            if (directory != null) {
+                directory.delete();
+            }
+        }
     }
 
-    private void setParameter(Object object, String variable, Object value) throws IllegalArgumentException,
-            IllegalAccessException {
+    private void setParameter(Object object, String variable, Object value)
+            throws IllegalArgumentException, IllegalAccessException {
         Field field = ReflectionUtils.getFieldByNameIncludingSuperclasses(variable, object.getClass());
         field.setAccessible(true);
         field.set(object, value);
