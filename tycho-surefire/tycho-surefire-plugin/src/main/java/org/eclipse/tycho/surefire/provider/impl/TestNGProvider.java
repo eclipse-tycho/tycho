@@ -63,7 +63,7 @@ public class TestNGProvider implements TestFrameworkProvider {
     @Override
     public Properties getProviderSpecificProperties() {
         Properties properties = new Properties();
-        properties.setProperty("testng.configurator", "org.apache.maven.surefire.testng.conf.TestNG652Configurator");
+        properties.setProperty("testng.configurator", "org.apache.maven.surefire.testng.conf.TestNG60Configurator");
         return properties;
     }
 
