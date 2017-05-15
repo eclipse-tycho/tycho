@@ -43,7 +43,6 @@ import org.eclipse.tycho.artifacts.DependencyResolutionException;
 import org.eclipse.tycho.artifacts.IllegalArtifactReferenceException;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfigurationStub;
-import org.eclipse.tycho.core.shared.BuildFailureException;
 import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.core.shared.MultiLineLogger;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -199,7 +198,7 @@ public class P2ResolverImpl implements P2Resolver {
             new MultiLineLogger(logger).error(e.getDetails(), "  ");
             logger.error("");
             logger.error("See http://wiki.eclipse.org/Tycho/Dependency_Resolution_Troubleshooting for help.");
-            throw new DependencyResolutionException("Cannot resolve dependencies of " + project.toString(), e);
+            throw new DependencyResolutionException("Cannot resolve dependencies of " + project, e);
         }
 
         if (usedTargetPlatformUnits != null) {
@@ -209,7 +208,8 @@ public class P2ResolverImpl implements P2Resolver {
         return toResolutionResult(newState, project);
     }
 
-    private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState, ReactorProject currentProject) {
+    private P2ResolutionResult toResolutionResult(Collection<IInstallableUnit> newState,
+            ReactorProject currentProject) {
         DefaultP2ResolutionResult result = new DefaultP2ResolutionResult();
         Set<String> missingArtifacts = new TreeSet<>();
 
@@ -403,8 +403,8 @@ public class P2ResolverImpl implements P2Resolver {
         try {
             parsedVersionRange = new VersionRange(versionRange);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArtifactReferenceException("The string \"" + versionRange
-                    + "\" is not a valid OSGi version range");
+            throw new IllegalArtifactReferenceException(
+                    "The string \"" + versionRange + "\" is not a valid OSGi version range");
         }
         additionalRequirements.add(ArtifactTypeHelper.createRequirementFor(type, id, parsedVersionRange));
     }
@@ -442,8 +442,8 @@ public class P2ResolverImpl implements P2Resolver {
         IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, range, null,
                 1 /* min */, Integer.MAX_VALUE /* max */, false /* greedy */);
 
-        IQueryResult<IInstallableUnit> result = queriable.query(
-                QueryUtil.createLatestQuery(QueryUtil.createMatchQuery(requirement.getMatches())), monitor);
+        IQueryResult<IInstallableUnit> result = queriable
+                .query(QueryUtil.createLatestQuery(QueryUtil.createMatchQuery(requirement.getMatches())), monitor);
 
         Set<IInstallableUnit> newState = result.toUnmodifiableSet();
 
