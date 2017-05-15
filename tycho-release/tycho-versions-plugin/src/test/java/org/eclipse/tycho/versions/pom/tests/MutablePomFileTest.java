@@ -164,7 +164,7 @@ public class MutablePomFileTest {
         PomFile.write(pom, buf);
         byte[] actual = buf.toByteArray();
 
-        Assert.assertEquals(toAsciiString(expected), toAsciiString(actual));
+        Assert.assertEquals(toAsciiStringWithoutLineFeeds(expected), toAsciiStringWithoutLineFeeds(actual));
     }
 
     private static byte[] toByteArray(String path) throws IOException {
@@ -178,8 +178,8 @@ public class MutablePomFileTest {
         return expected;
     }
 
-    private static String toAsciiString(byte[] bytes) throws UnsupportedEncodingException {
-        return new String(bytes, "ascii");
+    private static String toAsciiStringWithoutLineFeeds(byte[] bytes) throws UnsupportedEncodingException {
+        return new String(bytes, "ascii").replace("\n", "").replace("\r", "");
     }
 
 }
