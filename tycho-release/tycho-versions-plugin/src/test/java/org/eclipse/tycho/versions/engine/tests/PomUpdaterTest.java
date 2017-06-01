@@ -7,7 +7,8 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
- *    Bachmann electronics GmbH. - Bug #512326 Support product file names other than artifact id
+ *    Bachmann electronic GmbH. - Bug #512326 Support product file names other than artifact id
+ *    Bachmann electronic GmbH. - #517664 Support for updating p2iu versions
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine.tests;
 
@@ -52,5 +53,7 @@ public class PomUpdaterTest extends AbstractVersionChangeTest {
 
         assertPom(new File(basedir, "repositoryWith2ProductFiles"));
 
+        assertPom(new File(basedir, "iu"));
+        assertP2IuXml(new File(basedir, "iu"));
     }
 }

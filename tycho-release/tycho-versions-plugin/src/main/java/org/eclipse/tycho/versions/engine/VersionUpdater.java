@@ -10,6 +10,7 @@
  *    Bachmann electronic GmbH. - #472579 Support setting the version for pomless builds
  *    Bachmann electronic GmbH. - #512326 Support product file names other than artifact id
  *    Guillaume Dufour - Support for release-process like Maven
+ *    Bachmann electronic GmbH. - #517664 Support for updating p2iu versions
  *******************************************************************************/
 package org.eclipse.tycho.versions.engine;
 
@@ -23,6 +24,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.model.Feature;
+import org.eclipse.tycho.model.IU;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.versions.bundle.MutableBundleManifest;
 import org.eclipse.tycho.versions.pom.PomFile;
@@ -81,6 +83,14 @@ public abstract class VersionUpdater {
         };
         updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, productVersionAdapter);
         updaters.put(PackagingType.TYPE_ECLIPSE_REPOSITORY, productVersionAdapter);
+        updaters.put(PackagingType.TYPE_P2_IU, new VersionAdaptor() {
+
+            @Override
+            public String getVersion(ProjectMetadata project, Logger logger) throws IOException {
+                IU iu = IU.loadIU(project.getBasedir());
+                return iu.getVersion();
+            }
+        });
     }
 
     public void setProjects(Collection<ProjectMetadata> projects) {
