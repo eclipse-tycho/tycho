@@ -20,6 +20,11 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -193,6 +198,31 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
         if (!(equinoxTmp.delete() && equinoxTmp.mkdirs())) {
             throw new IOException("Could not create temp dir " + equinoxTmp);
         }
+        
+        final Path directory = equinoxTmp.toPath();
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                            @Override
+                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                Files.delete(file);
+                                return FileVisitResult.CONTINUE;
+                            }
+
+                            @Override
+                            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                                Files.delete(dir);
+                                return FileVisitResult.CONTINUE;
+                            }
+                        });
+                    } catch (IOException e) {
+                        getLogger().warn("Could not delete temporary directory " + directory, e);
+                    }
+                }
+        }));
+                
         File tempConfigDir = new File(equinoxTmp, "config");
         if (!(tempConfigDir.mkdirs())) {
             throw new IOException("Could not create temp config dir " + tempConfigDir);
