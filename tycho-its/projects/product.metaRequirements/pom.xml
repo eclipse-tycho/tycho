@@ -24,10 +24,6 @@
 		</repository>
 	</repositories>
 
-	<properties>
-		<tycho-version>0.16.0-SNAPSHOT</tycho-version>
-	</properties>
-
 	<build>
 		<plugins>
 			<plugin>
