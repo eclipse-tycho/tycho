@@ -103,8 +103,7 @@ public class BaselineValidator {
                     if (baselineMode == fail || (baselineMode == failCommon && !isMissingOnlyDelta(delta))) {
                         throw new MojoExecutionException(delta.getDetailedMessage());
                     } else {
-                        String message = log.isDebugEnabled() ? delta.getDetailedMessage() : delta.getMessage();
-                        log.warn(project.toString() + ": " + message);
+                        log.warn(project.toString() + ": " + delta.getDetailedMessage());
                     }
                 }
 
@@ -249,8 +248,10 @@ public class BaselineValidator {
             }
         }
 
-        return !result.isEmpty() ? new CompoundArtifactDelta(
-                "baseline and build artifacts have same version but different contents", result) : null;
+        return !result.isEmpty()
+                ? new CompoundArtifactDelta("baseline and build artifacts have same version but different contents",
+                        result)
+                : null;
     }
 
     private <T> T getService(Class<T> type) {
