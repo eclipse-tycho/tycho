@@ -149,12 +149,12 @@ public class RootPropertiesParser {
             filePatternParser.addFilesFromPatterns(valueSegments, "");
             break;
         case FOLDER:
-            RootFilePatternParser filePatternParserWithinFolder = new RootFilePatternParser(baseDir, target, useDefaultExcludes);
-            // last element in keySegments is the destination subdirectory
-            // (root.folder.<subdir> and root.<config>.folder.<subdir>)
-            filePatternParserWithinFolder.addFilesFromPatterns(valueSegments, keySegments[keySegments.length - 1]);
-            break;
         case PERMISSION:
+            RootFilePatternParser filePatternParserWithinFolder = new RootFilePatternParser(baseDir, target,
+                    useDefaultExcludes);
+            // parameterInKey is the destination subdirectory
+            // (root.folder.<subdir> and root.<config>.folder.<subdir>)
+            filePatternParserWithinFolder.addFilesFromPatterns(valueSegments, parameterInKey);
             target.addPermission(parameterInKey, valueSegments);
             break;
         case LINKS:
@@ -182,9 +182,15 @@ public class RootPropertiesParser {
     static String getParameterFromKey(String[] keySegments, int indexOfKeyType) {
         int indexOfLastSegment = keySegments.length - 1;
         int parameters = indexOfLastSegment - indexOfKeyType;
-        if (parameters > 1)
-            throw new IllegalArgumentException(segmentsToString(keySegments, '.') + " has too many segments");
-        else if (parameters == 1)
+        if (parameters > 1) {
+            String param = "";
+            for (int i = 1; i <= parameters; i++) {
+                param += keySegments[indexOfKeyType + i];
+                if (i < parameters)
+                    param += ".";
+            }
+            return param;
+        } else if (parameters == 1)
             return keySegments[indexOfKeyType + 1];
         else
             return null;

@@ -161,6 +161,16 @@ public class FeatureRootAdviceTest {
         assertNull(advice.getDescriptor(LINUX_SPEC_FOR_ADVICE));
     }
 
+    @Test
+    public void testParseBuildPropertiesWithDotsInPath() {
+        Properties buildProperties = createBuildPropertiesWithDefaultRootFiles();
+        buildProperties.put("root.folder.../folder.with.dots", "rootfiles");
+
+        IFeatureRootAdvice advice = createAdvice(buildProperties);
+
+        assert (advice != null);
+    }
+
     private ArtifactMock createDefaultArtifactMock() throws IOException {
         return (new ArtifactMock(new File(FEATURE_JAR_REL_PATH).getCanonicalFile(), GROUP_ID, ARTIFACT_ID, VERSION,
                 PACKAGING_TYPE));
