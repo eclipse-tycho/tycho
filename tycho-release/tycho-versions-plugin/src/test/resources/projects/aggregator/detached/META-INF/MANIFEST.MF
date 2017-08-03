@@ -3,5 +3,5 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Name: detached
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: detached
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 

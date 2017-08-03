@@ -3,7 +3,7 @@ Bundle-Version: 1.0.1.qualifier
 Bundle-Name: exportpackage
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: exportpackage
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.tycho;version="1.0.1",
  org.eclipse.tycho.test;version="1.0.1",
  org.eclipse.tycho.core;version="1.0.1"

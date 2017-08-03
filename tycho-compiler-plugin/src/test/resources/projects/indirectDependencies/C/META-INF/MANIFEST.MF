@@ -3,5 +3,5 @@ Bundle-ManifestVersion: 2
 Bundle-Name: C
 Bundle-SymbolicName: C
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: c

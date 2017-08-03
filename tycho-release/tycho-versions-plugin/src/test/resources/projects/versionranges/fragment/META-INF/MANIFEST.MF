@@ -3,5 +3,5 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Name: fragment
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: fragment
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: bundle1;bundle-version="1.0.0"

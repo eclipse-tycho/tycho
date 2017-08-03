@@ -4,7 +4,7 @@ Bundle-Name: Tycho Surefire OSGi TestNG Runner
 Bundle-SymbolicName: org.eclipse.tycho.surefire.testng;singleton:=true
 Bundle-Version: 1.1.0.qualifier
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  jars/surefire-testng-2.17.jar,
  jars/surefire-testng-utils-2.17.jar,
