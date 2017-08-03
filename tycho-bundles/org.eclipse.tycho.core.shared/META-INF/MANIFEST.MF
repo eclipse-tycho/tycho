@@ -9,5 +9,5 @@ Export-Package: org.eclipse.tycho.artifacts,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.core.shared,
  org.eclipse.tycho.locking.facade
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.tycho
