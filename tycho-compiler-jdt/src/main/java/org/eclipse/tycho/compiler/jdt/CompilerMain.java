@@ -14,8 +14,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -64,50 +66,41 @@ class CompilerMain extends Main {
     }
 
     @Override
-    protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
+    protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> endorsedDirClasspaths) {
         if (explicitBootClasspath) {
-            return new ArrayList();
+            return new ArrayList<>();
         }
         if (javaHome == null) {
             return super.handleEndorseddirs(endorsedDirClasspaths);
         }
-        if (endorsedDirClasspaths == null) {
-            endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-        }
-        scanForArchives(endorsedDirClasspaths, new File(javaHome, "lib/endorsed"));
-        mavenLogger.debug("Using endorsed dirs: " + endorsedDirClasspaths);
-        return endorsedDirClasspaths;
+        ArrayList<Classpath> result = new ArrayList<>();
+        scanForArchives(result, new File(javaHome, "lib/endorsed"));
+        mavenLogger.debug("Using endorsed dirs: " + result);
+        return result;
     }
 
     @Override
-    protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
+    protected ArrayList<Classpath> handleExtdirs(ArrayList<String> extdirsClasspaths) {
         if (explicitBootClasspath) {
-            return new ArrayList();
+            return new ArrayList<>();
         }
         if (javaHome == null) {
             return super.handleExtdirs(extdirsClasspaths);
         }
-        if (extdirsClasspaths == null) {
-            extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-        }
-        scanForArchives(extdirsClasspaths, new File(javaHome, "lib/ext"));
-        mavenLogger.debug("Using ext dirs: " + extdirsClasspaths);
-        return extdirsClasspaths;
+        ArrayList<Classpath> result = new ArrayList<>();
+        scanForArchives(result, new File(javaHome, "lib/ext"));
+        mavenLogger.debug("Using ext dirs: " + result);
+        return result;
     }
 
     @Override
-    protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customEncoding) {
-        final int bootclasspathsSize;
-        if ((bootclasspaths != null) && ((bootclasspathsSize = bootclasspaths.size()) != 0)) {
-            explicitBootClasspath = true;
-            String[] paths = new String[bootclasspathsSize];
-            bootclasspaths.toArray(paths);
-            bootclasspaths.clear();
-            for (int i = 0; i < bootclasspathsSize; i++) {
-                processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, paths[i], customEncoding, false, true);
+    protected ArrayList<Classpath> handleBootclasspath(ArrayList<String> bootclasspaths, String customEncoding) {
+        ArrayList<Classpath> result = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
+        if (bootclasspaths != null && bootclasspaths.size() != 0) {
+            for (String path : bootclasspaths) {
+                processPathEntries(DEFAULT_SIZE_CLASSPATH, result, path, customEncoding, false, true);
             }
         } else {
-            bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
             if (javaHome != null) {
                 File directoryToCheck;
                 if (isMacOS() && hasClassesDirWithJars()) {//$NON-NLS-1$//$NON-NLS-2$
@@ -115,13 +108,13 @@ class CompilerMain extends Main {
                 } else {
                     directoryToCheck = new File(javaHome, "lib");
                 }
-                scanForArchives(bootclasspaths, directoryToCheck);
-                if (bootclasspaths.isEmpty()) {
+                scanForArchives(result, directoryToCheck);
+                if (result.isEmpty()) {
                     mavenLogger.warn("No classpath entries for boot classpath found scanning java home " + javaHome);
                 }
             } else {
                 try {
-                    Util.collectRunningVMBootclasspath(bootclasspaths);
+                    Util.collectRunningVMBootclasspath(result);
                 } catch (IllegalStateException e) {
                     this.logger.logWrongJDK();
                     this.proceed = false;
@@ -131,20 +124,17 @@ class CompilerMain extends Main {
         }
 
         if (bootclasspathAccessRules != null) {
-            String[] paths = new String[bootclasspaths.size()];
-
-            for (int i = 0; i < bootclasspaths.size(); i++) {
-                paths[i] = ((FileSystem.Classpath) bootclasspaths.get(i)).getPath() + bootclasspathAccessRules;
+            List<String> pathsWithAccessRules = new ArrayList<>(result.size());
+            for (Classpath resultPath : result) {
+                pathsWithAccessRules.add(resultPath.getPath() + bootclasspathAccessRules);
             }
-
-            bootclasspaths.clear();
-
-            for (int i = 0; i < paths.length; i++) {
-                processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, paths[i], customEncoding, false, true);
+            result.clear();
+            for (String pathWithAccessRules : pathsWithAccessRules) {
+                processPathEntries(DEFAULT_SIZE_CLASSPATH, result, pathWithAccessRules, customEncoding, false, true);
             }
         }
-        mavenLogger.debug("Using boot classpath: " + bootclasspaths);
-        return bootclasspaths;
+        mavenLogger.debug("Using boot classpath: " + result);
+        return result;
     }
 
     private boolean hasClassesDirWithJars() {
@@ -167,7 +157,7 @@ class CompilerMain extends Main {
         return System.getProperty("os.name").startsWith("Mac");
     }
 
-    private void scanForArchives(ArrayList classPathList, File dir) {
+    private void scanForArchives(ArrayList<Classpath> classPathList, File dir) {
         if (dir.isDirectory()) {
             File[] zipFiles = dir.listFiles(POTENTIAL_ZIP_FILTER);
             if (zipFiles != null) {
