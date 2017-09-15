@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7880b39_fc34be66",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/CompilerMain.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-09-15T14:46:11Z",
+      "side": 1,
+      "message": "@Jay now it should work when you explicitly specify -endorseddirs on CLI\n\ni.e. we only change behaviour compared to JDT batch Main if we use a separate JDK home and endorsed dirs are not explicitly set",
+      "revId": "6e61f7cba01b2bc2dffa502dd517b009df9ba09d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
