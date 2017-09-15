@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.compiler.jdt;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -57,15 +58,29 @@ public class CompilerMainTest {
     }
 
     @Test
-    public void testHandleEndorseddirs() {
+    public void testHandleEndorseddirsWithJavaHomeSet() {
         ArrayList endorsedDirClasspaths = compiler.handleEndorseddirs(null);
         checkClassPath(endorsedDirClasspaths, "/lib/endorsed/endorsed");
     }
 
     @Test
-    public void testHandleExtdirs() {
+    public void testHandleEndorseddirsExplicitlySet() {
+        ArrayList endorsedDirClasspaths = compiler.handleEndorseddirs(
+                new ArrayList<>(asList(getClass().getResource("/test-jdk/another-endorsed/").getFile())));
+        checkClassPath(endorsedDirClasspaths, "test-jdk/another-endorsed/endorsed");
+    }
+
+    @Test
+    public void testHandleExtdirsWithJavaHomeSet() {
         ArrayList extDirs = compiler.handleExtdirs(null);
         checkClassPath(extDirs, "/lib/ext/ext");
+    }
+
+    @Test
+    public void testHandleExtdirsExplicitlySet() {
+        ArrayList extDirs = compiler
+                .handleExtdirs(new ArrayList<>(asList(getClass().getResource("/test-jdk/another-ext/").getFile())));
+        checkClassPath(extDirs, "/test-jdk/another-ext/ext");
     }
 
     @Test
