@@ -89,7 +89,7 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/releases/oxygen/201706281000/</url>
+							<url>http://download.eclipse.org/eclipse/updates/4.8milestones/S-4.8M2-201709132000</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
