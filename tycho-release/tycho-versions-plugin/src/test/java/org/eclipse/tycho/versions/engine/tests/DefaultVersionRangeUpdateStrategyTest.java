@@ -88,6 +88,21 @@ public class DefaultVersionRangeUpdateStrategyTest {
     }
 
     @Test
+    public void boundsShouldBeUpdatedWhenMatchingQualifierVariant() {
+        String from = "1.0.0";
+        String to = "1.1.0.qualifier";
+
+        assertEquals("1.1.0.qualifier", updatingMatchingBoundsStrategy.computeNewVersionRange("1.0.0", from, to));
+        assertEquals("[0.5.0,1.1.0.qualifier]",
+                updatingMatchingBoundsStrategy.computeNewVersionRange("[0.5.0,1.0.0]", from, to));
+        assertEquals("[1.1.0.qualifier,2.0.0]",
+                updatingMatchingBoundsStrategy.computeNewVersionRange("[1.0.0,2.0.0]", from, to));
+        assertEquals("[1.1.0.qualifier,1.1.0.qualifier]",
+                updatingMatchingBoundsStrategy.computeNewVersionRange("[1.0.0,1.0.0]", from, to));
+
+    }
+
+    @Test
     public void boundsShouldBeUpdatedWhenMatching() {
         String from = "1.0.0";
         String to = "1.1.0";

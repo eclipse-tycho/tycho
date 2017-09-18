@@ -29,7 +29,7 @@ public class DefaultVersionRangeUpdateStrategy implements VersionRangeUpdateStra
         }
         VersionRange originalVersionRangeObject = VersionRange.valueOf(originalVersionRange);
         Version originalReferencedVersionObject = parseBaseVersion(originalReferencedVersion);
-        Version newReferencedVersionObject = parseBaseVersion(newReferencedVersion);
+        Version newReferencedVersionObject = Version.valueOf(newReferencedVersion);
 
         VersionRange newVersionRangeObject = computeNewVersionRange(originalVersionRangeObject,
                 originalReferencedVersionObject, newReferencedVersionObject);
