@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7880b39_4894279a",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/resources/projects/versionranges/bundle3/META-INF/MANIFEST.MF_expected",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-09-19T07:38:52Z",
+      "side": 1,
+      "message": "I\u0027m not sure \".qualifier\" can be used in a version range bound\n\nAFAIK \".qualifier\" is only replaced (typically by the build timestamp) during build in the Bundle-Version header.\n\nbundle2;bundle-version\u003d\"1.0.1.qualifier\"\n\nactually means \n\nbundle2;bundle-version\u003d\"[1.0.1.qualifier,)\"\n\n(upper bound of version range omitted i.e. no upper bound)\n\nthe problem reported in bug 522416 was with an upper bound no longer matching, so I think we need a separate test project for this because it\u0027s a different use-case ( I guess you could use the example provided in the bug)\n\nI think that Sandra proposed the correct solution in the bug:\n\nif the version is updated to 1.2.4.qualifier, the upper bound of the reference to it should be up to but excluding 1.2.5:\n\nbundle-version:[0.0.0,1.2.5)\n\nThe tricky thing here is OSGi versioning semantics vs maven versioning semantics.\n\nOSGi: 1.2.4 \u003c 1.2.4.201709010000\nmaven: 1.2.4 \u003e 1.2.4-SNAPSHOT\n\nalso see bug 382482",
+      "range": {
+        "startLine": 8,
+        "startChar": 31,
+        "endLine": 8,
+        "endChar": 40
+      },
+      "revId": "7baafe53e5738e1548ac476c70501243f1e48b0b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
