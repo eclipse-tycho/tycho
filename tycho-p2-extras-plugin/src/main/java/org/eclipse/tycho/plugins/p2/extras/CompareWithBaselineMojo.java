@@ -152,6 +152,9 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                         if (!FileUtils.contentEquals(currentFile, baselineFile)) {
                             String message = "Duplicate version but different content found for (" + id + "/" + version
                                     + "). Also exists in baseline, but its content is different.";
+                            getLog().debug("For " + id + "/" + version + ":");
+                            getLog().debug("- baseline:" + baselineFile.getAbsolutePath());
+                            getLog().debug("- current:" + currentFile.getAbsolutePath());
                             if (this.onIllegalVersion == ReportBehavior.warn) {
                                 getLog().warn(message);
                                 return;
