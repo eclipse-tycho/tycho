@@ -22,6 +22,30 @@
       "revId": "7baafe53e5738e1548ac476c70501243f1e48b0b",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7880b39_7a33657d",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/resources/projects/versionranges/bundle3/META-INF/MANIFEST.MF_expected",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2017-09-21T05:33:57Z",
+      "side": 1,
+      "message": "You are right, it is allowed to use e.g. 1.0.1.20171201 but not 1.0.1.qualifier. With the Patchset #3 I am increasing the micro version part by one in case the new version (the artifact version) get\u0027s out of the range and does have a qualifier. Not sure if that could also happen for lower bound updates though.....",
+      "parentUuid": "c7880b39_4894279a",
+      "range": {
+        "startLine": 8,
+        "startChar": 31,
+        "endLine": 8,
+        "endChar": 40
+      },
+      "revId": "7baafe53e5738e1548ac476c70501243f1e48b0b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
