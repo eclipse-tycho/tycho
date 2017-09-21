@@ -101,6 +101,14 @@ public class DefaultVersionRangeUpdateStrategyTest {
     }
 
     @Test
+    public void boundsShouldBeUpdatedToNextVersionWhenMachingAndQualifierUsed() {
+        String from = "1.0.0";
+        String to = "1.1.0.qualifier";
+
+        assertEquals("[0.5.0,1.1.1)", updatingMatchingBoundsStrategy.computeNewVersionRange("[0.5.0,1.0.0]", from, to));
+    }
+
+    @Test
     public void versionConstraintWithNullVersionShouldRemainNull() {
         assertNull(defaultStrategy.computeNewImportRefVersionConstraint(
                 new ImportRefVersionConstraint(null, MATCH_PERFECT), "1.0.0", "1.1.0").getVersion());
