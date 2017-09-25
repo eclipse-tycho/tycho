@@ -39,6 +39,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-artifactcomparator</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-testing-harness</artifactId>
 			<scope>test</scope>
 			</dependency>
@@ -69,7 +74,6 @@
 		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>sisu-equinox-launching</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 
         <dependency>
@@ -103,6 +107,10 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.plexus</groupId>
+				<artifactId>plexus-component-metadata</artifactId>
+			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>maven-properties-plugin</artifactId>

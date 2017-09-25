@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Red Hat Inc., and others
+ * Copyright (c) 2015-2017 Red Hat Inc., and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -27,9 +28,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
+import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
+import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -69,8 +71,8 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * A list of p2 repositories to be used as baseline. Those are typically the most recent
-     * released versions of your project.
+     * A list of p2 repositories to be used as baseline. Those are typically the most recent released
+     * versions of your project.
      */
     @Parameter(property = "baselines", name = "baselines")
     private List<String> baselines;
@@ -88,6 +90,15 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Component
     private Logger plexusLogger;
 
+    /**
+     * The hint of an available {@link ArtifactComparator} component to use for comparison of artifacts
+     * with same version.
+     */
+    @Parameter(defaultValue = BytesArtifactComparator.HINT, readonly = true)
+    private String comparator;
+    @Component(role = ArtifactComparator.class)
+    protected Map<String, ArtifactComparator> artifactComparators;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             getLog().info("Skipped");
@@ -98,6 +109,10 @@ public class CompareWithBaselineMojo extends AbstractMojo {
         if (dependencyMetadata == null || dependencyMetadata.isEmpty()) {
             getLog().debug("Skipping baseline version comparison, no p2 artifacts created in build.");
             return;
+        }
+        if (!this.artifactComparators.containsKey(this.comparator)) {
+            throw new MojoExecutionException("Unknown comparator `" + this.comparator + "`. Known comparators are: "
+                    + this.artifactComparators.keySet());
         }
 
         P2ResolverFactory resolverFactory = this.equinox.getService(P2ResolverFactory.class);
@@ -122,15 +137,15 @@ public class CompareWithBaselineMojo extends AbstractMojo {
 
                 for (Entry foundInBaseline : res.getArtifacts()) {
                     Version baselineVersion = new Version(foundInBaseline.getVersion());
-                    String delta = "" + (version.getMajor() - baselineVersion.getMajor()) + "."
+                    String versionDelta = "" + (version.getMajor() - baselineVersion.getMajor()) + "."
                             + (version.getMinor() - baselineVersion.getMinor()) + "."
                             + (version.getMicro() - baselineVersion.getMicro());
 
                     getLog().debug("Found " + foundInBaseline.getId() + "/" + foundInBaseline.getVersion()
-                            + " with delta: " + delta);
+                            + " with delta: " + versionDelta);
                     if (version.compareTo(baselineVersion) < 0) {
                         String message = "Version have moved backwards for (" + id + "/" + version + "). Baseline has "
-                                + baselineVersion + ") with delta: " + delta;
+                                + baselineVersion + ") with delta: " + versionDelta;
                         if (this.onIllegalVersion == ReportBehavior.warn) {
                             getLog().warn(message);
                             return;
@@ -139,26 +154,28 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                         }
                     } else if (version.equals(baselineVersion)) {
                         File baselineFile = foundInBaseline.getLocation();
-                        File currentFile = null;
+                        File reactorFile = null;
                         // TODO: currently, there are only 2 kinds of (known) artifacts, but we could have more
                         // and unknown ones. Need to find something smarter to map artifact with actual file.
                         if (id.endsWith("source")) {
-                            currentFile = reactorProject.getArtifact("sources");
+                            reactorFile = reactorProject.getArtifact("sources");
                         } else if (id.endsWith("source.feature.jar")) {
-                            currentFile = reactorProject.getArtifact("sources-feature");
+                            reactorFile = reactorProject.getArtifact("sources-feature");
                         } else {
-                            currentFile = reactorProject.getArtifact();
+                            reactorFile = reactorProject.getArtifact();
                         }
-                        if (!FileUtils.contentEquals(currentFile, baselineFile)) {
-                            String message = "Duplicate version but different content found for (" + id + "/" + version
-                                    + "). Also exists in baseline, but its content is different.";
-                            getLog().debug("For " + id + "/" + version + ":");
-                            getLog().debug("- baseline:" + baselineFile.getAbsolutePath());
-                            getLog().debug("- current:" + currentFile.getAbsolutePath());
+                        ArtifactDelta artifactDelta = this.artifactComparators.get(this.comparator)
+                                .getDelta(baselineFile, reactorFile);
+                        String message = "Baseline and reactor have same fully qualified version, but with different content";
+                        if (artifactDelta != null) {
                             if (this.onIllegalVersion == ReportBehavior.warn) {
                                 getLog().warn(message);
+                                getLog().warn(artifactDelta.getDetailedMessage());
                                 return;
                             } else {
+                                message += "\n";
+                                message += artifactDelta.getDetailedMessage();
+                                getLog().error(message);
                                 throw new MojoFailureException(message);
                             }
                         }
