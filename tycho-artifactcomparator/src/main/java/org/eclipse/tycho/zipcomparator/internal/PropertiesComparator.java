@@ -18,6 +18,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
@@ -26,7 +27,7 @@ public class PropertiesComparator implements ContentsComparator {
     public static final String TYPE = "properties";
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Properties props = new Properties();

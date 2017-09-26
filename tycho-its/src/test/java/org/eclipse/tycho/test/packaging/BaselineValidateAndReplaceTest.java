@@ -169,6 +169,16 @@ public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest
     }
 
     @Test
+    public void testBaselineFailCommon_Changed_ignoredFiles() throws Exception {
+        Verifier verifier = getVerifier("contentchanged", baselineRepo);
+        verifier.getCliOptions().addAll(Arrays.asList(new String[] { "--projects", "bundle01" }));
+        verifier.getCliOptions().add("-PignoreChanged");
+        verifier.getCliOptions().add("-Dtycho.baseline=failCommon");
+        verifier.executeGoals(Arrays.asList("clean", "package"));
+        verifier.verifyErrorFreeLog();
+    }
+
+    @Test
     public void testBaselineFailCommon_newAttachedArtifact() throws Exception {
         Verifier verifier = getVerifier("newattachedartifact", baselineRepo);
 

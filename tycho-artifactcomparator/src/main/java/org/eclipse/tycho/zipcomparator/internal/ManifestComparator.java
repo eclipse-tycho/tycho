@@ -22,6 +22,7 @@ import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
@@ -54,7 +55,7 @@ public class ManifestComparator implements ContentsComparator {
     }
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
         TreeMap<String, ArtifactDelta> result = new TreeMap<>();
 
         Manifest manifest = new Manifest(baseline);
