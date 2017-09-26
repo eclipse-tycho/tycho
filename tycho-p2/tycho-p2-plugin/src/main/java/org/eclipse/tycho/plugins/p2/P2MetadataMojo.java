@@ -36,6 +36,7 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -51,15 +52,15 @@ import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
-import org.eclipse.tycho.plugins.p2.BaselineMode;
-import org.eclipse.tycho.plugins.p2.BaselineReplace;
-import org.eclipse.tycho.plugins.p2.BaselineValidator;
 
 @Mojo(name = "p2-metadata")
 public class P2MetadataMojo extends AbstractMojo {
 
     @Parameter(property = "project")
     protected MavenProject project;
+
+    @Parameter(property = "mojoExecution", readonly = true)
+    protected MojoExecution execution;
 
     @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
@@ -136,10 +137,9 @@ public class P2MetadataMojo extends AbstractMojo {
             artifacts.add(projectDefaultArtifact);
 
             for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
-                if (attachedArtifact.getFile() != null
-                        && (attachedArtifact.getFile().getName().endsWith(".jar") || (attachedArtifact.getFile()
-                                .getName().endsWith(".zip") && project.getPackaging().equals(
-                                ArtifactType.TYPE_INSTALLABLE_UNIT)))) {
+                if (attachedArtifact.getFile() != null && (attachedArtifact.getFile().getName().endsWith(".jar")
+                        || (attachedArtifact.getFile().getName().endsWith(".zip")
+                                && project.getPackaging().equals(ArtifactType.TYPE_INSTALLABLE_UNIT)))) {
                     artifacts.add(new ArtifactFacade(attachedArtifact));
                 }
             }
@@ -149,7 +149,7 @@ public class P2MetadataMojo extends AbstractMojo {
             Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts, targetDir);
 
             if (baselineMode != BaselineMode.disable) {
-                generatedMetadata = baselineValidator.validateAndReplace(project, generatedMetadata,
+                generatedMetadata = baselineValidator.validateAndReplace(project, execution, generatedMetadata,
                         baselineRepositories, baselineMode, baselineReplace);
             }
 

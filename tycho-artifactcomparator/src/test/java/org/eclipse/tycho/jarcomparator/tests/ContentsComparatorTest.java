@@ -64,7 +64,7 @@ public class ContentsComparatorTest extends PlexusTestCase {
         try {
             InputStream is2 = new FileInputStream(reactor);
             try {
-                return comparator.getDelta(is, is2) == null;
+                return comparator.getDelta(is, is2, null) == null;
             } finally {
                 IOUtil.close(is2);
             }
