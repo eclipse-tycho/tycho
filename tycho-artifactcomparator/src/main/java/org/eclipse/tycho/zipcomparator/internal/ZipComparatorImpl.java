@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012-2017 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Mickael Istria (Red Hat Inc.) - 522531 Baseline allows to ignore files
  *******************************************************************************/
 package org.eclipse.tycho.zipcomparator.internal;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -25,11 +27,13 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.SelectorUtils;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
@@ -55,15 +59,25 @@ public class ZipComparatorImpl implements ArtifactComparator {
     private Map<String, ContentsComparator> comparators;
 
     @Override
-    public CompoundArtifactDelta getDelta(File baseline, File reactor) throws IOException {
+    public CompoundArtifactDelta getDelta(File baseline, File reactor, MojoExecution execution) throws IOException {
         Map<String, ArtifactDelta> result = new LinkedHashMap<>();
+        Collection<String> ignoredPatterns = new HashSet<>(IGNORED_PATTERNS);
+        if (execution != null) {
+            Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
+            Xpp3Dom ignoredPatternsNode = pluginConfiguration.getChild("ignoredPatterns");
+            if (ignoredPatternsNode != null) {
+                for (Xpp3Dom node : ignoredPatternsNode.getChildren()) {
+                    ignoredPatterns.add(node.getValue());
+                }
+            }
+        }
 
         ZipFile jar = new ZipFile(baseline);
         try {
             ZipFile jar2 = new ZipFile(reactor);
             try {
-                Map<String, ZipEntry> entries = toEntryMap(jar);
-                Map<String, ZipEntry> entries2 = toEntryMap(jar2);
+                Map<String, ZipEntry> entries = toEntryMap(jar, ignoredPatterns);
+                Map<String, ZipEntry> entries2 = toEntryMap(jar2, ignoredPatterns);
 
                 Set<String> names = new TreeSet<>();
                 names.addAll(entries.keySet());
@@ -86,7 +100,7 @@ public class ZipComparatorImpl implements ArtifactComparator {
                         InputStream is2 = jar2.getInputStream(entry2);
                         try {
                             ContentsComparator comparator = comparators.get(getContentType(name));
-                            ArtifactDelta differences = comparator.getDelta(is, is2);
+                            ArtifactDelta differences = comparator.getDelta(is, is2, execution);
                             if (differences != null) {
                                 result.put(name, differences);
                                 continue;
@@ -133,20 +147,20 @@ public class ZipComparatorImpl implements ArtifactComparator {
         return DefaultContentsComparator.TYPE;
     }
 
-    private Map<String, ZipEntry> toEntryMap(ZipFile zip) {
+    private static Map<String, ZipEntry> toEntryMap(ZipFile zip, Collection<String> ignoredPatterns) {
         Map<String, ZipEntry> result = new LinkedHashMap<>();
         Enumeration<? extends ZipEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-            if (!entry.isDirectory() && !isIgnored(entry.getName())) {
+            if (!entry.isDirectory() && !isIgnored(entry.getName(), ignoredPatterns)) {
                 result.put(entry.getName(), entry);
             }
         }
         return result;
     }
 
-    private boolean isIgnored(String name) {
-        for (String pattern : IGNORED_PATTERNS) {
+    private static boolean isIgnored(String name, Collection<String> ignoredPatterns) {
+        for (String pattern : ignoredPatterns) {
             if (SelectorUtils.matchPath(pattern, name, false)) {
                 return true;
             }

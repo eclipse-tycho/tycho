@@ -13,7 +13,7 @@ package org.eclipse.tycho.jarcomparator.tests;
 import java.util.Map;
 import java.util.TreeMap;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 import org.eclipse.tycho.zipcomparator.internal.CompoundArtifactDelta;

@@ -13,8 +13,9 @@ package org.eclipse.tycho.zipcomparator.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
 
 public interface ContentsComparator {
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException;
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException;
 }

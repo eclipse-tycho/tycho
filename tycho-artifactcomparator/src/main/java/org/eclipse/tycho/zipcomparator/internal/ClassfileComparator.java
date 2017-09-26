@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.artifactcomparator.ArtifactDelta;
@@ -39,7 +40,7 @@ public class ClassfileComparator implements ContentsComparator {
     // which is not exported, so can't use this either.
 
     @Override
-    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor) throws IOException {
+    public ArtifactDelta getDelta(InputStream baseline, InputStream reactor, MojoExecution mojo) throws IOException {
         byte[] baselineBytes = IOUtil.toByteArray(baseline);
         byte[] reactorBytes = IOUtil.toByteArray(reactor);
 
