@@ -46,6 +46,30 @@
       "revId": "8e5b7addd76d01adbfadcb366aa75f7fb81f5005",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7880b39_a25d96fb",
+        "filename": "tycho-artifactcomparator/src/main/java/org/eclipse/tycho/zipcomparator/internal/ZipComparatorImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-09-27T15:12:35Z",
+      "side": 1,
+      "message": "ah OK, my bad. we can keep it this way.",
+      "parentUuid": "c7880b39_2797f89e",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 5
+      },
+      "revId": "8e5b7addd76d01adbfadcb366aa75f7fb81f5005",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
