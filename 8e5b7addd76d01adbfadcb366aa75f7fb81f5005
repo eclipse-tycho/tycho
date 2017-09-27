@@ -22,6 +22,30 @@
       "revId": "8e5b7addd76d01adbfadcb366aa75f7fb81f5005",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7880b39_2797f89e",
+        "filename": "tycho-artifactcomparator/src/main/java/org/eclipse/tycho/zipcomparator/internal/ZipComparatorImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2017-09-27T11:34:52Z",
+      "side": 1,
+      "message": "On line 64, the \"stateful\" ignored patterns are initiated with those static ones. If this works as expected, the ignoredPatterns always contain the ones defined here, so it shouldn\u0027t change the behavior.\nThat said, I can work on another implementation that would hardcode addition of those default pattens around line 64 so things should be clearer. Would you prefer it?",
+      "parentUuid": "c7880b39_27eb7871",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 5
+      },
+      "revId": "8e5b7addd76d01adbfadcb366aa75f7fb81f5005",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
