@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7880b39_27eb7871",
+        "filename": "tycho-artifactcomparator/src/main/java/org/eclipse/tycho/zipcomparator/internal/ZipComparatorImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-09-27T09:19:50Z",
+      "side": 1,
+      "message": "these are the default ignored patterns. to make the change compatible, we should make sure we still have them by default, otherwise default behaviour is changed.",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 5
+      },
+      "revId": "8e5b7addd76d01adbfadcb366aa75f7fb81f5005",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
