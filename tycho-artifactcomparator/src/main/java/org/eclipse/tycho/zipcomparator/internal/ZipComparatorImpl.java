@@ -64,10 +64,12 @@ public class ZipComparatorImpl implements ArtifactComparator {
         Collection<String> ignoredPatterns = new HashSet<>(IGNORED_PATTERNS);
         if (execution != null) {
             Xpp3Dom pluginConfiguration = (Xpp3Dom) execution.getPlugin().getConfiguration();
-            Xpp3Dom ignoredPatternsNode = pluginConfiguration.getChild("ignoredPatterns");
-            if (ignoredPatternsNode != null) {
-                for (Xpp3Dom node : ignoredPatternsNode.getChildren()) {
-                    ignoredPatterns.add(node.getValue());
+            if (pluginConfiguration != null) {
+                Xpp3Dom ignoredPatternsNode = pluginConfiguration.getChild("ignoredPatterns");
+                if (ignoredPatternsNode != null) {
+                    for (Xpp3Dom node : ignoredPatternsNode.getChildren()) {
+                        ignoredPatterns.add(node.getValue());
+                    }
                 }
             }
         }
