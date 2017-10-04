@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -69,6 +70,9 @@ public class CompareWithBaselineMojo extends AbstractMojo {
 
     @Parameter(property = "project", readonly = true)
     private MavenProject project;
+
+    @Parameter(property = "mojoExecution", readonly = true)
+    protected MojoExecution execution;
 
     /**
      * A list of p2 repositories to be used as baseline. Those are typically the most recent released
@@ -165,7 +169,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
                             reactorFile = reactorProject.getArtifact();
                         }
                         ArtifactDelta artifactDelta = this.artifactComparators.get(this.comparator)
-                                .getDelta(baselineFile, reactorFile);
+                                .getDelta(baselineFile, reactorFile, execution);
                         String message = "Baseline and reactor have same fully qualified version, but with different content";
                         if (artifactDelta != null) {
                             if (this.onIllegalVersion == ReportBehavior.warn) {

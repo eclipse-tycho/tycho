@@ -13,6 +13,7 @@ package org.eclipse.tycho.plugins.p2.extras;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
@@ -25,7 +26,7 @@ public class BytesArtifactComparator implements ArtifactComparator {
     public static final String HINT = "bytes";
 
     @Override
-    public ArtifactDelta getDelta(File baseline, File reactor) throws IOException {
+    public ArtifactDelta getDelta(File baseline, File reactor, MojoExecution mojoExecution) throws IOException {
         if (FileUtils.contentEquals(baseline, reactor)) {
             return null;
         }
