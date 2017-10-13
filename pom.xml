@@ -97,14 +97,14 @@
 		<maven-version>3.0</maven-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
-		<equinoxVersion>3.12.0.v20170512-1932</equinoxVersion>
-		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
+		<equinoxVersion>3.12.1.v20170821-1548</equinoxVersion>
+		<equinoxVersionMaven>${equinoxVersion}-SNAPSHOT</equinoxVersionMaven>
 		<equinoxCompatVersion>1.1.0.v20170516-1513</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<jdtVersion>3.14.0.v20170830-0152</jdtVersion>
+		<jdtVersion>3.13.50.v20171007-0855</jdtVersion>
 		<jdtVersionMaven>${jdtVersion}-SNAPSHOT</jdtVersionMaven>
-		<jdtAptVersion>1.3.0.v20170502-0408</jdtAptVersion>
-		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
+		<jdtAptVersion>1.3.50.v20170920-0950</jdtAptVersion>
+		<jdtAptVersionMaven>${jdtAptVersion}-SNAPSHOT</jdtAptVersionMaven>
 
 		<!-- version of Tycho used by this build -->
 		<tychoBootstrapVersion>0.26.0</tychoBootstrapVersion>
