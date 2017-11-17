@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2017 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -475,8 +475,6 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
             // This is the wellknown set of bundles for Eclipse based application for 3.3 and 3.4 without p2
             bundlesToStart.put("org.eclipse.equinox.common", // 
                     new BundleConfiguration("org.eclipse.equinox.common", 2, true));
-            bundlesToStart.put("org.eclipse.update.configurator", //
-                    new BundleConfiguration("org.eclipse.update.configurator", 3, true));
             bundlesToStart.put("org.eclipse.core.runtime", // 
                     new BundleConfiguration("org.eclipse.core.runtime", -1, true));
         }

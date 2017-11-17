@@ -61,8 +61,6 @@
       <plugin id="org.eclipse.ui.intro"/>
       <plugin id="org.eclipse.ui.views"/>
       <plugin id="org.eclipse.ui.workbench"/>
-      <plugin id="org.eclipse.update.configurator"/>
-      <plugin id="org.eclipse.update.core"/>
    </plugins>
 
 
