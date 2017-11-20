@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7979753_4a0a5fb2",
+        "filename": "tycho-its/projects/product.installation/eclipse-repository/main.product",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2017-11-20T09:55:15Z",
+      "side": 0,
+      "message": "is the comment no longer valid?",
+      "revId": "5951a62696123bff26cead593ca54d7b124a70e6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
