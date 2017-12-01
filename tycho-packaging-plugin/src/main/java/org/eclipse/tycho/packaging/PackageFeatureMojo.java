@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2017 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - #519941 Copy the shared license info
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
@@ -116,9 +117,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
         File licenseFeature = licenseFeatureHelper.getLicenseFeature(feature, project);
 
-        // remove license feature id and version from feature.xml
-        feature.setLicenseFeature(null);
-        feature.setLicenseFeatureVersion(null);
+        updateLicenseProperties(feature, licenseFeature);
 
         File featureXml = new File(outputDirectory, Feature.FEATURE_XML);
         try {
@@ -165,6 +164,22 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
         if (deployableFeature) {
             assembleDeployableFeature();
+        }
+    }
+
+    private void updateLicenseProperties(Feature feature, File licenseFeatureFile) {
+        // remove license feature id and version from feature.xml
+        feature.setLicenseFeature(null);
+        feature.setLicenseFeatureVersion(null);
+        // copy the license text and URL from the license feature
+        if (licenseFeatureFile != null) {
+            Feature licenseFeature = Feature.loadFeature(licenseFeatureFile);
+            if (licenseFeature.getLicenseURL() != null) {
+                feature.setLicenseURL(licenseFeature.getLicenseURL());
+            }
+            if (licenseFeature.getLicense() != null) {
+                feature.setLicense(licenseFeature.getLicense());
+            }
         }
     }
 
