@@ -57,6 +57,8 @@ public class PackageFeatureMojoTest extends AbstractTychoMojoTestCase {
             Feature feature = Feature.read(zip.getInputStream(zip.getEntry(Feature.FEATURE_XML)));
             assertNull(feature.getLicenseFeature());
             assertNull(feature.getLicenseFeatureVersion());
+            assertEquals("http://www.foo.bar", feature.getLicenseURL());
+            assertEquals("This is the license", feature.getLicense().trim());
 
             // feature.properties merged
             Properties p = new Properties();
