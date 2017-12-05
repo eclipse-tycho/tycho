@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2017 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann electronic GmbH. - Bug #519941 Copy the shared license info to target feature.xml
  *******************************************************************************/
 package org.eclipse.tycho.test.licenseFeature;
 
@@ -21,6 +22,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.util.IOUtil;
+import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Assert;
@@ -41,6 +43,8 @@ public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
                 "repository/target/repository/features/feature_1.2.3.123abc.jar"));
         assertFeatureJar(new File(verifier.getBasedir(),
                 "repository/target/repository/features/feature.conflicting-dependencies_1.2.3.123abc.jar"));
+        assertFeatureJar(new File(verifier.getBasedir(),
+                "repository/target/repository/features/feature.without-properties_1.2.3.123abc.jar"));
     }
 
     protected void assertFeatureJar(File feature) throws ZipException, IOException {
@@ -61,8 +65,15 @@ public class LicenseFeatureTest extends AbstractTychoIntegrationTest {
                 IOUtil.close(is);
             }
 
+            Feature featureXML = Feature.readJar(feature);
+
+            // make sure that the properties file contains the keys
             Assert.assertEquals("file1.txt", p.getProperty("licenseURL"));
             Assert.assertEquals("License - The More The Merrier.", p.getProperty("license"));
+            
+            // make sure that the feature.xml references the keys from the properties file
+            Assert.assertEquals("%licenseURL", featureXML.getLicenseURL());
+            Assert.assertEquals("%license", featureXML.getLicense().trim());
         } finally {
             zip.close();
         }
