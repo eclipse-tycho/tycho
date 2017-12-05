@@ -23,6 +23,7 @@
     <module>feature</module>
     <module>feature.conflicting-dependencies</module>
     <module>feature.license</module>
+    <module>feature.without-properties</module>
     <module>repository</module>
   </modules>
 
