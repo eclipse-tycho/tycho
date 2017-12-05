@@ -11,14 +11,11 @@
  *******************************************************************************/
 package org.eclipse.tycho.packaging;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -185,59 +182,49 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     private File getFeatureProperties(File licenseFeature, BuildProperties buildProperties)
             throws MojoExecutionException {
-        File featureProperties = null;
-        if (buildProperties.getBinIncludes().contains(FEATURE_PROPERTIES)) {
-            featureProperties = new File(outputDirectory, FEATURE_PROPERTIES);
-            if (featureProperties.exists() && !featureProperties.delete()) {
-                throw new MojoExecutionException("Could not delete file " + featureProperties.getAbsolutePath());
+        try {
+            File localFeatureProperties = new File(basedir, FEATURE_PROPERTIES);
+            File targetFeatureProperties = new File(outputDirectory, FEATURE_PROPERTIES);
+            if (targetFeatureProperties.exists() && !targetFeatureProperties.delete()) {
+                throw new MojoExecutionException("Could not delete file " + targetFeatureProperties.getAbsolutePath());
             }
-
-            OutputStream os = null;
-            try {
-                File localFeatureProperties = new File(basedir, FEATURE_PROPERTIES);
-
-                if (localFeatureProperties.canRead()) {
-                    os = new BufferedOutputStream(new FileOutputStream(featureProperties));
-                    InputStream is = new BufferedInputStream(new FileInputStream(localFeatureProperties));
-                    try {
-                        IOUtil.copy(is, os);
-                    } finally {
-                        IOUtil.close(is);
-                    }
-                }
-
-                if (licenseFeature != null) {
-                    ZipFile zip = new ZipFile(licenseFeature);
-                    try {
-                        ZipEntry entry = zip.getEntry(FEATURE_PROPERTIES);
-                        if (entry != null) {
-                            if (os == null) {
-                                os = new BufferedOutputStream(new FileOutputStream(featureProperties));
-                            } else {
-                                IOUtil.copy("\n", os);
-                            }
-                            InputStream is = zip.getInputStream(entry);
-                            try {
-                                IOUtil.copy(is, os);
-                            } finally {
-                                is.close();
-                            }
-                        }
-                    } finally {
-                        zip.close();
-                    }
-                } else if (localFeatureProperties.canRead()) {
-                    featureProperties = localFeatureProperties;
-                }
-            } catch (IOException e) {
-                throw new MojoExecutionException("Could not create feature.properties file for project " + project, e);
-            } finally {
-                if (os != null) {
-                    IOUtil.close(os);
-                }
+            // copy the feature.properties from the current feature to the target directory
+            if (buildProperties.getBinIncludes().contains(FEATURE_PROPERTIES) && localFeatureProperties.canRead()) {
+                Files.copy(localFeatureProperties.toPath(), targetFeatureProperties.toPath());
             }
+            // if there is a license feature, append to the existing feature.properties or create
+            // a new one containing the license features's feature.properties content
+            if (licenseFeature != null) {
+                appendToOrAddFeatureProperties(targetFeatureProperties, licenseFeature);
+            }
+            if (targetFeatureProperties.exists()) {
+                return targetFeatureProperties;
+            }
+            return null;
+        } catch (IOException e) {
+            throw new MojoExecutionException("Could not create feature.properties file for project " + project, e);
         }
-        return featureProperties;
+    }
+
+    private void appendToOrAddFeatureProperties(File targetFeatureProperties, File licenseFeature) throws IOException {
+        InputStream inputStream = null;
+        FileWriter writer = null;
+        try (ZipFile zip = new ZipFile(licenseFeature)) {
+            ZipEntry entry = zip.getEntry(FEATURE_PROPERTIES);
+            if (entry != null) {
+                inputStream = zip.getInputStream(entry);
+                writer = new FileWriter(targetFeatureProperties.getAbsolutePath(), true);
+                // if we append, first add a new line to be sure that we start 
+                // in a new line of the existing file
+                if (targetFeatureProperties.exists()) {
+                    IOUtil.copy("\n", writer);
+                }
+                IOUtil.copy(inputStream, writer);
+            }
+        } finally {
+            IOUtil.close(writer);
+            IOUtil.close(inputStream);
+        }
     }
 
     /**

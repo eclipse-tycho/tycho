@@ -6,6 +6,7 @@
    <features>
       <feature id="feature" version="1.2.3.qualifier"/>
       <feature id="feature.conflicting-dependencies" version="1.2.3.qualifier"/>
+      <feature id="feature.without-properties" version="1.2.3.qualifier"/>
    </features>
 
 </product>
