@@ -19,6 +19,8 @@ import java.util.List;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -129,7 +131,12 @@ class CompilerMain extends Main {
         if (bootclasspathAccessRules != null) {
             List<String> pathsWithAccessRules = new ArrayList<>(result.size());
             for (Classpath resultPath : result) {
-                pathsWithAccessRules.add(resultPath.getPath() + bootclasspathAccessRules);
+                if (resultPath instanceof IMultiModuleEntry) {
+                    pathsWithAccessRules
+                            .add(resultPath.getPath() + "/lib/" + JRTUtil.JRT_FS_JAR + bootclasspathAccessRules);
+                } else {
+                    pathsWithAccessRules.add(resultPath.getPath() + bootclasspathAccessRules);
+                }
             }
             result.clear();
             for (String pathWithAccessRules : pathsWithAccessRules) {
