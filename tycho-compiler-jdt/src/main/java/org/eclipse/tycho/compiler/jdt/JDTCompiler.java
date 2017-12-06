@@ -14,14 +14,19 @@ package org.eclipse.tycho.compiler.jdt;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +43,7 @@ import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -339,13 +345,23 @@ public class JDTCompiler extends AbstractCompiler {
         StringWriter out = new StringWriter();
         StringWriter err = new StringWriter();
 
-        CompilerMain compiler = new CompilerMain(new PrintWriter(out), new PrintWriter(err), false, getLogger());
+        Main compiler = new Main(new PrintWriter(out), new PrintWriter(err), false);
         compiler.options.put(CompilerOptions.OPTION_ReportForbiddenReference, CompilerOptions.ERROR);
         if (custom.javaHome != null) {
-            compiler.setJavaHome(new File(custom.javaHome));
+            // ugly reflection HACK to set javaHome
+            Method method;
+            try {
+                String javaHome = getJavaHomeFromToolchains(custom.javaHome);
+                getLogger().info("Using javaHome: " + javaHome);
+                method = compiler.getClass().getDeclaredMethod("setJavaHome", String.class);
+                method.setAccessible(true);
+                method.invoke(compiler, new Object[] { javaHome });
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
-        compiler.setBootclasspathAccessRules(custom.bootclasspathAccessRules);
-        getLogger().debug("Boot classpath access rules: " + custom.bootclasspathAccessRules);
+        getLogger().debug("JDT compiler arguments:" + Arrays.asList(args));
         boolean success = compiler.compile(args);
 
         try {
@@ -360,6 +376,32 @@ public class JDTCompiler extends AbstractCompiler {
             throw new CompilerException(err.toString());
         }
         return new CompilerResult(success, messages);
+    }
+
+    // bug 528905 provide backwards compatibility if <JAVA_HOME>/jre is still used
+    private String getJavaHomeFromToolchains(String toolChainsJavaHome) {
+        File toolChainsjavaHomeFile = new File(toolChainsJavaHome);
+        if ("jre".equals(toolChainsjavaHomeFile.getName())) {
+            // if we find a file named "release" with a JAVA_VERSION key in the parent dir, we assume it's a valid JAVA_HOME
+            File jreParentDir = toolChainsjavaHomeFile.getParentFile();
+            File javaReleaseFile = new File(jreParentDir, "release");
+            if (javaReleaseFile.isFile()) {
+                Properties prop = new Properties();
+                try {
+                    prop.load(new FileReader(javaReleaseFile));
+                    String javaVersion = prop.getProperty("JAVA_VERSION");
+                    if (javaVersion != null) {
+                        getLogger().warn(
+                                "Detected JRE " + toolChainsJavaHome + " configured as jdkHome in toolchains.xml");
+                        getLogger().warn("Using " + jreParentDir.getAbsolutePath() + " instead for compatibility");
+                        return jreParentDir.getAbsolutePath();
+                    }
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
+        }
+        return toolChainsJavaHome;
     }
 
     /**
