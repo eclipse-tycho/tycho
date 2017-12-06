@@ -553,7 +553,7 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
             throw new MojoExecutionException("useJDK = BREE configured, but no toolchain of type 'jdk' with id '"
                     + toolchainId + "' found. See http://maven.apache.org/guides/mini/guide-using-toolchains.html");
         }
-        compilerConfiguration.addCompilerCustomArgument("use.java.home", toolChain.getJavaHome());
+        compilerConfiguration.addCompilerCustomArgument("--system", toolChain.getJavaHome());
         configureBootClassPath(compilerConfiguration, toolChain);
     }
 
