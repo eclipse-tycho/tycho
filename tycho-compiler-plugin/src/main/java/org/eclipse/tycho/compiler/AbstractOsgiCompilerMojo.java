@@ -129,10 +129,10 @@ public abstract class AbstractOsgiCompilerMojo extends AbstractCompilerMojo impl
      * &lt;/toolchains&gt;
      * </pre>
      * 
-     * The default value of the bootclasspath used for compilation is
-     * <tt>&lt;jdkHome&gt;/lib/*;&lt;jdkHome&gt;/lib/ext/*;&lt;jdkHome&gt;/lib/endorsed/*</tt> .
+     * The default value of the bootclasspath used for compilation is determined by the JDT batch compiler based on
+     * <tt>jdkHome</tt>.
      * 
-     * For JDKs with different filesystem layouts, the bootclasspath can be specified explicitly in
+     * For JDKs with non-standard filesystem layouts, the bootclasspath can be specified explicitly in
      * the configuration section.
      * 
      * Example:
