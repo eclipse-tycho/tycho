@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP SE and others.
+ * Copyright (c) 2011, 2017 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Bachmann electronic GmbH. - Support for ignoreError flag
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring.facade;
 
@@ -28,6 +29,7 @@ public class MirrorOptions {
     private boolean followOnlyFilteredRequirements = false;
     private boolean latestVersionOnly = false;
     private Map<String, String> filter = new HashMap<>();
+    private boolean ignoreErrors = false;
 
     /**
      * Creates mirror options with default values.
@@ -41,9 +43,8 @@ public class MirrorOptions {
     }
 
     /**
-     * Set to true if only strict dependencies should be followed. A strict dependency is defined by
-     * a version range only including one version (e.g. [1.0.0.v2009, 1.0.0.v2009]). (Default is
-     * false)
+     * Set to true if only strict dependencies should be followed. A strict dependency is defined by a
+     * version range only including one version (e.g. [1.0.0.v2009, 1.0.0.v2009]). (Default is false)
      */
     public void setFollowStrictOnly(boolean followStrictOnly) {
         this.followStrictOnly = followStrictOnly;
@@ -123,4 +124,15 @@ public class MirrorOptions {
         this.includePacked = includePacked;
     }
 
+    /**
+     * When set to true,the mirroring application continues to run in the event of an error during the
+     * mirroring process. (Default: false)
+     */
+    public void setIgnoreErrors(boolean ignoreErrors) {
+        this.ignoreErrors = ignoreErrors;
+    }
+
+    public boolean isIgnoreErrors() {
+        return this.ignoreErrors;
+    }
 }
