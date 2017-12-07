@@ -208,6 +208,17 @@ public class MirrorMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private boolean currentModuleAsSource;
 
+    /**
+     * <p>
+     * If set to true, mirroring continues to run in the event of an error during the mirroring process
+     * and will just log an info message.
+     * </p>
+     * 
+     * @since 1.1.0
+     */
+    @Parameter(defaultValue = "false")
+    private boolean ignoreErrors;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         final MirrorApplicationService mirrorService = p2.getService(MirrorApplicationService.class);
 
@@ -256,6 +267,7 @@ public class MirrorMojo extends AbstractMojo {
         options.setLatestVersionOnly(latestVersionOnly);
         options.getFilter().putAll(filter);
         options.setIncludePacked(includePacked);
+        options.setIgnoreErrors(ignoreErrors);
         return options;
     }
 
