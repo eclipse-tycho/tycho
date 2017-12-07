@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2017 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Bachmann electronic GmbH. - Support for ignoreError flag
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
@@ -66,13 +67,14 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent,
                     mirrorOptions.isIncludePacked());
             mirrorApp.setSlicingOptions(createSlicingOptions(mirrorOptions));
+            mirrorApp.setIgnoreErrors(mirrorOptions.isIgnoreErrors());
             try {
                 // we want to see mirror progress as this is a possibly long-running operation
                 mirrorApp.setVerbose(true);
                 mirrorApp.setLog(new LogListener(mavenContext.getLogger()));
                 mirrorApp.setSourceIUs(querySourceIus(seedIUs, mirrorApp.getCompositeMetadataRepository(), sources));
                 IStatus returnStatus = mirrorApp.run(null);
-                checkStatus(returnStatus);
+                checkStatus(returnStatus, mirrorOptions.isIgnoreErrors());
 
             } catch (ProvisionException e) {
                 throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()), e);
@@ -156,7 +158,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
                     mirrorApp.setLog(logListener);
 
                     IStatus returnStatus = mirrorApp.run(null);
-                    checkStatus(returnStatus);
+                    checkStatus(returnStatus, false);
                     logListener.showHelpForLoggedMessages();
                 } catch (ProvisionException e) {
                     throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(e.getStatus()),
@@ -281,10 +283,13 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         return result;
     }
 
-    private static void checkStatus(IStatus status) throws FacadeException {
+    private void checkStatus(IStatus status, boolean ignoreErrors) throws FacadeException {
         if (status.matches(IStatus.ERROR)) {
-            throw new FacadeException(MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(status),
-                    StatusTool.findException(status));
+            String message = MIRROR_FAILURE_MESSAGE + ": " + StatusTool.collectProblems(status);
+            if (!ignoreErrors) {
+                throw new FacadeException(message, StatusTool.findException(status));
+            }
+            mavenContext.getLogger().info(message);
         }
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP SE and others.
+ * Copyright (c) 2011, 2017 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP SE - initial API and implementation
+ *    Bachmann electronic GmbH. - Support for ignoreError flag    
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
@@ -124,6 +125,23 @@ public class MirrorStandaloneTest {
         subject.mirrorStandalone(e342PlusFragmentsRepo(), destinationRepo,
                 Collections.singletonList(new IUDescription("org.eclipse.core.runtime", "10.0.0")),
                 new MirrorOptions(), targetFolder);
+    }
+
+    @Test
+    public void testIgnoreErrorShouldNotThrowException() throws FacadeException {
+        MirrorOptions mirrorOptions = new MirrorOptions();
+        mirrorOptions.setIgnoreErrors(true);
+        subject.mirrorStandalone(sourceRepos("invalid/wrong_checksum"), destinationRepo,
+                Collections.singletonList(new IUDescription("jarsigning", "0.0.1.201109191414")), mirrorOptions,
+                targetFolder);
+
+    }
+
+    @Test(expected = FacadeException.class)
+    public void testNotIgnoringErrorsShouldThrowException() throws FacadeException {
+        subject.mirrorStandalone(sourceRepos("invalid/wrong_checksum"), destinationRepo,
+                Collections.singletonList(new IUDescription("jarsigning", "0.0.1.201109191414")), new MirrorOptions(),
+                targetFolder);
     }
 
     @Test
