@@ -34,6 +34,24 @@
       "revId": "2d0ec476110085c040f70b64f37ec052e3cf990c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7979753_b0ea106b",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2017-12-13T21:39:19Z",
+      "side": 1,
+      "message": "yes, agree this is a good tradeoff. or maybe wait until jdt gives tycho \"api\" to set javahome without reflection. don\u0027t have strong opinion.",
+      "parentUuid": "a7979753_c276f67c",
+      "revId": "2d0ec476110085c040f70b64f37ec052e3cf990c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
