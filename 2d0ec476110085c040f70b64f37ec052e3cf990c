@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7979753_c276f67c",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 583
+      },
+      "writtenOn": "2017-12-13T13:14:00Z",
+      "side": 1,
+      "message": "This won\u0027t work on java 8.",
+      "revId": "2d0ec476110085c040f70b64f37ec052e3cf990c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
