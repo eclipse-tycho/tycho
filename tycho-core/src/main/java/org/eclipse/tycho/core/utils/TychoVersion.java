@@ -18,18 +18,34 @@ import org.codehaus.plexus.util.IOUtil;
 
 public class TychoVersion {
 
-    private static final String TYCHO_VERSION = readVersion();
+    static {
+        readVersions();
+    }
+
+    private static String TYCHO_VERSION;
+    private static String JDT_CORE_VERSION;
+    private static String JDT_APT_VERSION;
 
     public static String getTychoVersion() {
         return TYCHO_VERSION;
     }
 
-    private static String readVersion() {
+    public static String getJdtCoreVersion() {
+        return JDT_CORE_VERSION;
+    }
+
+    public static String getJdtAptVersion() {
+        return JDT_APT_VERSION;
+    }
+
+    private static void readVersions() {
         InputStream stream = TychoVersion.class.getResourceAsStream("version.properties");
         try {
             Properties p = new Properties();
             p.load(stream);
-            return p.getProperty("version");
+            TYCHO_VERSION = p.getProperty("version");
+            JDT_CORE_VERSION = p.getProperty("jdtCoreVersion");
+            JDT_APT_VERSION = p.getProperty("jdtAptVersion");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } finally {
