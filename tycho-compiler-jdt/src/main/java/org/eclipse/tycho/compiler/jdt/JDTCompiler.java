@@ -28,6 +28,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.compiler.AbstractCompiler;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
 import org.codehaus.plexus.compiler.CompilerException;
@@ -36,6 +40,7 @@ import org.codehaus.plexus.compiler.CompilerMessage.Kind;
 import org.codehaus.plexus.compiler.CompilerOutputStyle;
 import org.codehaus.plexus.compiler.CompilerResult;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -45,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.tycho.core.utils.TychoVersion;
 
 /**
  * See http://help.eclipse.org/ganymede/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
@@ -65,6 +71,12 @@ public class JDTCompiler extends AbstractCompiler {
 
     static final Pattern LINE_PATTERN = Pattern
             .compile("(?:(\\d*)\\. )?(ERROR|WARNING) in (.*?)( \\(at line (\\d+)\\))?\\s*");
+
+    @Requirement
+    private RepositorySystem repositorySystem;
+
+    @Requirement
+    private LegacySupport buildContext;
 
     public JDTCompiler() {
         super(CompilerOutputStyle.ONE_OUTPUT_FILE_PER_INPUT_FILE, ".java", ".class", null);
@@ -102,13 +114,8 @@ public class JDTCompiler extends AbstractCompiler {
         CompilerResult messages;
 
         if (config.isFork()) {
-            String executable = config.getExecutable();
 
-            if (StringUtils.isEmpty(executable)) {
-                executable = "javac";
-            }
-
-            messages = compileOutOfProcess(config.getWorkingDirectory(), executable, args);
+            messages = compileOutOfProcess(config.getWorkingDirectory(), args, custom);
         } else {
             messages = compileInProcess(args, custom);
         }
@@ -279,26 +286,39 @@ public class JDTCompiler extends AbstractCompiler {
      * 
      * @param workingDirectory
      *            base directory where the process will be launched
-     * @param executable
-     *            name of the executable to launch
      * @param args
      *            arguments for the executable launched
      * @return CompilerResult with the errors and warnings encountered.
      * @throws CompilerException
      */
-    CompilerResult compileOutOfProcess(File workingDirectory, String executable, String[] args)
+    CompilerResult compileOutOfProcess(File workingDirectory, String[] args, CustomCompilerConfiguration custom)
             throws CompilerException {
-        if (true /* fork is not supported */) {
-            throw new UnsupportedOperationException("compileoutOfProcess not supported");
-        }
 
         Commandline cli = new Commandline();
 
         cli.setWorkingDirectory(workingDirectory.getAbsolutePath());
-
+        String javaHome = custom.javaHome != null ? custom.javaHome : System.getProperty("java.home");
+        String executable = javaHome + File.separator + "bin" + File.separator + "java";
+        if (File.separatorChar == '\\') {
+            executable = executable + ".exe";
+        }
         cli.setExecutable(executable);
+        List<String> argList = new ArrayList<>();
+        argList.add("-cp");
 
-        cli.addArguments(args);
+        ArtifactRepository localMavenRepository = buildContext.getSession().getLocalRepository();
+        Artifact jdtCoreArtifact = repositorySystem.createArtifact("org.eclipse.tycho", "org.eclipse.jdt.core",
+                TychoVersion.getJdtCoreVersion(), "jar");
+        File jdtCoreJar = new File(localMavenRepository.getBasedir(), localMavenRepository.pathOf(jdtCoreArtifact));
+
+        Artifact jdtAptArtifact = repositorySystem.createArtifact("org.eclipse.tycho", "org.eclipse.jdt.compiler.apt",
+                TychoVersion.getJdtAptVersion(), "jar");
+        File jdtAptJar = new File(localMavenRepository.getBasedir(), localMavenRepository.pathOf(jdtAptArtifact));
+        argList.add(jdtCoreJar.getAbsolutePath() + File.pathSeparator + jdtAptJar.getAbsolutePath());
+
+        argList.add("org.eclipse.jdt.internal.compiler.batch.Main");
+        argList.addAll(Arrays.asList(args));
+        cli.addArguments(argList.toArray(new String[0]));
 
         CommandLineUtils.StringStreamConsumer out = new CommandLineUtils.StringStreamConsumer();
 
@@ -307,7 +327,7 @@ public class JDTCompiler extends AbstractCompiler {
         int returnCode;
 
         List<CompilerMessage> messages;
-
+        getLogger().debug("Executing commandline: " + Arrays.asList(cli.getCommandline()));
         try {
             returnCode = CommandLineUtils.executeCommandLine(cli, out, err);
 
@@ -320,8 +340,9 @@ public class JDTCompiler extends AbstractCompiler {
 
         if (returnCode != 0 && messages.isEmpty()) {
             // TODO: exception?
-            messages.add(new CompilerMessage("Failure executing javac,  but could not parse the error:" + EOL
-                    + err.getOutput(), Kind.ERROR));
+            messages.add(new CompilerMessage(
+                    "Failure executing JDT batch compiler,  but could not parse the error:" + EOL + err.getOutput(),
+                    Kind.ERROR));
         }
 
         return new CompilerResult(returnCode == 0, messages);
