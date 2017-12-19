@@ -16,12 +16,10 @@ import static org.junit.Assert.fail;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class RequireJREPackagesImportTest extends AbstractTychoIntegrationTest {
 
-    @Ignore("TODO bug 514471 check if we can re-enable strict access rules for JDK packages")
     @Test
     public void testStrictImportJREPackages() throws Exception {
         Verifier verifier = getVerifier("compiler.requireJREPackageImports", false);
