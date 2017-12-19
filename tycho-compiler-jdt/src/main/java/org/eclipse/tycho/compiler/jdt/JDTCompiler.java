@@ -18,10 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +38,6 @@ import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -343,22 +339,13 @@ public class JDTCompiler extends AbstractCompiler {
         StringWriter out = new StringWriter();
         StringWriter err = new StringWriter();
 
-        Main compiler = new Main(new PrintWriter(out), new PrintWriter(err), false);
+        CompilerMain compiler = new CompilerMain(new PrintWriter(out), new PrintWriter(err), false, getLogger());
         compiler.options.put(CompilerOptions.OPTION_ReportForbiddenReference, CompilerOptions.ERROR);
         if (custom.javaHome != null) {
-            // ugly reflection HACK to set javaHome
-            Method method;
-            try {
-                getLogger().info("set javaHome to " + custom.javaHome);
-                method = compiler.getClass().getDeclaredMethod("setJavaHome", String.class);
-                method.setAccessible(true);
-                method.invoke(compiler, new Object[] { custom.javaHome });
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+            compiler.setJavaHome(new File(custom.javaHome));
         }
-        getLogger().debug("JDT compiler arguments:" + Arrays.asList(args));
+        compiler.setBootclasspathAccessRules(custom.bootclasspathAccessRules);
+        getLogger().debug("Boot classpath access rules: " + custom.bootclasspathAccessRules);
         boolean success = compiler.compile(args);
 
         try {
