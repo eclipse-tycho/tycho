@@ -35,3 +35,4 @@ Import-Package: org.eclipse.osgi.util,
  org.osgi.framework
 Bundle-Activator: org.eclipse.tycho.p2.maven.repository.Activator
 Service-Component: OSGI-INF/localRepoP2Indices.xml
+Automatic-Module-Name: org.eclipse.tycho.p2.maven.repository

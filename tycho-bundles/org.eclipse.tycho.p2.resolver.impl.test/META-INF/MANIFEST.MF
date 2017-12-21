@@ -17,3 +17,4 @@ Import-Package: org.eclipse.tycho.p2.remote.testutil,
  org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.testutil,
  org.eclipse.tycho.test.util
+Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl.test

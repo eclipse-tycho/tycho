@@ -14,3 +14,4 @@ Import-Package: org.testng,
  org.testng.xml
 Bundle-Vendor: %providerName
 Export-Package: org.apache.maven.surefire.testng.utils
+Automatic-Module-Name: org.eclipse.tycho.surefire.testng

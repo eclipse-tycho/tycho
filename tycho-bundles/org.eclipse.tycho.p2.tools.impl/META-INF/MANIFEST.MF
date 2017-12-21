@@ -46,3 +46,4 @@ Service-Component: OSGI-INF/directorapp.xml, OSGI-INF/publisherfactory.xml, OSGI
 Bundle-Activator: org.eclipse.tycho.p2.tools.impl.Activator
 Bundle-Vendor: %providerName
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.tycho.p2.tools.impl

@@ -17,3 +17,4 @@ Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.core.ee.shared,
  org.eclipse.tycho.core.resolver.shared,
  org.eclipse.tycho.core.shared
+Automatic-Module-Name: org.eclipse.tycho.p2.resolver.shared

@@ -15,3 +15,4 @@ Import-Package: org.eclipse.tycho.locking.facade,
  org.eclipse.tycho.repository.streaming.testutil,
  org.eclipse.tycho.repository.testutil,
  org.eclipse.tycho.test.util
+Automatic-Module-Name: org.eclipse.tycho.p2.maven.repository.tests

@@ -9,3 +9,4 @@ Bundle-Vendor: Eclipse Tycho
 Require-Bundle: org.junit,
  org.mockito,
  org.eclipse.equinox.ds
+Automatic-Module-Name: org.eclipse.tycho.p2.resolver.shared.tests

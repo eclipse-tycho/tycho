@@ -15,3 +15,4 @@ Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.repository.module,
  org.eclipse.tycho.repository.p2base.metadata,
  org.eclipse.tycho.test.util
+Automatic-Module-Name: org.eclipse.tycho.p2.tools.tests

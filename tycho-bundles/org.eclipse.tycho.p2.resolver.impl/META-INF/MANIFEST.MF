@@ -61,3 +61,4 @@ Service-Component: OSGI-INF/generator.xml,
  OSGI-INF/resolver.xml,
  OSGI-INF/targetDefinitionResolverService.xml
 Bundle-Vendor: %providerName
+Automatic-Module-Name: org.eclipse.tycho.p2.resolver.impl

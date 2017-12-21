@@ -19,3 +19,4 @@ Import-Package: org.eclipse.tycho,
  org.eclipse.tycho.p2.repository,
  org.eclipse.tycho.repository.registry.facade
 Bundle-Vendor: %providerName
+Automatic-Module-Name: org.eclipse.tycho.p2.tools.shared
