@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "87929364_9ea2e5ab",
+        "filename": "pom.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-01-04T14:56:49Z",
+      "side": 1,
+      "message": "if you check the proposal, you can see it was first done in May 2017 and then sat there broken for quite a while.\n\nthere is a ton of CQs that had to be filed and approved. For a new version we would have to file new CQs for all libraries.\n\nI\u0027m only interested in new surefire versions if they bring new features or important fixes (and don#t introduce regressions, which happened in the past). In particular here I am interested in support for JUnit 5 which seems to work with surefire 2.19.1 according to\nhttp://junit.org/junit5/docs/current/user-guide/#running-tests-build-maven\n\nIn particular, there seems to be an issue with surefire 2.20.x and JUnit5: https://github.com/junit-team/junit5/issues/809",
+      "parentUuid": "87929364_a3dceedc",
+      "revId": "bc150dd54a2422d1e75285fe6149bed12483eed1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87929364_c3e81a77",
         "filename": "tycho-surefire/pom.xml",
         "patchSetId": 8
