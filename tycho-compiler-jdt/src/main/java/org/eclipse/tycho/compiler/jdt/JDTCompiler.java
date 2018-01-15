@@ -14,6 +14,7 @@ package org.eclipse.tycho.compiler.jdt;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -384,10 +386,24 @@ public class JDTCompiler extends AbstractCompiler {
     private String getJavaHomeFromToolchains(String toolChainsJavaHome) {
         File toolChainsjavaHomeFile = new File(toolChainsJavaHome);
         if ("jre".equals(toolChainsjavaHomeFile.getName())) {
+            // if we find a file named "release" with a JAVA_VERSION key in the parent dir, we assume it's a valid JAVA_HOME
             File jreParentDir = toolChainsjavaHomeFile.getParentFile();
-            getLogger().warn("Detected JRE " + toolChainsJavaHome + " configured as jdkHome in toolchains.xml");
-            getLogger().warn("Using " + jreParentDir.getAbsolutePath() + " instead for compatibility");
-            return jreParentDir.getAbsolutePath();
+            File javaReleaseFile = new File(jreParentDir, "release");
+            if (javaReleaseFile.isFile()) {
+                Properties prop = new Properties();
+                try {
+                    prop.load(new FileReader(javaReleaseFile));
+                    String javaVersion = prop.getProperty("JAVA_VERSION");
+                    if (javaVersion != null) {
+                        getLogger().warn(
+                                "Detected JRE " + toolChainsJavaHome + " configured as jdkHome in toolchains.xml");
+                        getLogger().warn("Using " + jreParentDir.getAbsolutePath() + " instead for compatibility");
+                        return jreParentDir.getAbsolutePath();
+                    }
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
         }
         return toolChainsJavaHome;
     }
