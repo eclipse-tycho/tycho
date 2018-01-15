@@ -89,7 +89,7 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/eclipse/updates/4.8milestones/S-4.8M4-201712062000/</url>
+							<url>http://download.eclipse.org/eclipse/updates/4.8milestones/S-4.8M2-201709132000</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
@@ -169,6 +169,7 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
 								</configuration>
 							</execution>
+							<!-- 
 							<execution>
 								<id>deploy-jdt-apt</id>
 								<phase>deploy</phase>
@@ -181,6 +182,7 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
 								</configuration>
 							</execution>
+							-->
 						</executions>
 					</plugin>
 				</plugins>
@@ -209,6 +211,7 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.pom</pomFile>
 								</configuration>
 							</execution>
+							<!--  
 							<execution>
 								<id>deploy-equinox-compat</id>
 								<phase>deploy</phase>
@@ -221,6 +224,7 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.compatibility.state.pom</pomFile>
 								</configuration>
 							</execution>
+							-->
 						</executions>
 					</plugin>
 				</plugins>
