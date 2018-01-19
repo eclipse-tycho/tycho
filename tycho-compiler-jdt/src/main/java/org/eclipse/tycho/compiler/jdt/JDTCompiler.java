@@ -19,12 +19,17 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.plugin.LegacySupport;
+import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.compiler.AbstractCompiler;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
 import org.codehaus.plexus.compiler.CompilerException;
@@ -33,14 +38,18 @@ import org.codehaus.plexus.compiler.CompilerMessage.Kind;
 import org.codehaus.plexus.compiler.CompilerOutputStyle;
 import org.codehaus.plexus.compiler.CompilerResult;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.tycho.compiler.jdt.copied.LibraryInfo;
+import org.eclipse.tycho.core.utils.TychoVersion;
 
 /**
  * See http://help.eclipse.org/ganymede/topic/org.eclipse.jdt.doc.isv/guide/jdt_api_options.htm
@@ -61,6 +70,12 @@ public class JDTCompiler extends AbstractCompiler {
 
     static final Pattern LINE_PATTERN = Pattern
             .compile("(?:(\\d*)\\. )?(ERROR|WARNING) in (.*?)( \\(at line (\\d+)\\))?\\s*");
+
+    @Requirement
+    private RepositorySystem repositorySystem;
+
+    @Requirement
+    private LegacySupport legacySupport;
 
     public JDTCompiler() {
         super(CompilerOutputStyle.ONE_OUTPUT_FILE_PER_INPUT_FILE, ".java", ".class", null);
@@ -86,9 +101,8 @@ public class JDTCompiler extends AbstractCompiler {
             return new CompilerResult();
         }
 
-        getLogger().info(
-                "Compiling " + sourceFiles.length + " " + "source file" + (sourceFiles.length == 1 ? "" : "s") + " to "
-                        + destinationDir.getAbsolutePath());
+        getLogger().info("Compiling " + sourceFiles.length + " " + "source file" + (sourceFiles.length == 1 ? "" : "s")
+                + " to " + destinationDir.getAbsolutePath());
 
         Map<String, String> customCompilerArguments = config.getCustomCompilerArgumentsAsMap();
         checkCompilerArgs(customCompilerArguments, custom);
@@ -316,8 +330,8 @@ public class JDTCompiler extends AbstractCompiler {
 
         if (returnCode != 0 && messages.isEmpty()) {
             // TODO: exception?
-            messages.add(new CompilerMessage("Failure executing javac,  but could not parse the error:" + EOL
-                    + err.getOutput(), Kind.ERROR));
+            messages.add(new CompilerMessage(
+                    "Failure executing javac,  but could not parse the error:" + EOL + err.getOutput(), Kind.ERROR));
         }
 
         return new CompilerResult(returnCode == 0, messages);
@@ -339,14 +353,14 @@ public class JDTCompiler extends AbstractCompiler {
         StringWriter out = new StringWriter();
         StringWriter err = new StringWriter();
 
-        CompilerMain compiler = new CompilerMain(new PrintWriter(out), new PrintWriter(err), false, getLogger());
+        Main compiler = new Main(new PrintWriter(out), new PrintWriter(err), false);
         compiler.options.put(CompilerOptions.OPTION_ReportForbiddenReference, CompilerOptions.ERROR);
+        List<String> jdtCompilerArgs = new ArrayList<>(Arrays.asList(args));
         if (custom.javaHome != null) {
-            compiler.setJavaHome(new File(custom.javaHome));
+            addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
         }
-        compiler.setBootclasspathAccessRules(custom.bootclasspathAccessRules);
-        getLogger().debug("Boot classpath access rules: " + custom.bootclasspathAccessRules);
-        boolean success = compiler.compile(args);
+        getLogger().debug("JDT compiler args: " + jdtCompilerArgs);
+        boolean success = compiler.compile(jdtCompilerArgs.toArray(new String[0]));
 
         try {
             String output = err.toString();
@@ -360,6 +374,36 @@ public class JDTCompiler extends AbstractCompiler {
             throw new CompilerException(err.toString());
         }
         return new CompilerResult(success, messages);
+    }
+
+    private void addExternalJavaHomeArgs(List<String> jdtCompilerArgs, String javaHome) {
+        LibraryInfo libInfo = new StandardVMType(javaHome, getLibDetectorJar()).getLibraryInfo();
+        addToCompilerArgumentsIfNotSet("-bootclasspath", String.join(File.pathSeparator, libInfo.getBootpath()),
+                jdtCompilerArgs);
+        if (libInfo.getExtensionDirs().length > 0) {
+            addToCompilerArgumentsIfNotSet("-extdirs", String.join(File.pathSeparator, libInfo.getExtensionDirs()),
+                    jdtCompilerArgs);
+        }
+        if (libInfo.getEndorsedDirs().length > 0) {
+            addToCompilerArgumentsIfNotSet("-endorseddirs", String.join(File.pathSeparator, libInfo.getEndorsedDirs()),
+                    jdtCompilerArgs);
+        }
+    }
+
+    private void addToCompilerArgumentsIfNotSet(String argument, String value, List<String> compilerArguments) {
+        if (compilerArguments.contains(argument)) {
+            // argument explicitly set by user - nothing to do
+            return;
+        }
+        compilerArguments.add(argument);
+        compilerArguments.add(value);
+    }
+
+    private File getLibDetectorJar() {
+        Artifact tychoCompilerJdtJar = repositorySystem.createArtifact("org.eclipse.tycho", "tycho-lib-detector",
+                TychoVersion.getTychoVersion(), "jar");
+        ArtifactRepository localRepository = legacySupport.getSession().getLocalRepository();
+        return new File(localRepository.getBasedir(), localRepository.pathOf(tychoCompilerJdtJar));
     }
 
     /**
@@ -469,8 +513,8 @@ public class JDTCompiler extends AbstractCompiler {
                     // not
                     // otherwise it would match on the first endsWith
                     int ruleLength = rule.length();
-                    if (pathElement
-                            .regionMatches(false, pathElement.length() - ruleLength + 1, rule, 0, ruleLength - 1)) {
+                    if (pathElement.regionMatches(false, pathElement.length() - ruleLength + 1, rule, 0,
+                            ruleLength - 1)) {
                         result.append(rules[j + 1]);
                         nextRule = j + 2;
                         break;
@@ -539,7 +583,8 @@ public class JDTCompiler extends AbstractCompiler {
                                     custom.dirEncodings.put(str, enc);
                                 }
                             }
-                        } else if (CharOperation.equals(ADAPTER_ACCESS, content, start, start + ADAPTER_ACCESS.length)) {
+                        } else if (CharOperation.equals(ADAPTER_ACCESS, content, start,
+                                start + ADAPTER_ACCESS.length)) {
                             // access rules for the classpath
                             start += ADAPTER_ACCESS.length;
                             int accessStart = CharOperation.indexOf('[', content, start, end);
