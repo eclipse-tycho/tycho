@@ -47,6 +47,7 @@ import org.eclipse.tycho.repository.publishing.PublishingRepository;
 public class PublishProductToolImpl implements PublishProductTool {
 
     private final P2TargetPlatform targetPlatform;
+    private final File executionEnvironmentFile;
 
     private final PublisherActionRunner publisherRunner;
     private final PublishingRepository publishingRepository;
@@ -56,10 +57,12 @@ public class PublishProductToolImpl implements PublishProductTool {
     private final MavenLogger logger;
 
     public PublishProductToolImpl(PublisherActionRunner publisherRunner, PublishingRepository publishingRepository,
-            P2TargetPlatform targetPlatform, String buildQualifier, Interpolator interpolator, MavenLogger logger) {
+            P2TargetPlatform targetPlatform, File executionEnvironmentFile, String buildQualifier,
+            Interpolator interpolator, MavenLogger logger) {
         this.publisherRunner = publisherRunner;
         this.publishingRepository = publishingRepository;
         this.targetPlatform = targetPlatform;
+        this.executionEnvironmentFile = executionEnvironmentFile;
         this.buildQualifier = buildQualifier;
         this.interpolator = interpolator;
         this.logger = logger;
@@ -75,7 +78,8 @@ public class PublishProductToolImpl implements PublishProductTool {
 
         IPublisherAdvice[] advice = getProductSpecificAdviceFileAdvice(productFile, expandedProduct);
 
-        ProductAction action = new ProductAction(null, expandedProduct, flavor, launcherBinaries);
+        ProductAction action = new ProductAction(null, expandedProduct, flavor, launcherBinaries,
+                this.executionEnvironmentFile);
         IMetadataRepository metadataRepository = publishingRepository.getMetadataRepository();
         IArtifactRepository artifactRepository = publishingRepository
                 .getArtifactRepositoryForWriting(new ProductBinariesWriteSession(expandedProduct.getId()));
@@ -89,15 +93,15 @@ public class PublishProductToolImpl implements PublishProductTool {
     }
 
     /**
-     * In addition to the p2.inf file in the project root (which is automatically picked up by p2,
-     * see see {@link ProductAction#createAdviceFileAdvice()}), we allow a "xx.p2.inf" next to a
-     * product file "xx.product".
+     * In addition to the p2.inf file in the project root (which is automatically picked up by p2, see
+     * see {@link ProductAction#createAdviceFileAdvice()}), we allow a "xx.p2.inf" next to a product
+     * file "xx.product".
      */
     private static IPublisherAdvice[] getProductSpecificAdviceFileAdvice(File productFile,
             IProductDescriptor expandedProduct) {
-        AdviceFileAdvice advice = new AdviceFileAdvice(expandedProduct.getId(), Version.parseVersion(expandedProduct
-                .getVersion()), new Path(productFile.getParent()), new Path(
-                getProductSpecificP2InfName(productFile.getName())));
+        AdviceFileAdvice advice = new AdviceFileAdvice(expandedProduct.getId(),
+                Version.parseVersion(expandedProduct.getVersion()), new Path(productFile.getParent()),
+                new Path(getProductSpecificP2InfName(productFile.getName())));
         if (advice.containsAdvice()) {
             return new IPublisherAdvice[] { advice };
         } else {

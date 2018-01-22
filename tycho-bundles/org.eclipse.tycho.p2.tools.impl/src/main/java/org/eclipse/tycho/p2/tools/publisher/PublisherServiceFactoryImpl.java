@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.tycho.ReactorProject;
@@ -39,13 +40,13 @@ public class PublisherServiceFactoryImpl implements PublisherServiceFactory {
 
     @Override
     public PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments,
-            String buildQualifier, Interpolator interpolator) {
+            File executionEnvironmentFile, String buildQualifier, Interpolator interpolator) {
         P2TargetPlatform targetPlatform = (P2TargetPlatform) reactorRepoManager.getFinalTargetPlatform(project);
         PublisherActionRunner publisherRunner = getPublisherRunnerForProject(targetPlatform, environments);
         PublishingRepository publishingRepository = reactorRepoManager.getPublishingRepository(project.getIdentities());
 
-        return new PublishProductToolImpl(publisherRunner, publishingRepository, targetPlatform, buildQualifier,
-                interpolator, mavenContext.getLogger());
+        return new PublishProductToolImpl(publisherRunner, publishingRepository, targetPlatform,
+                executionEnvironmentFile, buildQualifier, interpolator, mavenContext.getLogger());
     }
 
     private PublisherActionRunner getPublisherRunnerForProject(P2TargetPlatform targetPlatform,

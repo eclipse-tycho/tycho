@@ -13,6 +13,7 @@ package org.eclipse.tycho.plugins.p2.publisher;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +30,8 @@ import org.codehaus.plexus.archiver.UnArchiver;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
+import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
@@ -58,12 +61,11 @@ public final class PublishProductMojo extends AbstractPublishMojo {
 
     /**
      * <p>
-     * The name of the p2 installation flavor to create. De facto, this parameter is set to
-     * "tooling" in all uses of p2.
+     * The name of the p2 installation flavor to create. De facto, this parameter is set to "tooling" in
+     * all uses of p2.
      * </p>
      * 
-     * @deprecated This parameter has no useful effect and may be removed in a future version of
-     *             Tycho.
+     * @deprecated This parameter has no useful effect and may be removed in a future version of Tycho.
      */
     @Parameter(defaultValue = "tooling")
     @Deprecated
@@ -80,7 +82,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             throws MojoExecutionException, MojoFailureException {
         Interpolator interpolator = new TychoInterpolator(getSession(), getProject());
         PublishProductTool publisher = publisherServiceFactory.createProductPublisher(getReactorProject(),
-                getEnvironments(), getQualifier(), interpolator);
+                getEnvironments(), getExecutionEnvironmentFile(), getQualifier(), interpolator);
 
         List<DependencySeed> seeds = new ArrayList<>();
         for (File productFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
@@ -102,6 +104,24 @@ public final class PublishProductMojo extends AbstractPublishMojo {
             }
         }
         return seeds;
+    }
+
+    private File getExecutionEnvironmentFile() throws MojoExecutionException {
+        ExecutionEnvironmentConfiguration eeConfiguration = TychoProjectUtils
+                .getExecutionEnvironmentConfiguration(getProject());
+        ExecutionEnvironment executionEnvironment = eeConfiguration.getFullSpecification();
+        File directory = new File(getProject().getBuild().getDirectory());
+        directory.mkdirs();
+        File res = new File(directory, executionEnvironment.getProfileName() + ".profile");
+        try {
+            res.createNewFile();
+            try (FileOutputStream out = new FileOutputStream(res)) {
+                executionEnvironment.getProfileProperties().store(out, null);
+            }
+        } catch (Exception ex) {
+            throw new MojoExecutionException(ex.getMessage(), ex);
+        }
+        return res;
     }
 
     private File getExpandedLauncherBinaries() throws MojoExecutionException, MojoFailureException {

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.publisher.facade;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.tycho.ReactorProject;
@@ -19,8 +20,8 @@ import org.eclipse.tycho.core.shared.TargetEnvironment;
 public interface PublisherServiceFactory {
 
     /**
-     * Creates a {@link PublisherService} instance that can be used to publish artifacts. The
-     * results are stored in the build output p2 repository of the given project.
+     * Creates a {@link PublisherService} instance that can be used to publish artifacts. The results
+     * are stored in the build output p2 repository of the given project.
      * 
      * @param project
      *            The project for which to publish artifacts.
@@ -32,6 +33,6 @@ public interface PublisherServiceFactory {
     PublisherService createPublisher(ReactorProject project, List<TargetEnvironment> environments);
 
     PublishProductTool createProductPublisher(ReactorProject project, List<TargetEnvironment> environments,
-            String buildQualifier, Interpolator interpolator);
+            File executionEnvironmentFile, String buildQualifier, Interpolator interpolator);
 
 }

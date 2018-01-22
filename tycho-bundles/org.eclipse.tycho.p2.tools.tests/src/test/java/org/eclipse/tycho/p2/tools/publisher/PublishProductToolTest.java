@@ -71,8 +71,8 @@ public class PublishProductToolTest {
 
     private static final String QUALIFIER = "20150109";
     private static final String FLAVOR = "tooling";
-    private static final List<TargetEnvironment> ENVIRONMENTS = Collections.singletonList(new TargetEnvironment(
-            "testos", "testws", "testarch"));
+    private static final List<TargetEnvironment> ENVIRONMENTS = Collections
+            .singletonList(new TargetEnvironment("testos", "testws", "testarch"));
 
     @Rule
     public ExpectedException exceptions = ExpectedException.none();
@@ -94,8 +94,8 @@ public class PublishProductToolTest {
     @Before
     public void before() throws Exception {
         File projectDirectory = tempManager.newFolder("projectDir");
-        outputRepository = new PublishingRepositoryImpl(p2Context.getAgent(), new ReactorProjectIdentitiesStub(
-                projectDirectory));
+        outputRepository = new PublishingRepositoryImpl(p2Context.getAgent(),
+                new ReactorProjectIdentitiesStub(projectDirectory));
 
         interpolatorMock = mock(Interpolator.class);
         when(interpolatorMock.interpolate(anyString())).thenAnswer(new Answer<String>() {
@@ -114,7 +114,7 @@ public class PublishProductToolTest {
 
         PublisherActionRunner publisherRunner = new PublisherActionRunner(
                 targetPlatform.getInstallableUnitsAsMetadataRepository(), ENVIRONMENTS, logVerifier.getLogger());
-        return new PublishProductToolImpl(publisherRunner, outputRepository, targetPlatform, QUALIFIER,
+        return new PublishProductToolImpl(publisherRunner, outputRepository, targetPlatform, null, QUALIFIER,
                 interpolatorMock, logVerifier.getLogger());
     }
 
@@ -154,9 +154,8 @@ public class PublishProductToolTest {
     @Test
     public void testExpandVersionsOfInclusionsWithZeros() throws Exception {
         File productDefinition = resourceFile("publishers/products/inclusionsWithZeros.product");
-        subject = initPublisher(createBundleIU("test.plugin", "0.1.0.20141230"),
-                createBundleIU("test.plugin", "1.1.0"), createFeatureIU("test.feature", "0.2.0.20141230"),
-                createFeatureIU("test.feature", "1.2.0"));
+        subject = initPublisher(createBundleIU("test.plugin", "0.1.0.20141230"), createBundleIU("test.plugin", "1.1.0"),
+                createFeatureIU("test.feature", "0.2.0.20141230"), createFeatureIU("test.feature", "1.2.0"));
 
         IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
@@ -167,9 +166,8 @@ public class PublishProductToolTest {
     @Test
     public void testExpandVersionsOfInclusionsWithQualifierLiterals() throws Exception {
         File productDefinition = resourceFile("publishers/products/inclusionsWithQualifiers.product");
-        subject = initPublisher(createBundleIU("test.plugin", "0.1.0.20141230"),
-                createBundleIU("test.plugin", "1.1.0"), createFeatureIU("test.feature", "0.2.0.20141230"),
-                createFeatureIU("test.feature", "1.2.0"));
+        subject = initPublisher(createBundleIU("test.plugin", "0.1.0.20141230"), createBundleIU("test.plugin", "1.1.0"),
+                createFeatureIU("test.feature", "0.2.0.20141230"), createFeatureIU("test.feature", "1.2.0"));
 
         IInstallableUnit unit = getUnit(subject.publishProduct(productDefinition, null, FLAVOR));
 
@@ -183,8 +181,8 @@ public class PublishProductToolTest {
         subject = initPublisher();
 
         exceptions.expect(BuildFailureException.class);
-        exceptions.expectMessage(both(containsString("inclusionsWithVersionSyntaxError.product")).and(
-                containsString("nonOSGi"))); // "nonOSGi" is the malformed version string
+        exceptions.expectMessage(
+                both(containsString("inclusionsWithVersionSyntaxError.product")).and(containsString("nonOSGi"))); // "nonOSGi" is the malformed version string
         subject.publishProduct(productDefinition, null, FLAVOR);
     }
 
@@ -270,9 +268,8 @@ public class PublishProductToolTest {
 
         String configUnitId = "tooling" + mainUnit.getId() + ".config.testws.testos.testarch";
         IInstallableUnit configUnit = getUnique(unitWithId(configUnitId), unitsIn(outputRepository));
-        assertThat(
-                configUnit.getTouchpointData(),
-                hasItem(configureTouchpointInstructionThat(containsString("setProgramProperty(propName:eclipse.buildId,propValue:1.0.0.20150109)"))));
+        assertThat(configUnit.getTouchpointData(), hasItem(configureTouchpointInstructionThat(
+                containsString("setProgramProperty(propName:eclipse.buildId,propValue:1.0.0.20150109)"))));
     }
 
     @Test
