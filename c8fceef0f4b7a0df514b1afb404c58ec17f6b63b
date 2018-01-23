@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "87929364_5bc5c62f",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/product/ProductExecutionEnvironmentTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-01-23T10:48:28Z",
+      "side": 1,
+      "message": "no, I was thinking just check the p2 metadata here that the \"osgi.ee\" requirement can be fulfilled , i.e. check that\n\n        \u003cprovided namespace\u003d\u0027osgi.ee\u0027 name\u003d\u0027JavaSE\u0027 version\u003d\u00271.8.0\u0027/\u003e\n\n\nis present in the p2 metadata.",
+      "parentUuid": "87929364_7b2b62b9",
+      "revId": "c8fceef0f4b7a0df514b1afb404c58ec17f6b63b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87929364_fbc59284",
         "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishProductMojo.java",
         "patchSetId": 1
