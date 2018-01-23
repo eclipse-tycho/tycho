@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "87929364_1bf33eda",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/product/ProductExecutionEnvironmentTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-01-23T08:30:24Z",
+      "side": 1,
+      "message": "can we also verify here that the specific problem of bug 530093\n\"requires \u0027osgi.ee; (\u0026(osgi.ee\u003dJavaSE)(version\u003d1.8))\u0027 but it could not be found\n\"\n\nis fixed?",
+      "revId": "c8fceef0f4b7a0df514b1afb404c58ec17f6b63b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87929364_fbc59284",
         "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishProductMojo.java",
         "patchSetId": 1
