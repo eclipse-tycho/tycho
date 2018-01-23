@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP SE and others.
+ * Copyright (c) 2012, 2018 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,30 +84,34 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
     public void testPlannerResolutionOfProduct() throws Exception {
         subject = targetResolverForEE("J2SE-1.5");
 
-        Collection<IInstallableUnit> units = subject.resolveContent(
-                definitionWith(new ProductLocationStub(IncludeMode.PLANNER))).getUnits();
+        Collection<IInstallableUnit> units = subject
+                .resolveContent(definitionWith(new ProductLocationStub(IncludeMode.PLANNER))).getUnits();
 
         // expect that the resolutions succeeds (bug 370502), but that the wrong EE IUs are not in the result
         assertThat(units, hasItem(unit("sdk", "1.0.0")));
         assertThat(units, not(hasItem(unit("a.jre.javase", "1.6.0"))));
         assertThat(units, not(hasItem(unit("config.a.jre.javase", "1.6.0"))));
+        assertThat(units, not(hasItem(unit("a.jre.javase", "9.0.0"))));
+        assertThat(units, not(hasItem(unit("config.a.jre.javase", "9.0.0"))));
     }
 
     @Test
     public void testSlicerResolutionOfProduct() throws Exception {
         subject = targetResolverForEE("J2SE-1.5");
 
-        Collection<IInstallableUnit> units = subject.resolveContent(
-                definitionWith(new ProductLocationStub(IncludeMode.SLICER))).getUnits();
+        Collection<IInstallableUnit> units = subject
+                .resolveContent(definitionWith(new ProductLocationStub(IncludeMode.SLICER))).getUnits();
 
         assertThat(units, hasItem(unit("sdk", "1.0.0")));
         assertThat(units, not(hasItem(unit("a.jre.javase", "1.6.0"))));
         assertThat(units, not(hasItem(unit("config.a.jre.javase", "1.6.0"))));
+        assertThat(units, not(hasItem(unit("a.jre.javase", "9.0.0"))));
+        assertThat(units, not(hasItem(unit("config.a.jre.javase", "9.0.0"))));
     }
 
     /**
-     * Location with a seed that requires the package org.w3c.dom. In the repository, there is both
-     * a bundle and a fake 'a.jre' IU that could match that import.
+     * Location with a seed that requires the package org.w3c.dom. In the repository, there is both a
+     * bundle and a fake 'a.jre' IU that could match that import.
      */
     static class AlternatePackageProviderLocationStub extends PlannerLocationStub {
 
@@ -123,7 +127,7 @@ public class TargetDefinitionResolverExecutionEnvironmentTest {
     }
 
     /**
-     * Location with a product IU seed that has a hard requirement on the a.jre.javase 1.6.0 IU.
+     * Location with a product IU seed that has a hard requirement on the a.jre.javase 9.0.0 IU.
      */
     static class ProductLocationStub extends LocationStub {
 
