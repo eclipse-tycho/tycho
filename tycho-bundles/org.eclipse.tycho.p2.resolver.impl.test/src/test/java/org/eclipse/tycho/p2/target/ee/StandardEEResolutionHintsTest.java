@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2018 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -101,28 +101,34 @@ public class StandardEEResolutionHintsTest {
     }
 
     @Test
-    public void testTemporaryJava6StubUnitForOtherEEs() {
+    public void testTemporaryJavaStubUnitForOtherEEs() {
         subject = new StandardEEResolutionHints("JavaSE-1.7");
 
-        // we temporarily add a.jre.javase/1.6.0 units during resolution because products often have hard requirements on them...
+        // we temporarily add a.jre.javase/1.6.0 and 9.0 units during resolution because products often have hard requirements on them...
         assertThat(subject.getTemporaryAdditions(), hasItem(unit("a.jre.javase", "1.6.0")));
         assertThat(subject.getTemporaryAdditions(), hasItem(unit("config.a.jre.javase", "1.6.0")));
+        assertThat(subject.getTemporaryAdditions(), hasItem(unit("a.jre.javase", "9.0.0")));
+        assertThat(subject.getTemporaryAdditions(), hasItem(unit("config.a.jre.javase", "9.0.0")));
 
         // ... but the fake units are empty
         jreUnit = findFirst(unit("a.jre.javase", "1.6.0"), subject.getTemporaryAdditions());
         assertThat(jreUnit.getProvidedCapabilities(), not(hasItem(packageCapability("javax.xml"))));
         assertThat(jreUnit.getProvidedCapabilities().size(), is(1)); // the self-capability
+        jreUnit = findFirst(unit("a.jre.javase", "9.0.0"), subject.getTemporaryAdditions());
+        assertThat(jreUnit.getProvidedCapabilities(), not(hasItem(packageCapability("javax.xml"))));
+        assertThat(jreUnit.getProvidedCapabilities().size(), is(1)); // the self-capability
     }
 
     @Test
-    public void testNoTemporaryJava6StubUnitForJava6() {
-        subject = new StandardEEResolutionHints("JavaSE-1.6");
+    public void testNoTemporaryJava9StubUnitForJava9() {
+        subject = new StandardEEResolutionHints("JavaSE-9");
 
-        assertThat(subject.getTemporaryAdditions(), not(hasItem(unit("a.jre.javase", "1.6.0"))));
-        assertThat(subject.getTemporaryAdditions(), not(hasItem(unit("config.a.jre.javase", "1.6.0"))));
+        assertThat(subject.getTemporaryAdditions(), not(hasItem(unit("a.jre.javase", "9.0.0"))));
+        assertThat(subject.getTemporaryAdditions(), not(hasItem(unit("config.a.jre.javase", "9.0.0"))));
     }
 
-    private static IInstallableUnit findFirst(Matcher<IInstallableUnit> criteria, Collection<IInstallableUnit> inUnits) {
+    private static IInstallableUnit findFirst(Matcher<IInstallableUnit> criteria,
+            Collection<IInstallableUnit> inUnits) {
         for (IInstallableUnit unit : inUnits) {
             if (criteria.matches(unit)) {
                 return unit;
