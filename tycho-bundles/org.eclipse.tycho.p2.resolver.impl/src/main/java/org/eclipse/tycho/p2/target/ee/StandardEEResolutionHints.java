@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,9 +123,9 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         // We provide those IUs as empty shells, i.e. without any provided capabilities.
         // This way these garbage IUs are present but are not interfering with dependency resolution.
 
-        put(units, newIU("a.jre", Version.create("1.6.0")));
-        put(units, newIU("a.jre.javase", Version.create("1.6.0")));
-        put(units, newIU("config.a.jre.javase", Version.create("1.6.0")));
+        put(units, newIU("a.jre", Version.create("9.0.0")));
+        put(units, newIU("a.jre.javase", Version.create("9.0.0")));
+        put(units, newIU("config.a.jre.javase", Version.create("9.0.0")));
 
         // don't override real units
         for (Entry<VersionedId, IInstallableUnit> entry : additionalUnits.entrySet()) {
@@ -144,8 +144,8 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         InstallableUnitDescription iud = new InstallableUnitDescription();
         iud.setId(id);
         iud.setVersion(version);
-        iud.addProvidedCapabilities(Collections.singleton(MetadataFactory.createProvidedCapability(
-                IInstallableUnit.NAMESPACE_IU_ID, id, version)));
+        iud.addProvidedCapabilities(Collections
+                .singleton(MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, version)));
         return MetadataFactory.createInstallableUnit(iud);
     }
 
