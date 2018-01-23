@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "87929364_7b2b62b9",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/product/ProductExecutionEnvironmentTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2018-01-23T08:36:37Z",
+      "side": 1,
+      "message": "You mean trying to run an installation of the product to check there are no p2 issue?",
+      "parentUuid": "87929364_1bf33eda",
+      "revId": "c8fceef0f4b7a0df514b1afb404c58ec17f6b63b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87929364_fbc59284",
         "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishProductMojo.java",
         "patchSetId": 1
