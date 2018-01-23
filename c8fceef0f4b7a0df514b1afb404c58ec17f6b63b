@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87929364_fbc59284",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-01-23T08:18:23Z",
+      "side": 1,
+      "message": "createNewFile() is unnecessary",
+      "revId": "c8fceef0f4b7a0df514b1afb404c58ec17f6b63b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87929364_3bd0fa3e",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishProductMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-01-23T08:18:23Z",
+      "side": 1,
+      "message": "isn\u0027t it just IOException?",
+      "range": {
+        "startLine": 121,
+        "startChar": 17,
+        "endLine": 121,
+        "endChar": 26
+      },
+      "revId": "c8fceef0f4b7a0df514b1afb404c58ec17f6b63b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
