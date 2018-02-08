@@ -130,6 +130,12 @@ public class JdkLibraryInfoProvider {
     }
 
     private LibraryInfo parseLibraryInfo(String output, String javaHome) {
+        // JVM may add garbage before and/or after our output, strip it
+        String[] splitPrefixAndSuffix = output.split(Pattern.quote("####"));
+        if (splitPrefixAndSuffix.length < 2) {
+            throw new IllegalStateException("Could not parse process output: " + output);
+        }
+        output = splitPrefixAndSuffix[1];
         String[] parts = output.split(Pattern.quote("|"));
         if (parts.length != 4) {
             throw new IllegalStateException("Could not parse process output: " + output);

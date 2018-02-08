@@ -31,6 +31,7 @@ public class LibraryDetector {
      *            the command line arguments
      */
     public static void main(String[] args) {
+        System.out.print("####");
         // if we are running raw j9
         if ("j9".equalsIgnoreCase(System.getProperty("java.vm.name"))) { //$NON-NLS-1$ //$NON-NLS-2$
             // Map class lib versions onto things that the launch infrastructure understands.  J9
@@ -67,5 +68,6 @@ public class LibraryDetector {
         System.out.print(System.getProperty("java.ext.dirs")); //$NON-NLS-1$
         System.out.print("|"); //$NON-NLS-1$
         System.out.print(System.getProperty("java.endorsed.dirs")); //$NON-NLS-1$
+        System.out.print("####");
     }
 }
