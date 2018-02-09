@@ -99,7 +99,7 @@
 		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
 
 		<!-- version of Tycho used by this build -->
-		<tychoBootstrapVersion>0.26.0</tychoBootstrapVersion>
+		<tychoBootstrapVersion>1.1.0</tychoBootstrapVersion>
 	</properties>
 
 	<dependencyManagement>
