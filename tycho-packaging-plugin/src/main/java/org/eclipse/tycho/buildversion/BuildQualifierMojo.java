@@ -187,7 +187,7 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
             Version.parseVersion("1.0.0." + qualifier);
         } catch (IllegalArgumentException e) {
             throw new MojoFailureException(
-                    "Invalid build qualifier, it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')");
+                    "Invalid build qualifier '" + qualifier + "', it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')");
         }
     }
 

@@ -234,6 +234,18 @@ public class BuildQualifierTest extends AbstractTychoMojoTestCase {
         }
     }
 
+    public void testInvalidQualifierDisplaysInErrorMessage() throws Exception {
+        MavenProject project = getProject("projects/buildqualifier", "p001/pom.xml");
+        BuildQualifierMojo mojo = createMojoWithProject(project);
+        mojo.setFormat("'This qualifier should be in error message'");
+        try {
+            mojo.execute();
+            fail();
+        } catch (MojoFailureException e) {
+            assertThat(e.getMessage(), containsString("This qualifier should be in error message"));
+        }
+    }
+
     private BuildQualifierMojo createMojoWithProject(MavenProject project) throws IOException, Exception {
         ArrayList<MavenProject> projects = new ArrayList<>();
         projects.add(project);
