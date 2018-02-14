@@ -1,0 +1,7 @@
+Verified+1: Hudson CI
+Code-Review+2: Mickael Istria <mistria@redhat.com>
+Submitted-by: Mickael Istria <mistria@redhat.com>
+Submitted-at: Wed, 14 Feb 2018 03:46:35 -0500
+Reviewed-on: https://git.eclipse.org/r/117304
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
