@@ -1,0 +1,7 @@
+Verified+1: Hudson CI
+Code-Review+2: Alexander Kurtakov <akurtako@redhat.com>
+Submitted-by: Alexander Kurtakov <akurtako@redhat.com>
+Submitted-at: Thu, 08 Mar 2018 12:49:27 -0500
+Reviewed-on: https://git.eclipse.org/r/119023
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
