@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Inventage AG.
+ * Copyright (c) 2011, 2018 Inventage AG and others..
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ public class SiteXmlManipulatorTest extends TestCase {
 
     private void assertFeatureUrlRewriting(String expectedUrl, String oldUrl, String oldVersion) {
         assertEquals(expectedUrl,
-                new SiteXmlManipulator().rewriteFeatureUrl(oldUrl, new PomVersionChange(null, oldVersion, "NEW")));
+                SiteXmlManipulator.rewriteFeatureUrl(oldUrl, new PomVersionChange(null, oldVersion, "NEW")));
     }
 
 }
