@@ -89,27 +89,27 @@
 				<configuration>
 					<source>
 						<repository>
-							<url>http://download.eclipse.org/eclipse/updates/4.8milestones/S-4.8M2-201709132000</url>
+							<url>http://download.eclipse.org/eclipse/updates/4.7-P-builds/P20180313-0940</url>
 							<layout>p2</layout>
 						</repository>
 					</source>
 					<ius>
-						<iu>
-							<id>org.eclipse.osgi</id>
-							<version>${equinoxVersion}</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.osgi.source</id>
-							<version>${equinoxVersion}</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.osgi.compatibility.state</id>
-							<version>${equinoxCompatVersion}</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.osgi.compatibility.state.source</id>
-							<version>${equinoxCompatVersion}</version>
-						</iu>
+<!-- 						<iu> -->
+<!-- 							<id>org.eclipse.osgi</id> -->
+<!-- 							<version>${equinoxVersion}</version> -->
+<!-- 						</iu> -->
+<!-- 						<iu> -->
+<!-- 							<id>org.eclipse.osgi.source</id> -->
+<!-- 							<version>${equinoxVersion}</version> -->
+<!-- 						</iu> -->
+<!-- 						<iu> -->
+<!-- 							<id>org.eclipse.osgi.compatibility.state</id> -->
+<!-- 							<version>${equinoxCompatVersion}</version> -->
+<!-- 						</iu> -->
+<!-- 						<iu> -->
+<!-- 							<id>org.eclipse.osgi.compatibility.state.source</id> -->
+<!-- 							<version>${equinoxCompatVersion}</version> -->
+<!-- 						</iu> -->
 						<iu>
 							<id>org.eclipse.jdt.core</id>
 							<version>${jdtVersion}</version>
@@ -169,7 +169,6 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
 								</configuration>
 							</execution>
-							<!-- 
 							<execution>
 								<id>deploy-jdt-apt</id>
 								<phase>deploy</phase>
@@ -182,7 +181,6 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
 								</configuration>
 							</execution>
-							-->
 						</executions>
 					</plugin>
 				</plugins>
@@ -191,7 +189,7 @@
 		<profile>
 			<id>deploy-equinox-snapshots</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<build>
 				<plugins>
@@ -211,7 +209,6 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.pom</pomFile>
 								</configuration>
 							</execution>
-							<!--  
 							<execution>
 								<id>deploy-equinox-compat</id>
 								<phase>deploy</phase>
@@ -224,7 +221,6 @@
 									<pomFile>${project.build.outputDirectory}/org.eclipse.osgi.compatibility.state.pom</pomFile>
 								</configuration>
 							</execution>
-							-->
 						</executions>
 					</plugin>
 				</plugins>
