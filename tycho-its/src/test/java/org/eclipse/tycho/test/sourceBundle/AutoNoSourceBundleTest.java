@@ -27,7 +27,7 @@ public class AutoNoSourceBundleTest extends AbstractTychoIntegrationTest {
             verifier.executeGoal("verify");
             Assert.fail("Reference to a missing source bundle did not fail the build");
         } catch (VerificationException expected) {
-            verifier.verifyTextInLog("feature.feature.group 1.0.0.qualifier requires 'bundle.source 0.0.0' but it could not be found");
+            verifier.verifyTextInLog("feature.feature.group 1.0.0.qualifier requires 'org.eclipse.equinox.p2.iu; bundle.source 0.0.0' but it could not be found");
         }
     }
 

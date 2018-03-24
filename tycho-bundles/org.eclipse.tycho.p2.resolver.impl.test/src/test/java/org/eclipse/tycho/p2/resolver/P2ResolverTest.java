@@ -90,7 +90,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
 
         assertEquals(2, result.getArtifacts().size());
-        assertEquals(1, result.getNonReactorUnits().size());
+        assertEquals(2, result.getNonReactorUnits().size()); // + a.jre
     }
 
     @SuppressWarnings({ "unchecked", "deprecation" })
@@ -125,9 +125,10 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testDuplicateInstallableUnit() throws Exception {
-        projectToResolve = createReactorProject(resourceFile("duplicate-iu/featureA"), TYPE_ECLIPSE_FEATURE, "featureA");
-        reactorProjects.add(createReactorProject(resourceFile("duplicate-iu/featureA2"), TYPE_ECLIPSE_FEATURE,
-                "featureA2"));
+        projectToResolve = createReactorProject(resourceFile("duplicate-iu/featureA"), TYPE_ECLIPSE_FEATURE,
+                "featureA");
+        reactorProjects
+                .add(createReactorProject(resourceFile("duplicate-iu/featureA2"), TYPE_ECLIPSE_FEATURE, "featureA2"));
 
         // TODO 353889 make the duplicate detection work without having the current project IUs in the target platform
         reactorProjects.add(projectToResolve);
@@ -169,6 +170,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
     @Test
     public void testSourceBundle() throws Exception {
+        tpConfig.addP2Repository(resourceFile("repositories/jre").toURI());
         String featureId = "org.eclipse.tycho.p2.impl.resolver.test.feature01";
         projectToResolve = createReactorProject(resourceFile("sourcebundles/feature01"), TYPE_ECLIPSE_FEATURE,
                 featureId);
@@ -179,8 +181,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         reactorProjects.add(createReactorProject(bundle, TYPE_ECLIPSE_PLUGIN, bundleId));
 
         ReactorProjectStub sb = new ReactorProjectStub(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN);
-        DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator().generateMetadata(new ArtifactMock(
-                sb, "source"), getEnvironments(), null);
+        DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator()
+                .generateMetadata(new ArtifactMock(sb, "source"), getEnvironments(), null);
         sb.setDependencyMetadata(metadata);
         reactorProjects.add(sb);
 
@@ -217,7 +219,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
 
         assertEquals(3, result.getArtifacts().size()); // the product, bundle01, and the one dependency of bundle01
-        assertEquals(3, result.getNonReactorUnits().size());
+        assertEquals(4, result.getNonReactorUnits().size()); // + a.jre
 
         assertContainsUnit("org.eclipse.osgi", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.equinox.executable.feature.group", result.getNonReactorUnits());
@@ -244,12 +246,13 @@ public class P2ResolverTest extends P2ResolverTestBase {
         tpConfig.addP2Repository(resourceFile("repositories/e361").toURI());
 
         String artifactId = "org.eclipse.tycho.p2.impl.resolver.test.bundleUsesSWT";
-        projectToResolve = createReactorProject(resourceFile("resolver/bundleUsesSWT"), TYPE_ECLIPSE_PLUGIN, artifactId);
+        projectToResolve = createReactorProject(resourceFile("resolver/bundleUsesSWT"), TYPE_ECLIPSE_PLUGIN,
+                artifactId);
 
         result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
 
         assertEquals(3, result.getArtifacts().size());
-        assertEquals(2, result.getNonReactorUnits().size());
+        assertEquals(3, result.getNonReactorUnits().size()); // + a.jre
 
         assertContainsUnit("org.eclipse.swt", result.getNonReactorUnits());
         assertContainsUnit("org.eclipse.swt.gtk.linux.x86_64", result.getNonReactorUnits());
@@ -315,7 +318,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
         result = singleEnv(impl.resolveDependencies(getTargetPlatform(), projectToResolve));
 
         assertEquals(2, result.getArtifacts().size());
-        assertEquals(0, result.getNonReactorUnits().size());
+        assertEquals(1, result.getNonReactorUnits().size()); // a.jre
 
         for (Entry entry : result.getArtifacts()) {
             assertEquals("1.0.0.qualifier", entry.getVersion());
@@ -381,9 +384,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
                 TYPE_ECLIPSE_FEATURE, artifactId);
 
         /*
-         * The resolution only passes because the unresolvable, additional IU contributed via the
-         * p2.inf is not a seed/primary unit. (Uncomment the "requires" lines in the p2.inf to see
-         * this resolution fail.)
+         * The resolution only passes because the unresolvable, additional IU contributed via the p2.inf is
+         * not a seed/primary unit. (Uncomment the "requires" lines in the p2.inf to see this resolution
+         * fail.)
          */
         impl.resolveDependencies(getTargetPlatform(), projectToResolve);
     }
@@ -524,7 +527,8 @@ public class P2ResolverTest extends P2ResolverTestBase {
         return results.get(0);
     }
 
-    private static P2ResolutionResult.Entry getClassifiedArtifact(P2ResolutionResult resolutionResult, String classifier) {
+    private static P2ResolutionResult.Entry getClassifiedArtifact(P2ResolutionResult resolutionResult,
+            String classifier) {
         Set<String> availableClassifiers = new HashSet<>();
         P2ResolutionResult.Entry selectedEntry = null;
         for (Entry entry : resolutionResult.getArtifacts()) {
