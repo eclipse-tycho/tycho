@@ -66,8 +66,8 @@ public class TargetPlatformBundlePublisherTest {
         String bundleVersion = "3.5.2.R35x_v20100126";
 
         FileUtils.copyDirectory(resourceFile("platformbuilder/pom-dependencies/bundle-repo"), localRepositoryRoot);
-        File bundleFile = new File(localRepositoryRoot, RepositoryLayoutHelper.getRelativePath(GROUP_ID, ARTIFACT_ID,
-                VERSION, null, "jar"));
+        File bundleFile = new File(localRepositoryRoot,
+                RepositoryLayoutHelper.getRelativePath(GROUP_ID, ARTIFACT_ID, VERSION, null, "jar"));
         IArtifactFacade bundleArtifact = new ArtifactMock(bundleFile, GROUP_ID, ARTIFACT_ID, VERSION, "jar");
 
         IInstallableUnit publishedUnit = subject.attemptToPublishBundle(bundleArtifact);
