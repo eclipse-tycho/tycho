@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -53,7 +53,7 @@ public class BundleDependenciesAction extends BundlesAction {
     }
 
     @Override
-    protected void addImportPackageRequirement(ArrayList<IRequirement> reqsDeps, ImportPackageSpecification importSpec,
+    protected void addImportPackageRequirement(List<IRequirement> reqsDeps, ImportPackageSpecification importSpec,
             ManifestElement[] rawImportPackageHeader) {
         if (optionalAction == OptionalResolutionAction.OPTIONAL) {
             super.addImportPackageRequirement(reqsDeps, importSpec, rawImportPackageHeader);
@@ -69,7 +69,7 @@ public class BundleDependenciesAction extends BundlesAction {
     }
 
     @Override
-    protected void addRequireBundleRequirement(ArrayList<IRequirement> reqsDeps, BundleSpecification requiredBundle,
+    protected void addRequireBundleRequirement(List<IRequirement> reqsDeps, BundleSpecification requiredBundle,
             ManifestElement[] rawRequireBundleHeader) {
         if (optionalAction == OptionalResolutionAction.OPTIONAL) {
             super.addRequireBundleRequirement(reqsDeps, requiredBundle, rawRequireBundleHeader);
@@ -172,8 +172,8 @@ public class BundleDependenciesAction extends BundlesAction {
         if (optional && optionalAction == OptionalResolutionAction.IGNORE) {
             return null;
         }
-        return MetadataFactory
-                .createRequirement(namespace, name, range, filter, false/* optional */, multiple, true/* greedy */);
+        return MetadataFactory.createRequirement(namespace, name, range, filter, false/* optional */, multiple,
+                true/* greedy */);
     }
 
 }
