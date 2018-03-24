@@ -41,8 +41,8 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
     public TransientArtifactRepository() {
         super(null, "TransientArtifactRepository", TransientArtifactRepository.class.getName(), "1.0.0", null, null,
                 null, newProperties());
-        super.setLocation(URI.create("memory:" + getClass().getName() + "@"
-                + Integer.toHexString(System.identityHashCode(this))));
+        super.setLocation(URI
+                .create("memory:" + getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(this))));
     }
 
     private static Map<String, String> newProperties() {
@@ -109,6 +109,16 @@ public class TransientArtifactRepository extends AbstractArtifactRepository {
         for (IArtifactDescriptor descriptor : descriptors) {
             addDescriptor(descriptor);
         }
+    }
+
+    @Override
+    public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+        addDescriptor(descriptor);
+    }
+
+    @Override
+    public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+        addDescriptors(descriptors);
     }
 
     @Override

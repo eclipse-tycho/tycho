@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.ee;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -17,7 +18,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -38,6 +41,9 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     private static final String JRE_ACTION_FALLBACK_EE = "JavaSE-1.6";
     private static final Version JRE_ACTION_FALLBACK_VERSION = Version.parseVersion("1.6.0");
+
+    private static final String JRE_ACTION_FALLBACK_EE_PHOTON = "JavaSE-9";
+    private static final Version JRE_ACTION_FALLBACK_VERSION_PHOTON = Version.parseVersion("9.0.0");
 
     private final String executionEnvironment;
     private final Map<VersionedId, IInstallableUnit> additionalUnits;
@@ -95,8 +101,10 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     private static void ensureEEWasKnownToJREAction(String executionEnvironment, Collection<IInstallableUnit> eeUnits) {
         for (IInstallableUnit unit : eeUnits) {
-            if (JRE_ACTION_FALLBACK_VERSION.equals(unit.getVersion())
-                    && !JRE_ACTION_FALLBACK_EE.equals(executionEnvironment)) {
+            if ((JRE_ACTION_FALLBACK_VERSION.equals(unit.getVersion())
+                    && !JRE_ACTION_FALLBACK_EE.equals(executionEnvironment))
+                    || (JRE_ACTION_FALLBACK_VERSION_PHOTON.equals(unit.getVersion())
+                            && !JRE_ACTION_FALLBACK_EE_PHOTON.equals(executionEnvironment))) {
                 // the JREAction didn't actually recognize the EE but fell back to JavaSE-1.6 - and this although the EE was recognized as standard EE before -> internal error 
                 throw new RuntimeException("The execution environment '" + executionEnvironment
                         + "' is not know by the embedded version of p2");
@@ -128,7 +136,13 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         put(units, newIU("config.a.jre.javase", Version.create("1.6.0")));
 
         put(units, newIU("a.jre", Version.create("9.0.0")));
-        put(units, newIU("a.jre.javase", Version.create("9.0.0")));
+        IInstallableUnit aJreJavaSE9 = newIU("a.jre.javase", Version.create("9.0.0"),
+                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("1.5.0")),
+                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("1.6.0")),
+                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("1.7.0")),
+                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("1.8.0")),
+                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("9.0.0")));
+        put(units, aJreJavaSE9);
         put(units, newIU("config.a.jre.javase", Version.create("9.0.0")));
 
         // don't override real units
@@ -144,12 +158,13 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return temporaryUnits.values();
     }
 
-    private static IInstallableUnit newIU(String id, Version version) {
+    private static IInstallableUnit newIU(String id, Version version, IProvidedCapability... capabilities) {
         InstallableUnitDescription iud = new InstallableUnitDescription();
         iud.setId(id);
         iud.setVersion(version);
         iud.addProvidedCapabilities(Collections
                 .singleton(MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, version)));
+        iud.addProvidedCapabilities(Arrays.asList(capabilities));
         return MetadataFactory.createInstallableUnit(iud);
     }
 
