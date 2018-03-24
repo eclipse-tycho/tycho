@@ -37,9 +37,21 @@
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<!-- Test run on a 1.8 JRE by default, so make sure classes
+					     are compatible with 1.8 despite overriden EE -->
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<!-- This seems necessary because Tycho replaces the available a.jre.javase IUs according to BREE -->
+					<executionEnvironment>JavaSE-9</executionEnvironment>
 					<dependency-resolution>
 						<extraRequirements>
 							<!-- add dependency to product IU under test -->
