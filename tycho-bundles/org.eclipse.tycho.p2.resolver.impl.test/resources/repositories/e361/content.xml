@@ -131,7 +131,7 @@ Eclipse-PlatformFilter: (&amp; (osgi.ws=gtk) (osgi.os=linux) (osgi.arch=x86_64))
       </touchpointData>
     </unit>
     <unit id='a.jre' version='1.6.0' singleton='false'>
-      <provides size='159'>
+      <provides size='161'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='a.jre' version='1.6.0'/>
         <provided namespace='java.package' name='javax.accessibility' version='0.0.0'/>
         <provided namespace='java.package' name='javax.activation' version='0.0.0'/>
@@ -291,6 +291,8 @@ Eclipse-PlatformFilter: (&amp; (osgi.ws=gtk) (osgi.os=linux) (osgi.arch=x86_64))
         <provided namespace='java.package' name='org.xml.sax' version='0.0.0'/>
         <provided namespace='java.package' name='org.xml.sax.ext' version='0.0.0'/>
         <provided namespace='java.package' name='org.xml.sax.helpers' version='0.0.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.5.0'/>
+        <provided namespace='osgi.ee' name='JavaSE' version='1.6.0'/>
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
     </unit>

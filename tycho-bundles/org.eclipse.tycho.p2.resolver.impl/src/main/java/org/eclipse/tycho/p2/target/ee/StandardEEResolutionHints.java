@@ -39,6 +39,9 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
     private static final String JRE_ACTION_FALLBACK_EE = "JavaSE-1.6";
     private static final Version JRE_ACTION_FALLBACK_VERSION = Version.parseVersion("1.6.0");
 
+    private static final String JRE_ACTION_FALLBACK_EE_PHOTON = "JavaSE-9";
+    private static final Version JRE_ACTION_FALLBACK_VERSION_PHOTON = Version.parseVersion("9.0.0");
+
     private final String executionEnvironment;
     private final Map<VersionedId, IInstallableUnit> additionalUnits;
     private final Map<VersionedId, IInstallableUnit> temporaryUnits;
@@ -95,8 +98,10 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     private static void ensureEEWasKnownToJREAction(String executionEnvironment, Collection<IInstallableUnit> eeUnits) {
         for (IInstallableUnit unit : eeUnits) {
-            if (JRE_ACTION_FALLBACK_VERSION.equals(unit.getVersion())
-                    && !JRE_ACTION_FALLBACK_EE.equals(executionEnvironment)) {
+            if ((JRE_ACTION_FALLBACK_VERSION.equals(unit.getVersion())
+                    && !JRE_ACTION_FALLBACK_EE.equals(executionEnvironment))
+                    || (JRE_ACTION_FALLBACK_VERSION_PHOTON.equals(unit.getVersion())
+                            && !JRE_ACTION_FALLBACK_EE_PHOTON.equals(executionEnvironment))) {
                 // the JREAction didn't actually recognize the EE but fell back to JavaSE-1.6 - and this although the EE was recognized as standard EE before -> internal error 
                 throw new RuntimeException("The execution environment '" + executionEnvironment
                         + "' is not know by the embedded version of p2");

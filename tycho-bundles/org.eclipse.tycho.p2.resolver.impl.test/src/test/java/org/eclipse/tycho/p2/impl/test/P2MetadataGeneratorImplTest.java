@@ -47,7 +47,7 @@ public class P2MetadataGeneratorImplTest {
 
         Assert.assertEquals("org.eclipse.tycho.p2.impl.test.bundle", unit.getId());
         Assert.assertEquals("1.0.0.qualifier", unit.getVersion().toString());
-        Assert.assertEquals(2, unit.getRequirements().size());
+        Assert.assertEquals(3, unit.getRequirements().size());
 
         Assert.assertEquals(1, artifacts.size());
         IArtifactDescriptor ad = artifacts.iterator().next();
