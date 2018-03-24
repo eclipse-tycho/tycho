@@ -74,7 +74,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven-version>3.0</maven-version>
 		<plugin-tools-version>3.5</plugin-tools-version>
-		<jgit-version>4.9.0.201710071750-r</jgit-version>
+		<jgit-version>4.11.0.201803080745-r</jgit-version>
 		<!-- tycho-extras and tycho are normally developed and released in parallel using the same version -->
 		<tycho-version>${project.version}</tycho-version>
 		<min.jdk.version>1.8</min.jdk.version>
