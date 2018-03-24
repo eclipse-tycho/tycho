@@ -199,7 +199,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         descriptor.setLocation(destination.getLocation().toURI());
 
         RecreateRepositoryApplication application = new RecreateRepositoryApplication();
-        application.setArtifactRepository(descriptor);
+        application.setArtifactRepository(descriptor.getRepoLocation());
         try {
             application.run(new NullProgressMonitor());
         } catch (ProvisionException e) {
