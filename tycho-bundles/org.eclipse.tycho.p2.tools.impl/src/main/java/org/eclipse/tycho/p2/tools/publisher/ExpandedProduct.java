@@ -249,4 +249,9 @@ class ExpandedProduct implements IProductDescriptor {
         return defaults.getRepositoryEntries();
     }
 
+    @Override
+    public String getVM(String os) {
+        return defaults.getVM(os);
+    }
+
 }
