@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tycho Surefire OSGi JUnit5 Runner
+Bundle-SymbolicName: org.eclipse.tycho.surefire.junit5;singleton:=true
+Bundle-Version: 1.2.0.qualifier
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: jars/junit-platform-surefire-provider-1.1.0.jar
+Import-Package: org.apiguardian.api,
+ org.junit.platform.commons.util,
+ org.junit.platform.engine,
+ org.junit.platform.engine.discovery,
+ org.junit.platform.engine.support.descriptor,
+ org.junit.platform.launcher,
+ org.junit.platform.launcher.core,
+ org.junit.platform.launcher.listeners
+Bundle-Vendor: %providerName
+Automatic-Module-Name: org.eclipse.tycho.surefire.junit5
