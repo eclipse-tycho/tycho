@@ -41,13 +41,14 @@
 		<module>org.eclipse.tycho.surefire.junit</module>
 		<module>org.eclipse.tycho.surefire.junit4</module>
 		<module>org.eclipse.tycho.surefire.junit47</module>
+		<module>org.eclipse.tycho.surefire.junit5</module>
 		<module>org.eclipse.tycho.surefire.testnghelper</module>
 		<module>org.eclipse.tycho.surefire.testng</module>
 	</modules>
 
 	<repositories>
 		<repository>
-			<id>eclipse</id>
+			<id>indigo</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/indigo/201202240900</url>
 		</repository>
