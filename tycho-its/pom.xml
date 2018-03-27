@@ -24,13 +24,8 @@
 	<name>Tycho Integration Tests</name>
 
 	<properties>
-		<!-- 
-			To test a staged build
-			
-			/opt/maven/bin/mvn clean test -Pits -Dtycho-build-version=0.4.0-DEV-3023 -Dtycho.targetPlatform=/opt/eclipse-3.5/eclipse/
-		-->
 		<tycho-build-version>${project.version}</tycho-build-version>
-		<its-maven-version>${maven-version}</its-maven-version>
+		<its-maven-version>3.0.5</its-maven-version>
 		<maven-dir>${project.build.directory}/apache-maven-${its-maven-version}</maven-dir>
 
 	</properties>
@@ -113,46 +108,86 @@
 						<goals>
 							<goal>mirror</goal>
 						</goals>
+						<configuration>
+							<source>
+								<repository>
+									<url>http://download.eclipse.org/releases/kepler/201402280900/</url>
+									<layout>p2</layout>
+								</repository>
+							</source>
+							<ius>
+								<iu>
+									<id>org.eclipse.osgi</id>
+									<version>3.9.1.v20140110-1610</version>
+								</iu>
+								<iu>
+									<id>org.eclipse.equinox.launcher</id>
+									<version>1.3.0.v20130327-1440</version>
+								</iu>
+								<iu>
+									<id>org.eclipse.core.runtime</id>
+									<version>3.9.100.v20131218-1515</version>
+								</iu>
+								<iu>
+									<id>org.junit</id>
+									<version>4.11.0.v201303080030</version>
+								</iu>
+								<iu>
+									<id>org.eclipse.equinox.executable.feature.group</id>
+									<version>3.6.0.v20140117-1004</version>
+								</iu>
+							</ius>
+							<filter>
+								<osgi.ws>win32</osgi.ws>
+								<osgi.os>win32</osgi.os>
+								<osgi.arch>x86_64</osgi.arch>
+							</filter>
+							<includePacked>false</includePacked>
+							<includeOptional>false</includeOptional>
+							<destination>${project.basedir}/repositories/kepler</destination>
+						</configuration>
+					</execution>
+					<execution>
+						<id>mirror-oxygen-test-repo</id>
+						<phase>process-test-classes</phase>
+						<goals>
+							<goal>mirror</goal>
+						</goals>
+						<configuration>
+							<source>
+								<repository>
+									<url>http://download.eclipse.org/releases/oxygen/</url>
+									<layout>p2</layout>
+								</repository>
+							</source>
+							<ius>
+								<iu>
+									<id>org.eclipse.osgi</id>
+									<version>3.12.100.v20180210-1608</version>
+								</iu>
+								<iu>
+									<id>org.eclipse.equinox.launcher</id>
+									<version>1.4.0.v20161219-1356</version>
+								</iu>
+								<iu>
+									<id>org.eclipse.core.runtime</id>
+									<version>3.13.0.v20170207-1030</version>
+								</iu>
+								<iu>
+									<id>org.junit</id>
+									<version>4.12.0.v201504281640</version>
+								</iu>
+								<iu>
+									<id>org.junit.jupiter.api</id>
+									<version>5.0.0.v20170910-2246</version>
+								</iu>
+							</ius>
+							<includePacked>false</includePacked>
+							<includeOptional>false</includeOptional>
+							<destination>${project.basedir}/repositories/oxygen</destination>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<source>
-						<repository>
-							<url>http://download.eclipse.org/releases/kepler/201402280900/</url>
-							<layout>p2</layout>
-						</repository>
-					</source>
-					<ius>
-						<iu>
-							<id>org.eclipse.osgi</id>
-							<version>3.9.1.v20140110-1610</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.equinox.launcher</id>
-							<version>1.3.0.v20130327-1440</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.core.runtime</id>
-							<version>3.9.100.v20131218-1515</version>
-						</iu>
-						<iu>
-							<id>org.junit</id>
-							<version>4.11.0.v201303080030</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.equinox.executable.feature.group</id>
-							<version>3.6.0.v20140117-1004</version>
-						</iu>
-					</ius>
-					<filter>
-						<osgi.ws>win32</osgi.ws>
-						<osgi.os>win32</osgi.os>
-						<osgi.arch>x86_64</osgi.arch>
-					</filter>
-					<includePacked>false</includePacked>
-					<includeOptional>false</includeOptional>
-					<destination>${project.basedir}/repositories/kepler</destination>
-				</configuration>
 			</plugin>
 
 		</plugins>

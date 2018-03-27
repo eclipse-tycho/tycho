@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tycho Surefire OSGi JUnit5 Runner
+Bundle-SymbolicName: org.eclipse.tycho.surefire.junit5;singleton:=true
+Bundle-Version: 1.2.0.qualifier
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: jars/junit-platform-surefire-provider-1.0.3.jar,
+ jars/junit-platform-commons-1.0.3.jar,
+ jars/junit-platform-engine-1.0.3.jar,
+ jars/junit-platform-launcher-1.0.3.jar,
+ jars/junit-jupiter-engine-5.0.3.jar,
+ jars/junit-vintage-engine-4.12.3.jar,
+ jars/opentest4j-1.0.0.jar,
+ jars/common-java5-2.19.1.jar
+Import-Package: org.junit.jupiter.api;version="5.0",
+ org.junit.jupiter.api.extension;version="5.0",
+ org.junit.jupiter.api.function;version="5.0",
+ org.junit;version="[4.12.0,5)";resolution:=optional,
+ org.junit.internal.builders;version="[4.12.0,5)";resolution:=optional,
+ org.junit.experimental.categories;version="[4.12.0,5)";resolution:=optional,
+ org.junit.runner;version="[4.12.0,5)";resolution:=optional,
+ org.junit.runner.manipulation;version="[4.12.0,5)";resolution:=optional,
+ org.junit.runner.notification;version="[4.12.0,5)";resolution:=optional,
+ org.junit.runners.model;version="[4.12.0,5)";resolution:=optional
+Bundle-Vendor: %providerName
+Automatic-Module-Name: org.eclipse.tycho.surefire.junit5

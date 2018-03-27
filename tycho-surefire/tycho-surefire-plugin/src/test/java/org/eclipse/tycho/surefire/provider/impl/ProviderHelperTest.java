@@ -65,6 +65,18 @@ public class ProviderHelperTest extends PlexusTestCase {
         assertEquals(JUnit47Provider.class, provider.getClass());
     }
 
+    public void testSelectJunit5() throws Exception {
+        TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.junit.jupiter.api:5.0.0"),
+                new Properties(), null);
+        assertEquals(JUnit5Provider.class, provider.getClass());
+    }
+
+    public void testSelectJunit5WithJUnit4Present() throws Exception {
+        TestFrameworkProvider provider = providerHelper
+                .selectProvider(classPath("org.junit:4.12", "org.junit.jupiter.api:5.0.0"), new Properties(), null);
+        assertEquals(JUnit5Provider.class, provider.getClass());
+    }
+
     public void testSelectJunit4WithJunit3Present() throws Exception {
         TestFrameworkProvider provider = providerHelper.selectProvider(classPath("org.junit:3.8.1", "org.junit:4.8.1"),
                 new Properties(), null);

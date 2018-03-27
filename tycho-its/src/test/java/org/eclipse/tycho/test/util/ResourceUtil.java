@@ -19,7 +19,8 @@ import java.net.URI;
 public class ResourceUtil {
 
     public enum P2Repositories {
-        ECLIPSE_342("e342"), ECLIPSE_352("e352"), ECLIPSE_KEPLER("kepler"), SIMPLE_FEATURE("feature");
+        ECLIPSE_342("e342"), ECLIPSE_352("e352"), ECLIPSE_KEPLER("kepler"), ECLIPSE_OXYGEN("oxygen"), SIMPLE_FEATURE(
+                "feature");
 
         private final String path;
 
@@ -41,8 +42,8 @@ public class ResourceUtil {
         File resolvedFile = new File(pathRelativeToProjectRoot).getAbsoluteFile();
 
         if (!resolvedFile.canRead()) {
-            throw new IllegalStateException("Test resource \"" + pathRelativeToProjectRoot + "\" is not available; "
-                    + workingDirMessage());
+            throw new IllegalStateException(
+                    "Test resource \"" + pathRelativeToProjectRoot + "\" is not available; " + workingDirMessage());
         }
         return resolvedFile;
     }
