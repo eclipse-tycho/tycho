@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
@@ -24,6 +22,7 @@ import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class P2MetadataGeneratorImplTest {
@@ -36,8 +35,9 @@ public class P2MetadataGeneratorImplTest {
         String artifactId = "bundle";
         String version = "1.0.0-SNAPSHOT";
         List<TargetEnvironment> environments = new ArrayList<>();
-        DependencyMetadata metadata = impl.generateMetadata(new ArtifactMock(location, groupId, artifactId, version,
-                PackagingType.TYPE_ECLIPSE_PLUGIN), environments);
+        DependencyMetadata metadata = impl.generateMetadata(
+                new ArtifactMock(location, groupId, artifactId, version, PackagingType.TYPE_ECLIPSE_PLUGIN),
+                environments);
 
         List<IInstallableUnit> units = new ArrayList<>(metadata.getInstallableUnits());
         List<IArtifactDescriptor> artifacts = new ArrayList<>(metadata.getArtifactDescriptors());
