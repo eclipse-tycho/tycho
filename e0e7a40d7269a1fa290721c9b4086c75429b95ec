@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53f8305c_821cedaf",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.junit5/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1895
+      },
+      "writtenOn": "2018-03-28T13:42:01Z",
+      "side": 1,
+      "message": "Nice approach to just add the surefire-provider jar and import the others. In my draft, I added all required jars to the class path and run into class loading issues. \nFor me either the jupiter engine could not be found by the surefire provider or the engine could not find any test method in the test classes because the jupiter api annotations (e.g. @Test) was loaded by a different classloader than the test class....\nHope you do have more luck :-).",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 38
+      },
+      "revId": "e0e7a40d7269a1fa290721c9b4086c75429b95ec",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
