@@ -22,6 +22,30 @@
       "revId": "e0e7a40d7269a1fa290721c9b4086c75429b95ec",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2526013d_38c84fc2",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.junit5/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-03-28T14:45:25Z",
+      "side": 1,
+      "message": "yes this was my first idea (would have been better) but didn\u0027t work\n\nnow I had to wrap all JUnit5 jars except the jupiter.api (which is always required by the test bundle because it uses its test annotations)\n\nI still see problems with the current proposal (see my commit message) but it\u0027s a first proof of concept",
+      "parentUuid": "53f8305c_821cedaf",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 38
+      },
+      "revId": "e0e7a40d7269a1fa290721c9b4086c75429b95ec",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
