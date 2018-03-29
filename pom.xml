@@ -87,6 +87,13 @@
 		<jxpathVersion>1.3</jxpathVersion>
 		<pluginToolsVersion>3.3</pluginToolsVersion>
 		<maven-version>3.0</maven-version>
+		<surefire-version>2.19.1</surefire-version>
+		<!-- NOTE: when updating surefire version above, run BND http://bnd.bndtools.org/chapters/120-install.html manually to find Import-Package 
+		statements to JUnit packages required for org.eclipse.tycho.surefire.junit* OSGi wrappers.
+		E.g. 'java -jar biz.aQute.bnd.jar wrap tycho-surefire/org.eclipse.tycho.surefire.junit/jars/surefire-junit3-2.19.1.jar'
+		Resulting jar will have on OSGi manifest with Import-Package statements for required junit packages.
+		Surefire jars are shaded but not fully self-contained (various package dependencies to org.apache.maven.* 
+		packages in classes we do not use) so we can't use BND (maven-bundle-plugin) for creating the wrappers -->
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
 		<equinoxVersion>3.13.0.v20171204-1916</equinoxVersion>

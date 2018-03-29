@@ -30,9 +30,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<outputDirectory>jars</outputDirectory>
-				</configuration>
 				<executions>
 					<execution>
 						<id>copy</id>
