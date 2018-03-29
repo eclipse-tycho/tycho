@@ -1,0 +1,7 @@
+Verified+1: CI Bot
+Code-Review+2: Jan Sievers <jan.sievers@sap.com>
+Submitted-by: Jan Sievers <jan.sievers@sap.com>
+Submitted-at: Thu, 29 Mar 2018 10:14:45 -0400
+Reviewed-on: https://git.eclipse.org/r/120440
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
