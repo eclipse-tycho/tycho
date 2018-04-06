@@ -1,0 +1,6 @@
+Import-Package: \
+	junit.*;version='[3.8,4)',\
+	!org.apache.maven.surefire.*,\
+	*
+Fragment-Host: org.eclipse.tycho.surefire.osgibooter
+-removeheaders: Tool, Bnd-*, Created-By, Private-Package

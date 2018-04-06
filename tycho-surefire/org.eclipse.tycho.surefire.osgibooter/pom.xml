@@ -9,23 +9,35 @@
  - Contributors:
  -    Sonatype Inc. - initial API and implementation
  -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
-		<artifactId>tycho-surefire</artifactId>
+		<artifactId>tycho-bundles</artifactId>
 		<version>1.2.0-SNAPSHOT</version>
+		<relativePath>../../tycho-bundles/pom.xml</relativePath>
 	</parent>
-
 	<artifactId>org.eclipse.tycho.surefire.osgibooter</artifactId>
 	<packaging>eclipse-plugin</packaging>
-
 	<name>Tycho Surefire OSGi Booter Eclipse Application</name>
-
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>about.html</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>about.html</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -59,7 +71,14 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<configuration>
+					<!-- let maven-resources-plugin do the filtering in src/main/resources -->
+					<copyResources>false</copyResources>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>
