@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8e30039_3add594c",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/TargetPlatformBundlePublisher.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-04-16T14:08:12Z",
+      "side": 1,
+      "message": "no real diff in this file?",
+      "revId": "b1d761ccd5dc0169171da33850b317ed39cba81f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
