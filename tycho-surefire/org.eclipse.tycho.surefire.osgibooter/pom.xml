@@ -74,6 +74,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tychoBootstrapVersion}</version>
 				<configuration>
 					<!-- let maven-resources-plugin do the filtering in src/main/resources -->
 					<copyResources>false</copyResources>
