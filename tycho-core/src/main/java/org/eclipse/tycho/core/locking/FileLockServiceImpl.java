@@ -29,9 +29,8 @@ public class FileLockServiceImpl implements FileLockService {
     private Location anyLocation;
 
     public FileLockServiceImpl() {
-        anyLocation = new BasicLocation(null, null, false, null,
-                new ConfigValues(new HashMap<String, String>(), new HashMap<>()), new EquinoxContainer(null),
-                new AtomicBoolean(false));
+        anyLocation = new BasicLocation(null, null, false, null, new ConfigValues(new HashMap<String, String>()),
+                new EquinoxContainer(null), new AtomicBoolean(false));
     }
 
     /*

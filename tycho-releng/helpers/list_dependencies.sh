@@ -5,4 +5,4 @@
 # dependencies of scope test and pure test helpers like tycho-testing-harness are not considered
 # test-only deps are all covered by workswith CQ https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5252
 cd "$(dirname $0)/../.."
-mvn dependency:tree -pl '!tycho-testing-harness'| grep -E "\[INFO\] *[o|+\\].*:compile$" | sed -e "s/\[INFO\]\s*[+|\\ -]*//g" | grep -v "^org.eclipse.tycho:" |  sort | uniq
+mvn dependency:tree -pl '!tycho-testing-harness'| grep -E "\[INFO\] *[o|+\\].*:compile$" | sed -e "s/\[INFO\]\s*[+|\\ -]*//g" | grep -Ev "^org.eclipse.(tycho|jdt|platform):" |  sort | uniq
