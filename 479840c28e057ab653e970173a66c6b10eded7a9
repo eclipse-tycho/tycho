@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "037b88de_302f27d3",
+        "filename": "tycho-its/projects/surefire.p2InstalledRuntime/productTest/pom.xml",
+        "patchSetId": 14
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-04-17T10:17:59Z",
+      "side": 1,
+      "message": "I don\u0027t understand this workaround.\n\nhere is the original error:\n\nhttps://ci.eclipse.org/tycho/job/tycho-gerrit/1500/testReport/org.eclipse.tycho.test.surefire/P2InstalledTestRuntimeTest/testProvisionAppAndRunTest/\n\n\n\nCaused by: java.lang.UnsupportedClassVersionError: testProvisioning/RootFileTest has been compiled by a more recent version of the Java Runtime (class file version 53.0), this version of the Java Runtime only recognizes class file versions up to 52.0\n\n\nthat means the bundle was compiled with compiler source/target level 9 although its BREE\nhttps://github.com/eclipse/tycho/blob/master/tycho-its/projects/surefire.p2InstalledRuntime/productTest/META-INF/MANIFEST.MF\nsays:\nBundle-RequiredExecutionEnvironment: JavaSE-1.6\n\nso it should have been using compiler source/target 1.6\n\nOr maybe this MANIFEST is used:\nhttps://github.com/eclipse/tycho/blob/master/tycho-its/projects/surefire.p2InstalledRuntime/extProductTest/META-INF/MANIFEST.MF\n\nwhich does not specify an explicit BREE, but in this case the new default BREE would be JavaSE-9 (it was JavaSE-1.7 before according to docs: https://wiki.eclipse.org/Tycho/Execution_Environments )\n\nsomething is fishy here, need to clarify.",
+      "revId": "479840c28e057ab653e970173a66c6b10eded7a9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
