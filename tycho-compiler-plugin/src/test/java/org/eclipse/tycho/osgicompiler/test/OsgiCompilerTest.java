@@ -38,6 +38,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     private static final int TARGET_1_4 = 48;
     private static final int TARGET_1_7 = 51;
+    private static final int TARGET_9 = 53;
 
     protected File storage;
 
@@ -87,22 +88,19 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<String> cp = mojo.getClasspathElements();
         assertEquals(4, cp.size());
         assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(0));
-        assertEquals(
-                getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p001/target/classes",
-                        "[+p001/*:?**/*]"), cp.get(1));
+        assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p001/target/classes",
+                "[+p001/*:?**/*]"), cp.get(1));
         // note that PDE sorts dependencies coming via imported-package by symbolicName_version
-        assertEquals(
-                getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p003/target/classes",
-                        "[+p003/*:?**/*]"), cp.get(2));
-        assertEquals(
-                getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p004/target/classes",
-                        "[+p004/*:?**/*]"), cp.get(3));
+        assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p003/target/classes",
+                "[+p003/*:?**/*]"), cp.get(2));
+        assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p004/target/classes",
+                "[+p004/*:?**/*]"), cp.get(3));
     }
 
     public void testClasspath() throws Exception {
         File basedir = getBasedir("projects/classpath");
-        List<MavenProject> projects = getSortedProjects(basedir, new File(getBasedir(),
-                "src/test/resources/projects/classpath/platform"));
+        List<MavenProject> projects = getSortedProjects(basedir,
+                new File(getBasedir(), "src/test/resources/projects/classpath/platform"));
 
         MavenProject project;
         List<String> cp;
@@ -196,8 +194,8 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals(2, sourcepath.size());
         assertSameFile(new File(project.getBasedir(), "target/classes"), sourcepath.get(0).getOutputDirectory());
         assertSameFile(new File(project.getBasedir(), "src"), sourcepath.get(0).getSourcesRoot());
-        assertSameFile(new File(project.getBasedir(), "target/library.jar-classes"), sourcepath.get(1)
-                .getOutputDirectory());
+        assertSameFile(new File(project.getBasedir(), "target/library.jar-classes"),
+                sourcepath.get(1).getOutputDirectory());
         assertSameFile(new File(project.getBasedir(), "src2"), sourcepath.get(1).getSourcesRoot());
     }
 
@@ -237,10 +235,10 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         List<MavenProject> projects = getSortedProjects(basedir, null);
         MavenProject project;
         // project with neither POM nor MANIFEST configuration => must fallback to 
-        // source/target level == 1.6
+        // source/target level == 9
         project = projects.get(1);
         getMojo(projects, project).execute();
-        assertBytecodeMajorLevel(TARGET_1_7, new File(project.getBasedir(), "target/classes/Generic.class"));
+        assertBytecodeMajorLevel(TARGET_9, new File(project.getBasedir(), "target/classes/Generic.class"));
 
         // project with multiple execution envs.
         // Minimum source and target level must be taken
@@ -350,7 +348,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             assertThat(message, containsString("System.foo();"));
         }
         // 2 warnings
-        List<String> expectedWarnings = asList("Test.java:[19",//
+        List<String> expectedWarnings = asList("Test.java:[19", //
                 "Test.java:[21");
         assertEquals(expectedWarnings.size(), warnings.size());
         for (int i = 0; i < warnings.size(); i++) {
@@ -449,8 +447,8 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     public void test367431_frameworkExtensionCompileAccessRules() throws Exception {
         File basedir = getBasedir("projects/367431_frameworkExtensionCompileAccessRules/bundle");
-        List<MavenProject> projects = getSortedProjects(basedir, new File(
-                "src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));
+        List<MavenProject> projects = getSortedProjects(basedir,
+                new File("src/test/resources/projects/367431_frameworkExtensionCompileAccessRules/repository"));
 
         MavenProject project = projects.get(0);
         getMojo(projects, project).execute();
@@ -466,9 +464,8 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
             fail();
         } catch (MojoExecutionException e) {
             // assert that the compiler mojo checks the target levels of all BREEs (and not just the first or "minimal" one) 
-            assertThat(
-                    e.getMessage(),
-                    containsString("The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
+            assertThat(e.getMessage(), containsString(
+                    "The effective compiler target level 1.5 is incompatible with the following OSGi execution environments"));
             assertThat(e.getMessage(), containsString("J2SE-1.2"));
             assertThat(e.getMessage(), containsString("CDC-1.0/Foundation-1.0"));
             assertThat(e.getMessage(), containsString("OSGi/Minimum-1.2"));

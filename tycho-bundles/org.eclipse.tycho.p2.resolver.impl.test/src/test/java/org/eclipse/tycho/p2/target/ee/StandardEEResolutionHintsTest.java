@@ -116,7 +116,7 @@ public class StandardEEResolutionHintsTest {
         assertThat(jreUnit.getProvidedCapabilities().size(), is(1)); // the self-capability
         jreUnit = findFirst(unit("a.jre.javase", "9.0.0"), subject.getTemporaryAdditions());
         assertThat(jreUnit.getProvidedCapabilities(), not(hasItem(packageCapability("javax.xml"))));
-        assertThat(jreUnit.getProvidedCapabilities().size(), is(6)); // the self-capability + JavaSE ones
+        assertThat(jreUnit.getProvidedCapabilities().size(), is(1)); // the self-capability
     }
 
     @Test

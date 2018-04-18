@@ -50,8 +50,6 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<!-- This seems necessary because Tycho replaces the available a.jre.javase IUs according to BREE -->
-					<executionEnvironment>JavaSE-9</executionEnvironment>
 					<dependency-resolution>
 						<extraRequirements>
 							<!-- add dependency to product IU under test -->
