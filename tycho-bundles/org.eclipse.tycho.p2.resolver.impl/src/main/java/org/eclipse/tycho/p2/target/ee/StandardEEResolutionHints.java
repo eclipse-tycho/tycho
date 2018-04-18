@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.ee;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -18,14 +17,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
@@ -136,13 +133,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         put(units, newIU("config.a.jre.javase", Version.create("1.6.0")));
 
         put(units, newIU("a.jre", Version.create("9.0.0")));
-        IInstallableUnit aJreJavaSE9 = newIU("a.jre.javase", Version.create("9.0.0"),
-                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("1.5.0")),
-                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("1.6.0")),
-                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("1.7.0")),
-                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("1.8.0")),
-                new ProvidedCapability("osgi.ee", "JavaSE", Version.create("9.0.0")));
-        put(units, aJreJavaSE9);
+        put(units, newIU("a.jre.javase", Version.create("9.0.0")));
         put(units, newIU("config.a.jre.javase", Version.create("9.0.0")));
 
         // don't override real units
@@ -158,13 +149,12 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return temporaryUnits.values();
     }
 
-    private static IInstallableUnit newIU(String id, Version version, IProvidedCapability... capabilities) {
+    private static IInstallableUnit newIU(String id, Version version) {
         InstallableUnitDescription iud = new InstallableUnitDescription();
         iud.setId(id);
         iud.setVersion(version);
         iud.addProvidedCapabilities(Collections
                 .singleton(MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, version)));
-        iud.addProvidedCapabilities(Arrays.asList(capabilities));
         return MetadataFactory.createInstallableUnit(iud);
     }
 
