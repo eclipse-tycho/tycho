@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1f95875e_1f8ae4a2",
+        "filename": "tycho-its/projects/surefire.p2InstalledRuntime/productTest/pom.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2018-04-18T07:58:33Z",
+      "side": 1,
+      "message": "I\u0027ll try but I don\u0027t think that would work. The executionEnvironment setting is taking precendence over the BREE, so as long as we have this setting, we need to override the target level.",
+      "parentUuid": "91743ea1_81171db8",
+      "revId": "2ca35bcb7e7e84fe1c4e838ff2522f0009d7f77a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "994f795d_987e3b6c",
         "filename": "tycho-its/projects/surefire.p2InstalledRuntime/productTest/pom.xml",
         "patchSetId": 16
@@ -30,6 +48,24 @@
       "writtenOn": "2018-04-18T07:07:31Z",
       "side": 1,
       "message": "do we still need this workaround now that osgi.ee capabilities are added?",
+      "revId": "2ca35bcb7e7e84fe1c4e838ff2522f0009d7f77a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f8f7b132_e9cb3f5f",
+        "filename": "tycho-its/projects/surefire.p2InstalledRuntime/productTest/pom.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2018-04-18T07:58:33Z",
+      "side": 1,
+      "message": "I\u0027ll try, but because of https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d387701 , it wouldn\u0027t be enough as the dependency from product is to a.jre.javase 9.0.0, not to the JavaSE 9.0.0 osgi.ee capability.\nThis line is used to \"inject\" a.jre.javase 9.0 in the TP for tycho-surefire-plugin provisioning to be able to provision the product. I\u0027ll try some other things and will report.",
+      "parentUuid": "994f795d_987e3b6c",
       "revId": "2ca35bcb7e7e84fe1c4e838ff2522f0009d7f77a",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
