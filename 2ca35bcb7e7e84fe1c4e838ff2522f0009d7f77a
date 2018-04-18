@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91743ea1_81171db8",
+        "filename": "tycho-its/projects/surefire.p2InstalledRuntime/productTest/pom.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-04-18T07:07:31Z",
+      "side": 1,
+      "message": "can we simply add an explicit JavaSE-1.8 BREE to test bundle\nhttps://github.com/eclipse/tycho/blob/master/tycho-its/projects/surefire.p2InstalledRuntime/extProductTest/META-INF/MANIFEST.MF\n\nso we don\u0027t rely on the default which seems to be JavaSE-9 by now?\n\nI think this would more explicitly solve the compiler source/target problem",
+      "revId": "2ca35bcb7e7e84fe1c4e838ff2522f0009d7f77a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "994f795d_987e3b6c",
+        "filename": "tycho-its/projects/surefire.p2InstalledRuntime/productTest/pom.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-04-18T07:07:31Z",
+      "side": 1,
+      "message": "do we still need this workaround now that osgi.ee capabilities are added?",
+      "revId": "2ca35bcb7e7e84fe1c4e838ff2522f0009d7f77a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
