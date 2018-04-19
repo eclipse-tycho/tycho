@@ -5,3 +5,4 @@ Bundle-Version: 1.0.0.qualifier
 Export-Package: split;b=split;mandatory:=b;version=2,
  unsplit
 Import-Package: split;b=split
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
