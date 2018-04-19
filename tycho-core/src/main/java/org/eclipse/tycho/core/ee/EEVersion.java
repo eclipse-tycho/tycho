@@ -37,6 +37,7 @@ public class EEVersion implements Comparable<EEVersion> {
         }
     }
 
+    private static final Version JAVA8 = Version.parseVersion("1.8");
     private Version version;
     private EEType type;
 
@@ -47,11 +48,11 @@ public class EEVersion implements Comparable<EEVersion> {
 
     @Override
     public int compareTo(EEVersion other) {
-        // JavaSE/compact{1..3} > JavaSE-N except when N = 1.8  54
-        final Version JAVA8 = Version.parseVersion("1.8");
-        if (type.equals(EEType.JAVA_SE) && version.equals(JAVA8) && other.type.profileName.contains("JavaSE/compact")) {
+        // JavaSE/compact{1..3} > JavaSE-N except when N >= 1.8
+        if (type.equals(EEType.JAVA_SE) && version.compareTo(JAVA8) >= 0
+                && other.type.profileName.contains("JavaSE/compact")) {
             return 1;
-        } else if (other.type.equals(EEType.JAVA_SE) && other.version.equals(JAVA8)
+        } else if (other.type.equals(EEType.JAVA_SE) && other.version.compareTo(JAVA8) >= 0
                 && type.profileName.contains("JavaSE/compact")) {
             return -1;
         }

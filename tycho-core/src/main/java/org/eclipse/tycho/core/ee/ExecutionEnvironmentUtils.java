@@ -20,9 +20,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.osgi.internal.framework.EquinoxConfiguration;
+import org.eclipse.tycho.core.ee.EEVersion.EEType;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 /**
  * Creative copy&paste from org.eclipse.osgi.framework.internal.core.Framework
@@ -42,6 +44,9 @@ public class ExecutionEnvironmentUtils {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));
             envMap.put(props.getProperty("osgi.java.profile.name").trim(), new StandardExecutionEnvironment(props));
         }
+        // starting with Java 10, profiles are no longer maintained and system packages no longer make sense with the new module system
+        envMap.put("JavaSE-10", new StandardExecutionEnvironment("JavaSE-10", "10", "10",
+                new EEVersion(Version.parseVersion("10.0"), EEType.JAVA_SE)));
         return envMap;
     }
 

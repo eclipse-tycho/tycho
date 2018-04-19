@@ -199,12 +199,14 @@ public class EquinoxResolver {
             // ignoring EE by adding all known EEs
             for (String profile : ExecutionEnvironmentUtils.getProfileNames()) {
                 Properties envProps = ExecutionEnvironmentUtils.getExecutionEnvironment(profile).getProfileProperties();
-                String systemPackages = envProps.getProperty("org.osgi.framework.system.packages");
-                String execEnv = envProps.getProperty("org.osgi.framework.executionenvironment");
-                Dictionary<Object, Object> prop = new Hashtable<>();
-                prop.put("org.osgi.framework.system.packages", systemPackages);
-                prop.put("org.osgi.framework.executionenvironment", execEnv);
-                allProps.add(prop);
+                if (!envProps.isEmpty()) {
+                    String systemPackages = envProps.getProperty("org.osgi.framework.system.packages");
+                    String execEnv = envProps.getProperty("org.osgi.framework.executionenvironment");
+                    Dictionary<Object, Object> prop = new Hashtable<>();
+                    prop.put("org.osgi.framework.system.packages", systemPackages);
+                    prop.put("org.osgi.framework.executionenvironment", execEnv);
+                    allProps.add(prop);
+                }
             }
         }
 
@@ -239,17 +241,17 @@ public class EquinoxResolver {
 
     public void addBundle(State state, long id, File bundleLocation, Dictionary<String, String> mf, boolean override)
             throws BundleException {
-        BundleDescription descriptor = factory
-                .createBundleDescription(state, mf, getNormalizedPath(bundleLocation), id);
+        BundleDescription descriptor = factory.createBundleDescription(state, mf, getNormalizedPath(bundleLocation),
+                id);
 
         if (override) {
             BundleDescription[] conflicts = state.getBundles(descriptor.getSymbolicName());
             if (conflicts != null) {
                 for (BundleDescription conflict : conflicts) {
                     state.removeBundle(conflict);
-                    logger.warn(conflict.toString()
-                            + " has been replaced by another bundle with the same symbolic name "
-                            + descriptor.toString());
+                    logger.warn(
+                            conflict.toString() + " has been replaced by another bundle with the same symbolic name "
+                                    + descriptor.toString());
                 }
             }
         }
@@ -279,7 +281,8 @@ public class EquinoxResolver {
         if (systemPackages != null && systemPackages.trim().length() > 0) {
             systemBundleManifest.put(Constants.EXPORT_PACKAGE, systemPackages);
         } else {
-            logger.warn("Undefined or empty org.osgi.framework.system.packages system property, system.bundle does not export any packages.");
+            logger.warn(
+                    "Undefined or empty org.osgi.framework.system.packages system property, system.bundle does not export any packages.");
         }
 
         return systemBundleManifest;
