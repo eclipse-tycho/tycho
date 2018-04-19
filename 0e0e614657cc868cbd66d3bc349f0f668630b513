@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5986ef07_54e6954b",
+        "filename": "tycho-compiler-plugin/src/test/resources/projects/projectSettings/p001/.settings/org.eclipse.jdt.core.prefs",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 32961
+      },
+      "writtenOn": "2018-04-19T06:08:17Z",
+      "side": 1,
+      "message": "I removed the compiler source level setting. The test wants to test if compiler settings are taken from the projects preference file if \"useProjectSettings\" is set to \"true\". Which source/target compiler level is used is not relevant for that test, just the autoboxing setting is.",
+      "revId": "0e0e614657cc868cbd66d3bc349f0f668630b513",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
