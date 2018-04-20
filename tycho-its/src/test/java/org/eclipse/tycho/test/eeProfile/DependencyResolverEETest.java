@@ -35,4 +35,11 @@ public class DependencyResolverEETest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
     }
 
+    @Test
+    public void breeForDependencyHigherThanCurrentBREE() throws Exception {
+        Verifier verifier = getVerifier("/eeProfile/dependencyHigherBREE", false);
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+    }
+
 }
