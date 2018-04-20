@@ -20,13 +20,14 @@ import java.util.Map.Entry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.tycho.p2.util.resolution.ExecutionEnvironmentResolutionHints;
 
 /**
@@ -41,6 +42,11 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     private static final String JRE_ACTION_FALLBACK_EE_PHOTON = "JavaSE-9";
     private static final Version JRE_ACTION_FALLBACK_VERSION_PHOTON = Version.parseVersion("9.0.0");
+
+    /**
+     * This should be the most recent/encompassing EE that JREAction can create units for.
+     */
+    private static final String LAST_KNOWN_EE = JRE_ACTION_FALLBACK_EE_PHOTON;
 
     private final String executionEnvironment;
     private final Map<VersionedId, IInstallableUnit> additionalUnits;
@@ -120,21 +126,21 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return Collections.emptyList();
     }
 
-    private static Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(
+    private Map<VersionedId, IInstallableUnit> computeTemporaryAdditions(
             Map<VersionedId, IInstallableUnit> additionalUnits) {
         Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<>();
 
         // Some notable installable units, like org.eclipse.sdk.ide, have hard dependency on the garbage JRE IUs.
         // We provide those IUs as empty shells, i.e. without any provided capabilities.
         // This way these garbage IUs are present but are not interfering with dependency resolution.
+        addIUsFromEnvironment("JavaSE-1.6", units);
+        addIUsFromEnvironment("JavaSE-9", units);
 
-        put(units, newIU("a.jre", Version.create("1.6.0")));
-        put(units, newIU("a.jre.javase", Version.create("1.6.0")));
-        put(units, newIU("config.a.jre.javase", Version.create("1.6.0")));
+        // also add last known EE for transitive deps that require newer EE
+        addIUsFromEnvironment(LAST_KNOWN_EE, units);
 
-        put(units, newIU("a.jre", Version.create("9.0.0")));
-        put(units, newIU("a.jre.javase", Version.create("9.0.0")));
-        put(units, newIU("config.a.jre.javase", Version.create("9.0.0")));
+        // But remove the exported packages so the unit should interfer too much in dep resolution
+        units.entrySet().forEach(entry -> put(units, removeExportedPackages(entry.getValue())));
 
         // don't override real units
         for (Entry<VersionedId, IInstallableUnit> entry : additionalUnits.entrySet()) {
@@ -142,6 +148,16 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         }
 
         return units;
+    }
+
+    private static IInstallableUnit removeExportedPackages(IInstallableUnit initialUnit) {
+        InstallableUnitDescription iud = new InstallableUnitDescription();
+        iud.setId(initialUnit.getId());
+        iud.setVersion(initialUnit.getVersion());
+        initialUnit.getProvidedCapabilities().stream()
+                .filter(cap -> !PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(cap.getNamespace()))
+                .map(Collections::singleton).forEach(iud::addProvidedCapabilities);
+        return MetadataFactory.createInstallableUnit(iud);
     }
 
     @Override
