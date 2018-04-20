@@ -20,9 +20,9 @@ import java.util.Map.Entry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
@@ -41,6 +41,11 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
 
     private static final String JRE_ACTION_FALLBACK_EE_PHOTON = "JavaSE-9";
     private static final Version JRE_ACTION_FALLBACK_VERSION_PHOTON = Version.parseVersion("9.0.0");
+
+    /**
+     * This should be the most recent/encompassing EE that JREAction can create units for.
+     */
+    private static final String LAST_KNOWN_EE = JRE_ACTION_FALLBACK_EE_PHOTON;
 
     private final String executionEnvironment;
     private final Map<VersionedId, IInstallableUnit> additionalUnits;
@@ -82,6 +87,11 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         Map<VersionedId, IInstallableUnit> units = new LinkedHashMap<>();
         addIUsFromEnvironment(executionEnvironment, units);
         ensureEEWasKnownToJREAction(executionEnvironment, units.values());
+        // transitive deps may require a newer EE than the one defined by bundle here. So let's allow
+        // last know EE to participate in dep resolution for this case
+        if (!LAST_KNOWN_EE.equals(executionEnvironment)) {
+            addIUsFromEnvironment(LAST_KNOWN_EE, units);
+        }
         return units;
     }
 
