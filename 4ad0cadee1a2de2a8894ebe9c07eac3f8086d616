@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40a51aa4_da73dfe4",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/StandardEEResolutionHints.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-04-20T11:58:40Z",
+      "side": 1,
+      "message": "I think we should rather add addIUsFromEnvironment(\"JavaSE-9\") in \n\ncomputeTemporaryAdditions()\n\nyou could then also remove all the manual creation of aJreJavaSE9 with osgi.ee IUs in that method.\n\nthese are IUs we add just to make dependency resolution work but they should not show up in the resulting repository of an eclipse-repository (unless required e.g. by a product).\n\nthis will make 2 tests fail but for good reasons as they test exactly the case that JDK packages are provided by a bundle, not the a.jre IU which no longer holds true if we always add the JavaSE-9 IU",
+      "revId": "4ad0cadee1a2de2a8894ebe9c07eac3f8086d616",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
