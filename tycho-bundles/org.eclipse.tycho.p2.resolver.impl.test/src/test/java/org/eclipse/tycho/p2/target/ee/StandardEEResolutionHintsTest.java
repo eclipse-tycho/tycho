@@ -16,11 +16,13 @@ import static org.eclipse.tycho.p2.testutil.InstallableUnitMatchers.unit;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
@@ -113,10 +115,12 @@ public class StandardEEResolutionHintsTest {
         // ... but the fake units are empty
         jreUnit = findFirst(unit("a.jre.javase", "1.6.0"), subject.getTemporaryAdditions());
         assertThat(jreUnit.getProvidedCapabilities(), not(hasItem(packageCapability("javax.xml"))));
-        assertThat(jreUnit.getProvidedCapabilities().size(), is(1)); // the self-capability
+        assertFalse(jreUnit.getProvidedCapabilities().stream()
+                .anyMatch(cap -> PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(cap.getNamespace())));
         jreUnit = findFirst(unit("a.jre.javase", "9.0.0"), subject.getTemporaryAdditions());
         assertThat(jreUnit.getProvidedCapabilities(), not(hasItem(packageCapability("javax.xml"))));
-        assertThat(jreUnit.getProvidedCapabilities().size(), is(1)); // the self-capability
+        assertFalse(jreUnit.getProvidedCapabilities().stream()
+                .anyMatch(cap -> PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE.equals(cap.getNamespace())));
     }
 
     @Test
