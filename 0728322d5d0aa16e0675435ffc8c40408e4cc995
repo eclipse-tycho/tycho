@@ -16,6 +16,24 @@
       "revId": "0728322d5d0aa16e0675435ffc8c40408e4cc995",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3e5d2d1_b95d1255",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/StandardEEResolutionHints.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2018-04-24T08:59:43Z",
+      "side": 1,
+      "message": "\u003e https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d531345\n\nYes, at the moment and only between M6 and M7.\nFor p2 M7, https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d531345 gets fixed, and the product will be generated *without* the hard dependency on a.jre 9.0.0 unit, but instead with a capability requirement on JavaSE-9.\n\nBut, unless we make Tycho wait for Equinox M7, then we\u0027ll see products built with hard requirement on a.jre.javase/9.0.0, so we indeed need to keep it there in future.\nSo basically, addition of JavaSE-9 has to be hardcoded just like the 1.6.0 one.\nBut we could prepare it and keep adding LAST_KNOWN_EE too.\n\nSo when p2 and Tycho move to JavaSE-10 by default, then we could just update the LAST_KNOW_EE and things would work (as I imagine support for JavaSE-10 would come after Tycho updates p2 M7 using capabilities in product instead of req on unit).",
+      "parentUuid": "7f1a5831_a08ca704",
+      "revId": "0728322d5d0aa16e0675435ffc8c40408e4cc995",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
