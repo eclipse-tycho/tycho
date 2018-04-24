@@ -55,6 +55,10 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         targetAliases.put("7.0", "1.7");
         targetAliases.put("8", "1.8");
         targetAliases.put("8.0", "1.8");
+        targetAliases.put("9", "1.9");
+        targetAliases.put("9.0", "1.9");
+        targetAliases.put("10", "1.10");
+        targetAliases.put("10.0", "1.10");
         TARGET_ALIASES = Collections.unmodifiableMap(targetAliases);
     }
 
@@ -69,13 +73,13 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
      * Do no instantiate. Use factory method instead
      * {@link ExecutionEnvironmentUtils#getExecutionEnvironment(String)}.
      */
-    /* package */StandardExecutionEnvironment(Properties profileProperties) {
+    /* package */ StandardExecutionEnvironment(Properties profileProperties) {
         this.profileName = profileProperties.getProperty("osgi.java.profile.name");
         this.compilerSourceLevel = profileProperties.getProperty("org.eclipse.jdt.core.compiler.source");
         this.compilerTargetLevel = profileProperties
                 .getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-        this.systemPackages = new LinkedHashSet<>(Arrays.asList(profileProperties.getProperty(
-                "org.osgi.framework.system.packages").split(",")));
+        this.systemPackages = new LinkedHashSet<>(
+                Arrays.asList(profileProperties.getProperty("org.osgi.framework.system.packages").split(",")));
         this.eeVersion = parseEEVersion(profileProperties.getProperty("org.osgi.framework.system.capabilities"));
         this.profileProperties = new Properties();
         this.profileProperties.putAll(profileProperties);
