@@ -46,7 +46,7 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
     /**
      * This should be the most recent/encompassing EE that JREAction can create units for.
      */
-    private static final String LAST_KNOWN_EE = JRE_ACTION_FALLBACK_EE_PHOTON;
+    private static final String LAST_KNOWN_EE = "JavaSE-10";
 
     private final String executionEnvironment;
     private final Map<VersionedId, IInstallableUnit> additionalUnits;

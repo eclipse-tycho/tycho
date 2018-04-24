@@ -74,6 +74,14 @@ class PublisherServiceImpl implements PublisherService {
         return toSeeds(null, allIUs);
     }
 
+    @Override
+    public Collection<DependencySeed> publishEEProfile(String profileName) throws FacadeException {
+        IPublisherAction jreAction = new JREAction(profileName);
+        Collection<IInstallableUnit> allIUs = publisherRunner.executeAction(jreAction,
+                publishingRepository.getMetadataRepository(), publishingRepository.getArtifactRepository());
+        return toSeeds(null, allIUs);
+    }
+
     void validateProfile(File profileFile) throws FacadeException {
         Properties profileProperties = new Properties();
         try {
