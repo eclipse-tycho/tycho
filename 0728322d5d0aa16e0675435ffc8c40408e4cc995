@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f1a5831_a08ca704",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/target/ee/StandardEEResolutionHints.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-04-24T08:47:33Z",
+      "side": 1,
+      "message": "do I get it right, products still have a perfect version match to a.jre.javase version 9.0.0 ?\n\nif this is true, when we update LAST_KNOWN_EE to JavaSE-10 soon, will product dependency resolution start failing?\n\nmaybe add a comment here with a link to the bug about hardcoded product -\u003e a.jre.javase dependencies so we don\u0027t break anyhting when we update LAST_KNOWN_EE to JavaSE-10",
+      "revId": "0728322d5d0aa16e0675435ffc8c40408e4cc995",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
