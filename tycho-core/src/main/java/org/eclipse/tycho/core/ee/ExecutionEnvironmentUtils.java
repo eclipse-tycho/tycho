@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,8 @@ public class ExecutionEnvironmentUtils {
 
     private static Map<String, StandardExecutionEnvironment> fillEnvironmentsMap() {
         Properties listProps = readProperties(findInSystemBundle("profile.list"));
-        String[] profileFiles = listProps.getProperty("java.profiles").split(",");
+        List<String> profileFiles = new ArrayList<>(Arrays.asList(listProps.getProperty("java.profiles").split(",")));
+        profileFiles.add("JavaSE-10.profile");
         Map<String, StandardExecutionEnvironment> envMap = new LinkedHashMap<>();
         for (String profileFile : profileFiles) {
             Properties props = readProperties(findInSystemBundle(profileFile.trim()));

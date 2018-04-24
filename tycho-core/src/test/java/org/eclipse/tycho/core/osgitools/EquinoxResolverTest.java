@@ -72,4 +72,24 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
                 "java.io,java.lang,java.lang.ref,java.lang.reflect,java.math,java.net,java.security,java.security.acl,java.security.cert,java.security.interfaces,java.security.spec,java.text,java.text.resources,java.util,java.util.jar,java.util.zip,javax.microedition.io",
                 platformProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
     }
+
+    public void testBREEJavaSE10() throws Exception {
+        File basedir = getBasedir("projects/javase-10");
+        Properties properties = new Properties();
+        properties.put("tycho-version", TychoVersion.getTychoVersion());
+        List<MavenProject> projects = getSortedProjects(basedir, properties, null);
+        assertEquals(1, projects.size());
+        MavenProject javaSE10Project = projects.get(0);
+        assertEquals("executionenvironment.javase10", javaSE10Project.getArtifactId());
+        ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(javaSE10Project)
+                .getFullSpecification();
+        assertEquals("JavaSE-10", ee.getProfileName());
+        Properties platformProperties = subject.getPlatformProperties(javaSE10Project, ee);
+        String executionEnvironments = platformProperties.getProperty("org.osgi.framework.executionenvironment");
+        assertTrue(executionEnvironments.contains("JavaSE-10"));
+        String capabilities = platformProperties.getProperty("org.osgi.framework.system.capabilities");
+        assertTrue(capabilities.contains(
+                "osgi.ee=\"JavaSE\"; version:List<Version>=\"1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.0, 10.0\""));
+    }
+
 }
