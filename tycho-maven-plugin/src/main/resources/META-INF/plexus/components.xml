@@ -295,6 +295,7 @@
               </process-resources>
               <package>
                 org.eclipse.tycho:target-platform-configuration:${project.version}:target-platform,
+                org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-osgi-ee,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-products,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:publish-categories,
                 org.eclipse.tycho:tycho-p2-publisher-plugin:${project.version}:attach-artifacts,
