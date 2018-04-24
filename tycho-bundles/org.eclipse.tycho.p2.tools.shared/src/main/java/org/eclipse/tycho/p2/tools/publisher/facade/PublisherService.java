@@ -38,4 +38,15 @@ public interface PublisherService {
      * @return handles to the root IUs in the publisher result
      */
     Collection<DependencySeed> publishEEProfile(File profileFile) throws FacadeException;
+
+    /**
+     * Publishes the given OSGi execution environment profile.
+     * 
+     * @param profilename
+     *            the profile name
+     * @throws FacadeException
+     *             if a checked exception occurs during publishing
+     * @return handles to the root IUs in the publisher result
+     */
+    Collection<DependencySeed> publishEEProfile(String profileName) throws FacadeException;
 }

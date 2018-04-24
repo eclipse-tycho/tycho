@@ -115,6 +115,11 @@ public class DependencySeed {
         }
     }
 
+    @Override
+    public String toString() {
+        return installableUnit.toString();
+    }
+
     public interface Filter {
         /**
          * Returns <code>true</code> if this dependency is an add-on for the given dependency seed.
