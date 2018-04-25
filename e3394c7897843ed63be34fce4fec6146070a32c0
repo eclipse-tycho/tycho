@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0591226_aebd6ab1",
+        "filename": "tycho-source-plugin/src/test/java/org/eclipse/tycho/source/OsgiSourceMojoTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 185196
+      },
+      "writtenOn": "2018-04-25T06:43:40Z",
+      "side": 1,
+      "message": "Great, many thanks for the fix. Looking forwar for 1.2.0 Release :D",
+      "revId": "e3394c7897843ed63be34fce4fec6146070a32c0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
