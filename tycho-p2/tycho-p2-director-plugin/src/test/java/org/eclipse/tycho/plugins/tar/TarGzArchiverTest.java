@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP SE and others.
+ * Copyright (c) 2014, 2018 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,11 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Date;
 import java.util.HashMap;
@@ -197,18 +194,6 @@ public class TarGzArchiverTest {
         } catch (Exception e) {
             Assume.assumeNoException("skip test on filesystems that do not support POSIX file permissions", e);
         }
-    }
-
-    private PosixFileAttributes getPosixFileAttributes(File file) {
-        try {
-            PosixFileAttributeView attributeView = Files.getFileAttributeView(file.toPath(),
-                    PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
-            return attributeView.readAttributes();
-        } catch (Exception e) {
-            Assume.assumeNoException("skip test on filesystems that do not support POSIX file attributes", e);
-        }
-        // never reached
-        return null;
     }
 
     private void createSymbolicLink(File link, Path linkTarget) {
