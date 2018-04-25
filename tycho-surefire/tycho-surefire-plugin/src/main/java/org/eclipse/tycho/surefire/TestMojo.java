@@ -1031,7 +1031,8 @@ public class TestMojo extends AbstractMojo {
 
         default:
             throw new MojoFailureException("An unexpected error occured while launching the test runtime (return code "
-                    + result + "). See log for details.");
+                    + result + "). See log " + new File(osgiDataDirectory, ".metadata/.log").getAbsolutePath()
+                    + " for details.");
         }
     }
 
