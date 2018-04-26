@@ -50,6 +50,7 @@
 							<goal>copy</goal>
 						</goals>
 						<configuration>
+							<outputDirectory>jars</outputDirectory>
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.apache.maven.surefire</groupId>
@@ -70,6 +71,17 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>jars</directory>
+						</fileset>
+					</filesets>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
