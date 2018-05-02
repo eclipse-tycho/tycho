@@ -123,7 +123,7 @@
 			<artifactId>plexus-archiver</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.platform</groupId>
+			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
 		</dependency>
 		<dependency>
