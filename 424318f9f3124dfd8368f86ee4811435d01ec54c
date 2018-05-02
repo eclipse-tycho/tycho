@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abfd96b8_eaa398ea",
+        "filename": "tycho-compiler-plugin/src/main/java/org/eclipse/tycho/compiler/AbstractOsgiCompilerMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 62101
+      },
+      "writtenOn": "2018-05-02T15:17:49Z",
+      "side": 1,
+      "message": "would it be possible to consider the linkedResources defined in the .project file to see if there is a linked org.eclipse.jdt.core.prefs?",
+      "range": {
+        "startLine": 429,
+        "startChar": 12,
+        "endLine": 429,
+        "endChar": 91
+      },
+      "revId": "424318f9f3124dfd8368f86ee4811435d01ec54c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
