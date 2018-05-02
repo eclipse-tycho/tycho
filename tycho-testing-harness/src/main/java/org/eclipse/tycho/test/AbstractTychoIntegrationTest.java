@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 
 import org.apache.maven.it.Verifier;
-import org.apache.maven.it.util.DirectoryScanner;
+import org.apache.maven.shared.utils.io.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.test.util.EnvironmentUtil;
