@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83cbfc89_6970fc04",
+        "filename": "tycho-packaging-plugin/src/test/java/org/eclipse/tycho/buildnumber/test/PackageUpdateSiteMojoTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 888
+      },
+      "writtenOn": "2018-05-02T08:59:19Z",
+      "side": 1,
+      "message": "Eclipse auto-formatted the file, which is why this line changed.",
+      "revId": "962a9eaf61f75aae810c16e3a4aee3cbc2a9828e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
