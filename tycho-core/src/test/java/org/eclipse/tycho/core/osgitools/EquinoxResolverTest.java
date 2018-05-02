@@ -68,6 +68,8 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
                 .getFullSpecification();
         assertEquals("CDC-1.0/Foundation-1.0", ee.getProfileName());
         Properties platformProperties = subject.getPlatformProperties(projects.get(2), ee);
-        assertEquals("javax.microedition.io", platformProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
+        assertEquals(
+                "java.io,java.lang,java.lang.ref,java.lang.reflect,java.math,java.net,java.security,java.security.acl,java.security.cert,java.security.interfaces,java.security.spec,java.text,java.text.resources,java.util,java.util.jar,java.util.zip,javax.microedition.io",
+                platformProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
     }
 }
