@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,8 +17,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.it.util.IOUtil;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.utils.io.IOUtil;
 import org.eclipse.tycho.model.Feature;
 import org.eclipse.tycho.packaging.PackageFeatureMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;

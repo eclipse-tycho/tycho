@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 SAP AG and others.
+ * Copyright (c) 2012, 2018 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import java.io.File;
 
 import org.apache.maven.it.Verifier;
-import org.apache.maven.it.util.FileUtils;
+import org.apache.maven.shared.utils.io.FileUtils;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.eclipse.tycho.test.util.P2RepositoryTool;
 import org.eclipse.tycho.test.util.P2RepositoryTool.IU;

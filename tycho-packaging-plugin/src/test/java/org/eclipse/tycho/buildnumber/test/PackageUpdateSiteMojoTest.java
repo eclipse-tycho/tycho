@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2018 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import junit.framework.Assert;
-
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.it.util.FileUtils;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.utils.io.FileUtils;
 import org.eclipse.tycho.packaging.PackageUpdateSiteMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+
+import junit.framework.Assert;
 
 public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
 
@@ -54,10 +54,8 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         FileUtils.fileAppend(siteXml.getAbsolutePath(),
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?><site associateSitesURL=\"associate-sites.xml\"></site>");
         File associateSitesFile = new File(siteFolder, "associate-sites.xml");
-        FileUtils
-                .fileAppend(
-                        associateSitesFile.getAbsolutePath(),
-                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"http://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>");
+        FileUtils.fileAppend(associateSitesFile.getAbsolutePath(),
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><associateSites><associateSite url=\"http://download.eclipse.org/technology/m2e/updates/M\" label=\"m2e site\" /></associateSites>");
         new File(siteFolder, "content.xml").createNewFile();
         new File(siteFolder, "artifacts.xml").createNewFile();
 
