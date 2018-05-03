@@ -34,7 +34,6 @@ public class BasicP2RepositoryIntegrationTest extends AbstractTychoIntegrationTe
     private static Verifier verifier;
     private static P2RepositoryTool p2Repo;
 
-    @SuppressWarnings("unchecked")
     @BeforeClass
     public static void executeBuild() throws Exception {
         verifier = new BasicP2RepositoryIntegrationTest().getVerifier("/p2Repository", false);

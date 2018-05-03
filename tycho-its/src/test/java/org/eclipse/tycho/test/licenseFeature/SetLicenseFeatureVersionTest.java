@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Darmstadt University of Technology.
+ * Copyright (c) 2014, 2018 Darmstadt University of Technology.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import org.junit.Test;
 
 // tests that license feature references are updated by the versions-plugin (bug 424945)
 // TODO make this a unit test
-@SuppressWarnings("unchecked")
 public class SetLicenseFeatureVersionTest extends AbstractTychoIntegrationTest {
 
     private static final String NEW_MAVEN_VERSION = "1.0.1-SNAPSHOT";
@@ -33,8 +32,8 @@ public class SetLicenseFeatureVersionTest extends AbstractTychoIntegrationTest {
         Verifier verifier = getVerifier("/licenseFeature.setVersion", false);
 
         verifier.getCliOptions().add("-DnewVersion=" + NEW_MAVEN_VERSION);
-        verifier.executeGoal("org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion()
-                + ":set-version");
+        verifier.executeGoal(
+                "org.eclipse.tycho:tycho-versions-plugin:" + TychoVersion.getTychoVersion() + ":set-version");
 
         verifier.verifyErrorFreeLog();
 

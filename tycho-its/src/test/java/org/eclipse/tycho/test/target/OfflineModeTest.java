@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,7 +76,6 @@ public class OfflineModeTest extends AbstractTychoIntegrationTest {
         return verifier;
     }
 
-    @SuppressWarnings("unchecked")
     private void runAndVerifyOfflineBuild(Verifier verifier) throws VerificationException {
         verifier.getCliOptions().add("--offline");
         verifier.setLogFileName("log-offline.txt");

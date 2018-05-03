@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("unchecked")
 public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationTest {
 
     private HttpServer server;
@@ -81,14 +80,14 @@ public class PasswordProtectedP2RepositoryTest extends AbstractTychoIntegrationT
     }
 
     private Verifier createVerifier(String settingsFile, String settingsSecurityFile) throws Exception {
-        Verifier verifier = getVerifier("target.httpAuthentication", false, new File(
-                "projects/target.httpAuthentication/" + settingsFile));
+        Verifier verifier = getVerifier("target.httpAuthentication", false,
+                new File("projects/target.httpAuthentication/" + settingsFile));
         Properties systemProperties = verifier.getSystemProperties();
         systemProperties.setProperty("p2.repo", p2RepoUrl);
         if (settingsSecurityFile != null) {
             // see org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher#SYSTEM_PROPERTY_SEC_LOCATION
-            systemProperties.setProperty("settings.security", new File("projects/target.httpAuthentication/"
-                    + settingsSecurityFile).getAbsolutePath());
+            systemProperties.setProperty("settings.security",
+                    new File("projects/target.httpAuthentication/" + settingsSecurityFile).getAbsolutePath());
         }
         return verifier;
     }

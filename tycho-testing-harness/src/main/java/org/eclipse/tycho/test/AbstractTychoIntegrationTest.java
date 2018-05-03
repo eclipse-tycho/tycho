@@ -74,7 +74,6 @@ public abstract class AbstractTychoIntegrationTest {
         return getVerifier(test, setTargetPlatform, userSettings, true);
     }
 
-    @SuppressWarnings("unchecked")
     protected Verifier getVerifier(String test, boolean setTargetPlatform, File userSettings,
             boolean ignoreLocalArtifacts) throws Exception {
         /*
@@ -182,8 +181,8 @@ public abstract class AbstractTychoIntegrationTest {
         ds.setIncludes(new String[] { pattern });
         ds.scan();
         Assert.assertEquals(targetdir.getAbsolutePath() + "/" + pattern, 1, ds.getIncludedDirectories().length);
-        Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern, new File(targetdir,
-                ds.getIncludedDirectories()[0]).exists());
+        Assert.assertTrue(targetdir.getAbsolutePath() + "/" + pattern,
+                new File(targetdir, ds.getIncludedDirectories()[0]).exists());
     }
 
     protected void assertFileDoesNotExist(File targetdir, String pattern) {

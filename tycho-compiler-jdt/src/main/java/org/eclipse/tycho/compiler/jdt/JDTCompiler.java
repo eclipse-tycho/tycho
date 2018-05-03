@@ -157,7 +157,6 @@ public class JDTCompiler extends AbstractCompiler {
         // Set the class and source paths
         // ----------------------------------------------------------------------
 
-        @SuppressWarnings("unchecked")
         List<String> classpathEntries = config.getClasspathEntries();
         if (classpathEntries != null && !classpathEntries.isEmpty()) {
             args.add("-classpath");
@@ -167,7 +166,6 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(cp);
         }
 
-        @SuppressWarnings("unchecked")
         List<String> sourceLocations = config.getSourceLocations();
         if (sourceLocations != null && !sourceLocations.isEmpty() && (sourceFiles.length == 0)) {
             args.add("-sourcepath");
@@ -234,7 +232,6 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(config.getSourceEncoding());
         }
 
-        @SuppressWarnings("unchecked")
         Map<String, String> customCompilerArguments = config.getCustomCompilerArguments();
         for (Map.Entry<String, String> entry : customCompilerArguments.entrySet()) {
 

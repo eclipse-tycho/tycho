@@ -14,7 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 // tests the support for reproducible artifacts (bug 362883 - "do not generate new artifact unless there is a change")
-@SuppressWarnings("unchecked")
 public class BaselineValidateAndReplaceTest extends AbstractTychoIntegrationTest {
 
     private static File baselineRepo;
