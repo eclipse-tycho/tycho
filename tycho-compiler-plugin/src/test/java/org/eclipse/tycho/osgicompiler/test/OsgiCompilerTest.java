@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ import copied.org.apache.maven.plugin.CompilationFailureException;
 public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
 
     private static final int TARGET_1_4 = 48;
-    private static final int TARGET_1_7 = 51;
     private static final int TARGET_9 = 53;
 
     protected File storage;
