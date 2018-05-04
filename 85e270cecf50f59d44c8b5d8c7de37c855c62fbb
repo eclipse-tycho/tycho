@@ -16,6 +16,24 @@
       "revId": "85e270cecf50f59d44c8b5d8c7de37c855c62fbb",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc8f16_cc2e29b3",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2018-05-04T14:58:52Z",
+      "side": 1,
+      "message": "Oops sorry. Yes it slipped in. It allows the given bundle to export java.* packages as they are included in the system.packages in Photon see https://git.eclipse.org/r/#/c/115070/5/bundles/org.eclipse.osgi/JavaSE-1.8.profile .\nI\u0027ll revert it.",
+      "parentUuid": "4a863e0b_8a9e36ae",
+      "revId": "85e270cecf50f59d44c8b5d8c7de37c855c62fbb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
