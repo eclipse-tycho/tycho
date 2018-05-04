@@ -276,7 +276,6 @@ public class EquinoxResolver {
         systemBundleManifest.put(Constants.BUNDLE_SYMBOLICNAME, SYSTEM_BUNDLE_SYMBOLIC_NAME);
         systemBundleManifest.put(Constants.BUNDLE_VERSION, "0.0.0");
         systemBundleManifest.put(Constants.BUNDLE_MANIFESTVERSION, "2");
-        systemBundleManifest.put(StateImpl.Eclipse_JREBUNDLE, "true");
         if (systemPackages != null && systemPackages.trim().length() > 0) {
             systemBundleManifest.put(Constants.EXPORT_PACKAGE, systemPackages);
         } else {
