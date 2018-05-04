@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a863e0b_8a9e36ae",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/EquinoxResolver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-05-04T14:54:22Z",
+      "side": 1,
+      "message": "what happened here? what\u0027s the effect of setting this header in the system bundle?\n\nI guess this is not related to warnings and slipped in.\n\nIs this related to https://bugs.eclipse.org/bugs/show_bug.cgi?id\u003d534255 ?",
+      "revId": "85e270cecf50f59d44c8b5d8c7de37c855c62fbb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
