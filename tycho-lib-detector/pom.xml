@@ -12,17 +12,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
 		<version>1.3.0-SNAPSHOT</version>
 	</parent>
-
 	<artifactId>tycho-lib-detector</artifactId>
 	<name>Tycho JVM Library Detector</name>
 	<packaging>jar</packaging>
-
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -33,10 +30,17 @@
 						<!-- make sure we use minimum source/target level as this code will be run in old JVMs -->
 						<source>1.3</source>
 						<target>1.1</target>
+						<compilerId>jdt</compilerId>
 					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.eclipse.tycho</groupId>
+							<artifactId>tycho-compiler-jdt</artifactId>
+							<version>${tychoBootstrapVersion}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
-
 </project>
