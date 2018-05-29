@@ -69,17 +69,6 @@
 	<name>Tycho</name>
 	<description>Tycho integrates Maven with Eclipse and OSGi</description>
 
-	<repositories>
-	<!-- TODO remove when we use JDT,p2,equinox from final eclipse release  -->
-		<repository>
-			<id>tycho-snapshots</id>
-			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
  	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<min.jdk.version>1.8</min.jdk.version>
@@ -103,9 +92,9 @@
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
 		<equinoxVersion>3.13.0.v20180226-1711</equinoxVersion>
-		<equinoxVersionMaven>${equinoxVersion}-SNAPSHOT</equinoxVersionMaven>
+		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.1.100.v20180131-1413</equinoxCompatVersion>
-		<equinoxCompatVersionMaven>${equinoxCompatVersion}-SNAPSHOT</equinoxCompatVersionMaven>
+		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
 		<jdtVersion>3.13.102</jdtVersion>
 		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
 		<jdtAptVersion>1.3.110</jdtAptVersion>
