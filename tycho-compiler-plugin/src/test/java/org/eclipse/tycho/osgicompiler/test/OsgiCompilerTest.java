@@ -86,14 +86,15 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         AbstractOsgiCompilerMojo mojo = getMojo(projects, project);
         List<String> cp = mojo.getClasspathElements();
         assertEquals(4, cp.size());
-        assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(0));
         assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p001/target/classes",
-                "[+p001/*:?**/*]"), cp.get(1));
+                "[+p001/*:?**/*]"), cp.get(0));
         // note that PDE sorts dependencies coming via imported-package by symbolicName_version
         assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p003/target/classes",
-                "[+p003/*:?**/*]"), cp.get(2));
+                "[+p003/*:?**/*]"), cp.get(1));
         assertEquals(getClasspathElement(new File(getBasedir()), "target/projects/accessrules/p004/target/classes",
-                "[+p004/*:?**/*]"), cp.get(3));
+                "[+p004/*:?**/*]"), cp.get(2));
+        assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(3));
+
     }
 
     public void testClasspath() throws Exception {
@@ -126,9 +127,9 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals(3, cp.size());
         final String plainJarPath = "src/test/resources/projects/classpath/platform/plugins/p003_0.0.1.jar";
         final String nestedJarPath = "target/local-repo/.cache/tycho/p003_0.0.1.jar/lib/lib.jar";
-        assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(0));
-        assertEquals(getClasspathElement(new File(getBasedir()), plainJarPath, "[?**/*]"), cp.get(1));
-        assertEquals(getClasspathElement(new File(getBasedir()), nestedJarPath, "[?**/*]"), cp.get(2));
+        assertEquals(getClasspathElement(new File(getBasedir()), plainJarPath, "[?**/*]"), cp.get(0));
+        assertEquals(getClasspathElement(new File(getBasedir()), nestedJarPath, "[?**/*]"), cp.get(1));
+        assertEquals(getClasspathElement(project.getBasedir(), "target/classes", ""), cp.get(2));
 
         // project with a (not yet) existing nested jar that would be copied later during build 
         // (wrapper scenario with copy-pom-dependencies)
@@ -294,7 +295,7 @@ public class OsgiCompilerTest extends AbstractTychoMojoTestCase {
         assertEquals("A", projects.get(3).getArtifactId());
         AbstractOsgiCompilerMojo mojo = getMojo(projects, projects.get(3));
         List<String> cp = mojo.getClasspathElements();
-        assertEquals(getClasspathElement(projects.get(1).getBasedir(), "target/classes", "[?**/*]"), cp.get(2));
+        assertEquals(getClasspathElement(projects.get(1).getBasedir(), "target/classes", "[?**/*]"), cp.get(1));
 
         mojo.execute();
         assertTrue(new File(projects.get(3).getBasedir(), "target/classes/a/A.class").canRead());

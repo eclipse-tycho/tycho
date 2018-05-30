@@ -171,15 +171,6 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
         List<ClasspathEntry> classpath = new ArrayList<>();
 
-        // project itself
-        ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(), bundleDescription.getSymbolicName());
-        ReactorProject projectProxy = DefaultReactorProject.adapt(project);
-        List<File> projectClasspath = getThisProjectClasspath(artifact, projectProxy);
-        classpath.add(new DefaultClasspathEntry(projectProxy, artifact.getKey(), projectClasspath, null));
-
-        // build.properties/jars.extra.classpath
-        addExtraClasspathEntries(classpath, projectProxy, artifacts);
-
         // dependencies
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
@@ -209,6 +200,16 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
             classpath.add(new DefaultClasspathEntry(otherProject, otherArtifact.getKey(), locations, entry.rules));
         }
+
+        // build.properties/jars.extra.classpath
+        ReactorProject projectProxy = DefaultReactorProject.adapt(project);
+        addExtraClasspathEntries(classpath, projectProxy, artifacts);
+
+        // project itself
+        ArtifactDescriptor artifact = getArtifact(artifacts, project.getBasedir(), bundleDescription.getSymbolicName());
+        List<File> projectClasspath = getThisProjectClasspath(artifact, projectProxy);
+        classpath.add(new DefaultClasspathEntry(projectProxy, artifact.getKey(), projectClasspath, null));
+
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_CLASSPATH, classpath);
 
         project.setContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_STRICT_BOOTCLASSPATH_ACCESSRULES,
@@ -247,8 +248,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
             if (sourceFolder.equals(new File(testCompileRoot))) {
                 // avoid duplicate source folders (bug 368445)
                 iterator.remove();
-                getLogger().debug(
-                        "Removed duplicate test compile root " + testCompileRoot + " from maven project model");
+                getLogger()
+                        .debug("Removed duplicate test compile root " + testCompileRoot + " from maven project model");
                 return;
             }
         }
@@ -329,9 +330,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     /**
-     * Returns bundle classpath entries. If <code>nestedPath</code> is not <code>null</code>,
-     * returns single class folder that corresponds specified nestedPath. If <code>nestedPath</code>
-     * is <code>null</code>, returns entries specified in Bundle-ClassPath.
+     * Returns bundle classpath entries. If <code>nestedPath</code> is not <code>null</code>, returns
+     * single class folder that corresponds specified nestedPath. If <code>nestedPath</code> is
+     * <code>null</code>, returns entries specified in Bundle-ClassPath.
      */
     private List<File> getOtherProjectClasspath(ArtifactDescriptor bundle, ReactorProject otherProject,
             String nestedPath) {
@@ -383,14 +384,15 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                     if (matchingBundle != null) {
                         List<File> locations;
                         if (matchingBundle.getMavenProject() != null) {
-                            locations = getOtherProjectClasspath(matchingBundle, matchingBundle.getMavenProject(), path);
+                            locations = getOtherProjectClasspath(matchingBundle, matchingBundle.getMavenProject(),
+                                    path);
                         } else if (path != null) {
                             locations = getBundleEntry(matchingBundle, path);
                         } else {
                             locations = getBundleClasspath(matchingBundle);
                         }
-                        classpath.add(new DefaultClasspathEntry(matchingBundle.getMavenProject(), matchingBundle
-                                .getKey(), locations, null));
+                        classpath.add(new DefaultClasspathEntry(matchingBundle.getMavenProject(),
+                                matchingBundle.getKey(), locations, null));
                     } else {
                         getLogger().warn("Missing extra classpath entry " + entry.trim());
                     }
