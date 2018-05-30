@@ -181,13 +181,14 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         OsgiBundleProject projectType = (OsgiBundleProject) lookup(TychoProject.class, project.getPackaging());
 
         List<ClasspathEntry> classpath = projectType.getClasspath(project);
+
         assertEquals(3, classpath.size());
-        assertEquals(1, classpath.get(1).getLocations().size());
+        assertEquals(1, classpath.get(0).getLocations().size());
         assertEquals(canonicalFile("src/test/resources/targetplatforms/missingentry/plugins/dirbundle_0.0.1"),
-                classpath.get(1).getLocations().get(0).getCanonicalFile());
-        assertEquals(1, classpath.get(2).getLocations().size());
+                classpath.get(0).getLocations().get(0).getCanonicalFile());
+        assertEquals(1, classpath.get(1).getLocations().size());
         assertEquals(canonicalFile("src/test/resources/targetplatforms/missingentry/plugins/jarbundle_0.0.1.jar"),
-                classpath.get(2).getLocations().get(0).getCanonicalFile());
+                classpath.get(1).getLocations().get(0).getCanonicalFile());
     }
 
     private File canonicalFile(String path) throws IOException {
@@ -209,29 +210,30 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         List<ClasspathEntry> classpath = projectType.getClasspath(b02);
 
         assertEquals(5, classpath.size());
-        // this bundle
-        assertEquals(1, classpath.get(0).getLocations().size());
-        assertEquals(canonicalFile("target/projects/extraclasspath/b02/target/classes"), classpath.get(0)
-                .getLocations().get(0).getCanonicalFile());
-        // reference to external bundle entry not on classpath
-        assertEquals(1, classpath.get(1).getLocations().size());
-        assertEquals(
-                canonicalFile("target/local-repo/.cache/tycho/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar/launcher.properties"),
-                classpath.get(1).getLocations().get(0).getCanonicalFile());
-        // reference to reactor project entry
-        assertEquals(1, classpath.get(2).getLocations().size());
-        assertEquals(canonicalFile("target/projects/extraclasspath/b01/target/lib/nested.jar-classes"), classpath
-                .get(2).getLocations().get(0).getCanonicalFile());
-        // reference to external bundle
-        assertEquals(1, classpath.get(3).getLocations().size());
-        assertEquals(
-                canonicalFile("src/test/resources/targetplatforms/basic/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar"),
-                classpath.get(3).getLocations().get(0).getCanonicalFile());
-        // reference to project local folder
-        assertEquals(1, classpath.get(4).getLocations().size());
-        assertEquals(new File(basedir, "b02/classes").getCanonicalFile(), classpath.get(4).getLocations().get(0)
-                .getCanonicalFile());
 
+        // reference to external bundle entry not on classpath
+        assertEquals(1, classpath.get(0).getLocations().size());
+        assertEquals(canonicalFile(
+                "target/local-repo/.cache/tycho/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar/launcher.properties"),
+                classpath.get(0).getLocations().get(0).getCanonicalFile());
+        // reference to reactor project entry
+        assertEquals(1, classpath.get(1).getLocations().size());
+        assertEquals(canonicalFile("target/projects/extraclasspath/b01/target/lib/nested.jar-classes"),
+                classpath.get(1).getLocations().get(0).getCanonicalFile());
+
+        // reference to external bundle
+        assertEquals(1, classpath.get(2).getLocations().size());
+        assertEquals(canonicalFile(
+                "src/test/resources/targetplatforms/basic/plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v20081125.jar"),
+                classpath.get(2).getLocations().get(0).getCanonicalFile());
+        // reference to project local folder
+        assertEquals(1, classpath.get(3).getLocations().size());
+        assertEquals(new File(basedir, "b02/classes").getCanonicalFile(),
+                classpath.get(3).getLocations().get(0).getCanonicalFile());
+        // this bundle
+        assertEquals(1, classpath.get(4).getLocations().size());
+        assertEquals(canonicalFile("target/projects/extraclasspath/b02/target/classes"),
+                classpath.get(4).getLocations().get(0).getCanonicalFile());
     }
 
     public void testImplicitTargetEnvironment() throws Exception {
