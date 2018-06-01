@@ -1,0 +1,8 @@
+Verified+1: CI Bot
+Code-Review+1: Jan Sievers <jan.sievers@sap.com>
+Code-Review+2: Martin Schreiber <Martin.SCHREIBER@bachmann.info>
+Submitted-by: Martin Schreiber <Martin.SCHREIBER@bachmann.info>
+Submitted-at: Fri, 01 Jun 2018 11:26:12 -0400
+Reviewed-on: https://git.eclipse.org/r/123642
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
