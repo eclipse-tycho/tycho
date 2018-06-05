@@ -22,6 +22,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
 
 /**
  * <p>
@@ -57,7 +58,7 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
         File destFile = getBuildDirectory().getChild(finalName + ".zip");
 
         try {
-            inflater.addDirectory(getAssemblyRepositoryLocation());
+            inflater.addFileSet(DefaultFileSet.fileSet(getAssemblyRepositoryLocation()).prefixed(""));
             inflater.setDestFile(destFile);
             inflater.createArchive();
         } catch (ArchiverException e) {

@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -40,6 +41,7 @@ import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.ManifestException;
+import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -54,8 +56,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     private static final String[] DEFAULT_EXCLUDES = new String[] {};
 
     /**
-     * List of files to include. Specified as fileset patterns which are relative to the input
-     * directory whose contents is being packaged into the JAR.
+     * List of files to include. Specified as fileset patterns which are relative to the input directory
+     * whose contents is being packaged into the JAR.
      * 
      * @since 2.1
      */
@@ -63,8 +65,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     private String[] includes;
 
     /**
-     * List of files to exclude. Specified as fileset patterns which are relative to the input
-     * directory whose contents is being packaged into the JAR.
+     * List of files to exclude. Specified as fileset patterns which are relative to the input directory
+     * whose contents is being packaged into the JAR.
      * 
      * @since 2.1
      */
@@ -87,6 +89,12 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     protected MavenProject project;
 
     /**
+     * The Maven Session Object
+     */
+    @Parameter(property = "session", readonly = true)
+    protected MavenSession session;
+
+    /**
      * The Jar archiver.
      */
     @Component(role = Archiver.class, hint = "jar")
@@ -94,8 +102,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
 
     /**
      * The archive configuration to use. See
-     * <a href="http://maven.apache.org/shared/maven-archiver/index.html">Maven Archiver
-     * Reference</a>.
+     * <a href="http://maven.apache.org/shared/maven-archiver/index.html">Maven Archiver Reference</a>.
      * 
      * @since 2.1
      */
@@ -103,8 +110,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     /**
-     * Path to the default MANIFEST file to use. It will be used if
-     * <code>useDefaultManifestFile</code> is set to <code>true</code>.
+     * Path to the default MANIFEST file to use. It will be used if <code>useDefaultManifestFile</code>
+     * is set to <code>true</code>.
      * 
      * @since 2.1
      */
@@ -112,8 +119,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     private File defaultManifestFile;
 
     /**
-     * Set this to <code>true</code> to enable the use of the <code>defaultManifestFile</code>.
-     * <br/>
+     * Set this to <code>true</code> to enable the use of the <code>defaultManifestFile</code>. <br/>
      * 
      * @since 2.1
      */
@@ -129,8 +135,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
 
     /**
      * Specifies whether or not to exclude resources from the sources-jar. This can be convenient if
-     * your project includes large resources, such as images, and you don't want to include them in
-     * the sources-jar.
+     * your project includes large resources, such as images, and you don't want to include them in the
+     * sources-jar.
      * 
      * @since 2.0.4
      */
@@ -158,8 +164,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     protected File outputDirectory;
 
     /**
-     * The filename to be used for the generated archive file. For the source:jar goal, "-sources"
-     * is appended to this filename. For the source:test-jar goal, "-test-sources" is appended.
+     * The filename to be used for the generated archive file. For the source:jar goal, "-sources" is
+     * appended to this filename. For the source:test-jar goal, "-test-sources" is appended.
      */
     @Parameter(property = "project.build.finalName")
     protected String finalName;
@@ -171,9 +177,9 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     protected List reactorProjects;
 
     /**
-     * NOT SUPPORTED. Whether creating the archive should be forced. If set to true, the jar will
-     * always be created. If set to false, the jar will only be created when the sources are newer
-     * than the jar.
+     * NOT SUPPORTED. Whether creating the archive should be forced. If set to true, the jar will always
+     * be created. If set to false, the jar will only be created when the sources are newer than the
+     * jar.
      * 
      * @since 2.1
      */
@@ -260,7 +266,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
                 getLog().warn("ignoring unsupported archive forced = false parameter.");
                 archive.setForced(true);
             }
-            archiver.createArchive(project, archive);
+            archiver.createArchive(session, project, archive);
         } catch (IOException e) {
             throw new MojoExecutionException("Error creating source archive: " + e.getMessage(), e);
         } catch (ArchiverException e) {
@@ -361,7 +367,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     protected void addDirectory(Archiver archiver, File sourceDirectory, String[] includes, String[] excludes)
             throws MojoExecutionException {
         try {
-            archiver.addDirectory(sourceDirectory, includes, excludes);
+            archiver.addFileSet(
+                    DefaultFileSet.fileSet(sourceDirectory).prefixed("").includeExclude(includes, excludes));
         } catch (ArchiverException e) {
             throw new MojoExecutionException("Error adding directory to source archive.", e);
         }
@@ -370,7 +377,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     protected void addDirectory(Archiver archiver, File sourceDirectory, String prefix, String[] includes,
             String[] excludes) throws MojoExecutionException {
         try {
-            archiver.addDirectory(sourceDirectory, prefix, includes, excludes);
+            archiver.addFileSet(
+                    DefaultFileSet.fileSet(sourceDirectory).prefixed(prefix).includeExclude(includes, excludes));
         } catch (ArchiverException e) {
             throw new MojoExecutionException("Error adding directory to source archive.", e);
         }
@@ -393,9 +401,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     }
 
     /**
-     * Combines the includes parameter and additional includes. Defaults to
-     * {@link #DEFAULT_INCLUDES} If the additionalIncludes parameter is null, it is not added to the
-     * combined includes.
+     * Combines the includes parameter and additional includes. Defaults to {@link #DEFAULT_INCLUDES} If
+     * the additionalIncludes parameter is null, it is not added to the combined includes.
      * 
      * @param additionalIncludes
      *            The includes specified in the pom resources section
@@ -421,8 +428,8 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
     }
 
     /**
-     * Combines the user parameter {@link #excludes}, the default excludes from plexus FileUtils,
-     * and the contents of the parameter addionalExcludes.
+     * Combines the user parameter {@link #excludes}, the default excludes from plexus FileUtils, and
+     * the contents of the parameter addionalExcludes.
      * 
      * @param additionalExcludes
      *            Additional excludes to add to the array
