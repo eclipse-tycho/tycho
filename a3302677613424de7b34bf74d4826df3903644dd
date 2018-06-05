@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2773f144_f053762a",
+        "filename": "tycho-source-plugin/src/main/java/org/eclipse/tycho/source/AbstractSourceJarMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 888
+      },
+      "writtenOn": "2018-06-05T14:35:04Z",
+      "side": 1,
+      "message": "These comment changes are due to the auto-formatting save action. I can revert these if you\u0027d prefer.",
+      "revId": "a3302677613424de7b34bf74d4826df3903644dd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
