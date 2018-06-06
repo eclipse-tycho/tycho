@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Sonatype Inc. and others.
+ * Copyright (c) 2011, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import java.util.jar.Manifest;
 
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -78,6 +79,9 @@ public class CustomBundleMojo extends AbstractMojo {
     @Parameter(property = "project")
     private MavenProject project;
 
+    @Parameter(property = "session", readonly = true)
+    private MavenSession session;
+
     @Parameter
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
@@ -108,7 +112,7 @@ public class CustomBundleMojo extends AbstractMojo {
                 archiver.getArchiver().addFileSet(fileSet);
             }
 
-            archiver.createArchive(project, archive);
+            archiver.createArchive(session, project, archive);
 
             projectHelper.attachArtifact(project, outputJarFile, classifier);
         } catch (Exception e) {
