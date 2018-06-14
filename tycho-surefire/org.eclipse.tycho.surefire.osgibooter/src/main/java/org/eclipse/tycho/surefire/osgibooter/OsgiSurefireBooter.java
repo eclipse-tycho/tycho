@@ -65,6 +65,7 @@ public class OsgiSurefireBooter {
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
         String provider = testProps.getProperty("testprovider");
         String runOrder = testProps.getProperty("runOrder");
+        boolean trimStackTrace = Boolean.parseBoolean(testProps.getProperty("trimStackTrace", "true"));
         int skipAfterFailureCount = Integer.parseInt(testProps.getProperty("skipAfterFailureCount", "0"));
         int rerunFailingTestsCount = Integer.parseInt(testProps.getProperty("rerunFailingTestsCount", "0"));
         Map<String, String> propertiesMap = new HashMap<String, String>();
@@ -76,7 +77,6 @@ public class OsgiSurefireBooter {
 
         boolean forkRequested = true;
         boolean inForkedVM = true;
-        boolean trimStacktrace = true;
         boolean useSystemClassloader = false;
         boolean useManifestOnlyJar = false;
         boolean useFile = true;
