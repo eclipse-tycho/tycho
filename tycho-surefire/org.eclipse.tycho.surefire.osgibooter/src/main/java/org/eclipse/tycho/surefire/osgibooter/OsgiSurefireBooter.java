@@ -65,6 +65,7 @@ public class OsgiSurefireBooter {
         File reportsDir = new File(testProps.getProperty("reportsdirectory"));
         String provider = testProps.getProperty("testprovider");
         String runOrder = testProps.getProperty("runOrder");
+        boolean trimStackTrace = Boolean.parseBoolean(testProps.getProperty("trimStackTrace", "true"));
         int skipAfterFailureCount = Integer.parseInt(testProps.getProperty("skipAfterFailureCount", "0"));
         int rerunFailingTestsCount = Integer.parseInt(testProps.getProperty("rerunFailingTestsCount", "0"));
         Map<String, String> propertiesMap = new HashMap<String, String>();
@@ -76,7 +77,6 @@ public class OsgiSurefireBooter {
 
         boolean forkRequested = true;
         boolean inForkedVM = true;
-        boolean trimStacktrace = true;
         boolean useSystemClassloader = false;
         boolean useManifestOnlyJar = false;
         boolean useFile = true;
@@ -91,7 +91,7 @@ public class OsgiSurefireBooter {
         DirectoryScannerParameters dirScannerParams = new DirectoryScannerParameters(testClassesDir,
                 Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
                 failIfNoTests, runOrder);
-        ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStacktrace);
+        ReporterConfiguration reporterConfig = new ReporterConfiguration(reportsDir, trimStackTrace);
         TestRequest testRequest = new TestRequest(suiteXmlFiles, testClassesDir,
                 TestListResolver.getEmptyTestListResolver());
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
@@ -100,7 +100,7 @@ public class OsgiSurefireBooter {
                 skipAfterFailureCount, Shutdown.DEFAULT);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
                 StartupReportConfiguration.PLAIN_REPORT_FORMAT, redirectTestOutputToFile, disableXmlReport, reportsDir,
-                trimStacktrace, null, "TESTHASH", false, rerunFailingTestsCount);
+                trimStackTrace, null, "TESTHASH", false, rerunFailingTestsCount);
         ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig);
         // API indicates we should use testClassLoader below but surefire also tries 
         // to load surefire classes using this classloader

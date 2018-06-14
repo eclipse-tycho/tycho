@@ -470,6 +470,14 @@ public class TestMojo extends AbstractMojo {
     private String runOrder;
 
     /**
+     * When {@code true}, stack traces are trimmed to only show lines within the test.
+     *
+     * @since 1.3.0
+     */
+    @Parameter(property = "trimStackTrace", defaultValue = "true")
+    private boolean trimStackTrace;
+
+    /**
      * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads, as
      * controlled by threadCount.
      * 
@@ -884,6 +892,7 @@ public class TestMojo extends AbstractMojo {
 
         wrapper.setProperty("failifnotests", String.valueOf(failIfNoTests));
         wrapper.setProperty("runOrder", runOrder);
+        wrapper.setProperty("trimStackTrace", String.valueOf(trimStackTrace));
         wrapper.setProperty("skipAfterFailureCount", String.valueOf(skipAfterFailureCount));
         wrapper.setProperty("rerunFailingTestsCount", String.valueOf(rerunFailingTestsCount));
         Properties mergedProviderProperties = getMergedProviderProperties();
