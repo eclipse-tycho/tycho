@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4b4de58_0b0d8380",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/surefire/TrimStackTrace.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-06-15T07:17:12Z",
+      "side": 1,
+      "message": "please adapt copyright header",
+      "range": {
+        "startLine": 9,
+        "startChar": 7,
+        "endLine": 9,
+        "endChar": 10
+      },
+      "revId": "7429c219e7779840d461d04910adc2d29bd26327",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
