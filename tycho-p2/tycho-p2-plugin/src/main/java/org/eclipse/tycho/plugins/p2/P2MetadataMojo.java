@@ -65,6 +65,9 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     protected boolean attachP2Metadata;
 
+    @Parameter
+    protected String p2ArtifactClassifier;
+
     @Component
     protected MavenProjectHelper projectHelper;
 
@@ -129,7 +132,7 @@ public class P2MetadataMojo extends AbstractMojo {
 
         File targetDir = new File(project.getBuild().getDirectory());
 
-        ArtifactFacade projectDefaultArtifact = new ArtifactFacade(project.getArtifact());
+        ArtifactFacade projectDefaultArtifact = getProjectArtifact();
 
         try {
             List<IArtifactFacade> artifacts = new ArrayList<>();
@@ -184,6 +187,22 @@ public class P2MetadataMojo extends AbstractMojo {
 
         File localArtifactsFile = new File(project.getBuild().getDirectory(), FILE_NAME_LOCAL_ARTIFACTS);
         writeArtifactLocations(localArtifactsFile, getAllProjectArtifacts(project));
+    }
+
+    private ArtifactFacade getProjectArtifact() {
+        Artifact artifact = project.getArtifact();
+        if (p2ArtifactClassifier != null && !p2ArtifactClassifier.trim().isEmpty()) {
+            List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
+            for (Artifact attachedArtifact : attachedArtifacts) {
+                if (p2ArtifactClassifier.equals(attachedArtifact.getClassifier())) {
+                    artifact = attachedArtifact;
+                    break;
+                }
+            }
+        }
+
+        ArtifactFacade projectDefaultArtifact = new ArtifactFacade(artifact);
+        return projectDefaultArtifact;
     }
 
     private static boolean hasAttachedArtifact(MavenProject project, String classifier) {
