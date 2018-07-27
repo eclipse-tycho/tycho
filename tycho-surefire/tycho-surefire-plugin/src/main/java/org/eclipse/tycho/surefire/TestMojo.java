@@ -147,7 +147,7 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * List of patterns (separated by commas) used to specify the tests that should be included in
-     * testing. When not specified and whent the <code>test</code> parameter is not specified, the
+     * testing. When not specified and when the <code>test</code> parameter is not specified, the
      * default includes will be
      * <code>**&#47;Test*.java   **&#47;*Test.java   **&#47;*TestCase.java</code>
      */
