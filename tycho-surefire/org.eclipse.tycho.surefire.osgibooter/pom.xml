@@ -59,6 +59,11 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.apache.maven.surefire</groupId>
+									<artifactId>surefire-logger-api</artifactId>
+									<version>${surefire-version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.maven.surefire</groupId>
 									<artifactId>surefire-booter</artifactId>
 									<version>${surefire-version}</version>
 								</artifactItem>

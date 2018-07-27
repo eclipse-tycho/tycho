@@ -38,9 +38,9 @@
 					<excludes>META-INF/**</excludes>
 					<artifactItems>
 						<artifactItem>
-							<groupId>org.junit.platform</groupId>
-							<artifactId>junit-platform-surefire-provider</artifactId>
-							<version>${junit-platform-version}</version>
+							<groupId>org.apache.maven.surefire</groupId>
+							<artifactId>surefire-junit-platform</artifactId>
+							<version>${surefire-version}</version>
 						</artifactItem>
 						<artifactItem>
 							<groupId>org.junit.platform</groupId>
