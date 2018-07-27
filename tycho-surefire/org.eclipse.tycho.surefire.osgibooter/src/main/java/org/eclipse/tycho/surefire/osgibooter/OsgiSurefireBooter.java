@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.plugin.surefire.StartupReportConfiguration;
+import org.apache.maven.plugin.surefire.log.api.PrintStreamLogger;
 import org.apache.maven.plugin.surefire.report.DefaultReporterFactory;
 import org.apache.maven.surefire.booter.BooterConstants;
 import org.apache.maven.surefire.booter.ClassLoaderConfiguration;
@@ -54,6 +55,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 public class OsgiSurefireBooter {
+    private static final String XSD =
+            "https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd";
 
     public static int run(String[] args) throws Exception {
         Properties testProps = loadProperties(getTestProperties(args));
@@ -97,11 +100,12 @@ public class OsgiSurefireBooter {
         ProviderConfiguration providerConfiguration = new ProviderConfiguration(dirScannerParams,
                 new RunOrderParameters(runOrder, null), failIfNoTests, reporterConfig, null, testRequest,
                 extractProviderProperties(testProps), null, false, Collections.<CommandLineOption> emptyList(),
-                skipAfterFailureCount, Shutdown.DEFAULT);
+                skipAfterFailureCount, Shutdown.DEFAULT, 30);
         StartupReportConfiguration startupReportConfig = new StartupReportConfiguration(useFile, printSummary,
                 StartupReportConfiguration.PLAIN_REPORT_FORMAT, redirectTestOutputToFile, disableXmlReport, reportsDir,
-                trimStackTrace, null, "TESTHASH", false, rerunFailingTestsCount);
-        ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig);
+                trimStackTrace, null, new File(reportsDir, "TESTHASH"), false, rerunFailingTestsCount, XSD, null);
+        ReporterFactory reporterFactory = new DefaultReporterFactory(startupReportConfig,
+                new PrintStreamLogger(startupReportConfig.getOriginalSystemOut()));
         // API indicates we should use testClassLoader below but surefire also tries 
         // to load surefire classes using this classloader
         RunResult result = ProviderFactory.invokeProvider(null, createCombinedClassLoader(testPlugin), reporterFactory,
