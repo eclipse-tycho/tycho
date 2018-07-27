@@ -37,7 +37,7 @@ public class JUnit5Provider extends AbstractJUnitProvider {
 
     @Override
     public String getSurefireProviderClassName() {
-        return "org.junit.platform.surefire.provider.JUnitPlatformProvider";
+        return "org.apache.maven.surefire.junitplatform.JUnitPlatformProvider";
     }
 
     @Override
