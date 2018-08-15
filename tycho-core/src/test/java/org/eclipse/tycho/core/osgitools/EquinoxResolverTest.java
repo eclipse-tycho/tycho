@@ -61,7 +61,7 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         properties.put("tycho-version", TychoVersion.getTychoVersion());
 
         List<MavenProject> projects = getSortedProjects(basedir, properties, null);
-        assertEquals(6, projects.size());
+        assertEquals(7, projects.size());
 
         assertEquals("executionenvironment.manifest-minimal", projects.get(2).getArtifactId());
         ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(projects.get(2))

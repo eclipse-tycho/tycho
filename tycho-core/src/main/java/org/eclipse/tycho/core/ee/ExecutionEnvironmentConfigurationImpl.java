@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP SE and others.
+ * Copyright (c) 2012, 2018 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,8 @@ import org.eclipse.tycho.core.ee.shared.SystemCapability;
 import org.eclipse.tycho.core.shared.BuildFailureException;
 
 public class ExecutionEnvironmentConfigurationImpl implements ExecutionEnvironmentConfiguration {
-    // Most likely best to always be the latest known supported EE
-    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-9";
+    // Most likely best to always be the latest known supported long-term supported EE
+    private static final String DEFAULT_EXECUTION_ENVIRONMENT = "JavaSE-1.8";
 
     private static final int PRIMARY = 0;
     private static final int SECONDARY = 1;

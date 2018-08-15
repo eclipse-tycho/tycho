@@ -360,7 +360,7 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         properties.put("tycho-version", TychoVersion.getTychoVersion());
 
         List<MavenProject> projects = getSortedProjects(basedir, properties, null);
-        assertEquals(6, projects.size());
+        assertEquals(7, projects.size());
         int i = 0;
 
         assertEquals("executionenvironment.manifest", projects.get(++i).getArtifactId());
@@ -377,6 +377,9 @@ public class TychoTest extends AbstractTychoMojoTestCase {
 
         assertEquals("executionenvironment.pom-default", projects.get(++i).getArtifactId());
         assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(i)));
+
+        assertEquals("executionenvironment.tycho-default", projects.get(++i).getArtifactId());
+        assertEquals("JavaSE-1.8", getActiveEEProfile(projects.get(i)));
     }
 
     public void testWithProjectReferencesItself() throws Exception {

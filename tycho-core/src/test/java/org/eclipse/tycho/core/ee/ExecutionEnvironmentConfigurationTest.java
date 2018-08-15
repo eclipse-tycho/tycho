@@ -45,9 +45,9 @@ public class ExecutionEnvironmentConfigurationTest {
 
     @Test
     public void testDefaults() {
-        assertThat(subject.getProfileName(), is("JavaSE-9"));
+        assertThat(subject.getProfileName(), is("JavaSE-1.8"));
         assertThat(subject.isCustomProfile(), is(false));
-        assertThat(subject.getFullSpecification().getProfileName(), is("JavaSE-9"));
+        assertThat(subject.getFullSpecification().getProfileName(), is("JavaSE-1.8"));
     }
 
     @Test

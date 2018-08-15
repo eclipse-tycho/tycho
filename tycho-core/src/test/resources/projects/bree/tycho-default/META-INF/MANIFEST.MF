@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: A bundle that specifies no EE at all and relies on Tycho to set one.
+Bundle-SymbolicName: executionenvironment.tycho-default
+Bundle-Version: 1.0.0
