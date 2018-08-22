@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    SAP SE - cache target definition resolution result (bug 373806)
+ *    Christoph Läubrich - add implementation for different location types
  *******************************************************************************/
 package org.eclipse.tycho.p2.resolver;
 
@@ -51,6 +52,75 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private final Document document;
 
     final IncludeSourceMode includeSourceMode;
+
+    private abstract class AbstractPathLocation implements TargetDefinition.PathLocation {
+        private String path;
+
+        public AbstractPathLocation(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public String getPath() {
+            return path;
+        }
+    }
+
+    public class DirectoryTargetLocation extends AbstractPathLocation implements TargetDefinition.DirectoryLocation {
+
+        public DirectoryTargetLocation(String path) {
+            super(path);
+        }
+
+        @Override
+        public String getTypeDescription() {
+            return "Directory";
+        }
+
+    }
+
+    public class ProfileTargetPlatformLocation extends AbstractPathLocation
+            implements TargetDefinition.ProfilePlatformLocation {
+
+        public ProfileTargetPlatformLocation(String path) {
+            super(path);
+        }
+
+        @Override
+        public String getTypeDescription() {
+            return "Profile";
+        }
+
+    }
+
+    public class FeatureTargetPlatformLocation extends AbstractPathLocation
+            implements TargetDefinition.FeaturePlatformLocation {
+
+        private final String feature;
+        private final String version;
+
+        public FeatureTargetPlatformLocation(String path, String feature, String version) {
+            super(path);
+            this.feature = feature;
+            this.version = version;
+        }
+
+        @Override
+        public String getTypeDescription() {
+            return "Feature";
+        }
+
+        @Override
+        public String getId() {
+            return feature;
+        }
+
+        @Override
+        public String getVersion() {
+            return version;
+        }
+
+    }
 
     public class IULocation implements TargetDefinition.InstallableUnitLocation {
         private final Element dom;
@@ -96,8 +166,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
             } else if ("planner".equals(attributeValue) || attributeValue == null) {
                 return IncludeMode.PLANNER;
             }
-            throw new TargetDefinitionSyntaxException("Invalid value for attribute 'includeMode': " + attributeValue
-                    + "");
+            throw new TargetDefinitionSyntaxException(
+                    "Invalid value for attribute 'includeMode': " + attributeValue + "");
         }
 
         @Override
@@ -211,8 +281,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
         } catch (XMLParseException e) {
             throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new TargetDefinitionSyntaxException("I/O error while reading target definition file: "
-                    + e.getMessage(), e);
+            throw new TargetDefinitionSyntaxException(
+                    "I/O error while reading target definition file: " + e.getMessage(), e);
         }
     }
 
@@ -223,10 +293,18 @@ public final class TargetDefinitionFile implements TargetDefinition {
         if (locationsDom != null) {
             for (Element locationDom : locationsDom.getChildren("location")) {
                 String type = locationDom.getAttributeValue("type");
-                if ("InstallableUnit".equals(type))
+                if ("InstallableUnit".equals(type)) {
                     locations.add(new IULocation(locationDom));
-                else
+                } else if ("Directory".equals(type)) {
+                    locations.add(new DirectoryTargetLocation(locationDom.getAttributeValue("path")));
+                } else if ("Profile".equals(type)) {
+                    locations.add(new ProfileTargetPlatformLocation(locationDom.getAttributeValue("path")));
+                } else if ("Feature".equals(type)) {
+                    locations.add(new FeatureTargetPlatformLocation(locationDom.getAttributeValue("path"),
+                            locationDom.getAttributeValue("id"), locationDom.getAttributeValue("version")));
+                } else {
                     locations.add(new OtherLocation(type));
+                }
             }
         }
         return Collections.unmodifiableList(locations);

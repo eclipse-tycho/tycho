@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Christoph Läubrich - extend API for different location types
  *******************************************************************************/
 package org.eclipse.tycho.p2.target.facade;
 
@@ -54,6 +55,62 @@ public interface TargetDefinition {
         public boolean includeAllEnvironments();
 
         public boolean includeSource();
+    }
+
+    /**
+     * Represents the "Directory" location that either contains bundles directly or has
+     * plugins/features/binaries folders that contains the data
+     * 
+     * @author Christoph Läubrich
+     *
+     */
+    public interface DirectoryLocation extends PathLocation {
+    }
+
+    /**
+     * Represents the "Profile" location that contains an eclipse-sdk or exploded eclipse product
+     * 
+     * @author Christoph Läubrich
+     *
+     */
+    public interface ProfilePlatformLocation extends PathLocation {
+    }
+
+    /**
+     * represents the "Feature" location that contains a feature to include from a given
+     * installation
+     * 
+     * @author Christoph Läubrich
+     *
+     */
+    public interface FeaturePlatformLocation extends PathLocation {
+
+        /**
+         * 
+         * @return the id of the feature to use
+         */
+        String getId();
+
+        /**
+         * 
+         * @return the version of the feature to use
+         */
+        String getVersion();
+    }
+
+    /**
+     * Base interface for all Locations that are path based, the path might contains variables that
+     * need to be resolved before used as a real directory path
+     * 
+     * @author Christoph Läubrich
+     *
+     */
+    public interface PathLocation extends Location {
+        /**
+         * 
+         * @return the plain path as supplied by the target file
+         */
+        public String getPath();
     }
 
     public enum IncludeMode {
