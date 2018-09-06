@@ -33,6 +33,7 @@ public class DefaultEquinoxInstallationDescription implements EquinoxInstallatio
         setDefaultStartLevel("org.eclipse.equinox.simpleconfigurator", 1);
         setDefaultStartLevel("org.eclipse.osgi", -1);
         setDefaultStartLevel("org.eclipse.equinox.ds", 1);
+        setDefaultStartLevel("org.apache.felix.scr", 1);
     }
 
     private static void setDefaultStartLevel(String id, int level) {

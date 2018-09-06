@@ -203,6 +203,7 @@ public class DefaultEquinoxEmbedder extends AbstractLogEnabled
     private void activateBundlesInWorkingOrder() {
         // activate bundles which need to do work in their respective activator; stick to a working order (cf. bug 359787)
         // TODO this order should come from the EquinoxRuntimeLocator
+    	tryActivateBundle("org.apache.felix.scr");
         tryActivateBundle("org.eclipse.equinox.ds");
         tryActivateBundle("org.eclipse.equinox.registry");
         tryActivateBundle("org.eclipse.core.net");
