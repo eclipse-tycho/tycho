@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
+ *    Bachmann GmbH. - Bug 538395 Generate valid feature xml 
  *******************************************************************************/
 package org.eclipse.tycho.extras.sourcefeature;
 
@@ -313,22 +314,6 @@ public class SourceFeatureMojo extends AbstractMojo {
             sourceFeature.setBrandingPluginId(brandingPlugin);
         }
 
-        if (includeBinaryFeature) {
-            FeatureRef binaryRef = new FeatureRef(new Element("includes"));
-            binaryRef.setId(feature.getId());
-            binaryRef.setVersion(feature.getVersion());
-            if (feature.getOS() != null) {
-                binaryRef.setOS(feature.getOS());
-            }
-            if (feature.getWS() != null) {
-                binaryRef.setWS(feature.getWS());
-            }
-            if (feature.getArch() != null) {
-                binaryRef.setArch(feature.getArch());
-            }
-            sourceFeature.addFeatureRef(binaryRef);
-        }
-
         if (feature.getLabel() != null) {
             String originalLabel = feature.getLabel();
             if (originalLabel.startsWith("%")) {
@@ -365,6 +350,23 @@ public class SourceFeatureMojo extends AbstractMojo {
         if (feature.getLicenseURL() != null) {
             sourceFeature.setLicenseURL(validateValue(feature.getLicenseURL(), mergedFeatureProperties));
         }
+
+        if (includeBinaryFeature) {
+            FeatureRef binaryRef = new FeatureRef(new Element("includes"));
+            binaryRef.setId(feature.getId());
+            binaryRef.setVersion(feature.getVersion());
+            if (feature.getOS() != null) {
+                binaryRef.setOS(feature.getOS());
+            }
+            if (feature.getWS() != null) {
+                binaryRef.setWS(feature.getWS());
+            }
+            if (feature.getArch() != null) {
+                binaryRef.setArch(feature.getArch());
+            }
+            sourceFeature.addFeatureRef(binaryRef);
+        }
+
         return sourceFeature;
     }
 
@@ -406,23 +408,6 @@ public class SourceFeatureMojo extends AbstractMojo {
         List<FeatureRef> missingSourceFeatures = new ArrayList<>();
         List<PluginRef> missingExtraPlugins = new ArrayList<>();
 
-        // include available source bundles
-        for (PluginRef pluginRef : feature.getPlugins()) {
-
-            if (excludedPlugins.contains(pluginRef.getId())) {
-                continue;
-            }
-
-            // version is expected to be fully expanded at this point
-            P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, pluginRef.getId() + ".source",
-                    toStrictVersionRange(pluginRef.getVersion()));
-            if (result.getArtifacts().size() == 1) {
-                addPlugin(sourceFeature, result, pluginRef);
-            } else {
-                missingSourcePlugins.add(pluginRef);
-            }
-        }
-
         // include available source features
         for (FeatureRef featureRef : feature.getIncludedFeatures()) {
 
@@ -444,6 +429,23 @@ public class SourceFeatureMojo extends AbstractMojo {
                 sourceFeature.addFeatureRef(sourceRef);
             } else {
                 missingSourceFeatures.add(featureRef);
+            }
+        }
+
+        // include available source bundles
+        for (PluginRef pluginRef : feature.getPlugins()) {
+
+            if (excludedPlugins.contains(pluginRef.getId())) {
+                continue;
+            }
+
+            // version is expected to be fully expanded at this point
+            P2ResolutionResult result = p2.resolveInstallableUnit(targetPlatform, pluginRef.getId() + ".source",
+                    toStrictVersionRange(pluginRef.getVersion()));
+            if (result.getArtifacts().size() == 1) {
+                addPlugin(sourceFeature, result, pluginRef);
+            } else {
+                missingSourcePlugins.add(pluginRef);
             }
         }
 
