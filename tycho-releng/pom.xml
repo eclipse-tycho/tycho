@@ -24,8 +24,7 @@
 	<!-- To update the Eclipse artifacts needed by the Maven class-loader side 
 		of Tycho: 
 		1. If needed, update the source p2 repository below 
-		2. Update Equinox and JDT/APT versions in the parent POM: ${equinoxVersion[Maven]}, ${jdtVersion[Maven]}, 
-		${jdtAptVersion[Maven]} 
+		2. Update Equinox and ECJ versions in the parent POM: ${equinoxVersion[Maven]}, ${ejcVersion[Maven]}
 		3a. For deploying snapshots (to be used by Tycho 
 		snapshots) - In tycho-releng/, execute mvn clean deploy -DforgeSnapshotUrl=https://oss.sonatype.org/content/repositories/snapshots 
 		-DforgeSnapshotId=forge-snapshots 
@@ -33,7 +32,7 @@
 		by Tycho releases): 
 		- Prerequisite: you need to have GPG properly set up, 
 		see https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven 
-		- Make sure that ${jdtVersionMaven}, ${jdtAptVersionMaven}, ${equinoxVersionMaven} 
+		- Make sure that ${ejcVersionMaven}, ${equinoxVersionMaven} 
 		in the parent POM don't have a '-SNAPSHOT' suffix - In tycho-releng/, execute 
 		mvn clean deploy -Pdeploy-releases -DforgeReleaseUrl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DforgeReleaseId=forge-releases -Dgpg.passphrase=<your_passphrase> 
 		- Close 
@@ -112,20 +111,12 @@
 						</iu>
 						<!-- 
 						<iu>
-							<id>org.eclipse.jdt.core</id>
-							<version>${jdtVersion}</version>
+							<id>org.eclipse.jdt.ecj</id>
+							<version>${ecjVersion}</version>
 						</iu>
 						<iu>
-							<id>org.eclipse.jdt.core.source</id>
-							<version>${jdtVersion}</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.jdt.compiler.apt</id>
-							<version>${jdtAptVersion}</version>
-						</iu>
-						<iu>
-							<id>org.eclipse.jdt.compiler.apt.source</id>
-							<version>${jdtAptVersion}</version>
+							<id>org.eclipse.jdt.ecj.source</id>
+							<version>${ecjVersion}</version>
 						</iu>
 						-->
 					</ius>
@@ -149,7 +140,7 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>deploy-jdt-snapshots</id>
+			<id>deploy-ecj-snapshots</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
@@ -160,28 +151,15 @@
 						<artifactId>maven-deploy-plugin</artifactId>
 						<executions>
 							<!-- <execution>
-								<id>deploy-jdt-core</id>
+								<id>deploy-ecj</id>
 								<phase>deploy</phase>
 								<goals>
 									<goal>deploy-file</goal>
 								</goals>
 								<configuration>
-									<file>${downloaded}/org.eclipse.jdt.core_${jdtVersion}.jar</file>
-									<sources>${downloaded}/org.eclipse.jdt.core.source_${jdtVersion}.jar</sources>
-									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
-								</configuration>
-							</execution>
-							
-							<execution>
-								<id>deploy-jdt-apt</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>deploy-file</goal>
-								</goals>
-								<configuration>
-									<file>${downloaded}/org.eclipse.jdt.compiler.apt_${jdtAptVersion}.jar</file>
-									<sources>${downloaded}/org.eclipse.jdt.compiler.apt.source_${jdtAptVersion}.jar</sources>
-									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
+									<file>${downloaded}/org.eclipse.jdt.ecj_${ecjVersion}.jar</file>
+									<sources>${downloaded}/org.eclipse.jdt.ecj.source_${ecjVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.ecj.pom</pomFile>
 								</configuration>
 							</execution>
 							-->
@@ -244,27 +222,15 @@
 						</configuration>
 						<executions>
 							<execution>
-								<id>deploy-jdt-core</id>
+								<id>deploy-ecj</id>
 								<phase>deploy</phase>
 								<goals>
 									<goal>sign-and-deploy-file</goal>
 								</goals>
 								<configuration>
-									<file>${downloaded}/org.eclipse.jdt.core_${jdtVersion}.jar</file>
-									<sources>${downloaded}/org.eclipse.jdt.core.source_${jdtVersion}.jar</sources>
-									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.core.pom</pomFile>
-								</configuration>
-							</execution>
-							<execution>
-								<id>deploy-jdt-apt</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>sign-and-deploy-file</goal>
-								</goals>
-								<configuration>
-									<file>${downloaded}/org.eclipse.jdt.compiler.apt_${jdtAptVersion}.jar</file>
-									<sources>${downloaded}/org.eclipse.jdt.compiler.apt.source_${jdtAptVersion}.jar</sources>
-									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.compiler.apt.pom</pomFile>
+									<file>${downloaded}/org.eclipse.jdt.ecj_${ecjVersion}.jar</file>
+									<sources>${downloaded}/org.eclipse.jdt.ecj.source_${ecjVersion}.jar</sources>
+									<pomFile>${project.build.outputDirectory}/org.eclipse.jdt.ecj.pom</pomFile>
 								</configuration>
 							</execution>
 							<execution>

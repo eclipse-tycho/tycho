@@ -95,10 +95,8 @@
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.1.100.v20180131-1413</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<jdtVersion>3.14.0</jdtVersion>
-		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
-		<jdtAptVersion>1.3.200</jdtAptVersion>
-		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
+		<ecjVersion>3.14.0</ecjVersion>
+		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
 
 		<!-- version of Tycho used by this build -->
 		<tychoBootstrapVersion>1.1.0</tychoBootstrapVersion>
@@ -228,13 +226,8 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jdt</groupId>
-				<artifactId>org.eclipse.jdt.core</artifactId>
-				<version>${jdtVersionMaven}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jdt</groupId>
-				<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
-				<version>${jdtAptVersionMaven}</version>
+				<artifactId>ecj</artifactId>
+				<version>${ecjVersionMaven}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.tycho</groupId>
