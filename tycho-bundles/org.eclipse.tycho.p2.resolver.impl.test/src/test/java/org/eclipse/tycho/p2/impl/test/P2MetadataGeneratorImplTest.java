@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.impl.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +23,7 @@ import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Assert;
@@ -37,7 +41,7 @@ public class P2MetadataGeneratorImplTest {
         List<TargetEnvironment> environments = new ArrayList<>();
         DependencyMetadata metadata = impl.generateMetadata(
                 new ArtifactMock(location, groupId, artifactId, version, PackagingType.TYPE_ECLIPSE_PLUGIN),
-                environments);
+                environments, new PublisherOptions(false));
 
         List<IInstallableUnit> units = new ArrayList<>(metadata.getInstallableUnits());
         List<IArtifactDescriptor> artifacts = new ArrayList<>(metadata.getArtifactDescriptors());
@@ -59,4 +63,25 @@ public class P2MetadataGeneratorImplTest {
         Assert.assertEquals(version, ad.getProperties().get(RepositoryLayoutHelper.PROP_VERSION));
     }
 
+    @Test
+    public void testDownloadStats() throws Exception {
+        P2GeneratorImpl impl = new P2GeneratorImpl(false);
+        impl.setBuildPropertiesParser(new BuildPropertiesParserForTesting());
+        File location = new File("resources/generator/bundle").getCanonicalFile();
+        String groupId = "org.eclipse.tycho.p2.impl.test";
+        String artifactId = "bundle";
+        String version = "1.0.0-SNAPSHOT";
+        List<TargetEnvironment> environments = new ArrayList<>();
+
+        DependencyMetadata metadata = impl.generateMetadata(
+                new ArtifactMock(location, groupId, artifactId, version, PackagingType.TYPE_ECLIPSE_PLUGIN),
+                environments, new PublisherOptions(false));
+        assertNull(metadata.getArtifactDescriptors().iterator().next().getProperty("download.stats"));
+
+        metadata = impl.generateMetadata(
+                new ArtifactMock(location, groupId, artifactId, version, PackagingType.TYPE_ECLIPSE_PLUGIN),
+                environments, new PublisherOptions(true));
+        assertEquals("org.eclipse.tycho.p2.impl.test.bundle/1.0.0.qualifier",
+                metadata.getArtifactDescriptors().iterator().next().getProperty("download.stats"));
+    }
 }

@@ -48,6 +48,7 @@ import org.eclipse.tycho.p2.impl.publisher.DependencyMetadata;
 import org.eclipse.tycho.p2.impl.publisher.SourcesBundleDependencyMetadataGenerator;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult.Entry;
 import org.eclipse.tycho.p2.target.DuplicateReactorIUsException;
@@ -182,7 +183,7 @@ public class P2ResolverTest extends P2ResolverTestBase {
 
         ReactorProjectStub sb = new ReactorProjectStub(bundle, bundleId, bundleId, bundleVersion, TYPE_ECLIPSE_PLUGIN);
         DependencyMetadata metadata = new SourcesBundleDependencyMetadataGenerator()
-                .generateMetadata(new ArtifactMock(sb, "source"), getEnvironments(), null);
+                .generateMetadata(new ArtifactMock(sb, "source"), getEnvironments(), null, new PublisherOptions());
         sb.setDependencyMetadata(metadata);
         reactorProjects.add(sb);
 
@@ -384,9 +385,9 @@ public class P2ResolverTest extends P2ResolverTestBase {
                 TYPE_ECLIPSE_FEATURE, artifactId);
 
         /*
-         * The resolution only passes because the unresolvable, additional IU contributed via the p2.inf is
-         * not a seed/primary unit. (Uncomment the "requires" lines in the p2.inf to see this resolution
-         * fail.)
+         * The resolution only passes because the unresolvable, additional IU contributed via the
+         * p2.inf is not a seed/primary unit. (Uncomment the "requires" lines in the p2.inf to see
+         * this resolution fail.)
          */
         impl.resolveDependencies(getTargetPlatform(), projectToResolve);
     }

@@ -40,6 +40,7 @@ import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.publisher.repo.TransientArtifactRepository;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.repository.util.StatusTool;
 
 @SuppressWarnings("restriction")
@@ -49,8 +50,8 @@ public abstract class AbstractMetadataGenerator {
     private BuildPropertiesParser buildPropertiesParser;
 
     protected DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
-            PublisherInfo publisherInfo, OptionalResolutionAction optionalAction) {
-        for (IPublisherAdvice advice : getPublisherAdvice(artifact)) {
+            PublisherInfo publisherInfo, OptionalResolutionAction optionalAction, PublisherOptions options) {
+        for (IPublisherAdvice advice : getPublisherAdvice(artifact, options)) {
             publisherInfo.addAdvice(advice);
         }
         List<IPublisherAction> actions = getPublisherActions(artifact, environments, optionalAction);
@@ -61,7 +62,7 @@ public abstract class AbstractMetadataGenerator {
     protected abstract List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction);
 
-    protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact);
+    protected abstract List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options);
 
     protected ICapabilityAdvice getExtraEntriesAdvice(IArtifactFacade artifact) {
         final IRequirement[] extraRequirements = extractExtraEntriesAsIURequirement(artifact.getLocation());

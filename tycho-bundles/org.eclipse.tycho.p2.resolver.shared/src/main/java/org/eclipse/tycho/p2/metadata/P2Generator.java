@@ -18,12 +18,13 @@ import java.util.Map;
 public interface P2Generator {
     /**
      * @param artifacts
+     * @param options
      * @param targetDir
      *            location to store artifacts created during meta data generation (e.g. root file
      *            zip)
      * @throws IOException
      */
-    public Map<String, IP2Artifact> generateMetadata(List<IArtifactFacade> artifacts,
+    public Map<String, IP2Artifact> generateMetadata(List<IArtifactFacade> artifacts, PublisherOptions options,
             File targetDir) throws IOException;
 
     void persistMetadata(Map<String, IP2Artifact> metadata, File unitsXml, File artifactsXml) throws IOException;

@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.test.util.BuildPropertiesParserForTesting;
 import org.junit.Before;
@@ -54,7 +55,8 @@ public class P2DependencyGeneratorImplTest {
 
         ArrayList<TargetEnvironment> emptyEnvironments = new ArrayList<>();
 
-        DependencyMetadata metadata = subject.generateMetadata(reactorProject, emptyEnvironments);
+        DependencyMetadata metadata = subject.generateMetadata(reactorProject, emptyEnvironments,
+                new PublisherOptions(false));
 
         this.units = new ArrayList<>(metadata.getInstallableUnits());
         this.artifacts = new ArrayList<>(metadata.getArtifactDescriptors());

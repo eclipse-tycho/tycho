@@ -17,6 +17,7 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 
 @SuppressWarnings("restriction")
 public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implements DependencyMetadataGenerator {
@@ -27,7 +28,7 @@ public class DefaultDependencyMetadataGenerator extends P2GeneratorImpl implemen
 
     @Override
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
-            OptionalResolutionAction optionalAction) {
-        return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction);
+            OptionalResolutionAction optionalAction, PublisherOptions options) {
+        return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction, options);
     }
 }

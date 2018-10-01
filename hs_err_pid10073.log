@@ -1,0 +1,1213 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 139460608 bytes for committing reserved memory.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_linux.cpp:2655), pid=10073, tid=0x00007fbc3ffff700
+#
+# JRE version: OpenJDK Runtime Environment (8.0_162-b12) (build 1.8.0_162-b12)
+# Java VM: OpenJDK 64-Bit Server VM (25.162-b12 mixed mode linux-amd64 compressed oops)
+# Core dump written. Default location: /home/mistria/git/org.eclipse.tycho/core or core.10073
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007fbc54083760):  VMThread [stack: 0x00007fbc3ff00000,0x00007fbc40000000] [id=10103]
+
+Stack: [0x00007fbc3ff00000,0x00007fbc40000000],  sp=0x00007fbc3fffe480,  free space=1017k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0xb6a4a2]
+V  [libjvm.so+0x4f9777]
+V  [libjvm.so+0x91f5d0]
+V  [libjvm.so+0x919b1e]
+V  [libjvm.so+0x99c826]
+V  [libjvm.so+0x99db98]
+V  [libjvm.so+0x999ba6]
+V  [libjvm.so+0x999f3c]
+V  [libjvm.so+0x9470e8]
+V  [libjvm.so+0xb6c162]
+V  [libjvm.so+0xb70d46]
+V  [libjvm.so+0xb6efe5]
+V  [libjvm.so+0xb6f95d]
+V  [libjvm.so+0xb6fd37]
+V  [libjvm.so+0x91ca12]
+
+VM_Operation (0x00007fbc5d3194b0): ParallelGCFailedAllocation, mode: safepoint, requested by thread 0x00007fbc54009980
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x00007fbc578a64d0 JavaThread "process reaper" daemon [_thread_blocked, id=10430, stack(0x00007fbc3409a000,0x00007fbc340d3000)]
+  0x00007fbc55a7de10 JavaThread "Provisioning Event Dispatcher" daemon [_thread_blocked, id=10143, stack(0x00007fbc3e5f1000,0x00007fbc3e6f2000)]
+  0x00007fbc55abb3c0 JavaThread "Provisioning Event Dispatcher" daemon [_thread_blocked, id=10141, stack(0x00007fbc3dc90000,0x00007fbc3dd91000)]
+  0x00007fbbc000cf00 JavaThread "Worker-3" [_thread_blocked, id=10133, stack(0x00007fbc36b11000,0x00007fbc36c12000)]
+  0x00007fbc554c3430 JavaThread "Provisioning Event Dispatcher" daemon [_thread_blocked, id=10129, stack(0x00007fbc36c12000,0x00007fbc36d13000)]
+  0x00007fbbc0000dd0 JavaThread "Worker-2" [_thread_blocked, id=10128, stack(0x00007fbc36f13000,0x00007fbc37014000)]
+  0x00007fbbcc000f50 JavaThread "Worker-1" [_thread_blocked, id=10127, stack(0x00007fbc37635000,0x00007fbc37736000)]
+  0x00007fbc5541d750 JavaThread "Worker-0" [_thread_blocked, id=10126, stack(0x00007fbc3cea9000,0x00007fbc3cfaa000)]
+  0x00007fbc552b5f90 JavaThread "Worker-JM" [_thread_blocked, id=10124, stack(0x00007fbc3da27000,0x00007fbc3db28000)]
+  0x00007fbc550f37a0 JavaThread "SCR Component Actor" daemon [_thread_blocked, id=10123, stack(0x00007fbc3db28000,0x00007fbc3dc29000)]
+  0x00007fbc550d99a0 JavaThread "Refresh Thread: Equinox Container: b40cc447-cdcc-470d-8f0e-f64c12eeac38" daemon [_thread_blocked, id=10121, stack(0x00007fbc3dd91000,0x00007fbc3de92000)]
+  0x00007fbc54e7d6b0 JavaThread "Start Level: Equinox Container: b40cc447-cdcc-470d-8f0e-f64c12eeac38" daemon [_thread_blocked, id=10120, stack(0x00007fbc3deec000,0x00007fbc3dfed000)]
+  0x00007fbc54b763f0 JavaThread "Framework Event Dispatcher: org.eclipse.osgi.internal.framework.EquinoxEventPublisher@834831b" daemon [_thread_blocked, id=10119, stack(0x00007fbc3dfed000,0x00007fbc3e0ee000)]
+  0x00007fbc54c54190 JavaThread "Active Thread: Equinox Container: b40cc447-cdcc-470d-8f0e-f64c12eeac38" [_thread_blocked, id=10118, stack(0x00007fbc3e0ee000,0x00007fbc3e1ef000)]
+  0x00007fbc540d78d0 JavaThread "Service Thread" daemon [_thread_blocked, id=10110, stack(0x00007fbc3f7f8000,0x00007fbc3f8f9000)]
+  0x00007fbc540cb090 JavaThread "C1 CompilerThread2" daemon [_thread_blocked, id=10109, stack(0x00007fbc3f8fa000,0x00007fbc3f9fa000)]
+  0x00007fbc5401c060 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=10108, stack(0x00007fbc3f9fb000,0x00007fbc3fafb000)]
+  0x00007fbc540bcf80 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=10107, stack(0x00007fbc3fafc000,0x00007fbc3fbfc000)]
+  0x00007fbc540bb630 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=10106, stack(0x00007fbc3fbfc000,0x00007fbc3fcfd000)]
+  0x00007fbc54090cc0 JavaThread "Finalizer" daemon [_thread_blocked, id=10105, stack(0x00007fbc3fcfd000,0x00007fbc3fdfe000)]
+  0x00007fbc5408cc50 JavaThread "Reference Handler" daemon [_thread_blocked, id=10104, stack(0x00007fbc3fdfe000,0x00007fbc3feff000)]
+  0x00007fbc54009980 JavaThread "main" [_thread_blocked, id=10098, stack(0x00007fbc5d21d000,0x00007fbc5d31d000)]
+
+Other Threads:
+=>0x00007fbc54083760 VMThread [stack: 0x00007fbc3ff00000,0x00007fbc40000000] [id=10103]
+  0x00007fbc540d9760 WatcherThread [stack: 0x00007fbc3f6f8000,0x00007fbc3f7f8000] [id=10111]
+
+VM state:at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x00007fbc54007e90] Threads_lock - owner thread: 0x00007fbc54083760
+[0x00007fbc54008390] Heap_lock - owner thread: 0x00007fbc54009980
+
+Heap:
+ PSYoungGen      total 788480K, used 14804K [0x0000000783100000, 0x00000007b5a80000, 0x00000007c0000000)
+  eden space 751104K, 0% used [0x0000000783100000,0x0000000783100000,0x00000007b0e80000)
+  from space 37376K, 39% used [0x00000007b0e80000,0x00000007b1cf53f8,0x00000007b3300000)
+  to   space 33280K, 0% used [0x00000007b3300000,0x00000007b3300000,0x00000007b5380000)
+ ParOldGen       total 225280K, used 74904K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db26240,0x0000000716e00000)
+ Metaspace       used 69276K, capacity 74060K, committed 74200K, reserved 1114112K
+  class space    used 7948K, capacity 9369K, committed 9472K, reserved 1048576K
+
+Card table byte_map: [0x00007fbc59813000,0x00007fbc59dcb000] byte_map_base: 0x00007fbc55fca000
+
+Marking Bits: (ParMarkBitMap*) 0x00007fbc5c5153a0
+ Begin Bits: [0x00007fbc22490000, 0x00007fbc25248000)
+ End Bits:   [0x00007fbc25248000, 0x00007fbc28000000)
+
+Polling page: 0x00007fbc5d353000
+
+CodeCache: size=245760Kb used=42647Kb max_used=42647Kb free=203112Kb
+ bounds [0x00007fbc45000000, 0x00007fbc479e0000, 0x00007fbc54000000]
+ total_blobs=11632 nmethods=11147 adapters=398
+ compilation: enabled
+
+Compilation events (10 events):
+Event: 40.994 Thread 0x00007fbc540cb090 13904       3       java.util.TreeMap::entrySet (27 bytes)
+Event: 40.995 Thread 0x00007fbc540cb090 nmethod 13904 0x00007fbc479d6810 code [0x00007fbc479d69a0, 0x00007fbc479d6d50]
+Event: 40.995 Thread 0x00007fbc540cb090 13906       3       com.thoughtworks.qdox.model.JavaClass::getNestedClassByName (85 bytes)
+Event: 40.995 Thread 0x00007fbc540cb090 nmethod 13906 0x00007fbc479d6f10 code [0x00007fbc479d7100, 0x00007fbc479d7938]
+Event: 40.996 Thread 0x00007fbc540cb090 13905       3       java.util.TreeMap$EntrySet::<init> (10 bytes)
+Event: 40.996 Thread 0x00007fbc540cb090 nmethod 13905 0x00007fbc479d7c10 code [0x00007fbc479d7d80, 0x00007fbc479d8010]
+Event: 41.001 Thread 0x00007fbc540cb090 13908       3       java.util.Collections::swap (25 bytes)
+Event: 41.001 Thread 0x00007fbc540cb090 nmethod 13908 0x00007fbc479d8150 code [0x00007fbc479d82e0, 0x00007fbc479d8668]
+Event: 41.001 Thread 0x00007fbc540cb090 13909       3       org.apache.maven.tools.plugin.annotations.datamodel.AnnotatedContent::setDescription (6 bytes)
+Event: 41.002 Thread 0x00007fbc540cb090 nmethod 13909 0x00007fbc479d8790 code [0x00007fbc479d88e0, 0x00007fbc479d8a50]
+
+GC Heap History (10 events):
+Event: 31.569 GC heap after
+Heap after GC invocations=21 (full 3):
+ PSYoungGen      total 620032K, used 9205K [0x0000000783100000, 0x00000007ab300000, 0x00000007c0000000)
+  eden space 582656K, 0% used [0x0000000783100000,0x0000000783100000,0x00000007a6a00000)
+  from space 37376K, 24% used [0x00000007a8e80000,0x00000007a977d5b0,0x00000007ab300000)
+  to   space 37376K, 0% used [0x00000007a6a00000,0x00000007a6a00000,0x00000007a8e80000)
+ ParOldGen       total 225280K, used 74872K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db1e240,0x0000000716e00000)
+ Metaspace       used 62514K, capacity 66836K, committed 67032K, reserved 1107968K
+  class space    used 7258K, capacity 8599K, committed 8704K, reserved 1048576K
+}
+Event: 33.760 GC heap before
+{Heap before GC invocations=22 (full 3):
+ PSYoungGen      total 620032K, used 591861K [0x0000000783100000, 0x00000007ab300000, 0x00000007c0000000)
+  eden space 582656K, 100% used [0x0000000783100000,0x00000007a6a00000,0x00000007a6a00000)
+  from space 37376K, 24% used [0x00000007a8e80000,0x00000007a977d5b0,0x00000007ab300000)
+  to   space 37376K, 0% used [0x00000007a6a00000,0x00000007a6a00000,0x00000007a8e80000)
+ ParOldGen       total 225280K, used 74872K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db1e240,0x0000000716e00000)
+ Metaspace       used 64492K, capacity 68960K, committed 69208K, reserved 1110016K
+  class space    used 7426K, capacity 8746K, committed 8832K, reserved 1048576K
+Event: 33.777 GC heap after
+Heap after GC invocations=22 (full 3):
+ PSYoungGen      total 620032K, used 9882K [0x0000000783100000, 0x00000007afc00000, 0x00000007c0000000)
+  eden space 582656K, 0% used [0x0000000783100000,0x0000000783100000,0x00000007a6a00000)
+  from space 37376K, 26% used [0x00000007a6a00000,0x00000007a73a6a38,0x00000007a8e80000)
+  to   space 36352K, 0% used [0x00000007ad880000,0x00000007ad880000,0x00000007afc00000)
+ ParOldGen       total 225280K, used 74880K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db20240,0x0000000716e00000)
+ Metaspace       used 64492K, capacity 68960K, committed 69208K, reserved 1110016K
+  class space    used 7426K, capacity 8746K, committed 8832K, reserved 1048576K
+}
+Event: 34.814 GC heap before
+{Heap before GC invocations=23 (full 3):
+ PSYoungGen      total 620032K, used 592538K [0x0000000783100000, 0x00000007afc00000, 0x00000007c0000000)
+  eden space 582656K, 100% used [0x0000000783100000,0x00000007a6a00000,0x00000007a6a00000)
+  from space 37376K, 26% used [0x00000007a6a00000,0x00000007a73a6a38,0x00000007a8e80000)
+  to   space 36352K, 0% used [0x00000007ad880000,0x00000007ad880000,0x00000007afc00000)
+ ParOldGen       total 225280K, used 74880K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db20240,0x0000000716e00000)
+ Metaspace       used 64576K, capacity 69048K, committed 69208K, reserved 1110016K
+  class space    used 7428K, capacity 8750K, committed 8832K, reserved 1048576K
+Event: 34.835 GC heap after
+Heap after GC invocations=23 (full 3):
+ PSYoungGen      total 696832K, used 10010K [0x0000000783100000, 0x00000007afe80000, 0x00000007c0000000)
+  eden space 660480K, 0% used [0x0000000783100000,0x0000000783100000,0x00000007ab600000)
+  from space 36352K, 27% used [0x00000007ad880000,0x00000007ae246ac0,0x00000007afc00000)
+  to   space 35328K, 0% used [0x00000007ab600000,0x00000007ab600000,0x00000007ad880000)
+ ParOldGen       total 225280K, used 74888K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db22240,0x0000000716e00000)
+ Metaspace       used 64576K, capacity 69048K, committed 69208K, reserved 1110016K
+  class space    used 7428K, capacity 8750K, committed 8832K, reserved 1048576K
+}
+Event: 36.290 GC heap before
+{Heap before GC invocations=24 (full 3):
+ PSYoungGen      total 696832K, used 668280K [0x0000000783100000, 0x00000007afe80000, 0x00000007c0000000)
+  eden space 660480K, 99% used [0x0000000783100000,0x00000007ab3d78e8,0x00000007ab600000)
+  from space 36352K, 27% used [0x00000007ad880000,0x00000007ae246ac0,0x00000007afc00000)
+  to   space 35328K, 0% used [0x00000007ab600000,0x00000007ab600000,0x00000007ad880000)
+ ParOldGen       total 225280K, used 74888K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db22240,0x0000000716e00000)
+ Metaspace       used 64864K, capacity 69454K, committed 69720K, reserved 1110016K
+  class space    used 7460K, capacity 8808K, committed 8832K, reserved 1048576K
+Event: 36.318 GC heap after
+Heap after GC invocations=24 (full 3):
+ PSYoungGen      total 695808K, used 15462K [0x0000000783100000, 0x00000007b5380000, 0x00000007c0000000)
+  eden space 660480K, 0% used [0x0000000783100000,0x0000000783100000,0x00000007ab600000)
+  from space 35328K, 43% used [0x00000007ab600000,0x00000007ac519b98,0x00000007ad880000)
+  to   space 33280K, 0% used [0x00000007b3300000,0x00000007b3300000,0x00000007b5380000)
+ ParOldGen       total 225280K, used 74888K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db22240,0x0000000716e00000)
+ Metaspace       used 64864K, capacity 69454K, committed 69720K, reserved 1110016K
+  class space    used 7460K, capacity 8808K, committed 8832K, reserved 1048576K
+}
+Event: 39.612 GC heap before
+{Heap before GC invocations=25 (full 3):
+ PSYoungGen      total 695808K, used 673744K [0x0000000783100000, 0x00000007b5380000, 0x00000007c0000000)
+  eden space 660480K, 99% used [0x0000000783100000,0x00000007ab3da478,0x00000007ab600000)
+  from space 35328K, 43% used [0x00000007ab600000,0x00000007ac519b98,0x00000007ad880000)
+  to   space 33280K, 0% used [0x00000007b3300000,0x00000007b3300000,0x00000007b5380000)
+ ParOldGen       total 225280K, used 74888K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db22240,0x0000000716e00000)
+ Metaspace       used 68935K, capacity 73636K, committed 73816K, reserved 1114112K
+  class space    used 7913K, capacity 9295K, committed 9344K, reserved 1048576K
+Event: 39.663 GC heap after
+Heap after GC invocations=25 (full 3):
+ PSYoungGen      total 784384K, used 30757K [0x0000000783100000, 0x00000007b5a80000, 0x00000007c0000000)
+  eden space 751104K, 0% used [0x0000000783100000,0x0000000783100000,0x00000007b0e80000)
+  from space 33280K, 92% used [0x00000007b3300000,0x00000007b5109628,0x00000007b5380000)
+  to   space 37376K, 0% used [0x00000007b0e80000,0x00000007b0e80000,0x00000007b3300000)
+ ParOldGen       total 225280K, used 74896K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db24240,0x0000000716e00000)
+ Metaspace       used 68935K, capacity 73636K, committed 73816K, reserved 1114112K
+  class space    used 7913K, capacity 9295K, committed 9344K, reserved 1048576K
+}
+Event: 41.004 GC heap before
+{Heap before GC invocations=26 (full 3):
+ PSYoungGen      total 784384K, used 781861K [0x0000000783100000, 0x00000007b5a80000, 0x00000007c0000000)
+  eden space 751104K, 100% used [0x0000000783100000,0x00000007b0e80000,0x00000007b0e80000)
+  from space 33280K, 92% used [0x00000007b3300000,0x00000007b5109628,0x00000007b5380000)
+  to   space 37376K, 0% used [0x00000007b0e80000,0x00000007b0e80000,0x00000007b3300000)
+ ParOldGen       total 225280K, used 74896K [0x0000000709200000, 0x0000000716e00000, 0x0000000783100000)
+  object space 225280K, 33% used [0x0000000709200000,0x000000070db24240,0x0000000716e00000)
+ Metaspace       used 69276K, capacity 74060K, committed 74200K, reserved 1114112K
+  class space    used 7948K, capacity 9369K, committed 9472K, reserved 1048576K
+
+Deoptimization events (10 events):
+Event: 40.237 Thread 0x00007fbc54009980 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007fbc46a3be28 method=java.util.Hashtable.put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; @ 60
+Event: 40.237 Thread 0x00007fbc54009980 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007fbc46a3be28 method=java.util.Hashtable.put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; @ 60
+Event: 40.240 Thread 0x00007fbc54009980 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007fbc457cf9e4 method=java.util.Hashtable.get(Ljava/lang/Object;)Ljava/lang/Object; @ 48
+Event: 40.648 Thread 0x00007fbc54009980 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007fbc4718a514 method=com.thoughtworks.qdox.parser.impl.JFlexLexer.yylex()I @ 429
+Event: 40.655 Thread 0x00007fbc54009980 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007fbc471fde10 method=com.thoughtworks.qdox.parser.impl.Parser.yyparse()I @ 6795
+Event: 40.686 Thread 0x00007fbc54009980 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007fbc46dd81b8 method=com.thoughtworks.qdox.parser.impl.Parser.yyparse()I @ 6795
+Event: 40.706 Thread 0x00007fbc54009980 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007fbc46e72e3c method=com.thoughtworks.qdox.model.Type.<init>(Ljava/lang/String;Lcom/thoughtworks/qdox/parser/structs/TypeDef;ILcom/thoughtworks/qdox/model/JavaClassParent;)V @ 96
+Event: 40.709 Thread 0x00007fbc54009980 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007fbc46e72e3c method=com.thoughtworks.qdox.model.Type.<init>(Ljava/lang/String;Lcom/thoughtworks/qdox/parser/structs/TypeDef;ILcom/thoughtworks/qdox/model/JavaClassParent;)V @ 96
+Event: 40.721 Thread 0x00007fbc54009980 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007fbc46e72e3c method=com.thoughtworks.qdox.model.Type.<init>(Ljava/lang/String;Lcom/thoughtworks/qdox/parser/structs/TypeDef;ILcom/thoughtworks/qdox/model/JavaClassParent;)V @ 96
+Event: 40.722 Thread 0x00007fbc54009980 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007fbc46e72e3c method=com.thoughtworks.qdox.model.Type.<init>(Ljava/lang/String;Lcom/thoughtworks/qdox/parser/structs/TypeDef;ILcom/thoughtworks/qdox/model/JavaClassParent;)V @ 96
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (10 events):
+Event: 39.718 Thread 0x00007fbc54009980 Implicit null exception at 0x00007fbc46cf8f41 to 0x00007fbc46cfc370
+Event: 39.718 Thread 0x00007fbc54009980 Exception <a 'java/lang/NullPointerException'> (0x000000078504e560) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp, line 619]
+Event: 39.718 Thread 0x00007fbc54009980 Implicit null exception at 0x00007fbc46cf8f41 to 0x00007fbc46cfc370
+Event: 39.718 Thread 0x00007fbc54009980 Exception <a 'java/lang/NullPointerException'> (0x000000078504e960) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp, line 619]
+Event: 39.718 Thread 0x00007fbc54009980 Implicit null exception at 0x00007fbc46cf8f41 to 0x00007fbc46cfc370
+Event: 39.718 Thread 0x00007fbc54009980 Exception <a 'java/lang/NullPointerException'> (0x000000078504f430) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp, line 619]
+Event: 39.718 Thread 0x00007fbc54009980 Implicit null exception at 0x00007fbc46cf8f41 to 0x00007fbc46cfc370
+Event: 39.718 Thread 0x00007fbc54009980 Exception <a 'java/lang/NullPointerException'> (0x000000078504f830) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp, line 619]
+Event: 39.718 Thread 0x00007fbc54009980 Implicit null exception at 0x00007fbc46cf8f41 to 0x00007fbc46cfc370
+Event: 39.718 Thread 0x00007fbc54009980 Exception <a 'java/lang/NullPointerException'> (0x000000078504fc30) thrown at [/builddir/build/BUILD/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/openjdk/hotspot/src/share/vm/runtime/sharedRuntime.cpp, line 619]
+
+Events (10 events):
+Event: 41.001 loading class java/lang$Object done
+Event: 41.001 loading class java/lang$Object
+Event: 41.001 loading class java/lang$Object done
+Event: 41.002 loading class AbstractJUnitProvider
+Event: 41.002 loading class AbstractJUnitProvider done
+Event: 41.002 loading class AbstractJUnitProvider
+Event: 41.002 loading class AbstractJUnitProvider done
+Event: 41.002 loading class AbstractJUnitProvider
+Event: 41.002 loading class AbstractJUnitProvider done
+Event: 41.003 Executing VM operation: ParallelGCFailedAllocation
+
+
+Dynamic libraries:
+709200000-716e00000 rw-p 00000000 00:00 0 
+716e00000-783100000 ---p 00000000 00:00 0 
+783100000-7b5a80000 rw-p 00000000 00:00 0 
+7bdf80000-7c0000000 ---p 00000000 00:00 0 
+7c0000000-7c0940000 rw-p 00000000 00:00 0 
+7c0940000-800000000 ---p 00000000 00:00 0 
+564f11e91000-564f11e92000 r-xp 00000000 fd:00 1865061                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/bin/java
+564f12091000-564f12092000 r--p 00000000 fd:00 1865061                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/bin/java
+564f12092000-564f12093000 rw-p 00001000 fd:00 1865061                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/bin/java
+564f1335e000-564f1337f000 rw-p 00000000 00:00 0                          [heap]
+7fbbb0000000-7fbbb0291000 rw-p 00000000 00:00 0 
+7fbbb0291000-7fbbb4000000 ---p 00000000 00:00 0 
+7fbbb4000000-7fbbb4325000 rw-p 00000000 00:00 0 
+7fbbb4325000-7fbbb8000000 ---p 00000000 00:00 0 
+7fbbb8000000-7fbbb8061000 rw-p 00000000 00:00 0 
+7fbbb8061000-7fbbbc000000 ---p 00000000 00:00 0 
+7fbbbc000000-7fbbbc021000 rw-p 00000000 00:00 0 
+7fbbbc021000-7fbbc0000000 ---p 00000000 00:00 0 
+7fbbc0000000-7fbbc0021000 rw-p 00000000 00:00 0 
+7fbbc0021000-7fbbc4000000 ---p 00000000 00:00 0 
+7fbbc4000000-7fbbc4024000 rw-p 00000000 00:00 0 
+7fbbc4024000-7fbbc8000000 ---p 00000000 00:00 0 
+7fbbc8000000-7fbbc8021000 rw-p 00000000 00:00 0 
+7fbbc8021000-7fbbcc000000 ---p 00000000 00:00 0 
+7fbbcc000000-7fbbcc048000 rw-p 00000000 00:00 0 
+7fbbcc048000-7fbbd0000000 ---p 00000000 00:00 0 
+7fbbd0000000-7fbbd0044000 rw-p 00000000 00:00 0 
+7fbbd0044000-7fbbd4000000 ---p 00000000 00:00 0 
+7fbbd4000000-7fbbd4021000 rw-p 00000000 00:00 0 
+7fbbd4021000-7fbbd8000000 ---p 00000000 00:00 0 
+7fbbd8000000-7fbbd8021000 rw-p 00000000 00:00 0 
+7fbbd8021000-7fbbdc000000 ---p 00000000 00:00 0 
+7fbbdc000000-7fbbdc032000 rw-p 00000000 00:00 0 
+7fbbdc032000-7fbbe0000000 ---p 00000000 00:00 0 
+7fbbe0000000-7fbbe0021000 rw-p 00000000 00:00 0 
+7fbbe0021000-7fbbe4000000 ---p 00000000 00:00 0 
+7fbbe4000000-7fbbe4021000 rw-p 00000000 00:00 0 
+7fbbe4021000-7fbbe8000000 ---p 00000000 00:00 0 
+7fbbe8000000-7fbbe82de000 rw-p 00000000 00:00 0 
+7fbbe82de000-7fbbec000000 ---p 00000000 00:00 0 
+7fbbec000000-7fbbec044000 rw-p 00000000 00:00 0 
+7fbbec044000-7fbbf0000000 ---p 00000000 00:00 0 
+7fbbf0000000-7fbbf02d4000 rw-p 00000000 00:00 0 
+7fbbf02d4000-7fbbf4000000 ---p 00000000 00:00 0 
+7fbbf4000000-7fbbf42d8000 rw-p 00000000 00:00 0 
+7fbbf42d8000-7fbbf8000000 ---p 00000000 00:00 0 
+7fbbf8000000-7fbbf8021000 rw-p 00000000 00:00 0 
+7fbbf8021000-7fbbfc000000 ---p 00000000 00:00 0 
+7fbbfc000000-7fbbfc021000 rw-p 00000000 00:00 0 
+7fbbfc021000-7fbc00000000 ---p 00000000 00:00 0 
+7fbc00000000-7fbc02156000 rw-p 00000000 00:00 0 
+7fbc02156000-7fbc04000000 ---p 00000000 00:00 0 
+7fbc04000000-7fbc05f1a000 rw-p 00000000 00:00 0 
+7fbc05f1a000-7fbc08000000 ---p 00000000 00:00 0 
+7fbc08000000-7fbc09f47000 rw-p 00000000 00:00 0 
+7fbc09f47000-7fbc0c000000 ---p 00000000 00:00 0 
+7fbc0d431000-7fbc14000000 r--p 00000000 fd:00 1838521                    /usr/lib/locale/locale-archive
+7fbc14000000-7fbc14021000 rw-p 00000000 00:00 0 
+7fbc14021000-7fbc18000000 ---p 00000000 00:00 0 
+7fbc18000000-7fbc18021000 rw-p 00000000 00:00 0 
+7fbc18021000-7fbc1c000000 ---p 00000000 00:00 0 
+7fbc1c000000-7fbc1c021000 rw-p 00000000 00:00 0 
+7fbc1c021000-7fbc20000000 ---p 00000000 00:00 0 
+7fbc2164d000-7fbc2178d000 rw-p 00000000 00:00 0 
+7fbc2178d000-7fbc2184d000 ---p 00000000 00:00 0 
+7fbc2184d000-7fbc21a4d000 rw-p 00000000 00:00 0 
+7fbc21a4d000-7fbc21c4d000 rw-p 00000000 00:00 0 
+7fbc21c4d000-7fbc21c4f000 r-xp 00000000 fd:00 1625295                    /usr/lib64/libXau.so.6.0.0
+7fbc21c4f000-7fbc21e4f000 ---p 00002000 fd:00 1625295                    /usr/lib64/libXau.so.6.0.0
+7fbc21e4f000-7fbc21e50000 r--p 00002000 fd:00 1625295                    /usr/lib64/libXau.so.6.0.0
+7fbc21e50000-7fbc21e51000 rw-p 00000000 00:00 0 
+7fbc21e51000-7fbc21e78000 r-xp 00000000 fd:00 1575873                    /usr/lib64/libxcb.so.1.1.0
+7fbc21e78000-7fbc22077000 ---p 00027000 fd:00 1575873                    /usr/lib64/libxcb.so.1.1.0
+7fbc22077000-7fbc22078000 r--p 00026000 fd:00 1575873                    /usr/lib64/libxcb.so.1.1.0
+7fbc22078000-7fbc22079000 rw-p 00027000 fd:00 1575873                    /usr/lib64/libxcb.so.1.1.0
+7fbc22079000-7fbc22088000 r-xp 00000000 fd:00 1575888                    /usr/lib64/libXi.so.6.1.0
+7fbc22088000-7fbc22288000 ---p 0000f000 fd:00 1575888                    /usr/lib64/libXi.so.6.1.0
+7fbc22288000-7fbc22289000 r--p 0000f000 fd:00 1575888                    /usr/lib64/libXi.so.6.1.0
+7fbc22289000-7fbc2228a000 rw-p 00010000 fd:00 1575888                    /usr/lib64/libXi.so.6.1.0
+7fbc2228a000-7fbc2228f000 r-xp 00000000 fd:00 1575898                    /usr/lib64/libXtst.so.6.1.0
+7fbc2228f000-7fbc2248e000 ---p 00005000 fd:00 1575898                    /usr/lib64/libXtst.so.6.1.0
+7fbc2248e000-7fbc2248f000 r--p 00004000 fd:00 1575898                    /usr/lib64/libXtst.so.6.1.0
+7fbc2248f000-7fbc22490000 rw-p 00005000 fd:00 1575898                    /usr/lib64/libXtst.so.6.1.0
+7fbc22490000-7fbc28000000 rw-p 00000000 00:00 0 
+7fbc28000000-7fbc28022000 rw-p 00000000 00:00 0 
+7fbc28022000-7fbc2c000000 ---p 00000000 00:00 0 
+7fbc2c000000-7fbc2c03b000 rw-p 00000000 00:00 0 
+7fbc2c03b000-7fbc30000000 ---p 00000000 00:00 0 
+7fbc30000000-7fbc30021000 rw-p 00000000 00:00 0 
+7fbc30021000-7fbc34000000 ---p 00000000 00:00 0 
+7fbc3409a000-7fbc3409d000 ---p 00000000 00:00 0 
+7fbc3409d000-7fbc340d3000 rw-p 00000000 00:00 0 
+7fbc340d3000-7fbc340fe000 r--s 0024a000 fd:02 5118122                    /home/mistria/.m2/repository/biz/aQute/bnd/biz.aQute.bndlib/3.5.0/biz.aQute.bndlib-3.5.0.jar
+7fbc340fe000-7fbc34103000 r--s 0003d000 fd:02 3963955                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-utils/1.5.8/plexus-utils-1.5.8.jar
+7fbc34103000-7fbc34110000 r--s 00083000 fd:02 6052278                    /home/mistria/.m2/repository/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar
+7fbc34110000-7fbc34115000 r--s 00041000 fd:02 4204353                    /home/mistria/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar
+7fbc34115000-7fbc34119000 r--s 00025000 fd:02 6052277                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-shared-utils/3.2.0/maven-shared-utils-3.2.0.jar
+7fbc34119000-7fbc3411e000 r--s 0001a000 fd:02 6052273                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-artifact-transfer/0.9.1/maven-artifact-transfer-0.9.1.jar
+7fbc3411e000-7fbc34121000 r--s 0000d000 fd:02 6052269                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-common-artifact-filters/3.0.1/maven-common-artifact-filters-3.0.1.jar
+7fbc34121000-7fbc34123000 r--s 00007000 fd:02 6052265                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-dependency-tree/3.0.1/maven-dependency-tree-3.0.1.jar
+7fbc34123000-7fbc34125000 r--s 00007000 fd:02 6052267                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-dependency-analyzer/1.7/maven-dependency-analyzer-1.7.jar
+7fbc34125000-7fbc34128000 r--s 00011000 fd:02 6052263                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-io/2.4/plexus-io-2.4.jar
+7fbc34128000-7fbc3412a000 r--s 00008000 fd:02 4204341                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-shared-io/1.1/maven-shared-io-1.1.jar
+7fbc3412a000-7fbc3412c000 r--s 00008000 fd:02 4204340                    /home/mistria/.m2/repository/org/apache/maven/shared/file-management/1.2.1/file-management-1.2.1.jar
+7fbc3412c000-7fbc3412f000 r--s 0001b000 fd:02 4238988                    /home/mistria/.m2/repository/org/apache/struts/struts-tiles/1.3.8/struts-tiles-1.3.8.jar
+7fbc3412f000-7fbc34134000 r--s 00039000 fd:02 4238986                    /home/mistria/.m2/repository/org/apache/struts/struts-taglib/1.3.8/struts-taglib-1.3.8.jar
+7fbc34134000-7fbc34139000 r--s 00053000 fd:02 4238982                    /home/mistria/.m2/repository/antlr/antlr/2.7.2/antlr-2.7.2.jar
+7fbc34139000-7fbc3413f000 r--s 0004b000 fd:02 4238779                    /home/mistria/.m2/repository/org/apache/struts/struts-core/1.3.8/struts-core-1.3.8.jar
+7fbc3413f000-7fbc34141000 r-xp 00000000 fd:00 1615972                    /usr/lib64/libXcomposite.so.1.0.0
+7fbc34141000-7fbc34340000 ---p 00002000 fd:00 1615972                    /usr/lib64/libXcomposite.so.1.0.0
+7fbc34340000-7fbc34341000 r--p 00001000 fd:00 1615972                    /usr/lib64/libXcomposite.so.1.0.0
+7fbc34341000-7fbc34342000 rw-p 00000000 00:00 0 
+7fbc34342000-7fbc3434b000 r-xp 00000000 fd:00 1615971                    /usr/lib64/libXrender.so.1.3.0
+7fbc3434b000-7fbc3454a000 ---p 00009000 fd:00 1615971                    /usr/lib64/libXrender.so.1.3.0
+7fbc3454a000-7fbc3454b000 r--p 00008000 fd:00 1615971                    /usr/lib64/libXrender.so.1.3.0
+7fbc3454b000-7fbc3454c000 rw-p 00009000 fd:00 1615971                    /usr/lib64/libXrender.so.1.3.0
+7fbc3454c000-7fbc34684000 r-xp 00000000 fd:00 1579049                    /usr/lib64/libX11.so.6.3.0
+7fbc34684000-7fbc34883000 ---p 00138000 fd:00 1579049                    /usr/lib64/libX11.so.6.3.0
+7fbc34883000-7fbc34886000 r--p 00137000 fd:00 1579049                    /usr/lib64/libX11.so.6.3.0
+7fbc34886000-7fbc3488a000 rw-p 0013a000 fd:00 1579049                    /usr/lib64/libX11.so.6.3.0
+7fbc3488a000-7fbc3489b000 r-xp 00000000 fd:00 1629377                    /usr/lib64/libXext.so.6.4.0
+7fbc3489b000-7fbc34a9a000 ---p 00011000 fd:00 1629377                    /usr/lib64/libXext.so.6.4.0
+7fbc34a9a000-7fbc34a9b000 r--p 00010000 fd:00 1629377                    /usr/lib64/libXext.so.6.4.0
+7fbc34a9b000-7fbc34a9c000 rw-p 00011000 fd:00 1629377                    /usr/lib64/libXext.so.6.4.0
+7fbc34a9c000-7fbc34a9d000 r--s 00003000 fd:02 4982271                    /home/mistria/.m2/repository/biz/aQute/bnd/bnd-maven-plugin/3.5.0/bnd-maven-plugin-3.5.0.jar
+7fbc34a9d000-7fbc34a9f000 r--s 00005000 fd:02 4238727                    /home/mistria/.m2/repository/sslext/sslext/1.2-0/sslext-1.2-0.jar
+7fbc34a9f000-7fbc34aa7000 r--s 00068000 fd:02 4238725                    /home/mistria/.m2/repository/dom4j/dom4j/1.1/dom4j-1.1.jar
+7fbc34aa7000-7fbc34aa9000 r--s 00014000 fd:02 4238719                    /home/mistria/.m2/repository/commons-chain/commons-chain/1.1/commons-chain-1.1.jar
+7fbc34aa9000-7fbc34aaf000 r--s 0004f000 fd:02 4238715                    /home/mistria/.m2/repository/org/apache/velocity/velocity-tools/2.0/velocity-tools-2.0.jar
+7fbc34aaf000-7fbc34ab1000 r--s 00008000 fd:02 4238713                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-module-fml/1.4/doxia-module-fml-1.4.jar
+7fbc34ab1000-7fbc34ab2000 r--s 00003000 fd:02 4238711                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-module-xhtml/1.4/doxia-module-xhtml-1.4.jar
+7fbc34ab2000-7fbc34ab3000 r--s 0000e000 fd:02 4238709                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-decoration-model/1.4/doxia-decoration-model-1.4.jar
+7fbc34ab3000-7fbc34ab5000 r--s 0000b000 fd:02 4238701                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-site-renderer/1.4/doxia-site-renderer-1.4.jar
+7fbc34ab5000-7fbc34ab6000 r--s 00002000 fd:02 4238699                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-logging-api/1.4/doxia-logging-api-1.4.jar
+7fbc34ab6000-7fbc34ab7000 r--s 00002000 fd:02 4238697                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-sink-api/1.4/doxia-sink-api-1.4.jar
+7fbc34ab7000-7fbc34aba000 r--s 0001f000 fd:02 4239000                    /home/mistria/.m2/repository/commons-validator/commons-validator/1.3.1/commons-validator-1.3.1.jar
+7fbc34aba000-7fbc34ac2000 r--s 00028000 fd:02 4211663                    /home/mistria/.m2/repository/xml-apis/xml-apis/1.3.04/xml-apis-1.3.04.jar
+7fbc34ac2000-7fbc34ac3000 r--s 00004000 fd:02 4238992                    /home/mistria/.m2/repository/org/apache/maven/reporting/maven-reporting-impl/2.3/maven-reporting-impl-2.3.jar
+7fbc34ac3000-7fbc34ac6000 r--s 00026000 fd:02 4217240                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-dependency-plugin/3.0.2/maven-dependency-plugin-3.0.2.jar
+7fbc34ac6000-7fbc34ac7000 r--s 00005000 fd:02 3946244                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-source-plugin/2.1/maven-source-plugin-2.1.jar
+7fbc34ac7000-7fbc34ac9000 r--s 00004000 fd:02 7080821                    /home/mistria/git/org.eclipse.tycho/tycho-bundles/org.eclipse.tycho.p2.tools.shared/target/org.eclipse.tycho.p2.tools.shared-1.2.0-SNAPSHOT.jar
+7fbc34ac9000-7fbc34acb000 r--s 00005000 fd:02 6952049                    /home/mistria/git/org.eclipse.tycho/tycho-bundles/org.eclipse.tycho.p2.resolver.shared/target/org.eclipse.tycho.p2.resolver.shared-1.2.0-SNAPSHOT.jar
+7fbc34acb000-7fbc34acd000 r--s 00007000 fd:02 6553815                    /home/mistria/git/org.eclipse.tycho/tycho-p2/tycho-p2-facade/target/tycho-p2-facade-1.2.0-SNAPSHOT.jar
+7fbc34acd000-7fbc34acf000 r--s 00005000 fd:02 4211589                    /home/mistria/.m2/repository/org/objenesis/objenesis/1.0/objenesis-1.0.jar
+7fbc34acf000-7fbc34b23000 r-xp 00000000 fd:00 1865048                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libawt_xawt.so
+7fbc34b23000-7fbc34d23000 ---p 00054000 fd:00 1865048                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libawt_xawt.so
+7fbc34d23000-7fbc34d24000 r--p 00054000 fd:00 1865048                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libawt_xawt.so
+7fbc34d24000-7fbc34d26000 rw-p 00055000 fd:00 1865048                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libawt_xawt.so
+7fbc34d26000-7fbc34d28000 rw-p 00000000 00:00 0 
+7fbc34d28000-7fbc34dc9000 r-xp 00000000 fd:00 1864964                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libawt.so
+7fbc34dc9000-7fbc34fc8000 ---p 000a1000 fd:00 1864964                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libawt.so
+7fbc34fc8000-7fbc34fc9000 r--p 000a0000 fd:00 1864964                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libawt.so
+7fbc34fc9000-7fbc34fd4000 rw-p 000a1000 fd:00 1864964                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libawt.so
+7fbc34fd4000-7fbc34ff9000 rw-p 00000000 00:00 0 
+7fbc34ff9000-7fbc35004000 r--s 0011c000 fd:00 1864834                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/ext/localedata.jar
+7fbc35004000-7fbc3501f000 r--s 003b7000 fd:00 1865013                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/ext/cldrdata.jar
+7fbc3501f000-7fbc3521f000 rw-p 00000000 00:00 0 
+7fbc3521f000-7fbc35223000 r--s 0003c000 fd:02 3992908                    /home/mistria/.m2/repository/commons-lang/commons-lang/2.4/commons-lang-2.4.jar
+7fbc35223000-7fbc3522b000 r--s 00066000 fd:02 4239046                    /home/mistria/.m2/repository/org/apache/velocity/velocity/1.7/velocity-1.7.jar
+7fbc3522b000-7fbc3522c000 r--s 00001000 fd:02 4239002                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-velocity/1.1.8/plexus-velocity-1.1.8.jar
+7fbc3522c000-7fbc3522e000 r--s 00005000 fd:02 6052209                    /home/mistria/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-tools-model/3.3/maven-plugin-tools-model-3.3.jar
+7fbc3522e000-7fbc35233000 r--s 00037000 fd:02 6052208                    /home/mistria/.m2/repository/org/beanshell/bsh/1.3.0/bsh-1.3.0.jar
+7fbc35233000-7fbc35235000 r--s 00002000 fd:02 6052203                    /home/mistria/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-tools-beanshell/3.3/maven-plugin-tools-beanshell-3.3.jar
+7fbc35235000-7fbc35237000 r--s 00003000 fd:02 6052201                    /home/mistria/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-tools-java/3.3/maven-plugin-tools-java-3.3.jar
+7fbc35237000-7fbc3523c000 r--s 00016000 fd:02 4204302                    /home/mistria/.m2/repository/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar
+7fbc3523c000-7fbc3523e000 r--s 00008000 fd:02 4073282                    /home/mistria/.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar
+7fbc3523e000-7fbc35242000 r--s 00026000 fd:02 4204297                    /home/mistria/.m2/repository/commons-digester/commons-digester/1.6/commons-digester-1.6.jar
+7fbc35242000-7fbc35247000 r--s 0002a000 fd:02 4204296                    /home/mistria/.m2/repository/commons-beanutils/commons-beanutils/1.7.0/commons-beanutils-1.7.0.jar
+7fbc35247000-7fbc3524a000 r--s 00014000 fd:02 4204293                    /home/mistria/.m2/repository/commons-validator/commons-validator/1.2.0/commons-validator-1.2.0.jar
+7fbc3524a000-7fbc3524c000 r--s 00003000 fd:02 4605912                    /home/mistria/.m2/repository/org/apache/maven/reporting/maven-reporting-impl/2.1/maven-reporting-impl-2.1.jar
+7fbc3524c000-7fbc35250000 r--s 0003a000 fd:02 4238689                    /home/mistria/.m2/repository/net/sf/jtidy/jtidy/r938/jtidy-r938.jar
+7fbc35250000-7fbc35252000 r--s 00006000 fd:02 4081251                    /home/mistria/.m2/repository/org/ow2/asm/asm-tree/5.0.2/asm-tree-5.0.2.jar
+7fbc35252000-7fbc35254000 r--s 00009000 fd:02 3954097                    /home/mistria/.m2/repository/org/ow2/asm/asm-commons/5.0.2/asm-commons-5.0.2.jar
+7fbc35254000-7fbc35256000 r--s 0000a000 fd:02 6052200                    /home/mistria/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-tools-generators/3.3/maven-plugin-tools-generators-3.3.jar
+7fbc35256000-7fbc35258000 r--s 00004000 fd:02 6052194                    /home/mistria/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-tools-api/3.3/maven-plugin-tools-api-3.3.jar
+7fbc35258000-7fbc35266000 r--s 0007f000 fd:02 4204358                    /home/mistria/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
+7fbc35266000-7fbc35268000 r--s 00008000 fd:02 4232175                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-module-fml/1.2/doxia-module-fml-1.2.jar
+7fbc35268000-7fbc35269000 r--s 00003000 fd:02 4232169                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-module-xhtml/1.2/doxia-module-xhtml-1.2.jar
+7fbc35269000-7fbc3526b000 r--s 0000d000 fd:02 4232166                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-decoration-model/1.2/doxia-decoration-model-1.2.jar
+7fbc3526b000-7fbc3526d000 r--s 0000a000 fd:02 4234682                    /home/mistria/.m2/repository/commons-codec/commons-codec/1.3/commons-codec-1.3.jar
+7fbc3526d000-7fbc35272000 r--s 00026000 fd:02 4238707                    /home/mistria/.m2/repository/org/apache/httpcomponents/httpcore/4.0.1/httpcore-4.0.1.jar
+7fbc35272000-7fbc35279000 r--s 00041000 fd:02 4238705                    /home/mistria/.m2/repository/org/apache/httpcomponents/httpclient/4.0.2/httpclient-4.0.2.jar
+7fbc35279000-7fbc35291000 r--s 00115000 fd:02 3992904                    /home/mistria/.m2/repository/xerces/xercesImpl/2.9.1/xercesImpl-2.9.1.jar
+7fbc35291000-7fbc35295000 r--s 00022000 fd:02 4232165                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-core/1.2/doxia-core-1.2.jar
+7fbc35295000-7fbc35297000 r--s 0000b000 fd:02 4232157                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-site-renderer/1.2/doxia-site-renderer-1.2.jar
+7fbc35297000-7fbc35298000 r--s 00002000 fd:02 4232153                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-logging-api/1.2/doxia-logging-api-1.2.jar
+7fbc35298000-7fbc35299000 r--s 00002000 fd:02 4232149                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-sink-api/1.2/doxia-sink-api-1.2.jar
+7fbc35299000-7fbc3529d000 r--s 00028000 fd:02 6052195                    /home/mistria/.m2/repository/com/thoughtworks/qdox/qdox/1.12.1/qdox-1.12.1.jar
+7fbc3529d000-7fbc352a0000 r--s 0000c000 fd:02 3992892                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-io/2.0.3/plexus-io-2.0.3.jar
+7fbc352a0000-7fbc352a5000 r--s 00029000 fd:02 3992883                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-archiver/2.1.1/plexus-archiver-2.1.1.jar
+7fbc352a5000-7fbc352a6000 r--s 0000c000 fd:02 3932505                    /home/mistria/.m2/repository/org/ow2/asm/asm/5.0.2/asm-5.0.2.jar
+7fbc352a6000-7fbc352a8000 r--s 00008000 fd:02 6052193                    /home/mistria/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-tools-annotations/3.3/maven-plugin-tools-annotations-3.3.jar
+7fbc352a8000-7fbc352aa000 r--s 0000b000 fd:02 4217593                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-plugin-plugin/3.3/maven-plugin-plugin-3.3.jar
+7fbc352aa000-7fbc352ad000 r--s 00032000 fd:02 4982246                    /home/mistria/.m2/repository/org/eclipse/jdt/org.eclipse.jdt.compiler.apt/1.3.110/org.eclipse.jdt.compiler.apt-1.3.110.jar
+7fbc352ad000-7fbc352ae000 r--s 00000000 fd:02 6556488                    /home/mistria/git/org.eclipse.tycho/tycho-lib-detector/target/tycho-lib-detector-1.2.0-SNAPSHOT.jar
+7fbc352ae000-7fbc352b0000 r--s 0000b000 fd:02 3935430                    /home/mistria/.m2/repository/org/apache/maven/wagon/wagon-provider-api/1.0-beta-6/wagon-provider-api-1.0-beta-6.jar
+7fbc352b0000-7fbc352b4000 r--s 00019000 fd:02 4982241                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.core.commands/3.9.0/org.eclipse.core.commands-3.9.0.jar
+7fbc352b4000-7fbc352b9000 r--s 0003d000 fd:02 4982226                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.text/3.6.100/org.eclipse.text-3.6.100.jar
+7fbc352b9000-7fbc352bb000 r--s 0000f000 fd:02 4982225                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.core.filesystem/1.7.0/org.eclipse.core.filesystem-1.7.0.jar
+7fbc352bb000-7fbc352bd000 r--s 00014000 fd:02 4982208                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.equinox.app/1.3.400/org.eclipse.equinox.app-1.3.400.jar
+7fbc352bd000-7fbc352c0000 r--s 00017000 fd:02 4982220                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.core.contenttype/3.6.0/org.eclipse.core.contenttype-3.6.0.jar
+7fbc352c0000-7fbc352c3000 r--s 0001e000 fd:02 4982218                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.equinox.preferences/3.7.0/org.eclipse.equinox.preferences-3.7.0.jar
+7fbc352c3000-7fbc352c7000 r--s 0002a000 fd:02 4982217                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.equinox.registry/3.7.0/org.eclipse.equinox.registry-3.7.0.jar
+7fbc352c7000-7fbc352ca000 r--s 00018000 fd:02 4982214                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.core.jobs/3.9.3/org.eclipse.core.jobs-3.9.3.jar
+7fbc352ca000-7fbc352cd000 r--s 0001b000 fd:02 4982212                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.equinox.common/3.9.0/org.eclipse.equinox.common-3.9.0.jar
+7fbc352cd000-7fbc352cf000 r--s 00011000 fd:02 4982210                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.core.runtime/3.13.0/org.eclipse.core.runtime-3.13.0.jar
+7fbc352cf000-7fbc352d2000 r--s 00014000 fd:02 4982209                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.core.expressions/3.6.0/org.eclipse.core.expressions-3.6.0.jar
+7fbc352d2000-7fbc352dd000 r--s 000cf000 fd:02 4982204                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.core.resources/3.12.0/org.eclipse.core.resources-3.12.0.jar
+7fbc352dd000-7fbc35319000 r--s 00635000 fd:02 4982201                    /home/mistria/.m2/repository/org/eclipse/jdt/org.eclipse.jdt.core/3.13.102/org.eclipse.jdt.core-3.13.102.jar
+7fbc35319000-7fbc3531e000 r--s 0002c000 fd:02 6955257                    /home/mistria/git/org.eclipse.tycho/tycho-core/target/tycho-core-1.2.0-SNAPSHOT.jar
+7fbc3531e000-7fbc35324000 r--s 00040000 fd:02 3935425                    /home/mistria/.m2/repository/org/apache/maven/maven-compat/3.0/maven-compat-3.0.jar
+7fbc35324000-7fbc35325000 r--s 00007000 fd:02 6046999                    /home/mistria/.m2/repository/p2/osgi/bundle/org.hamcrest.text/1.1.0.v20090501071000/org.hamcrest.text-1.1.0.v20090501071000.jar
+7fbc35325000-7fbc35327000 r--s 00002000 fd:02 6046998                    /home/mistria/.m2/repository/p2/osgi/bundle/org.hamcrest.integration/1.1.0.v201303031500/org.hamcrest.integration-1.1.0.v201303031500.jar
+7fbc35327000-7fbc35328000 r--s 00008000 fd:02 6046997                    /home/mistria/.m2/repository/p2/osgi/bundle/org.hamcrest.library/1.1.0.v20090501071000/org.hamcrest.library-1.1.0.v20090501071000.jar
+7fbc35328000-7fbc3532a000 r--s 0000c000 fd:02 4201282                    /home/mistria/.m2/repository/p2/osgi/bundle/org.hamcrest.core/1.3.0.v201303031735/org.hamcrest.core-1.3.0.v201303031735.jar
+7fbc3532a000-7fbc3532c000 r--s 00001000 fd:02 6046996                    /home/mistria/.m2/repository/p2/osgi/bundle/org.hamcrest/1.1.0.v20090501071000/org.hamcrest-1.1.0.v20090501071000.jar
+7fbc3532c000-7fbc35341000 r--s 00148000 fd:02 4081017                    /home/mistria/.m2/repository/p2/osgi/bundle/org.eclipse.osgi/3.13.0.v20180226-1711/org.eclipse.osgi-3.13.0.v20180226-1711.jar
+7fbc35341000-7fbc35343000 r--s 0003a000 fd:02 4194479                    /home/mistria/.m2/repository/p2/osgi/bundle/org.eclipse.osgi.compatibility.state/1.1.100.v20180131-1413/org.eclipse.osgi.compatibility.state-1.1.100.v20180131-1413.jar
+7fbc35343000-7fbc35345000 r--s 00001000 fd:02 6951944                    /home/mistria/git/org.eclipse.tycho/tycho-bundles/org.eclipse.tycho.embedder.shared/target/org.eclipse.tycho.embedder.shared-1.2.0-SNAPSHOT.jar
+7fbc35345000-7fbc35346000 r--s 00001000 fd:02 6955243                    /home/mistria/git/org.eclipse.tycho/tycho-embedder-api/target/tycho-embedder-api-1.2.0-SNAPSHOT.jar
+7fbc35346000-7fbc35347000 r--s 00008000 fd:02 6955241                    /home/mistria/git/org.eclipse.tycho/tycho-metadata-model/target/tycho-metadata-model-1.2.0-SNAPSHOT.jar
+7fbc35347000-7fbc35349000 r--s 0003a000 fd:02 4981734                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.osgi.compatibility.state/1.1.0/org.eclipse.osgi.compatibility.state-1.1.0.jar
+7fbc35349000-7fbc3534c000 r--s 00007000 fd:02 6951990                    /home/mistria/git/org.eclipse.tycho/tycho-bundles/org.eclipse.tycho.core.shared/target/org.eclipse.tycho.core.shared-1.2.0-SNAPSHOT.jar
+7fbc3534c000-7fbc3534e000 r--s 00002000 fd:02 6692209                    /home/mistria/git/org.eclipse.tycho/sisu-equinox/sisu-equinox-embedder/target/sisu-equinox-embedder-1.2.0-SNAPSHOT.jar
+7fbc3534e000-7fbc35350000 r--s 00014000 fd:02 4232071                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-verifier/1.3/maven-verifier-1.3.jar
+7fbc35350000-7fbc35356000 r--s 00036000 fd:02 3943178                    /home/mistria/.m2/repository/junit/junit/4.11/junit-4.11.jar
+7fbc35356000-7fbc35358000 r--s 00008000 fd:02 6052134                    /home/mistria/.m2/repository/org/apache/maven/plugin-testing/maven-plugin-testing-harness/2.1/maven-plugin-testing-harness-2.1.jar
+7fbc35358000-7fbc3535a000 r--s 0000a000 fd:02 3935295                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-classworlds/2.2.3/plexus-classworlds-2.2.3.jar
+7fbc3535a000-7fbc35360000 r--s 0002c000 fd:02 3935278                    /home/mistria/.m2/repository/org/sonatype/sisu/sisu-inject-plexus/1.4.2/sisu-inject-plexus-1.4.2.jar
+7fbc35360000-7fbc35364000 r--s 0000f000 fd:02 3935276                    /home/mistria/.m2/repository/org/sonatype/aether/aether-api/1.7/aether-api-1.7.jar
+7fbc35364000-7fbc35366000 r--s 00002000 fd:02 3935268                    /home/mistria/.m2/repository/org/sonatype/aether/aether-spi/1.7/aether-spi-1.7.jar
+7fbc35366000-7fbc35368000 r--s 00018000 fd:02 3935263                    /home/mistria/.m2/repository/org/sonatype/aether/aether-impl/1.7/aether-impl-1.7.jar
+7fbc35368000-7fbc3536d000 r--s 00020000 fd:02 3935257                    /home/mistria/.m2/repository/org/apache/maven/maven-model-builder/3.0/maven-model-builder-3.0.jar
+7fbc3536d000-7fbc3536f000 r--s 0000a000 fd:02 3935322                    /home/mistria/.m2/repository/org/apache/maven/maven-plugin-api/3.0/maven-plugin-api-3.0.jar
+7fbc3536f000-7fbc35371000 r--s 0000b000 fd:02 3935255                    /home/mistria/.m2/repository/org/apache/maven/maven-artifact/3.0/maven-artifact-3.0.jar
+7fbc35371000-7fbc35373000 r--s 00006000 fd:02 3935253                    /home/mistria/.m2/repository/org/apache/maven/maven-repository-metadata/3.0/maven-repository-metadata-3.0.jar
+7fbc35373000-7fbc35375000 r--s 00008000 fd:02 3935251                    /home/mistria/.m2/repository/org/apache/maven/maven-settings-builder/3.0/maven-settings-builder-3.0.jar
+7fbc35375000-7fbc35377000 r--s 0000a000 fd:02 3935243                    /home/mistria/.m2/repository/org/apache/maven/maven-settings/3.0/maven-settings-3.0.jar
+7fbc35377000-7fbc3537a000 r--s 00026000 fd:02 3935244                    /home/mistria/.m2/repository/org/apache/maven/maven-model/3.0/maven-model-3.0.jar
+7fbc3537a000-7fbc35385000 r--s 00076000 fd:02 3935240                    /home/mistria/.m2/repository/org/apache/maven/maven-core/3.0/maven-core-3.0.jar
+7fbc35385000-7fbc35585000 rw-p 00000000 00:00 0 
+7fbc35585000-7fbc3558c000 r--s 00032000 fd:02 4232007                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-container-default/1.7.1/plexus-container-default-1.7.1.jar
+7fbc3558c000-7fbc3558d000 r--s 00000000 fd:02 6692195                    /home/mistria/git/org.eclipse.tycho/sisu-equinox/sisu-equinox-api/target/sisu-equinox-api-1.2.0-SNAPSHOT.jar
+7fbc3558d000-7fbc355a3000 r--s 0013d000 fd:02 4627888                    /home/mistria/.m2/repository/org/eclipse/platform/org.eclipse.osgi/3.12.100/org.eclipse.osgi-3.12.100.jar
+7fbc355a3000-7fbc355a8000 r--s 00038000 fd:02 6052123                    /home/mistria/.m2/repository/org/ow2/asm/asm-all/5.1/asm-all-5.1.jar
+7fbc355a8000-7fbc355aa000 r--s 00009000 fd:02 3942296                    /home/mistria/.m2/repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar
+7fbc355aa000-7fbc355ab000 r--s 00001000 fd:02 6052121                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-cli/1.6/plexus-cli-1.6.jar
+7fbc355ab000-7fbc355b1000 r--s 00045000 fd:02 6052118                    /home/mistria/.m2/repository/org/jdom/jdom2/2.0.6/jdom2-2.0.6.jar
+7fbc355b1000-7fbc355b8000 r--s 00041000 fd:02 6052119                    /home/mistria/.m2/repository/com/thoughtworks/qdox/qdox/2.0-M2/qdox-2.0-M2.jar
+7fbc355b8000-7fbc355bc000 r--s 00038000 fd:02 4073284                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-utils/3.0.20/plexus-utils-3.0.20.jar
+7fbc355bc000-7fbc355ca000 r--s 0008f000 fd:02 3975618                    /home/mistria/.m2/repository/com/google/collections/google-collections/1.0/google-collections-1.0.jar
+7fbc355ca000-7fbc355ce000 r--s 00021000 fd:02 4232011                    /home/mistria/.m2/repository/org/apache/xbean/xbean-reflect/3.7/xbean-reflect-3.7.jar
+7fbc355ce000-7fbc355d1000 r--s 0001a000 fd:02 4234303                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-component-metadata/1.7.1/plexus-component-metadata-1.7.1.jar
+7fbc355d1000-7fbc357d1000 rw-p 00000000 00:00 0 
+7fbc357d1000-7fbc357d2000 r--s 00006000 fd:02 4234323                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-jar-plugin/3.0.2/maven-jar-plugin-3.0.2.jar
+7fbc357d2000-7fbc357d4000 r--s 00002000 fd:02 4207736                    /home/mistria/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-annotations/3.3/maven-plugin-annotations-3.3.jar
+7fbc357d4000-7fbc357d9000 r--s 0002b000 fd:02 6052086                    /home/mistria/.m2/repository/org/apache/maven/surefire/surefire-api/2.19.1/surefire-api-2.19.1.jar
+7fbc357d9000-7fbc357da000 r--s 00002000 fd:02 4204283                    /home/mistria/.m2/repository/org/apache/maven/reporting/maven-reporting-api/3.0/maven-reporting-api-3.0.jar
+7fbc357da000-7fbc357dc000 r--s 00003000 fd:02 3942167                    /home/mistria/.m2/repository/org/slf4j/jcl-over-slf4j/1.5.6/jcl-over-slf4j-1.5.6.jar
+7fbc357dc000-7fbc357de000 r--s 00001000 fd:02 3942009                    /home/mistria/.m2/repository/org/slf4j/slf4j-jdk14/1.5.6/slf4j-jdk14-1.5.6.jar
+7fbc357de000-7fbc357e6000 r--s 00045000 fd:02 4207745                    /home/mistria/.m2/repository/junit/junit/4.12/junit-4.12.jar
+7fbc357e6000-7fbc357ea000 r--s 00034000 fd:02 4081042                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-utils/1.5.15/plexus-utils-1.5.15.jar
+7fbc357ea000-7fbc357f0000 r--s 00042000 fd:02 6052082                    /home/mistria/.m2/repository/org/apache/maven/surefire/maven-surefire-common/2.19.1/maven-surefire-common-2.19.1.jar
+7fbc357f0000-7fbc35803000 r--s 00346000 fd:00 1864796                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/resources.jar
+7fbc35803000-7fbc35a03000 rw-p 00000000 00:00 0 
+7fbc35a03000-7fbc35c03000 rw-p 00000000 00:00 0 
+7fbc35c03000-7fbc35c10000 r--s 0007f000 fd:02 4214433                    /home/mistria/.m2/repository/commons-collections/commons-collections/3.2/commons-collections-3.2.jar
+7fbc35c10000-7fbc35e10000 rw-p 00000000 00:00 0 
+7fbc35e10000-7fbc36010000 rw-p 00000000 00:00 0 
+7fbc36010000-7fbc36210000 rw-p 00000000 00:00 0 
+7fbc36210000-7fbc36213000 ---p 00000000 00:00 0 
+7fbc36213000-7fbc36511000 rw-p 00000000 00:00 0 
+7fbc36511000-7fbc36711000 rw-p 00000000 00:00 0 
+7fbc36711000-7fbc36911000 rw-p 00000000 00:00 0 
+7fbc36911000-7fbc36b11000 rw-p 00000000 00:00 0 
+7fbc36b11000-7fbc36b14000 ---p 00000000 00:00 0 
+7fbc36b14000-7fbc36c12000 rw-p 00000000 00:00 0 
+7fbc36c12000-7fbc36c15000 ---p 00000000 00:00 0 
+7fbc36c15000-7fbc36f13000 rw-p 00000000 00:00 0 
+7fbc36f13000-7fbc36f16000 ---p 00000000 00:00 0 
+7fbc36f16000-7fbc37014000 rw-p 00000000 00:00 0 
+7fbc37014000-7fbc37019000 r-xp 00000000 fd:00 1579942                    /usr/lib64/libnss_dns-2.26.so
+7fbc37019000-7fbc37218000 ---p 00005000 fd:00 1579942                    /usr/lib64/libnss_dns-2.26.so
+7fbc37218000-7fbc37219000 r--p 00004000 fd:00 1579942                    /usr/lib64/libnss_dns-2.26.so
+7fbc37219000-7fbc3721a000 rw-p 00005000 fd:00 1579942                    /usr/lib64/libnss_dns-2.26.so
+7fbc3721a000-7fbc3722d000 r-xp 00000000 fd:00 1582898                    /usr/lib64/libresolv-2.26.so
+7fbc3722d000-7fbc3742d000 ---p 00013000 fd:00 1582898                    /usr/lib64/libresolv-2.26.so
+7fbc3742d000-7fbc3742e000 r--p 00013000 fd:00 1582898                    /usr/lib64/libresolv-2.26.so
+7fbc3742e000-7fbc3742f000 rw-p 00014000 fd:00 1582898                    /usr/lib64/libresolv-2.26.so
+7fbc3742f000-7fbc37431000 rw-p 00000000 00:00 0 
+7fbc37431000-7fbc37434000 r-xp 00000000 fd:00 1591354                    /usr/lib64/libnss_mdns4_minimal.so.2
+7fbc37434000-7fbc37633000 ---p 00003000 fd:00 1591354                    /usr/lib64/libnss_mdns4_minimal.so.2
+7fbc37633000-7fbc37634000 r--p 00002000 fd:00 1591354                    /usr/lib64/libnss_mdns4_minimal.so.2
+7fbc37634000-7fbc37635000 rw-p 00000000 00:00 0 
+7fbc37635000-7fbc37638000 ---p 00000000 00:00 0 
+7fbc37638000-7fbc37936000 rw-p 00000000 00:00 0 
+7fbc37936000-7fbc379b7000 r-xp 00000000 fd:00 1616775                    /usr/lib64/libfreeblpriv3.so
+7fbc379b7000-7fbc37bb6000 ---p 00081000 fd:00 1616775                    /usr/lib64/libfreeblpriv3.so
+7fbc37bb6000-7fbc37bb8000 r--p 00080000 fd:00 1616775                    /usr/lib64/libfreeblpriv3.so
+7fbc37bb8000-7fbc37bb9000 rw-p 00082000 fd:00 1616775                    /usr/lib64/libfreeblpriv3.so
+7fbc37bb9000-7fbc37bbd000 rw-p 00000000 00:00 0 
+7fbc37bbd000-7fbc37bf6000 r-xp 00000000 fd:00 1575960                    /usr/lib64/libnspr4.so
+7fbc37bf6000-7fbc37df6000 ---p 00039000 fd:00 1575960                    /usr/lib64/libnspr4.so
+7fbc37df6000-7fbc37df7000 r--p 00039000 fd:00 1575960                    /usr/lib64/libnspr4.so
+7fbc37df7000-7fbc37df9000 rw-p 0003a000 fd:00 1575960                    /usr/lib64/libnspr4.so
+7fbc37df9000-7fbc37dfb000 rw-p 00000000 00:00 0 
+7fbc37dfb000-7fbc37dff000 r-xp 00000000 fd:00 1575975                    /usr/lib64/libplc4.so
+7fbc37dff000-7fbc37ffe000 ---p 00004000 fd:00 1575975                    /usr/lib64/libplc4.so
+7fbc37ffe000-7fbc37fff000 r--p 00003000 fd:00 1575975                    /usr/lib64/libplc4.so
+7fbc37fff000-7fbc38000000 rw-p 00004000 fd:00 1575975                    /usr/lib64/libplc4.so
+7fbc38000000-7fbc38024000 rw-p 00000000 00:00 0 
+7fbc38024000-7fbc3c000000 ---p 00000000 00:00 0 
+7fbc3c000000-7fbc3c002000 r--s 00009000 fd:02 3943179                    /home/mistria/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar
+7fbc3c002000-7fbc3c004000 r--s 0000a000 fd:02 6052085                    /home/mistria/.m2/repository/org/apache/maven/surefire/surefire-booter/2.19.1/surefire-booter-2.19.1.jar
+7fbc3c004000-7fbc3c005000 r--s 00009000 fd:02 4194312                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-surefire-plugin/2.19.1/maven-surefire-plugin-2.19.1.jar
+7fbc3c005000-7fbc3c007000 r--s 00004000 fd:02 4204336                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-module-xhtml/1.0/doxia-module-xhtml-1.0.jar
+7fbc3c007000-7fbc3c008000 r--s 00006000 fd:02 4204330                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-module-xdoc/1.0/doxia-module-xdoc-1.0.jar
+7fbc3c008000-7fbc3c009000 r--s 00004000 fd:02 4204329                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-module-fml/1.0/doxia-module-fml-1.0.jar
+7fbc3c009000-7fbc3c00b000 r--s 0000a000 fd:02 4204325                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-module-apt/1.0/doxia-module-apt-1.0.jar
+7fbc3c00b000-7fbc3c00c000 r--s 0000b000 fd:02 4204317                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-decoration-model/1.0/doxia-decoration-model-1.0.jar
+7fbc3c00c000-7fbc3c00e000 r--s 0000e000 fd:02 4204301                    /home/mistria/.m2/repository/oro/oro/2.0.8/oro-2.0.8.jar
+7fbc3c00e000-7fbc3c012000 r--s 0002f000 fd:02 4214431                    /home/mistria/.m2/repository/commons-lang/commons-lang/2.1/commons-lang-2.1.jar
+7fbc3c012000-7fbc3c01a000 r--s 00058000 fd:02 4204238                    /home/mistria/.m2/repository/org/apache/velocity/velocity/1.5/velocity-1.5.jar
+7fbc3c01a000-7fbc3c01b000 r--s 00001000 fd:02 4204311                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-velocity/1.1.7/plexus-velocity-1.1.7.jar
+7fbc3c01b000-7fbc3c01c000 r--s 00002000 fd:02 4204309                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-i18n/1.0-beta-7/plexus-i18n-1.0-beta-7.jar
+7fbc3c01c000-7fbc3c01f000 r--s 0000b000 fd:02 4204290                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-core/1.0/doxia-core-1.0.jar
+7fbc3c01f000-7fbc3c021000 r--s 0000a000 fd:02 4204308                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-site-renderer/1.0/doxia-site-renderer-1.0.jar
+7fbc3c021000-7fbc3c022000 r--s 00002000 fd:02 4204303                    /home/mistria/.m2/repository/org/apache/maven/doxia/doxia-sink-api/1.0/doxia-sink-api-1.0.jar
+7fbc3c022000-7fbc3c026000 r--s 00035000 fd:02 3962575                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-utils/3.0.10/plexus-utils-3.0.10.jar
+7fbc3c026000-7fbc3c02a000 r--s 0001d000 fd:02 3943153                    /home/mistria/.m2/repository/org/eclipse/aether/aether-util/0.9.0.M2/aether-util-0.9.0.M2.jar
+7fbc3c02a000-7fbc3c02d000 r--s 0000c000 fd:02 4204351                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-dependency-tree/2.1/maven-dependency-tree-2.1.jar
+7fbc3c02d000-7fbc3c02f000 r--s 0000d000 fd:02 3934490                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.15/plexus-interpolation-1.15.jar
+7fbc3c02f000-7fbc3c032000 r--s 0000c000 fd:02 4214429                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-io/2.0.2/plexus-io-2.0.2.jar
+7fbc3c032000-7fbc3c037000 r--s 00029000 fd:02 4214427                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-archiver/2.1/plexus-archiver-2.1.jar
+7fbc3c037000-7fbc3c039000 r--s 00002000 fd:02 3942299                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-interactivity-api/1.0-alpha-4/plexus-interactivity-api-1.0-alpha-4.jar
+7fbc3c039000-7fbc3c03b000 r--s 00006000 fd:02 4204247                    /home/mistria/.m2/repository/commons-cli/commons-cli/1.0/commons-cli-1.0.jar
+7fbc3c03b000-7fbc3c03c000 r--s 00002000 fd:02 4214399                    /home/mistria/.m2/repository/org/apache/maven/reporting/maven-reporting-api/2.0.7/maven-reporting-api-2.0.7.jar
+7fbc3c03c000-7fbc3c04a000 r--s 00088000 fd:02 4214387                    /home/mistria/.m2/repository/org/osgi/org.osgi.compendium/4.2.0/org.osgi.compendium-4.2.0.jar
+7fbc3c04a000-7fbc3c04c000 r--s 0000f000 fd:02 4214384                    /home/mistria/.m2/repository/org/apache/felix/org.apache.felix.utils/1.6.0/org.apache.felix.utils-1.6.0.jar
+7fbc3c04c000-7fbc3c04e000 r--s 00012000 fd:02 4214382                    /home/mistria/.m2/repository/org/easymock/easymock/2.4/easymock-2.4.jar
+7fbc3c04e000-7fbc3c052000 r--s 00026000 fd:02 4214380                    /home/mistria/.m2/repository/org/apache/felix/org.apache.felix.bundlerepository/1.6.6/org.apache.felix.bundlerepository-1.6.6.jar
+7fbc3c052000-7fbc3c073000 r--s 001be000 fd:02 4214369                    /home/mistria/.m2/repository/biz/aQute/bnd/biz.aQute.bndlib/2.4.1/biz.aQute.bndlib-2.4.1.jar
+7fbc3c073000-7fbc3c07a000 r--s 0004f000 fd:02 4214359                    /home/mistria/.m2/repository/org/osgi/org.osgi.core/4.3.1/org.osgi.core-4.3.1.jar
+7fbc3c07a000-7fbc3c07d000 r--s 00027000 fd:02 4214354                    /home/mistria/.m2/repository/org/apache/felix/maven-bundle-plugin/2.5.4/maven-bundle-plugin-2.5.4.jar
+7fbc3c07d000-7fbc3c07e000 r--s 00004000 fd:02 4217005                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-compiler-javac/2.8.2/plexus-compiler-javac-2.8.2.jar
+7fbc3c07e000-7fbc3c080000 r--s 00000000 fd:02 4216973                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-compiler-manager/2.8.2/plexus-compiler-manager-2.8.2.jar
+7fbc3c080000-7fbc3c082000 r--s 00005000 fd:02 4216964                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-compiler-api/2.8.2/plexus-compiler-api-2.8.2.jar
+7fbc3c082000-7fbc3c088000 r--s 00047000 fd:02 4216903                    /home/mistria/.m2/repository/com/thoughtworks/qdox/qdox/2.0-M7/qdox-2.0-M7.jar
+7fbc3c088000-7fbc3c089000 r--s 0000d000 fd:02 4216859                    /home/mistria/.m2/repository/org/ow2/asm/asm/6.0_BETA/asm-6.0_BETA.jar
+7fbc3c089000-7fbc3c08b000 r--s 00006000 fd:02 4216793                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-java/0.9.2/plexus-java-0.9.2.jar
+7fbc3c08b000-7fbc3c0c7000 r--s 00632000 fd:02 4079215                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.jdt.core/3.14.0.v20171206-0802/org.eclipse.jdt.core-3.14.0.v20171206-0802.jar
+7fbc3c0c7000-7fbc3c0ca000 r-xp 00000000 fd:00 1576028                    /usr/lib64/libplds4.so
+7fbc3c0ca000-7fbc3c2c9000 ---p 00003000 fd:00 1576028                    /usr/lib64/libplds4.so
+7fbc3c2c9000-7fbc3c2ca000 r--p 00002000 fd:00 1576028                    /usr/lib64/libplds4.so
+7fbc3c2ca000-7fbc3c2cb000 rw-p 00003000 fd:00 1576028                    /usr/lib64/libplds4.so
+7fbc3c2cb000-7fbc3c2f4000 r-xp 00000000 fd:00 1576104                    /usr/lib64/libnssutil3.so
+7fbc3c2f4000-7fbc3c4f3000 ---p 00029000 fd:00 1576104                    /usr/lib64/libnssutil3.so
+7fbc3c4f3000-7fbc3c4fa000 r--p 00028000 fd:00 1576104                    /usr/lib64/libnssutil3.so
+7fbc3c4fa000-7fbc3c4fb000 rw-p 0002f000 fd:00 1576104                    /usr/lib64/libnssutil3.so
+7fbc3c4fb000-7fbc3c61b000 r-xp 00000000 fd:00 1616866                    /usr/lib64/libnss3.so
+7fbc3c61b000-7fbc3c81a000 ---p 00120000 fd:00 1616866                    /usr/lib64/libnss3.so
+7fbc3c81a000-7fbc3c81f000 r--p 0011f000 fd:00 1616866                    /usr/lib64/libnss3.so
+7fbc3c81f000-7fbc3c821000 rw-p 00124000 fd:00 1616866                    /usr/lib64/libnss3.so
+7fbc3c821000-7fbc3c823000 rw-p 00000000 00:00 0 
+7fbc3c823000-7fbc3c847000 r-xp 00000000 fd:00 1616867                    /usr/lib64/libsmime3.so
+7fbc3c847000-7fbc3ca46000 ---p 00024000 fd:00 1616867                    /usr/lib64/libsmime3.so
+7fbc3ca46000-7fbc3ca49000 r--p 00023000 fd:00 1616867                    /usr/lib64/libsmime3.so
+7fbc3ca49000-7fbc3ca4a000 rw-p 00026000 fd:00 1616867                    /usr/lib64/libsmime3.so
+7fbc3ca4a000-7fbc3ca96000 r-xp 00000000 fd:00 1616870                    /usr/lib64/libssl3.so
+7fbc3ca96000-7fbc3cc96000 ---p 0004c000 fd:00 1616870                    /usr/lib64/libssl3.so
+7fbc3cc96000-7fbc3cc9a000 r--p 0004c000 fd:00 1616870                    /usr/lib64/libssl3.so
+7fbc3cc9a000-7fbc3cc9b000 rw-p 00050000 fd:00 1616870                    /usr/lib64/libssl3.so
+7fbc3cc9b000-7fbc3cc9c000 rw-p 00000000 00:00 0 
+7fbc3cc9c000-7fbc3cca8000 r-xp 00000000 fd:00 1864993                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libsunec.so
+7fbc3cca8000-7fbc3cea7000 ---p 0000c000 fd:00 1864993                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libsunec.so
+7fbc3cea7000-7fbc3cea8000 r--p 0000b000 fd:00 1864993                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libsunec.so
+7fbc3cea8000-7fbc3cea9000 rw-p 00000000 00:00 0 
+7fbc3cea9000-7fbc3ceac000 ---p 00000000 00:00 0 
+7fbc3ceac000-7fbc3d1a0000 rw-p 00000000 00:00 0 
+7fbc3d1a0000-7fbc3d1aa000 ---p 00000000 00:00 0 
+7fbc3d1aa000-7fbc3d3aa000 rw-p 00000000 00:00 0 
+7fbc3d3aa000-7fbc3d5aa000 rw-p 00000000 00:00 0 
+7fbc3d5aa000-7fbc3d7aa000 rw-p 00000000 00:00 0 
+7fbc3d7aa000-7fbc3d9aa000 rw-p 00000000 00:00 0 
+7fbc3d9aa000-7fbc3d9ac000 r--s 0000a000 fd:02 4067141                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.p2.tools.impl/1.1.0/org.eclipse.tycho.p2.tools.impl-1.1.0.jar
+7fbc3d9ac000-7fbc3d9b1000 r--s 00020000 fd:02 4067137                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.p2.maven.repository/1.1.0/org.eclipse.tycho.p2.maven.repository-1.1.0.jar
+7fbc3d9b1000-7fbc3d9b5000 r--s 00031000 fd:02 4067133                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.p2.resolver.impl/1.1.0/org.eclipse.tycho.p2.resolver.impl-1.1.0.jar
+7fbc3d9b5000-7fbc3d9bc000 r--s 00050000 fd:02 4067128                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.apache.httpcomponents.httpcore_4.4.6.v20170210-0925.jar
+7fbc3d9bc000-7fbc3d9bf000 r--s 00010000 fd:02 4067117                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.core_2.4.101.v20170906-1259.jar
+7fbc3d9bf000-7fbc3d9c6000 r--s 0004d000 fd:02 4067083                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.metadata_2.3.200.v20170511-1106.jar
+7fbc3d9c6000-7fbc3d9c8000 r--s 00011000 fd:02 4067101                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.core.net_1.3.100.v20170516-0820.jar
+7fbc3d9c8000-7fbc3d9ca000 r--s 0000c000 fd:02 4067103                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar
+7fbc3d9ca000-7fbc3d9cc000 r--s 00011000 fd:02 4067113                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.touchpoint.natives_1.2.200.v20170511-1216.jar
+7fbc3d9cc000-7fbc3d9cf000 r--s 0001a000 fd:02 4067107                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.tukaani.xz_1.5.0.v20170111-1717.jar
+7fbc3d9cf000-7fbc3d9d2000 r--s 00017000 fd:02 4067109                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.core.contenttype_3.6.0.v20170207-1037.jar
+7fbc3d9d2000-7fbc3d9d5000 r--s 0001b000 fd:02 4067089                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.common_3.9.0.v20170207-1454.jar
+7fbc3d9d5000-7fbc3d9d6000 r--s 00002000 fd:02 4067125                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.ecf.provider.filetransfer.ssl_1.0.0.v20160817-1024.jar
+7fbc3d9d6000-7fbc3d9da000 r--s 00031000 fd:02 4067126                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.engine_2.5.0.v20170319-2002.jar
+7fbc3d9da000-7fbc3d9de000 r--s 00038000 fd:02 4067105                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.repository.tools_2.1.400.v20170511-1216.jar
+7fbc3d9de000-7fbc3d9e0000 r--s 0000c000 fd:02 4067121                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.director.app_1.0.500.v20160419-0834.jar
+7fbc3d9e0000-7fbc3d9e2000 r--s 00002000 fd:02 4207174                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-shared-incremental/1.1/maven-shared-incremental-1.1.jar
+7fbc3d9e2000-7fbc3d9e5000 r--s 00025000 fd:02 4210671                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-shared-utils/3.1.0/maven-shared-utils-3.1.0.jar
+7fbc3d9e5000-7fbc3d9e7000 r--s 0000d000 fd:02 4234310                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-compiler-plugin/3.7.0/maven-compiler-plugin-3.7.0.jar
+7fbc3d9e7000-7fbc3d9e8000 r--s 00002000 fd:00 1864844                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/ext/dnsns.jar
+7fbc3d9e8000-7fbc3d9ec000 r--s 0002a000 fd:02 3950573                    /home/mistria/.m2/repository/commons-io/commons-io/2.4/commons-io-2.4.jar
+7fbc3d9ec000-7fbc3d9ee000 r--s 00000000 fd:02 3943152                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-component-annotations/1.5.5/plexus-component-annotations-1.5.5.jar
+7fbc3d9ee000-7fbc3d9f2000 r--s 00033000 fd:02 3946692                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-utils/2.0.4/plexus-utils-2.0.4.jar
+7fbc3d9f2000-7fbc3d9f4000 r--s 00006000 fd:02 4067208                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-clean-plugin/3.0.0/maven-clean-plugin-3.0.0.jar
+7fbc3d9f4000-7fbc3d9f5000 r--s 00001000 fd:02 4067215                    /home/mistria/.m2/repository/org/eclipse/tycho/target-platform-configuration/1.1.0/target-platform-configuration-1.1.0.jar
+7fbc3d9f5000-7fbc3d9f9000 r--s 00031000 fd:02 4080929                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.jdt.compiler.apt/1.3.100.v20171130-1050/org.eclipse.jdt.compiler.apt-1.3.100.v20171130-1050.jar
+7fbc3d9f9000-7fbc3d9fa000 r--s 00000000 fd:02 4079216                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-lib-detector/1.1.0/tycho-lib-detector-1.1.0.jar
+7fbc3d9fa000-7fbc3d9fc000 r--s 00003000 fd:02 4079103                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-compiler-jdt/1.1.0/tycho-compiler-jdt-1.1.0.jar
+7fbc3d9fc000-7fbc3d9fe000 r--s 00005000 fd:02 4079101                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-compiler-api/2.2/plexus-compiler-api-2.2.jar
+7fbc3d9fe000-7fbc3da00000 r--s 00000000 fd:02 4079098                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-compiler-manager/2.2/plexus-compiler-manager-2.2.jar
+7fbc3da00000-7fbc3da02000 r--s 00007000 fd:02 4067222                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-compiler-plugin/1.1.0/tycho-compiler-plugin-1.1.0.jar
+7fbc3da02000-7fbc3da05000 r--s 00011000 fd:02 3935749                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.24/plexus-interpolation-1.24.jar
+7fbc3da05000-7fbc3da07000 r--s 00001000 fd:02 3935717                    /home/mistria/.m2/repository/org/sonatype/plexus/plexus-build-api/0.0.7/plexus-build-api-0.0.7.jar
+7fbc3da07000-7fbc3da0a000 r--s 00023000 fd:02 3935694                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-shared-utils/3.0.0/maven-shared-utils-3.0.0.jar
+7fbc3da0a000-7fbc3da0c000 r--s 0000b000 fd:02 3935689                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-filtering/3.1.1/maven-filtering-3.1.1.jar
+7fbc3da0c000-7fbc3da0d000 r--s 00007000 fd:02 3935527                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-resources-plugin/3.0.2/maven-resources-plugin-3.0.2.jar
+7fbc3da0d000-7fbc3da11000 r--s 00037000 fd:02 6051900                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-utils/3.0.15/plexus-utils-3.0.15.jar
+7fbc3da11000-7fbc3da13000 r--s 00006000 fd:02 3935693                    /home/mistria/.m2/repository/com/google/code/findbugs/jsr305/2.0.1/jsr305-2.0.1.jar
+7fbc3da13000-7fbc3da16000 r--s 00023000 fd:02 6051898                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-shared-utils/0.4/maven-shared-utils-0.4.jar
+7fbc3da16000-7fbc3da1c000 r--s 00033000 fd:02 3948817                    /home/mistria/.m2/repository/commons-codec/commons-codec/1.6/commons-codec-1.6.jar
+7fbc3da1c000-7fbc3da24000 r--s 00049000 fd:02 3941963                    /home/mistria/.m2/repository/backport-util-concurrent/backport-util-concurrent/3.1/backport-util-concurrent-3.1.jar
+7fbc3da24000-7fbc3da27000 r--s 0001b000 fd:02 3946615                    /home/mistria/.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar
+7fbc3da27000-7fbc3da2a000 ---p 00000000 00:00 0 
+7fbc3da2a000-7fbc3db28000 rw-p 00000000 00:00 0 
+7fbc3db28000-7fbc3db2b000 ---p 00000000 00:00 0 
+7fbc3db2b000-7fbc3dc29000 rw-p 00000000 00:00 0 
+7fbc3dc29000-7fbc3dc2b000 r--s 00008000 fd:02 4067076                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.frameworkadmin_2.0.300.v20160504-1450.jar
+7fbc3dc2b000-7fbc3dc2d000 r--s 00005000 fd:02 4067124                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.concurrent_1.1.0.v20130327-1442.jar
+7fbc3dc2d000-7fbc3dc30000 r--s 0001d000 fd:02 4067092                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.ecf.provider.filetransfer_3.2.300.v20161203-1840.jar
+7fbc3dc30000-7fbc3dc33000 r--s 00018000 fd:02 4067100                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.core.jobs_3.9.2.v20171030-1027.jar
+7fbc3dc33000-7fbc3dc36000 r--s 00017000 fd:02 4067114                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.director_2.3.300.v20160504-1450.jar
+7fbc3dc36000-7fbc3dc37000 r--s 0000f000 fd:02 4063940                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.frameworkadmin.equinox_1.0.800.v20170524-1345.jar
+7fbc3dc37000-7fbc3dc3a000 r--s 0001e000 fd:02 4067097                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.repository_2.3.301.v20170906-1259.jar
+7fbc3dc3a000-7fbc3dc3c000 r--s 00000000 fd:02 4063943                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.tycho.noopsecurity_1.1.0.jar
+7fbc3dc3c000-7fbc3dc3e000 r--s 0000e000 fd:02 4067094                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.ecf.identity_3.8.0.v20161203-2153.jar
+7fbc3dc3e000-7fbc3dc40000 r--s 0000a000 fd:02 4067098                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.simpleconfigurator_1.2.0.v20170110-1705.jar
+7fbc3dc40000-7fbc3dc42000 r--s 0003a000 fd:02 4067106                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.osgi.compatibility.state_1.1.0.v20170516-1513.jar
+7fbc3dc42000-7fbc3dc43000 r--s 00011000 fd:02 4067067                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.apache.commons.logging_1.1.1.v201101211721.jar
+7fbc3dc43000-7fbc3dc46000 r--s 0001e000 fd:02 4063907                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.preferences_3.7.0.v20170126-2132.jar
+7fbc3dc46000-7fbc3dc47000 r--s 00003000 fd:02 4067122                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.ecf.provider.filetransfer.httpclient4.ssl_1.1.0.v20160817-1024.jar
+7fbc3dc47000-7fbc3dc49000 r--s 00011000 fd:02 4067059                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.core.runtime_3.13.0.v20170207-1030.jar
+7fbc3dc49000-7fbc3dc4b000 r--s 00005000 fd:02 4063912                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.garbagecollector_1.0.300.v20160504-1450.jar
+7fbc3dc4b000-7fbc3dc4d000 r--s 0000b000 fd:02 3941977                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.11/plexus-interpolation-1.11.jar
+7fbc3dc4d000-7fbc3dc4f000 r--s 00007000 fd:02 4210738                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-install-plugin/2.5.2/maven-install-plugin-2.5.2.jar
+7fbc3dc4f000-7fbc3dc57000 r--s 00060000 fd:02 4234362                    /home/mistria/.m2/repository/org/apache/commons/commons-compress/1.11/commons-compress-1.11.jar
+7fbc3dc57000-7fbc3dc5a000 r--s 00023000 fd:02 4234360                    /home/mistria/.m2/repository/org/apache/maven/shared/maven-shared-utils/3.0.1/maven-shared-utils-3.0.1.jar
+7fbc3dc5a000-7fbc3dc5b000 r--s 00005000 fd:02 4234358                    /home/mistria/.m2/repository/org/apache/maven/maven-archiver/3.1.1/maven-archiver-3.1.1.jar
+7fbc3dc5b000-7fbc3dc5d000 r--s 00002000 fd:02 3935687                    /home/mistria/.m2/repository/org/sonatype/plexus/plexus-cipher/1.4/plexus-cipher-1.4.jar
+7fbc3dc5d000-7fbc3dc5f000 r--s 00000000 fd:02 3935685                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-component-annotations/1.6/plexus-component-annotations-1.6.jar
+7fbc3dc5f000-7fbc3dc60000 r--s 00007000 fd:02 4234337                    /home/mistria/.m2/repository/org/apache/maven/plugins/maven-source-plugin/3.0.1/maven-source-plugin-3.0.1.jar
+7fbc3dc60000-7fbc3dc61000 r--s 00007000 fd:00 1864827                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/ext/sunec.jar
+7fbc3dc61000-7fbc3dc64000 r--s 0003f000 fd:00 1864836                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/ext/sunpkcs11.jar
+7fbc3dc64000-7fbc3dc66000 r--s 00008000 fd:02 4201194                    /home/mistria/.m2/repository/org/apache/maven/surefire/surefire-booter/2.17/surefire-booter-2.17.jar
+7fbc3dc66000-7fbc3dc6b000 r--s 0003c000 fd:02 4201191                    /home/mistria/.m2/repository/org/apache/maven/surefire/maven-surefire-common/2.17/maven-surefire-common-2.17.jar
+7fbc3dc6b000-7fbc3dc6f000 r--s 00020000 fd:02 4201189                    /home/mistria/.m2/repository/org/apache/maven/surefire/surefire-api/2.17/surefire-api-2.17.jar
+7fbc3dc6f000-7fbc3dc70000 r--s 0001e000 fd:02 4201187                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.surefire.testng/1.1.0/org.eclipse.tycho.surefire.testng-1.1.0.jar
+7fbc3dc70000-7fbc3dc72000 r--s 00026000 fd:02 4201185                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.surefire.junit47/1.1.0/org.eclipse.tycho.surefire.junit47-1.1.0.jar
+7fbc3dc72000-7fbc3dc74000 r--s 0000d000 fd:02 4201181                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.surefire.junit4/1.1.0/org.eclipse.tycho.surefire.junit4-1.1.0.jar
+7fbc3dc74000-7fbc3dc75000 r--s 00005000 fd:02 4201183                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.surefire.junit/1.1.0/org.eclipse.tycho.surefire.junit-1.1.0.jar
+7fbc3dc75000-7fbc3dc76000 r--s 00065000 fd:02 4201179                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.surefire.osgibooter/1.1.0/org.eclipse.tycho.surefire.osgibooter-1.1.0.jar
+7fbc3dc76000-7fbc3dc78000 r--s 0000c000 fd:02 4197785                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-surefire-plugin/1.1.0/tycho-surefire-plugin-1.1.0.jar
+7fbc3dc78000-7fbc3dc7d000 r--s 00058000 fd:02 3946090                    /home/mistria/.m2/repository/org/ow2/asm/asm-debug-all/5.0.3/asm-debug-all-5.0.3.jar
+7fbc3dc7d000-7fbc3dc7f000 r--s 00004000 fd:02 3946083                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-artifactcomparator/1.1.0/tycho-artifactcomparator-1.1.0.jar
+7fbc3dc7f000-7fbc3dc81000 r--s 0000c000 fd:02 3946078                    /home/mistria/.m2/repository/org/apache/commons/commons-exec/1.2/commons-exec-1.2.jar
+7fbc3dc81000-7fbc3dc82000 r--s 00006000 fd:02 3946076                    /home/mistria/.m2/repository/org/eclipse/tycho/sisu-equinox-launching/1.1.0/sisu-equinox-launching-1.1.0.jar
+7fbc3dc82000-7fbc3dc83000 r--s 00006000 fd:02 4067240                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-p2-plugin/1.1.0/tycho-p2-plugin-1.1.0.jar
+7fbc3dc83000-7fbc3dc85000 r--s 00004000 fd:02 3946246                    /home/mistria/.m2/repository/org/apache/maven/maven-archiver/2.5/maven-archiver-2.5.jar
+7fbc3dc85000-7fbc3dc88000 r--s 0001d000 fd:02 3946249                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-packaging-plugin/1.1.0/tycho-packaging-plugin-1.1.0.jar
+7fbc3dc88000-7fbc3dc8e000 r--s 00048000 fd:02 4201209                    /home/mistria/.m2/repository/org/apache/commons/commons-lang3/3.1/commons-lang3-3.1.jar
+7fbc3dc8e000-7fbc3dc8f000 r--s 00004000 fd:02 5824896                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-p2-publisher-plugin/1.1.0/tycho-p2-publisher-plugin-1.1.0.jar
+7fbc3dc8f000-7fbc3dc90000 r--s 00003000 fd:02 4201435                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-p2-repository-plugin/1.1.0/tycho-p2-repository-plugin-1.1.0.jar
+7fbc3dc90000-7fbc3dc93000 ---p 00000000 00:00 0 
+7fbc3dc93000-7fbc3dd91000 rw-p 00000000 00:00 0 
+7fbc3dd91000-7fbc3dd94000 ---p 00000000 00:00 0 
+7fbc3dd94000-7fbc3de92000 rw-p 00000000 00:00 0 
+7fbc3de92000-7fbc3de95000 r--s 0000a000 fd:02 4067086                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.ecf.filetransfer_5.0.0.v20160817-1024.jar
+7fbc3de95000-7fbc3de9b000 r--s 00055000 fd:02 4067129                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.apache.felix.scr_2.0.10.v20170501-2007.jar
+7fbc3de9b000-7fbc3dea2000 r--s 00041000 fd:02 4067116                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.apache.commons.codec_1.9.0.v20170208-1614.jar
+7fbc3dea2000-7fbc3dea7000 r--s 00037000 fd:02 4067068                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.sat4j.pb_2.3.5.v201404071733.jar
+7fbc3dea7000-7fbc3deac000 r--s 00019000 fd:02 4067093                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.osgi.services_3.6.0.v20170228-1906.jar
+7fbc3deac000-7fbc3deae000 r--s 00011000 fd:02 4067090                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.ecf.provider.filetransfer.httpclient4_1.1.200.v20170314-0133.jar
+7fbc3deae000-7fbc3deb0000 r--s 00005000 fd:02 4067099                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.simpleconfigurator.manipulator_2.0.300.v20170515-0721.jar
+7fbc3deb0000-7fbc3deb2000 r--s 0000b000 fd:02 4067095                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.osgi.util_3.4.0.v20170111-1608.jar
+7fbc3deb2000-7fbc3deb4000 r--s 00016000 fd:02 4067123                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.publisher_1.4.200.v20170511-1216.jar
+7fbc3deb4000-7fbc3deb7000 r--s 00018000 fd:02 4067119                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.ecf_3.8.0.v20170104-0657.jar
+7fbc3deb7000-7fbc3deb8000 r--s 00003000 fd:02 4067091                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.ecf.ssl_1.2.0.v20160817-1024.jar
+7fbc3deb8000-7fbc3debf000 r--s 00052000 fd:02 4067096                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.sat4j.core_2.3.5.v201308161310.jar
+7fbc3debf000-7fbc3dec1000 r--s 00014000 fd:02 4063947                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.app_1.3.400.v20150715-1528.jar
+7fbc3dec1000-7fbc3dec4000 r--s 00020000 fd:02 4067127                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.artifact.repository_1.1.650.v20170928-1405.jar
+7fbc3dec4000-7fbc3dec8000 r--s 0002a000 fd:02 4067104                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.registry_3.7.0.v20170222-1344.jar
+7fbc3dec8000-7fbc3decb000 r--s 0001d000 fd:02 4067111                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.touchpoint.eclipse_2.1.501.v20170906-1259.jar
+7fbc3decb000-7fbc3decd000 r--s 00010000 fd:02 4067112                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.jarprocessor_1.0.500.v20160504-1450.jar
+7fbc3decd000-7fbc3decf000 r--s 00009000 fd:02 4067102                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.transport.ecf_1.1.300.v20161004-0244.jar
+7fbc3decf000-7fbc3ded2000 r--s 00011000 fd:02 4063913                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.util_1.0.500.v20130404-1337.jar
+7fbc3ded2000-7fbc3ded6000 r--s 00036000 fd:02 4067110                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.publisher.eclipse_1.2.201.v20170906-1259.jar
+7fbc3ded6000-7fbc3dee6000 r--s 000e6000 fd:02 4067115                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.apache.httpcomponents.httpclient_4.5.2.v20170210-0925.jar
+7fbc3dee6000-7fbc3dee9000 r--s 0001b000 fd:02 4067088                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.metadata.repository_1.2.401.v20170906-1259.jar
+7fbc3dee9000-7fbc3deec000 r--s 00018000 fd:02 4067108                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.security_1.2.300.v20170505-1235.jar
+7fbc3deec000-7fbc3deef000 ---p 00000000 00:00 0 
+7fbc3deef000-7fbc3dfed000 rw-p 00000000 00:00 0 
+7fbc3dfed000-7fbc3dff0000 ---p 00000000 00:00 0 
+7fbc3dff0000-7fbc3e0ee000 rw-p 00000000 00:00 0 
+7fbc3e0ee000-7fbc3e0f1000 ---p 00000000 00:00 0 
+7fbc3e0f1000-7fbc3e1ef000 rw-p 00000000 00:00 0 
+7fbc3e1ef000-7fbc3e1f2000 ---p 00000000 00:00 0 
+7fbc3e1f2000-7fbc3e2f0000 rw-p 00000000 00:00 0 
+7fbc3e2f0000-7fbc3e2f3000 ---p 00000000 00:00 0 
+7fbc3e2f3000-7fbc3e5f1000 rw-p 00000000 00:00 0 
+7fbc3e5f1000-7fbc3e5f4000 ---p 00000000 00:00 0 
+7fbc3e5f4000-7fbc3e6f2000 rw-p 00000000 00:00 0 
+7fbc3e6f2000-7fbc3e6f5000 ---p 00000000 00:00 0 
+7fbc3e6f5000-7fbc3e9f3000 rw-p 00000000 00:00 0 
+7fbc3e9f3000-7fbc3e9f5000 r--s 00016000 fd:02 4067118                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.p2.updatesite_1.0.601.v20170906-1259.jar
+7fbc3e9f5000-7fbc3e9f7000 r--s 00006000 fd:02 4063945                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-bundles-external/1.1.0/eclipse/plugins/org.eclipse.equinox.ds_1.5.0.v20170307-1429.jar
+7fbc3e9f7000-7fbc3ebf7000 rw-p 00000000 00:00 0 
+7fbc3ebf7000-7fbc3ebf9000 r--s 00019000 fd:00 1865027                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/jce.jar
+7fbc3ebf9000-7fbc3ebfb000 r--s 00004000 fd:02 3935438                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.p2.tools.shared/1.1.0/org.eclipse.tycho.p2.tools.shared-1.1.0.jar
+7fbc3ebfb000-7fbc3ebfd000 r--s 00005000 fd:02 3935437                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.p2.resolver.shared/1.1.0/org.eclipse.tycho.p2.resolver.shared-1.1.0.jar
+7fbc3ebfd000-7fbc3ebff000 r--s 00000000 fd:02 3935434                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-component-annotations/1.7.1/plexus-component-annotations-1.7.1.jar
+7fbc3ebff000-7fbc3ec01000 r--s 00007000 fd:02 3935431                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-p2-facade/1.1.0/tycho-p2-facade-1.1.0.jar
+7fbc3ec01000-7fbc3ec04000 r--s 00007000 fd:02 3935422                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.core.shared/1.1.0/org.eclipse.tycho.core.shared-1.1.0.jar
+7fbc3ec04000-7fbc3ec06000 r--s 00001000 fd:02 3935420                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.tycho.embedder.shared/1.1.0/org.eclipse.tycho.embedder.shared-1.1.0.jar
+7fbc3ec06000-7fbc3ec07000 r--s 00001000 fd:02 3935338                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-embedder-api/1.1.0/tycho-embedder-api-1.1.0.jar
+7fbc3ec07000-7fbc3ec0a000 r--s 00019000 fd:02 3935417                    /home/mistria/.m2/repository/de/pdark/decentxml/1.3/decentxml-1.3.jar
+7fbc3ec0a000-7fbc3ec0b000 r--s 00008000 fd:02 3935416                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-metadata-model/1.1.0/tycho-metadata-model-1.1.0.jar
+7fbc3ec0b000-7fbc3ec0c000 r--s 00000000 fd:02 3935380                    /home/mistria/.m2/repository/org/eclipse/tycho/sisu-equinox-api/1.1.0/sisu-equinox-api-1.1.0.jar
+7fbc3ec0c000-7fbc3ec22000 r--s 00149000 fd:02 3935377                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.osgi/3.13.0.v20171204-1916/org.eclipse.osgi-3.13.0.v20171204-1916.jar
+7fbc3ec22000-7fbc3ec24000 r--s 00002000 fd:02 3935376                    /home/mistria/.m2/repository/org/eclipse/tycho/sisu-equinox-embedder/1.1.0/sisu-equinox-embedder-1.1.0.jar
+7fbc3ec24000-7fbc3ec26000 r--s 0003a000 fd:02 3935242                    /home/mistria/.m2/repository/org/eclipse/tycho/org.eclipse.osgi.compatibility.state/1.1.100.v20171116-1513/org.eclipse.osgi.compatibility.state-1.1.100.v20171116-1513.jar
+7fbc3ec26000-7fbc3ec2a000 r--s 00015000 fd:02 3935371                    /home/mistria/.m2/repository/org/tukaani/xz/1.5/xz-1.5.jar
+7fbc3ec2a000-7fbc3ec2c000 r--s 0000d000 fd:02 3935343                    /home/mistria/.m2/repository/org/iq80/snappy/snappy/0.4/snappy-0.4.jar
+7fbc3ec2c000-7fbc3ec2e000 r--s 0000c000 fd:02 3935342                    /home/mistria/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar
+7fbc3ec2e000-7fbc3ec38000 r--s 00078000 fd:02 3935340                    /home/mistria/.m2/repository/org/apache/commons/commons-compress/1.15/commons-compress-1.15.jar
+7fbc3ec38000-7fbc3ec3c000 r--s 0002f000 fd:02 3935339                    /home/mistria/.m2/repository/commons-io/commons-io/2.5/commons-io-2.5.jar
+7fbc3ec3c000-7fbc3ec3f000 r--s 00012000 fd:02 3935332                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-io/2.7.1/plexus-io-2.7.1.jar
+7fbc3ec3f000-7fbc3ec44000 r--s 00029000 fd:02 3935331                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-archiver/3.4/plexus-archiver-3.4.jar
+7fbc3ec44000-7fbc3ec48000 r--s 00039000 fd:02 3935330                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-utils/3.0.24/plexus-utils-3.0.24.jar
+7fbc3ec48000-7fbc3ec4a000 r--s 00002000 fd:02 3935311                    /home/mistria/.m2/repository/org/sonatype/plexus/plexus-cipher/1.7/plexus-cipher-1.7.jar
+7fbc3ec4a000-7fbc3ec4b000 r--s 00006000 fd:02 3935296                    /home/mistria/.m2/repository/org/sonatype/plexus/plexus-sec-dispatcher/1.3/plexus-sec-dispatcher-1.3.jar
+7fbc3ec4b000-7fbc3ec4d000 r--s 0000d000 fd:02 3935292                    /home/mistria/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.14/plexus-interpolation-1.14.jar
+7fbc3ec4d000-7fbc3ec58000 r--s 00069000 fd:02 3935281                    /home/mistria/.m2/repository/org/sonatype/sisu/sisu-guice/2.1.7/sisu-guice-2.1.7-noaop.jar
+7fbc3ec58000-7fbc3ec5d000 r--s 00021000 fd:02 3935280                    /home/mistria/.m2/repository/org/sonatype/sisu/sisu-inject-bean/1.4.2/sisu-inject-bean-1.4.2.jar
+7fbc3ec5d000-7fbc3ec61000 r--s 00017000 fd:02 3935277                    /home/mistria/.m2/repository/org/sonatype/aether/aether-util/1.7/aether-util-1.7.jar
+7fbc3ec61000-7fbc3ec63000 r--s 0000b000 fd:02 3935262                    /home/mistria/.m2/repository/org/apache/maven/maven-aether-provider/3.0/maven-aether-provider-3.0.jar
+7fbc3ec63000-7fbc3ec68000 r--s 0002c000 fd:02 3935238                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-core/1.1.0/tycho-core-1.1.0.jar
+7fbc3ec68000-7fbc3ec69000 r--s 00001000 fd:02 3935236                    /home/mistria/.m2/repository/org/eclipse/tycho/tycho-maven-plugin/1.1.0/tycho-maven-plugin-1.1.0.jar
+7fbc3ec69000-7fbc3ec7a000 r-xp 00000000 fd:00 1864988                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libnio.so
+7fbc3ec7a000-7fbc3ee7a000 ---p 00011000 fd:00 1864988                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libnio.so
+7fbc3ee7a000-7fbc3ee7b000 r--p 00011000 fd:00 1864988                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libnio.so
+7fbc3ee7b000-7fbc3ee7c000 rw-p 00012000 fd:00 1864988                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libnio.so
+7fbc3ee7c000-7fbc3ee93000 r-xp 00000000 fd:00 1864987                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libnet.so
+7fbc3ee93000-7fbc3f092000 ---p 00017000 fd:00 1864987                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libnet.so
+7fbc3f092000-7fbc3f093000 r--p 00016000 fd:00 1864987                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libnet.so
+7fbc3f093000-7fbc3f094000 rw-p 00017000 fd:00 1864987                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libnet.so
+7fbc3f094000-7fbc3f294000 rw-p 00000000 00:00 0 
+7fbc3f294000-7fbc3f299000 r--s 000b6000 fd:00 1865029                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/jsse.jar
+7fbc3f299000-7fbc3f499000 rw-p 00000000 00:00 0 
+7fbc3f499000-7fbc3f699000 rw-p 00000000 00:00 0 
+7fbc3f699000-7fbc3f69b000 r--s 00005000 fd:00 273511                     /usr/share/java/plexus/plexus-sec-dispatcher.jar
+7fbc3f69b000-7fbc3f69d000 r--s 0000a000 fd:00 274114                     /usr/share/java/maven/maven-settings-builder.jar
+7fbc3f69d000-7fbc3f69f000 r--s 0000d000 fd:00 273490                     /usr/share/java/maven/maven-artifact.jar
+7fbc3f69f000-7fbc3f6a0000 r--s 00009000 fd:00 273470                     /usr/share/java/maven-wagon/http.jar
+7fbc3f6a0000-7fbc3f6a5000 r--s 00028000 fd:00 273567                     /usr/share/java/maven/maven-model-builder.jar
+7fbc3f6a5000-7fbc3f6a7000 r--s 00004000 fd:00 1718916                    /usr/lib/java/hawtjni/hawtjni-runtime.jar
+7fbc3f6a7000-7fbc3f6ac000 r--s 00042000 fd:00 273560                     /usr/share/java/apache-commons-lang.jar
+7fbc3f6ac000-7fbc3f6ae000 r--s 00007000 fd:00 274047                     /usr/share/java/maven-resolver/maven-resolver-transport-wagon.jar
+7fbc3f6ae000-7fbc3f6d9000 r--s 001f8000 fd:00 273921                     /usr/share/java/guava.jar
+7fbc3f6d9000-7fbc3f6db000 r--s 00003000 fd:00 268474                     /usr/share/java/slf4j/jcl-over-slf4j.jar
+7fbc3f6db000-7fbc3f6de000 r--s 00016000 fd:00 273566                     /usr/share/java/maven/maven-embedder.jar
+7fbc3f6de000-7fbc3f6e0000 r--s 0000b000 fd:00 273569                     /usr/share/java/maven/maven-plugin-api.jar
+7fbc3f6e0000-7fbc3f6ea000 r--s 00062000 fd:00 272233                     /usr/share/java/guice/google-guice-no_aop.jar
+7fbc3f6ea000-7fbc3f6f1000 r--s 0004a000 fd:00 273924                     /usr/share/java/httpcomponents/httpcore.jar
+7fbc3f6f1000-7fbc3f6f7000 r--s 00042000 fd:00 273603                     /usr/share/java/maven/maven-compat.jar
+7fbc3f6f7000-7fbc3f6f8000 ---p 00000000 00:00 0 
+7fbc3f6f8000-7fbc3f7f8000 rw-p 00000000 00:00 0 
+7fbc3f7f8000-7fbc3f7fb000 ---p 00000000 00:00 0 
+7fbc3f7fb000-7fbc3f8f9000 rw-p 00000000 00:00 0 
+7fbc3f8f9000-7fbc3f8fa000 ---p 00000000 00:00 0 
+7fbc3f8fa000-7fbc3f8fd000 ---p 00000000 00:00 0 
+7fbc3f8fd000-7fbc3f9fa000 rw-p 00000000 00:00 0 
+7fbc3f9fa000-7fbc3f9fb000 ---p 00000000 00:00 0 
+7fbc3f9fb000-7fbc3f9fe000 ---p 00000000 00:00 0 
+7fbc3f9fe000-7fbc3fafb000 rw-p 00000000 00:00 0 
+7fbc3fafb000-7fbc3fafc000 ---p 00000000 00:00 0 
+7fbc3fafc000-7fbc3faff000 ---p 00000000 00:00 0 
+7fbc3faff000-7fbc3fbfc000 rw-p 00000000 00:00 0 
+7fbc3fbfc000-7fbc3fbff000 ---p 00000000 00:00 0 
+7fbc3fbff000-7fbc3fcfd000 rw-p 00000000 00:00 0 
+7fbc3fcfd000-7fbc3fd00000 ---p 00000000 00:00 0 
+7fbc3fd00000-7fbc3fdfe000 rw-p 00000000 00:00 0 
+7fbc3fdfe000-7fbc3fe01000 ---p 00000000 00:00 0 
+7fbc3fe01000-7fbc3feff000 rw-p 00000000 00:00 0 
+7fbc3feff000-7fbc3ff00000 ---p 00000000 00:00 0 
+7fbc3ff00000-7fbc40000000 rw-p 00000000 00:00 0 
+7fbc40000000-7fbc40021000 rw-p 00000000 00:00 0 
+7fbc40021000-7fbc44000000 ---p 00000000 00:00 0 
+7fbc44000000-7fbc44001000 r--s 00003000 fd:00 274127                     /usr/share/java/maven-wagon/http-shared.jar
+7fbc44001000-7fbc44002000 r--s 00008000 fd:00 400284                     /usr/share/java/jansi/jansi.jar
+7fbc44002000-7fbc44005000 r--s 00027000 fd:00 273568                     /usr/share/java/maven/maven-model.jar
+7fbc44005000-7fbc44009000 r--s 0002b000 fd:00 273494                     /usr/share/java/maven-resolver/maven-resolver-impl.jar
+7fbc44009000-7fbc4400b000 r--s 00010000 fd:00 273571                     /usr/share/java/maven/maven-resolver-provider.jar
+7fbc4400b000-7fbc44013000 r--s 00071000 fd:00 273931                     /usr/share/java/apache-commons-lang3.jar
+7fbc44013000-7fbc44014000 r--s 00004000 fd:00 273552                     /usr/share/java/maven/maven-builder-support.jar
+7fbc44014000-7fbc44015000 r--s 0000b000 fd:00 273572                     /usr/share/java/maven/maven-settings.jar
+7fbc44015000-7fbc44016000 r--s 00000000 fd:00 273467                     /usr/share/java/atinject.jar
+7fbc44016000-7fbc44023000 r--s 0009e000 fd:00 263188                     /usr/share/java/httpcomponents/httpclient.jar
+7fbc44023000-7fbc44027000 r--s 00021000 fd:00 273547                     /usr/share/java/maven-resolver/maven-resolver-api.jar
+7fbc44027000-7fbc44029000 r--s 00002000 fd:00 273922                     /usr/share/java/plexus/plexus-cipher.jar
+7fbc44029000-7fbc44036000 r--s 0008d000 fd:00 273565                     /usr/share/java/maven/maven-core.jar
+7fbc44036000-7fbc4403a000 r--s 00024000 fd:00 273896                     /usr/share/java/maven-resolver/maven-resolver-util.jar
+7fbc4403a000-7fbc4403c000 r--s 00008000 fd:00 273377                     /usr/share/java/maven-resolver/maven-resolver-spi.jar
+7fbc4403c000-7fbc4403d000 r--s 00003000 fd:00 274042                     /usr/share/java/maven-wagon/file.jar
+7fbc4403d000-7fbc44041000 r--s 0003c000 fd:00 273402                     /usr/share/java/plexus/utils.jar
+7fbc44041000-7fbc44042000 r--s 00006000 fd:00 273573                     /usr/share/java/maven/maven-slf4j-provider.jar
+7fbc44042000-7fbc44044000 r--s 00009000 fd:00 264488                     /usr/share/java/slf4j/slf4j-api.jar
+7fbc44044000-7fbc4404b000 r--s 00052000 fd:00 267631                     /usr/share/java/org.eclipse.sisu.inject.jar
+7fbc4404b000-7fbc4404f000 r--s 0002f000 fd:00 273504                     /usr/share/java/commons-io.jar
+7fbc4404f000-7fbc44050000 r--s 00004000 fd:00 400299                     /usr/lib/java/jansi-native/jansi-native.jar
+7fbc44050000-7fbc44053000 r--s 00026000 fd:00 274039                     /usr/share/java/maven-shared-utils/maven-shared-utils.jar
+7fbc44053000-7fbc44056000 r--s 0000e000 fd:00 274112                     /usr/share/java/cdi-api/cdi-api.jar
+7fbc44056000-7fbc44058000 r--s 0000a000 fd:00 273498                     /usr/share/java/maven-resolver/maven-resolver-connector-basic.jar
+7fbc44058000-7fbc4405a000 r--s 00001000 fd:00 274056                     /usr/share/java/aopalliance.jar
+7fbc4405a000-7fbc44061000 r--s 00040000 fd:00 273561                     /usr/share/java/commons-codec.jar
+7fbc44061000-7fbc45000000 rw-p 00000000 00:00 0 
+7fbc45000000-7fbc479e0000 rwxp 00000000 00:00 0 
+7fbc479e0000-7fbc54000000 ---p 00000000 00:00 0 
+7fbc54000000-7fbc57ff6000 rw-p 00000000 00:00 0 
+7fbc57ff6000-7fbc58000000 ---p 00000000 00:00 0 
+7fbc58000000-7fbc58002000 r--s 00000000 fd:00 273423                     /usr/share/java/plexus-containers/plexus-component-annotations.jar
+7fbc58002000-7fbc58044000 rw-p 00000000 00:00 0 
+7fbc58044000-7fbc58212000 r--s 0440c000 fd:00 1865042                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/rt.jar
+7fbc58212000-7fbc5903f000 rw-p 00000000 00:00 0 
+7fbc5903f000-7fbc59040000 ---p 00000000 00:00 0 
+7fbc59040000-7fbc59140000 rw-p 00000000 00:00 0 
+7fbc59140000-7fbc59141000 ---p 00000000 00:00 0 
+7fbc59141000-7fbc59241000 rw-p 00000000 00:00 0 
+7fbc59241000-7fbc59242000 ---p 00000000 00:00 0 
+7fbc59242000-7fbc59342000 rw-p 00000000 00:00 0 
+7fbc59342000-7fbc59343000 ---p 00000000 00:00 0 
+7fbc59343000-7fbc594b1000 rw-p 00000000 00:00 0 
+7fbc594b1000-7fbc59813000 ---p 00000000 00:00 0 
+7fbc59813000-7fbc59881000 rw-p 00000000 00:00 0 
+7fbc59881000-7fbc59be2000 ---p 00000000 00:00 0 
+7fbc59be2000-7fbc59d78000 rw-p 00000000 00:00 0 
+7fbc59d78000-7fbc59dca000 ---p 00000000 00:00 0 
+7fbc59dca000-7fbc59e73000 rw-p 00000000 00:00 0 
+7fbc59e73000-7fbc5a18b000 ---p 00000000 00:00 0 
+7fbc5a18b000-7fbc5a193000 r-xp 00000000 fd:00 1864996                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libzip.so
+7fbc5a193000-7fbc5a392000 ---p 00008000 fd:00 1864996                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libzip.so
+7fbc5a392000-7fbc5a393000 r--p 00007000 fd:00 1864996                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libzip.so
+7fbc5a393000-7fbc5a394000 rw-p 00000000 00:00 0 
+7fbc5a394000-7fbc5a39f000 r-xp 00000000 fd:00 1581059                    /usr/lib64/libnss_files-2.26.so
+7fbc5a39f000-7fbc5a59e000 ---p 0000b000 fd:00 1581059                    /usr/lib64/libnss_files-2.26.so
+7fbc5a59e000-7fbc5a59f000 r--p 0000a000 fd:00 1581059                    /usr/lib64/libnss_files-2.26.so
+7fbc5a59f000-7fbc5a5a0000 rw-p 0000b000 fd:00 1581059                    /usr/lib64/libnss_files-2.26.so
+7fbc5a5a0000-7fbc5a5a6000 rw-p 00000000 00:00 0 
+7fbc5a5a6000-7fbc5a5d4000 r-xp 00000000 fd:00 1864976                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libjava.so
+7fbc5a5d4000-7fbc5a7d4000 ---p 0002e000 fd:00 1864976                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libjava.so
+7fbc5a7d4000-7fbc5a7d5000 r--p 0002e000 fd:00 1864976                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libjava.so
+7fbc5a7d5000-7fbc5a7d6000 rw-p 0002f000 fd:00 1864976                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libjava.so
+7fbc5a7d6000-7fbc5a7d7000 rw-p 00000000 00:00 0 
+7fbc5a7d7000-7fbc5a7e4000 r-xp 00000000 fd:00 1864995                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libverify.so
+7fbc5a7e4000-7fbc5a9e4000 ---p 0000d000 fd:00 1864995                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libverify.so
+7fbc5a9e4000-7fbc5a9e6000 r--p 0000d000 fd:00 1864995                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/libverify.so
+7fbc5a9e6000-7fbc5a9e7000 rw-p 00000000 00:00 0 
+7fbc5a9e7000-7fbc5a9ee000 r-xp 00000000 fd:00 1582903                    /usr/lib64/librt-2.26.so
+7fbc5a9ee000-7fbc5abed000 ---p 00007000 fd:00 1582903                    /usr/lib64/librt-2.26.so
+7fbc5abed000-7fbc5abee000 r--p 00006000 fd:00 1582903                    /usr/lib64/librt-2.26.so
+7fbc5abee000-7fbc5abef000 rw-p 00007000 fd:00 1582903                    /usr/lib64/librt-2.26.so
+7fbc5abef000-7fbc5ac05000 r-xp 00000000 fd:00 1574730                    /usr/lib64/libgcc_s-7-20180303.so.1
+7fbc5ac05000-7fbc5ae04000 ---p 00016000 fd:00 1574730                    /usr/lib64/libgcc_s-7-20180303.so.1
+7fbc5ae04000-7fbc5ae05000 r--p 00015000 fd:00 1574730                    /usr/lib64/libgcc_s-7-20180303.so.1
+7fbc5ae05000-7fbc5ae06000 rw-p 00016000 fd:00 1574730                    /usr/lib64/libgcc_s-7-20180303.so.1
+7fbc5ae06000-7fbc5af50000 r-xp 00000000 fd:00 1579224                    /usr/lib64/libm-2.26.so
+7fbc5af50000-7fbc5b14f000 ---p 0014a000 fd:00 1579224                    /usr/lib64/libm-2.26.so
+7fbc5b14f000-7fbc5b150000 r--p 00149000 fd:00 1579224                    /usr/lib64/libm-2.26.so
+7fbc5b150000-7fbc5b151000 rw-p 0014a000 fd:00 1579224                    /usr/lib64/libm-2.26.so
+7fbc5b151000-7fbc5b2c9000 r-xp 00000000 fd:00 1575052                    /usr/lib64/libstdc++.so.6.0.24
+7fbc5b2c9000-7fbc5b4c9000 ---p 00178000 fd:00 1575052                    /usr/lib64/libstdc++.so.6.0.24
+7fbc5b4c9000-7fbc5b4d3000 r--p 00178000 fd:00 1575052                    /usr/lib64/libstdc++.so.6.0.24
+7fbc5b4d3000-7fbc5b4d5000 rw-p 00182000 fd:00 1575052                    /usr/lib64/libstdc++.so.6.0.24
+7fbc5b4d5000-7fbc5b4d8000 rw-p 00000000 00:00 0 
+7fbc5b4d8000-7fbc5c23d000 r-xp 00000000 fd:00 1865002                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/server/libjvm.so
+7fbc5c23d000-7fbc5c43c000 ---p 00d65000 fd:00 1865002                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/server/libjvm.so
+7fbc5c43c000-7fbc5c4d9000 r--p 00d64000 fd:00 1865002                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/server/libjvm.so
+7fbc5c4d9000-7fbc5c502000 rw-p 00e01000 fd:00 1865002                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/jre/lib/amd64/server/libjvm.so
+7fbc5c502000-7fbc5c532000 rw-p 00000000 00:00 0 
+7fbc5c532000-7fbc5c6de000 r-xp 00000000 fd:00 1575236                    /usr/lib64/libc-2.26.so
+7fbc5c6de000-7fbc5c8de000 ---p 001ac000 fd:00 1575236                    /usr/lib64/libc-2.26.so
+7fbc5c8de000-7fbc5c8e2000 r--p 001ac000 fd:00 1575236                    /usr/lib64/libc-2.26.so
+7fbc5c8e2000-7fbc5c8e4000 rw-p 001b0000 fd:00 1575236                    /usr/lib64/libc-2.26.so
+7fbc5c8e4000-7fbc5c8e8000 rw-p 00000000 00:00 0 
+7fbc5c8e8000-7fbc5c8eb000 r-xp 00000000 fd:00 1579164                    /usr/lib64/libdl-2.26.so
+7fbc5c8eb000-7fbc5caea000 ---p 00003000 fd:00 1579164                    /usr/lib64/libdl-2.26.so
+7fbc5caea000-7fbc5caeb000 r--p 00002000 fd:00 1579164                    /usr/lib64/libdl-2.26.so
+7fbc5caeb000-7fbc5caec000 rw-p 00003000 fd:00 1579164                    /usr/lib64/libdl-2.26.so
+7fbc5caec000-7fbc5cafa000 r-xp 00000000 fd:00 1865112                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/lib/amd64/jli/libjli.so
+7fbc5cafa000-7fbc5ccf9000 ---p 0000e000 fd:00 1865112                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/lib/amd64/jli/libjli.so
+7fbc5ccf9000-7fbc5ccfa000 r--p 0000d000 fd:00 1865112                    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.162-3.b12.fc27.x86_64/lib/amd64/jli/libjli.so
+7fbc5ccfa000-7fbc5ccfb000 rw-p 00000000 00:00 0 
+7fbc5ccfb000-7fbc5cd11000 r-xp 00000000 fd:00 1619164                    /usr/lib64/libz.so.1.2.11
+7fbc5cd11000-7fbc5cf10000 ---p 00016000 fd:00 1619164                    /usr/lib64/libz.so.1.2.11
+7fbc5cf10000-7fbc5cf11000 r--p 00015000 fd:00 1619164                    /usr/lib64/libz.so.1.2.11
+7fbc5cf11000-7fbc5cf12000 rw-p 00000000 00:00 0 
+7fbc5cf12000-7fbc5cf2b000 r-xp 00000000 fd:00 1581348                    /usr/lib64/libpthread-2.26.so
+7fbc5cf2b000-7fbc5d12a000 ---p 00019000 fd:00 1581348                    /usr/lib64/libpthread-2.26.so
+7fbc5d12a000-7fbc5d12b000 r--p 00018000 fd:00 1581348                    /usr/lib64/libpthread-2.26.so
+7fbc5d12b000-7fbc5d12c000 rw-p 00019000 fd:00 1581348                    /usr/lib64/libpthread-2.26.so
+7fbc5d12c000-7fbc5d130000 rw-p 00000000 00:00 0 
+7fbc5d130000-7fbc5d155000 r-xp 00000000 fd:00 1573984                    /usr/lib64/ld-2.26.so
+7fbc5d155000-7fbc5d158000 r--s 00011000 fd:00 273930                     /usr/share/java/plexus/interpolation.jar
+7fbc5d158000-7fbc5d15a000 r--s 0000c000 fd:00 263519                     /usr/share/java/commons-cli.jar
+7fbc5d15a000-7fbc5d15c000 r--s 0000d000 fd:00 273370                     /usr/share/java/maven-wagon/provider-api.jar
+7fbc5d15c000-7fbc5d162000 r--s 0002b000 fd:00 273446                     /usr/share/java/org.eclipse.sisu.plexus.jar
+7fbc5d162000-7fbc5d164000 r--s 0000e000 fd:00 273397                     /usr/share/java/commons-logging.jar
+7fbc5d164000-7fbc5d166000 r--s 0000b000 fd:00 273911                     /usr/share/java/plexus-classworlds.jar
+7fbc5d166000-7fbc5d21c000 rw-p 00000000 00:00 0 
+7fbc5d21c000-7fbc5d21d000 ---p 00000000 00:00 0 
+7fbc5d21d000-7fbc5d220000 ---p 00000000 00:00 0 
+7fbc5d220000-7fbc5d321000 rw-p 00000000 00:00 0 
+7fbc5d321000-7fbc5d322000 r--s 00007000 fd:00 273570                     /usr/share/java/maven/maven-repository-metadata.jar
+7fbc5d322000-7fbc5d34a000 rw-p 00000000 00:00 0 
+7fbc5d34a000-7fbc5d352000 rw-s 00000000 00:29 1248034                    /tmp/hsperfdata_mistria/10073
+7fbc5d352000-7fbc5d353000 rw-p 00000000 00:00 0 
+7fbc5d353000-7fbc5d354000 ---p 00000000 00:00 0 
+7fbc5d354000-7fbc5d355000 r--p 00024000 fd:00 1573984                    /usr/lib64/ld-2.26.so
+7fbc5d355000-7fbc5d356000 rw-p 00025000 fd:00 1573984                    /usr/lib64/ld-2.26.so
+7fbc5d356000-7fbc5d357000 rw-p 00000000 00:00 0 
+7fffd600f000-7fffd6031000 rw-p 00000000 00:00 0                          [stack]
+7fffd6059000-7fffd605c000 r--p 00000000 00:00 0                          [vvar]
+7fffd605c000-7fffd605e000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+
+VM Arguments:
+jvm_args: -Dclassworlds.conf=/usr/share/maven/bin/m2.conf -Dmaven.home=/usr/share/maven -Dmaven.multiModuleProjectDirectory=/home/mistria/git/org.eclipse.tycho 
+java_command: org.codehaus.plexus.classworlds.launcher.Launcher install -DskipTests
+java_class_path (initial): /usr/share/java/plexus-classworlds.jar
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=/usr/lib/jvm/java
+PATH=/home/mistria/.opam/default/bin:/home/mistria/.opam/default/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/home/mistria/apps/dotnet-2:/home/mistria/default/bin:/home/mistria/.local/bin:/home/mistria/bin:/home/mistria/apps/apache-maven-3.5.0/bin:/home/mistria/apps/gradle-4.3.1/bin:/home/mistria/apps/dotnet-2:/home/mistria/default/bin:/home/mistria/.local/bin:/home/mistria/bin:/home/mistria/apps/apache-maven-3.5.0/bin:/home/mistria/apps/gradle-4.3.1/bin
+USERNAME=mistria
+SHELL=/bin/bash
+DISPLAY=:0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0xb6adf0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGBUS: [libjvm.so+0xb6adf0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGFPE: [libjvm.so+0x91ac50], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGPIPE: SIG_IGN, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGXFSZ: [libjvm.so+0x91ac50], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGILL: [libjvm.so+0x91ac50], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGUSR1: SIG_DFL, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGUSR2: [libjvm.so+0x91ab00], sa_mask[0]=00000000000000000000000000000000, sa_flags=SA_RESTART|SA_SIGINFO
+SIGHUP: [libjvm.so+0x91afb0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGINT: [libjvm.so+0x91afb0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGTERM: [libjvm.so+0x91afb0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGQUIT: [libjvm.so+0x91afb0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+
+
+---------------  S Y S T E M  ---------------
+
+OS:Fedora release 27 (Twenty Seven)
+
+uname:Linux 4.15.15-300.fc27.x86_64 #1 SMP Mon Apr 2 23:14:02 UTC 2018 x86_64
+libc:glibc 2.26 NPTL 2.26 
+rlimit: STACK 8192k, CORE infinity, NPROC 46696, NOFILE 4096, AS infinity
+load average:3.37 2.04 1.59
+
+/proc/meminfo:
+MemTotal:       11980316 kB
+MemFree:          132592 kB
+MemAvailable:      64504 kB
+Buffers:            2124 kB
+Cached:          1129888 kB
+SwapCached:            0 kB
+Active:         10600680 kB
+Inactive:         840384 kB
+Active(anon):   10567136 kB
+Inactive(anon):   813156 kB
+Active(file):      33544 kB
+Inactive(file):    27228 kB
+Unevictable:         100 kB
+Mlocked:             100 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Dirty:                24 kB
+Writeback:             0 kB
+AnonPages:      10309220 kB
+Mapped:           298220 kB
+Shmem:           1086596 kB
+Slab:             190284 kB
+SReclaimable:     104980 kB
+SUnreclaim:        85304 kB
+KernelStack:       18560 kB
+PageTables:        97648 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     5990156 kB
+Committed_AS:   19113720 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:           0 kB
+VmallocChunk:          0 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:      262264 kB
+DirectMap2M:    12001280 kB
+DirectMap1G:     1048576 kB
+
+
+CPU:total 4 (initial active 4) (2 cores per cpu, 2 threads per core) family 6 model 69 stepping 1, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, lzcnt, ht, tsc, tscinvbit, bmi1, bmi2
+
+/proc/cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 69
+model name	: Intel(R) Core(TM) i7-4600U CPU @ 2.10GHz
+stepping	: 1
+microcode	: 0x23
+cpu MHz		: 2494.289
+cache size	: 4096 KB
+physical id	: 0
+siblings	: 4
+core id		: 0
+cpu cores	: 2
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm cpuid_fault epb invpcid_single pti tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt ibpb ibrs stibp dtherm ida arat pln pts
+bugs		: cpu_meltdown spectre_v1 spectre_v2
+bogomips	: 5387.66
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 69
+model name	: Intel(R) Core(TM) i7-4600U CPU @ 2.10GHz
+stepping	: 1
+microcode	: 0x23
+cpu MHz		: 2494.287
+cache size	: 4096 KB
+physical id	: 0
+siblings	: 4
+core id		: 0
+cpu cores	: 6
+apicid		: 1
+initial apicid	: 1
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm cpuid_fault epb invpcid_single pti tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt ibpb ibrs stibp dtherm ida arat pln pts
+bugs		: cpu_meltdown spectre_v1 spectre_v2
+bogomips	: 5387.66
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 69
+model name	: Intel(R) Core(TM) i7-4600U CPU @ 2.10GHz
+stepping	: 1
+microcode	: 0x23
+cpu MHz		: 2494.292
+cache size	: 4096 KB
+physical id	: 0
+siblings	: 4
+core id		: 1
+cpu cores	: 10
+apicid		: 2
+initial apicid	: 2
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm cpuid_fault epb invpcid_single pti tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt ibpb ibrs stibp dtherm ida arat pln pts
+bugs		: cpu_meltdown spectre_v1 spectre_v2
+bogomips	: 5387.66
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 69
+model name	: Intel(R) Core(TM) i7-4600U CPU @ 2.10GHz
+stepping	: 1
+microcode	: 0x23
+cpu MHz		: 2494.287
+cache size	: 4096 KB
+physical id	: 0
+siblings	: 4
+core id		: 1
+cpu cores	: 2
+apicid		: 3
+initial apicid	: 3
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm cpuid_fault epb invpcid_single pti tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt ibpb ibrs stibp dtherm ida arat pln pts
+bugs		: cpu_meltdown spectre_v1 spectre_v2
+bogomips	: 5387.66
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+
+
+Memory: 4k page, physical 11980316k(131180k free), swap 0k(0k free)
+
+vm_info: OpenJDK 64-Bit Server VM (25.162-b12) for linux-amd64 JRE (1.8.0_162-b12), built on Mar 29 2018 14:00:29 by "mockbuild" with gcc 7.3.1 20180303 (Red Hat 7.3.1-5)
+
+time: Wed Apr 18 17:30:52 2018
+elapsed time: 41 seconds (0d 0h 0m 41s)
+
