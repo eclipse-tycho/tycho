@@ -16,9 +16,11 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.JarFile;
 
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.eclipse.tycho.test.downloadstats.DownloadStatsTest;
 import org.eclipse.tycho.test.util.ResourceUtil;
 import org.junit.Test;
 
@@ -41,6 +43,20 @@ public class RepositoryPackedArtifactsTest extends AbstractTychoIntegrationTest 
                 "org.eclipse.osgi_3.4.3.R34x_v20081215-1030.jar");
 
         // TODO verify metadata contains packed artifacts
+    }
+
+    @Test
+    public void testDownloadStatsAlsoAttachedToPack200() throws Exception {
+        Verifier verifier = getVerifier("/packaging.pack200", false);
+        verifier.getCliOptions().add("-De342-repo=" + ResourceUtil.P2Repositories.ECLIPSE_342.toString());
+        verifier.getSystemProperties().put("tycho.generateDownloadStatsProperty", "true");
+        verifier.executeGoals(Arrays.asList("clean", "package"));
+        verifier.verifyErrorFreeLog();
+
+        JarFile artifactsJar = new JarFile(
+                new File(verifier.getBasedir(), "product.pack200/target/repository/artifacts.jar"));
+        assertEquals(2, DownloadStatsTest.captureDownloadStatsFromArtifactsJar(artifactsJar,
+                artifactElement -> artifactElement.getAttributeValue("id").equals("bundle")).size());
     }
 
     private void assertDirectory(File dir, String... expectedFiles) {

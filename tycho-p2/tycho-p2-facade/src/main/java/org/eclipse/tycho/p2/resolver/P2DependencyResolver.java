@@ -81,6 +81,7 @@ import org.eclipse.tycho.osgi.adapters.MavenLoggerAdapter;
 import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.resolver.facade.P2ResolutionResult;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
@@ -145,7 +146,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         final Map<String, IDependencyMetadata> metadata = new LinkedHashMap<>();
         metadata.put(null, generator.generateMetadata(new AttachedArtifact(project, project.getBasedir(), null),
-                environments, optionalAction));
+                environments, optionalAction, new PublisherOptions()));
 
         // let external providers contribute additional metadata
         try {
@@ -329,8 +330,8 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
         // --> split this information logically, e.g. through two distinct interfaces
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
-        P2Resolver osgiResolverImpl = resolverFactory.createResolver(new MavenLoggerAdapter(getLogger(), DebugUtils
-                .isDebugEnabled(session, project)));
+        P2Resolver osgiResolverImpl = resolverFactory
+                .createResolver(new MavenLoggerAdapter(getLogger(), DebugUtils.isDebugEnabled(session, project)));
 
         return doResolveDependencies(session, project, reactorProjects, resolverConfiguration, targetPlatform,
                 osgiResolverImpl, configuration);

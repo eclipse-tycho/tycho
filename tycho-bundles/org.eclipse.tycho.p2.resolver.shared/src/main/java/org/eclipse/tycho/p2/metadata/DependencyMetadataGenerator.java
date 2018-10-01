@@ -21,5 +21,5 @@ public interface DependencyMetadataGenerator {
      * Generates dependency-only artifact metadata
      */
     public IDependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
-            OptionalResolutionAction optionalAction);
+            OptionalResolutionAction optionalAction, PublisherOptions options);
 }

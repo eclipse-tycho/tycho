@@ -26,24 +26,25 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.osgi.framework.BundleException;
 
 @SuppressWarnings("restriction")
-public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator implements
-        DependencyMetadataGenerator {
+public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGenerator
+        implements DependencyMetadataGenerator {
     private static final String SUFFIX_QUALIFIER = ".qualifier";
 
     private static final String SUFFIX_SNAPSHOT = "-SNAPSHOT";
 
     @Override
     public DependencyMetadata generateMetadata(IArtifactFacade artifact, List<TargetEnvironment> environments,
-            OptionalResolutionAction optionalAction) {
-        return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction);
+            OptionalResolutionAction optionalAction, PublisherOptions options) {
+        return super.generateMetadata(artifact, environments, new PublisherInfo(), optionalAction, options);
     }
 
     @Override
-    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact,
-            List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
+    protected List<IPublisherAction> getPublisherActions(IArtifactFacade artifact, List<TargetEnvironment> environments,
+            OptionalResolutionAction optionalAction) {
         ArrayList<IPublisherAction> actions = new ArrayList<>();
 
         String id = artifact.getArtifactId();
@@ -64,7 +65,8 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
             bundleDescription.setUserObject(manifest);
             actions.add(new BundlesAction(new BundleDescription[] { bundleDescription }) {
                 @Override
-                protected void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo publisherInfo) {
+                protected void createAdviceFileAdvice(BundleDescription bundleDescription,
+                        IPublisherInfo publisherInfo) {
                     // 367255 p2.inf is not applicable to sources bundles
                 }
             });
@@ -76,11 +78,15 @@ public class SourcesBundleDependencyMetadataGenerator extends AbstractMetadataGe
     }
 
     @Override
-    protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact) {
+    protected List<IPublisherAdvice> getPublisherAdvice(IArtifactFacade artifact, PublisherOptions options) {
         ArrayList<IPublisherAdvice> advice = new ArrayList<>();
 
         advice.add(new MavenPropertiesAdvice(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
                 "sources"));
+
+        if (options.generateDownloadStatsProperty) {
+            advice.add(new DownloadStatsAdvice());
+        }
 
         return advice;
     }

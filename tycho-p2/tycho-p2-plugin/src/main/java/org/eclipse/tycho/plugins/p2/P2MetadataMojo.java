@@ -52,6 +52,7 @@ import org.eclipse.tycho.p2.facade.internal.ArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 
 @Mojo(name = "p2-metadata")
 public class P2MetadataMojo extends AbstractMojo {
@@ -100,6 +101,13 @@ public class P2MetadataMojo extends AbstractMojo {
     @Parameter(property = "tycho.baseline.replace", defaultValue = "all")
     private BaselineReplace baselineReplace;
 
+    /**
+     * Whether to generate a 'download.stats' property for artifact metadata. See
+     * https://wiki.eclipse.org/Equinox_p2_download_stats
+     */
+    @Parameter(property = "tycho.generateDownloadStatsProperty", defaultValue = "false")
+    private boolean generateDownloadStatsProperty;
+
     @Component
     private BaselineValidator baselineValidator;
 
@@ -146,7 +154,8 @@ public class P2MetadataMojo extends AbstractMojo {
 
             P2Generator p2generator = getService(P2Generator.class);
 
-            Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts, targetDir);
+            Map<String, IP2Artifact> generatedMetadata = p2generator.generateMetadata(artifacts,
+                    new PublisherOptions(generateDownloadStatsProperty), targetDir);
 
             if (baselineMode != BaselineMode.disable) {
                 generatedMetadata = baselineValidator.validateAndReplace(project, execution, generatedMetadata,

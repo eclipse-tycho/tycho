@@ -24,6 +24,7 @@ import org.eclipse.tycho.p2.impl.publisher.P2GeneratorImpl;
 import org.eclipse.tycho.p2.impl.test.ArtifactMock;
 import org.eclipse.tycho.p2.impl.test.ReactorProjectStub;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.resolver.facade.P2Resolver;
 import org.eclipse.tycho.p2.target.PomDependencyCollectorImpl;
 import org.eclipse.tycho.p2.target.TargetPlatformFactoryImpl;
@@ -71,10 +72,11 @@ public class P2ResolverTestBase {
     }
 
     protected final void addContextProject(File projectRoot, String packaging) throws IOException {
-        ArtifactMock artifact = new ArtifactMock(projectRoot.getAbsoluteFile(), DEFAULT_GROUP_ID,
-                projectRoot.getName(), DEFAULT_VERSION, packaging);
+        ArtifactMock artifact = new ArtifactMock(projectRoot.getAbsoluteFile(), DEFAULT_GROUP_ID, projectRoot.getName(),
+                DEFAULT_VERSION, packaging);
 
-        DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments());
+        DependencyMetadata metadata = fullGenerator.generateMetadata(artifact, getEnvironments(),
+                new PublisherOptions());
 
         pomDependencies.addMavenArtifact(artifact, metadata.getInstallableUnits());
     }
@@ -93,7 +95,7 @@ public class P2ResolverTestBase {
         ReactorProjectStub project = new ReactorProjectStub(projectRoot, DEFAULT_GROUP_ID, artifactId, DEFAULT_VERSION,
                 packagingType);
         IDependencyMetadata metadata = dependencyGenerator.generateMetadata(new ArtifactMock(project, null),
-                getEnvironments(), optionalDependencies);
+                getEnvironments(), optionalDependencies, new PublisherOptions());
         project.setDependencyMetadata(metadata);
         return project;
     }
