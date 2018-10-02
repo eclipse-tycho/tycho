@@ -116,6 +116,9 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Parameter
     private Map<String, String> profileProperties;
 
+    @Parameter
+    private Map<String, String> extraArtifactRepositoryProperties;
+
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
 
@@ -140,7 +143,8 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
             DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
-                    repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true);
+                    repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true,
+                    extraArtifactRepositoryProperties);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
         } catch (FacadeException e) {

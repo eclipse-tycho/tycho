@@ -12,14 +12,19 @@ package org.eclipse.tycho.p2.tools.mirroring;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -44,6 +49,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 @SuppressWarnings("restriction")
 public class MirrorApplicationServiceTest {
@@ -94,12 +102,41 @@ public class MirrorApplicationServiceTest {
 
     @Test
     public void testMirrorFeatureWithContent() throws Exception {
-        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context,
-                false, false, null);
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
+                false, null);
 
         logVerifier.expectNoWarnings();
         assertTrue(repoFile(destinationRepo, "plugins/org.eclipse.core.runtime_3.4.0.v20080512.jar").exists());
         assertTrue(repoFile(destinationRepo, "features/" + SIMPLE_FEATURE + "_1.0.0.jar").exists());
+    }
+
+    @Test
+    public void testExtraArtifactRepositoryProperties() throws Exception {
+        Map<String, String> extraArtifactRepositoryProperties = new HashMap<>(3, 1.f);
+        extraArtifactRepositoryProperties.put("p2.statsURI", "http://some.where");
+        extraArtifactRepositoryProperties.put("p2.mirrorsURL", "http://some.where.else");
+        extraArtifactRepositoryProperties.put("foo", "bar");
+        destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest2"), DEFAULT_NAME, false, false,
+                false, false, true, extraArtifactRepositoryProperties);
+        subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
+                false, null);
+
+        logVerifier.expectNoWarnings();
+        File artifactsXml = repoFile(destinationRepo, "artifacts.xml");
+        // parse manually, would be better if we can directly retrieve the repo model from the file
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(artifactsXml);
+        NodeList properties = ((Element) (((Element) document.getElementsByTagName("repository").item(0))
+                .getElementsByTagName("properties").item(0))).getElementsByTagName("property");
+        for (int i = 0; i < properties.getLength(); i++) {
+            Element property = (Element) properties.item(i);
+            String propertyName = property.getAttribute("name");
+            if (extraArtifactRepositoryProperties.containsKey(propertyName)
+                    && extraArtifactRepositoryProperties.get(propertyName).equals(property.getAttribute("value"))) {
+                extraArtifactRepositoryProperties.remove(propertyName);
+            }
+        }
+        assertEquals("Artifact repository is missing extra properties", Collections.emptyMap(),
+                extraArtifactRepositoryProperties);
     }
 
     @Test
@@ -145,8 +182,8 @@ public class MirrorApplicationServiceTest {
          * While it is hard to get an IU from the target platform (cf. bug 412416, bug 372780), we
          * need to allow {@link DependencySeed} instances with null IU.
          */
-        List<DependencySeed> seeds = Collections.singletonList(new DependencySeed(null, "org.eclipse.core.runtime",
-                null));
+        List<DependencySeed> seeds = Collections
+                .singletonList(new DependencySeed(null, "org.eclipse.core.runtime", null));
 
         subject.mirrorReactor(sourceRepos("e342"), destinationRepo, seeds, context, false, false, null);
 

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.p2.tools.mirroring;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -24,11 +26,14 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 public class MirrorApplication extends org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication {
 
     private final boolean includePackedArtifacts;
+    private Map<String, String> extraArtifactRepositoryProperties;
 
-    public MirrorApplication(IProvisioningAgent agent, boolean includePackedArtifacts) {
+    public MirrorApplication(IProvisioningAgent agent, boolean includePackedArtifacts,
+            Map<String, String> extraArtifactRepositoryProperties) {
         super();
         this.agent = agent;
         this.includePackedArtifacts = includePackedArtifacts;
+        this.extraArtifactRepositoryProperties = extraArtifactRepositoryProperties;
         this.removeAddedRepositories = false;
     }
 
@@ -38,6 +43,8 @@ public class MirrorApplication extends org.eclipse.equinox.p2.internal.repositor
         IArtifactRepository result = super.initializeDestination(toInit, mgr);
         // simple.SimpleArtifactRepository.PUBLISH_PACK_FILES_AS_SIBLINGS is not public
         result.setProperty("publishPackFilesAsSiblings", "true");
+        extraArtifactRepositoryProperties.entrySet()
+                .forEach(entry -> result.setProperty(entry.getKey(), entry.getValue()));
         return result;
     }
 

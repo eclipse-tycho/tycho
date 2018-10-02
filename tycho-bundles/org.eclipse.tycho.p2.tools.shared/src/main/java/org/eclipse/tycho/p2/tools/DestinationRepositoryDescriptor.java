@@ -11,6 +11,8 @@
 package org.eclipse.tycho.p2.tools;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Map;
 
 public class DestinationRepositoryDescriptor {
 
@@ -21,9 +23,11 @@ public class DestinationRepositoryDescriptor {
     private final boolean keepNonXzIndexFiles;
     private final boolean metaDataOnly;
     private final boolean append;
+    private Map<String, String> extraArtifactRepositoryProperties;
 
     public DestinationRepositoryDescriptor(File location, String name, boolean compress, boolean xzCompress,
-            boolean keepNonXzIndexFiles, boolean metaDataOnly, boolean append) {
+            boolean keepNonXzIndexFiles, boolean metaDataOnly, boolean append,
+            Map<String, String> extraArtifactRepositoryProperties) {
         this.location = location;
         this.name = name;
         this.compress = compress;
@@ -31,10 +35,11 @@ public class DestinationRepositoryDescriptor {
         this.keepNonXzIndexFiles = keepNonXzIndexFiles;
         this.metaDataOnly = metaDataOnly;
         this.append = append;
+        this.extraArtifactRepositoryProperties = extraArtifactRepositoryProperties;
     }
 
     public DestinationRepositoryDescriptor(File location, String name) {
-        this(location, name, true, true, false, false, true);
+        this(location, name, true, true, false, false, true, Collections.emptyMap());
     }
 
     public File getLocation() {
@@ -63,6 +68,10 @@ public class DestinationRepositoryDescriptor {
 
     public boolean isAppend() {
         return append;
+    }
+
+    public Map<String, String> getExtraArtifactRepositoryProperties() {
+        return extraArtifactRepositoryProperties == null ? Collections.emptyMap() : extraArtifactRepositoryProperties;
     }
 
 }

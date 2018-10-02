@@ -26,6 +26,11 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<compress>false</compress>
+					<extraArtifactRepositoryProperties>
+						<p2.statsURI>http://some.where</p2.statsURI>
+						<p2.mirrorsURL>http://some.where.else</p2.mirrorsURL>
+						<foo>bar</foo>
+					</extraArtifactRepositoryProperties>
 				</configuration>
 			</plugin>
 		</plugins>
