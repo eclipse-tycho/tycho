@@ -35,6 +35,7 @@ import org.eclipse.tycho.p2.facade.internal.AttachedArtifact;
 import org.eclipse.tycho.p2.metadata.DependencyMetadataGenerator;
 import org.eclipse.tycho.p2.metadata.IArtifactFacade;
 import org.eclipse.tycho.p2.metadata.IDependencyMetadata;
+import org.eclipse.tycho.p2.metadata.PublisherOptions;
 import org.eclipse.tycho.p2.resolver.P2MetadataProvider;
 
 import de.pdark.decentxml.Document;
@@ -106,8 +107,8 @@ public class SourceFeatureP2MetadataProvider implements P2MetadataProvider, Init
 
                 String classifier = SourceFeatureMojo.SOURCES_FEATURE_CLASSIFIER;
                 IArtifactFacade artifact = new AttachedArtifact(project, sourceFeatureBasedir, classifier);
-                return Collections.singletonMap(classifier,
-                        generator.generateMetadata(artifact, null, OptionalResolutionAction.REQUIRE));
+                return Collections.singletonMap(classifier, generator.generateMetadata(artifact, null,
+                        OptionalResolutionAction.REQUIRE, new PublisherOptions()));
             } catch (IOException e) {
                 log.error("Could not create sources feature.xml", e);
             }
