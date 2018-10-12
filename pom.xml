@@ -97,6 +97,8 @@
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
 		<jdtVersion>3.14.0</jdtVersion>
 		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven>
+		<ecjVersion>I20181010-1800</ecjVersion>
+		<ecjVersionMaven>${ecjVersion}-SNAPSHOT</ecjVersionMaven>
 		<jdtAptVersion>1.3.200</jdtAptVersion>
 		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven>
 
