@@ -22,6 +22,30 @@
       "revId": "f6a7480610bb5395fb74ccce660b399ff311bc86",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5a7302b_94596a2d",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-10-12T14:59:11Z",
+      "side": 1,
+      "message": "problem is that JavaSE11 has less system packages (Oracle removed quite some stuff in Java 11)\n\nnot sure what happens for old bundles that import these packages... p2 package dependency resolution may fail and from my experience it\u0027s an inconvenience that\u0027s hard to explain to users. \"why do I have to configure JavaSE-10 now when it used to work before?\"\n\nyou may as well argue it no longer works anyway in Java 11 at runtime. but why let p2 resolution fail if we don\u0027t even know what the runtime is going to be?",
+      "parentUuid": "a058751f_19d77de1",
+      "range": {
+        "startLine": 44,
+        "startChar": 31,
+        "endLine": 44,
+        "endChar": 40
+      },
+      "revId": "f6a7480610bb5395fb74ccce660b399ff311bc86",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
