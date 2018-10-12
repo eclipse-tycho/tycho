@@ -29,10 +29,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.eclipse.jdt</groupId>
-			<artifactId>org.eclipse.jdt.core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.tycho</groupId>
 			<artifactId>tycho-core</artifactId>
 			<version>${project.version}</version>
@@ -47,8 +43,8 @@
 			<artifactId>maven-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jdt</groupId>
-			<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.jdt.ecj</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
