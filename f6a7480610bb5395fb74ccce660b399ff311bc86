@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a058751f_19d77de1",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2018-10-12T14:26:18Z",
+      "side": 1,
+      "message": "Now that Java 10 is effectively dead do we want to publish it by default? IMHO it shouldn\u0027t be.",
+      "range": {
+        "startLine": 44,
+        "startChar": 31,
+        "endLine": 44,
+        "endChar": 40
+      },
+      "revId": "f6a7480610bb5395fb74ccce660b399ff311bc86",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
