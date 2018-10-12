@@ -41,7 +41,7 @@ public final class PublishOsgiEEMojo extends AbstractPublishMojo {
      * OSGi/Minimum-1.0.
      * </p>
      */
-    @Parameter(defaultValue = "JavaSE-10")
+    @Parameter(defaultValue = "JavaSE-10, JavaSE-11")
     private String profiles;
 
     @Parameter(defaultValue = "false")
