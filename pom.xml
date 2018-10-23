@@ -70,10 +70,10 @@
 	<description>Tycho integrates Maven with Eclipse and OSGi</description>
 	
 	<repositories>
-		<!-- TODO remove when we use JDT,p2,equinox from final eclipse release  -->
+		<!-- TODO remove before release when we should use JDT ecj from maven central  -->
 		<repository>
-			<id>tycho-snapshots</id>
-			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+			<id>jdt-snapshots</id>
+			<url>https://repo.eclipse.org/content/repositories/eclipse-staging</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -106,8 +106,8 @@
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.1.100.v20180131-1413</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<ecjVersion>I20181010-1800</ecjVersion>
-		<ecjVersionMaven>${ecjVersion}-SNAPSHOT</ecjVersionMaven>
+		<ecjVersion>3.16.0.v20181009-0920</ecjVersion>
+		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
 
 		<!-- version of Tycho used by this build -->
 		<tychoBootstrapVersion>1.1.0</tychoBootstrapVersion>
@@ -236,8 +236,8 @@
 				<version>${equinoxCompatVersionMaven}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>org.eclipse.jdt.ecj</artifactId>
+				<groupId>org.eclipse.jdt</groupId>
+				<artifactId>ecj</artifactId>
 				<version>${ecjVersionMaven}</version>
 			</dependency>
 			<dependency>
