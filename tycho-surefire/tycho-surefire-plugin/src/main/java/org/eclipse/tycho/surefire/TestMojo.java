@@ -130,7 +130,8 @@ public class TestMojo extends AbstractMojo {
     private File osgiDataDirectory;
 
     /**
-     * Whether to recursively delete the directory {@link #osgiDataDirectory} before running the tests.
+     * Whether to recursively delete the directory {@link #osgiDataDirectory} before running the
+     * tests.
      */
     @Parameter(defaultValue = "true")
     private boolean deleteOsgiDataDirectory;
@@ -139,8 +140,8 @@ public class TestMojo extends AbstractMojo {
     private MavenProject project;
 
     /**
-     * Set this parameter to suspend the test JVM waiting for a client to open a remote debug session on
-     * the specified port.
+     * Set this parameter to suspend the test JVM waiting for a client to open a remote debug
+     * session on the specified port.
      */
     @Parameter(property = "debugPort")
     private int debugPort;
@@ -179,8 +180,8 @@ public class TestMojo extends AbstractMojo {
     private boolean skipExec;
 
     /**
-     * Set this to "true" to skip running tests, but still compile them. Its use is NOT RECOMMENDED, but
-     * quite convenient on occasion. Default: <code>false</code>
+     * Set this to "true" to skip running tests, but still compile them. Its use is NOT RECOMMENDED,
+     * but quite convenient on occasion. Default: <code>false</code>
      */
     @Parameter(property = "skipTests")
     private Boolean skipTests;
@@ -198,17 +199,18 @@ public class TestMojo extends AbstractMojo {
     private boolean failIfNoTests;
 
     /**
-     * (junit47 provider with JUnit4.8+ only) Groups/categories for this test (comma-separated). Only
-     * classes/methods/etc decorated with one of the group/category specified here will be included in
-     * test run, if specified. For JUnit, this parameter forces the use of the junit47 provider
+     * (junit47 provider with JUnit4.8+ only) Groups/categories for this test (comma-separated).
+     * Only classes/methods/etc decorated with one of the group/category specified here will be
+     * included in test run, if specified. For JUnit, this parameter forces the use of the junit47
+     * provider
      */
     @Parameter(property = "groups")
     private String groups;
 
     /**
      * (junit47 provider with JUnit4.8+ only) Excluded groups/categories (comma-separated). Any
-     * methods/classes/etc with one of the groups/categories specified in this list will specifically
-     * not be run. For JUnit, this parameter forces the use of the junit47 provider
+     * methods/classes/etc with one of the groups/categories specified in this list will
+     * specifically not be run. For JUnit, this parameter forces the use of the junit47 provider
      */
     @Parameter(property = "excludedGroups")
     private String excludedGroups;
@@ -252,8 +254,8 @@ public class TestMojo extends AbstractMojo {
      * Additional dependencies to be added to the test runtime. Ignored if {@link #testRuntime} is
      * <code>p2Installed</code>.
      * 
-     * Note: This parameter has only limited support for dependencies to artifacts within the reactor.
-     * Therefore it is recommended to specify <tt>extraRequirements</tt> on the
+     * Note: This parameter has only limited support for dependencies to artifacts within the
+     * reactor. Therefore it is recommended to specify <tt>extraRequirements</tt> on the
      * <tt>target-platform-configuration</tt> plugin instead. Example:
      * 
      * <pre>
@@ -276,18 +278,20 @@ public class TestMojo extends AbstractMojo {
      * </pre>
      * 
      * The dependencies specified as <tt>extraRequirements</tt> are &ndash; together with the
-     * dependencies specified in the <tt>MANIFEST.MF</tt> of the project &ndash; transitively resolved
-     * against the target platform. The resulting set of bundles is included in the test runtime.
+     * dependencies specified in the <tt>MANIFEST.MF</tt> of the project &ndash; transitively
+     * resolved against the target platform. The resulting set of bundles is included in the test
+     * runtime.
      */
     @Parameter
     private Dependency[] dependencies;
 
     /**
-     * Eclipse application to be run. If not specified, default application org.eclipse.ui.ide.workbench
-     * will be used. Application runnable will be invoked from test harness, not directly from Eclipse.
+     * Eclipse application to be run. If not specified, default application
+     * org.eclipse.ui.ide.workbench will be used. Application runnable will be invoked from test
+     * harness, not directly from Eclipse.
      * 
-     * Note that you need to ensure that the bundle which defines the configured application is included
-     * in the test runtime.
+     * Note that you need to ensure that the bundle which defines the configured application is
+     * included in the test runtime.
      */
     @Parameter
     private String application;
@@ -329,8 +333,8 @@ public class TestMojo extends AbstractMojo {
     private String appArgLine;
 
     /**
-     * Kill the forked test process after a certain number of seconds. If set to 0, wait forever for the
-     * process, never timing out.
+     * Kill the forked test process after a certain number of seconds. If set to 0, wait forever for
+     * the process, never timing out.
      */
     @Parameter(property = "surefire.timeout")
     private int forkedProcessTimeoutInSeconds;
@@ -367,9 +371,9 @@ public class TestMojo extends AbstractMojo {
     private String[] explodedBundles;
 
     /**
-     * List of framework extension bundles to add. Note: The goal does not automatically detect which
-     * bundles in the test runtime are framework extensions, but they have to be explicitly specified
-     * using this parameter. Ignored if {@link #testRuntime} is <code>p2Installed</code>.
+     * List of framework extension bundles to add. Note: The goal does not automatically detect
+     * which bundles in the test runtime are framework extensions, but they have to be explicitly
+     * specified using this parameter. Ignored if {@link #testRuntime} is <code>p2Installed</code>.
      */
     @Parameter
     private Dependency[] frameworkExtensions;
@@ -392,9 +396,9 @@ public class TestMojo extends AbstractMojo {
     private BundleStartLevel[] bundleStartLevel;
 
     /**
-     * The default bundle start level and auto start configuration used by the test runtime for bundles
-     * where the start level/auto start is not configured in {@link #bundleStartLevel}. Ignored if
-     * {@link #testRuntime} is <code>p2Installed</code>. Example:
+     * The default bundle start level and auto start configuration used by the test runtime for
+     * bundles where the start level/auto start is not configured in {@link #bundleStartLevel}.
+     * Ignored if {@link #testRuntime} is <code>p2Installed</code>. Example:
      * 
      * <pre>
      *   &lt;defaultStartLevel&gt;
@@ -407,8 +411,8 @@ public class TestMojo extends AbstractMojo {
     private BundleStartLevel defaultStartLevel;
 
     /**
-     * Flaky tests will re-run until they pass or the number of reruns has been exhausted. See surefire
-     * documentation for details.
+     * Flaky tests will re-run until they pass or the number of reruns has been exhausted. See
+     * surefire documentation for details.
      * <p>
      * Note: This feature is supported only for JUnit 4.x
      * </p>
@@ -417,7 +421,8 @@ public class TestMojo extends AbstractMojo {
     private Integer rerunFailingTestsCount;
 
     /**
-     * Skips the remaining tests after the Nth failure or error. See surefire documentation for details.
+     * Skips the remaining tests after the Nth failure or error. See surefire documentation for
+     * details.
      */
     @Parameter(property = "surefire.skipAfterFailureCount", defaultValue = "0")
     private Integer skipAfterFailureCount;
@@ -448,8 +453,8 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * Normally tycho will automatically determine the test framework provider based on the test
-     * project's classpath. Use this to force using a test framework provider implementation with the
-     * given role hint. Tycho comes with providers
+     * project's classpath. Use this to force using a test framework provider implementation with
+     * the given role hint. Tycho comes with providers
      * &quot;junit3&quot;,&quot;junit4&quot;,&quot;junit47&quot;. Note that when specifying a
      * providerHint, you have to make sure the provider is actually available in the dependencies of
      * tycho-surefire-plugin.
@@ -461,8 +466,8 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * Defines the order the tests will be run in. Supported values are "alphabetical",
-     * "reversealphabetical", "random", "hourly" (alphabetical on even hours, reverse alphabetical on
-     * odd hours) and "filesystem".
+     * "reversealphabetical", "random", "hourly" (alphabetical on even hours, reverse alphabetical
+     * on odd hours) and "filesystem".
      * 
      * @since 0.19.0
      */
@@ -478,8 +483,8 @@ public class TestMojo extends AbstractMojo {
     private boolean trimStackTrace;
 
     /**
-     * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads, as
-     * controlled by threadCount.
+     * (JUnit 4.7 provider) Supports values "classes"/"methods"/"both" to run in separate threads,
+     * as controlled by threadCount.
      * 
      * @since 0.16.0
      */
@@ -495,8 +500,9 @@ public class TestMojo extends AbstractMojo {
     private boolean perCoreThreadCount;
 
     /**
-     * (JUnit 4.7 provider) The attribute thread-count allows you to specify how many threads should be
-     * allocated for this execution. Only makes sense to use in conjunction with the parallel parameter.
+     * (JUnit 4.7 provider) The attribute thread-count allows you to specify how many threads should
+     * be allocated for this execution. Only makes sense to use in conjunction with the parallel
+     * parameter.
      * 
      * @since 0.16.0
      */
@@ -504,9 +510,9 @@ public class TestMojo extends AbstractMojo {
     private int threadCount = -1;
 
     /**
-     * (JUnit 4.7 provider) Indicates that the thread pool will be unlimited. The parallel parameter and
-     * the actual number of classes/methods will decide. Setting this to "true" effectively disables
-     * perCoreThreadCount and threadCount.
+     * (JUnit 4.7 provider) Indicates that the thread pool will be unlimited. The parallel parameter
+     * and the actual number of classes/methods will decide. Setting this to "true" effectively
+     * disables perCoreThreadCount and threadCount.
      * 
      * @since 0.16.0
      */
@@ -523,19 +529,19 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * How to create the OSGi test runtime. Allowed values are <code>default</code> and
-     * <code>p2Installed</code>. Mode <code>p2Installed</code> is <b>EXPERIMENTAL</b> - only works when
-     * installing products under test (see below).
+     * <code>p2Installed</code>. Mode <code>p2Installed</code> is <b>EXPERIMENTAL</b> - only works
+     * when installing products under test (see below).
      * <ul>
      * <li>In <code>default</code> mode, all necessary files to define the test runtime like
      * <tt>config.ini</tt> are generated by tycho. This installation mode has the advantage that the
-     * test runtime is minimal (defined by the transitive dependencies of the test bundle plus and the
-     * test harness) and existing bundle jars are referenced rather than copied for the
+     * test runtime is minimal (defined by the transitive dependencies of the test bundle plus and
+     * the test harness) and existing bundle jars are referenced rather than copied for the
      * installation</li>
      * <li>In <code>p2Installed</code> mode, use p2 director to install test bundle, test harness
      * bundles and respective dependencies. This installation mode can be used for integration tests
      * that require a fully p2-provisioned installation. To install a product IU, add it as extra
-     * requirement to the test bundle (see example below). Note that this installation mode comes with a
-     * certain performance overhead for executing the provisioning operations otherwise not
+     * requirement to the test bundle (see example below). Note that this installation mode comes
+     * with a certain performance overhead for executing the provisioning operations otherwise not
      * required.</li>
      * </ul>
      * 
@@ -579,9 +585,9 @@ public class TestMojo extends AbstractMojo {
      * "http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html"
      * >profile</a> name of the installation under test.
      * 
-     * Only relevant if {@link #testRuntime} is <code>p2Installed</code>. If tests are installed on top
-     * of an already existing installation in {@link #work}, this must match the name of the existing
-     * profile.
+     * Only relevant if {@link #testRuntime} is <code>p2Installed</code>. If tests are installed on
+     * top of an already existing installation in {@link #work}, this must match the name of the
+     * existing profile.
      * 
      * @since 0.19.0
      */
@@ -605,17 +611,18 @@ public class TestMojo extends AbstractMojo {
     private ToolchainProvider toolchainProvider;
 
     /**
-     * Which JDK to use for executing tests. Possible values are: <code>SYSTEM</code>, <code>BREE</code>
-     * .
+     * Which JDK to use for executing tests. Possible values are: <code>SYSTEM</code>,
+     * <code>BREE</code> .
      * <p/>
      * <ul>
      * <li>SYSTEM: Use the currently running JVM (or from
      * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchain</a> if
      * configured in pom.xml)</li>
-     * <li>BREE: use MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code> to lookup the JDK
-     * from
-     * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>. The
-     * value of BREE will be matched against the id of the toolchain elements in toolchains.xml.</li>
+     * <li>BREE: use MANIFEST header <code>Bundle-RequiredExecutionEnvironment</code> to lookup the
+     * JDK from
+     * <a href="http://maven.apache.org/guides/mini/guide-using-toolchains.html">toolchains.xml</a>.
+     * The value of BREE will be matched against the id of the toolchain elements in
+     * toolchains.xml.</li>
      * </ul>
      * 
      * Example for BREE: <br>
@@ -646,9 +653,9 @@ public class TestMojo extends AbstractMojo {
 
     /**
      * Only supported by the TestNG test provider. The values specified are passed to TestNG as test
-     * suite files. The suite files will overwrite the {@link #includes} and {@link #excludes} patterns.
-     * The path to the suite file(s) could be relative (test bundle classpath) or an absolute path to
-     * xml files outside the test bundle.
+     * suite files. The suite files will overwrite the {@link #includes} and {@link #excludes}
+     * patterns. The path to the suite file(s) could be relative (test bundle classpath) or an
+     * absolute path to xml files outside the test bundle.
      * 
      * <pre>
      * &lt;configuration&gt;
@@ -917,7 +924,7 @@ public class TestMojo extends AbstractMojo {
             if (!useUnlimitedThreads) {
                 if (perCoreThreadCount && threadCount < 1) {
                     throw new MojoExecutionException(
-                            "Parallel mode with perCoreThreadCount=true requiures threadCount>=1");
+                            "Parallel mode with perCoreThreadCount=true requires threadCount>=1");
                 }
                 if (!perCoreThreadCount && threadCount <= 1) {
                     throw new MojoExecutionException(
