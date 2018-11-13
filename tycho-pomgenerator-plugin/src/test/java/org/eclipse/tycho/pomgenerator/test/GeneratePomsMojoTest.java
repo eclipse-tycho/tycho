@@ -41,8 +41,8 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
     }
 
     private void generate(File baseDir, File[] extraDirs, Map<String, Object> params) throws Exception {
-        Mojo generateMojo = lookupMojo("org.eclipse.tycho", "tycho-pomgenerator-plugin",
-                TychoVersion.getTychoVersion(), "generate-poms", null);
+        Mojo generateMojo = lookupMojo("org.eclipse.tycho", "tycho-pomgenerator-plugin", TychoVersion.getTychoVersion(),
+                "generate-poms", null);
         setVariableValueToObject(generateMojo, "baseDir", baseDir);
         if (extraDirs != null) {
             StringBuilder sb = new StringBuilder();
@@ -168,7 +168,7 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         assertEquals("1.0.0", model.getVersion());
         assertEquals("pom", model.getPackaging());
 
-        List modules = model.getModules();
+        List<String> modules = model.getModules();
         assertEquals(6, modules.size());
 
         Model p002 = readModel(baseDir, "p002/pom.xml");
@@ -207,7 +207,8 @@ public class GeneratePomsMojoTest extends AbstractTychoMojoTestCase {
         Model aggmodel = readModel(baseDir, "p003/poma.xml");
         List<String> aggrmodules = aggmodel.getModules();
         assertEquals(5, aggrmodules.size());
-        assertEquals(Arrays.asList(new String[] { "../p001", "../p001.tests", "../p002", "../p004", "." }), aggrmodules);
+        assertEquals(Arrays.asList(new String[] { "../p001", "../p001.tests", "../p002", "../p004", "." }),
+                aggrmodules);
 
         assertEquals("eclipse-test-plugin", readModel(baseDir, "p001.tests/pom.xml").getPackaging());
         assertEquals("eclipse-test-plugin", readModel(baseDir, "p004/pom.xml").getPackaging());
