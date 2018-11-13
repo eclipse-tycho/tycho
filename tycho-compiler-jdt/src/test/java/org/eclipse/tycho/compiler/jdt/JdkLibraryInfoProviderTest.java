@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.tycho.compiler.jdt;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -53,8 +54,8 @@ public class JdkLibraryInfoProviderTest {
         assertEquals(2, bootpath.length);
         assertTrue(bootpath[0].endsWith("lib" + File.separator + "some.jar"));
         assertTrue(bootpath[1].endsWith("lib" + File.separator + "ext" + File.separator + "another.jar"));
-        assertEquals(new String[0], libInfo.getEndorsedDirs());
-        assertEquals(new String[0], libInfo.getExtensionDirs());
+        assertArrayEquals(new String[0], libInfo.getEndorsedDirs());
+        assertArrayEquals(new String[0], libInfo.getExtensionDirs());
     }
 
     private String getExpectedBootclasspath(String javaHome) {
