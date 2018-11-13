@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,9 +9,9 @@
  *******************************************************************************/
 package org.eclipse.tycho.versions.bundle.tests;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringWriter;
 
@@ -189,8 +189,8 @@ public class ManifestAttributeTest {
 
         // when
         ManifestAttribute attribute = new ManifestAttribute("headername: abcdefghijklmnopq");
-        attribute
-                .add(" rstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        attribute.add(
+                " rstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         attribute.add(" abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         attribute.add(" abcdefghijklmnop");
         attribute.add(" qrstuvwxyzABCDE");
@@ -199,10 +199,9 @@ public class ManifestAttributeTest {
         attribute.writeTo(writer, "\n");
 
         // then
-        assertEquals(
-                "headername: abcdefghijklmnopq\n"
-                        + " rstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n"
-                        + " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n" + " abcdefghijklmnop\n"
-                        + " qrstuvwxyzABCDE\n" + " FGHIJKLMNOPQRSTUVWXYZ0123\n" + " 456789\n", writer.toString());
+        assertEquals("headername: abcdefghijklmnopq\n"
+                + " rstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n"
+                + " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n" + " abcdefghijklmnop\n"
+                + " qrstuvwxyzABCDE\n" + " FGHIJKLMNOPQRSTUVWXYZ0123\n" + " 456789\n", writer.toString());
     }
 }
