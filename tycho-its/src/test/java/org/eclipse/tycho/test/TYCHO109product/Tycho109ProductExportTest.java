@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,10 +14,9 @@ import static org.eclipse.tycho.test.util.EnvironmentUtil.isEclipse32Platform;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class Tycho109ProductExportTest extends AbstractTychoIntegrationTest {

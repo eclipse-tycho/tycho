@@ -21,8 +21,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.eclipse.tycho.packaging.PackageUpdateSiteMojo;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
-
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
-
-import junit.framework.Assert;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,6 +30,7 @@ import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
@@ -47,8 +46,8 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
     }
 
     protected IMetadataRepository loadRepository(File location) throws ProvisionException {
-        return new LocalMetadataRepository(location.toURI(), createMetadataIndex(location), new LocalRepositoryReader(
-                location));
+        return new LocalMetadataRepository(location.toURI(), createMetadataIndex(location),
+                new LocalRepositoryReader(location));
     }
 
     private LocalMetadataRepository createRepository(File location) throws ProvisionException {
