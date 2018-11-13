@@ -35,7 +35,7 @@ import org.eclipse.tycho.repository.publishing.WriteSessionContext;
  * {@link WriteSessionContext} to methods that require context information about the current
  * publishing operation.
  */
-@SuppressWarnings({ "rawtypes", "deprecation" })
+@SuppressWarnings({ "deprecation" })
 class ModuleArtifactRepositoryDelegate implements IFileArtifactRepository {
 
     private final ModuleArtifactRepository target;
@@ -104,7 +104,7 @@ class ModuleArtifactRepositoryDelegate implements IFileArtifactRepository {
     }
 
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return target.getAdapter(adapter);
     }
 

@@ -70,7 +70,7 @@ public class IconExe {
 		}
 		ImageLoader loader = new ImageLoader();
 
-		List images = new ArrayList();
+		List<ImageData> images = new ArrayList<>();
 		for (int i = 1; i < args.length; i++) {
 			try {
 				//An ICO should contain 7 images, a BMP will contain 1
@@ -83,7 +83,7 @@ public class IconExe {
 			}
 		}
 		ImageData[] data = new ImageData[images.size()];
-		data = (ImageData[]) images.toArray(data);
+		data = images.toArray(data);
 		
 		int nMissing = unloadIcons(args[0], data);
 		if (nMissing != 0)

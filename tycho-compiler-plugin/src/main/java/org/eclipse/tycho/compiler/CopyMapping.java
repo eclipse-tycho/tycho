@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and others.
+ * Copyright (c) 2010, 2018 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ public class CopyMapping implements SourceMapping {
     List<SourceTargetPair> sourceTargetMappings = new ArrayList<>();
 
     @Override
-    public Set getTargetFiles(File targetDir, String source) throws InclusionScanException {
+    public Set<File> getTargetFiles(File targetDir, String source) throws InclusionScanException {
         File targetFile = new File(targetDir, source);
         sourceTargetMappings.add(new SourceTargetPair(source, targetFile));
         return Collections.singleton(targetFile);
