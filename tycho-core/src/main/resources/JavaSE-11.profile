@@ -68,7 +68,6 @@ org.osgi.framework.system.packages = \
  java.util.stream,\
  java.util.zip,\
  javax.accessibility,\
- javax.annotation,\
  javax.annotation.processing,\
  javax.crypto,\
  javax.crypto.interfaces,\
