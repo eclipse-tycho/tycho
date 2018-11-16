@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP SE and others.
+ * Copyright (c) 2010, 2018 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
@@ -76,10 +75,11 @@ public class InstallableUnitUtil {
         return MetadataFactory.createInstallableUnit(description);
     }
 
-    public static IInstallableUnit createIUArtifact(String id, String version, String artifactId, String artifactVersion) {
+    public static IInstallableUnit createIUArtifact(String id, String version, String artifactId,
+            String artifactVersion) {
         InstallableUnitDescription description = createIuDescription(id, version);
-        description.setArtifacts(new IArtifactKey[] { new ArtifactKey("type", artifactId, Version
-                .create(artifactVersion)) });
+        description.setArtifacts(
+                new IArtifactKey[] { new ArtifactKey("type", artifactId, Version.create(artifactVersion)) });
         return MetadataFactory.createInstallableUnit(description);
     }
 
@@ -104,13 +104,13 @@ public class InstallableUnitUtil {
     }
 
     static IRequirement createRequirement(String requiredId, String requiredVersionRange) {
-        return new RequiredCapability(IU_CAPABILITY_NS, requiredId, new VersionRange(requiredVersionRange), null,
-                false, false, true);
+        return MetadataFactory.createRequirement(IU_CAPABILITY_NS, requiredId, new VersionRange(requiredVersionRange),
+                null, false, false, true);
     }
 
     static IRequirement createStrictRequirement(String requiredId, String requiredVersion) {
         Version parsedVersion = Version.create(requiredVersion);
-        return new RequiredCapability(IU_CAPABILITY_NS, requiredId, new VersionRange(parsedVersion, true,
-                parsedVersion, true), null, false, false, true);
+        return MetadataFactory.createRequirement(IU_CAPABILITY_NS, requiredId,
+                new VersionRange(parsedVersion, true, parsedVersion, true), null, false, false, true);
     }
 }
