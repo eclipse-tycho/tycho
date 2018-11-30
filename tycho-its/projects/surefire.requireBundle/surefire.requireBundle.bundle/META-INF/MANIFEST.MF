@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: surefire.requireBundle.core;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Bundle-Vendor: ECLIPSE
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ lib/xercesImpl.jar
+Export-Package: org.eclipse.tycho.surefire.requirebundle.bundle
+

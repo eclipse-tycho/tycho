@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>surefire.requireBundle</groupId>
+	<artifactId>parent</artifactId>
+	<packaging>pom</packaging>
+	<version>1.0.0</version>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<profiles>
+		<profile>
+			<id>withTest</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<defaultGoal>clean install</defaultGoal>
+			</build>
+		</profile>
+	</profiles>
+	
+	<modules>
+		<module>surefire.requireBundle.build</module>
+		<module>surefire.requireBundle.bundle</module>
+		<module>surefire.requireBundle.bundletest</module>
+		<module>surefire.requireBundle.platform</module>
+	</modules>
+</project>
+  
