@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde?>
+<!-- generated with https://github.com/mbarbero/fr.obeo.releng.targetplatform -->
+<target name="surefiretest" sequenceNumber="1453124788">
+  <locations>
+    <location includeMode="slicer" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
+      <unit id="org.eclipse.test.feature.group" version="3.7.0.v20150428-2048"/>
+      <unit id="org.eclipse.rcp.feature.group" version="4.5.1.v20150904-0015"/>
+      <repository location="http://download.eclipse.org/eclipse/updates/4.5"/>
+    </location>
+  </locations>
+</target>
