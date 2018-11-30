@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- Build (Parent) Infos -->
+	<groupId>org.eclipse.tycho.build</groupId>
+	<artifactId>build</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>debugtychosurefire</name>
+	<packaging>pom</packaging>
+
+
+	<properties>
+		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<maven.site.deploy.clean>true</maven.site.deploy.clean>
+
+		<jacoco-version>0.7.5.201505241946</jacoco-version>
+		<jacoco-listener-version>3.2</jacoco-listener-version>
+
+		<UsedJavaVersion>1.8</UsedJavaVersion>
+	</properties>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				
+				<plugin>
+					<groupId>${tycho-groupid}</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<!--threadCount>1</threadCount> <parallel>classes</parallel -->
+						<runOrder>alphabetical</runOrder>
+						<showEclipseLog>true</showEclipseLog>
+						<product>org.eclipse.tycho.id.product</product>
+
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.7</version>
+					<executions>
+						<execution>
+							<id>default-testResources</id>
+							<phase>none</phase>
+						</execution>
+						<execution>
+							<id>default-resources</id>
+							<phase>none</phase>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+
+		<plugins>
+		
+
+			<!-- Tycho -->
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<allowConflictingDependencies>true</allowConflictingDependencies>
+					<resolver>p2</resolver>
+					<target>
+						<artifact>
+							<groupId>org.eclipse.tycho.build</groupId>
+							<artifactId>platform</artifactId>
+							<version>0.0.1-SNAPSHOT</version>
+							<classifier>debugtychosurefire</classifier>
+						</artifact>
+					</target>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+					<ignoreTychoRepositories>true</ignoreTychoRepositories>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<!--compilerArgument>-XDignore.symbol.file=true ${compilerArgs}</compilerArgument-->
+					<compilerArgs>
+						<arg>-XDignore.symbol.file=true</arg>
+					</compilerArgs>
+					<debug>true</debug>
+					<debuglevel>none</debuglevel>
+					<showDeprecation>true</showDeprecation>
+					<showWarnings>true</showWarnings>
+					<optimize>true</optimize>
+					<fork>false</fork>
+					<source>${UsedJavaVersion}</source>
+					<target>${UsedJavaVersion}</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<includeAllDependencies>true</includeAllDependencies>
+					<createArtifactRepository>true</createArtifactRepository>
+					<compress>false</compress>
+				</configuration>
+			</plugin>
+
+
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,12 @@
+target "surefiretest"
+
+with source
+
+
+location "http://download.eclipse.org/eclipse/updates/4.5" {
+	org.eclipse.test.feature.group [3.7.0.v20150428-2048,3.7.0.v20150428-2048]
+	org.eclipse.rcp.feature.group [4.5.1.v20150904-0015,4.5.1.v20150904-0015]
+}
+
+
+
