@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -204,15 +206,95 @@ public class OsgiSurefireBooter {
         }
 
         protected Class<?> findClass(String name) throws ClassNotFoundException {
-            return bundle.loadClass(name);
+            try {
+                return bundle.loadClass(name);
+            } catch (ClassNotFoundException cnfe) {
+                Bundle[] installedBundles = bundle.getBundleContext().getBundles();
+                for (Bundle currentBundle : installedBundles) {
+                    if (bundle != currentBundle) {
+                        try {
+                            return currentBundle.loadClass(name);
+                        } catch (ClassNotFoundException e) {
+                            // ignore error
+                        }
+                    }
+                }
+                throw cnfe;
+            }
         }
 
         protected URL findResource(String name) {
-            return bundle.getResource(name);
+            URL resource = bundle.getResource(name);
+            if (resource == null) {
+                Bundle[] installedBundles = bundle.getBundleContext().getBundles();
+                for (Bundle currentBundle : installedBundles) {
+                    if (bundle != currentBundle) {
+                        try {
+                            resource = currentBundle.getResource(name);
+                            if (resource != null) {
+                                return resource;
+                            }
+                        } catch (IllegalStateException e) {
+                            // ignore error
+                        }
+                    }
+                }
+            }
+            return resource;
         }
 
         protected Enumeration<URL> findResources(String name) throws IOException {
-            return bundle.getResources(name);
+            Enumeration<URL> resources = bundle.getResources(name);
+            if (resources == null || !resources.hasMoreElements()) {
+                CombinedEnumeration<URL> combiEnum = new CombinedEnumeration<URL>();
+                Bundle[] installedBundles = bundle.getBundleContext().getBundles();
+                for (Bundle currentBundle : installedBundles) {
+                    if (bundle != currentBundle) {
+                        try {
+                            combiEnum.add(currentBundle.getResources(name));
+                        } catch (IOException e) {
+                            // ignore error
+                        } catch (IllegalStateException e) {
+                            // ignore error
+                        }
+                    }
+                }
+                return combiEnum;
+            }
+            return resources;
         }
+
+        private static class CombinedEnumeration<T> implements Enumeration<T> {
+            private final LinkedList<Enumeration<T>> list = new LinkedList<Enumeration<T>>();
+            private Iterator<Enumeration<T>> iter = null;
+            private Enumeration<T> cursor = null;
+
+            public void add(Enumeration<T> e) {
+                if (e != null && e.hasMoreElements()) {
+                    list.add(e);
+                }
+            }
+
+            public boolean hasMoreElements() {
+                if (list.isEmpty()) {
+                    return false;
+                }
+                if (iter == null) {
+                    iter = list.iterator();
+                }
+                while (cursor == null || !cursor.hasMoreElements()) {
+                    if (!iter.hasNext()) {
+                        return false;
+                    }
+                    cursor = iter.next();
+                }
+                return cursor.hasMoreElements();
+            }
+
+            public T nextElement() {
+                return cursor.nextElement();
+            }
+        }
+
     }
 }
