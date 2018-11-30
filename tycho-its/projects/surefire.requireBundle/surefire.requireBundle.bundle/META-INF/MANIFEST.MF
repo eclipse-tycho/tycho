@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bundle
+Bundle-SymbolicName: surefire.requireBundle.core;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Bundle-Vendor: STEGMANNSYSTEMS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: com.stegmannsystems.debugtychosurefire.bundle
+Require-Bundle: org.apache.xerces
+

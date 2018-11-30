@@ -181,6 +181,10 @@
 									<id>org.junit.jupiter.api</id>
 									<version>5.0.0.v20170910-2246</version>
 								</iu>
+								<iu>
+									<id>org.apache.xerces</id>
+									<version>2.9.0.v201101211617</version>
+								</iu>
 							</ius>
 							<includePacked>false</includePacked>
 							<includeOptional>false</includeOptional>
