@@ -17,11 +17,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -50,6 +53,10 @@ import org.apache.maven.surefire.testset.TestRequest;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.osgi.internal.framework.ContextFinder;
+import org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor;
+import org.eclipse.osgi.internal.loader.BundleLoader;
+import org.eclipse.osgi.internal.loader.ModuleClassLoader;
 import org.eclipse.osgi.service.resolver.ResolverError;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -115,8 +122,10 @@ public class OsgiSurefireBooter {
 
     private static ClassLoader createCombinedClassLoader(String testPlugin) throws BundleException {
         ClassLoader testClassLoader = getBundleClassLoader(testPlugin);
+        ContextFinder contextFinder = (ContextFinder) Thread.currentThread().getContextClassLoader();
         ClassLoader surefireClassLoader = ForkedBooter.class.getClassLoader();
-        return new CombinedClassLoader(testClassLoader, surefireClassLoader);
+        return new CombinedClassLoader(testClassLoader, new TychoContextFinder(contextFinder.getParent()),
+                surefireClassLoader);
     }
 
     /*
@@ -149,14 +158,6 @@ public class OsgiSurefireBooter {
         throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
                 "-testproperties command line parameter is not specified or does not point to an accessible file",
                 null));
-    }
-
-    private static List<String> getIncludesExcludes(String string) {
-        ArrayList<String> list = new ArrayList<String>();
-        if (string != null) {
-            list.addAll(Arrays.asList(string.split(",")));
-        }
-        return list;
     }
 
     private static Properties loadProperties(File file) throws IOException {
@@ -192,8 +193,8 @@ public class OsgiSurefireBooter {
             }
             throw ex;
         }
-
         return new BundleClassLoader(bundle);
+
     }
 
     private static class BundleClassLoader extends ClassLoader {
@@ -213,6 +214,167 @@ public class OsgiSurefireBooter {
 
         protected Enumeration<URL> findResources(String name) throws IOException {
             return bundle.getResources(name);
+        }
+    }
+
+    private static class TychoContextFinder extends ClassLoader implements PrivilegedAction<List<ClassLoader>> {
+        static final class Finder extends SecurityManager {
+            public Class<?>[] getClassContext() {
+                return super.getClassContext();
+            }
+        }
+
+        //This is used to detect cycle that could be caused while delegating the loading to other classloaders
+        //It keeps track on a thread basis of the set of requested classes and resources
+        private static ThreadLocal<Set<String>> cycleDetector = new ThreadLocal<Set<String>>();
+        static ClassLoader finderClassLoader;
+        static Finder contextFinder;
+        static {
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                public Void run() {
+                    finderClassLoader = ContextFinder.class.getClassLoader();
+                    contextFinder = new Finder();
+                    return null;
+                }
+            });
+        }
+
+        private static Class<ContextFinder> THIS = ContextFinder.class;
+        private static Class<CombinedClassLoader> COMBINED = CombinedClassLoader.class;
+        private static Class<TychoContextFinder> TYCHO_THIS = TychoContextFinder.class;
+
+        private final ClassLoader parentContextClassLoader;
+
+        public TychoContextFinder(ClassLoader contextClassLoader) {
+            super(contextClassLoader);
+            this.parentContextClassLoader = contextClassLoader != null ? contextClassLoader
+                    : EquinoxContainerAdaptor.BOOT_CLASSLOADER;
+        }
+
+        // Return a list of all classloaders on the stack that are neither the 
+        // ContextFinder classloader nor the boot classloader.  The last classloader
+        // in the list is either a bundle classloader or the framework's classloader
+        // We assume that the bootclassloader never uses the context classloader to find classes in itself.
+        List<ClassLoader> basicFindClassLoaders() {
+            Class<?>[] stack = contextFinder.getClassContext();
+            List<ClassLoader> result = new ArrayList<ClassLoader>(1);
+            ClassLoader previousLoader = null;
+            for (int i = 1; i < stack.length; i++) {
+                ClassLoader tmp = stack[i].getClassLoader();
+                if (stack[i] != THIS && stack[i] != COMBINED && stack[i] != TYCHO_THIS && tmp != null && tmp != this) {
+                    if (checkClassLoader(tmp)) {
+                        if (previousLoader != tmp) {
+                            result.add(tmp);
+                            previousLoader = tmp;
+                        }
+                    }
+                    // stop at the framework classloader or the first bundle classloader
+                    if (tmp == finderClassLoader || tmp instanceof ModuleClassLoader)
+                        break;
+                }
+            }
+            return result;
+        }
+
+        // ensures that a classloader does not have the ContextFinder as part of the 
+        // parent hierachy.  A classloader which has the ContextFinder as a parent must
+        // not be used as a delegate, otherwise we endup in endless recursion.
+        private boolean checkClassLoader(ClassLoader classloader) {
+            if (classloader == null || classloader == getParent())
+                return false;
+            for (ClassLoader parent = classloader.getParent(); parent != null; parent = parent.getParent())
+                if (parent == this)
+                    return false;
+            return true;
+        }
+
+        private List<ClassLoader> findClassLoaders() {
+            if (System.getSecurityManager() == null)
+                return basicFindClassLoaders();
+            return AccessController.doPrivileged(this);
+        }
+
+        public List<ClassLoader> run() {
+            return basicFindClassLoaders();
+        }
+
+        //Return whether the request for loading "name" should proceed.
+        //False is returned when a cycle is being detected 
+        private boolean startLoading(String name) {
+            Set<String> classesAndResources = cycleDetector.get();
+            if (classesAndResources != null && classesAndResources.contains(name))
+                return false;
+
+            if (classesAndResources == null) {
+                classesAndResources = new HashSet<String>(3);
+                cycleDetector.set(classesAndResources);
+            }
+            classesAndResources.add(name);
+            return true;
+        }
+
+        private void stopLoading(String name) {
+            cycleDetector.get().remove(name);
+        }
+
+        protected Class<?> loadClass(String arg0, boolean arg1) throws ClassNotFoundException {
+            //Shortcut cycle
+            if (startLoading(arg0) == false)
+                throw new ClassNotFoundException(arg0);
+
+            try {
+                List<ClassLoader> toConsult = findClassLoaders();
+                for (Iterator<ClassLoader> loaders = toConsult.iterator(); loaders.hasNext();)
+                    try {
+                        return loaders.next().loadClass(arg0);
+                    } catch (ClassNotFoundException e) {
+                        // go to the next class loader
+                    }
+                // avoid calling super.loadClass here because it checks the local cache (bug 127963)
+                return parentContextClassLoader.loadClass(arg0);
+            } finally {
+                stopLoading(arg0);
+            }
+        }
+
+        public URL getResource(String arg0) {
+            //Shortcut cycle
+            if (startLoading(arg0) == false)
+                return null;
+            try {
+                List<ClassLoader> toConsult = findClassLoaders();
+                for (Iterator<ClassLoader> loaders = toConsult.iterator(); loaders.hasNext();) {
+                    URL result = loaders.next().getResource(arg0);
+                    if (result != null)
+                        return result;
+                    // go to the next class loader
+                }
+                return super.getResource(arg0);
+            } finally {
+                stopLoading(arg0);
+            }
+        }
+
+        public Enumeration<URL> getResources(String arg0) throws IOException {
+            //Shortcut cycle
+            if (startLoading(arg0) == false) {
+                return Collections.enumeration(Collections.<URL> emptyList());
+            }
+            try {
+                List<ClassLoader> toConsult = findClassLoaders();
+                Enumeration<URL> result = null;
+                for (Iterator<ClassLoader> loaders = toConsult.iterator(); loaders.hasNext();) {
+                    result = loaders.next().getResources(arg0);
+                    if (result != null && result.hasMoreElements()) {
+                        // For context finder we do not compound results after this first loader that has resources
+                        break;
+                    }
+                    // no results yet, go to the next class loader
+                }
+                return BundleLoader.compoundEnumerations(result, super.getResources(arg0));
+            } finally {
+                stopLoading(arg0);
+            }
         }
     }
 }
