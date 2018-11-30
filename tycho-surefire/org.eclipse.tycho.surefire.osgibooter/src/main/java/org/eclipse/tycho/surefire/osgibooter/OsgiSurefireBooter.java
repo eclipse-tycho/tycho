@@ -17,8 +17,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -115,8 +113,12 @@ public class OsgiSurefireBooter {
 
     private static ClassLoader createCombinedClassLoader(String testPlugin) throws BundleException {
         ClassLoader testClassLoader = getBundleClassLoader(testPlugin);
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader surefireClassLoader = ForkedBooter.class.getClassLoader();
-        return new CombinedClassLoader(testClassLoader, surefireClassLoader);
+        return new CombinedClassLoader(testClassLoader, surefireClassLoader,
+                // Not used contextClassLoader directly because it's a ContextFinder
+                // which not work with tycho sufire osgibooster bundle
+                new TychoContextFinder(contextClassLoader.getParent()));
     }
 
     /*
@@ -149,14 +151,6 @@ public class OsgiSurefireBooter {
         throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0,
                 "-testproperties command line parameter is not specified or does not point to an accessible file",
                 null));
-    }
-
-    private static List<String> getIncludesExcludes(String string) {
-        ArrayList<String> list = new ArrayList<String>();
-        if (string != null) {
-            list.addAll(Arrays.asList(string.split(",")));
-        }
-        return list;
     }
 
     private static Properties loadProperties(File file) throws IOException {
@@ -192,7 +186,6 @@ public class OsgiSurefireBooter {
             }
             throw ex;
         }
-
         return new BundleClassLoader(bundle);
     }
 
