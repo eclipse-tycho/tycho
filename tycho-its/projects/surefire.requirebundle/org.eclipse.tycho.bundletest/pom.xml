@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tycho.build</groupId>
+		<artifactId>build</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../org.eclipse.tycho.build</relativePath>
+	</parent>
+	<artifactId>org.eclipse.tycho.coretest</artifactId>
+	<packaging>eclipse-test-plugin</packaging>
+		
+	<build>
+        <plugins>
+			
+        	<!-- tycho-surefire-plugin aktivieren. Allgemeine Konfiguration erfolgt in parent-pom -->
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+
+				<configuration>
+					<!-- über die folgenden excludes kann man die Tests temporär deaktivieren --> 
+ 					
+					<!-- bundleStartLevel>
+						<bundle>
+							<id>com.stegmannsystems.lims.bioassay.pla3.core</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>com.stegmannsystems.lims.licensing.win32.win32.x86</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>com.stegmannsystems.lims.db</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>com.stegmannsystems.lims.report.fop</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>com.stegmannsystems.lims.rservice</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>com.stegmannsystems.edp.services.testimpl</id>
+							<level>3</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>org.eclipse.equinox.ds</id>
+							<level>1</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>org.eclipse.equinox.common</id>
+							<level>2</level>
+							<autoStart>true</autoStart>
+						</bundle>
+                        <bundle>
+                            <id>ch.qos.logback.classic</id>
+                            <level>2</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>ch.qos.logback.core</id>
+                            <level>2</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>jcl.over.slf4</id>
+                            <level>2</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>jul.to.slf4</id>
+                            <level>2</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>log4j.over.slf4</id>
+                            <level>2</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+					</bundleStartLevel-->
+                        <!--  dependency>
+                            <type>eclipse-plugin</type>
+                            <artifactId>com.stegmannsystems.lims.logback.configuration</artifactId>
+                            <version>3.0.4-SNAPSHOT</version>
+                        </dependency --> 
+				
+				</configuration>
+			</plugin>
+			
+        </plugins>
+    </build>
+</project>
