@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c379f211_9b9fda0e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiTestBundleProject.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2018-12-06T09:06:14Z",
+      "side": 1,
+      "message": "I\u0027m afraid it can\u0027t be that simple because this changes the effective BREE level of the compiled bundle (aka it will contain Java 11 bytecode) and the test bundle will not be runnable using older Java version anymore. Projects do push test bundles to p2 repos for using alternative run mechanisms so we can not enforce them to run with newer Java.",
+      "revId": "2966277a461b3412ccfbb3f59b6f3343127c8f75",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
