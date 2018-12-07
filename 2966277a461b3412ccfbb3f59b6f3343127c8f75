@@ -16,6 +16,24 @@
       "revId": "2966277a461b3412ccfbb3f59b6f3343127c8f75",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32e30e94_c77dd7a1",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiTestBundleProject.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-07T13:59:58Z",
+      "side": 1,
+      "message": "right. so we need a clear distinction between compile time as opposed to test runtime here. we will only want to change the execution environment used for resolving the test runtime.",
+      "parentUuid": "c379f211_9b9fda0e",
+      "revId": "2966277a461b3412ccfbb3f59b6f3343127c8f75",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
