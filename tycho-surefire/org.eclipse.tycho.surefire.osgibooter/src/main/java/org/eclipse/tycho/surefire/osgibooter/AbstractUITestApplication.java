@@ -98,12 +98,8 @@ public abstract class AbstractUITestApplication implements ITestHarness {
         return null;
     }
 
-    private String getConfiguredApplication(String[] args) {
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-testApplication") && i < args.length - 1) //$NON-NLS-1$
-                return args[i + 1];
-        }
-        return null;
+    private static String getConfiguredApplication(String[] args) {
+        return getParameterValue(args, "-testApplication");
     }
 
     protected Object run(String[] args) throws Exception {
@@ -117,6 +113,13 @@ public abstract class AbstractUITestApplication implements ITestHarness {
             if (application == null) {
                 return Integer.valueOf(200);
             }
+
+            // https://bugs.eclipse.org/bugs/show_bug.cgi?id=540222: log stack traces when we are nearing the test timeout
+            String timeoutParameter = getParameterValue(args, "-timeout");
+            if (timeoutParameter != null) {
+                DumpStackTracesTimer.startStackDumpTimeoutTimer(timeoutParameter);
+            }
+
             runApplication(application, args);
         } catch (Exception e) {
             if (fTestRunnerResult == -1) {
@@ -133,4 +136,12 @@ public abstract class AbstractUITestApplication implements ITestHarness {
     }
 
     protected abstract void runApplication(Object application, String[] args) throws Exception;
+
+    private static String getParameterValue(String[] args, String parameterName) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals(parameterName) && i < args.length - 1) //$NON-NLS-1$
+                return args[i + 1];
+        }
+        return null;
+    }
 }

@@ -36,5 +36,4 @@ public class UITestApplication extends AbstractUITestApplication implements IApp
         this.fContext = context;
         return run(Platform.getApplicationArgs());
     }
-
 }
