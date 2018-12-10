@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Require-Bundle: org.eclipse.osgi;bundle-version="3.2.2",
- org.eclipse.ui.workbench;bundle-version="3.2.2";resolution:=optional,
+ org.eclipse.ui.workbench;bundle-version="[3.113.0,4.0.0)";resolution:=optional,
  org.eclipse.core.runtime;bundle-version="3.2.0"
 Eclipse-AutoStart: true
 Bundle-Version: 1.4.0.qualifier
