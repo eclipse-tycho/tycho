@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2018 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,14 +53,17 @@ public class DefaultEquinoxLauncher implements EquinoxLauncher {
 
         cli.addArguments(configuration.getProgramArguments(), handleQuotes);
 
-        log.info("Command line:\n\t" + cli.toString());
-
         DefaultExecutor executor = new DefaultExecutor();
         ExecuteWatchdog watchdog = null;
         if (forkedProcessTimeoutInSeconds > 0) {
-            watchdog = new ExecuteWatchdog(forkedProcessTimeoutInSeconds * 1000L);
+            long timeoutInMilliseconds = forkedProcessTimeoutInSeconds * 1000L;
+            cli.addArguments(new String[] { "-timeout ", String.valueOf(timeoutInMilliseconds) });
+            watchdog = new ExecuteWatchdog(timeoutInMilliseconds);
             executor.setWatchdog(watchdog);
         }
+
+        log.info("Command line:\n\t" + cli.toString());
+
         // best effort to avoid orphaned child process
         executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
         executor.setWorkingDirectory(configuration.getWorkingDirectory());

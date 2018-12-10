@@ -77,6 +77,11 @@ public class OsgiSurefireBooter {
         PropertiesWrapper wrapper = new PropertiesWrapper(propertiesMap);
         List<String> suiteXmlFiles = wrapper.getStringList(BooterConstants.TEST_SUITE_XML_FILES);
 
+        String timeoutParameter = testProps.getProperty("-timeout", null); //$NON-NLS-1$
+        if (timeoutParameter != null) {
+            DumpStackTracesTimer.startStackDumpTimeoutTimer(timeoutParameter);
+        }
+
         boolean forkRequested = true;
         boolean inForkedVM = true;
         boolean useSystemClassloader = false;
