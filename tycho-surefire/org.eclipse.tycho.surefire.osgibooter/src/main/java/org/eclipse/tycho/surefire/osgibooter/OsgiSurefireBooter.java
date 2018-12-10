@@ -51,6 +51,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.service.resolver.ResolverError;
+import org.eclipse.ui.testing.dumps.TimeoutDumpTimer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
@@ -76,6 +77,11 @@ public class OsgiSurefireBooter {
         }
         PropertiesWrapper wrapper = new PropertiesWrapper(propertiesMap);
         List<String> suiteXmlFiles = wrapper.getStringList(BooterConstants.TEST_SUITE_XML_FILES);
+
+        String timeoutParameter = testProps.getProperty("-timeout", null); //$NON-NLS-1$
+        if (timeoutParameter != null) {
+            TimeoutDumpTimer.startTimeoutDumpTimer(timeoutParameter);
+        }
 
         boolean forkRequested = true;
         boolean inForkedVM = true;
