@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8a09686_49ae9193",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/AbstractUITestApplication.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2018-12-10T15:46:41Z",
+      "side": 1,
+      "message": "No need to keep this comment.",
+      "revId": "2de89fde1d9b5267f0f95ef710cb33c749b6773d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9814992a_65cd5792",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/AbstractUITestApplication.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2018-12-10T15:46:41Z",
+      "side": 1,
+      "message": "Would be great to have it part of the TestableObject directly; so when we change the build tool one day, this feature would still be present.",
+      "revId": "2de89fde1d9b5267f0f95ef710cb33c749b6773d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c72c3989_f553445a",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/HeadlessTestApplication.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2018-12-10T15:46:41Z",
+      "side": 1,
+      "message": "Couldn\u0027t we have the timeout check implmented in the OsgiSurefireBooter (or a parent) instead? It would most likely allow easier reuse.",
+      "revId": "2de89fde1d9b5267f0f95ef710cb33c749b6773d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
