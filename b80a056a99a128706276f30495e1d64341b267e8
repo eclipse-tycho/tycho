@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5674e77_a1e59a36",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-11T08:55:29Z",
+      "side": 1,
+      "message": "as far as I can see the commit message does not reflect what was actually done",
+      "revId": "b80a056a99a128706276f30495e1d64341b267e8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab18f17a_c46db9f0",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-11T08:55:29Z",
+      "side": 1,
+      "message": "I think context finder should be the last in the list because classloading happens in this order",
+      "revId": "b80a056a99a128706276f30495e1d64341b267e8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c21717f_60921dec",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-11T08:55:29Z",
+      "side": 1,
+      "message": "looks like this class was copied. Put it into a separate file and adda a comment where it was copied from (including which commit) and whether there were any modifications after copying.",
+      "revId": "b80a056a99a128706276f30495e1d64341b267e8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
