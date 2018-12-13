@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6150508f_a554744b",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2018-12-13T22:16:22Z",
+      "side": 1,
+      "message": "ok i will do it.",
+      "parentUuid": "6d32317e_2a75a763",
+      "range": {
+        "startLine": 116,
+        "startChar": 20,
+        "endLine": 116,
+        "endChar": 33
+      },
+      "revId": "a4d7e038387190d157a866ba2d0a74b225490476",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab6559d8_5467497e",
         "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
         "patchSetId": 13
@@ -36,6 +60,30 @@
       "writtenOn": "2018-12-13T08:19:10Z",
       "side": 1,
       "message": "why are we using the parent of the context classloader here?\n\nas far as I can see the context classloader is used by default:\n\nhttps://github.com/eclipse/rt.equinox.framework/blob/f2691ad6b309188f0909cc5e67c10698d3a0a136/bundles/org.eclipse.osgi/container/src/org/eclipse/osgi/internal/framework/EquinoxContainer.java#L209-L212",
+      "range": {
+        "startLine": 119,
+        "startChar": 53,
+        "endLine": 119,
+        "endChar": 62
+      },
+      "revId": "a4d7e038387190d157a866ba2d0a74b225490476",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "606d9117_56208caf",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2018-12-13T22:16:22Z",
+      "side": 1,
+      "message": "yes because equinox create the contextFinder and his parent is the application class loader. But after the bundle loading, the current class loader is the contextFinder from equinox. This class loader cannot work with tycho surfire because it stop stack resolution on surefire osgi booster bundle (due to combined class loader) from tycho and don \u0027t get the upper bundle class loader. So the TychoContextFinder emulate the contextFinder from equinox, except it ignore tycho osgi bundle. So to emulate the contextFinder, I take the same parent. The idea is just to replace the standard instance by tycho one. And don\u0027t add a resolution layer wich never works.",
+      "parentUuid": "ab6559d8_5467497e",
       "range": {
         "startLine": 119,
         "startChar": 53,
