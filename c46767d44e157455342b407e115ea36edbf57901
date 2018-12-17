@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "717f7ffb_954ab73f",
+        "filename": "sisu-equinox/sisu-equinox-launching/src/main/java/org/eclipse/sisu/equinox/launching/internal/DefaultEquinoxLauncher.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-17T09:09:39Z",
+      "side": 1,
+      "message": "I think this should actually be two arguments",
+      "revId": "c46767d44e157455342b407e115ea36edbf57901",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bfbb1292_1a5a364e",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/META-INF/MANIFEST.MF",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-17T09:09:39Z",
+      "side": 1,
+      "message": "I understand we need a newer version for the stacktrace dumper functionality? we have to make sure it also works with (very) old versions for existing builds against old eclipse releases",
+      "revId": "c46767d44e157455342b407e115ea36edbf57901",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48ac8a7f_dd0c36d7",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-17T09:09:39Z",
+      "side": 1,
+      "message": "I understand this functionality is only available very recently. I think the surefire booter should continue to work with old eclipse versions. otherwise existing builds against old eclipse versions cannot upgrade their tycho version and we force everyone on the new eclipse release if they want the new tycho version...",
+      "revId": "c46767d44e157455342b407e115ea36edbf57901",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "005bbe0b_b7208df9",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-17T09:09:39Z",
+      "side": 1,
+      "message": "this is the same timeout as for the watchdog which will kill this process. that means we are not sure the dump will be taken before the process exits. I guess the dump timeout should be at least something like 10 seconds shorter than the kill timeout to the dump a chance to actually happen",
+      "range": {
+        "startLine": 83,
+        "startChar": 51,
+        "endLine": 83,
+        "endChar": 67
+      },
+      "revId": "c46767d44e157455342b407e115ea36edbf57901",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
