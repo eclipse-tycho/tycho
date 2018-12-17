@@ -91,6 +91,24 @@
       "revId": "c46767d44e157455342b407e115ea36edbf57901",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14e6a9e0_7f60d336",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2018-12-17T09:17:42Z",
+      "side": 1,
+      "message": "if the timeout dumper is small and self-contained without additional dependencies, the best option might be to bring it with Tycho",
+      "parentUuid": "f3a83b57_ce2b61c8",
+      "revId": "c46767d44e157455342b407e115ea36edbf57901",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
