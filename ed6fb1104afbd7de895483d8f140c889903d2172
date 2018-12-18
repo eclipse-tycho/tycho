@@ -39,6 +39,24 @@
       "revId": "ed6fb1104afbd7de895483d8f140c889903d2172",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b00b1bde_b167d3bd",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 119988
+      },
+      "writtenOn": "2018-12-18T08:07:02Z",
+      "side": 1,
+      "message": "Isn\u0027t the watchdog outside of the JVM which runs the tests? In that case we need to run jstack and I really do not want to mess with command line calls in a cross-platform environment (that may or may not have jstack). I have 0 experience in this.",
+      "parentUuid": "560cddff_4195a3c1",
+      "revId": "ed6fb1104afbd7de895483d8f140c889903d2172",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
