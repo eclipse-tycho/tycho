@@ -22,6 +22,23 @@
       "revId": "ed6fb1104afbd7de895483d8f140c889903d2172",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "560cddff_4195a3c1",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/OsgiSurefireBooter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2018-12-18T07:59:00Z",
+      "side": 1,
+      "message": "What\u0027s implemented here is a \"dumpStackTrace\" on timeout; but in reality, do we want the dump to be timer or more a hook before timeout closes application?\nI think the later case could be preferred -so we don\u0027t duplicate timer logic-, and could be implemented by overriding ExecuteWatchdog.timeoutOccured()",
+      "revId": "ed6fb1104afbd7de895483d8f140c889903d2172",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
