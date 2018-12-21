@@ -29,6 +29,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.eclipse.osgi.container.namespaces.EclipsePlatformNamespace;
 import org.eclipse.osgi.internal.framework.FilterImpl;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -39,15 +40,19 @@ import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.artifacts.TargetPlatform;
 import org.eclipse.tycho.classpath.ClasspathEntry;
 import org.eclipse.tycho.classpath.ClasspathEntry.AccessRule;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
 import org.eclipse.tycho.core.ArtifactDependencyWalker;
 import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.DependencyResolver;
+import org.eclipse.tycho.core.DependencyResolverConfiguration;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.StandardExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
@@ -56,6 +61,7 @@ import org.eclipse.tycho.core.osgitools.DependencyComputer.DependencyEntry;
 import org.eclipse.tycho.core.osgitools.project.BuildOutputJar;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProject;
 import org.eclipse.tycho.core.osgitools.project.EclipsePluginProjectImpl;
+import org.eclipse.tycho.core.resolver.DefaultDependencyResolverFactory;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
@@ -82,6 +88,12 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Requirement
     private DependencyComputer dependencyComputer;
+
+    @Requirement
+    private DefaultDependencyResolverFactory dependencyResolverLocator;
+
+    @Requirement
+    private Logger logger;
 
     @Override
     public ArtifactDependencyWalker getDependencyWalker(MavenProject project, TargetEnvironment environment) {
@@ -159,7 +171,34 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
 
     @Override
     public void resolveClassPath(MavenSession session, MavenProject project) {
-        DependencyArtifacts artifacts = getDependencyArtifacts(project);
+        ExecutionEnvironmentConfiguration oldEE = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
+        TargetPlatformConfiguration config = (TargetPlatformConfiguration) project
+                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        config.setExecutionEnvironment("JavaSE-11");
+
+        ExecutionEnvironmentConfiguration sink = new ExecutionEnvironmentConfigurationImpl(logger,
+                !config.isResolveWithEEConstraints());
+        String configuredForcedProfile = config.getExecutionEnvironment();
+        if (configuredForcedProfile != null) {
+            sink.overrideProfileConfiguration(configuredForcedProfile,
+                    "target-platform-configuration <executionEnvironment>");
+        }
+
+        String configuredDefaultProfile = config.getExecutionEnvironmentDefault();
+        if (configuredDefaultProfile != null) {
+            sink.setProfileConfiguration(configuredDefaultProfile,
+                    "target-platform-configuration <executionEnvironmentDefault>");
+        }
+        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, sink);
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+        DependencyResolverConfiguration resolverConfiguration = config.getDependencyResolverConfiguration();
+        DependencyResolver depResolver = dependencyResolverLocator.lookupDependencyResolver(project);
+        TargetPlatform preliminaryTargetPlatform = depResolver.computePreliminaryTargetPlatform(session, project,
+                reactorProjects);
+        DependencyArtifacts artifacts = depResolver.resolveDependencies(session, project, preliminaryTargetPlatform,
+                reactorProjects, resolverConfiguration);
+
+        //old code
 
         State state = getResolverState(project, artifacts);
 
@@ -174,7 +213,8 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
         // dependencies
         List<AccessRule> strictBootClasspathAccessRules = new ArrayList<>();
         strictBootClasspathAccessRules.add(new DefaultAccessRule("java/**", false));
-        for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(), bundleDescription)) {
+        for (DependencyEntry entry : dependencyComputer.computeDependencies(state.getStateHelper(),
+                bundleDescription)) {
             if (EquinoxResolver.SYSTEM_BUNDLE_ID == entry.desc.getBundleId()) {
                 if (entry.rules != null) {
                     strictBootClasspathAccessRules.addAll(entry.rules);
@@ -218,6 +258,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
                 dependencyComputer.computeBootClasspathExtraAccessRules(state.getStateHelper(), bundleDescription));
 
         addPDESourceRoots(project);
+
+        //reset EE to original one
+        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, oldEE);
     }
 
     protected ArtifactDescriptor getArtifact(DependencyArtifacts artifacts, File location, String id) {
@@ -330,9 +373,9 @@ public class OsgiBundleProject extends AbstractTychoProject implements BundlePro
     }
 
     /**
-     * Returns bundle classpath entries. If <code>nestedPath</code> is not <code>null</code>, returns
-     * single class folder that corresponds specified nestedPath. If <code>nestedPath</code> is
-     * <code>null</code>, returns entries specified in Bundle-ClassPath.
+     * Returns bundle classpath entries. If <code>nestedPath</code> is not <code>null</code>,
+     * returns single class folder that corresponds specified nestedPath. If <code>nestedPath</code>
+     * is <code>null</code>, returns entries specified in Bundle-ClassPath.
      */
     private List<File> getOtherProjectClasspath(ArtifactDescriptor bundle, ReactorProject otherProject,
             String nestedPath) {
