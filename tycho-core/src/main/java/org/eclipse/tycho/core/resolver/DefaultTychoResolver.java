@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import org.eclipse.tycho.core.ee.ExecutionEnvironmentConfigurationImpl;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.osgitools.AbstractTychoProject;
 import org.eclipse.tycho.core.osgitools.DebugUtils;
+import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.resolver.DependencyVisitor;
@@ -83,8 +84,8 @@ public class DefaultTychoResolver implements TychoResolver {
 
         setTychoEnvironmentProperties(properties, project);
 
-        TargetPlatformConfiguration configuration = configurationReader
-                .getTargetPlatformConfiguration(session, project);
+        TargetPlatformConfiguration configuration = configurationReader.getTargetPlatformConfiguration(session,
+                project);
         project.setContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION, configuration);
 
         ExecutionEnvironmentConfiguration eeConfiguration = new ExecutionEnvironmentConfigurationImpl(logger,
@@ -114,8 +115,17 @@ public class DefaultTychoResolver implements TychoResolver {
         DependencyResolverConfiguration resolverConfiguration = configuration.getDependencyResolverConfiguration();
 
         logger.info("Resolving dependencies of " + project);
-        DependencyArtifacts dependencyArtifacts = resolver.resolveDependencies(session, project,
-                preliminaryTargetPlatform, reactorProjects, resolverConfiguration);
+        // store EE configuration in case second resolution has to be applied due to Java version removing modules
+        ExecutionEnvironmentConfiguration oldEE = TychoProjectUtils.getExecutionEnvironmentConfiguration(project);
+        String javaVersion = System.getProperty("java.specification.version");
+        String newEEName = "JavaSE-" + javaVersion;
+        DependencyArtifacts dependencyArtifacts;
+        if (javaVersion.compareTo("11") >= 0 && !oldEE.getProfileName().equals(newEEName)) {
+            dependencyArtifacts = resolveWithCurrentEE(session, project, newEEName);
+        } else {
+            dependencyArtifacts = resolver.resolveDependencies(session, project, preliminaryTargetPlatform,
+                    reactorProjects, resolverConfiguration);
+        }
 
         if (logger.isDebugEnabled() && DebugUtils.isDebugEnabled(session, project)) {
             StringBuilder sb = new StringBuilder();
@@ -128,6 +138,9 @@ public class DefaultTychoResolver implements TychoResolver {
 
         logger.info("Resolving class path of " + project);
         dr.resolveClassPath(session, project);
+
+        //reset EE to original one
+        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, oldEE);
 
         resolver.injectDependenciesIntoMavenModel(project, dr, dependencyArtifacts, logger);
 
@@ -168,6 +181,25 @@ public class DefaultTychoResolver implements TychoResolver {
         project.getProperties().put(TYCHO_ENV_OSGI_WS, ws);
         project.getProperties().put(TYCHO_ENV_OSGI_OS, os);
         project.getProperties().put(TYCHO_ENV_OSGI_ARCH, arch);
+    }
+
+    private DependencyArtifacts resolveWithCurrentEE(MavenSession session, MavenProject project, String newEEName) {
+        TargetPlatformConfiguration config = (TargetPlatformConfiguration) project
+                .getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION);
+        config.setExecutionEnvironment(newEEName);
+
+        ExecutionEnvironmentConfiguration sink = new ExecutionEnvironmentConfigurationImpl(logger,
+                !config.isResolveWithEEConstraints());
+        sink.overrideProfileConfiguration(newEEName, "current execution environment");
+
+        project.setContextValue(TychoConstants.CTX_EXECUTION_ENVIRONMENT_CONFIGURATION, sink);
+        List<ReactorProject> reactorProjects = DefaultReactorProject.adapt(session);
+        DependencyResolverConfiguration resolverConfiguration = config.getDependencyResolverConfiguration();
+        DependencyResolver depResolver = dependencyResolverLocator.lookupDependencyResolver(project);
+        TargetPlatform preliminaryTargetPlatform = depResolver.computePreliminaryTargetPlatform(session, project,
+                reactorProjects);
+        return depResolver.resolveDependencies(session, project, preliminaryTargetPlatform, reactorProjects,
+                resolverConfiguration);
     }
 
 }
