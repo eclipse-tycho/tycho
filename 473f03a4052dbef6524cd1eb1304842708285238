@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a507a5d_bccdf60c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-01-03T11:50:59Z",
+      "side": 1,
+      "message": "It is specified as https://openjdk.java.net/jeps/223 so I don\u0027t think we need to resolve to reflection here.",
+      "parentUuid": "8c0c1466_3908bd3a",
+      "range": {
+        "startLine": 177,
+        "startChar": 15,
+        "endLine": 177,
+        "endChar": 26
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f037240_fa2b5883",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
         "patchSetId": 4
