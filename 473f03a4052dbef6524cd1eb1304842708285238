@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "2902095b_5e2d301a",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2019-01-03T14:04:25Z",
+      "side": 1,
+      "message": "OK looks like we can rely on it being an integer, so keep it as is as reflection is more complicated",
+      "parentUuid": "ec61742a_43ff193e",
+      "range": {
+        "startLine": 177,
+        "startChar": 15,
+        "endLine": 177,
+        "endChar": 26
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f037240_fa2b5883",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
         "patchSetId": 4
