@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c0c1466_3908bd3a",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2019-01-03T10:30:13Z",
+      "side": 1,
+      "message": "not sure how well specified the format of the version String is. we use it with String comparison. Starting from Java 10 there is Runtime.version().feature() but we would have to use reflection...",
+      "range": {
+        "startLine": 177,
+        "startChar": 15,
+        "endLine": 177,
+        "endChar": 26
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f037240_fa2b5883",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2019-01-03T10:30:13Z",
+      "side": 1,
+      "message": "this string indicates where the override was coming from. we should rather use sth like \"current execution environment\"",
+      "range": {
+        "startLine": 189,
+        "startChar": 58,
+        "endLine": 189,
+        "endChar": 111
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "acce939f_8a8dd7a6",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2019-01-03T10:30:13Z",
+      "side": 1,
+      "message": "move this block to separate method \"resolveWithCurrentEE()\" or similar for better readability",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 198,
+        "endChar": 43
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1cc0610a_e4e198ac",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2019-01-03T10:30:13Z",
+      "side": 1,
+      "message": "remove comment",
+      "range": {
+        "startLine": 203,
+        "startChar": 8,
+        "endLine": 203,
+        "endChar": 18
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
