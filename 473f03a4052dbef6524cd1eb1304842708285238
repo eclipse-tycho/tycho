@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "ec61742a_43ff193e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-01-03T12:43:55Z",
+      "side": 1,
+      "message": "Please let me know if I should go the Runtime.version path.",
+      "parentUuid": "5a507a5d_bccdf60c",
+      "range": {
+        "startLine": 177,
+        "startChar": 15,
+        "endLine": 177,
+        "endChar": 26
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f037240_fa2b5883",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
         "patchSetId": 4
@@ -60,6 +84,30 @@
       "writtenOn": "2019-01-03T10:30:13Z",
       "side": 1,
       "message": "this string indicates where the override was coming from. we should rather use sth like \"current execution environment\"",
+      "range": {
+        "startLine": 189,
+        "startChar": 58,
+        "endLine": 189,
+        "endChar": 111
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d91f906_f3e228ab",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-01-03T12:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f037240_fa2b5883",
       "range": {
         "startLine": 189,
         "startChar": 58,
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "deed9c70_b184f041",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-01-03T12:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acce939f_8a8dd7a6",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 198,
+        "endChar": 43
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1cc0610a_e4e198ac",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
         "patchSetId": 4
@@ -106,6 +178,30 @@
       "writtenOn": "2019-01-03T10:30:13Z",
       "side": 1,
       "message": "remove comment",
+      "range": {
+        "startLine": 203,
+        "startChar": 8,
+        "endLine": 203,
+        "endChar": 18
+      },
+      "revId": "473f03a4052dbef6524cd1eb1304842708285238",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f45f271c_7f7d0dce",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/OsgiBundleProject.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-01-03T12:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cc0610a_e4e198ac",
       "range": {
         "startLine": 203,
         "startChar": 8,
