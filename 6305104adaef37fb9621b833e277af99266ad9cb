@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "4c95fb5c_9717a878",
+        "filename": "tycho-its/projects/compiler.javaxAnnotationImport/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2019-01-07T08:43:16Z",
+      "side": 1,
+      "message": "I don\u0027t understand.\n\nIf I remove this block and compile the sample project using JDK11, it succeeds with\n\n[DEBUG] Classpath:\n[DEBUG]  /Users/d037913/.m2/repository/p2/osgi/bundle/javax.annotation/1.2.0.v201602091430/javax.annotation-1.2.0.v201602091430.jar[+javax/annotation/*:?**/*]\n[DEBUG]  /Users/d037913/git/eclipse/org.eclipse.tycho/tycho-its/projects/compiler.javaxAnnotationImport/target/classes\n\n\nthat means the second resolution using JavaSE-11 correctly finds the package provided by the bundle in the target platform (as it is not provided by JavaSE-11).\n\nso why is this block still needed?",
+      "parentUuid": "489b3b10_a59c7c20",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 29
+      },
+      "revId": "6305104adaef37fb9621b833e277af99266ad9cb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fcf1c4bf_34a4138f",
         "filename": "tycho-its/projects/compiler.javaxAnnotationImport/src/Test.java",
         "patchSetId": 7
@@ -178,6 +202,30 @@
       "side": 1,
       "message": "As we alter the generic resolution for all phases I thought it\u0027s enough to add test using compile. If you think having one for tests would help I\u0027ll add it but it would be testing exactly the same resolving path.",
       "parentUuid": "e4aaf127_953cc286",
+      "range": {
+        "startLine": 23,
+        "startChar": 30,
+        "endLine": 23,
+        "endChar": 37
+      },
+      "revId": "6305104adaef37fb9621b833e277af99266ad9cb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a26a58b2_1287be86",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/compiler/JavaxAnnotationImportTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 434
+      },
+      "writtenOn": "2019-01-07T08:43:16Z",
+      "side": 1,
+      "message": "OK, makes sense.",
+      "parentUuid": "2dcfe894_17e80a24",
       "range": {
         "startLine": 23,
         "startChar": 30,
