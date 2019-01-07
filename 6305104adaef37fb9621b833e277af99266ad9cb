@@ -120,6 +120,78 @@
     },
     {
       "key": {
+        "uuid": "2209cb0d_5da45b29",
+        "filename": "tycho-its/projects/compiler.javaxAnnotationImport/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-01-07T10:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "489b3b10_a59c7c20",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 29
+      },
+      "revId": "6305104adaef37fb9621b833e277af99266ad9cb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0125d1b_204dbe92",
+        "filename": "tycho-its/projects/compiler.javaxAnnotationImport/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-01-07T10:57:41Z",
+      "side": 1,
+      "message": "My mistake, to be removed.",
+      "parentUuid": "4c95fb5c_9717a878",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 29
+      },
+      "revId": "6305104adaef37fb9621b833e277af99266ad9cb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76ce085f_96ed2c7c",
+        "filename": "tycho-its/projects/compiler.javaxAnnotationImport/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-01-07T10:57:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f771804a_3da8304e",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 29
+      },
+      "revId": "6305104adaef37fb9621b833e277af99266ad9cb",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fcf1c4bf_34a4138f",
         "filename": "tycho-its/projects/compiler.javaxAnnotationImport/src/Test.java",
         "patchSetId": 7
