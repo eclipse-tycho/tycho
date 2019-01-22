@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SAP SE and others.
+ * Copyright (c) 2011, 2018 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,6 @@ import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
@@ -53,7 +52,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-@SuppressWarnings("restriction")
 public class MirrorApplicationServiceTest {
 
     // feature containing org.eclipse.core.runtime 3.4
@@ -213,8 +211,8 @@ public class MirrorApplicationServiceTest {
 
     private static Set<IRequirement> strictRequirementTo(VersionedId unit) {
         VersionRange strictRange = new VersionRange(unit.getVersion(), true, unit.getVersion(), true);
-        IRequirement requirement = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), strictRange,
-                null, false, false);
+        IRequirement requirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(),
+                strictRange, null, false, false);
         return Collections.singleton(requirement);
     }
 
