@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecution;
@@ -63,17 +62,12 @@ public class ClassfileComparator implements ContentsComparator {
     private String disassemble(byte[] bytes) {
         ClassReader reader = new ClassReader(bytes);
         ClassNode clazz = new ClassNode();
-        reader.accept(clazz, Opcodes.ASM5 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+        reader.accept(clazz, Opcodes.ASM7 | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 
         // inner class list gets reordered during pack200 normalization
         if (clazz.innerClasses != null) {
             List<InnerClassNode> sorted = new ArrayList<>(clazz.innerClasses);
-            Collections.sort(sorted, new Comparator<InnerClassNode>() {
-                @Override
-                public int compare(InnerClassNode o1, InnerClassNode o2) {
-                    return o1.name.compareTo(o2.name);
-                }
-            });
+            Collections.sort(sorted, (o1, o2) -> o1.name.compareTo(o2.name));
             clazz.innerClasses = sorted;
         }
 
