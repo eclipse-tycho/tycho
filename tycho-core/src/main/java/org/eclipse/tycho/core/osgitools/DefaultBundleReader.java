@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,8 +62,8 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                 return loadManifestFromFile(bundleLocation);
             } else {
                 // file does not exist
-                throw new OsgiManifestParserException(
-                        new File(bundleLocation, JarFile.MANIFEST_NAME).getAbsolutePath(), "Manifest file not found");
+                throw new OsgiManifestParserException(new File(bundleLocation, JarFile.MANIFEST_NAME).getAbsolutePath(),
+                        "Manifest file not found");
             }
         } catch (IOException e) {
             throw new OsgiManifestParserException(bundleLocation.getAbsolutePath(), e);
@@ -78,9 +79,11 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
         ZipFile jar = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
         try {
             ZipEntry manifestEntry = jar.getEntry(JarFile.MANIFEST_NAME);
+
             if (manifestEntry != null) {
                 InputStream stream = jar.getInputStream(manifestEntry);
-                return OsgiManifest.parse(stream, bundleLocation.getAbsolutePath() + "!/" + JarFile.MANIFEST_NAME);
+                return OsgiManifest.parse(stream,
+                        new URL("jar:" + bundleLocation.toURL() + "!/" + JarFile.MANIFEST_NAME));
             }
         } finally {
             jar.close();
@@ -98,7 +101,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     }
 
     private OsgiManifest loadManifestFile(File manifestFile) throws IOException, OsgiManifestParserException {
-        return OsgiManifest.parse(new FileInputStream(manifestFile), manifestFile.getAbsolutePath());
+        return OsgiManifest.parse(new FileInputStream(manifestFile), manifestFile.toURL());
     }
 
     public void setLocationRepository(File basedir) {
