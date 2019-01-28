@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.eclipse.tycho.core.ee.ExecutionEnvironmentUtils;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironment;
@@ -45,8 +46,7 @@ public class OsgiManifestTest {
             parseManifest("noVersion.mf");
             fail();
         } catch (InvalidOSGiManifestException e) {
-            assertEquals("Exception parsing OSGi MANIFEST testLocation: MANIFEST header 'Bundle-Version' not found",
-                    e.getMessage());
+            assertThat(e.getMessage(), containsString("MANIFEST header 'Bundle-Version' not found"));
         }
     }
 
@@ -56,9 +56,8 @@ public class OsgiManifestTest {
             parseManifest("invalidVersion.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\""));
+            assertThat(e.getMessage(), containsString(
+                    "invalid version \"1.0.0.%invalidQualifier\": invalid qualifier \"%invalidQualifier\""));
         }
     }
 
@@ -68,9 +67,8 @@ public class OsgiManifestTest {
             parseManifest("duplicateImport.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
+            assertThat(e.getMessage(), containsString(
+                    "Invalid manifest header Import-Package: \"org.w3c.dom\" : Cannot import a package more than once \"org.w3c.dom\""));
         }
     }
 
@@ -80,9 +78,8 @@ public class OsgiManifestTest {
             parseManifest("invalidVersionQualifier.mf");
             fail();
         } catch (OsgiManifestParserException e) {
-            assertThat(
-                    e.getMessage(),
-                    containsString("Invalid manifest header Bundle-Version: \"invalid\" : invalid version \"invalid\": non-numeric \"invalid\""));
+            assertThat(e.getMessage(), containsString(
+                    "Invalid manifest header Bundle-Version: \"invalid\" : invalid version \"invalid\": non-numeric \"invalid\""));
         }
     }
 
@@ -124,8 +121,15 @@ public class OsgiManifestTest {
         parseManifest("invalidBree.mf");
     }
 
+    @Test(expected = OsgiManifestParserException.class)
+    public void testTerminatingLineAtEndOfMF() throws Exception {
+        parseManifest("manifestBug377249.mf");
+    }
+
     private OsgiManifest parseManifest(String manifestName) throws URISyntaxException {
-        InputStream stream = getClass().getResourceAsStream("/manifests/" + manifestName);
-        return OsgiManifest.parse(stream, "testLocation");
+        String locationPath = "/manifests/" + manifestName;
+        URL location = getClass().getResource(locationPath);
+        InputStream stream = getClass().getResourceAsStream(locationPath);
+        return OsgiManifest.parse(stream, location);
     }
 }
