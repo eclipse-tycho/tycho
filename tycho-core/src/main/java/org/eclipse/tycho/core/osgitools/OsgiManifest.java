@@ -4,6 +4,11 @@ import static org.osgi.framework.Constants.BUNDLE_CLASSPATH;
 import static org.osgi.framework.Constants.BUNDLE_VERSION;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.osgi.framework.util.Headers;
 import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl;
@@ -28,7 +33,7 @@ public class OsgiManifest {
 
     private static final StandardExecutionEnvironment[] EMPTY_EXEC_ENV = new StandardExecutionEnvironment[0];
 
-    private String location;
+    private URL location;
     private Headers<String, String> headers;
 
     // cache for parsed values of commonly used headers
@@ -38,21 +43,51 @@ public class OsgiManifest {
     private StandardExecutionEnvironment[] executionEnvironments;
     private boolean isDirectoryShape;
 
-    private OsgiManifest(InputStream stream, String location) throws OsgiManifestParserException {
+    private OsgiManifest(InputStream stream, URL location) throws OsgiManifestParserException {
         this.location = location;
         try {
+            validateContent(location);
+
             this.headers = Headers.parseManifest(stream);
             // this will do more strict validation of headers on OSGi semantical level
             BundleDescription bundleDescription = StateObjectFactoryImpl.defaultFactory.createBundleDescription(null,
-                    headers, location, 0L);
+                    headers, location.toString(), 0L);
             this.bundleSymbolicName = bundleDescription.getSymbolicName();
         } catch (BundleException e) {
-            throw new OsgiManifestParserException(location, e);
+            throw new OsgiManifestParserException(location.toString(), e);
         }
         this.bundleVersion = parseBundleVersion();
         this.bundleClassPath = parseBundleClasspath();
         this.isDirectoryShape = parseDirectoryShape();
         this.executionEnvironments = parseExecutionEnvironments();
+    }
+
+    static void validateContent(URL location) throws OsgiManifestParserException {
+        List<String> result = new ArrayList<>();
+
+        try (InputStreamReader reader = new InputStreamReader(location.openStream(), Charset.forName("UTF-8"))) {
+            StringBuffer sb = new StringBuffer();
+            while (reader.ready()) {
+                char c = (char) reader.read();
+                if (c == '\n') {
+                    result.add(sb.toString());
+                    sb = new StringBuffer();
+                } else {
+                    sb.append(c);
+                }
+            }
+            result.add(sb.toString() + "\n");
+
+        } catch (Exception e) {
+            throw new OsgiManifestParserException(location.toString(), e);
+        }
+
+        String lastLine = result.get(result.size() - 1);
+
+        if (!lastLine.matches("\\s+")) {
+            throw new OsgiManifestParserException(location.toString(), "Header must be terminated by a line break");
+        }
+
     }
 
     private StandardExecutionEnvironment[] parseExecutionEnvironments() {
@@ -66,7 +101,7 @@ public class OsgiManifest {
                 envs[i] = ExecutionEnvironmentUtils.getExecutionEnvironment(brees[i].getValue());
             }
         } catch (UnknownEnvironmentException e) {
-            throw new OsgiManifestParserException(location, e);
+            throw new OsgiManifestParserException(location.toString(), e);
         }
         return envs;
     }
@@ -76,25 +111,28 @@ public class OsgiManifest {
         try {
             return Version.parseVersion(versionString).toString();
         } catch (NumberFormatException e) {
-            throw new InvalidOSGiManifestException(location, "Bundle-Version '" + versionString + "' is invalid");
+            throw new InvalidOSGiManifestException(location.toString(),
+                    "Bundle-Version '" + versionString + "' is invalid");
         } catch (IllegalArgumentException e) {
-            throw new InvalidOSGiManifestException(location, e);
+            throw new InvalidOSGiManifestException(location.toString(), e);
         }
     }
 
     private String parseMandatoryFirstValue(String headerKey) throws InvalidOSGiManifestException {
         String value = headers.get(headerKey);
         if (value == null) {
-            throw new InvalidOSGiManifestException(location, "MANIFEST header '" + headerKey + "' not found");
+            throw new InvalidOSGiManifestException(location.toString(),
+                    "MANIFEST header '" + headerKey + "' not found");
         }
         ManifestElement[] elements = null;
         try {
             elements = ManifestElement.parseHeader(headerKey, value);
         } catch (BundleException e) {
-            throw new InvalidOSGiManifestException(location, e);
+            throw new InvalidOSGiManifestException(location.toString(), e);
         }
         if (elements == null || elements.length == 0) {
-            throw new InvalidOSGiManifestException(location, "value for MANIFEST header '" + headerKey + "' is empty");
+            throw new InvalidOSGiManifestException(location.toString(),
+                    "value for MANIFEST header '" + headerKey + "' is empty");
         }
         return elements[0].getValue();
     }
@@ -148,7 +186,7 @@ public class OsgiManifest {
         return isDirectoryShape;
     }
 
-    static OsgiManifest parse(InputStream stream, String location) throws OsgiManifestParserException {
+    static OsgiManifest parse(InputStream stream, URL location) throws OsgiManifestParserException {
         return new OsgiManifest(stream, location);
     }
 
@@ -160,7 +198,7 @@ public class OsgiManifest {
         try {
             return ManifestElement.parseHeader(key, value);
         } catch (BundleException e) {
-            throw new OsgiManifestParserException(location, e);
+            throw new OsgiManifestParserException(location.toString(), e);
         }
     }
 
@@ -168,7 +206,7 @@ public class OsgiManifest {
         try {
             return ManifestElement.parseHeader(key, headers.get(key));
         } catch (BundleException e) {
-            throw new OsgiManifestParserException(location, e);
+            throw new OsgiManifestParserException(location.toString(), e);
         }
     }
 
