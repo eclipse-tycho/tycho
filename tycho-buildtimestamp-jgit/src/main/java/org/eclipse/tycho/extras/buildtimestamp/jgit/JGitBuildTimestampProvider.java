@@ -57,7 +57,7 @@ import org.eclipse.tycho.buildversion.BuildTimestampProvider;
  * the current build timestamp.
  * <p/>
  * 
- * For additional flexibility, some files can be ignored using gitignore patters specified in
+ * For additional flexibility, some files can be ignored using gitignore patterns specified in
  * &ltjgit.ignore> element of tycho-packaging-plugin configuration block.
  * 
  * <p>
@@ -174,7 +174,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                     // the commit is null, so we fallback to the defaultTimestampProvider
                     if (commit == null) {
                         logger.info(
-                                "Fallback to default timestamp provider, because no commit could be found for that project (Shared but not commited yet).");
+                                "Fallback to default timestamp provider, because no commit could be found for that project (Shared but not committed yet).");
                         return defaultTimestampProvider.getTimestamp(session, project, execution);
                     }
                     return new Date(commit.getCommitTime() * 1000L);
