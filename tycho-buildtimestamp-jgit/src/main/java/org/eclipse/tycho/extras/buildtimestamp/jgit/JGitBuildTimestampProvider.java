@@ -170,8 +170,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                     }
                 }
                 // 2. get latest commit for relPath
-                RevWalk walk = new RevWalk(repository);
-                try {
+                try (RevWalk walk = new RevWalk(repository)) {
                     if (pathFilter != null) {
                         walk.setTreeFilter(AndTreeFilter.create(pathFilter, TreeFilter.ANY_DIFF));
                     }
@@ -186,8 +185,6 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                         return defaultTimestampProvider.getTimestamp(session, project, execution);
                     }
                     return new Date(commit.getCommitTime() * 1000L);
-                } finally {
-                    walk.close();
                 }
             }
         } catch (IOException e) {
