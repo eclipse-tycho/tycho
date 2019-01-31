@@ -169,6 +169,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                         walk.setTreeFilter(AndTreeFilter.create(pathFilter, TreeFilter.ANY_DIFF));
                     }
                     walk.markStart(walk.parseCommit(headId));
+                    walk.setRewriteParents(false);
                     RevCommit commit = walk.next();
                     // When dirtyBehaviour==ignore and no commit was ever done, 
                     // the commit is null, so we fallback to the defaultTimestampProvider
