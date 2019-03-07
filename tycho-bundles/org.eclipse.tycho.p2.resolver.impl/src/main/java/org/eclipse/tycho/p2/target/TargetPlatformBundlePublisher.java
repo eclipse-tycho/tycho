@@ -128,6 +128,8 @@ public class TargetPlatformBundlePublisher {
 
         IStatus execute() {
             publisherInfo = new PublisherInfo();
+            // Skip checksum generation as this is very costly and is not required in the dependency resolution scenario
+            publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_NO_MD5);
             enableArtifactDescriptorCollection();
             enableUnitAnnotationWithGAV();
 
@@ -137,7 +139,6 @@ public class TargetPlatformBundlePublisher {
         }
 
         private void enableArtifactDescriptorCollection() {
-            publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
             collectedDescriptors = new TransientArtifactRepository();
             publisherInfo.setArtifactRepository(collectedDescriptors);
         }
