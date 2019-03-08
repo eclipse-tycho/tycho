@@ -95,7 +95,7 @@
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.1.100.v20180131-1413</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<ecjVersion>3.15.1</ecjVersion>
+		<ecjVersion>3.16.0</ecjVersion>
 		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
 
 		<!-- version of Tycho used by this build -->
