@@ -67,7 +67,7 @@
 	<description>Additional tools for Tycho</description>
 
 	<prerequisites>
-		<maven>3.0</maven>
+		<maven>3.0.5</maven>
 	</prerequisites>
 
 	<properties>
@@ -306,7 +306,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.7.0</version>
+					<version>3.8.0</version>
 					<configuration>
 						<source>${min.jdk.version}</source>
 						<target>${min.jdk.version}</target>
@@ -315,7 +315,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.1.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -346,7 +346,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-invoker-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>3.2.0</version>
 					<configuration>
 						<debug>true</debug>
 						<projectsDirectory>src/it</projectsDirectory>
@@ -372,34 +372,9 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.4</version>
+					<version>3.7.1</version>
 					<configuration>
 						<relativizeDecorationLinks>false</relativizeDecorationLinks>
-						<reportPlugins>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-plugin-plugin</artifactId>
-								<version>${plugin-tools-version}</version>
-								<configuration>
-									<requirements>
-										<maven>${maven-version}</maven>
-										<jdk>${min.jdk.version}</jdk>
-									</requirements>
-								</configuration>
-							</plugin>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-project-info-reports-plugin</artifactId>
-								<version>2.4</version>
-								<reportSets>
-									<reportSet>
-										<reports>
-											<report>index</report>
-										</reports>
-									</reportSet>
-								</reportSets>
-							</plugin>
-						</reportPlugins>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -435,6 +410,33 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<reporting>
+	<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-plugin-plugin</artifactId>
+			<version>${plugin-tools-version}</version>
+			<configuration>
+				<requirements>
+					<maven>${maven-version}</maven>
+					<jdk>${min.jdk.version}</jdk>
+				</requirements>
+			</configuration>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-project-info-reports-plugin</artifactId>
+			<version>3.0.0</version>
+			<reportSets>
+				<reportSet>
+					<reports>
+						<report>index</report>
+					</reports>
+				</reportSet>
+			</reportSets>
+		</plugin>
+	</plugins>
+	</reporting>
 
 	<profiles>
 		<profile>
@@ -459,7 +461,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.0.1</version>
 						<configuration>
 							<failOnError>false</failOnError>
 						</configuration>
