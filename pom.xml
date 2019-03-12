@@ -91,9 +91,9 @@
 		<surefire-version>2.22.0</surefire-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
-		<equinoxVersion>3.13.0.v20180226-1711</equinoxVersion>
+		<equinoxVersion>3.13.200</equinoxVersion>
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
-		<equinoxCompatVersion>1.1.100.v20180131-1413</equinoxCompatVersion>
+		<equinoxCompatVersion>1.1.300</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
 		<ecjVersion>3.16.0</ecjVersion>
 		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
@@ -215,12 +215,12 @@
 				<version>3.1</version>
 			</dependency>
 			<dependency>
-				<groupId>org.eclipse.tycho</groupId>
+				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.osgi</artifactId>
 				<version>${equinoxVersionMaven}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.eclipse.tycho</groupId>
+				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.osgi.compatibility.state</artifactId>
 				<version>${equinoxCompatVersionMaven}</version>
 			</dependency>
