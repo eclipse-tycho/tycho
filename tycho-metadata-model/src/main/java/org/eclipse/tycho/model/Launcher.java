@@ -22,6 +22,8 @@ public class Launcher {
 
     public static final String ICON_MAC = ICON_LINUX;
 
+    public static final String ICON_FREEBSD = ICON_LINUX;
+
     public static final String ICON_WINDOWS_ICO_PATH = "path";
 
     public static final String ICON_WINDOWS_EXTRA_LARGE_HIGH = "winExtraLargeHigh";
@@ -64,6 +66,16 @@ public class Launcher {
         Map<String, String> linux = new HashMap<>();
         putIfNotNull(linux, ICON_LINUX, linuxDom.getAttributeValue(ICON_LINUX));
         return Collections.unmodifiableMap(linux);
+    }
+
+    public Map<String, String> getFreeBSDIcon() {
+        Element freebsdDom = dom.getChild("freebsd");
+        if (freebsdDom == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, String> freebsd = new HashMap<>(1);
+        putIfNotNull(freebsd, ICON_FREEBSD, freebsdDom.getAttributeValue(ICON_FREEBSD));
+        return Collections.unmodifiableMap(freebsd);
     }
 
     public Map<String, String> getMacosxIcon() {

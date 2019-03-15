@@ -642,6 +642,17 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                         throw new MojoExecutionException("Unable to create ico.xpm", e);
                     }
                 }
+            } else if (PlatformPropertiesUtils.OS_FREEBSD.equals(os)) {
+                String icon = productConfiguration.getFreeBSDIcon();
+                if (icon != null) {
+                    try {
+                        File sourceXPM = new File(project.getBasedir(), removeFirstSegment(icon));
+                        File targetXPM = new File(launcher.getParentFile(), "icon.xpm");
+                        FileUtils.copyFile(sourceXPM, targetXPM);
+                    } catch (IOException e) {
+                        throw new MojoExecutionException("Unable to create ico.xpm", e);
+                    }
+                }
             } else if (PlatformPropertiesUtils.OS_MACOSX.equals(os)) {
                 String icon = productConfiguration.getMacIcon();
                 if (icon != null) {
@@ -762,7 +773,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         }
 
         if (PlatformPropertiesUtils.OS_LINUX.equals(os) || PlatformPropertiesUtils.OS_SOLARIS.equals(os)
-                || PlatformPropertiesUtils.OS_HPUX.equals(os) || PlatformPropertiesUtils.OS_AIX.equals(os)) {
+                || PlatformPropertiesUtils.OS_HPUX.equals(os) || PlatformPropertiesUtils.OS_AIX.equals(os)
+                || PlatformPropertiesUtils.OS_FREEBSD.equals(os)) {
             return new File(target, "launcher");
         }
 

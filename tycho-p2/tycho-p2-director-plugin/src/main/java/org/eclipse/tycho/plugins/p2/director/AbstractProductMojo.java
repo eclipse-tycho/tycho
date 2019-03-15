@@ -83,6 +83,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
      *         &lt;rootFolders&gt;
      *           &lt;macosx&gt;&lt;/macosx&gt;
      *           &lt;linux&gt;&lt;/linux&gt;
+     *           &lt;freebsd&gt;&lt;/freebsd&gt;
      *           &lt;win32&gt;&lt;/win32&gt;
      *         &lt;/rootFolders&gt;
      *       &lt;/product&gt;
@@ -97,8 +98,8 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * archive, e.g. "eclipse". By default, the product is stored in the archive root.</li>
      * <li>
      * <tt>rootFolders</tt> - OS-specific installation root folders, overriding <tt>rootFolder</tt>.
-     * Allowed children are <tt>&lt;macosx&gt;</tt>, <tt>&lt;win32&gt;</tt> and <tt>&lt;linux&gt;</tt> or any
-     * other OS supported by p2. Since 0.18.0</li>
+     * Allowed children are <tt>&lt;macosx&gt;</tt>, <tt>&lt;win32&gt;</tt>, <tt>&lt;linux&gt;</tt> and 
+     * <tt>&lt;freebsd&gt;</tt> or any other OS supported by p2. Since 0.18.0</li>
      * </ul>
      * 
      */

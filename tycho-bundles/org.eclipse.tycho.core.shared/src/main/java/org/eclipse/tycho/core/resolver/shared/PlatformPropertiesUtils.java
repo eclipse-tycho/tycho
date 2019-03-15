@@ -30,6 +30,7 @@ public class PlatformPropertiesUtils {
     public static final String INTERNAL_OS_AIX = "AIX"; //$NON-NLS-1$
     public static final String INTERNAL_OS_HPUX = "HP-UX"; //$NON-NLS-1$
     public static final String INTERNAL_OS_QNX = "QNX"; //$NON-NLS-1$
+    public static final String INTERNAL_OS_FREEBSD = "FreeBSD"; //$NON-NLS-1$
 
     public static final String ARCH_X86 = "x86";//$NON-NLS-1$
     public static final String ARCH_X86_64 = "x86_64";//$NON-NLS-1$
@@ -84,6 +85,12 @@ public class PlatformPropertiesUtils {
      * system.
      */
     public static final String OS_MACOSX = "macosx";//$NON-NLS-1$
+
+    /**
+     * Constant string (value "freebsd") indicating the platform is running on a FreeBSD operating
+     * system.
+     */
+    public static final String OS_FREEBSD = "freebsd";//$NON-NLS-1$
 
     /**
      * Constant string (value "unknown") indicating the platform is running on a machine running an
@@ -148,6 +155,8 @@ public class PlatformPropertiesUtils {
             return Constants.WS_WIN32;
         if (osName.equals(Constants.OS_LINUX))
             return Constants.WS_GTK;
+        if (osName.equals(Constants.OS_FREEBSD))
+            return Constants.WS_GTK;
         if (osName.equals(Constants.OS_MACOSX)) {
             String arch = getArch(properties);
             if (ARCH_X86_64.equals(arch))
@@ -184,6 +193,8 @@ public class PlatformPropertiesUtils {
             return Constants.OS_AIX;
         if (osName.equalsIgnoreCase(Constants.INTERNAL_OS_HPUX))
             return Constants.OS_HPUX;
+        if (osName.equalsIgnoreCase(Constants.INTERNAL_OS_FREEBSD))
+            return Constants.OS_FREEBSD;
         // os.name on Mac OS can be either Mac OS or Mac OS X
         if (osName.regionMatches(true, 0, Constants.INTERNAL_OS_MACOSX, 0, Constants.INTERNAL_OS_MACOSX.length()))
             return Constants.OS_MACOSX;

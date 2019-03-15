@@ -10,16 +10,19 @@
       <macosx>macosx.ini</macosx>
       <solaris>solaris.ini</solaris>
       <win32>win32.ini</win32>
+      <freebsd>freebsd.ini</freebsd>
    </configIni>
 
    <launcherArgs>
       <programArgs>-all args</programArgs>
       <programArgsLin>-linux args</programArgsLin>
+      <programArgsFbsd>-freebsd args</programArgsFbsd>
       <programArgsMac>-mac args</programArgsMac>
       <programArgsSol>-solaris args</programArgsSol>
       <programArgsWin>-win32 args</programArgsWin>
       <vmArgs>-all vm</vmArgs>
       <vmArgsLin>-linux vm</vmArgsLin>
+      <vmArgsFbsd>-freebsd vm</vmArgsFbsd>
       <vmArgsMac>-mac vm</vmArgsMac>
       <vmArgsSol>-solaris vm</vmArgsSol>
       <vmArgsWin>-win32 vm</vmArgsWin>
@@ -32,6 +35,7 @@
 
    <launcher name="launchername">
       <linux icon="XPM"/>
+      <freebsd icon="XPM"/>
       <macosx icon="icns"/>
       <solaris
             solarisLarge="large"
