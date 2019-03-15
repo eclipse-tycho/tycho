@@ -62,6 +62,7 @@ public class ProductConfigurationTest {
         Assert.assertNotNull(launcher);
         Assert.assertEquals("launchername", launcher.getName());
         Assert.assertEquals("XPM", launcher.getLinuxIcon().get(Launcher.ICON_LINUX));
+        Assert.assertEquals("XPM", launcher.getFreeBSDIcon().get(Launcher.ICON_FREEBSD));
         Assert.assertEquals("icns", launcher.getMacosxIcon().get(Launcher.ICON_MAC));
         Assert.assertEquals("large", launcher.getSolarisIcon().get(Launcher.ICON_SOLARIS_LARGE));
         Assert.assertEquals("medium", launcher.getSolarisIcon().get(Launcher.ICON_SOLARIS_MEDIUM));

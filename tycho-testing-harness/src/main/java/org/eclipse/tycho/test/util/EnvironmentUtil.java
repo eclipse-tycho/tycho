@@ -56,6 +56,8 @@ public class EnvironmentUtil {
 
     private static final String LINUX_OS = "linux";
 
+    private static final String FREEBSD_OS = "freebsd";
+
     private static final String OS = System.getProperty("os.name").toLowerCase();
 
     public static boolean isWindows() {
@@ -64,6 +66,10 @@ public class EnvironmentUtil {
 
     public static boolean isLinux() {
         return OS.startsWith(LINUX_OS);
+    }
+
+    public static boolean isFreeBSD() {
+        return OS.startsWith(FREEBSD_OS);
     }
 
     public static boolean isMac() {

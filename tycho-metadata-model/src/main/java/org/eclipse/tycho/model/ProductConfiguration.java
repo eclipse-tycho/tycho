@@ -220,6 +220,20 @@ public class ProductConfiguration {
         return linux.getAttributeValue("icon");
     }
 
+    public String getFreeBSDIcon() {
+        Element domLauncher = dom.getChild("launcher");
+        if (domLauncher == null) {
+
+            return null;
+        }
+        Element freebsd = domLauncher.getChild("freebsd");
+        if (freebsd == null) {
+            return null;
+        }
+
+        return freebsd.getAttributeValue("icon");
+    }
+
     public Map<String, BundleConfiguration> getPluginConfiguration() {
         Element configurationsDom = dom.getChild("configurations");
         if (configurationsDom == null) {
@@ -274,6 +288,7 @@ public class ProductConfiguration {
 
     public static class ConfigIni {
         private String linuxConfigIni;
+        private String freebsdConfigIni;
         private String macosxConfigIni;
         private String solarisConfigIni;
         private String win32ConfigIni;
@@ -282,6 +297,7 @@ public class ProductConfiguration {
         private ConfigIni(Element configIniElement) {
             useDefault = "default".equals(configIniElement.getAttributeValue("use"));
             linuxConfigIni = getOsSpecificConfigIni(configIniElement, "linux");
+            freebsdConfigIni = getOsSpecificConfigIni(configIniElement, "freebsd");
             macosxConfigIni = getOsSpecificConfigIni(configIniElement, "macosx");
             solarisConfigIni = getOsSpecificConfigIni(configIniElement, "solaris");
             win32ConfigIni = getOsSpecificConfigIni(configIniElement, "win32");
@@ -304,6 +320,10 @@ public class ProductConfiguration {
 
         public String getLinuxConfigIni() {
             return linuxConfigIni;
+        }
+
+        public String getFreeBSDConfigIni() {
+            return freebsdConfigIni;
         }
 
         public String getMacosxConfigIni() {
