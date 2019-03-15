@@ -165,15 +165,6 @@ public final class StandardEEResolutionHints implements ExecutionEnvironmentReso
         return temporaryUnits.values();
     }
 
-    private static IInstallableUnit newIU(String id, Version version) {
-        InstallableUnitDescription iud = new InstallableUnitDescription();
-        iud.setId(id);
-        iud.setVersion(version);
-        iud.addProvidedCapabilities(Collections
-                .singleton(MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, version)));
-        return MetadataFactory.createInstallableUnit(iud);
-    }
-
     private static void put(Map<VersionedId, IInstallableUnit> units, IInstallableUnit unit) {
         units.put(new VersionedId(unit.getId(), unit.getVersion()), unit);
     }
