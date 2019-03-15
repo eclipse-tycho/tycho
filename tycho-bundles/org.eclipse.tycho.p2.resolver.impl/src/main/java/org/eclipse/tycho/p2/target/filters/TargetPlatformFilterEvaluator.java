@@ -276,24 +276,4 @@ public class TargetPlatformFilterEvaluator {
             }
         }
     }
-
-    private class DebugFilterLogger extends FilterLogger {
-        @Override
-        public void beginEvaluation(TargetPlatformFilter filter) {
-            super.beginEvaluation(filter);
-            logger.debug("Applying " + filter);
-        }
-
-        @Override
-        public void unitKept(IInstallableUnit unit) {
-            super.unitKept(unit);
-            logger.debug("  Keeping unit " + unit.getId() + "/" + unit.getVersion());
-        }
-
-        @Override
-        public void unitRemoved(IInstallableUnit unit) {
-            super.unitRemoved(unit);
-            logger.debug("  Removing unit " + unit.getId() + "/" + unit.getVersion());
-        }
-    }
 }
