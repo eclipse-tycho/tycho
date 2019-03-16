@@ -40,4 +40,13 @@ public class EclipseRepoIncludingFeaturePatchTest extends AbstractTychoIntegrati
         P2RepositoryTool p2Repo = P2RepositoryTool.forEclipseRepositoryModule(repositoryProjectFolder);
         assertTrue(p2Repo.getBundleArtifact("org.eclipse.core.runtime", "3.5.0.v20090525").isFile());
     }
+
+    @Test
+    public void testTarget() throws Exception {
+        Verifier verifier = getVerifier("featurePatch.target", false);
+
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+
+    }
 }
