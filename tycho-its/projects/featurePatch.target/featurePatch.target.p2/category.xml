@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/featurePatch.target.feature_0.0.0.qualifier.jar" id="featurePatch.target.feature">
+      <category name="sample.category"/>
+   </feature>
+   <category-def name="sample.category" label="Sample category"/>
+</site>
