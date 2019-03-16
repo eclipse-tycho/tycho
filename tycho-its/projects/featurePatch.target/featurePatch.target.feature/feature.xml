@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="featurePatch.target.feature"
+      label="Sample feature patch"
+      version="1.0.0.qualifier">
+
+   <requires>
+      <import feature="org.eclipse.e4.rcp" version="1.4.1.v20160212-1350" patch="true"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.swt"
+         download-size="19"
+         install-size="41"
+         version="3.105.3.v20170228-0512"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.win32.win32.x86"
+         os="win32"
+         ws="win32"
+         arch="x86"
+         download-size="2801"
+         install-size="5794"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.win32.win32.x86_64"
+         os="win32"
+         ws="win32"
+         arch="x86_64"
+         download-size="2804"
+         install-size="5892"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.linux.x86"
+         os="linux"
+         ws="gtk"
+         arch="x86"
+         download-size="2554"
+         install-size="5890"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.linux.s390x"
+         os="linux"
+         ws="gtk"
+         arch="s390x"
+         download-size="2586"
+         install-size="6283"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.linux.s390"
+         os="linux"
+         ws="gtk"
+         arch="s390"
+         download-size="2548"
+         install-size="6068"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.solaris.x86_64"
+         os="solaris"
+         ws="gtk"
+         arch="x86_64"
+         download-size="2463"
+         install-size="5747"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.solaris.sparcv9"
+         os="solaris"
+         ws="gtk"
+         arch="sparcv9"
+         download-size="2517"
+         install-size="5918"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.linux.ppc"
+         os="linux"
+         ws="gtk"
+         arch="ppc"
+         download-size="2524"
+         install-size="6127"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.linux.ppc64"
+         os="linux"
+         ws="gtk"
+         arch="ppc64"
+         download-size="2600"
+         install-size="6764"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.linux.ppc64le"
+         os="linux"
+         ws="gtk"
+         arch="ppc64le"
+         download-size="2567"
+         install-size="6501"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.linux.x86_64"
+         os="linux"
+         ws="gtk"
+         arch="x86_64"
+         download-size="2701"
+         install-size="6541"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.cocoa.macosx.x86_64"
+         os="macosx"
+         ws="cocoa"
+         arch="x86_64"
+         download-size="2398"
+         install-size="5510"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.aix.ppc"
+         os="aix"
+         ws="gtk"
+         arch="ppc"
+         download-size="2422"
+         install-size="6013"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.aix.ppc64"
+         os="aix"
+         ws="gtk"
+         arch="ppc64"
+         download-size="2462"
+         install-size="6208"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swt.gtk.hpux.ia64"
+         os="hpux"
+         ws="gtk"
+         arch="ia64"
+         download-size="2488"
+         install-size="6568"
+         version="3.105.3.v20170228-0512"
+         fragment="true"
+         unpack="false"/>
+
+</feature>
