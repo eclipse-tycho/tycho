@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38544fb8_91720ea7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 24
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-17T13:12:32Z",
+      "side": 1,
+      "message": "Please mention the it\u0027s for surefire so we can better get the scope of the change and issue when reading hte log.",
+      "revId": "42e665dd225189e66a09b2d0203c65bb48500e9f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aebd13e5_9a99de91",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 24
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-17T13:12:32Z",
+      "side": 1,
+      "message": "No need to repeat bug nummber, nor to add comments about the \"increments\" on the review (the review stores the comments), the commit message should be standalone and focus on the issue and its strategy to resolve it.",
+      "revId": "42e665dd225189e66a09b2d0203c65bb48500e9f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3d91a65_71ca6658",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundle/src/com/stegmannsystems/debugtychosurefire/bundle/HelloWorld.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-17T13:12:32Z",
+      "side": 1,
+      "message": "Need copyright header",
+      "revId": "42e665dd225189e66a09b2d0203c65bb48500e9f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44fecc56_3e0f5bc1",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundletest/src/com/stegmannsystems/debugtychosurefire/bundletest/HelloWorldTest.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-17T13:12:32Z",
+      "side": 1,
+      "message": "Need copyright header",
+      "revId": "42e665dd225189e66a09b2d0203c65bb48500e9f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc817fee_5a6f7051",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/TychoContextFinder.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-17T13:12:32Z",
+      "side": 1,
+      "message": "Need copyright header.",
+      "revId": "42e665dd225189e66a09b2d0203c65bb48500e9f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4dc50c52_e76e8384",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/TychoContextFinder.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-17T13:12:32Z",
+      "side": 1,
+      "message": "Can you think of a more descriptive name for this class?",
+      "revId": "42e665dd225189e66a09b2d0203c65bb48500e9f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
