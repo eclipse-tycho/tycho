@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "251c31ca_e87fc9a9",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundle/src/com/stegmannsystems/debugtychosurefire/bundle/HelloWorld.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "This is new code from 2019, and you\u0027re not working for Sonatype, are you?\nPlease make sure that copyright is\n\nCopyright (c) YEAR_CODE_IS_AUTHORED Copyright owner and others\n\nWhere copyright owner is usually either the author of the code or their employer/contractor.",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5029c8be_20afbe9e",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundle/src/com/stegmannsystems/debugtychosurefire/bundle/HelloWorld.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "Please use a org.eclipse.tycho package (see other folders in the projects/ directly for example)",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cfa567f8_ffaf11cd",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundle/src/com/stegmannsystems/debugtychosurefire/bundle/HelloWorld.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "Please remove this class comment.",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a1c42bc_6fd2109e",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundle/src/com/stegmannsystems/debugtychosurefire/bundle/HelloWorld.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "Why not a org.junit.Assert.fail(...) ?",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52783cec_6e1edfac",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundletest/src/com/stegmannsystems/debugtychosurefire/bundletest/HelloWorldTest.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "This is new code from 2019, and you\u0027re not working for Sonatype, are you?\nPlease make sure that copyright is\n\nCopyright (c) YEAR_CODE_IS_AUTHORED Copyright owner and others\n\nWhere copyright owner is usually either the author of the code or their employer/contractor.",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7892aae_4c522ae9",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundletest/src/com/stegmannsystems/debugtychosurefire/bundletest/HelloWorldTest.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "org.eclipse.tycho...",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e2cfe03_5ea81dbf",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundletest/src/com/stegmannsystems/debugtychosurefire/bundletest/HelloWorldTest.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "Please remove",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4da9f03d_9526635b",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/surefire/RequireBundleTest.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "This is new code from 2019, and you\u0027re not working for Sonatype, are you?\nPlease make sure that copyright is\n\nCopyright (c) YEAR_CODE_IS_AUTHORED Copyright owner and others\n\nWhere copyright owner is usually either the author of the code or their employer/contractor.",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "02e290e7_79bc5373",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/src/main/java/org/eclipse/tycho/surefire/osgibooter/ContextFinderWithoutTychoBundle.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T08:19:20Z",
+      "side": 1,
+      "message": "This is new code from 2019, and you\u0027re not working for Sonatype, are you?\nPlease make sure that copyright is\n\nCopyright (c) YEAR_CODE_IS_AUTHORED Copyright owner and others\n\nWhere copyright owner is usually either the author of the code or their employer/contractor.",
+      "revId": "641bc8a2a6b7fc9b8057c1988f0dd914a262e08b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
