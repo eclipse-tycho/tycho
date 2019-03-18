@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cce1e3f1_7cfec4b2",
+        "filename": "tycho-its/projects/surefire.requireBundle/surefire.requireBundle.bundletest/src/org/eclipse/tycho/debugtychosurefire/bundletest/HelloWorldTest.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-18T09:22:58Z",
+      "side": 1,
+      "message": "Couldn\u0027t we use assertEquals(...) here instead for better reports in case of failur?",
+      "revId": "536f8f6aafc242856e9e46268cd3bd4ab96260f5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
