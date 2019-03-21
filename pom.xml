@@ -91,9 +91,9 @@
 		<surefire-version>2.22.0</surefire-version>
 
 		<!-- dependencies to Eclipse artifacts deployed by tycho-releng/ -->
-		<equinoxVersion>3.13.200</equinoxVersion>
+		<equinoxVersion>3.13.300</equinoxVersion>
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
-		<equinoxCompatVersion>1.1.300</equinoxCompatVersion>
+		<equinoxCompatVersion>1.1.400</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
 		<ecjVersion>3.17.0</ecjVersion>
 		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
