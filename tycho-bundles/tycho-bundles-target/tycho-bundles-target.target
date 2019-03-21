@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="29">
+<?pde version="3.8"?><target name="Target platform for Tycho's bundles" sequenceNumber="30">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
@@ -17,7 +17,7 @@
 <unit id="org.eclipse.ecf.filetransfer.ssl.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.filetransfer.httpclient4.ssl.feature.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.11milestones/S-4.11RC1-201903010040/"/>
+<repository location="https://download.eclipse.org/eclipse/updates/4.11/R-4.11-201903070500/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.mockito" version="1.8.4.v201303031500"/>
