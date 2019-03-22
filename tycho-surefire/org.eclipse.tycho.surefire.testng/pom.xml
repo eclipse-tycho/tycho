@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho-surefire</artifactId>
-		<version>1.4.0-SNAPSHOT</version>
+		<version>1.4.0</version>
 	</parent>
 	<artifactId>org.eclipse.tycho.surefire.testng</artifactId>
 	<packaging>jar</packaging>

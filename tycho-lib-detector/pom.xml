@@ -15,7 +15,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho</artifactId>
-		<version>1.4.0-SNAPSHOT</version>
+		<version>1.4.0</version>
 	</parent>
 	<artifactId>tycho-lib-detector</artifactId>
 	<name>Tycho JVM Library Detector</name>

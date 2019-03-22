@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tycho Noop Equinox password provider
 Bundle-SymbolicName: org.eclipse.tycho.noopsecurity;singleton:=true
-Bundle-Version: 1.4.0.qualifier
+Bundle-Version: 1.4.0
 Require-Bundle: org.eclipse.equinox.security;bundle-version="1.0.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

@@ -15,7 +15,7 @@
 	<parent>
 		<groupId>org.eclipse.tycho</groupId>
 		<artifactId>tycho-bundles</artifactId>
-		<version>1.4.0-SNAPSHOT</version>
+		<version>1.4.0</version>
 		<relativePath>../tycho-bundles/pom.xml</relativePath>
 	</parent>
 	<artifactId>tycho-surefire</artifactId>

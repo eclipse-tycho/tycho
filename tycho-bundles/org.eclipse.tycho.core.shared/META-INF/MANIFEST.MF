@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.tycho.core.shared
-Bundle-Version: 1.4.0.qualifier
+Bundle-Version: 1.4.0
 Bundle-Name: Tycho Core Maven/OSGi Shared Classes
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.tycho.artifacts,
