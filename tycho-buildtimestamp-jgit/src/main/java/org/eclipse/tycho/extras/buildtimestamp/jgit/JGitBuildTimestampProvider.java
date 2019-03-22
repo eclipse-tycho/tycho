@@ -136,6 +136,13 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                 String relPath = getRelPath(repository, project);
                 TreeFilter pathFilter = createPathFilter(relPath, execution);
                 ObjectId headId = repository.resolve(Constants.HEAD);
+                if (headId == null) {
+                    String message = "Git repository without HEAD on " + project.getBasedir()
+                            + ". You can make a first commit to solve that.";
+                    logger.warn(message);
+                    logger.warn("Fallback to default timestamp provider");
+                    return defaultTimestampProvider.getTimestamp(session, project, execution);
+                }
                 DirtyBehavior dirtyBehaviour = DirtyBehavior.getDirtyWorkingTreeBehaviour(execution);
                 if (dirtyBehaviour != DirtyBehavior.IGNORE) {
                     // 1. check if 'git status' is clean for relPath
