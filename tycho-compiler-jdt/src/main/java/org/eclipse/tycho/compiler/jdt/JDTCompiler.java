@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,8 +97,9 @@ public class JDTCompiler extends AbstractCompiler {
         getLogger().info("Compiling " + sourceFiles.length + " " + "source file" + (sourceFiles.length == 1 ? "" : "s")
                 + " to " + destinationDir.getAbsolutePath());
 
-        Map<String, String> customCompilerArguments = config.getCustomCompilerArgumentsAsMap();
-        checkCompilerArgs(customCompilerArguments, custom);
+        Collection<Map.Entry<String, String>> customCompilerArgumentEntries = config
+                .getCustomCompilerArgumentsEntries();
+        checkCompilerArgs(customCompilerArgumentEntries, custom);
 
         String[] args = buildCompilerArguments(config, custom, sourceFiles);
 
@@ -230,8 +232,9 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(config.getSourceEncoding());
         }
 
-        Map<String, String> customCompilerArguments = config.getCustomCompilerArgumentsAsMap();
-        for (Map.Entry<String, String> entry : customCompilerArguments.entrySet()) {
+        Collection<Map.Entry<String, String>> customCompilerArgumentsEntries = config
+                .getCustomCompilerArgumentsEntries();
+        for (Map.Entry<String, String> entry : customCompilerArgumentsEntries) {
 
             String key = (String) entry.getKey();
 
@@ -525,8 +528,10 @@ public class JDTCompiler extends AbstractCompiler {
      * @param args
      *            compiler arguments to process
      */
-    private void checkCompilerArgs(Map<String, String> args, CustomCompilerConfiguration custom) {
-        for (String arg : args.keySet()) {
+    private void checkCompilerArgs(Collection<Map.Entry<String, String>> argEntries,
+            CustomCompilerConfiguration custom) {
+        for (Map.Entry<String, String> argEntry : argEntries) {
+            String arg = argEntry.getKey();
             if (arg.charAt(0) == '@') {
                 try {
                     char[] content = Util.getFileCharContent(new File(arg.substring(1)), null);

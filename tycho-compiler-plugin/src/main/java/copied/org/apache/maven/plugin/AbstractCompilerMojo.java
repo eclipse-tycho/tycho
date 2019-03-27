@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -455,7 +454,6 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         compilerConfiguration.setSourceEncoding(getEncoding());
 
         if ((compilerArguments != null) || (compilerArgument != null) || compilerArgs != null) {
-            LinkedHashMap<String, String> cplrArgsCopy = new LinkedHashMap<>();
             if (compilerArguments != null) {
                 for (Iterator i = compilerArguments.entrySet().iterator(); i.hasNext();) {
                     Map.Entry me = (Map.Entry) i.next();
@@ -465,21 +463,20 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
                         key = "-" + key;
                     }
                     if (key.startsWith("-A") && StringUtils.isNotEmpty(value)) {
-                        cplrArgsCopy.put(key + "=" + value, null);
+                        compilerConfiguration.addCompilerCustomArgument(key + "=" + value, null);
                     } else {
-                        cplrArgsCopy.put(key, value);
+                        compilerConfiguration.addCompilerCustomArgument(key, value);
                     }
                 }
             }
             if (!StringUtils.isEmpty(compilerArgument)) {
-                cplrArgsCopy.put(compilerArgument, null);
+                compilerConfiguration.addCompilerCustomArgument(compilerArgument, null);
             }
             if (compilerArgs != null) {
                 for (String arg : compilerArgs) {
-                    cplrArgsCopy.put(arg, null);
+                    compilerConfiguration.addCompilerCustomArgument(arg, null);
                 }
             }
-            compilerConfiguration.setCustomCompilerArguments(cplrArgsCopy);
         }
 
         compilerConfiguration.setFork(fork);
