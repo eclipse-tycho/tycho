@@ -210,7 +210,7 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
     private static MirrorApplication createMirrorApplication(RepositoryReferences sources,
             DestinationRepositoryDescriptor destination, IProvisioningAgent agent, boolean includePacked) {
         final MirrorApplication mirrorApp = new MirrorApplication(agent, includePacked,
-                destination.getExtraArtifactRepositoryProperties());
+                destination.getExtraArtifactRepositoryProperties(), destination.getRepositoryReferences());
 
         List<RepositoryDescriptor> sourceDescriptors = createSourceDescriptors(sources);
         for (RepositoryDescriptor sourceDescriptor : sourceDescriptors) {

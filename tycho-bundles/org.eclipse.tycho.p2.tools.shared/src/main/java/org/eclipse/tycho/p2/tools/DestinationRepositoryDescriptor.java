@@ -12,7 +12,10 @@ package org.eclipse.tycho.p2.tools;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+
+import org.eclipse.tycho.core.resolver.shared.RepositoryReference;
 
 public class DestinationRepositoryDescriptor {
 
@@ -23,11 +26,12 @@ public class DestinationRepositoryDescriptor {
     private final boolean keepNonXzIndexFiles;
     private final boolean metaDataOnly;
     private final boolean append;
-    private Map<String, String> extraArtifactRepositoryProperties;
+    private final Map<String, String> extraArtifactRepositoryProperties;
+    private final List<RepositoryReference> repositoryReferences;
 
     public DestinationRepositoryDescriptor(File location, String name, boolean compress, boolean xzCompress,
             boolean keepNonXzIndexFiles, boolean metaDataOnly, boolean append,
-            Map<String, String> extraArtifactRepositoryProperties) {
+            Map<String, String> extraArtifactRepositoryProperties, List<RepositoryReference> repositoryReferences) {
         this.location = location;
         this.name = name;
         this.compress = compress;
@@ -36,10 +40,11 @@ public class DestinationRepositoryDescriptor {
         this.metaDataOnly = metaDataOnly;
         this.append = append;
         this.extraArtifactRepositoryProperties = extraArtifactRepositoryProperties;
+        this.repositoryReferences = repositoryReferences;
     }
 
     public DestinationRepositoryDescriptor(File location, String name) {
-        this(location, name, true, true, false, false, true, Collections.emptyMap());
+        this(location, name, true, true, false, false, true, Collections.emptyMap(), Collections.emptyList());
     }
 
     public File getLocation() {
@@ -74,4 +79,7 @@ public class DestinationRepositoryDescriptor {
         return extraArtifactRepositoryProperties == null ? Collections.emptyMap() : extraArtifactRepositoryProperties;
     }
 
+    public List<RepositoryReference> getRepositoryReferences() {
+        return repositoryReferences == null ? Collections.emptyList() : repositoryReferences;
+    }
 }
