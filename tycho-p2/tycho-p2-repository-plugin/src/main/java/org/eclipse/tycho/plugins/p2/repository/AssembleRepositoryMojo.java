@@ -13,6 +13,7 @@ package org.eclipse.tycho.plugins.p2.repository;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -25,6 +26,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.resolver.shared.RepositoryReference;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
@@ -142,9 +144,10 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
             TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(getProject());
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
+            List<RepositoryReference> repoRefs = TychoProjectUtils.getRepositoryLocations(getProject());
             DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
                     repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true,
-                    extraArtifactRepositoryProperties);
+                    extraArtifactRepositoryProperties, repoRefs);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
         } catch (FacadeException e) {

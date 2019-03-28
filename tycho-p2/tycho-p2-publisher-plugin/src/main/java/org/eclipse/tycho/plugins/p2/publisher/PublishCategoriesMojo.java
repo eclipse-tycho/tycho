@@ -24,7 +24,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.resolver.shared.RepositoryReference;
+import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Category;
+import org.eclipse.tycho.model.RepositoryRef;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherService;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
@@ -47,11 +50,18 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
 
         try {
             List<DependencySeed> categoryIUs = new ArrayList<>();
+            List<RepositoryReference> categoryRepoRefs = new ArrayList<>();
             for (Category category : getCategories()) {
                 final File buildCategoryFile = prepareBuildCategory(category, getBuildDirectory());
 
                 Collection<DependencySeed> ius = publisherService.publishCategories(buildCategoryFile);
                 categoryIUs.addAll(ius);
+
+                for (RepositoryRef repositoryRef : category.getRepositories()) {
+                    categoryRepoRefs.add(new RepositoryReference(repositoryRef.getName(), repositoryRef.getLocation(),
+                            repositoryRef.isEnabled()));
+                }
+                TychoProjectUtils.getRepositoryLocations(getProject()).addAll(categoryRepoRefs);
             }
             return categoryIUs;
         } catch (FacadeException e) {

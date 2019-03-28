@@ -20,6 +20,8 @@ import org.eclipse.tycho.core.TargetPlatformConfiguration;
 import org.eclipse.tycho.core.TychoConstants;
 import org.eclipse.tycho.core.ee.shared.ExecutionEnvironmentConfiguration;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
+import org.eclipse.tycho.core.resolver.shared.MavenRepositoryLocation;
+import org.eclipse.tycho.core.resolver.shared.RepositoryReference;
 
 public class TychoProjectUtils {
     private static final String TYCHO_NOT_CONFIGURED = "Tycho build extension not configured for ";
@@ -105,4 +107,20 @@ public class TychoProjectUtils {
         }
         return dependencySeeds;
     }
+
+    /**
+     * Returns the (editable) list of pairs {@link MavenRepositoryLocation}s and enabler status for
+     * the given project.
+     */
+    @SuppressWarnings("unchecked")
+    public static List<RepositoryReference> getRepositoryLocations(MavenProject project) {
+        List<RepositoryReference> repoLocs = (List<RepositoryReference>) project
+                .getContextValue(TychoConstants.CTX_REPOSITORY_LOCATIONS);
+        if (repoLocs == null) {
+            repoLocs = new ArrayList<>();
+            project.setContextValue(TychoConstants.CTX_REPOSITORY_LOCATIONS, repoLocs);
+        }
+        return repoLocs;
+    }
+
 }

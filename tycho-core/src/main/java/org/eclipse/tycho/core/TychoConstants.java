@@ -31,4 +31,5 @@ public interface TychoConstants {
 
     static final String CTX_DEPENDENCY_WALKER = CTX_BASENAME + "/dependencyWalker";
     static final String CTX_DEPENDENCY_SEEDS = CTX_BASENAME + "/dependencySeeds";
+    static final String CTX_REPOSITORY_LOCATIONS = CTX_BASENAME + "/repositoryLocations";
 }
