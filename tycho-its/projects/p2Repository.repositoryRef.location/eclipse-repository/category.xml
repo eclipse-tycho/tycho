@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.eclipse.e4.rcp_1.6.400.v20190305-0602.jar" id="org.eclipse.e4.rcp" version="1.6.400.v20190305-0602"/>
+   <category-def name="Test Category" label="Test Category Label">
+      <description>
+         Test Category Description
+      </description>
+   </category-def>
+   <repository-reference location="http://download.eclipse.org/releases/luna/" enabled="false" />
+   <repository-reference location="http://https://download.eclipse.org/eclipse/updates/4.11/R-4.11-201903070500/" enabled="true" />
+</site>
