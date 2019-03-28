@@ -12,7 +12,9 @@ package org.eclipse.tycho.plugins.p2.repository;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -21,14 +23,20 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
+import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.DestinationRepositoryDescriptor;
 import org.eclipse.tycho.p2.tools.FacadeException;
+import org.eclipse.tycho.p2.tools.RepositoryReference;
 import org.eclipse.tycho.p2.tools.RepositoryReferences;
 import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
 
@@ -142,9 +150,20 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
             TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(getProject());
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
+
+            final List<Category> categories = getCategories();
+            final List<RepositoryReference> repositoryRefrences = new ArrayList<>();
+            for (Category category : categories) {
+                for (org.eclipse.tycho.model.RepositoryReference categoryRepositoryReference : category
+                        .getRepositoryReferences()) {
+                    repositoryRefrences.add(new RepositoryReference(categoryRepositoryReference.getName(),
+                            categoryRepositoryReference.getLocation(), categoryRepositoryReference.isEnabled()));
+                }
+            }
+
             DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
                     repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true,
-                    extraArtifactRepositoryProperties);
+                    extraArtifactRepositoryProperties, repositoryRefrences);
             mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
                     includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
         } catch (FacadeException e) {
@@ -169,4 +188,21 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         return repositoryReferenceTool.getVisibleRepositories(getProject(), getSession(), flags);
     }
 
+    private List<Category> getCategories() {
+        return getEclipseRepositoryProject().loadCategories(getProject());
+    }
+
+    protected EclipseRepositoryProject getEclipseRepositoryProject() {
+        return (EclipseRepositoryProject) getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_REPOSITORY);
+    }
+
+    private TychoProject getTychoProjectFacet(String packaging) {
+        TychoProject facet;
+        try {
+            facet = (TychoProject) getSession().lookup(TychoProject.class.getName(), packaging);
+        } catch (ComponentLookupException e) {
+            throw new IllegalStateException("Could not lookup required component", e);
+        }
+        return facet;
+    }
 }
