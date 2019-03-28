@@ -105,4 +105,5 @@ public class TychoProjectUtils {
         }
         return dependencySeeds;
     }
+
 }
