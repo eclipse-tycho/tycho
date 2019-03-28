@@ -33,8 +33,10 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.tycho.ArtifactType;
 import org.eclipse.tycho.BuildOutputDirectory;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
@@ -136,6 +138,26 @@ public class MirrorApplicationServiceImpl implements MirrorApplicationService {
         IProvisioningAgent agent = Activator.createProvisioningAgent(context.getTargetDirectory());
         try {
             final MirrorApplication mirrorApp = createMirrorApplication(sources, destination, agent, includePacked);
+
+            // see org.eclipse.equinox.internal.p2.updatesite.CategoryParser.processRepositoryReference
+            if (!destination.getRepositoryReferences().isEmpty()) {
+                List<RepositoryReference> metadataRefs = new ArrayList<>();
+                List<RepositoryReference> artifactRefs = new ArrayList<>();
+                for (org.eclipse.tycho.core.resolver.shared.RepositoryReference repoRef : destination.getRepositoryReferences()) {
+                    // First add a metadata repository
+                    RepositoryReference metadata = new RepositoryReference(URI.create(repoRef.getLocation()),
+                            repoRef.getName(), IRepository.TYPE_METADATA,
+                            repoRef.isEnable() ? IRepository.ENABLED : IRepository.NONE);
+                    metadataRefs.add(metadata);
+                    // Now a colocated artifact repository
+                    RepositoryReference artifact = new RepositoryReference(URI.create(repoRef.getLocation()),
+                            repoRef.getName(), IRepository.TYPE_ARTIFACT,
+                            repoRef.isEnable() ? IRepository.ENABLED : IRepository.NONE);
+                    artifactRefs.add(artifact);
+                }
+                mirrorApp.getCompositeMetadataRepository().addReferences(metadataRefs);
+                mirrorApp.getCompositeMetadataRepository().addReferences(artifactRefs);
+            }
 
             // mirror scope: seed units...
             mirrorApp.setSourceIUs(
