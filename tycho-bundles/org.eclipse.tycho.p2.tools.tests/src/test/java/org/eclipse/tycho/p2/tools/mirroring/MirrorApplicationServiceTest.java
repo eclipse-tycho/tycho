@@ -115,7 +115,7 @@ public class MirrorApplicationServiceTest {
         extraArtifactRepositoryProperties.put("p2.mirrorsURL", "http://some.where.else");
         extraArtifactRepositoryProperties.put("foo", "bar");
         destinationRepo = new DestinationRepositoryDescriptor(tempFolder.newFolder("dest2"), DEFAULT_NAME, false, false,
-                false, false, true, extraArtifactRepositoryProperties);
+                false, false, true, extraArtifactRepositoryProperties, Collections.emptyList());
         subject.mirrorReactor(sourceRepos("patch", "e342"), destinationRepo, seedFor(SIMPLE_FEATURE_IU), context, false,
                 false, null);
 
