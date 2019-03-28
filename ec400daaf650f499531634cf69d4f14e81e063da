@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83ac73e4_ad0145f4",
+        "filename": "tycho-its/projects/p2Repository.repositoryRef.location/eclipse-repository/category.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-03-28T19:37:10Z",
+      "side": 1,
+      "message": "looks strange",
+      "range": {
+        "startLine": 10,
+        "startChar": 35,
+        "endLine": 10,
+        "endChar": 48
+      },
+      "revId": "ec400daaf650f499531634cf69d4f14e81e063da",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04fb1a30_75ff0f95",
+        "filename": "tycho-its/projects/p2Repository.repositoryRef.location/example-bundle/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-03-28T19:37:10Z",
+      "side": 1,
+      "message": "Do you really need an activator for a test project?",
+      "revId": "ec400daaf650f499531634cf69d4f14e81e063da",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ab8f2d4_b16a1553",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/RepoRefLocationP2RepositoryIntegrationTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-03-28T19:37:10Z",
+      "side": 1,
+      "message": "Do you really need verify? Wouldn\u0027t package be enough?",
+      "revId": "ec400daaf650f499531634cf69d4f14e81e063da",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
