@@ -23,7 +23,7 @@ public class DestinationRepositoryDescriptor {
     private final boolean keepNonXzIndexFiles;
     private final boolean metaDataOnly;
     private final boolean append;
-    private Map<String, String> extraArtifactRepositoryProperties;
+    private final Map<String, String> extraArtifactRepositoryProperties;
 
     public DestinationRepositoryDescriptor(File location, String name, boolean compress, boolean xzCompress,
             boolean keepNonXzIndexFiles, boolean metaDataOnly, boolean append,
@@ -73,5 +73,4 @@ public class DestinationRepositoryDescriptor {
     public Map<String, String> getExtraArtifactRepositoryProperties() {
         return extraArtifactRepositoryProperties == null ? Collections.emptyMap() : extraArtifactRepositoryProperties;
     }
-
 }
