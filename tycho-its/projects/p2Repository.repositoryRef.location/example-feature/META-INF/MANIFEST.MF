@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Feature
+Bundle-SymbolicName: example.feature
+Bundle-Version: 1.0.0
