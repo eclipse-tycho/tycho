@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8644ad24_ec3e2e32",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/RepoRefLocationP2RepositoryIntegrationTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-29T07:53:04Z",
+      "side": 1,
+      "message": "Your copyright ;)",
+      "revId": "9d48548b57cca00673aa800ee304d968e89f930d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6766458_ad56ca2a",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/RepoRefLocationP2RepositoryIntegrationTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-29T07:53:04Z",
+      "side": 1,
+      "message": "Remove them.",
+      "revId": "9d48548b57cca00673aa800ee304d968e89f930d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "131838de_16641442",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/RepoRefLocationP2RepositoryIntegrationTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-03-29T07:53:04Z",
+      "side": 1,
+      "message": "You may be able to use something like\n\n  org.eclipse.tycho.p2.tools.impl.Activator.createProvisioningAgent(tmpDir).getService(IMetadataRepositoryManager.SERVICE_NAME).loadRepository(repository, new NullProgressMonitor()).getReferences()\n\nto check whether repository references are properly added.",
+      "revId": "9d48548b57cca00673aa800ee304d968e89f930d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
