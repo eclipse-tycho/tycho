@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40f862a6_7a7b5859",
+        "filename": "tycho-its/projects/p2Repository.repositoryRef.location/.project",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-03T08:17:52Z",
+      "side": 1,
+      "message": "You can remove that file.",
+      "revId": "619ce9a097890d1002844efcc76c2f8f596fd377",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79a2954b_73c707c4",
+        "filename": "tycho-its/projects/p2Repository.repositoryRef.location/.settings/org.eclipse.m2e.core.prefs",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-03T08:17:52Z",
+      "side": 1,
+      "message": "You can remove that file.",
+      "revId": "619ce9a097890d1002844efcc76c2f8f596fd377",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7f5659a_e13a4b2f",
+        "filename": "tycho-its/projects/p2Repository.repositoryRef.location/build.properties",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-03T08:17:52Z",
+      "side": 1,
+      "message": "You can remove that file.",
+      "revId": "619ce9a097890d1002844efcc76c2f8f596fd377",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f7cb3ba_5483ec67",
+        "filename": "tycho-its/projects/p2Repository.repositoryRef.location/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-03T08:17:52Z",
+      "side": 1,
+      "message": "I think you can remove the environments, or even the whole target-platform-configuration plugin customization.",
+      "revId": "619ce9a097890d1002844efcc76c2f8f596fd377",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9bde10f6_a59a528a",
+        "filename": "tycho-its/projects/p2Repository.repositoryRef.location/src/main/resources/about/about.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-03T08:17:52Z",
+      "side": 1,
+      "message": "You can remove that file.",
+      "revId": "619ce9a097890d1002844efcc76c2f8f596fd377",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53efcc07_48612243",
+        "filename": "tycho-its/projects/p2Repository.repositoryRef.location/src/main/resources/index.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-03T08:17:52Z",
+      "side": 1,
+      "message": "You can remove that file.",
+      "revId": "619ce9a097890d1002844efcc76c2f8f596fd377",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bc153a2_c00511a4",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/RepoRefLocationP2RepositoryIntegrationTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-03T08:17:52Z",
+      "side": 1,
+      "message": "You need to remove all the parts about property and instead look for other nodes in the metadata.",
+      "revId": "619ce9a097890d1002844efcc76c2f8f596fd377",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
