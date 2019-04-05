@@ -1,0 +1,7 @@
+Verified+1: CI Bot
+Code-Review+2: Mickael Istria <mistria@redhat.com>
+Submitted-by: Mickael Istria <mistria@redhat.com>
+Submitted-at: Fri, 05 Apr 2019 04:38:10 -0400
+Reviewed-on: https://git.eclipse.org/r/140084
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
