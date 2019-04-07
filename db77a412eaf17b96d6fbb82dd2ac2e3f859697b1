@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f526e5fa_3c96828c",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-07T09:21:41Z",
+      "side": 1,
+      "message": "add my name here ?",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff04f683_cb564f27",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.shared/src/main/java/org/eclipse/tycho/p2/tools/DestinationRepositoryDescriptor.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-07T09:21:41Z",
+      "side": 1,
+      "message": "add my name here ?",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f6e7df98_a0d6f124",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.shared/src/main/java/org/eclipse/tycho/p2/tools/DestinationRepositoryDescriptor.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-07T09:21:41Z",
+      "side": 1,
+      "message": "maybe i can add final for both ?",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47f73d6e_806de35e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TychoConstants.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-07T09:21:41Z",
+      "side": 1,
+      "message": "location or reference ?",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f49c1854_0388a66e",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-07T09:21:41Z",
+      "side": 1,
+      "message": "add my name here ?",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03a9cfea_89717035",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-07T09:21:41Z",
+      "side": 1,
+      "message": "change comment to align to real return",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3808193_d63afe1b",
+        "filename": "tycho-metadata-model/src/main/java/org/eclipse/tycho/model/Category.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-07T09:21:41Z",
+      "side": 1,
+      "message": "getRepositoryReferences ?",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
