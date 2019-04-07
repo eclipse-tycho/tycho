@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "12376a41_dbff0f8f",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplicationServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "As you wish, it\u0027s not mandatory.",
+      "parentUuid": "f526e5fa_3c96828c",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff04f683_cb564f27",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.shared/src/main/java/org/eclipse/tycho/p2/tools/DestinationRepositoryDescriptor.java",
         "patchSetId": 7
@@ -53,6 +71,41 @@
     },
     {
       "key": {
+        "uuid": "9381483a_7cafabcd",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.shared/src/main/java/org/eclipse/tycho/p2/tools/DestinationRepositoryDescriptor.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "Unless it causes issue, yes, making final is often preferred.",
+      "parentUuid": "f6e7df98_a0d6f124",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29b8561e_28b20493",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.shared/src/main/java/org/eclipse/tycho/p2/tools/DestinationRepositoryDescriptor.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "Please prefer longer explicit names `getRepsitoryReferences`",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47f73d6e_806de35e",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TychoConstants.java",
         "patchSetId": 7
@@ -64,6 +117,24 @@
       "writtenOn": "2019-04-07T09:21:41Z",
       "side": 1,
       "message": "location or reference ?",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a368286_ab1546c6",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TychoConstants.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "Why do you need this here? I don\u0027t think that the repository references should leak in the context (and should be used by other plugins than assemble-repository)",
+      "parentUuid": "47f73d6e_806de35e",
       "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
@@ -104,6 +175,41 @@
     },
     {
       "key": {
+        "uuid": "022e3895_fd60b1d0",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "Avoid documenting it\u0027s editable, it\u0027s better to not say it and let people assume it\u0027s immutable. Mutability makes applications usually less thread-safe and harder to maintain, so unless it\u0027s really necessary, let\u0027s not document in the contract that things are mutable.",
+      "parentUuid": "03a9cfea_89717035",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d263fc5_a5f5a83c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "Again, I don\u0027t think this needs to leak in the context and it could probably be just inside the Mojo",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3808193_d63afe1b",
         "filename": "tycho-metadata-model/src/main/java/org/eclipse/tycho/model/Category.java",
         "patchSetId": 7
@@ -115,6 +221,92 @@
       "writtenOn": "2019-04-07T09:21:41Z",
       "side": 1,
       "message": "getRepositoryReferences ?",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73d62bf3_e55bb103",
+        "filename": "tycho-metadata-model/src/main/java/org/eclipse/tycho/model/Category.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "Yes please.",
+      "parentUuid": "b3808193_d63afe1b",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a45bfba_5929ef6f",
+        "filename": "tycho-metadata-model/src/main/java/org/eclipse/tycho/model/RepositoryRef.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "RepositoryReference",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0381745d_b61b2c1e",
+        "filename": "tycho-metadata-model/src/main/java/org/eclipse/tycho/model/RepositoryRef.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "Objects.hashCode(getLocation(), isEnabled())",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31a6b731_4003e726",
+        "filename": "tycho-metadata-model/src/main/java/org/eclipse/tycho/model/RepositoryRef.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "Objects.equals(getLocation(), other.getLocation()) \u0026\u0026 isEnabled() \u003d\u003d other.isEnabled()",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2fa20baa_e9f3209c",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishCategoriesMojo.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-07T09:46:11Z",
+      "side": 1,
+      "message": "I don\u0027t think you need that here, the `publisherService.publishCategories()` is more likely what should consume the model and pass the categories to the right method to get them generated.",
       "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
