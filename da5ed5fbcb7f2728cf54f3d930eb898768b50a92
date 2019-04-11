@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca95bc0e_4a77b4f9",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplication.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-11T20:57:19Z",
+      "side": 1,
+      "message": "maybe i can use directly: org.eclipse.equinox.p2.repository.spi.RepositoryReference and remove this new shared class",
+      "revId": "da5ed5fbcb7f2728cf54f3d930eb898768b50a92",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9a55f8d_7c8b614b",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-11T20:57:19Z",
+      "side": 1,
+      "message": "i will remove it ;o)",
+      "revId": "da5ed5fbcb7f2728cf54f3d930eb898768b50a92",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
