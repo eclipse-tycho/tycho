@@ -141,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "8ad2158f_f9b0c091",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/TychoConstants.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-11T20:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a368286_ab1546c6",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f49c1854_0388a66e",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
         "patchSetId": 7
@@ -193,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "edf9e4be_b1de7ae3",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-11T20:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "022e3895_fd60b1d0",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d263fc5_a5f5a83c",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
         "patchSetId": 7
@@ -204,6 +240,24 @@
       "writtenOn": "2019-04-07T09:46:11Z",
       "side": 1,
       "message": "Again, I don\u0027t think this needs to leak in the context and it could probably be just inside the Mojo",
+      "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85e4d152_30bb6341",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/utils/TychoProjectUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-11T20:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d263fc5_a5f5a83c",
       "revId": "db77a412eaf17b96d6fbb82dd2ac2e3f859697b1",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
