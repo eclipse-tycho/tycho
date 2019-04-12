@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -364,10 +364,10 @@ public class TychoTest extends AbstractTychoMojoTestCase {
         int i = 0;
 
         assertEquals("executionenvironment.manifest", projects.get(++i).getArtifactId());
-        assertEquals("CDC-1.1/Foundation-1.1", getActiveEEProfile(projects.get(i)));
+        assertEquals("OSGi/Minimum-1.0", getActiveEEProfile(projects.get(i)));
 
         assertEquals("executionenvironment.manifest-minimal", projects.get(++i).getArtifactId());
-        assertEquals("CDC-1.0/Foundation-1.0", getActiveEEProfile(projects.get(i)));
+        assertEquals("OSGi/Minimum-1.0", getActiveEEProfile(projects.get(i)));
 
         assertEquals("executionenvironment.pom-hard", projects.get(++i).getArtifactId());
         assertEquals("OSGi/Minimum-1.2", getActiveEEProfile(projects.get(i)));
