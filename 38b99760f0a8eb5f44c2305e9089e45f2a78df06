@@ -16,6 +16,24 @@
       "revId": "38b99760f0a8eb5f44c2305e9089e45f2a78df06",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf7f7b05_6d056820",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.tools.impl/src/main/java/org/eclipse/tycho/p2/tools/mirroring/MirrorApplication.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 113263
+      },
+      "writtenOn": "2019-04-12T07:31:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "298535f7_e75b15af",
+      "revId": "38b99760f0a8eb5f44c2305e9089e45f2a78df06",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
