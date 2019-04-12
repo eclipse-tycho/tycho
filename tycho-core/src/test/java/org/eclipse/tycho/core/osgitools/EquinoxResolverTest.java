@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2018 Sonatype Inc. and others.
+ * Copyright (c) 2012, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,10 +66,10 @@ public class EquinoxResolverTest extends AbstractTychoMojoTestCase {
         assertEquals("executionenvironment.manifest-minimal", projects.get(2).getArtifactId());
         ExecutionEnvironment ee = TychoProjectUtils.getExecutionEnvironmentConfiguration(projects.get(2))
                 .getFullSpecification();
-        assertEquals("CDC-1.0/Foundation-1.0", ee.getProfileName());
+        assertEquals("OSGi/Minimum-1.0", ee.getProfileName());
         Properties platformProperties = subject.getPlatformProperties(projects.get(2), ee);
         assertEquals(
-                "java.io,java.lang,java.lang.ref,java.lang.reflect,java.math,java.net,java.security,java.security.acl,java.security.cert,java.security.interfaces,java.security.spec,java.text,java.text.resources,java.util,java.util.jar,java.util.zip,javax.microedition.io",
+                "java.io,java.lang,java.lang.ref,java.lang.reflect,java.math,java.net,java.security,java.security.acl,java.security.cert,java.security.interfaces,java.security.spec,java.text,java.util,java.util.jar,java.util.zip",
                 platformProperties.get(Constants.FRAMEWORK_SYSTEMPACKAGES));
     }
 
