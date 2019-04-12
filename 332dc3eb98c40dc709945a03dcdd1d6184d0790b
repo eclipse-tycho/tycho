@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a64e84ac_a28a0976",
+        "filename": "tycho-its/src/test/java/org/eclipse/tycho/test/p2Repository/RepoRefLocationP2RepositoryIntegrationTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-04-12T15:30:10Z",
+      "side": 1,
+      "message": "The category.xml file is usually not part of the output repository. Trye removing this line.",
+      "revId": "332dc3eb98c40dc709945a03dcdd1d6184d0790b",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
