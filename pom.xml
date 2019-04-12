@@ -99,7 +99,7 @@
 		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
 
 		<!-- version of Tycho used by this build -->
-		<tychoBootstrapVersion>1.3.0</tychoBootstrapVersion>
+		<tychoBootstrapVersion>1.4.0</tychoBootstrapVersion>
 	</properties>
 
 	<dependencyManagement>
