@@ -9,3 +9,4 @@ Import-Package: \
 	*
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 -removeheaders: Tool, Bnd-*, Created-By, Private-Package
+-fixupmessages "Classes found in the wrong directory"; is:=warning
