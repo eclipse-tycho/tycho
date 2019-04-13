@@ -37,4 +37,19 @@ public class JUnit5Test extends AbstractTychoIntegrationTest {
         assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit5Test", 1);
     }
 
+    @Test
+    public void testJUnit54Runner() throws Exception {
+        Verifier verifier = getVerifier("/surefire.junit54/bundle.test", false);
+        Properties props = verifier.getSystemProperties();
+        props.setProperty("repo-2019-03", P2Repositories.ECLIPSE_2019_09.toString());
+        verifier.executeGoal("verify");
+        verifier.verifyErrorFreeLog();
+        String projectBasedir = verifier.getBasedir();
+        assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit4Test", "testWithJUnit4");
+        assertTestMethodWasSuccessfullyExecuted(projectBasedir, "bundle.test.JUnit54Test",
+                "myFirstJUnit54Test{TestInfo}");
+        // make sure test tagged as 'slow' was skipped
+        assertNumberOfSuccessfulTests(projectBasedir, "bundle.test.JUnit54Test", 1);
+    }
+
 }
