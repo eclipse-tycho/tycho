@@ -191,6 +191,50 @@
 							<destination>${project.basedir}/repositories/oxygen</destination>
 						</configuration>
 					</execution>
+					<execution>
+						<id>mirror-e2019-03-test-repo</id>
+						<phase>process-test-classes</phase>
+						<goals>
+							<goal>mirror</goal>
+						</goals>
+						<configuration>
+							<source>
+								<repository>
+									<url>http://download.eclipse.org/releases/2019-03/</url>
+									<layout>p2</layout>
+								</repository>
+							</source>
+							<ius>
+								<iu>
+									<id>org.eclipse.osgi</id>
+									<version>3.13.300.v20190218-1622</version>
+								</iu>
+								<iu>
+									<id>org.eclipse.equinox.launcher</id>
+									<version>1.5.300.v20190213-1655</version>
+								</iu>
+								<iu>
+									<id>org.eclipse.core.runtime</id>
+									<version>3.15.200.v20190301-1641</version>
+								</iu>
+								<iu>
+									<id>org.junit</id>
+									<version>4.12.0.v201504281640</version>
+								</iu>
+								<iu>
+									<id>org.junit.jupiter.api</id>
+									<version>5.4.0.v20190212-2109</version>
+								</iu>
+								<iu>
+									<id>org.apache.xerces</id>
+									<version>2.9.0.v201101211617</version>
+								</iu>
+							</ius>
+							<includePacked>false</includePacked>
+							<includeOptional>false</includeOptional>
+							<destination>${project.basedir}/repositories/201903</destination>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 

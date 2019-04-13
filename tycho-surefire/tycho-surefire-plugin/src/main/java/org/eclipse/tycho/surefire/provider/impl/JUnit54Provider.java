@@ -25,10 +25,10 @@ import org.eclipse.tycho.surefire.provider.spi.TestFrameworkProvider;
 import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 
-@Component(role = TestFrameworkProvider.class, hint = "junit5")
-public class JUnit5Provider extends AbstractJUnitProvider {
+@Component(role = TestFrameworkProvider.class, hint = "junit54")
+public class JUnit54Provider extends AbstractJUnitProvider {
 
-    private static final Version VERSION = Version.parseVersion("5.0.0");
+    private static final Version VERSION = Version.parseVersion("5.4.1");
 
     @Override
     protected Set<String> getJUnitBundleNames() {
@@ -47,12 +47,12 @@ public class JUnit5Provider extends AbstractJUnitProvider {
 
     @Override
     public List<Dependency> getRequiredBundles() {
-        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit5"));
+        return singletonList(newDependency("org.eclipse.tycho", "org.eclipse.tycho.surefire.junit54"));
     }
 
     @Override
     protected VersionRange getJUnitVersionRange() {
-        return new VersionRange("[5,5.4)");
+        return new VersionRange("[5.4,6)");
     }
 
 }
