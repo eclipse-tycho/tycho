@@ -28,7 +28,7 @@ import org.osgi.framework.VersionRange;
 @Component(role = TestFrameworkProvider.class, hint = "junit5")
 public class JUnit5Provider extends AbstractJUnitProvider {
 
-    private static final Version VERSION = Version.parseVersion("5.0.0");
+    private static final Version VERSION = Version.parseVersion("5.4.1");
 
     @Override
     protected Set<String> getJUnitBundleNames() {
