@@ -24,13 +24,9 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
-import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
-import org.eclipse.tycho.core.TychoProject;
-import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Category;
@@ -189,17 +185,4 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
         return getEclipseRepositoryProject().loadCategories(getProject());
     }
 
-    protected EclipseRepositoryProject getEclipseRepositoryProject() {
-        return (EclipseRepositoryProject) getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_REPOSITORY);
-    }
-
-    private TychoProject getTychoProjectFacet(String packaging) {
-        TychoProject facet;
-        try {
-            facet = (TychoProject) getSession().lookup(TychoProject.class.getName(), packaging);
-        } catch (ComponentLookupException e) {
-            throw new IllegalStateException("Could not lookup required component", e);
-        }
-        return facet;
-    }
 }
