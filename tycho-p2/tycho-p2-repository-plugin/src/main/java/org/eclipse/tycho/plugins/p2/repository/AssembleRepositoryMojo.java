@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.tycho.plugins.p2.repository;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -151,15 +152,11 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
             MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
 
-            final List<Category> categories = getCategories();
-            final List<RepositoryReference> repositoryRefrences = new ArrayList<>();
-            for (Category category : categories) {
-                for (org.eclipse.tycho.model.RepositoryReference categoryRepositoryReference : category
-                        .getRepositoryReferences()) {
-                    repositoryRefrences.add(new RepositoryReference(categoryRepositoryReference.getName(),
-                            categoryRepositoryReference.getLocation(), categoryRepositoryReference.isEnabled()));
-                }
-            }
+            List<RepositoryReference> repositoryRefrences = getCategories().stream()//
+                    .map(Category::getRepositoryReferences)//
+                    .flatMap(List::stream)//
+                    .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
+                    .collect(toList());
 
             DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
                     repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true,
