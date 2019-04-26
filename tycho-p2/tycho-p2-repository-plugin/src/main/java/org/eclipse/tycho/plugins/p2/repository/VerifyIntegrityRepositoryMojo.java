@@ -21,6 +21,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.p2.tools.FacadeException;
 import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
 
@@ -31,7 +32,7 @@ import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
  * 
  */
 @Mojo(name = "verify-repository", defaultPhase = LifecyclePhase.VERIFY)
-public class VerifyIntegrityRepositoryMojo extends AbstractRepositoryMojo implements LogEnabled {
+public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements LogEnabled {
     private Logger logger;
 
     @Component
