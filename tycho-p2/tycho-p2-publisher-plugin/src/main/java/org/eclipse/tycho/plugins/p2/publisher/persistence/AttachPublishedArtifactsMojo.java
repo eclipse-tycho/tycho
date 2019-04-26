@@ -22,7 +22,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.ReactorProject;
-import org.eclipse.tycho.plugins.p2.publisher.AbstractP2Mojo;
+import org.eclipse.tycho.core.maven.AbstractP2Mojo;
 import org.eclipse.tycho.repository.registry.facade.PublishingRepositoryFacade;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 

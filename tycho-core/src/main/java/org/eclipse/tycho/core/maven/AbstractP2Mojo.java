@@ -8,7 +8,7 @@
  * Contributors:
  *     SAP SE - initial API and implementation
  *******************************************************************************/
-package org.eclipse.tycho.plugins.p2.publisher;
+package org.eclipse.tycho.core.maven;
 
 import java.util.List;
 
@@ -29,7 +29,6 @@ import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
 import org.eclipse.tycho.p2.tools.BuildContext;
 
-// TODO share between Maven plug-ins?
 public abstract class AbstractP2Mojo extends AbstractMojo {
 
     @Parameter(property = "session", readonly = true)
