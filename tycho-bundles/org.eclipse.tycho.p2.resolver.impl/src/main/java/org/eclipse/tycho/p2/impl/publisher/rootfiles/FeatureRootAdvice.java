@@ -190,7 +190,7 @@ public class FeatureRootAdvice implements IFeatureRootAdvice {
     }
 
     private static void ensureRootFilesConfigured(RootFilesProperties rootProperties, ConfigSpec configuration) {
-        if (rootProperties.getFileMap().keySet().size() == 0) {
+        if (rootProperties.getFileMap().keySet().isEmpty()) {
             String message;
             if (configuration.equals(ConfigSpec.GLOBAL)) {
                 message = "Cannot set permissions or symbolic links if there are no root files";
