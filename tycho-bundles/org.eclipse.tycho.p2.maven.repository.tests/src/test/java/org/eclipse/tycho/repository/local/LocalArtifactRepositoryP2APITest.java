@@ -565,9 +565,9 @@ public class LocalArtifactRepositoryP2APITest {
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteArtifactViaStream() throws Exception {
-        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
-        addSink.write(new byte[33]);
-        addSink.close();
+        try (OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR))) {
+            addSink.write(new byte[33]);
+        }
 
         assertThat(subject.contains(NEW_KEY), is(true));
         assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
@@ -580,9 +580,9 @@ public class LocalArtifactRepositoryP2APITest {
     public void testReWriteArtifactViaStreamFails() throws Exception {
         ProvisionException expectedException = null;
         try {
-            OutputStream addSink = subject.getOutputStream(ARTIFACT_A_CANONICAL);
-            addSink.write(new byte[1]);
-            addSink.close();
+	    try (OutputStream addSink = subject.getOutputStream(ARTIFACT_A_CANONICAL)) {
+		addSink.write(new byte[1]);
+	    }
         } catch (ProvisionException e) {
             expectedException = e;
         }
@@ -594,11 +594,11 @@ public class LocalArtifactRepositoryP2APITest {
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteArtifactViaStreamAndCancel() throws Exception {
-        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
-        addSink.write(new byte[33]);
-        // setStatus needs to be called when copying from a repository using getArtifact, and that method returns an error (e.g. due to artifact corruption)
-        ((IStateful) addSink).setStatus(new Status(IStatus.ERROR, "test", "written data is bad"));
-        addSink.close();
+	try (OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR))) {
+	    addSink.write(new byte[33]);
+	    // setStatus needs to be called when copying from a repository using getArtifact, and that method returns an error (e.g. due to artifact corruption)
+	    ((IStateful) addSink).setStatus(new Status(IStatus.ERROR, "test", "written data is bad"));
+	}
 
         assertThat(subject.contains(NEW_DESCRIPTOR), is(false));
         assertThat(subject.contains(NEW_KEY), is(false));
@@ -607,10 +607,10 @@ public class LocalArtifactRepositoryP2APITest {
     @SuppressWarnings("deprecation")
     @Test
     public void testWriteArtifactViaStreamWithNonFatalStatus() throws Exception {
-        OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR));
-        addSink.write(new byte[33]);
-        ((IStateful) addSink).setStatus(new Status(IStatus.WARNING, "test", "irrelevant warning"));
-        addSink.close();
+	try (OutputStream addSink = subject.getOutputStream(foreignEquivalentOf(NEW_DESCRIPTOR))) {
+	    addSink.write(new byte[33]);
+	    ((IStateful) addSink).setStatus(new Status(IStatus.WARNING, "test", "irrelevant warning"));
+	}
 
         assertThat(subject.contains(NEW_DESCRIPTOR), is(true));
     }

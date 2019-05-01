@@ -74,16 +74,13 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
             // file but not a jar, assume it is MANIFEST.MF
             return loadManifestFile(bundleLocation);
         }
-        // it is a jar, let's see if it has OSGi bundle manifest
-        ZipFile jar = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-        try {
+        try ( // it is a jar, let's see if it has OSGi bundle manifest
+		ZipFile jar = new ZipFile(bundleLocation, ZipFile.OPEN_READ)) {
             ZipEntry manifestEntry = jar.getEntry(JarFile.MANIFEST_NAME);
             if (manifestEntry != null) {
                 InputStream stream = jar.getInputStream(manifestEntry);
                 return OsgiManifest.parse(stream, bundleLocation.getAbsolutePath() + "!/" + JarFile.MANIFEST_NAME);
             }
-        } finally {
-            jar.close();
         }
         throw new OsgiManifestParserException(bundleLocation.getAbsolutePath(),
                 "Manifest file not found in JAR archive");
@@ -144,8 +141,7 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
     }
 
     private void extractZipEntries(File bundleLocation, String path, File outputDirectory) throws IOException {
-        ZipFile zip = new ZipFile(bundleLocation);
-        try {
+        try (ZipFile zip = new ZipFile(bundleLocation)) {
             ZipEntry singleEntry = zip.getEntry(path);
             InputStream singleEntryStream;
             if (singleEntry != null && !singleEntry.isDirectory()
@@ -163,8 +159,6 @@ public class DefaultBundleReader extends AbstractLogEnabled implements BundleRea
                     }
                 }
             }
-        } finally {
-            zip.close();
         }
     }
 

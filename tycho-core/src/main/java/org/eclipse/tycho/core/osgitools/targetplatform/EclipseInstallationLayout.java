@@ -134,8 +134,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
         File platform = new File(location, "configuration/org.eclipse.update/platform.xml");
         if (platform.canRead()) {
             try {
-                FileInputStream is = new FileInputStream(platform);
-                try {
+                try (FileInputStream is = new FileInputStream(platform)) {
                     XmlStreamReader reader = new XmlStreamReader(is);
                     Xpp3Dom dom = Xpp3DomBuilder.build(reader);
                     Xpp3Dom[] sites = dom.getChildren("site");
@@ -148,8 +147,6 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
                             }
                         }
                     }
-                } finally {
-                    is.close();
                 }
             } catch (Exception e) {
                 getLogger().warn("Exception parsing " + toString(platform), e);
@@ -192,11 +189,8 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
                 if (link.isFile() && link.canRead() && link.getName().endsWith(".link")) {
                     Properties props = new Properties();
                     try {
-                        InputStream is = new FileInputStream(link);
-                        try {
+                        try (InputStream is = new FileInputStream(link)) {
                             props.load(is);
-                        } finally {
-                            is.close();
                         }
                         String path = props.getProperty("path");
                         if (path != null) {
@@ -254,8 +248,7 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
         File eclipseIni = new File(platformBase, "eclipse.ini");
         File pool = platformBase;
         if (eclipseIni.isFile() && eclipseIni.canRead()) {
-            BufferedReader in = new BufferedReader(new FileReader(eclipseIni));
-            try {
+            try (BufferedReader in = new BufferedReader(new FileReader(eclipseIni))) {
                 String str = null;
                 while ((str = in.readLine()) != null) {
                     if ("-startup".equals(str.trim())) {
@@ -270,8 +263,6 @@ public class EclipseInstallationLayout extends AbstractLogEnabled {
                         break;
                     }
                 }
-            } finally {
-                in.close();
             }
         }
 

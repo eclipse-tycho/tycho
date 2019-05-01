@@ -125,11 +125,8 @@ public class ArtifactsIO {
     }
 
     public void writeXML(Set<? extends IArtifactDescriptor> descriptors, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             writeXML(descriptors, os);
-        } finally {
-            os.close();
         }
     }
 }

@@ -263,11 +263,8 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
         soureReferenceComputer.addSourceReferenceHeader(mf, sourceReferences, project);
         mfile = new File(project.getBuild().getDirectory(), "MANIFEST.MF");
         mfile.getParentFile().mkdirs();
-        BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(mfile));
-        try {
+        try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(mfile))) {
             mf.write(os);
-        } finally {
-            os.close();
         }
 
         return mfile;

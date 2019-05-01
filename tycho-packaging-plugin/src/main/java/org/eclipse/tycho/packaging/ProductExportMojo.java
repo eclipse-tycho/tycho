@@ -282,11 +282,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         if (generatedBuildProperties != null) {
             Properties rootProperties = new Properties();
             try {
-                FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties));
-                try {
+                try (FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties))) {
                     rootProperties.load(stream);
-                } finally {
-                    stream.close();
                 }
                 if (!rootProperties.isEmpty()) {
                     String config = getConfig(environment);
@@ -428,9 +425,9 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
 
         File eclipseproduct = new File(target, ".eclipseproduct");
         try {
-            FileOutputStream fos = new FileOutputStream(eclipseproduct);
-            props.store(fos, "Eclipse Product File");
-            fos.close();
+	    try (FileOutputStream fos = new FileOutputStream(eclipseproduct)) {
+		props.store(fos, "Eclipse Product File");
+	    }
         } catch (IOException e) {
             throw new MojoExecutionException("Error creating .eclipseproduct file.", e);
         }
@@ -700,8 +697,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         FileLocker locker = fileLockService.getFileLocker(source);
         locker.lock();
         try {
-            ZipFile zip = new ZipFile(source);
-            try {
+            try (ZipFile zip = new ZipFile(source)) {
                 Enumeration<? extends ZipEntry> entries = zip.entries();
 
                 while (entries.hasMoreElements()) {
@@ -719,8 +715,6 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                         FileUtils.copyStreamToFile(new RawInputStreamFacade(zip.getInputStream(entry)), targetFile);
                     }
                 }
-            } finally {
-                zip.close();
             }
         } finally {
             locker.release();

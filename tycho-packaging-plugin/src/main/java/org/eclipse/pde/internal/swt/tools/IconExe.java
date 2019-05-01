@@ -107,12 +107,14 @@ public class IconExe {
 	 * @param program the Windows executable e.g c:/eclipse/eclipse.exe
 	 */	
 	static ImageData[] loadIcons(String program) throws FileNotFoundException, IOException {
-		RandomAccessFile raf = new RandomAccessFile(program, "r"); //$NON-NLS-1$
-		IconExe iconExe = new IconExe();
-		IconResInfo[] iconInfo = iconExe.getIcons(raf);
-		ImageData[] data = new ImageData[iconInfo.length];
-		for (int i = 0; i < data.length; i++) data[i] = iconInfo[i].data;
-		raf.close();
+	    ImageData[] data;
+	    try (RandomAccessFile raf = new RandomAccessFile(program, "r") //$NON-NLS-1$
+	            ) {
+	        IconExe iconExe = new IconExe();
+	        IconResInfo[] iconInfo = iconExe.getIcons(raf);
+	        data = new ImageData[iconInfo.length];
+	        for (int i = 0; i < data.length; i++) data[i] = iconInfo[i].data;
+	    }
 		return data;
 	}
 	
@@ -148,30 +150,33 @@ public class IconExe {
 	 * @return the number of icons from the original program that were not successfully replaced (0 if success)
 	 */	
 	static int unloadIcons(String program, ImageData[] icons) throws FileNotFoundException, IOException {
-		RandomAccessFile raf = new RandomAccessFile(program, "rw"); //$NON-NLS-1$
+	    IconResInfo[] iconInfo;
+	    int cnt;
+	    try (RandomAccessFile raf = new RandomAccessFile(program, "rw") //$NON-NLS-1$
+	    ) {
 		IconExe iconExe = new IconExe();
-		IconResInfo[] iconInfo = iconExe.getIcons(raf);
+		iconInfo = iconExe.getIcons(raf);
 		// Display an error if  no icons found in target executable.
 		if (iconInfo.length == 0) {
 		    System.err.println("Warning - no icons detected in \"" + program + "\"."); //$NON-NLS-1$ //$NON-NLS-2$
 		    raf.close();
 		    return 0;
 		}
-		int cnt = 0;
-	    for (IconResInfo iconInfo1 : iconInfo) {
-		for (ImageData icon : icons) {
-		    if (icon == null) {
-			continue;
-		    }
-		    if (iconInfo1.data.width == icon.width && iconInfo1.data.height == icon.height && iconInfo1.data.depth == icon.depth) {
-			raf.seek(iconInfo1.offset);
-			unloadIcon(raf, icon);
-			cnt++;
-			break;
+		cnt = 0;
+		for (IconResInfo iconInfo1 : iconInfo) {
+		    for (ImageData icon : icons) {
+			if (icon == null) {
+			    continue;
+			}
+			if (iconInfo1.data.width == icon.width && iconInfo1.data.height == icon.height && iconInfo1.data.depth == icon.depth) {
+			    raf.seek(iconInfo1.offset);
+			    unloadIcon(raf, icon);
+			    cnt++;
+			    break;
+			}
 		    }
 		}
 	    }
-		raf.close();
 		return iconInfo.length - cnt;
 	}
 	
@@ -481,11 +486,12 @@ static boolean readIconGroup(RandomAccessFile raf, int offset, int size) throws 
 static void copyFile(String src, String dst) throws FileNotFoundException, IOException {
 	File srcFile = new File(src);
 	File dstFile = new File(dst);
-	InputStream in = new BufferedInputStream(new FileInputStream(srcFile));
-	OutputStream out = new BufferedOutputStream(new FileOutputStream(dstFile));
-	int c;
-	while ((c = in.read()) != -1) out.write(c); 
-	in.close();
+	OutputStream out;
+	    try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile))) {
+		out = new BufferedOutputStream(new FileOutputStream(dstFile));
+		int c;
+		while ((c = in.read()) != -1) out.write(c);
+	    }
 	out.close();
 }
 

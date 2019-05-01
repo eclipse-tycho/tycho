@@ -240,16 +240,13 @@ public class Feature {
     }
 
     public static Feature readJar(File file) throws IOException {
-        JarFile jar = new JarFile(file);
-        try {
+        try (JarFile jar = new JarFile(file)) {
             ZipEntry ze = jar.getEntry(FEATURE_XML);
             if (ze != null) {
                 InputStream is = jar.getInputStream(ze);
                 return read(is);
             }
             throw new IOException(file.getAbsolutePath() + " does not have " + FEATURE_XML + " entry.");
-        } finally {
-            jar.close();
         }
     }
 
