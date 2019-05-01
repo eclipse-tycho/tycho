@@ -101,6 +101,7 @@ public class PublishFeaturesAndBundlesMojo extends AbstractMojo {
     @Component
     private P2ApplicationLauncher launcher;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         publishContent();
     }

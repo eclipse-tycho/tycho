@@ -47,6 +47,7 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
 
     private DependencyMetadataGenerator generator;
 
+    @Override
     public Map<String, IDependencyMetadata> getDependencyMetadata(MavenSession session, MavenProject project,
             List<TargetEnvironment> environments, OptionalResolutionAction optionalAction) {
         Map<String, IDependencyMetadata> metadata = new LinkedHashMap<>();
@@ -90,6 +91,7 @@ public class CustomBundleP2MetadataProvider implements P2MetadataProvider, Initi
         return new File(locationDom.getValue());
     }
 
+    @Override
     public void initialize() throws InitializationException {
         this.generator = equinox.getService(DependencyMetadataGenerator.class, "(role-hint=dependency-only)");
     }

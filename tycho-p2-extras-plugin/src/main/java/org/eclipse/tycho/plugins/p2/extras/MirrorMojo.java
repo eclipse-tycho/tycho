@@ -221,6 +221,7 @@ public class MirrorMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private boolean ignoreErrors;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         final MirrorApplicationService mirrorService = p2.getService(MirrorApplicationService.class);
 

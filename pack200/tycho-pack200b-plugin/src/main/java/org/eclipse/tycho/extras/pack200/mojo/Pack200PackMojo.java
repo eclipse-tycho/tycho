@@ -63,6 +63,7 @@ public class Pack200PackMojo extends AbstractMojo {
     @Component
     protected MavenProjectHelper projectHelper;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (!supportedProjectTypes.contains(project.getPackaging())) {
             return;

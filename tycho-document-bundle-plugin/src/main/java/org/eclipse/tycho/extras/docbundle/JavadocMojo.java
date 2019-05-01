@@ -296,6 +296,7 @@ public class JavadocMojo extends AbstractMojo {
     private class GatherSourcesVisitor implements ProjectVisitor {
         private final Set<File> sourceFolders = new HashSet<>();
 
+        @Override
         public void visit(final MavenProject project) {
             if (JavadocMojo.this.sourceTypes.contains(project.getPackaging())) {
                 for (final String root : (Collection<String>) project.getCompileSourceRoots()) {
@@ -316,6 +317,7 @@ public class JavadocMojo extends AbstractMojo {
     private class GatherManifestVisitor implements ProjectVisitor {
         private final Set<File> manifestFiles = new HashSet<>();
 
+	@Override
         public void visit(final MavenProject project) {
             if (JavadocMojo.this.sourceTypes.contains(project.getPackaging())) {
                 this.manifestFiles.add(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
@@ -330,6 +332,7 @@ public class JavadocMojo extends AbstractMojo {
     private class GatherClasspathVisitor implements ProjectVisitor {
         private final Set<String> classPath = new HashSet<>();
 
+	@Override
         public void visit(final MavenProject project) throws MojoExecutionException {
             for (final Dependency dep : (List<Dependency>) project.getDependencies()) {
                 if (dep.getSystemPath() != null) {

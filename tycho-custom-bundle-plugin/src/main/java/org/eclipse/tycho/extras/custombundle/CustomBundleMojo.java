@@ -91,6 +91,7 @@ public class CustomBundleMojo extends AbstractMojo {
     @Component
     private MavenProjectHelper projectHelper;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         File outputJarFile = getOutputJarFile();
 

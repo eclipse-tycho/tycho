@@ -121,6 +121,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
         }
     }
 
+    @Override
     public Date getTimestamp(MavenSession session, MavenProject project, MojoExecution execution)
             throws MojoExecutionException {
         FileRepositoryBuilder builder = new FileRepositoryBuilder() //

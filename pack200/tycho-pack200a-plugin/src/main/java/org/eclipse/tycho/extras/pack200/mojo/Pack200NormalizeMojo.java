@@ -73,6 +73,7 @@ public class Pack200NormalizeMojo extends AbstractMojo {
     @Component
     private Pack200Archiver pack200;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (this.skip || !supportedProjectTypes.contains(project.getPackaging())) {
             return;

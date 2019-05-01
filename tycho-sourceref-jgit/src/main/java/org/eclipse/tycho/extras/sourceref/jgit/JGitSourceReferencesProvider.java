@@ -31,6 +31,7 @@ import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 @Component(role = SourceReferencesProvider.class, hint = "git")
 public class JGitSourceReferencesProvider implements SourceReferencesProvider {
 
+    @Override
     public String getSourceReferencesHeader(MavenProject project, ScmUrl scmUrl) throws MojoExecutionException {
         File basedir = project.getBasedir().getAbsoluteFile();
         FileRepositoryBuilder builder = new FileRepositoryBuilder().readEnvironment().findGitDir(basedir)

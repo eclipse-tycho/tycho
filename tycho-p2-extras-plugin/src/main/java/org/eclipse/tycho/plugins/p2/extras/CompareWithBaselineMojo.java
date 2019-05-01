@@ -103,6 +103,7 @@ public class CompareWithBaselineMojo extends AbstractMojo {
     @Component(role = ArtifactComparator.class)
     protected Map<String, ArtifactComparator> artifactComparators;
 
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
             getLog().info("Skipped");
