@@ -309,9 +309,7 @@ public class JDTCompiler extends AbstractCompiler {
             returnCode = CommandLineUtils.executeCommandLine(cli, out, err);
 
             messages = parseModernStream(new BufferedReader(new StringReader(err.getOutput())));
-        } catch (CommandLineException e) {
-            throw new CompilerException("Error while executing the external compiler.", e);
-        } catch (IOException e) {
+        } catch (CommandLineException | IOException e) {
             throw new CompilerException("Error while executing the external compiler.", e);
         }
 
