@@ -294,7 +294,7 @@ public class EquinoxResolver {
                 logger.debug("Equinox resolver state:\n" + toDebugString(state));
             }
 
-            StringBuffer msg = new StringBuffer();
+            StringBuilder msg = new StringBuilder();
             msg.append("Bundle ").append(desc.getSymbolicName()).append(" cannot be resolved\n");
             msg.append("Resolution errors:\n");
             ResolverError[] errors = getResolverErrors(state, desc);

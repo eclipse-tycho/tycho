@@ -111,7 +111,7 @@ public class JDTCompilerTest {
     }
 
     private static BufferedReader createOutputForLines(String... lines) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (String line : lines) {
             buf.append(line);
             buf.append("\n");
