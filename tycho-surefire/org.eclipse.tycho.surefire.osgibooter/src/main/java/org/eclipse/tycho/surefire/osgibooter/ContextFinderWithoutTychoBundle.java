@@ -31,6 +31,7 @@ import java.util.Set;
  */
 class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedAction<List<ClassLoader>> {
     static final class Finder extends SecurityManager {
+        @Override
         public Class<?>[] getClassContext() {
             return super.getClassContext();
         }
@@ -139,6 +140,7 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
         cycleDetector.get().remove(name);
     }
 
+    @Override
     protected Class<?> loadClass(String arg0, boolean arg1) throws ClassNotFoundException {
         //Shortcut cycle
         if (startLoading(arg0) == false)
@@ -159,6 +161,7 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
         }
     }
 
+    @Override
     public URL getResource(String arg0) {
         //Shortcut cycle
         if (startLoading(arg0) == false)
@@ -177,6 +180,7 @@ class ContextFinderWithoutTychoBundle extends ClassLoader implements PrivilegedA
         }
     }
 
+    @Override
     public Enumeration<URL> getResources(String arg0) throws IOException {
         //Shortcut cycle
         if (startLoading(arg0) == false) {

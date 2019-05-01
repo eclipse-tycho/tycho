@@ -193,14 +193,17 @@ public class OsgiSurefireBooter {
             this.bundle = target;
         }
 
+        @Override
         protected Class<?> findClass(String name) throws ClassNotFoundException {
             return bundle.loadClass(name);
         }
 
+        @Override
         protected URL findResource(String name) {
             return bundle.getResource(name);
         }
 
+        @Override
         protected Enumeration<URL> findResources(String name) throws IOException {
             return bundle.getResources(name);
         }

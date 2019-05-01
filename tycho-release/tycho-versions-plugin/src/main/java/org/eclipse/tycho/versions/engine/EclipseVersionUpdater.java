@@ -19,6 +19,7 @@ import org.eclipse.tycho.versions.pom.PomFile;
 @Component(role = EclipseVersionUpdater.class, instantiationStrategy = "per-lookup")
 public class EclipseVersionUpdater extends VersionUpdater {
 
+    @Override
     protected void addVersionChange(VersionsEngine engine, PomFile pom, String osgiVersion) {
         engine.addVersionChange(new PomVersionChange(pom, osgiVersion, pom.getVersion()));
     }
