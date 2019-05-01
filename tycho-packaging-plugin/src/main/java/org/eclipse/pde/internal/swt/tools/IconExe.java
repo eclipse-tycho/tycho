@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -75,9 +76,7 @@ public class IconExe {
 			try {
 				//An ICO should contain 7 images, a BMP will contain 1
 				ImageData[] current = loader.load(args[i]);
-				for (ImageData current1 : current) {
-				    images.add(current1);
-				}
+				images.addAll(Arrays.asList(current));
 			} catch (RuntimeException e) {
 				//ignore so that we process the other images
 			}
