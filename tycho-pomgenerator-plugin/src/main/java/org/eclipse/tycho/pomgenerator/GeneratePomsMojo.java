@@ -562,9 +562,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             }
             return result;
 
-        } catch (IOException e) {
-            throw new MojoExecutionException("Exception processing feature " + toString(basedir), e);
-        } catch (XmlPullParserException e) {
+        } catch (IOException | XmlPullParserException e) {
             throw new MojoExecutionException("Exception processing feature " + toString(basedir), e);
         }
 
@@ -686,9 +684,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             } finally {
                 is.close();
             }
-        } catch (XmlPullParserException e) {
-            throw new MojoExecutionException("Can't create pom.xml file", e);
-        } catch (IOException e) {
+        } catch (XmlPullParserException | IOException e) {
             throw new MojoExecutionException("Can't create pom.xml file", e);
         }
 
@@ -771,9 +767,7 @@ public class GeneratePomsMojo extends AbstractMojo {
             } else {
                 throw new MojoExecutionException("pom.xml template cannot be found " + name);
             }
-        } catch (XmlPullParserException e) {
-            throw new MojoExecutionException("Can't read pom.xml template " + name, e);
-        } catch (IOException e) {
+        } catch (XmlPullParserException | IOException e) {
             throw new MojoExecutionException("Can't read pom.xml template " + name, e);
         }
     }

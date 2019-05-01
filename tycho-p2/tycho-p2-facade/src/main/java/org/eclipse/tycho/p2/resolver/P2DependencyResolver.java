@@ -305,9 +305,7 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
                 getLogger().debug("Added p2 repository " + repository.getId() + " (" + repository.getUrl() + ")");
             }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
-        } catch (URISyntaxException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new RuntimeException("Invalid repository URL: " + repository.getUrl(), e);
         }
     }

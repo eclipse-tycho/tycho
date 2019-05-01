@@ -131,9 +131,7 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
                 newArtifact.createNewFile();
             }
             return newArtifact;
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error assembling ZIP", e);
-        } catch (ArchiverException e) {
+        } catch (IOException | ArchiverException e) {
             throw new MojoExecutionException("Error assembling ZIP", e);
         }
     }

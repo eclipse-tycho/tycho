@@ -42,13 +42,12 @@ public class RepositoryBlackboardKey {
             return new RepositoryBlackboardKey(new URI(SCHEME,
                     "/resolution-context-artifacts@" + URLEncoder.encode(String.valueOf(projectLocation), "UTF-8"),
                     null));
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | UnsupportedEncodingException e) {
             // the used constructor does not escape invalid characters but we encode, so I don't see this happening (bug 509028)
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            // UTF-8 should be supported on any JVM
-            throw new RuntimeException(e);
+        	// UTF-8 should be supported on any JVM
+        	throw new RuntimeException(e);
         }
+	
     }
 
     @Override
