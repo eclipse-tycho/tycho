@@ -21,7 +21,7 @@ public final class ConfigSpec {
     private final String arch;
 
     public static ConfigSpec createFromWsOsArch(String wsOsArchDotSeparated) {
-        if (wsOsArchDotSeparated.equals(""))
+        if (wsOsArchDotSeparated.isEmpty())
             return GLOBAL;
         else
             return new ConfigSpec(wsOsArchDotSeparated.split("\\."));
