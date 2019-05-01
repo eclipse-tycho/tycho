@@ -256,9 +256,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
         try {
             archiver.addDirectory(sourceDir);
             archiver.createArchive();
-        } catch (IOException e) {
-            throw new RuntimeException("Error packing zip", e);
-        } catch (ArchiverException e) {
+        } catch (IOException | ArchiverException e) {
             throw new RuntimeException("Error packing zip", e);
         }
     }
