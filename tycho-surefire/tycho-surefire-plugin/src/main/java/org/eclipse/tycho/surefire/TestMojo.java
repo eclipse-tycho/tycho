@@ -891,7 +891,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private void createSurefireProperties(TestFrameworkProvider provider) throws MojoExecutionException {
-        PropertiesWrapper wrapper = new PropertiesWrapper(new HashMap<String, String>());
+        PropertiesWrapper wrapper = new PropertiesWrapper(new HashMap<>());
         wrapper.setProperty("testpluginname", getTestBundleSymbolicName());
         wrapper.setProperty("testclassesdirectory", testClassesDirectory.getAbsolutePath());
         wrapper.setProperty("reportsdirectory", reportsDirectory.getAbsolutePath());
@@ -1145,7 +1145,7 @@ public class TestMojo extends AbstractMojo {
     }
 
     private Map<String, String> propertiesAsMap(Properties p) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (String entry : p.stringPropertyNames()) {
             result.put(entry, p.getProperty(entry));
         }
