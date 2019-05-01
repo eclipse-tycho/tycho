@@ -170,13 +170,16 @@ public class DefaultTargetPlatformConfigurationReader {
     private void setOptionalDependencies(TargetPlatformConfiguration result, Xpp3Dom resolverDom) {
         String value = getStringValue(resolverDom.getChild("optionalDependencies"));
 
-        if (value == null) {
+        if (null == value) {
             return;
-        } else if (OPTIONAL_RESOLUTION_REQUIRE.equals(value)) {
+        } else switch (value) {
+        case OPTIONAL_RESOLUTION_REQUIRE:
             result.setOptionalResolutionAction(OptionalResolutionAction.REQUIRE);
-        } else if (OPTIONAL_RESOLUTION_IGNORE.equals(value)) {
+            break;
+        case OPTIONAL_RESOLUTION_IGNORE:
             result.setOptionalResolutionAction(OptionalResolutionAction.IGNORE);
-        } else {
+            break;
+        default:
             throw new BuildFailureException("Illegal value of <optionalDependencies> dependency resolution parameter: "
                     + value);
         }

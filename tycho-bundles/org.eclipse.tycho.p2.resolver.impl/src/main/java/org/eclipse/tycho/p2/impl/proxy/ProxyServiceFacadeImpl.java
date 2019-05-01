@@ -77,13 +77,20 @@ public class ProxyServiceFacadeImpl implements ProxyServiceFacade {
     private static String getProxyType(String protocol) {
         protocol = protocol.trim().toLowerCase(Locale.ENGLISH);
         String type;
-        if ("http".equals(protocol)) {
+        if (null == protocol) {
+            throw new IllegalArgumentException("unknown proxy protocol: " + protocol);
+        } else switch (protocol) {
+        case "http":
             type = IProxyData.HTTP_PROXY_TYPE;
-        } else if ("https".equals(protocol)) {
+            break;
+        case "https":
             type = IProxyData.HTTPS_PROXY_TYPE;
-        } else if ("socks4".equals(protocol) || "socks_5".equals(protocol)) {
+            break;
+        case "socks4":
+        case "socks_5":
             type = IProxyData.SOCKS_PROXY_TYPE;
-        } else {
+            break;
+        default:
             throw new IllegalArgumentException("unknown proxy protocol: " + protocol);
         }
         return type;

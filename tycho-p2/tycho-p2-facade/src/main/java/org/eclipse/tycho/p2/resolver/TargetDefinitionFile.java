@@ -293,17 +293,25 @@ public final class TargetDefinitionFile implements TargetDefinition {
         if (locationsDom != null) {
             for (Element locationDom : locationsDom.getChildren("location")) {
                 String type = locationDom.getAttributeValue("type");
-                if ("InstallableUnit".equals(type)) {
+                if (null == type) {
+                    locations.add(new OtherLocation(type));
+                } else switch (type) {
+                case "InstallableUnit":
                     locations.add(new IULocation(locationDom));
-                } else if ("Directory".equals(type)) {
+                    break;
+                case "Directory":
                     locations.add(new DirectoryTargetLocation(locationDom.getAttributeValue("path")));
-                } else if ("Profile".equals(type)) {
+                    break;
+                case "Profile":
                     locations.add(new ProfileTargetPlatformLocation(locationDom.getAttributeValue("path")));
-                } else if ("Feature".equals(type)) {
+                    break;
+                case "Feature":
                     locations.add(new FeatureTargetPlatformLocation(locationDom.getAttributeValue("path"),
                             locationDom.getAttributeValue("id"), locationDom.getAttributeValue("version")));
-                } else {
+                    break;
+                default:
                     locations.add(new OtherLocation(type));
+                    break;
                 }
             }
         }

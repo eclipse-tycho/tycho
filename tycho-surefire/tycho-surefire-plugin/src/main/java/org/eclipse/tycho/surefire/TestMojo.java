@@ -681,11 +681,17 @@ public class TestMojo extends AbstractMojo {
         }
 
         EquinoxInstallation equinoxTestRuntime;
-        if ("p2Installed".equals(testRuntime)) {
+        if (null == testRuntime) {
+            throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
+                    + "' is unkown. Allowed values: 'default', 'p2Installed'.");
+        } else switch (testRuntime) {
+        case "p2Installed":
             equinoxTestRuntime = createProvisionedInstallation();
-        } else if ("default".equals(testRuntime)) {
+            break;
+        case "default":
             equinoxTestRuntime = createEclipseInstallation();
-        } else {
+            break;
+        default:
             throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
                     + "' is unkown. Allowed values: 'default', 'p2Installed'.");
         }
