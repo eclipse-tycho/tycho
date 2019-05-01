@@ -90,20 +90,20 @@ public class StandardExecutionEnvironment implements Comparable<StandardExecutio
         try {
             ManifestElement[] systemCapValues = ManifestElement.parseHeader("org.osgi.framework.system.capabilities",
                     systemCaps);
-            for (int i = 0; i < systemCapValues.length; i++) {
+            for (ManifestElement systemCapValue : systemCapValues) {
                 Version version;
-                String singleVersion = systemCapValues[i].getAttribute("version:Version");
+                String singleVersion = systemCapValue.getAttribute("version:Version");
                 if (singleVersion != null) {
                     version = Version.parseVersion(singleVersion);
                 } else {
-                    String[] versions = systemCapValues[i].getAttribute("version:List<Version>").split(",");
+                    String[] versions = systemCapValue.getAttribute("version:List<Version>").split(",");
                     List<Version> osgiVersions = new ArrayList<>(versions.length);
                     for (String currentVersion : versions) {
                         osgiVersions.add(Version.parseVersion(currentVersion));
                     }
                     version = Collections.max(osgiVersions);
                 }
-                String execEnv = systemCapValues[i].getAttribute("osgi.ee");
+                String execEnv = systemCapValue.getAttribute("osgi.ee");
                 EEType eeType = EEType.fromName(execEnv);
                 if (eeType != null) {
                     eeVersions.add(new EEVersion(version, eeType));

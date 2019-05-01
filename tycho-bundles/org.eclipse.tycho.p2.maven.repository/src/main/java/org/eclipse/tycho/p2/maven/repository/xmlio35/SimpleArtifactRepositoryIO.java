@@ -193,10 +193,10 @@ public class SimpleArtifactRepositoryIO {
             if (rules.length > 0) {
                 start(MAPPING_RULES_ELEMENT);
                 attribute(COLLECTION_SIZE_ATTRIBUTE, rules.length);
-                for (int i = 0; i < rules.length; i++) {
+                for (String[] rule : rules) {
                     start(MAPPING_RULE_ELEMENT);
-                    attribute(MAPPING_RULE_FILTER_ATTRIBUTE, rules[i][0]);
-                    attribute(MAPPING_RULE_OUTPUT_ATTRIBUTE, rules[i][1]);
+                    attribute(MAPPING_RULE_FILTER_ATTRIBUTE, rule[0]);
+                    attribute(MAPPING_RULE_OUTPUT_ATTRIBUTE, rule[1]);
                     end(MAPPING_RULE_ELEMENT);
                 }
                 end(MAPPING_RULES_ELEMENT);
@@ -224,13 +224,13 @@ public class SimpleArtifactRepositoryIO {
             if (processingSteps.length > 0) {
                 start(PROCESSING_STEPS_ELEMENT);
                 attribute(COLLECTION_SIZE_ATTRIBUTE, processingSteps.length);
-                for (int i = 0; i < processingSteps.length; i++) {
-                    start(PROCESSING_STEP_ELEMENT);
-                    attribute(ID_ATTRIBUTE, processingSteps[i].getProcessorId());
-                    attribute(STEP_DATA_ATTRIBUTE, processingSteps[i].getData());
-                    attribute(STEP_REQUIRED_ATTRIBUTE, processingSteps[i].isRequired());
-                    end(PROCESSING_STEP_ELEMENT);
-                }
+		for (IProcessingStepDescriptor processingStep : processingSteps) {
+		    start(PROCESSING_STEP_ELEMENT);
+		    attribute(ID_ATTRIBUTE, processingStep.getProcessorId());
+		    attribute(STEP_DATA_ATTRIBUTE, processingStep.getData());
+		    attribute(STEP_REQUIRED_ATTRIBUTE, processingStep.isRequired());
+		    end(PROCESSING_STEP_ELEMENT);
+		}
                 end(PROCESSING_STEPS_ELEMENT);
             }
         }

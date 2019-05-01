@@ -75,8 +75,8 @@ public class IconExe {
 			try {
 				//An ICO should contain 7 images, a BMP will contain 1
 				ImageData[] current = loader.load(args[i]);
-				for (int j = 0; j < current.length; j++) {
-					images.add(current[j]);
+				for (ImageData current1 : current) {
+				    images.add(current1);
 				}
 			} catch (RuntimeException e) {
 				//ignore so that we process the other images
@@ -159,18 +159,19 @@ public class IconExe {
 		    return 0;
 		}
 		int cnt = 0;
-		for (int i = 0; i < iconInfo.length; i++) {
-			for (int j = 0; j < icons.length; j++) {
-				if (icons[j] == null)
-					continue;
-				if (iconInfo[i].data.width == icons[j].width && iconInfo[i].data.height == icons[j].height && iconInfo[i].data.depth == icons[j].depth) {
-					raf.seek(iconInfo[i].offset);
-					unloadIcon(raf, icons[j]);
-					cnt++;
-					break;
-				}
-			}
+	    for (IconResInfo iconInfo1 : iconInfo) {
+		for (ImageData icon : icons) {
+		    if (icon == null) {
+			continue;
+		    }
+		    if (iconInfo1.data.width == icon.width && iconInfo1.data.height == icon.height && iconInfo1.data.depth == icon.depth) {
+			raf.seek(iconInfo1.offset);
+			unloadIcon(raf, icon);
+			cnt++;
+			break;
+		    }
 		}
+	    }
 		raf.close();
 		return iconInfo.length - cnt;
 	}
@@ -249,32 +250,32 @@ void dumpResourceDirectory(RandomAccessFile raf, int imageResourceDirectoryOffse
 		imageResourceDirectoryEntries[i] = new IMAGE_RESOURCE_DIRECTORY_ENTRY();
 		read(raf, imageResourceDirectoryEntries[i]);
 	}
-	for (int i = 0; i < imageResourceDirectoryEntries.length; i++) {
-		if (imageResourceDirectoryEntries[i].DataIsDirectory) {
-			dumpResourceDirectory(raf, imageResourceDirectoryEntries[i].OffsetToDirectory + resourceBase, resourceBase, delta, imageResourceDirectoryEntries[i].Id, level + 1, rt_icon_root ? true : type == RT_ICON);
+	    for (IMAGE_RESOURCE_DIRECTORY_ENTRY imageResourceDirectoryEntrie : imageResourceDirectoryEntries) {
+		if (imageResourceDirectoryEntrie.DataIsDirectory) {
+		    dumpResourceDirectory(raf, imageResourceDirectoryEntrie.OffsetToDirectory + resourceBase, resourceBase, delta, imageResourceDirectoryEntrie.Id, level + 1, rt_icon_root ? true : type == RT_ICON);
 		} else {
-			// Resource found
-			/// pResDirEntry->Name
-			IMAGE_RESOURCE_DIRECTORY_ENTRY irde = imageResourceDirectoryEntries[i];
-			IMAGE_RESOURCE_DATA_ENTRY data = new IMAGE_RESOURCE_DATA_ENTRY();
-			raf.seek(imageResourceDirectoryEntries[i].OffsetToData + resourceBase);
-			read(raf, data);
-			if (DEBUG) System.out.println("Resource Id "+irde.Id+" Data Offset RVA "+data.OffsetToData+", Size "+data.Size); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if (rt_icon_root) {
-				if (DEBUG) System.out.println("iconcnt "+iconCnt+" |"+iconInfo.length); //$NON-NLS-1$ //$NON-NLS-2$
-				iconInfo[iconCnt] = new IconResInfo();
-				iconInfo[iconCnt].data = parseIcon(raf, data.OffsetToData - delta, data.Size);
-				iconInfo[iconCnt].offset = data.OffsetToData - delta;
-				iconInfo[iconCnt].size = data.Size;	
-				iconCnt++;
-				if (iconCnt == iconInfo.length) {
-					IconResInfo[] newArray = new IconResInfo[iconInfo.length + 4];
-					System.arraycopy(iconInfo, 0, newArray, 0, iconInfo.length);
-					iconInfo = newArray;
-				}
+		    // Resource found
+		    /// pResDirEntry->Name
+		    IMAGE_RESOURCE_DIRECTORY_ENTRY irde = imageResourceDirectoryEntrie;
+		    IMAGE_RESOURCE_DATA_ENTRY data = new IMAGE_RESOURCE_DATA_ENTRY();
+		    raf.seek(imageResourceDirectoryEntrie.OffsetToData + resourceBase);
+		    read(raf, data);
+		    if (DEBUG) System.out.println("Resource Id "+irde.Id+" Data Offset RVA "+data.OffsetToData+", Size "+data.Size); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		    if (rt_icon_root) {
+			if (DEBUG) System.out.println("iconcnt "+iconCnt+" |"+iconInfo.length); //$NON-NLS-1$ //$NON-NLS-2$
+			iconInfo[iconCnt] = new IconResInfo();
+			iconInfo[iconCnt].data = parseIcon(raf, data.OffsetToData - delta, data.Size);
+			iconInfo[iconCnt].offset = data.OffsetToData - delta;
+			iconInfo[iconCnt].size = data.Size;
+			iconCnt++;
+			if (iconCnt == iconInfo.length) {
+			    IconResInfo[] newArray = new IconResInfo[iconInfo.length + 4];
+			    System.arraycopy(iconInfo, 0, newArray, 0, iconInfo.length);
+			    iconInfo = newArray;
 			}
+		    }
 		}
- 	}
+	    }
 }
 
 static ImageData parseIcon(RandomAccessFile raf, int offset, int size) throws IOException {

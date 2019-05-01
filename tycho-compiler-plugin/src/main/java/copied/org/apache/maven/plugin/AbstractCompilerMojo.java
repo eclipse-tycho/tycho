@@ -355,11 +355,9 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         if (getLog().isDebugEnabled()) {
             getLog().debug("Classpath:");
 
-            for (Iterator<String> it = getClasspathElements().iterator(); it.hasNext();) {
-                String s = it.next();
-
-                getLog().debug(" " + s);
-            }
+	        for (String s : getClasspathElements()) {
+	            getLog().debug(" " + s);
+	        }
 
             getLog().debug("Source roots:");
 

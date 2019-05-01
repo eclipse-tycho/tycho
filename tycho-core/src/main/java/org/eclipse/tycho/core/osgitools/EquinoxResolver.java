@@ -298,10 +298,9 @@ public class EquinoxResolver {
             msg.append("Bundle ").append(desc.getSymbolicName()).append(" cannot be resolved\n");
             msg.append("Resolution errors:\n");
             ResolverError[] errors = getResolverErrors(state, desc);
-            for (int i = 0; i < errors.length; i++) {
-                ResolverError error = errors[i];
+            for (ResolverError error : errors) {
                 msg.append("   Bundle ").append(error.getBundle().getSymbolicName()).append(" - ")
-                        .append(error.toString()).append("\n");
+                .append(error.toString()).append("\n");
             }
 
             throw new BundleException(msg.toString());
@@ -316,23 +315,21 @@ public class EquinoxResolver {
 
     private void getRelevantErrors(State state, Set<ResolverError> errors, BundleDescription bundle) {
         ResolverError[] bundleErrors = state.getResolverErrors(bundle);
-        for (int j = 0; j < bundleErrors.length; j++) {
-            ResolverError error = bundleErrors[j];
-            errors.add(error);
-
-            VersionConstraint constraint = error.getUnsatisfiedConstraint();
-            if (constraint instanceof BundleSpecification || constraint instanceof HostSpecification) {
-                BundleDescription[] requiredBundles = state.getBundles(constraint.getName());
-                for (int i = 0; i < requiredBundles.length; i++) {
-                    // if one of the constraints is the bundle itself (recursive dependency)
-                    // do not handle that bundle (again). See bug 442594.
-                    if (bundle.equals(requiredBundles[i])) {
-                        continue;
-                    }
-                    getRelevantErrors(state, errors, requiredBundles[i]);
-                }
-            }
-        }
+	for (ResolverError error : bundleErrors) {
+	    errors.add(error);
+	    VersionConstraint constraint = error.getUnsatisfiedConstraint();
+	    if (constraint instanceof BundleSpecification || constraint instanceof HostSpecification) {
+		BundleDescription[] requiredBundles = state.getBundles(constraint.getName());
+		for (BundleDescription requiredBundle : requiredBundles) {
+		    // if one of the constraints is the bundle itself (recursive dependency)
+		    // do not handle that bundle (again). See bug 442594.
+		    if (bundle.equals(requiredBundle)) {
+			continue;
+		    }
+		    getRelevantErrors(state, errors, requiredBundle);
+		}
+	    }
+	}
     }
 
 }

@@ -89,15 +89,13 @@ public class Activator implements BundleActivator {
 
     private static void getRelevantErrors(State state, Set<ResolverError> errors, BundleDescription bundle) {
         ResolverError[] bundleErrors = state.getResolverErrors(bundle);
-        for (int j = 0; j < bundleErrors.length; j++) {
-            ResolverError error = bundleErrors[j];
+        for (ResolverError error : bundleErrors) {
             errors.add(error);
-
             VersionConstraint constraint = error.getUnsatisfiedConstraint();
             if (constraint instanceof BundleSpecification || constraint instanceof HostSpecification) {
                 BundleDescription[] requiredBundles = state.getBundles(constraint.getName());
-                for (int i = 0; i < requiredBundles.length; i++) {
-                    getRelevantErrors(state, errors, requiredBundles[i]);
+                for (BundleDescription requiredBundle : requiredBundles) {
+                    getRelevantErrors(state, errors, requiredBundle);
                 }
             }
         }

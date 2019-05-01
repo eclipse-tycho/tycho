@@ -52,8 +52,8 @@ public abstract class AbstractUITestApplication implements ITestHarness {
 
     private boolean useUIThread(String[] args) {
         if (args != null) {
-            for (int i = 0; i < args.length; i++) {
-                if ("-nouithread".equals(args[i])) {
+            for (String arg : args) {
+                if ("-nouithread".equals(arg)) {
                     return false;
                 }
             }

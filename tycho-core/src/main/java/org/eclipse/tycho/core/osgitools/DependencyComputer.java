@@ -111,8 +111,8 @@ public class DependencyComputer {
 
         // add dependencies
         BundleSpecification[] required = desc.getRequiredBundles();
-        for (int i = 0; i < required.length; i++) {
-            addDependency((BundleDescription) required[i].getSupplier(), added, map, entries);
+        for (BundleSpecification required1 : required) {
+            addDependency((BundleDescription) required1.getSupplier(), added, map, entries);
         }
 
 //		addSecondaryDependencies(desc, added, entries);
@@ -150,14 +150,14 @@ public class DependencyComputer {
         if (desc == null)
             return;
         ExportPackageDescription[] exports = helper.getVisiblePackages(desc, StateHelper.VISIBLE_INCLUDE_EE_PACKAGES);
-        for (int i = 0; i < exports.length; i++) {
-            BundleDescription exporter = exports[i].getExporter();
+        for (ExportPackageDescription export : exports) {
+            BundleDescription exporter = export.getExporter();
             if (exporter == null)
                 continue;
             ArrayList<AccessRule> list = visiblePackages.get(exporter);
             if (list == null)
                 list = new ArrayList<>();
-            AccessRule rule = getRule(helper, desc, exports[i]);
+            AccessRule rule = getRule(helper, desc, export);
             if (!list.contains(rule))
                 list.add(rule);
             visiblePackages.put(exporter, list);
@@ -180,9 +180,10 @@ public class DependencyComputer {
 
         if (hasExtensibleAPI(desc) && desc.getContainingState() != null) {
             BundleDescription[] fragments = desc.getFragments();
-            for (int i = 0; i < fragments.length; i++) {
-                if (fragments[i].isResolved())
-                    addDependencyViaImportPackage(fragments[i], added, map, entries);
+            for (BundleDescription fragment : fragments) {
+                if (fragment.isResolved()) {
+                    addDependencyViaImportPackage(fragment, added, map, entries);
+                }
             }
         }
     }
@@ -200,24 +201,24 @@ public class DependencyComputer {
         BundleDescription[] fragments = hasExtensibleAPI(desc) ? desc.getFragments() : new BundleDescription[0];
 
         // add fragment patches before host
-        for (int i = 0; i < fragments.length; i++) {
-            if (fragments[i].isResolved() && isPatchFragment(fragments[i])) {
-                addDependency(fragments[i], added, map, entries, useInclusion);
+        for (BundleDescription fragment : fragments) {
+            if (fragment.isResolved() && isPatchFragment(fragment)) {
+                addDependency(fragment, added, map, entries, useInclusion);
             }
         }
 
         addPlugin(desc, useInclusion, map, entries);
 
         // add fragments that are not patches after the host
-        for (int i = 0; i < fragments.length; i++) {
-            if (fragments[i].isResolved() && !isPatchFragment(fragments[i])) {
-                addDependency(fragments[i], added, map, entries, useInclusion);
+        for (BundleDescription fragment : fragments) {
+            if (fragment.isResolved() && !isPatchFragment(fragment)) {
+                addDependency(fragment, added, map, entries, useInclusion);
             }
         }
 
         BundleSpecification[] required = desc.getRequiredBundles();
-        for (int i = 0; i < required.length; i++) {
-            addDependency((BundleDescription) required[i].getSupplier(), added, map, entries, useInclusion);
+        for (BundleSpecification required1 : required) {
+            addDependency((BundleDescription) required1.getSupplier(), added, map, entries, useInclusion);
         }
     }
 
@@ -255,14 +256,14 @@ public class DependencyComputer {
             // add host plug-in
             if (added.add(host) && addPlugin(host, false, map, entries)) {
                 BundleSpecification[] required = host.getRequiredBundles();
-                for (int i = 0; i < required.length; i++) {
-                    addDependency((BundleDescription) required[i].getSupplier(), added, map, entries);
+                for (BundleSpecification required1 : required) {
+                    addDependency((BundleDescription) required1.getSupplier(), added, map, entries);
                 }
 
                 // add Import-Package
                 ImportPackageSpecification[] imports = host.getImportPackages();
-                for (int i = 0; i < imports.length; i++) {
-                    BaseDescription supplier = imports[i].getSupplier();
+                for (ImportPackageSpecification import1 : imports) {
+                    BaseDescription supplier = import1.getSupplier();
                     if (supplier instanceof ExportPackageDescription) {
                         addDependencyViaImportPackage(((ExportPackageDescription) supplier).getExporter(), added, map,
                                 entries);
