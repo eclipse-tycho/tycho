@@ -77,9 +77,7 @@ public class PackageUpdateSiteMojo extends AbstractMojo {
                 projectHelper.attachArtifact(project, "zip", "assembly", asssemblyDestFile);
             }
 
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error packing update site", e);
-        } catch (ArchiverException e) {
+        } catch (IOException | ArchiverException e) {
             throw new MojoExecutionException("Error packing update site", e);
         }
     }

@@ -135,15 +135,7 @@ public class PluginRealmHelper {
                         }
                     }
                 }
-            } catch (PluginManagerException e) {
-                throw newMavenExecutionException(e);
-            } catch (PluginResolutionException e) {
-                throw newMavenExecutionException(e);
-            } catch (PluginVersionResolutionException e) {
-                throw newMavenExecutionException(e);
-            } catch (PluginDescriptorParsingException e) {
-                throw newMavenExecutionException(e);
-            } catch (InvalidPluginDescriptorException e) {
+            } catch (PluginManagerException | PluginResolutionException | PluginVersionResolutionException | PluginDescriptorParsingException | InvalidPluginDescriptorException e) {
                 throw newMavenExecutionException(e);
             }
         }

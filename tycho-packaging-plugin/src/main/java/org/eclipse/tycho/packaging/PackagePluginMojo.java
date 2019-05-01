@@ -237,13 +237,7 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
             }
             archiver.createArchive(session, project, archive);
             return pluginFile;
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error assembling JAR", e);
-        } catch (ArchiverException e) {
-            throw new MojoExecutionException("Error assembling JAR", e);
-        } catch (ManifestException e) {
-            throw new MojoExecutionException("Error assembling JAR", e);
-        } catch (DependencyResolutionRequiredException e) {
+        } catch (IOException | ArchiverException | ManifestException | DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Error assembling JAR", e);
         }
     }
