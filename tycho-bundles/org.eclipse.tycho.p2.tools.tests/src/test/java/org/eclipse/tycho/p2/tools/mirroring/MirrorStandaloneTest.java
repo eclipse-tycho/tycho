@@ -110,13 +110,7 @@ public class MirrorStandaloneTest {
         MirrorOptions mirrorOptions = new MirrorOptions();
         mirrorOptions.setLatestVersionOnly(true);
         subject.mirrorStandalone(sourceRepos("e342", "e352"), destinationRepo, null, mirrorOptions, targetFolder);
-        File[] runtimeBundles = new File(destinationRepo.getLocation(), "plugins").listFiles(new FileFilter() {
-
-            @Override
-            public boolean accept(File file) {
-                return file.getName().startsWith("org.eclipse.core.runtime");
-            }
-        });
+        File[] runtimeBundles = new File(destinationRepo.getLocation(), "plugins").listFiles((File file) -> file.getName().startsWith("org.eclipse.core.runtime"));
         assertEquals(1, runtimeBundles.length);
     }
 

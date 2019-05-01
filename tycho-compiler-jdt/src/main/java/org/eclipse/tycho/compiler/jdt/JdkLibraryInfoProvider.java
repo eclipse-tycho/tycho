@@ -120,13 +120,7 @@ public class JdkLibraryInfoProvider {
         if (!libDir.isDirectory()) {
             return new File[0];
         }
-        return libDir.listFiles(new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar") && new File(dir, name).isFile();
-            }
-        });
+        return libDir.listFiles((File dir, String name) -> name.endsWith(".jar") && new File(dir, name).isFile());
     }
 
     private LibraryInfo parseLibraryInfo(String output, String javaHome) {

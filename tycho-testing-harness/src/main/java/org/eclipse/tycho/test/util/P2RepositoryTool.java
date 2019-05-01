@@ -62,22 +62,12 @@ public class P2RepositoryTool {
     }
 
     public File findFeatureArtifact(final String featureId) {
-        File[] matchingFeatures = new File(repoLocation, "features").listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith(featureId + "_");
-            }
-        });
+        File[] matchingFeatures = new File(repoLocation, "features").listFiles((File dir, String name) -> name.startsWith(featureId + "_"));
         return matchingFeatures[0];
     }
 
     public File findBinaryArtifact(final String artifactId) {
-        File[] matchingFeatures = new File(repoLocation, "binary").listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith(artifactId + "_");
-            }
-        });
+        File[] matchingFeatures = new File(repoLocation, "binary").listFiles((File dir, String name) -> name.startsWith(artifactId + "_"));
         return matchingFeatures[0];
     }
 

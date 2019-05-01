@@ -27,12 +27,9 @@ public class ArchiveContentUtil {
     public static Set<String> getFilesInZip(File archive) throws Exception {
         final HashSet<String> result = new HashSet<>();
 
-        visitEntries(archive, new ZipEntryVisitor() {
-            @Override
-            public boolean visitEntry(ZipEntry entry, ZipInputStream stream) {
-                result.add(entry.getName());
-                return true;
-            }
+        visitEntries(archive, (ZipEntry entry, ZipInputStream stream) -> {
+            result.add(entry.getName());
+            return true;
         });
 
         return result;
@@ -44,16 +41,13 @@ public class ArchiveContentUtil {
     public static String getFileContent(File archive, final String fileInArchive) throws Exception {
         final String[] result = new String[1];
 
-        visitEntries(archive, new ZipEntryVisitor() {
-            @Override
-            public boolean visitEntry(ZipEntry entry, ZipInputStream stream) throws Exception {
-                if (fileInArchive.equals(entry.getName())) {
-                    result[0] = IOUtil.toString(stream);
-                    return false;
-                }
-                return true;
-            }
-        });
+        visitEntries(archive, (ZipEntry entry, ZipInputStream stream) -> {
+	    if (fileInArchive.equals(entry.getName())) {
+		result[0] = IOUtil.toString(stream);
+		return false;
+	    }
+	    return true;
+	});
 
         if (result[0] == null) {
             throw new IllegalArgumentException("File not found in archive: " + fileInArchive);
