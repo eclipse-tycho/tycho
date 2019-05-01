@@ -116,7 +116,7 @@ public class P2RepositoryTool {
 
         List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "']");
 
-        if (nodes.size() == 0)
+        if (nodes.isEmpty())
             Assert.fail("Could not find IU with id '" + unitId + "'");
         else if (nodes.size() == 1)
             return new IU(nodes.get(0));
@@ -139,7 +139,7 @@ public class P2RepositoryTool {
         List<Node> nodes = getNodes(contentXml, "/repository/units/unit[@id='" + unitId + "' and @version='" + version
                 + "']");
 
-        if (nodes.size() == 0)
+        if (nodes.isEmpty())
             Assert.fail("Could not find IU with id '" + unitId + "' and version '" + version + "'");
         else if (nodes.size() == 1)
             return new IU(nodes.get(0));

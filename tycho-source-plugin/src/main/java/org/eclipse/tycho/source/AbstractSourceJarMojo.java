@@ -421,7 +421,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
         }
 
         // If there are no other includes, use the default.
-        if (combinedIncludes.size() == 0) {
+        if (combinedIncludes.isEmpty()) {
             combinedIncludes.addAll(Arrays.asList(DEFAULT_INCLUDES));
         }
 
@@ -452,7 +452,7 @@ public abstract class AbstractSourceJarMojo extends AbstractMojo {
             combinedExcludes.addAll(additionalExcludes);
         }
 
-        if (combinedExcludes.size() == 0) {
+        if (combinedExcludes.isEmpty()) {
             combinedExcludes.addAll(Arrays.asList(DEFAULT_EXCLUDES));
         }
 

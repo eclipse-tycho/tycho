@@ -527,7 +527,7 @@ public class GeneratePomsMojo extends AbstractMojo {
                 moduleDirs.add(dir);
             }
         }
-        if (moduleDirs.size() == 0) {
+        if (moduleDirs.isEmpty()) {
             return null;
         }
         if (moduleDirs.size() > 1) {

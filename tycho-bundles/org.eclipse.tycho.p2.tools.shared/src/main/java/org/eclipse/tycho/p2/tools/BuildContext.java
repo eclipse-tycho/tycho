@@ -37,7 +37,7 @@ public class BuildContext {
      */
     public BuildContext(ReactorProjectIdentities project, String qualifier, List<TargetEnvironment> environments)
             throws IllegalArgumentException {
-        if (environments.size() == 0) {
+        if (environments.isEmpty()) {
             throw new IllegalArgumentException("List of target environments must not be empty");
         }
 

@@ -59,7 +59,7 @@ public class BundlesPublisher {
      *            (must be emtpy)
      */
     public URI publishBundles(File targetDirectory) throws IOException, MojoFailureException, MojoExecutionException {
-        if (bundles.size() == 0) {
+        if (bundles.isEmpty()) {
             throw new MojoExecutionException("No bundles to be published");
         }
         File pluginsDir = new File(targetDirectory, "plugins");

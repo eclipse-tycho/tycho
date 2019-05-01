@@ -118,7 +118,7 @@ public class ProviderHelper {
     }
 
     private void validateCandidates(List<TestFrameworkProvider> candidates) throws MojoExecutionException {
-        if (candidates.size() == 0) {
+        if (candidates.isEmpty()) {
             throw new MojoExecutionException("Could not determine test framework provider. Available providers: "
                     + providers.keySet());
         } else if (candidates.size() == 1) {
