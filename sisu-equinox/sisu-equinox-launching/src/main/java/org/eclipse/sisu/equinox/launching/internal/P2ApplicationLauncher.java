@@ -13,6 +13,7 @@ package org.eclipse.sisu.equinox.launching.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -72,15 +73,11 @@ public class P2ApplicationLauncher {
     }
 
     public void addArguments(String... args) {
-        for (String arg : args) {
-            this.args.add(arg);
-        }
+        this.args.addAll(Arrays.asList(args));
     }
 
     public void addVMArguments(String... vmargs) {
-        for (String vmarg : vmargs) {
-            this.vmargs.add(vmarg);
-        }
+        this.vmargs.addAll(Arrays.asList(vmargs));
     }
 
     public int execute(int forkedProcessTimeoutInSeconds) {
