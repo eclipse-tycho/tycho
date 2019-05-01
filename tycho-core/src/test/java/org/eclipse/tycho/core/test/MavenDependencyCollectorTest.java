@@ -85,8 +85,8 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
         File pom = new File(getBasedir("projects/nodotonclasspath"), "pom.xml");
         List<MavenProject> projects = getSortedProjects(newMavenExecutionRequest(pom));
         assertEquals(3, projects.size());
-        MavenProject project1 = (MavenProject) projects.get(1);
-        MavenProject project2 = (MavenProject) projects.get(2);
+        MavenProject project1 = projects.get(1);
+        MavenProject project2 = projects.get(2);
         Assert.assertEquals("provider", project1.getArtifactId());
         Assert.assertEquals("consumer", project2.getArtifactId());
     }
@@ -94,7 +94,7 @@ public class MavenDependencyCollectorTest extends AbstractTychoMojoTestCase {
     public void testInjectDuplicateSourceFolders() throws Exception {
         File pom = new File(getBasedir("projects/sourceFolders"), "pom.xml");
         List<MavenProject> projects = getSortedProjects(newMavenExecutionRequest(pom));
-        MavenProject project = (MavenProject) projects.get(0);
+        MavenProject project = projects.get(0);
         List<File> sourceRootFiles = new ArrayList<>();
         for (String compileRoot : project.getCompileSourceRoots()) {
             sourceRootFiles.add(new File(compileRoot));

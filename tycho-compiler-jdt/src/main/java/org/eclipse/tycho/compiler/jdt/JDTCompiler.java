@@ -233,14 +233,14 @@ public class JDTCompiler extends AbstractCompiler {
         Map<String, String> customCompilerArguments = config.getCustomCompilerArgumentsAsMap();
         for (Map.Entry<String, String> entry : customCompilerArguments.entrySet()) {
 
-            String key = (String) entry.getKey();
+            String key = entry.getKey();
 
             if (StringUtils.isEmpty(key) || key.startsWith("@")) {
                 continue;
             }
 
             if ("use.java.home".equals(key)) {
-                custom.javaHome = (String) entry.getValue();
+                custom.javaHome = entry.getValue();
                 continue;
             }
 
@@ -251,7 +251,7 @@ public class JDTCompiler extends AbstractCompiler {
 
             args.add(key);
 
-            String value = (String) entry.getValue();
+            String value = entry.getValue();
 
             if (StringUtils.isEmpty(value)) {
                 continue;
@@ -260,7 +260,7 @@ public class JDTCompiler extends AbstractCompiler {
             args.add(value);
         }
 
-        return (String[]) args.toArray(new String[args.size()]);
+        return args.toArray(new String[args.size()]);
     }
 
     private static boolean suppressSource(CompilerConfiguration config) {
@@ -447,7 +447,7 @@ public class JDTCompiler extends AbstractCompiler {
      *            the given classpath entry
      */
     private String createClasspathArgument(List<String> classpath, CustomCompilerConfiguration custom) {
-        final String[] pathElements = (String[]) classpath.toArray(new String[classpath.size()]);
+        final String[] pathElements = classpath.toArray(new String[classpath.size()]);
 
         // empty path return empty string
         if (pathElements.length == 0) {
@@ -467,7 +467,7 @@ public class JDTCompiler extends AbstractCompiler {
         }
 
         int rulesLength = custom.accessRules.size();
-        String[] rules = (String[]) custom.accessRules.toArray(new String[rulesLength]);
+        String[] rules = custom.accessRules.toArray(new String[rulesLength]);
         int nextRule = 0;
         final StringBuffer result = new StringBuffer();
 
