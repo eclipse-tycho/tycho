@@ -38,13 +38,7 @@ public class ProviderHelper {
     @Requirement
     private BundleReader bundleReader;
 
-    private static final Comparator<TestFrameworkProvider> VERSION_COMPARATOR = new Comparator<TestFrameworkProvider>() {
-
-        @Override
-        public int compare(TestFrameworkProvider p1, TestFrameworkProvider p2) {
-            return p1.getVersion().compareTo(p2.getVersion());
-        }
-    };
+    private static final Comparator<TestFrameworkProvider> VERSION_COMPARATOR = (TestFrameworkProvider p1, TestFrameworkProvider p2) -> p1.getVersion().compareTo(p2.getVersion());
 
     public TestFrameworkProvider selectProvider(List<ClasspathEntry> classpath, Properties providerProperties,
             String providerHint) throws MojoExecutionException {
