@@ -33,12 +33,9 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         createDummyClassFile(basedir);
         mojo.execute();
-        JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"));
-        try {
+        try (JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"))) {
             assertNull("class files from target/classes must not be included in plugin jar if no '.' in bin.includes",
                     pluginJar.getEntry("TestNoDot.class"));
-        } finally {
-            pluginJar.close();
         }
     }
 
@@ -50,8 +47,7 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         createDummyClassFile(basedir);
         mojo.execute();
-        JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"));
-        try {
+        try (JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"))) {
             //make sure we can find the WEB-INF/classes/hello.properties
             //and no hello.properties in the root.
             assertNotNull(pluginJar.getEntry("WEB-INF/classes/hello.properties"));
@@ -60,8 +56,6 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
             //and no TestNoDot.class in the root.
             assertNotNull(pluginJar.getEntry("WEB-INF/classes/TestNoDot.class"));
             assertNull(pluginJar.getEntry("TestNoDot.class"));
-        } finally {
-            pluginJar.close();
         }
     }
 
@@ -73,11 +67,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 
-        JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"));
-        try {
+        try (JarFile pluginJar = new JarFile(new File(basedir, "target/test.jar"))) {
             assertNotNull(pluginJar.getEntry("foo.bar"));
-        } finally {
-            pluginJar.close();
         }
     }
 
@@ -88,11 +79,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 
-        JarFile nestedJar = new JarFile(new File(basedir, "nested.jar"));
-        try {
+        try (JarFile nestedJar = new JarFile(new File(basedir, "nested.jar"))) {
             assertEquals("nested", nestedJar.getManifest().getMainAttributes().getValue("Bundle-SymbolicName"));
-        } finally {
-            nestedJar.close();
         }
     }
 
@@ -121,12 +109,9 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 
-        JarFile nestedJar = new JarFile(new File(basedir, "target/pluginForcedToFalse.jar"));
-        try {
+        try (JarFile nestedJar = new JarFile(new File(basedir, "target/pluginForcedToFalse.jar"))) {
             assertNull("Jar must not contain the maven descriptor if forced to not include it!",
                     nestedJar.getEntry("META-INF/maven"));
-        } finally {
-            nestedJar.close();
         }
     }
 
@@ -137,11 +122,8 @@ public class PackagePluginMojoTest extends AbstractTychoMojoTestCase {
         PackagePluginMojo mojo = execMaven(basedir);
         mojo.execute();
 
-        JarFile nestedJar = new JarFile(new File(basedir, "target/pluginDefault.jar"));
-        try {
+        try (JarFile nestedJar = new JarFile(new File(basedir, "target/pluginDefault.jar"))) {
             assertNotNull("Jar must contain the maven descriptor per default!", nestedJar.getEntry("META-INF/maven"));
-        } finally {
-            nestedJar.close();
         }
     }
 

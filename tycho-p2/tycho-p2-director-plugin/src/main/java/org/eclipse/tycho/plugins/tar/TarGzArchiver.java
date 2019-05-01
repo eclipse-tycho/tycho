@@ -159,11 +159,8 @@ public class TarGzArchiver {
     }
 
     private static void copyFileContentToTarStream(File source, TarArchiveOutputStream tarStream) throws IOException {
-        BufferedInputStream sourceStream = new BufferedInputStream(new FileInputStream(source));
-        try {
+        try (BufferedInputStream sourceStream = new BufferedInputStream(new FileInputStream(source))) {
             IOUtils.copy(sourceStream, tarStream);
-        } finally {
-            sourceStream.close();
         }
     }
 

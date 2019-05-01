@@ -44,12 +44,12 @@ public class LockProcess {
     public static void main(String[] args) throws Exception {
         File file = new File(args[0]);
         long wait = Long.valueOf(args[1]);
-        RandomAccessFile raFile = new RandomAccessFile(file, "rw");
-        FileLock lock = raFile.getChannel().lock(0, 1, false);
-        System.out.println(LOCK_ACQUIRED_MSG);
-        Thread.sleep(wait);
-        lock.release();
-        raFile.close();
+        try (RandomAccessFile raFile = new RandomAccessFile(file, "rw")) {
+            FileLock lock = raFile.getChannel().lock(0, 1, false);
+            System.out.println(LOCK_ACQUIRED_MSG);
+            Thread.sleep(wait);
+            lock.release();
+        }
     }
 
     public void lockFileInForkedProcess() {
@@ -96,14 +96,14 @@ public class LockProcess {
             String classNamePath = LockProcess.class.getName().replace('.', '/') + ".class";
             File tmpClassFile = new File(tmpClassDir, classNamePath);
             tmpClassFile.getParentFile().mkdirs();
-            OutputStream out = new FileOutputStream(tmpClassFile);
-            byte[] buffer = new byte[1024];
-            int read = 0;
-            while ((read = in.read(buffer, 0, buffer.length)) != -1) {
-                out.write(buffer, 0, read);
-            }
-            in.close();
-            out.close();
+	    try (OutputStream out = new FileOutputStream(tmpClassFile)) {
+		byte[] buffer = new byte[1024];
+		int read = 0;
+		while ((read = in.read(buffer, 0, buffer.length)) != -1) {
+		    out.write(buffer, 0, read);
+		}
+		in.close();
+	    }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

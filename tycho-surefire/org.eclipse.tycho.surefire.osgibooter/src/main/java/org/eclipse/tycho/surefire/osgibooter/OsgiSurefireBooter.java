@@ -155,11 +155,8 @@ public class OsgiSurefireBooter {
 
     private static Properties loadProperties(File file) throws IOException {
         Properties p = new Properties();
-        BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
-        try {
+        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
             p.load(in);
-        } finally {
-            in.close();
         }
         return p;
     }

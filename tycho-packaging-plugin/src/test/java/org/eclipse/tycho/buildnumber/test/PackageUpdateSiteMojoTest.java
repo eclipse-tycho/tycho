@@ -76,12 +76,9 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         Assert.assertTrue(attachedArtifacts.get(0).getFile().equals(assemblyZip));
         Assert.assertTrue(attachedArtifacts.get(0).getClassifier().equals("assembly"));
         Assert.assertTrue(attachedArtifacts.get(0).getType().equals("zip"));
-        ZipFile zip = new ZipFile(assemblyZip);
-        try {
+        try (ZipFile zip = new ZipFile(assemblyZip)) {
             assertNotNull(zip.getEntry("site.xml"));
             assertNotNull(zip.getEntry("content.xml"));
-        } finally {
-            zip.close();
         }
     }
 
@@ -105,11 +102,8 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         Assert.assertTrue(attachedArtifacts.get(0).getFile().equals(assemblyZip));
         Assert.assertTrue(attachedArtifacts.get(0).getClassifier().equals("assembly"));
         Assert.assertTrue(attachedArtifacts.get(0).getType().equals("zip"));
-        ZipFile zip = new ZipFile(assemblyZip);
-        try {
+        try (ZipFile zip = new ZipFile(assemblyZip)) {
             assertNotNull(zip.getEntry("associate-sites.xml"));
-        } finally {
-            zip.close();
         }
     }
 
@@ -118,12 +112,9 @@ public class PackageUpdateSiteMojoTest extends AbstractTychoMojoTestCase {
         Assert.assertTrue(resultzip.exists());
         Assert.assertEquals(project.getArtifact().getFile(), resultzip);
 
-        ZipFile zip = new ZipFile(resultzip);
-        try {
+        try (ZipFile zip = new ZipFile(resultzip)) {
             assertNotNull(zip.getEntry("site.xml"));
             assertNull(zip.getEntry("content.xml"));
-        } finally {
-            zip.close();
         }
     }
 

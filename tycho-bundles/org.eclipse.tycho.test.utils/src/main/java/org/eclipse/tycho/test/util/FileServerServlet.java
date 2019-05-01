@@ -45,8 +45,7 @@ public class FileServerServlet extends AbstractMonitorServlet {
 
         addUri(req);
 
-        InputStream input = new FileInputStream(file);
-        try {
+        try (InputStream input = new FileInputStream(file)) {
             OutputStream output = res.getOutputStream();
             try {
                 final byte[] buffer = new byte[10240];
@@ -57,8 +56,6 @@ public class FileServerServlet extends AbstractMonitorServlet {
             } finally {
                 output.close();
             }
-        } finally {
-            input.close();
         }
     }
 
