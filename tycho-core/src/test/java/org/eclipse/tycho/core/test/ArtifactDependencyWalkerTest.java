@@ -97,7 +97,7 @@ public class ArtifactDependencyWalkerTest extends AbstractTychoMojoTestCase {
         MavenExecutionResult result = new DefaultMavenExecutionResult();
         DefaultRepositorySystemSession repositorySession = new DefaultRepositorySystemSession();
         MavenSession session = new MavenSession(getContainer(), repositorySession, request, result);
-        session.setProjects(new ArrayList<MavenProject>());
+        session.setProjects(new ArrayList<>());
         lookup(LegacySupport.class).setSession(session);
 
         MavenProject project = new MavenProject();

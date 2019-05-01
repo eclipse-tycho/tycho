@@ -49,6 +49,6 @@ public class P2Artifact implements IP2Artifact {
     }
 
     private static <T> Set<Object> toRawSet(Collection<T> set) {
-        return new LinkedHashSet<Object>(set);
+        return new LinkedHashSet<>(set);
     }
 }
