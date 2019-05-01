@@ -107,7 +107,7 @@ public class ProvisionedInstallationBuilder {
     }
 
     private void publishPlainBundleJars() throws MojoFailureException, MojoExecutionException, IOException {
-        if (bundleJars.size() == 0) {
+        if (bundleJars.isEmpty()) {
             return;
         }
         bundlesPublisher.setWorkingDir(workingDir);

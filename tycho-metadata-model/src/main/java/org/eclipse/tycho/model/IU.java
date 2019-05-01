@@ -80,7 +80,7 @@ public class IU {
 
     public List<Element> getProvidedCapabilites() {
         List<Element> provides = iuDom.getChildren(PROVIDES);
-        if (provides == null || provides.size() == 0)
+        if (provides == null || provides.isEmpty())
             return null;
         return provides.get(0).getChildren(PROVIDED);
     }
@@ -114,14 +114,14 @@ public class IU {
 
     public List<Element> getRequiredCapabilites() {
         List<Element> requires = iuDom.getChildren(REQUIRES);
-        if (requires == null || requires.size() == 0)
+        if (requires == null || requires.isEmpty())
             return null;
         return requires.get(0).getChildren(REQUIRED);
     }
 
     public List<Element> getProperties() {
         List<Element> properties = iuDom.getChildren(PROPERTIES);
-        if (properties == null || properties.size() == 0)
+        if (properties == null || properties.isEmpty())
             return null;
         return properties.get(0).getChildren(PROPERTY);
     }
