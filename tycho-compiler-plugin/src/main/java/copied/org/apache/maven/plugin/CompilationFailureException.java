@@ -33,7 +33,7 @@ public class CompilationFailureException extends MojoFailureException {
     }
 
     public static String longMessage(List<CompilerMessage> messages) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (CompilerMessage compilerMessage : messages) {
             sb.append(compilerMessage).append(LS);
         }

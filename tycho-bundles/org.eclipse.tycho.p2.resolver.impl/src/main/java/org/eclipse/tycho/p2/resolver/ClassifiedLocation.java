@@ -42,7 +42,7 @@ public class ClassifiedLocation {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(location.getAbsolutePath());
         if (classifier != null) {
             sb.append('[').append(classifier).append(']');
