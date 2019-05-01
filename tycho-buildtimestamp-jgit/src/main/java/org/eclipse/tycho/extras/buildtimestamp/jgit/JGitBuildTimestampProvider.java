@@ -132,8 +132,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
             throw new MojoExecutionException("No git repository found searching upwards from " + project.getBasedir());
         }
         try {
-            Repository repository = builder.build();
-            try {
+            try (Repository repository = builder.build()) {
                 String relPath = getRelPath(repository, project);
                 TreeFilter pathFilter = createPathFilter(relPath, execution);
                 ObjectId headId = repository.resolve(Constants.HEAD);
@@ -190,8 +189,6 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
                 } finally {
                     walk.close();
                 }
-            } finally {
-                repository.close();
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Could not determine git commit timestamp", e);

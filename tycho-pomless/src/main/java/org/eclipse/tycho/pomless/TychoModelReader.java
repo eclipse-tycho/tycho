@@ -180,11 +180,8 @@ public class TychoModelReader extends ModelReaderSupport {
 
     private Attributes readManifestHeaders(File manifestFile) throws IOException {
         Manifest manifest = new Manifest();
-        FileInputStream stream = new FileInputStream(manifestFile);
-        try {
+        try (FileInputStream stream = new FileInputStream(manifestFile)) {
             manifest.read(stream);
-        } finally {
-            stream.close();
         }
         return manifest.getMainAttributes();
     }
@@ -207,13 +204,7 @@ public class TychoModelReader extends ModelReaderSupport {
     }
 
     private File getProductFile(File projectRoot) {
-        File[] productFiles = projectRoot.listFiles(new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".product");
-            }
-        });
+        File[] productFiles = projectRoot.listFiles((File dir, String name) -> name.endsWith(".product"));
         if (productFiles.length > 0 && productFiles[0].isFile()) {
             return productFiles[0];
         }

@@ -148,11 +148,8 @@ public class CustomBundleMojo extends AbstractMojo {
 
         mfile = new File(project.getBuild().getDirectory(), classifier + "-MANIFEST.MF");
         mfile.getParentFile().mkdirs();
-        BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(mfile));
-        try {
+        try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(mfile))) {
             mf.write(os);
-        } finally {
-            os.close();
         }
 
         return mfile;

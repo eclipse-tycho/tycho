@@ -96,8 +96,7 @@ public class JavadocRunner {
         final File optionsFile = new File(this.buildDirectory, "javadoc.options.txt");
         final Commandline cli = createCommandLine(optionsFile.getAbsolutePath());
 
-        final PrintStream ps = new PrintStream(optionsFile);
-        try {
+        try (PrintStream ps = new PrintStream(optionsFile)) {
             ps.print(createOptionsFileContent());
             ps.close();
 
@@ -110,8 +109,6 @@ public class JavadocRunner {
                     this.log.info("execution failed with rc = " + rc);
                 }
             }
-        } finally {
-            ps.close();
         }
     }
 

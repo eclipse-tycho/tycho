@@ -56,16 +56,8 @@ public class ForkedPack200Wrapper extends Pack200Wrapper {
         cli.addArguments(new String[] { Pack200Wrapper.class.getName(), command, fileFrom.getCanonicalPath(),
                 fileTo.getCanonicalPath() });
 
-        StreamConsumer out = new StreamConsumer() {
-            public void consumeLine(String line) {
-                System.out.println(line);
-            }
-        };
-        StreamConsumer err = new StreamConsumer() {
-            public void consumeLine(String line) {
-                System.err.println(line);
-            }
-        };
+        StreamConsumer out = System.out::println;
+        StreamConsumer err = System.err::println;
         try {
             int rc = CommandLineUtils.executeCommandLine(cli, out, err, FORKED_PROCESS_TIMEOUT_SECONDS);
 
