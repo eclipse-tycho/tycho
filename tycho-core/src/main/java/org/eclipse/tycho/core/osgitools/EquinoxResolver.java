@@ -221,7 +221,7 @@ public class EquinoxResolver {
         // See http://www.osgi.org/javadoc/r4v42/org/osgi/framework/launch/FrameworkFactory.html
 
         // Assume only framework implementation export org.osgi.framework package
-        String value = (String) mf.get(Constants.EXPORT_PACKAGE);
+        String value = mf.get(Constants.EXPORT_PACKAGE);
         if (value != null) {
             try {
                 ManifestElement[] exports = ManifestElement.parseHeader(Constants.EXPORT_PACKAGE, value);
@@ -310,7 +310,7 @@ public class EquinoxResolver {
     public ResolverError[] getResolverErrors(State state, BundleDescription bundle) {
         Set<ResolverError> errors = new LinkedHashSet<>();
         getRelevantErrors(state, errors, bundle);
-        return (ResolverError[]) errors.toArray(new ResolverError[errors.size()]);
+        return errors.toArray(new ResolverError[errors.size()]);
     }
 
     private void getRelevantErrors(State state, Set<ResolverError> errors, BundleDescription bundle) {
