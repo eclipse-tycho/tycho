@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "020e6c45_38caf9b0",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/artifacts/TargetPlatformFilter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-05-02T07:46:16Z",
+      "side": 1,
+      "message": "This line should be moved in the \"default\" clause (in place of break).",
+      "revId": "8a53eb5807a7a6bb5005860aaf68ede4b5934c54",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8055d75_908b7b1b",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/proxy/ProxyServiceFacadeImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-05-02T07:46:16Z",
+      "side": 1,
+      "message": "This would probably better be inverted\n\n  if (protocol !\u003d null) {\n    switch (protocol) {\n      ...\n    }\n  }\n  throw new IllegalArgumentException(...)",
+      "revId": "8a53eb5807a7a6bb5005860aaf68ede4b5934c54",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ed2dba5_c6b00ca5",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/resolver/DefaultTargetPlatformConfigurationReader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-05-02T07:46:16Z",
+      "side": 1,
+      "message": "Same thing as in other class, it\u0027d be better to invert the condition for readability.",
+      "revId": "8a53eb5807a7a6bb5005860aaf68ede4b5934c54",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0350b0a6_46e13578",
+        "filename": "tycho-p2/tycho-p2-facade/src/main/java/org/eclipse/tycho/p2/resolver/TargetDefinitionFile.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-05-02T07:46:16Z",
+      "side": 1,
+      "message": "Same.",
+      "revId": "8a53eb5807a7a6bb5005860aaf68ede4b5934c54",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba209ef1_6ab18f9c",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/TestMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-05-02T07:46:16Z",
+      "side": 1,
+      "message": "Same.",
+      "revId": "8a53eb5807a7a6bb5005860aaf68ede4b5934c54",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
