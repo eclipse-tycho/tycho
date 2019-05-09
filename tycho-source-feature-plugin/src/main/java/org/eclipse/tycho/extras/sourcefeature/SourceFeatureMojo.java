@@ -38,7 +38,6 @@ import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.util.DefaultFileSet;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
 import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.artifacts.TargetPlatform;
@@ -69,7 +68,8 @@ import de.pdark.decentxml.Element;
  * appended to each plugin id</li>
  * <li>Includes all features included by &lt;originalFeature&gt;, but each with <code>.source</code>
  * appended to each feature id</li>
- * <li>Includes the original feature. This ensures that binaries and corresponding sources match.</li>
+ * <li>Includes the original feature. This ensures that binaries and corresponding sources
+ * match.</li>
  * </ul>
  * 
  * Source feature generation can be customized by adding files under path
@@ -216,8 +216,8 @@ public class SourceFeatureMojo extends AbstractMojo {
             }
             archiver.getArchiver().addFile(sourceFeatureXml, Feature.FEATURE_XML);
             archiver.getArchiver().addFile(getMergedSourceFeaturePropertiesFile(), FEATURE_PROPERTIES);
-            File licenseFeature = licenseFeatureHelper.getLicenseFeature(
-                    Feature.read(new File(project.getBasedir(), "feature.xml")), project);
+            File licenseFeature = licenseFeatureHelper
+                    .getLicenseFeature(Feature.read(new File(project.getBasedir(), "feature.xml")), project);
             if (licenseFeature != null) {
                 archiver.getArchiver()
                         .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
@@ -241,8 +241,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     }
 
     private Properties mergeFeatureProperties(Properties sourceFeatureTemplateProps) throws IOException {
-        Properties generatedOriginalFeatureProps = readPropertiesIfExists(new File(project.getBuild().getDirectory(),
-                FEATURE_PROPERTIES));
+        Properties generatedOriginalFeatureProps = readPropertiesIfExists(
+                new File(project.getBuild().getDirectory(), FEATURE_PROPERTIES));
         Properties mergedProperties = new Properties();
         mergedProperties.putAll(generatedOriginalFeatureProps);
         mergedProperties.putAll(sourceFeatureTemplateProps);
@@ -273,12 +273,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     private static Properties readPropertiesIfExists(File propertiesFile) throws IOException {
         Properties properties = new Properties();
         if (propertiesFile.isFile()) {
-            FileInputStream propertiesStream = null;
-            try {
-                propertiesStream = new FileInputStream(propertiesFile);
+            try (FileInputStream propertiesStream = new FileInputStream(propertiesFile)) {
                 properties.load(propertiesStream);
-            } finally {
-                IOUtil.close(propertiesStream);
             }
         }
         return properties;
@@ -286,11 +282,8 @@ public class SourceFeatureMojo extends AbstractMojo {
 
     private static void writeProperties(Properties props, File propertiesFile) throws IOException {
         propertiesFile.getParentFile().mkdirs();
-        FileOutputStream out = new FileOutputStream(propertiesFile);
-        try {
-            props.save(out, "");
-        } finally {
-            IOUtil.close(out);
+        try (FileOutputStream out = new FileOutputStream(propertiesFile)) {
+            props.store(out, "");
         }
     }
 
@@ -320,8 +313,8 @@ public class SourceFeatureMojo extends AbstractMojo {
                 sourceFeature.setLabel(validateValue(originalLabel, mergedFeatureProperties));
                 String labelKey = originalLabel.substring(1);
                 if (sourceTemplateProperties.getProperty(labelKey) == null) {
-                    mergedFeatureProperties.setProperty(labelKey, mergedFeatureProperties.getProperty(labelKey)
-                            + labelSuffix);
+                    mergedFeatureProperties.setProperty(labelKey,
+                            mergedFeatureProperties.getProperty(labelKey) + labelSuffix);
                 } else {
                     // keep source template value 
                 }
@@ -401,8 +394,8 @@ public class SourceFeatureMojo extends AbstractMojo {
     private void fillReferences(Feature sourceFeature, Feature feature, TargetPlatform targetPlatform)
             throws MojoExecutionException {
         P2ResolverFactory factory = this.equinox.getService(P2ResolverFactory.class);
-        P2Resolver p2 = factory.createResolver(new MavenLoggerAdapter(this.logger, DebugUtils.isDebugEnabled(
-                this.session, this.project)));
+        P2Resolver p2 = factory.createResolver(
+                new MavenLoggerAdapter(this.logger, DebugUtils.isDebugEnabled(this.session, this.project)));
 
         List<PluginRef> missingSourcePlugins = new ArrayList<>();
         List<FeatureRef> missingSourceFeatures = new ArrayList<>();
@@ -556,7 +549,7 @@ public class SourceFeatureMojo extends AbstractMojo {
             return null;
         }
         attr = attr.trim();
-        if (attr.length() == 0) {
+        if (attr.isEmpty()) {
             return null;
         }
         return attr;

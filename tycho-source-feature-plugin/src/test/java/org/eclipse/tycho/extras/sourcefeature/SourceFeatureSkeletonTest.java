@@ -17,12 +17,14 @@ import java.util.Properties;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.plugin.testing.SilentLog;
-import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.model.Feature;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
+@RunWith(JUnit4.class)
 public class SourceFeatureSkeletonTest extends AbstractMojoTestCase {
 
     private SourceFeatureMojo mojo;
@@ -68,26 +70,17 @@ public class SourceFeatureSkeletonTest extends AbstractMojoTestCase {
         assertEquals("a hardcoded label Developer Resources", sourceFeature.getLabel());
     }
 
-    @Test
+    @Test(expected = MojoExecutionException.class)
     public void testFeatureLabelMissingInProperties() throws Exception {
         Feature originalFeature = createFeature("/featureWithLabelInProperties.xml");
         Assert.assertEquals("%label", originalFeature.getLabel());
         Properties emptyProperties = new Properties();
-        try {
-            Feature sourceFeature = mojo.createSourceFeatureSkeleton(originalFeature, emptyProperties, emptyProperties);
-            fail("Expected Exception for label not found");
-        } catch (MojoExecutionException ex) {
-            // Success
-        }
+        mojo.createSourceFeatureSkeleton(originalFeature, emptyProperties, emptyProperties);
     }
 
     private Feature createFeature(String fileName) throws IOException {
-        InputStream featureStream = null;
-        try {
-            featureStream = getClass().getResourceAsStream(fileName);
+        try (InputStream featureStream = getClass().getResourceAsStream(fileName)) {
             return Feature.read(featureStream);
-        } finally {
-            IOUtil.close(featureStream);
         }
     }
 
