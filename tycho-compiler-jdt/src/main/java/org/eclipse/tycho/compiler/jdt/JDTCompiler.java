@@ -511,7 +511,7 @@ public class JDTCompiler extends AbstractCompiler {
 
     /**
      * check the compiler arguments. Extract from files specified using @, lines marked with
-     * ADAPTER_PREFIX These lines specify information that needs to be interpreted by us.
+     * {@link #ADAPTER_PREFIX}. These lines specify information that needs to be interpreted by us.
      * 
      * @param args
      *            compiler arguments to process
