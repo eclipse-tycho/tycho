@@ -23,8 +23,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.codehaus.plexus.compiler.AbstractCompiler;
 import org.codehaus.plexus.compiler.CompilerConfiguration;
@@ -454,35 +457,26 @@ public class JDTCompiler extends AbstractCompiler {
 
         // no access rules, can set the path directly
         if (custom.accessRules == null) {
-            StringBuilder result = new StringBuilder();
-            for (int i = 0; i < pathElements.length; i++) {
-                result.append(pathElements[i]);
-                if (i < pathElements.length - 1) {
-                    result.append(File.pathSeparatorChar);
-                }
-            }
-            return result.toString();
+            return Stream.of(pathElements).collect(Collectors.joining(File.pathSeparator));
         }
 
         int rulesLength = custom.accessRules.size();
         String[] rules = custom.accessRules.toArray(new String[rulesLength]);
         int nextRule = 0;
-        final StringBuffer result = new StringBuffer();
+        final StringJoiner result = new StringJoiner(File.pathSeparator);
 
         // access rules are expected in the same order as the classpath, but
         // there could
         // be elements in the classpath not in the access rules or access rules
         // not in the classpath
         for (int i = 0, max = pathElements.length; i < max; i++) {
-            if (i > 0)
-                result.append(File.pathSeparatorChar);
             String pathElement = pathElements[i];
-            result.append(pathElement);
+            result.add(pathElement);
             // the rules list is [path, rule, path, rule, ...]
             for (int j = nextRule; j < rulesLength; j += 2) {
                 String rule = rules[j];
                 if (pathElement.endsWith(rule)) {
-                    result.append(rules[j + 1]);
+                    result.add(rules[j + 1]);
                     nextRule = j + 2;
                     break;
                 }
@@ -495,7 +489,7 @@ public class JDTCompiler extends AbstractCompiler {
                     int ruleLength = rule.length();
                     if (pathElement.regionMatches(false, pathElement.length() - ruleLength + 1, rule, 0,
                             ruleLength - 1)) {
-                        result.append(rules[j + 1]);
+                        result.add(rules[j + 1]);
                         nextRule = j + 2;
                         break;
                     }
@@ -504,7 +498,7 @@ public class JDTCompiler extends AbstractCompiler {
                     // might
                     int ruleLength = rule.length();
                     if (pathElement.regionMatches(false, pathElement.length() - ruleLength - 1, rule, 0, ruleLength)) {
-                        result.append(rules[j + 1]);
+                        result.add(rules[j + 1]);
                         nextRule = j + 2;
                         break;
                     }
@@ -512,8 +506,7 @@ public class JDTCompiler extends AbstractCompiler {
             }
         }
 
-        String s = result.toString();
-        return s;
+        return result.toString();
     }
 
     /**
