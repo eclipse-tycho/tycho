@@ -35,7 +35,6 @@ public class RepoRefLocationP2RepositoryIntegrationTest extends AbstractTychoInt
     private static Verifier verifier;
     private static P2RepositoryTool p2Repo;
 
-    @SuppressWarnings("unchecked")
     @BeforeClass
     public static void executeBuild() throws Exception {
         verifier = new RepoRefLocationP2RepositoryIntegrationTest().getVerifier("/p2Repository.repositoryRef.location",
