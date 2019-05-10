@@ -469,8 +469,7 @@ public class JDTCompiler extends AbstractCompiler {
         // there could
         // be elements in the classpath not in the access rules or access rules
         // not in the classpath
-        for (int i = 0, max = pathElements.length; i < max; i++) {
-            String pathElement = pathElements[i];
+        for (String pathElement : pathElements) {
             result.add(pathElement);
             // the rules list is [path, rule, path, rule, ...]
             for (int j = nextRule; j < rulesLength; j += 2) {
