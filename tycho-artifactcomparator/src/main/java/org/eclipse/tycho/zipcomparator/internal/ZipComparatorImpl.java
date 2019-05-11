@@ -31,7 +31,6 @@ import org.apache.maven.plugin.MojoExecution;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.tycho.artifactcomparator.ArtifactComparator;
@@ -74,58 +73,34 @@ public class ZipComparatorImpl implements ArtifactComparator {
             }
         }
 
-        ZipFile jar = new ZipFile(baseline);
-        try {
-            ZipFile jar2 = new ZipFile(reactor);
-            try {
-                Map<String, ZipEntry> entries = toEntryMap(jar, ignoredPatterns);
-                Map<String, ZipEntry> entries2 = toEntryMap(jar2, ignoredPatterns);
+        try (ZipFile jar = new ZipFile(baseline); ZipFile jar2 = new ZipFile(reactor)) {
+            Map<String, ZipEntry> entries = toEntryMap(jar, ignoredPatterns);
+            Map<String, ZipEntry> entries2 = toEntryMap(jar2, ignoredPatterns);
 
-                Set<String> names = new TreeSet<>();
-                names.addAll(entries.keySet());
-                names.addAll(entries2.keySet());
+            Set<String> names = new TreeSet<>();
+            names.addAll(entries.keySet());
+            names.addAll(entries2.keySet());
 
-                for (String name : names) {
-                    ZipEntry entry = entries.get(name);
-                    if (entry == null) {
-                        result.put(name, new SimpleArtifactDelta("not present in baseline"));
+            for (String name : names) {
+                ZipEntry entry = entries.get(name);
+                if (entry == null) {
+                    result.put(name, new SimpleArtifactDelta("not present in baseline"));
+                    continue;
+                }
+                ZipEntry entry2 = entries2.get(name);
+                if (entry2 == null) {
+                    result.put(name, new SimpleArtifactDelta("present in baseline only"));
+                    continue;
+                }
+
+                try (InputStream is = jar.getInputStream(entry); InputStream is2 = jar2.getInputStream(entry2);) {
+                    ContentsComparator comparator = comparators.get(getContentType(name));
+                    ArtifactDelta differences = comparator.getDelta(is, is2, execution);
+                    if (differences != null) {
+                        result.put(name, differences);
                         continue;
                     }
-                    ZipEntry entry2 = entries2.get(name);
-                    if (entry2 == null) {
-                        result.put(name, new SimpleArtifactDelta("present in baseline only"));
-                        continue;
-                    }
-
-                    InputStream is = jar.getInputStream(entry);
-                    try {
-                        InputStream is2 = jar2.getInputStream(entry2);
-                        try {
-                            ContentsComparator comparator = comparators.get(getContentType(name));
-                            ArtifactDelta differences = comparator.getDelta(is, is2, execution);
-                            if (differences != null) {
-                                result.put(name, differences);
-                                continue;
-                            }
-                        } finally {
-                            IOUtil.close(is2);
-                        }
-                    } finally {
-                        IOUtil.close(is);
-                    }
                 }
-            } finally {
-                try {
-                    jar2.close();
-                } catch (IOException e) {
-                    // too bad
-                }
-            }
-        } finally {
-            try {
-                jar.close();
-            } catch (IOException e) {
-                // ouch
             }
         }
         return !result.isEmpty() ? new CompoundArtifactDelta("different", result) : null;
