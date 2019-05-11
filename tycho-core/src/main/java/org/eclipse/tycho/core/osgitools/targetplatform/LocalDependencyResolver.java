@@ -28,7 +28,6 @@ import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.MultipleArtifactsNotFoundException;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -164,12 +163,12 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
             projectIds.put(key, p);
         }
         // handle dependencies that are in reactor
-        for (Dependency dependency : project.getDependencies()) {
-            if (Artifact.SCOPE_COMPILE.equals(dependency.getScope())) {
-                String key = ArtifactUtils.key(dependency.getGroupId(), dependency.getArtifactId(),
-                        dependency.getVersion());
-                if (projectIds.containsKey(key)) {
-                    MavenProject dependent = projectIds.get(key);
+        project.getDependencies().stream()//
+                .filter(d -> Artifact.SCOPE_COMPILE.equals(d.getScope()))//
+                .map(d -> ArtifactUtils.key(d.getGroupId(), d.getArtifactId(), d.getVersion()))//
+                .filter(projectIds::containsKey)//
+                .map(projectIds::get)//
+                .forEach(dependent -> {
                     ArtifactKey artifactKey = getArtifactKey(session, dependent);
                     if (artifactKey != null) {
                         platform.removeAll(artifactKey.getType(), artifactKey.getId());
@@ -179,9 +178,7 @@ public class LocalDependencyResolver extends AbstractLogEnabled implements Depen
                             getLogger().debug("Add Maven project " + artifactKey);
                         }
                     }
-                }
-            }
-        }
+                });
         // handle rest of dependencies
         ArrayList<String> scopes = new ArrayList<>();
         scopes.add(Artifact.SCOPE_COMPILE);
