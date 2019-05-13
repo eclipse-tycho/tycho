@@ -284,13 +284,8 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         }
 
         Properties rootProperties = new Properties();
-        try {
-            FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties));
-            try {
-                rootProperties.load(stream);
-            } finally {
-                stream.close();
-            }
+        try (FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties))) {
+            rootProperties.load(stream);
             if (!rootProperties.isEmpty()) {
                 String config = getConfig(environment);
                 String root = "root";
