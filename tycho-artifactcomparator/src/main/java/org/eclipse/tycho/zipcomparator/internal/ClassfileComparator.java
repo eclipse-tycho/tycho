@@ -74,10 +74,10 @@ public class ClassfileComparator implements ContentsComparator {
         // rendering human-readable bytecode is an eyecandy, we can compare ClassNodes directly
 
         StringWriter buffer = new StringWriter();
-        PrintWriter writer = new PrintWriter(buffer);
-        clazz.accept(new TraceClassVisitor(writer));
-        writer.flush();
-        writer.close();
+        try (PrintWriter writer = new PrintWriter(buffer)) {
+            clazz.accept(new TraceClassVisitor(writer));
+            writer.flush();
+        }
         return buffer.toString();
     }
 }
