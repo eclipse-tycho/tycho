@@ -168,9 +168,9 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
     private void writeDummyArtifact(LocalArtifactRepository repo, ArtifactDescriptor desc, byte[] content)
             throws ProvisionException, IOException {
-        OutputStream os = repo.getOutputStream(desc);
-        os.write(content);
-        os.close();
+        try (OutputStream os = repo.getOutputStream(desc)) {
+            os.write(content);
+        }
     }
 
     @Test

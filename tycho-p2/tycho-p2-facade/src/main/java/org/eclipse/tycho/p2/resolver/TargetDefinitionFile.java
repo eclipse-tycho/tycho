@@ -271,12 +271,9 @@ public final class TargetDefinitionFile implements TargetDefinition {
 
             this.includeSourceMode = includeSourceMode;
 
-            FileInputStream input = new FileInputStream(source);
-            try {
+            try (FileInputStream input = new FileInputStream(source)) {
                 this.document = parser.parse(new XMLIOSource(source));
                 this.dom = document.getRootElement();
-            } finally {
-                input.close();
             }
         } catch (XMLParseException e) {
             throw new TargetDefinitionSyntaxException("Target definition is not well-formed XML: " + e.getMessage(), e);
@@ -365,11 +362,8 @@ public final class TargetDefinitionFile implements TargetDefinition {
     private static byte[] computeFileContentHash(File source) {
         byte[] digest;
         try {
-            FileInputStream in = new FileInputStream(source);
-            try {
+            try (FileInputStream in = new FileInputStream(source)) {
                 digest = computeMD5Digest(in);
-            } finally {
-                in.close();
             }
         } catch (IOException e) {
             throw new RuntimeException("I/O error while reading \"" + source + "\": " + e.getMessage(), e);

@@ -235,8 +235,7 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
 
     private void load() throws ProvisionException {
         try {
-            FileInputStream p2DataFileStream = new FileInputStream(p2DataFile);
-            try {
+            try (FileInputStream p2DataFileStream = new FileInputStream(p2DataFile)) {
                 Set<IArtifactDescriptor> descriptors = new ArtifactsIO().readXML(p2DataFileStream);
                 for (IArtifactDescriptor descriptor : descriptors) {
                     ModuleArtifactDescriptor internalDescriptor = getInternalDescriptorFromLoadedDescriptor(descriptor,
@@ -244,8 +243,6 @@ class ModuleArtifactRepository extends ArtifactRepositoryBaseImpl<ModuleArtifact
                     // TODO check that GAV properties match module GAV
                     internalAddInternalDescriptor(internalDescriptor);
                 }
-            } finally {
-                p2DataFileStream.close();
             }
         } catch (IOException e) {
             throw failedReadException(p2DataFile, null, e);
