@@ -279,52 +279,54 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
         Properties properties = project.getProperties();
         String generatedBuildProperties = properties.getProperty("generatedBuildProperties");
         getLog().debug("includeRootFiles from " + generatedBuildProperties);
-        if (generatedBuildProperties != null) {
-            Properties rootProperties = new Properties();
+        if (generatedBuildProperties == null) {
+            return;
+        }
+
+        Properties rootProperties = new Properties();
+        try {
+            FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties));
             try {
-                FileInputStream stream = new FileInputStream(new File(project.getBasedir(), generatedBuildProperties));
-                try {
-                    rootProperties.load(stream);
-                } finally {
-                    stream.close();
-                }
-                if (!rootProperties.isEmpty()) {
-                    String config = getConfig(environment);
-                    String root = "root";
-                    String rootConfig = "root." + config;
-                    String rootFolder = "root.folder.";
-                    String rootConfigFolder = "root." + config + ".folder.";
-                    Set<Entry<Object, Object>> entrySet = rootProperties.entrySet();
-                    for (Iterator iterator = entrySet.iterator(); iterator.hasNext();) {
-                        Entry<String, String> entry = (Entry<String, String>) iterator.next();
-                        String key = entry.getKey().trim();
-                        // root=
-                        if (root.equals(key)) {
-                            handleRootEntry(target, entry.getValue(), null);
-                        }
-                        // root.xxx=
-                        else if (rootConfig.equals(key)) {
-                            handleRootEntry(target, entry.getValue(), null);
-                        }
-                        // root.folder.yyy=
-                        else if (key.startsWith(rootFolder)) {
-                            String subFolder = entry.getKey().substring((rootFolder.length()));
-                            handleRootEntry(target, entry.getValue(), subFolder);
-                        }
-                        // root.xxx.folder.yyy=
-                        else if (key.startsWith(rootConfigFolder)) {
-                            String subFolder = entry.getKey().substring((rootConfigFolder.length()));
-                            handleRootEntry(target, entry.getValue(), subFolder);
-                        } else {
-                            getLog().debug("ignoring property " + entry.getKey() + "=" + entry.getValue());
-                        }
+                rootProperties.load(stream);
+            } finally {
+                stream.close();
+            }
+            if (!rootProperties.isEmpty()) {
+                String config = getConfig(environment);
+                String root = "root";
+                String rootConfig = "root." + config;
+                String rootFolder = "root.folder.";
+                String rootConfigFolder = "root." + config + ".folder.";
+                Set<Entry<Object, Object>> entrySet = rootProperties.entrySet();
+                for (Iterator iterator = entrySet.iterator(); iterator.hasNext();) {
+                    Entry<String, String> entry = (Entry<String, String>) iterator.next();
+                    String key = entry.getKey().trim();
+                    // root=
+                    if (root.equals(key)) {
+                        handleRootEntry(target, entry.getValue(), null);
+                    }
+                    // root.xxx=
+                    else if (rootConfig.equals(key)) {
+                        handleRootEntry(target, entry.getValue(), null);
+                    }
+                    // root.folder.yyy=
+                    else if (key.startsWith(rootFolder)) {
+                        String subFolder = entry.getKey().substring((rootFolder.length()));
+                        handleRootEntry(target, entry.getValue(), subFolder);
+                    }
+                    // root.xxx.folder.yyy=
+                    else if (key.startsWith(rootConfigFolder)) {
+                        String subFolder = entry.getKey().substring((rootConfigFolder.length()));
+                        handleRootEntry(target, entry.getValue(), subFolder);
+                    } else {
+                        getLog().debug("ignoring property " + entry.getKey() + "=" + entry.getValue());
                     }
                 }
-            } catch (FileNotFoundException e) {
-                throw new MojoExecutionException("Error including root files for product", e);
-            } catch (IOException e) {
-                throw new MojoExecutionException("Error including root files for product", e);
             }
+        } catch (FileNotFoundException e) {
+            throw new MojoExecutionException("Error including root files for product", e);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Error including root files for product", e);
         }
     }
 
