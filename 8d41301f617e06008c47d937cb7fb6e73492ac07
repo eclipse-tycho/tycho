@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9185be8b_39c6d575",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/ProductExportMojo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-05-13T20:47:02Z",
+      "side": 1,
+      "message": "Maybe you can use a `for (Entry\u003cObject, Object\u003e entry : rootProperties.entrySet())` loop here to save a few useless lines",
+      "revId": "8d41301f617e06008c47d937cb7fb6e73492ac07",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
