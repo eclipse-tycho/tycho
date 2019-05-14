@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a81a0c9_baf34cbc",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository.tests/src/test/java/org/eclipse/tycho/repository/local/LocalArtifactRepositoryP2APITest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "style nit: tabs vs spaces, inconsistent with surrounding code",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1531018f_c20454e9",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository.tests/src/test/java/org/eclipse/tycho/repository/local/LocalArtifactRepositoryP2APITest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "style nit: tabs vs spaces, inconsistent with surrounding code",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a56ca32_2a0095c0",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository.tests/src/test/java/org/eclipse/tycho/repository/local/LocalArtifactRepositoryP2APITest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "style nit: tabs vs spaces, inconsistent with surrounding code",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1614970d_ad63c96f",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.maven.repository/src/main/java/org/eclipse/tycho/repository/local/LocalArtifactRepository.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "style nit: tabs vs spaces, inconsistent with surrounding code",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0ad1a29_aa8f6331",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/DefaultBundleReader.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "style nit: tabs vs spaces, inconsistent with surrounding code",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50022855_1a2a9774",
+        "filename": "tycho-core/src/test/java/org/eclipse/tycho/core/locking/LockProcess.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "style nit: tabs vs spaces, inconsistent with surrounding code",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2cfda0da_6f948fff",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/pde/internal/swt/tools/IconExe.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "style nit: tabs vs spaces, inconsistent with surrounding code",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e71680d_ef5ca892",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/.settings/org.eclipse.jdt.core.prefs",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "unrelated to 1.5 -\u003e 1.8, please remove",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28f17648_559a29c7",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/.settings/org.eclipse.jdt.core.prefs",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "this and below, unrelated",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5727471d_7f2deb45",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/META-INF/MANIFEST.MF",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-14T17:35:41Z",
+      "side": 1,
+      "message": "Not sure about implications, my guess would be \"osgibooter would not run on pre-8 anyway because other tycho bundles it depends on require java8\"",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
