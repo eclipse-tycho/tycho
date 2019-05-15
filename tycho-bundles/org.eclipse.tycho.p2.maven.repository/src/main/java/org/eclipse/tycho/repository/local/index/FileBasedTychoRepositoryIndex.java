@@ -138,22 +138,18 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
     }
 
     private void write(OutputStream outStream) throws IOException {
-        Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), ENCODING);
-        try {
+        try (Writer out = new OutputStreamWriter(new BufferedOutputStream(outStream), ENCODING)) {
             for (GAV gav : getProjectGAVs()) {
                 out.write(gav.toExternalForm());
                 out.write(EOL);
             }
             out.flush();
-        } finally {
-            out.close();
         }
     }
 
     private Set<GAV> read(InputStream inStream) throws IOException {
         LinkedHashSet<GAV> result = new LinkedHashSet<>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, ENCODING));
-        try {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, ENCODING))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.trim().length() == 0) {
@@ -166,8 +162,6 @@ public class FileBasedTychoRepositoryIndex implements TychoRepositoryIndex {
                     logger.warn("Ignoring invalid line '" + line + "' in " + indexFile);
                 }
             }
-        } finally {
-            reader.close();
         }
         return result;
     }

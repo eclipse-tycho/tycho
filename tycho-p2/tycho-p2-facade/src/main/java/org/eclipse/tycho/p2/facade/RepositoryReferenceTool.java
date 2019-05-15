@@ -108,8 +108,7 @@ public class RepositoryReferenceTool {
         try {
             File repositoryLocation = new File(project.getBuild().getDirectory(), "targetPlatformRepository");
             repositoryLocation.mkdirs();
-            FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"));
-            try {
+            try (FileOutputStream stream = new FileOutputStream(new File(repositoryLocation, "content.xml"))) {
                 MetadataSerializable serializer = osgiServices.getService(MetadataSerializable.class);
 
                 TargetPlatform targetPlatform = TychoProjectUtils.getTargetPlatform(project);
@@ -140,8 +139,6 @@ public class RepositoryReferenceTool {
                 }
 
                 serializer.serialize(stream, targetPlatformInstallableUnits);
-            } finally {
-                stream.close();
             }
             sources.addMetadataRepository(repositoryLocation);
         } catch (IOException e) {
