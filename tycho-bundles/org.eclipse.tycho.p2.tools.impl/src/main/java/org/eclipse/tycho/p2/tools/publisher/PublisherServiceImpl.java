@@ -85,12 +85,9 @@ class PublisherServiceImpl implements PublisherService {
     void validateProfile(File profileFile) throws FacadeException {
         Properties profileProperties = new Properties();
         try {
-            FileInputStream stream = new FileInputStream(profileFile);
-            try {
+            try (FileInputStream stream = new FileInputStream(profileFile)) {
                 profileProperties.load(stream);
                 validateProfile(profileProperties, profileFile);
-            } finally {
-                stream.close();
             }
         } catch (IOException e) {
             throw new FacadeException(e);

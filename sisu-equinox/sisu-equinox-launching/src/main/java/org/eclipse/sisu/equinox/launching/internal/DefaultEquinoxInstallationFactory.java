@@ -150,11 +150,8 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
             File configIni = new File(location, TychoConstants.CONFIG_INI_PATH);
             File configurationLocation = configIni.getParentFile();
             configurationLocation.mkdirs();
-            FileOutputStream fos = new FileOutputStream(configIni);
-            try {
+            try (FileOutputStream fos = new FileOutputStream(configIni)) {
                 p.store(fos, null);
-            } finally {
-                fos.close();
             }
 
             return new DefaultEquinoxInstallation(description, location, configurationLocation);
@@ -174,11 +171,8 @@ public class DefaultEquinoxInstallationFactory implements EquinoxInstallationFac
         File file = new File(location, "dev.properties");
         Properties properties = new Properties();
         properties.putAll(devEntries);
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             properties.store(os, null);
-        } finally {
-            os.close();
         }
         return file.toURI().toURL().toExternalForm();
     }
