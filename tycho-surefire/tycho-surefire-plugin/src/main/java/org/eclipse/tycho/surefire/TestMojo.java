@@ -986,11 +986,8 @@ public class TestMojo extends AbstractMojo {
         Properties p = new Properties();
         p.putAll(propertiesMap);
         try {
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-            try {
+            try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
                 p.store(out, null);
-            } finally {
-                out.close();
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Can't write test launcher properties file", e);
