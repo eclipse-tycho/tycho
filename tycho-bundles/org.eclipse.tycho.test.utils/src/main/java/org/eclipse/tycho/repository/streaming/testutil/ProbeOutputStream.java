@@ -54,13 +54,10 @@ public class ProbeOutputStream extends OutputStream implements IStateful {
     public Set<String> getFilesInZip() throws IOException {
         HashSet<String> result = new HashSet<>();
 
-        ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(byteBuffer.toByteArray()));
-        try {
+        try (ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(byteBuffer.toByteArray()))) {
             for (ZipEntry entry = zipStream.getNextEntry(); entry != null; entry = zipStream.getNextEntry()) {
                 result.add(entry.getName());
             }
-        } finally {
-            zipStream.close();
         }
 
         return result;
