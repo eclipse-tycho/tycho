@@ -122,8 +122,7 @@ public class FeatureXmlTransformer {
         locker.lock();
         try {
             try {
-                JarFile jar = new JarFile(location);
-                try {
+                try (JarFile jar = new JarFile(location)) {
                     Enumeration<JarEntry> entries = jar.entries();
                     while (entries.hasMoreElements()) {
                         JarEntry entry = entries.nextElement();
@@ -132,8 +131,6 @@ public class FeatureXmlTransformer {
                             installSize += entrySize;
                         }
                     }
-                } finally {
-                    jar.close();
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Could not determine installation size of file " + location, e);
