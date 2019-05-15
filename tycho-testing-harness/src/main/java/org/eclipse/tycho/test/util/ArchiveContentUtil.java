@@ -62,16 +62,13 @@ public class ArchiveContentUtil {
     }
 
     static void visitEntries(File archive, ZipEntryVisitor visitor) throws Exception {
-        FileInputStream fileStream = new FileInputStream(archive);
-        try {
+        try (FileInputStream fileStream = new FileInputStream(archive)) {
             ZipInputStream zipStream = new ZipInputStream(fileStream);
             try {
                 visitEntries(zipStream, visitor);
             } finally {
                 zipStream.close();
             }
-        } finally {
-            fileStream.close();
         }
 
     }
