@@ -121,6 +121,24 @@
     },
     {
       "key": {
+        "uuid": "92ea9ddb_7a2eacc5",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/pde/internal/swt/tools/IconExe.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 209389
+      },
+      "writtenOn": "2019-05-15T17:20:45Z",
+      "side": 1,
+      "message": "This file seems to have a lot of formatting flaws before this commit",
+      "parentUuid": "2cfda0da_6f948fff",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e71680d_ef5ca892",
         "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/.settings/org.eclipse.jdt.core.prefs",
         "patchSetId": 5
