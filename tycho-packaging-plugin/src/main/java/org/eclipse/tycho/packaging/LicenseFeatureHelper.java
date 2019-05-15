@@ -92,8 +92,7 @@ public class LicenseFeatureHelper {
         // feature.properties, feature.xml and build.properties itself
         BuildProperties buildProperties;
 
-        ZipFile zip = new ZipFile(licenseFeature);
-        try {
+        try (ZipFile zip = new ZipFile(licenseFeature)) {
             ZipEntry entry = zip.getEntry(BuildPropertiesParser.BUILD_PROPERTIES);
             if (entry != null) {
                 InputStream is = zip.getInputStream(entry);
@@ -103,8 +102,6 @@ public class LicenseFeatureHelper {
             } else {
                 throw new IllegalArgumentException("license feature must include build.properties file");
             }
-        } finally {
-            zip.close();
         }
 
         List<String> includes = buildProperties.getBinIncludes();

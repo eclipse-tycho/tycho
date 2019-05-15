@@ -190,11 +190,8 @@ public class MetadataIO {
     }
 
     public void writeXML(Set<IInstallableUnit> units, File file) throws IOException {
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-        try {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             writeXML(units, os);
-        } finally {
-            os.close();
         }
     }
 }
