@@ -220,9 +220,8 @@ public class TarGzArchiverTest {
     }
 
     private byte[] getTarEntry(String name) throws IOException {
-        TarArchiveInputStream tarStream = new TarArchiveInputStream(
-                new GzipCompressorInputStream(new FileInputStream(tarGzArchive)));
-        try {
+        try (TarArchiveInputStream tarStream = new TarArchiveInputStream(
+                new GzipCompressorInputStream(new FileInputStream(tarGzArchive)))) {
             TarArchiveEntry tarEntry = null;
             while ((tarEntry = tarStream.getNextTarEntry()) != null) {
                 if (name.equals(tarEntry.getName())) {
@@ -231,8 +230,6 @@ public class TarGzArchiverTest {
                     return baos.toByteArray();
                 }
             }
-        } finally {
-            tarStream.close();
         }
         throw new IOException(name + " not found in " + tarGzArchive);
     }

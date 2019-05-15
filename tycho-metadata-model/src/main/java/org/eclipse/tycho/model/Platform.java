@@ -169,21 +169,15 @@ public class Platform {
 
     @SuppressWarnings("deprecation")
     public static Platform read(File file) throws IOException, XmlPullParserException {
-        XmlStreamReader reader = ReaderFactory.newXmlReader(file);
-        try {
+        try (XmlStreamReader reader = ReaderFactory.newXmlReader(file)) {
             return new Platform(Xpp3DomBuilder.build(reader));
-        } finally {
-            reader.close();
         }
     }
 
     public static void write(Platform platform, File file) throws IOException {
         file.getParentFile().mkdirs();
-        Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-        try {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
             Xpp3DomWriter.write(writer, platform.dom);
-        } finally {
-            writer.close();
         }
     }
 
