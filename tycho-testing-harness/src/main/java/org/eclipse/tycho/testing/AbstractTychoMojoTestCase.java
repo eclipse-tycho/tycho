@@ -106,11 +106,8 @@ public class AbstractTychoMojoTestCase extends AbstractMojoTestCase {
             return new File(systemValue);
         }
         Properties props = new Properties();
-        InputStream stream = AbstractTychoMojoTestCase.class.getResourceAsStream("settings.properties");
-        try {
+        try (InputStream stream = AbstractTychoMojoTestCase.class.getResourceAsStream("settings.properties")) {
             props.load(stream);
-        } finally {
-            stream.close();
         }
         String settingsFilePath = props.getProperty("settings.file");
         return new File(settingsFilePath);

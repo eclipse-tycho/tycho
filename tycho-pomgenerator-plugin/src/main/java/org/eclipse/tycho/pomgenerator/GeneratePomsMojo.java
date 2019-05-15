@@ -668,8 +668,7 @@ public class GeneratePomsMojo extends AbstractMojo {
         setParentOrAddTychoExtension(basedir, model, parent);
 
         try {
-            FileInputStream is = new FileInputStream(new File(basedir, "feature.xml"));
-            try {
+            try (FileInputStream is = new FileInputStream(new File(basedir, "feature.xml"))) {
                 XmlStreamReader reader = new XmlStreamReader(is);
                 Xpp3Dom dom = Xpp3DomBuilder.build(reader);
 
@@ -681,8 +680,6 @@ public class GeneratePomsMojo extends AbstractMojo {
                 model.setArtifactId(dom.getAttribute("id"));
                 model.setVersion(toMavenVersion(dom.getAttribute("version")));
 
-            } finally {
-                is.close();
             }
         } catch (XmlPullParserException | IOException e) {
             throw new MojoExecutionException("Can't create pom.xml file", e);
@@ -733,11 +730,8 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     private void writePom(File dir, String filename, Model model) throws MojoExecutionException {
         try {
-            Writer writer = new OutputStreamWriter(new FileOutputStream(new File(dir, filename)), "UTF-8");
-            try {
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(new File(dir, filename)), "UTF-8")) {
                 modelWriter.write(writer, model);
-            } finally {
-                writer.close();
             }
         } catch (IOException e) {
             throw new MojoExecutionException("Can't write pom.xml", e);
