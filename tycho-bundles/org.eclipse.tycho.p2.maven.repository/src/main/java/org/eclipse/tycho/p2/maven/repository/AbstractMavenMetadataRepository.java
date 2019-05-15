@@ -75,14 +75,11 @@ public abstract class AbstractMavenMetadataRepository extends AbstractMetadataRe
                     // if files have been manually removed from the repository, simply remove them from the index (bug 351080)
                     metadataIndex.removeGav(gav);
                 } else {
-                    InputStream is = new FileInputStream(localArtifactFileLocation);
-                    try {
+                    try (InputStream is = new FileInputStream(localArtifactFileLocation)) {
                         Set<IInstallableUnit> gavUnits = io.readXML(is);
 
                         unitsMap.put(gav, gavUnits);
                         units.addAll(gavUnits);
-                    } finally {
-                        is.close();
                     }
                 }
             } catch (IOException e) {

@@ -113,26 +113,20 @@ public class LocalMavenRepositoryTool {
     private Set<String> readLines(File indexFile) throws UnsupportedEncodingException, FileNotFoundException,
             IOException {
         Set<String> lines = new LinkedHashSet<>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile), "UTF-8"));
-        try {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile), "UTF-8"))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 lines.add(line);
             }
-        } finally {
-            reader.close();
         }
         return lines;
     }
 
     private void writeLines(File indexFile, Collection<String> lines) throws UnsupportedEncodingException,
             FileNotFoundException, IOException {
-        PrintStream writer = new PrintStream(indexFile);
-        try {
+        try (PrintStream writer = new PrintStream(indexFile)) {
             for (String line : lines) {
                 writer.println(line);
             }
-        } finally {
-            writer.close();
         }
     }
 
