@@ -86,12 +86,17 @@ public final class TargetPlatformFilter {
         // TODO also support ECLIPSE_FEATURE? Con: Semantics may be misunderstood to be the same as in target definition files
 
         public static CapabilityType parsePomValue(String typeString) {
-            if (typeString.equals("eclipse-plugin") || typeString.equals("osgi-bundle"))
+            switch (typeString) {
+            case "eclipse-plugin":
+            case "osgi-bundle":
                 return OSGI_BUNDLE;
-            else if (typeString.equals("p2-installable-unit"))
+            case "p2-installable-unit":
                 return P2_INSTALLABLE_UNIT;
-            else if (typeString.equals("java-package"))
+            case "java-package":
                 return JAVA_PACKAGE;
+            default:
+                break;
+            }
             throw new IllegalArgumentException("Non-recognized capability type: " + typeString);
         }
 
