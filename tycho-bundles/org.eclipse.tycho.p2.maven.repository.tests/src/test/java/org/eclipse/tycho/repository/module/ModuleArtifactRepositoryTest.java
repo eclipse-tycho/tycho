@@ -231,15 +231,12 @@ public class ModuleArtifactRepositoryTest {
 
     private static void generateBinaryTestFile(File file, int size) throws IOException {
         file.getParentFile().mkdirs();
-        FileOutputStream fos = new FileOutputStream(file);
-        try {
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             OutputStream os = new BufferedOutputStream(fos);
             for (int i = 0; i < size; ++i) {
                 os.write(0);
             }
             os.flush();
-        } finally {
-            fos.close();
         }
         file.deleteOnExit();
     }

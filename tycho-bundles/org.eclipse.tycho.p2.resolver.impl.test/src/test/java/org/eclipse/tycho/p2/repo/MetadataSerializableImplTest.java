@@ -88,12 +88,9 @@ public class MetadataSerializableImplTest {
     }
 
     private void serialize(MetadataSerializableImpl subject, Set<?> units, File tmpDir) throws FileNotFoundException,
-            IOException {
-        FileOutputStream os = new FileOutputStream(new File(tmpDir, "content.xml"));
-        try {
+    IOException {
+        try (FileOutputStream os = new FileOutputStream(new File(tmpDir, "content.xml"))) {
             subject.serialize(os, units);
-        } finally {
-            os.close();
         }
     }
 

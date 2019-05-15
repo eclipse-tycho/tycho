@@ -130,11 +130,8 @@ class ModuleArtifactMap {
 
     private static Properties loadProperties(File propertiesFile) throws IOException {
         Properties properties = new Properties();
-        FileInputStream propertiesStream = new FileInputStream(propertiesFile);
-        try {
+        try (FileInputStream propertiesStream = new FileInputStream(propertiesFile)) {
             properties.load(propertiesStream);
-        } finally {
-            propertiesStream.close();
         }
         return properties;
     }

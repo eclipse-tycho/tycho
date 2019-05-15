@@ -73,12 +73,9 @@ public class PomDependencyCollectorImpl implements PomDependencyCollector {
     }
 
     private Set<IInstallableUnit> readUnits(IArtifactFacade p2MetadataFile) throws IOException {
-        FileInputStream inputStream = new FileInputStream(p2MetadataFile.getLocation());
-        try {
+        try (FileInputStream inputStream = new FileInputStream(p2MetadataFile.getLocation())) {
             MetadataIO io = new MetadataIO();
             return io.readXML(inputStream);
-        } finally {
-            inputStream.close();
         }
     }
 
