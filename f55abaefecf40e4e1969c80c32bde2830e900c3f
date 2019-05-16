@@ -139,6 +139,24 @@
     },
     {
       "key": {
+        "uuid": "a2527fc7_8a270fc6",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/pde/internal/swt/tools/IconExe.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-16T11:11:00Z",
+      "side": 1,
+      "message": "Your last change still changes some rules, may be this is the cause?",
+      "parentUuid": "92ea9ddb_7a2eacc5",
+      "revId": "f55abaefecf40e4e1969c80c32bde2830e900c3f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e71680d_ef5ca892",
         "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/.settings/org.eclipse.jdt.core.prefs",
         "patchSetId": 5
