@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99b2bf93_11dc2db1",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/.settings/org.eclipse.jdt.core.prefs",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-16T11:03:41Z",
+      "side": 1,
+      "message": "unrelated",
+      "revId": "432fd44fbf7c158f4dd672b241ba6aff5344291d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b9053283_609d69c0",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/.settings/org.eclipse.jdt.core.prefs",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-16T11:03:41Z",
+      "side": 1,
+      "message": "unrelated",
+      "revId": "432fd44fbf7c158f4dd672b241ba6aff5344291d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcc2073e_c3aeeccd",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/.settings/org.eclipse.jdt.core.prefs",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-16T11:03:41Z",
+      "side": 1,
+      "message": "unrelated too",
+      "revId": "432fd44fbf7c158f4dd672b241ba6aff5344291d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "719c2c40_a22ff4af",
+        "filename": "tycho-surefire/org.eclipse.tycho.surefire.osgibooter/.settings/org.eclipse.jdt.core.prefs",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 11
+      },
+      "writtenOn": "2019-05-16T11:03:41Z",
+      "side": 1,
+      "message": "this and below - I see no reason to change the source code formatter\u0027s rules.",
+      "revId": "432fd44fbf7c158f4dd672b241ba6aff5344291d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
