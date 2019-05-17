@@ -152,7 +152,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                 generateConfigIni(environment, targetEclipse);
                 includeRootFiles(environment, targetEclipse);
 
-                ProductAssembler assembler = new ProductAssembler(session, manifestReader, targetEclipse, environment);
+                ProductAssembler assembler = new ProductAssembler(manifestReader, targetEclipse, environment);
                 assembler.setIncludeSources(includeSources);
                 getDependencyWalker(environment).walk(assembler);
 
@@ -176,7 +176,7 @@ public class ProductExportMojo extends AbstractTychoPackagingMojo {
                 includeRootFiles(environment, targetEclipse);
             }
 
-            ProductAssembler assembler = new ProductAssembler(session, manifestReader, targetEclipse, null);
+            ProductAssembler assembler = new ProductAssembler(manifestReader, targetEclipse, null);
             assembler.setIncludeSources(includeSources);
             if (forcePackedDependencies) {
                 assembler.setUnpackFeatures(false);
