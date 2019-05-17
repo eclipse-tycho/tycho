@@ -45,22 +45,17 @@ public class ParallelTestExecutionTest extends AbstractTychoIntegrationTest {
         verifier.verifyErrorFreeLog();
         File surefireReportsDir = new File(verifier.getBasedir(), "target/surefire-reports");
         assertTrue(surefireReportsDir.isDirectory());
-        File[] surefireXmlReports = surefireReportsDir.listFiles(new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith("TEST-") && name.endsWith(".xml");
-            }
-        });
+        File[] surefireXmlReports = surefireReportsDir
+                .listFiles((FilenameFilter) (dir, name) -> name.startsWith("TEST-") && name.endsWith(".xml"));
         assertEquals(2, surefireXmlReports.length);
         Set<String> actualTests = extractExecutedTests(surefireXmlReports);
-        Set<String> expectedTests = new HashSet<>(asList("org.eclipse.tychoits.FirstTest#firstTest",
-                "org.eclipse.tychoits.SecondTest#secondTest"));
+        Set<String> expectedTests = new HashSet<>(
+                asList("org.eclipse.tychoits.FirstTest#firstTest", "org.eclipse.tychoits.SecondTest#secondTest"));
         assertEquals(expectedTests, actualTests);
     }
 
-    private Set<String> extractExecutedTests(File[] xmlReports) throws FileNotFoundException, XPathExpressionException,
-            IOException {
+    private Set<String> extractExecutedTests(File[] xmlReports)
+            throws FileNotFoundException, XPathExpressionException, IOException {
         XPath xpath = XPathFactory.newInstance().newXPath();
         Set<String> actualTests = new HashSet<>();
         for (File xmlReportFile : xmlReports) {
