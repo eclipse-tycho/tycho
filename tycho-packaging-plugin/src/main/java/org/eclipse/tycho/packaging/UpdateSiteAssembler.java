@@ -19,11 +19,10 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Map;
 
-import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugins.annotations.Component;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.tycho.ReactorProject;
@@ -45,11 +44,18 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
 
     public static final String FEATURES_DIR = "features/";
 
-    private final MavenSession session;
-
     private final File target;
 
     private Map<String, String> archives;
+
+    @Component(role = ZipUnArchiver.class, hint = "zip")
+    private ZipUnArchiver unzip;
+
+    @Component(role = ZipArchiver.class, hint = "zip")
+    private ZipArchiver archiver;
+
+    @Component(role = FileLockService.class)
+    private FileLockService fileLockService;
 
     /**
      * If true, generated update site will include plugins folders for plugins with
@@ -63,8 +69,7 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
      */
     private boolean unpackFeatures;
 
-    public UpdateSiteAssembler(MavenSession session, File target) {
-        this.session = session;
+    public UpdateSiteAssembler(File target) {
         this.target = target;
     }
 
@@ -181,15 +186,6 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
     }
 
     private void unpackJar(File location, File outputJar) {
-        ZipUnArchiver unzip;
-        FileLockService fileLockService;
-        try {
-            unzip = (ZipUnArchiver) session.lookup(ZipUnArchiver.ROLE, "zip");
-            fileLockService = (FileLockService) session.lookup(FileLockService.class.getName());
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException("Could not lookup required component", e);
-        }
-
         outputJar.mkdirs();
 
         if (!outputJar.isDirectory()) {
@@ -245,13 +241,6 @@ public class UpdateSiteAssembler extends ArtifactDependencyVisitor {
     }
 
     private void packDir(File sourceDir, File targetZip) {
-        ZipArchiver archiver;
-        try {
-            archiver = (ZipArchiver) session.lookup(ZipArchiver.ROLE, "zip");
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException("Unable to resolve ZipArchiver", e);
-        }
-
         archiver.setDestFile(targetZip);
         try {
             archiver.addDirectory(sourceDir);
