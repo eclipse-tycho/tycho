@@ -240,7 +240,7 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
     }
 
     private void assembleDeployableFeature() throws MojoExecutionException {
-        UpdateSiteAssembler assembler = new UpdateSiteAssembler(session, target);
+        UpdateSiteAssembler assembler = new UpdateSiteAssembler(target);
         getDependencyWalker().walk(assembler);
     }
 
