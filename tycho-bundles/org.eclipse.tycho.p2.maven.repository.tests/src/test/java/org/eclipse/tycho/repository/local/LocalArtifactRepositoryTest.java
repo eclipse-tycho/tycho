@@ -13,6 +13,7 @@ package org.eclipse.tycho.repository.local;
 import static org.eclipse.tycho.test.util.StatusMatchers.okStatus;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,13 +34,25 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.tycho.core.shared.MavenLogger;
+import org.eclipse.tycho.p2.repository.LocalRepositoryP2Indices;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
+import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
+import org.eclipse.tycho.repository.local.testutil.TemporaryLocalMavenRepository;
+import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 @SuppressWarnings("restriction")
-public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
+public class LocalArtifactRepositoryTest {
+
+    @Rule
+    public TemporaryLocalMavenRepository tempLocalMavenRepository = new TemporaryLocalMavenRepository();
+
+    LocalRepositoryP2Indices localRepoIndices = tempLocalMavenRepository.getLocalRepositoryIndex();
+    File baseDir = tempLocalMavenRepository.getLocalRepositoryRoot();
 
     private void deleteDir(File dir) {
         File[] files = dir.listFiles();
@@ -52,6 +65,11 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
                 file.delete();
             }
         }
+    }
+
+    private TychoRepositoryIndex createArtifactsIndex(File location) {
+        return FileBasedTychoRepositoryIndex.createArtifactsIndex(location, new NoopFileLockService(),
+                mock(MavenLogger.class));
     }
 
     @Test
@@ -82,12 +100,12 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(false);
 
-        Assert.assertEquals(new File(baseDir,
-                "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar"), repo
-                .internalGetArtifactStorageLocation(desc));
+        Assert.assertEquals(
+                new File(baseDir, "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar"),
+                repo.internalGetArtifactStorageLocation(desc));
 
-        ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] { new ProcessingStepDescriptor(
-                "org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) };
+        ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {
+                new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true) };
         desc.setProcessingSteps(steps);
         desc.setProperty(IArtifactDescriptor.FORMAT, "packed");
 
@@ -97,8 +115,8 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
     }
 
     private ArtifactDescriptor newBundleArtifactDescriptor(boolean maven) {
-        ArtifactKey key = new ArtifactKey(PublisherHelper.OSGI_BUNDLE_CLASSIFIER, "org.eclipse.tycho.test."
-                + (maven ? "maven" : "p2"), Version.createOSGi(1, 0, 0));
+        ArtifactKey key = new ArtifactKey(PublisherHelper.OSGI_BUNDLE_CLASSIFIER,
+                "org.eclipse.tycho.test." + (maven ? "maven" : "p2"), Version.createOSGi(1, 0, 0));
         ArtifactDescriptor desc = new ArtifactDescriptor(key);
 
         if (maven) {
@@ -116,9 +134,9 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
 
-        Assert.assertEquals(new File(baseDir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo
-                .internalGetArtifactStorageLocation(desc));
+        Assert.assertEquals(
+                new File(baseDir, "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"),
+                repo.internalGetArtifactStorageLocation(desc));
     }
 
     @Test
@@ -127,9 +145,9 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         ArtifactDescriptor desc = newBundleArtifactDescriptor(true);
 
-        Assert.assertEquals(new File(baseDir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"), repo
-                .internalGetArtifactStorageLocation(desc));
+        Assert.assertEquals(
+                new File(baseDir, "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar"),
+                repo.internalGetArtifactStorageLocation(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, "classifier.value");
         Assert.assertEquals(new File(baseDir,
@@ -142,9 +160,9 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
                 repo.internalGetArtifactStorageLocation(desc));
 
         desc.setProperty(RepositoryLayoutHelper.PROP_CLASSIFIER, null);
-        Assert.assertEquals(new File(baseDir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.zip"), repo
-                .internalGetArtifactStorageLocation(desc));
+        Assert.assertEquals(
+                new File(baseDir, "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.zip"),
+                repo.internalGetArtifactStorageLocation(desc));
     }
 
     @Test
@@ -155,14 +173,15 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         writeDummyArtifact(repo, desc);
 
-        Assert.assertTrue(new File(baseDir,
-                "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar").exists());
+        Assert.assertTrue(
+                new File(baseDir, "p2/osgi/bundle/org.eclipse.tycho.test.p2/1.0.0/org.eclipse.tycho.test.p2-1.0.0.jar")
+                        .exists());
         Assert.assertTrue(repo.contains(desc.getArtifactKey()));
         Assert.assertTrue(repo.contains(desc));
     }
 
-    private void writeDummyArtifact(LocalArtifactRepository repo, ArtifactDescriptor desc) throws ProvisionException,
-            IOException {
+    private void writeDummyArtifact(LocalArtifactRepository repo, ArtifactDescriptor desc)
+            throws ProvisionException, IOException {
         writeDummyArtifact(repo, desc, new byte[] { 111 });
     }
 
@@ -181,8 +200,9 @@ public class LocalArtifactRepositoryTest extends BaseMavenRepositoryTest {
 
         writeDummyArtifact(repo, desc);
 
-        Assert.assertTrue(new File(baseDir,
-                "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar").exists());
+        Assert.assertTrue(
+                new File(baseDir, "group/org.eclipse.tycho.test.maven/1.0.0/org.eclipse.tycho.test.maven-1.0.0.jar")
+                        .exists());
         Assert.assertTrue(repo.contains(desc.getArtifactKey()));
         Assert.assertTrue(repo.contains(desc));
     }

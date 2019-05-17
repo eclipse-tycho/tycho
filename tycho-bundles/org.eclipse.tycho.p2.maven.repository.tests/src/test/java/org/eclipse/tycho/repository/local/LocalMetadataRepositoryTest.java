@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.repository.local;
 
+import static org.mockito.Mockito.mock;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,14 +28,16 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.tycho.core.shared.MavenLogger;
 import org.eclipse.tycho.p2.repository.LocalRepositoryReader;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.p2.repository.TychoRepositoryIndex;
 import org.eclipse.tycho.repository.local.index.FileBasedTychoRepositoryIndex;
+import org.eclipse.tycho.test.util.NoopFileLockService;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
+public class LocalMetadataRepositoryTest {
     private IProgressMonitor monitor = new NullProgressMonitor();
 
     @Test
@@ -48,6 +52,11 @@ public class LocalMetadataRepositoryTest extends BaseMavenRepositoryTest {
     protected IMetadataRepository loadRepository(File location) throws ProvisionException {
         return new LocalMetadataRepository(location.toURI(), createMetadataIndex(location),
                 new LocalRepositoryReader(location));
+    }
+
+    private TychoRepositoryIndex createMetadataIndex(File location) {
+        return FileBasedTychoRepositoryIndex.createMetadataIndex(location, new NoopFileLockService(),
+                mock(MavenLogger.class));
     }
 
     private LocalMetadataRepository createRepository(File location) throws ProvisionException {
