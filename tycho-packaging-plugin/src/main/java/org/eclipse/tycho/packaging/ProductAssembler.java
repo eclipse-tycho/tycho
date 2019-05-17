@@ -12,7 +12,6 @@ package org.eclipse.tycho.packaging;
 
 import java.io.File;
 
-import org.apache.maven.execution.MavenSession;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 import org.eclipse.tycho.core.osgitools.OsgiManifest;
@@ -27,9 +26,8 @@ public class ProductAssembler extends UpdateSiteAssembler {
 
     private final BundleReader manifestReader;
 
-    public ProductAssembler(MavenSession session, BundleReader manifestReader, File target,
-            TargetEnvironment environment) {
-        super(session, target);
+    public ProductAssembler(BundleReader manifestReader, File target, TargetEnvironment environment) {
+        super(target);
         this.manifestReader = manifestReader;
         setUnpackPlugins(true);
         setUnpackFeatures(true);
