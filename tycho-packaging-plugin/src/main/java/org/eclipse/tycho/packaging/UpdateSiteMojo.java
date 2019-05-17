@@ -52,7 +52,7 @@ public class UpdateSiteMojo extends AbstractTychoPackagingMojo {
         try {
             UpdateSite site = UpdateSite.read(new File(basedir, UpdateSite.SITE_XML));
 
-            UpdateSiteAssembler assembler = new UpdateSiteAssembler(session, target);
+            UpdateSiteAssembler assembler = new UpdateSiteAssembler(target);
             if (inlineArchives) {
                 assembler.setArchives(site.getArchives());
             }
