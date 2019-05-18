@@ -26,7 +26,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.sisu.equinox.EquinoxServiceFactory;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.core.TargetPlatformConfiguration;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Category;
@@ -130,6 +133,9 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     @Component
     private EquinoxServiceFactory p2;
 
+    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    private EclipseRepositoryProject eclipseRepositoryProject;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
@@ -182,7 +188,7 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     }
 
     private List<Category> getCategories() {
-        return getEclipseRepositoryProject().loadCategories(getProject());
+        return eclipseRepositoryProject.loadCategories(getProject());
     }
 
 }

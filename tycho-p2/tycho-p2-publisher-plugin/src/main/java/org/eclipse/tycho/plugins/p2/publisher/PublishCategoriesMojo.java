@@ -19,10 +19,14 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.BuildOutputDirectory;
+import org.eclipse.tycho.PackagingType;
+import org.eclipse.tycho.core.TychoProject;
+import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.model.Category;
 import org.eclipse.tycho.p2.tools.FacadeException;
@@ -38,6 +42,9 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  */
 @Mojo(name = "publish-categories", defaultPhase = LifecyclePhase.PACKAGE)
 public final class PublishCategoriesMojo extends AbstractPublishMojo {
+
+    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    private EclipseRepositoryProject eclipseRepositoryProject;
 
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
@@ -96,6 +103,6 @@ public final class PublishCategoriesMojo extends AbstractPublishMojo {
     }
 
     private List<Category> getCategories() {
-        return getEclipseRepositoryProject().loadCategories(getProject());
+        return eclipseRepositoryProject.loadCategories(getProject());
     }
 }

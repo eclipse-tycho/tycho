@@ -16,14 +16,10 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.eclipse.tycho.BuildOutputDirectory;
-import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.ReactorProjectIdentities;
-import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.shared.TargetEnvironment;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.osgi.adapters.MavenReactorProjectIdentities;
@@ -66,20 +62,6 @@ public abstract class AbstractP2Mojo extends AbstractMojo {
 
     protected BuildOutputDirectory getBuildDirectory() {
         return getProjectIdentities().getBuildDirectory();
-    }
-
-    protected EclipseRepositoryProject getEclipseRepositoryProject() {
-        return (EclipseRepositoryProject) getTychoProjectFacet(PackagingType.TYPE_ECLIPSE_REPOSITORY);
-    }
-
-    private TychoProject getTychoProjectFacet(String packaging) {
-        TychoProject facet;
-        try {
-            facet = (TychoProject) session.lookup(TychoProject.class.getName(), packaging);
-        } catch (ComponentLookupException e) {
-            throw new IllegalStateException("Could not lookup required component", e);
-        }
-        return facet;
     }
 
     protected BuildContext getBuildContext() {

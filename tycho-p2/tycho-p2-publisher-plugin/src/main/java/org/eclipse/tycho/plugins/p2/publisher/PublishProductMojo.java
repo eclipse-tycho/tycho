@@ -28,8 +28,11 @@ import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ArtifactType;
+import org.eclipse.tycho.PackagingType;
 import org.eclipse.tycho.artifacts.DependencyArtifacts;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.maven.TychoInterpolator;
+import org.eclipse.tycho.core.osgitools.EclipseRepositoryProject;
 import org.eclipse.tycho.core.resolver.shared.DependencySeed;
 import org.eclipse.tycho.core.resolver.shared.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.shared.Interpolator;
@@ -75,6 +78,9 @@ public final class PublishProductMojo extends AbstractPublishMojo {
     @Component
     private FileLockService fileLockService;
 
+    @Component(role = TychoProject.class, hint = PackagingType.TYPE_ECLIPSE_REPOSITORY)
+    private EclipseRepositoryProject eclipseRepositoryProject;
+
     @Override
     protected Collection<DependencySeed> publishContent(PublisherServiceFactory publisherServiceFactory)
             throws MojoExecutionException, MojoFailureException {
@@ -83,7 +89,7 @@ public final class PublishProductMojo extends AbstractPublishMojo {
                 getEnvironments(), getQualifier(), interpolator);
 
         List<DependencySeed> seeds = new ArrayList<>();
-        for (File productFile : getEclipseRepositoryProject().getProductFiles(getProject())) {
+        for (File productFile : eclipseRepositoryProject.getProductFiles(getProject())) {
             try {
                 ProductConfiguration productConfiguration = ProductConfiguration.read(productFile);
                 if (isEmpty(productConfiguration.getId())) {
