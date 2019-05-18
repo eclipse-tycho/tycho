@@ -1,0 +1,7 @@
+Verified+1: CI Bot
+Code-Review+2: Alexander Kurtakov <akurtako@redhat.com>
+Submitted-by: Alexander Kurtakov <akurtako@redhat.com>
+Submitted-at: Sat, 18 May 2019 08:30:18 -0400
+Reviewed-on: https://git.eclipse.org/r/142371
+Project: tycho/org.eclipse.tycho
+Branch: refs/heads/master
