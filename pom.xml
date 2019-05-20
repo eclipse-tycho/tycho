@@ -80,6 +80,7 @@
 		<min.jdk.version>1.8</min.jdk.version>
 		<tycho-snapshots-url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</tycho-snapshots-url>
 		<plexusVersion>1.7.1</plexusVersion>
+		<invoker.debug>true</invoker.debug>
 	</properties>
 
 	<modules>
@@ -369,7 +370,7 @@
 					<artifactId>maven-invoker-plugin</artifactId>
 					<version>3.2.0</version>
 					<configuration>
-						<debug>true</debug>
+						<debug>${invoker.debug}</debug>
 						<projectsDirectory>src/it</projectsDirectory>
 						<cloneProjectsTo>target/it</cloneProjectsTo>
 						<localRepositoryPath>target/local-repo</localRepositoryPath>

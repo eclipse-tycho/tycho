@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2013, 2019 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
@@ -29,6 +30,9 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.tycho.classpath.ClasspathEntry;
+import org.eclipse.tycho.core.BundleProject;
+import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.BundleReader;
 
 /**
@@ -178,6 +182,9 @@ public class JavadocMojo extends AbstractMojo {
     @Component
     private DocletArtifactsResolver docletArtifactsResolver;
 
+    @Component(role = TychoProject.class)
+    private Map<String, TychoProject> projectTypes;
+
     public void setTocOptions(TocOptions tocOptions) {
         this.tocOptions = tocOptions;
     }
@@ -228,7 +235,6 @@ public class JavadocMojo extends AbstractMojo {
             getLog().info("Source folder: " + file);
         }
 
-        // TODO: use tycho's approach of gathering the classpath
         final GatherClasspathVisitor gcv = new GatherClasspathVisitor();
         visitProjects(this.session.getCurrentProject().getDependencies(), this.scopes, gcv);
 
@@ -317,7 +323,7 @@ public class JavadocMojo extends AbstractMojo {
     private class GatherManifestVisitor implements ProjectVisitor {
         private final Set<File> manifestFiles = new HashSet<>();
 
-	@Override
+        @Override
         public void visit(final MavenProject project) {
             if (JavadocMojo.this.sourceTypes.contains(project.getPackaging())) {
                 this.manifestFiles.add(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
@@ -332,11 +338,20 @@ public class JavadocMojo extends AbstractMojo {
     private class GatherClasspathVisitor implements ProjectVisitor {
         private final Set<String> classPath = new HashSet<>();
 
-	@Override
+        private BundleProject getBundleProject(final MavenProject project) throws MojoExecutionException {
+            TychoProject projectType = projectTypes.get(project.getPackaging());
+            if (!(projectType instanceof BundleProject)) {
+                return null;
+            }
+            return (BundleProject) projectType;
+        }
+
+        @Override
         public void visit(final MavenProject project) throws MojoExecutionException {
-            for (final Dependency dep : (List<Dependency>) project.getDependencies()) {
-                if (dep.getSystemPath() != null) {
-                    this.classPath.add(dep.getSystemPath());
+            final BundleProject bp = getBundleProject(project);
+            if (bp != null) {
+                for (final ClasspathEntry cpe : bp.getClasspath(project)) {
+                    cpe.getLocations().forEach(location -> this.classPath.add(location.getAbsolutePath()));
                 }
             }
         }

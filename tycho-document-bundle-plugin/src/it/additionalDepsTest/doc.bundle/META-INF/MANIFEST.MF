@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Doc Bundle
+Bundle-SymbolicName: doc.bundle
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: my.bundle
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
