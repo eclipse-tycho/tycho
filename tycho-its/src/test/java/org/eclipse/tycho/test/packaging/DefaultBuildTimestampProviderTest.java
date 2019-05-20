@@ -19,6 +19,7 @@ import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.osgi.framework.Version;
 
 /**
  * This test uses a project that contains 3 plugins (2 eclipse-plugins and one maven plugin). The
@@ -39,19 +40,23 @@ public class DefaultBuildTimestampProviderTest extends AbstractTychoIntegrationT
         String mavenBuildTimestamp = readFileToString(
                 new File(baseDir, "mavenPlugin/target/classes/buildtimestamp.txt")).toString();
 
-        // Tycho ITs are running with maven 3.0. In that version of maven, the
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        Date buildTimestamp = format.parse(mavenBuildTimestamp);
+        // If Tycho ITs are running with maven < 3.2.2 , the
         // build timestamp uses the local time zone, Tycho is using UTC, so we
         // convert here the maven timestamp to UCT before comparing
         // see: https://issues.apache.org/jira/browse/MNG-5452
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-        Date buildTimestamp = format.parse(mavenBuildTimestamp);
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-
+        Version maven322 = Version.parseVersion("3.2.2");
+        if (Version.parseVersion(verifier.getMavenVersion()).compareTo(maven322) < 0) {
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        }
         String plugin1Manifest = readFileToString(new File(baseDir, "plugin01/target/MANIFEST.MF")).toString();
         String plugin2Manifest = readFileToString(new File(baseDir, "plugin02/target/MANIFEST.MF")).toString();
-        Assert.assertTrue("Expected" + mavenBuildTimestamp + "\nbut was\n" + plugin1Manifest,
-                plugin1Manifest.contains("Bundle-Version: 1.0.0." + format.format(buildTimestamp)));
-        Assert.assertTrue(plugin2Manifest.contains("Bundle-Version: 1.0.0." + format.format(buildTimestamp)));
+        String expectedBundleVersion = "Bundle-Version: 1.0.0." + format.format(buildTimestamp);
+        Assert.assertTrue(
+                "Expected Bundle-Version in MANIFEST: '" + expectedBundleVersion + "'\nbut was\n" + plugin1Manifest,
+                plugin1Manifest.contains(expectedBundleVersion));
+        Assert.assertTrue(plugin2Manifest.contains(expectedBundleVersion));
     }
 
 }
