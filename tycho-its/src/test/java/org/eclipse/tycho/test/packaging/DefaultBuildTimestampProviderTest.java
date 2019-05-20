@@ -15,11 +15,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.it.Verifier;
 import org.eclipse.tycho.test.AbstractTychoIntegrationTest;
 import org.junit.Assert;
 import org.junit.Test;
-import org.osgi.framework.Version;
 
 /**
  * This test uses a project that contains 3 plugins (2 eclipse-plugins and one maven plugin). The
@@ -46,8 +46,9 @@ public class DefaultBuildTimestampProviderTest extends AbstractTychoIntegrationT
         // build timestamp uses the local time zone, Tycho is using UTC, so we
         // convert here the maven timestamp to UCT before comparing
         // see: https://issues.apache.org/jira/browse/MNG-5452
-        Version maven322 = Version.parseVersion("3.2.2");
-        if (Version.parseVersion(verifier.getMavenVersion()).compareTo(maven322) < 0) {
+        DefaultArtifactVersion mavenVersion322 = new DefaultArtifactVersion("3.2.2");
+        DefaultArtifactVersion currentMavenVersion = new DefaultArtifactVersion(verifier.getMavenVersion());
+        if (currentMavenVersion.compareTo(mavenVersion322) < 0) {
             format.setTimeZone(TimeZone.getTimeZone("UTC"));
         }
         String plugin1Manifest = readFileToString(new File(baseDir, "plugin01/target/MANIFEST.MF")).toString();
