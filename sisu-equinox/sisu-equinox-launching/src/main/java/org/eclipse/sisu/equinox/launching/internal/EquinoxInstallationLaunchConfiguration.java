@@ -35,13 +35,7 @@ public class EquinoxInstallationLaunchConfiguration implements LaunchConfigurati
 
     public static File findLauncherJar(File equinoxDirectory) {
         File pluginsDir = new File(equinoxDirectory, "plugins");
-        File[] launchers = pluginsDir.listFiles(new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith("org.eclipse.equinox.launcher_");
-            }
-        });
+        File[] launchers = pluginsDir.listFiles((File dir, String name) -> name.startsWith("org.eclipse.equinox.launcher_"));
 
         if (launchers == null || launchers.length == 0)
             throw new IllegalArgumentException("No launcher bundle found in " + pluginsDir);

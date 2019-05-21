@@ -48,12 +48,7 @@ public class ProvisionedInstallationDescription implements EquinoxInstallationDe
             return systemBundleDescriptor;
         }
         File pluginsDir = new File(location, "plugins");
-        File[] systemBundles = pluginsDir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.isFile() && file.getName().startsWith(EquinoxContainer.NAME + "_");
-            }
-        });
+        File[] systemBundles = pluginsDir.listFiles((File file) -> file.isFile() && file.getName().startsWith(EquinoxContainer.NAME + "_"));
         File systemBundle;
         if (systemBundles.length == 0) {
             throw new IllegalArgumentException("No framework bundle " + EquinoxContainer.NAME + " found in "
