@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b1bd2499_8fce0964",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared.tests/src/test/java/org/eclipse/tycho/core/shared/BuildPropertiesImplTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 209389
+      },
+      "writtenOn": "2019-05-21T17:28:37Z",
+      "side": 1,
+      "message": "Please show me how to do that",
+      "parentUuid": "b05ea164_1f454fe4",
+      "revId": "50b298f1c28fc0402307603d59cb4204620478bd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06d20ba7_c1c49551",
         "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/targetplatform/ArtifactCollection.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "cf85cf28_4fb61c9c",
+        "filename": "tycho-core/src/main/java/org/eclipse/tycho/core/osgitools/targetplatform/ArtifactCollection.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 209389
+      },
+      "writtenOn": "2019-05-21T17:28:37Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "06d20ba7_c1c49551",
+      "revId": "50b298f1c28fc0402307603d59cb4204620478bd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd515886_659c7577",
         "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provider/impl/ProviderHelper.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2019-05-17T18:19:07Z",
       "side": 1,
       "message": "Would Comparator.comparing(TestFrameworkProvider::getVersion) work?",
+      "revId": "50b298f1c28fc0402307603d59cb4204620478bd",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3148c669_b1b723e6",
+        "filename": "tycho-surefire/tycho-surefire-plugin/src/main/java/org/eclipse/tycho/surefire/provider/impl/ProviderHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 209389
+      },
+      "writtenOn": "2019-05-21T17:28:37Z",
+      "side": 1,
+      "message": "good idea, I guess it works..",
+      "parentUuid": "cd515886_659c7577",
       "revId": "50b298f1c28fc0402307603d59cb4204620478bd",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
