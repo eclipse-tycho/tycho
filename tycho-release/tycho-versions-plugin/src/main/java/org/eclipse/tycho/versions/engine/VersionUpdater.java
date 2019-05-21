@@ -50,46 +50,33 @@ public abstract class VersionUpdater {
     private Collection<ProjectMetadata> projects;
 
     static {
-        VersionAdaptor bundleVersionAdaptor = new VersionAdaptor() {
-            @Override
-            public String getVersion(ProjectMetadata project, Logger logger) throws IOException {
-                MutableBundleManifest manifest = MutableBundleManifest
-                        .read(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
-                return manifest.getVersion();
-            }
+        VersionAdaptor bundleVersionAdaptor = (ProjectMetadata project, Logger logger1) -> {
+            MutableBundleManifest manifest = MutableBundleManifest
+                    .read(new File(project.getBasedir(), "META-INF/MANIFEST.MF"));
+            return manifest.getVersion();
         };
         updaters.put(PackagingType.TYPE_ECLIPSE_PLUGIN, bundleVersionAdaptor);
         updaters.put(PackagingType.TYPE_ECLIPSE_TEST_PLUGIN, bundleVersionAdaptor);
 
-        updaters.put(PackagingType.TYPE_ECLIPSE_FEATURE, new VersionAdaptor() {
-            @Override
-            public String getVersion(ProjectMetadata project, Logger logger) throws IOException {
-                Feature feature = Feature.read(new File(project.getBasedir(), Feature.FEATURE_XML));
-                return feature.getVersion();
-            }
+        updaters.put(PackagingType.TYPE_ECLIPSE_FEATURE, (VersionAdaptor) (ProjectMetadata project, Logger logger1) -> {
+            Feature feature = Feature.read(new File(project.getBasedir(), Feature.FEATURE_XML));
+            return feature.getVersion();
         });
 
-        VersionAdaptor productVersionAdapter = new VersionAdaptor() {
-            @Override
-            public String getVersion(ProjectMetadata project, Logger logger) throws IOException {
-                PomFile pom = project.getMetadata(PomFile.class);
-                File productFile = findProductFile(project, pom, logger);
-                if (productFile == null) {
-                    return null;
-                }
-                ProductConfiguration product = ProductConfiguration.read(productFile);
-                return product.getVersion();
+        VersionAdaptor productVersionAdapter = (ProjectMetadata project, Logger logger1) -> {
+            PomFile pom = project.getMetadata(PomFile.class);
+            File productFile = findProductFile(project, pom, logger1);
+            if (productFile == null) {
+                return null;
             }
+            ProductConfiguration product = ProductConfiguration.read(productFile);
+            return product.getVersion();
         };
         updaters.put(PackagingType.TYPE_ECLIPSE_APPLICATION, productVersionAdapter);
         updaters.put(PackagingType.TYPE_ECLIPSE_REPOSITORY, productVersionAdapter);
-        updaters.put(PackagingType.TYPE_P2_IU, new VersionAdaptor() {
-
-            @Override
-            public String getVersion(ProjectMetadata project, Logger logger) throws IOException {
-                IU iu = IU.loadIU(project.getBasedir());
-                return iu.getVersion();
-            }
+        updaters.put(PackagingType.TYPE_P2_IU, (VersionAdaptor) (ProjectMetadata project, Logger logger1) -> {
+            IU iu = IU.loadIU(project.getBasedir());
+            return iu.getVersion();
         });
     }
 
