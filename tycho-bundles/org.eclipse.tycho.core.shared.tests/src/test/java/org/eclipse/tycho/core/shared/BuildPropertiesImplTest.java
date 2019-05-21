@@ -58,13 +58,7 @@ public class BuildPropertiesImplTest {
         @Override
         public Set<Map.Entry<Object, Object>> entrySet() {
             List<Map.Entry<Object, Object>> sortedList = new ArrayList<>(super.entrySet());
-            Collections.sort(sortedList, new Comparator<Map.Entry<Object, Object>>() {
-
-                @Override
-                public int compare(java.util.Map.Entry<Object, Object> o1, java.util.Map.Entry<Object, Object> o2) {
-                    return ((String) o2.getKey()).compareTo((String) o1.getKey());
-                }
-            });
+            Collections.sort(sortedList, (java.util.Map.Entry<Object, Object> o1, java.util.Map.Entry<Object, Object> o2) -> ((String) o2.getKey()).compareTo((String) o1.getKey()));
             if (reverse) {
                 Collections.reverse(sortedList);
             }

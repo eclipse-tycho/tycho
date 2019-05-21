@@ -187,12 +187,7 @@ public class ArtifactCollection {
 
         // features with matching id, sorted by version, highest version first
         SortedMap<Version, ArtifactDescriptor> relevantArtifacts = new TreeMap<>(
-                new Comparator<Version>() {
-                    @Override
-                    public int compare(Version o1, Version o2) {
-                        return -o1.compareTo(o2);
-                    };
-                });
+                Comparator.naturalOrder());
 
         for (Map.Entry<ArtifactKey, ArtifactDescriptor> entry : this.artifacts.entrySet()) {
             ArtifactKey key = entry.getKey();
