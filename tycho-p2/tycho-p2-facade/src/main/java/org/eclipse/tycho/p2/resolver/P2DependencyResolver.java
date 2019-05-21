@@ -150,27 +150,19 @@ public class P2DependencyResolver extends AbstractLogEnabled implements Dependen
 
         // let external providers contribute additional metadata
         try {
-            pluginRealmHelper.execute(session, project, new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
-                            Map<String, IDependencyMetadata> providedMetadata = provider.getDependencyMetadata(session,
-                                    project, null, optionalAction);
-                            if (providedMetadata != null) {
-                                metadata.putAll(providedMetadata);
-                            }
+            pluginRealmHelper.execute(session, project, () -> {
+                try {
+                    for (P2MetadataProvider provider : plexus.lookupList(P2MetadataProvider.class)) {
+                        Map<String, IDependencyMetadata> providedMetadata = provider.getDependencyMetadata(session,
+                                project, null, optionalAction);
+                        if (providedMetadata != null) {
+                            metadata.putAll(providedMetadata);
                         }
-                    } catch (ComponentLookupException e) {
-                        // have not found anything
                     }
+                } catch (ComponentLookupException e) {
+                    // have not found anything
                 }
-            }, new PluginFilter() {
-                @Override
-                public boolean accept(PluginDescriptor descriptor) {
-                    return isTychoP2Plugin(descriptor);
-                }
-            });
+            }, this::isTychoP2Plugin);
         } catch (MavenExecutionException e) {
             throw new RuntimeException(e);
         }
