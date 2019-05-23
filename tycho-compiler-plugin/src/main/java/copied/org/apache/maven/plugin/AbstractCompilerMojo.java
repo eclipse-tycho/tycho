@@ -97,6 +97,12 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
     private boolean showWarnings;
 
     /**
+     * Fail on warnings
+     */
+    @Parameter(property = "maven.compiler.failOnWarning", defaultValue = "false")
+    private boolean failOnWarning;
+
+    /**
      * The -source argument for the Java compiler
      */
     @Parameter(property = "maven.compiler.source")
@@ -355,9 +361,9 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         if (getLog().isDebugEnabled()) {
             getLog().debug("Classpath:");
 
-	        for (String s : getClasspathElements()) {
-	            getLog().debug(" " + s);
-	        }
+            for (String s : getClasspathElements()) {
+                getLog().debug(" " + s);
+            }
 
             getLog().debug("Source roots:");
 
@@ -441,6 +447,8 @@ public abstract class AbstractCompilerMojo extends AbstractMojo {
         compilerConfiguration.setShowDeprecation(showDeprecation);
 
         compilerConfiguration.setProc(proc);
+
+        compilerConfiguration.setFailOnWarning(failOnWarning);
 
         compilerConfiguration.setAnnotationProcessors(annotationProcessors);
 
