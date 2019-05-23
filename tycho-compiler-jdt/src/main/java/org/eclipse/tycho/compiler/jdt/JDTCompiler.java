@@ -211,6 +211,10 @@ public class JDTCompiler extends AbstractCompiler {
             args.add("-nowarn");
         }
 
+        if (config.isFailOnWarning()) {
+            args.add("-failOnWarning");
+        }
+
         // TODO: this could be much improved
         if (StringUtils.isEmpty(config.getTargetVersion())) {
             // Required, or it defaults to the target of your JDK (eg 1.5)
