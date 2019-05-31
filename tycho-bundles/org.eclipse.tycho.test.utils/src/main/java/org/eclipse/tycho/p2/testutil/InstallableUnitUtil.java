@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 SAP SE and others.
+ * Copyright (c) 2010, 2019 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 
-@SuppressWarnings({ "restriction", "nls" })
+@SuppressWarnings("restriction")
 public class InstallableUnitUtil {
 
     static final String IU_CAPABILITY_NS = "org.eclipse.equinox.p2.iu"; // see IInstallableUnit.NAMESPACE_IU_ID;

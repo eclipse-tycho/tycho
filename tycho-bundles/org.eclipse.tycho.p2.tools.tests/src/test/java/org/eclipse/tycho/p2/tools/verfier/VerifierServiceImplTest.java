@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP SE and others.
+ * Copyright (c) 2011, 2019 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-@SuppressWarnings("boxing")
 public class VerifierServiceImplTest {
 
     private ErrorStoreMemoryLog logger;
@@ -97,8 +96,8 @@ public class VerifierServiceImplTest {
     }
 
     private boolean verify(final RepositoryReferences repositories) throws FacadeException {
-        return subject.verify(repositories.getMetadataRepositories().get(0), repositories.getArtifactRepositories()
-                .get(0), new BuildOutputDirectory(tempFolder.getRoot()));
+        return subject.verify(repositories.getMetadataRepositories().get(0),
+                repositories.getArtifactRepositories().get(0), new BuildOutputDirectory(tempFolder.getRoot()));
     }
 
     class ErrorStoreMemoryLog implements MavenLogger {
