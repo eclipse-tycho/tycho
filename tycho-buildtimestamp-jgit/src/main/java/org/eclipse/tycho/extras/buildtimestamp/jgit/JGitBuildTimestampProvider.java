@@ -208,7 +208,7 @@ public class JGitBuildTimestampProvider implements BuildTimestampProvider {
         if (ignoreDom == null) {
             return null;
         }
-        return ignoreDom.getValue();
+        return ignoreDom.getValue().trim();
     }
 
     private String getRelPath(Repository repository, MavenProject project) throws IOException {
