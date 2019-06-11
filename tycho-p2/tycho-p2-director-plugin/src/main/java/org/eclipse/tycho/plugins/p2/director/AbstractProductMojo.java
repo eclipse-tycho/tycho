@@ -42,53 +42,53 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * classifiers unique. Example:
      * 
      * <pre>
-     * &lt;plugin>
-     *   &lt;groupId>org.eclipse.tycho&lt;/groupId>
-     *   &lt;artifactId>tycho-p2-director-plugin&lt;/artifactId>
-     *   &lt;version>${tycho-version}&lt;/version>
-     *   &lt;executions>
-     *     &lt;execution>
-     *       &lt;id>create-distributions&lt;/id>
-     *       &lt;goals>
-     *         &lt;goal>materialize-products&lt;/goal>
-     *         &lt;goal>archive-products&lt;/goal>
-     *       &lt;/goals>
-     *     &lt;/execution>
-     *   &lt;/executions>
-     *   &lt;configuration>
-     *     &lt;products>
-     *       &lt;product>
-     *         &lt!-- select product with ID product.id; the archives get the classifiers "&lt;os>.&lt;ws>.&lt;arch>" -->
-     *         &lt;id>product.id&lt;/id>
-     *       &lt;/product>
-     *       &lt;product>
-     *         &lt!-- select product with ID other.product.id for the classifiers "other-&lt;os>.&lt;ws>.&lt;arch>" -->
-     *         &lt;id>other.product.id&lt;/id>
-     *         &lt;attachId>other&lt;/attachId>
-     *       &lt;/product>
-     *     &lt;/products>
-     *   &lt;/configuration>
-     * &lt;/plugin>
+     * &lt;plugin&gt;
+     *   &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+     *   &lt;artifactId&gt;tycho-p2-director-plugin&lt;/artifactId&gt;
+     *   &lt;version&gt;${tycho-version}&lt;/version&gt;
+     *   &lt;executions&gt;
+     *     &lt;execution&gt;
+     *       &lt;id&gt;create-distributions&lt;/id&gt;
+     *       &lt;goals&gt;
+     *         &lt;goal&gt;materialize-products&lt;/goal&gt;
+     *         &lt;goal&gt;archive-products&lt;/goal&gt;
+     *       &lt;/goals&gt;
+     *     &lt;/execution&gt;
+     *   &lt;/executions&gt;
+     *   &lt;configuration&gt;
+     *     &lt;products&gt;
+     *       &lt;product&gt;
+     *         &lt!-- select product with ID product.id; the archives get the classifiers "&lt;os&gt;.&lt;ws&gt;.&lt;arch&gt;" -->
+     *         &lt;id&gt;product.id&lt;/id&gt;
+     *       &lt;/product&gt;
+     *       &lt;product&gt;
+     *         &lt!-- select product with ID other.product.id for the classifiers "other-&lt;os&gt;.&lt;ws&gt;.&lt;arch&gt;" -->
+     *         &lt;id&gt;other.product.id&lt;/id&gt;
+     *         &lt;attachId&gt;other&lt;/attachId&gt;
+     *       &lt;/product&gt;
+     *     &lt;/products&gt;
+     *   &lt;/configuration&gt;
+     * &lt;/plugin&gt;
      * </pre>
      * 
      * The following snippet shows the optional parameters which can be specified per product:
      * 
      * <pre>
-     *   &lt;configuration>
-     *     &lt;products>
-     *       &lt;product>
-     *         &lt;id>product.id&lt;/id>
+     *   &lt;configuration&gt;
+     *     &lt;products&gt;
+     *       &lt;product&gt;
+     *         &lt;id&gt;product.id&lt;/id&gt;
      *         &lt;!-- optional parameters -->
-     *         &lt;rootFolder>&lt;/rootFolder>
-     *         &lt;rootFolders>
-     *           &lt;macosx>&lt;/macosx>
-     *           &lt;linux>&lt;/linux>
-     *           &lt;win32>&lt;/win32>
-     *         &lt;/rootFolders>
-     *       &lt;/product>
+     *         &lt;rootFolder&gt;&lt;/rootFolder&gt;
+     *         &lt;rootFolders&gt;
+     *           &lt;macosx&gt;&lt;/macosx&gt;
+     *           &lt;linux&gt;&lt;/linux&gt;
+     *           &lt;win32&gt;&lt;/win32&gt;
+     *         &lt;/rootFolders&gt;
+     *       &lt;/product&gt;
      *       ...
-     *     &lt;/products>
-     *   &lt;/configuration>
+     *     &lt;/products&gt;
+     *   &lt;/configuration&gt;
      * </pre>
      * 
      * Details on the product-specific configuration parameters:
@@ -97,7 +97,7 @@ abstract class AbstractProductMojo extends AbstractMojo {
      * archive, e.g. "eclipse". By default, the product is stored in the archive root.</li>
      * <li>
      * <tt>rootFolders</tt> - OS-specific installation root folders, overriding <tt>rootFolder</tt>.
-     * Allowed children are <tt>&lt;macosx></tt>, <tt>&lt;win32></tt> and <tt>&lt;linux></tt> or any
+     * Allowed children are <tt>&lt;macosx&gt;</tt>, <tt>&lt;win32&gt;</tt> and <tt>&lt;linux&gt;</tt> or any
      * other OS supported by p2. Since 0.18.0</li>
      * </ul>
      * 
