@@ -60,7 +60,7 @@ public final class ProductArchiverMojo extends AbstractProductMojo {
      * 
      * <pre>
      * &lt;formats&gt;
-     *   &lt;linux>tar.gz&lt;/linux&gt;
+     *   &lt;linux&gt;tar.gz&lt;/linux&gt;
      * &lt;/formats&gt;
      * </pre>
      * 
