@@ -65,22 +65,22 @@ import org.eclipse.tycho.buildversion.BuildTimestampProvider;
  * 
  * <pre>
  * ...
- *       &lt;plugin>
- *         &lt;groupId>org.eclipse.tycho&lt;/groupId>
- *         &lt;artifactId>tycho-packaging-plugin&lt;/artifactId>
- *         &lt;version>${tycho-version}&lt;/version>
- *         &lt;dependencies>
- *           &lt;dependency>
- *             &lt;groupId>org.eclipse.tycho.extras&lt;/groupId>
- *             &lt;artifactId>tycho-buildtimestamp-jgit&lt;/artifactId>
- *             &lt;version>${tycho-version}&lt;/version>
- *           &lt;/dependency>
- *         &lt;/dependencies>
- *         &lt;configuration>
- *           &lt;timestampProvider>jgit&lt;/timestampProvider>
+ *       &lt;plugin&gt;
+ *         &lt;groupId&gt;org.eclipse.tycho&lt;/groupId&gt;
+ *         &lt;artifactId&gt;tycho-packaging-plugin&lt;/artifactId&gt;
+ *         &lt;version&gt;${tycho-version}&lt;/version&gt;
+ *         &lt;dependencies&gt;
+ *           &lt;dependency&gt;
+ *             &lt;groupId&gt;org.eclipse.tycho.extras&lt;/groupId&gt;
+ *             &lt;artifactId&gt;tycho-buildtimestamp-jgit&lt;/artifactId&gt;
+ *             &lt;version&gt;${tycho-version}&lt;/version&gt;
+ *           &lt;/dependency&gt;
+ *         &lt;/dependencies&gt;
+ *         &lt;configuration&gt;
+ *           &lt;timestampProvider&gt;jgit&lt;/timestampProvider&gt;
  *           &lt;jgit.ignore>pom.xml&lt;/jgit.ignore>
- *         &lt;/configuration>
- *       &lt;/plugin>
+ *         &lt;/configuration&gt;
+ *       &lt;/plugin&gt;
  * ...
  * </pre>
  */
