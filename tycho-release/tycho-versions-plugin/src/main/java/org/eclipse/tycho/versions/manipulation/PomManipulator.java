@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *    Sonatype Inc. - initial API and implementation
  *    Sebastien Arod - introduce VersionChangesDescriptor
  *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
+ *    Xored Software Inc - #518354 - add update extraClasspathElement's version
  *******************************************************************************/
 package org.eclipse.tycho.versions.manipulation;
 
@@ -148,6 +149,8 @@ public class PomManipulator extends AbstractMetadataManipulator {
 
             changePlugins(pomPath, pluginGAV, change, version, newVersion, "/dependencies/dependency/",
                     plugin.getDependencies());
+            changePlugins(pomPath, pluginGAV, change, version, newVersion, "/configuration/extraClasspathElements/extraClasspathElement",
+                    plugin.getExtraClasspathElements());
             changePlugins(pomPath, pluginGAV, change, version, newVersion, "/configuration/target/artifact/",
                     plugin.getTargetArtifacts());
 
