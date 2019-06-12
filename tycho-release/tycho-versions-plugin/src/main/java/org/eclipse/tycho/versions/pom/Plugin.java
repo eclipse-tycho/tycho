@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Igor Fedorenko
+ * Copyright (c) 2013, 2019 Igor Fedorenko and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Igor Fedorenko - initial API and implementation
+ *    Xored Software Inc - #518354 - add update extraClasspathElement's version
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom;
 
@@ -49,6 +50,22 @@ public class Plugin {
         }
         for (Element artifact : target.getChildren("artifact")) {
             result.add(new GAV(artifact));
+        }
+        return result;
+    }
+
+    public List<GAV> getExtraClasspathElements() {
+        final ArrayList<GAV> result = new ArrayList<>();
+        final Element configuration = plugin.getChild("configuration");
+        if (configuration == null) {
+            return result;
+        }
+        final Element extraClasspathElements = configuration.getChild("extraClasspathElements");
+        if (extraClasspathElements == null) {
+            return result;
+        }
+        for (final Element extraClasspathElement : extraClasspathElements.getChildren("extraClasspathElement")) {
+            result.add(new GAV(extraClasspathElement));
         }
         return result;
     }
