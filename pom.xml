@@ -96,6 +96,7 @@
 		<module>tycho-sourceref-jgit</module>
 		<module>target-platform-validation-plugin</module>
 		<module>tycho-pomless</module>
+		<module>tycho-dependency-tools-plugin</module>
 	</modules>
 
 	<repositories>
