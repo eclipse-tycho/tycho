@@ -79,7 +79,7 @@
 		<tycho-version>${project.version}</tycho-version>
 		<min.jdk.version>1.8</min.jdk.version>
 		<tycho-snapshots-url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</tycho-snapshots-url>
-		<plexusVersion>1.7.1</plexusVersion>
+		<plexusVersion>2.0.0</plexusVersion>
 		<invoker.debug>true</invoker.debug>
 	</properties>
 
