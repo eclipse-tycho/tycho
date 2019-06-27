@@ -90,13 +90,32 @@ public class P2MetadataMojo extends AbstractMojo {
     private List<Repository> baselineRepositories;
 
     /**
-     * What happens when build artifact does not match baseline version.
+     * What happens when build artifact does not match baseline version:
+     * <ul>
+     * <li><code>disable</code>: Disable baseline validation.</li>
+     * <li><code>warn</code> (default): Warn about discrepancies between build and baseline
+     * artifacts but do not fail the build.</li>
+     * <li><code>failCommon</code>: Fail the build if there are discrepancies between artifacts
+     * present both in build and baseline. Attached artifacts only present in the build do not
+     * result in build failure.</li>
+     * <li><code>fail</code>: Fail the build if there are any discrepancy between build and baseline
+     * artifacts.</li>
+     * </ul>
      */
     @Parameter(property = "tycho.baseline", defaultValue = "warn")
     private BaselineMode baselineMode;
 
     /**
-     * Whether to replace build artifacts with baseline version or use reactor version.
+     * Whether to replace build artifacts with baseline version or use reactor version:
+     * <ul>
+     * <li><code>none</code>: Do not replace build artifacts with baseline version.</li>
+     * <li><code>common</code>: Replace build artifacts with baseline version. Attached artifacts
+     * only present in the build are not removed and will likely result in inconsistencies among
+     * artifacts of the same project! Use as last resort when baseline does not contain all build
+     * artifacts.</li>
+     * <li><code>all</code> (default): Replace build artifacts with baseline version. Attached
+     * artifacts only present in the build are removed.</li>
+     * </ul>
      */
     @Parameter(property = "tycho.baseline.replace", defaultValue = "all")
     private BaselineReplace baselineReplace;
