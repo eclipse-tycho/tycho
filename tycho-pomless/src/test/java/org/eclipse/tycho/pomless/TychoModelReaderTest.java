@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.File;
 import java.io.IOException;

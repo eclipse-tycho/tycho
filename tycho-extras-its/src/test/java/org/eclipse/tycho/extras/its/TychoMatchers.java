@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 SAP SE and others.
+ * Copyright (c) 2015, 2019 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ import java.io.File;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public class TychoMatchers {
 
