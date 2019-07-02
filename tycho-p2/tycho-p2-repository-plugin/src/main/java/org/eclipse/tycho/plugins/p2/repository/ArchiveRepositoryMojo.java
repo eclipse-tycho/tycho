@@ -29,8 +29,9 @@ import org.codehaus.plexus.archiver.util.DefaultFileSet;
  * Creates a zip archive with the aggregated p2 repository.
  * </p>
  */
-@Mojo(name = "archive-repository", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "archive-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
+    private static final Object LOCK = new Object();
 
     @Component(role = Archiver.class, hint = "zip")
     private Archiver inflater;
@@ -55,19 +56,21 @@ public final class ArchiveRepositoryMojo extends AbstractRepositoryMojo {
             return;
         }
 
-        File destFile = getBuildDirectory().getChild(finalName + ".zip");
+        synchronized (LOCK) {
+            File destFile = getBuildDirectory().getChild(finalName + ".zip");
 
-        try {
-            inflater.addFileSet(DefaultFileSet.fileSet(getAssemblyRepositoryLocation()).prefixed(""));
-            inflater.setDestFile(destFile);
-            inflater.createArchive();
-        } catch (ArchiverException e) {
-            throw new MojoExecutionException("Error packing p2 repository", e);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error packing p2 repository", e);
+            try {
+                inflater.addFileSet(DefaultFileSet.fileSet(getAssemblyRepositoryLocation()).prefixed(""));
+                inflater.setDestFile(destFile);
+                inflater.createArchive();
+            } catch (ArchiverException e) {
+                throw new MojoExecutionException("Error packing p2 repository", e);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error packing p2 repository", e);
+            }
+
+            getProject().getArtifact().setFile(destFile);
         }
-
-        getProject().getArtifact().setFile(destFile);
     }
 
 }

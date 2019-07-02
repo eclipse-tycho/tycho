@@ -30,7 +30,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  * 
  * @since 0.16.0
  */
-@Mojo(name = "publish-ee-profile", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "publish-ee-profile", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public final class PublishEEProfileMojo extends AbstractPublishMojo {
 
     /**
@@ -52,8 +52,9 @@ public final class PublishEEProfileMojo extends AbstractPublishMojo {
             getLog().info("Published profile IUs: " + ius);
             return ius;
         } catch (FacadeException e) {
-            throw new MojoExecutionException("Exception while publishing execution environment profile " + profileFile
-                    + ": " + e.getMessage(), e);
+            throw new MojoExecutionException(
+                    "Exception while publishing execution environment profile " + profileFile + ": " + e.getMessage(),
+                    e);
         }
     }
 }

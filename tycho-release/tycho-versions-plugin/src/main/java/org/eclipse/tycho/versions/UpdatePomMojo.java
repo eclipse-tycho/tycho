@@ -27,8 +27,9 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
  * 
  * @author igor
  */
-@Mojo(name = "update-pom", aggregator = true, requiresDirectInvocation = true)
+@Mojo(name = "update-pom", aggregator = true, requiresDirectInvocation = true, threadSafe = true)
 public class UpdatePomMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "session", readonly = true)
     protected MavenSession session;
@@ -41,12 +42,14 @@ public class UpdatePomMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try {
-            pomReader.addBasedir(session.getCurrentProject().getBasedir());
-            pomUpdater.setProjects(pomReader.getProjects());
-            pomUpdater.apply();
-        } catch (IOException e) {
-            throw new MojoExecutionException("Could not set version", e);
+        synchronized (LOCK) {
+            try {
+                pomReader.addBasedir(session.getCurrentProject().getBasedir());
+                pomUpdater.setProjects(pomReader.getProjects());
+                pomUpdater.apply();
+            } catch (IOException e) {
+                throw new MojoExecutionException("Could not set version", e);
+            }
         }
     }
 

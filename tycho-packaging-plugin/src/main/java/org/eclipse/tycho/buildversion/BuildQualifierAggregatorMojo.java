@@ -14,6 +14,9 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.tycho.ArtifactDescriptor;
 import org.eclipse.tycho.ReactorProject;
 import org.eclipse.tycho.core.ArtifactDependencyVisitor;
@@ -21,12 +24,7 @@ import org.eclipse.tycho.core.FeatureDescription;
 import org.eclipse.tycho.core.PluginDescription;
 import org.eclipse.tycho.core.TychoProject;
 import org.eclipse.tycho.core.osgitools.DefaultReactorProject;
-
 import org.osgi.framework.Version;
-
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * <p>
@@ -50,7 +48,7 @@ import org.apache.maven.plugins.annotations.Mojo;
  * timestamp of any included bundle/feature project, which makes qualifier aggregation redundant.
  * </p>
  */
-@Mojo(name = "build-qualifier-aggregator", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "build-qualifier-aggregator", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierAggregatorMojo extends BuildQualifierMojo {
 
     private final TimestampFinder timestampFinder = new TimestampFinder();

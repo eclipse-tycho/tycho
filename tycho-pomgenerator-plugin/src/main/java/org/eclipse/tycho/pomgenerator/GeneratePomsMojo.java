@@ -75,8 +75,9 @@ import org.osgi.framework.BundleException;
  * during build.
  * 
  */
-@Mojo(name = "generate-poms", requiresProject = false)
+@Mojo(name = "generate-poms", requiresProject = false, threadSafe = true)
 public class GeneratePomsMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     private static final class DirectoryFilter implements FileFilter {
         @Override
@@ -181,108 +182,110 @@ public class GeneratePomsMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        List<File> baseDirs = getBaseDirs();
-        if (getLog().isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("baseDir=").append(toString(baseDir)).append('\n');
-            sb.append("extraDirs=").append(extraDirs).append('\n');
-            for (int i = 0; i < baseDirs.size(); i++) {
-                sb.append("dir[").append(i).append("]=").append(toString(baseDirs.get(i))).append('\n');
+        synchronized (LOCK) {
+            List<File> baseDirs = getBaseDirs();
+            if (getLog().isDebugEnabled()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("baseDir=").append(toString(baseDir)).append('\n');
+                sb.append("extraDirs=").append(extraDirs).append('\n');
+                for (int i = 0; i < baseDirs.size(); i++) {
+                    sb.append("dir[").append(i).append("]=").append(toString(baseDirs.get(i))).append('\n');
+                }
+                getLog().debug(sb.toString());
             }
-            getLog().debug(sb.toString());
-        }
 
-        // find all candidate folders
-        List<File> candidateDirs = new ArrayList<>();
-        for (File basedir : baseDirs) {
-            findAndAddCandidates(candidateDirs, basedir);
-        }
-
-        // find all root projects
-        List<File> rootProjects = getRootProjects();
-        if (getLog().isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("rootProjects=").append(this.rootProjects);
-            for (int i = 0; i < rootProjects.size(); i++) {
-                sb.append("rootProject[").append(i).append("]=").append(toString(rootProjects.get(i))).append('\n');
+            // find all candidate folders
+            List<File> candidateDirs = new ArrayList<>();
+            for (File basedir : baseDirs) {
+                findAndAddCandidates(candidateDirs, basedir);
             }
-            getLog().debug(sb.toString());
-        }
 
-        for (File dir : candidateDirs) {
-            if (isPluginProject(dir)) {
-                OsgiManifest mf = bundleReader.loadManifest(dir);
-                platform.addArtifactFile(mf.toArtifactKey(), dir, null);
+            // find all root projects
+            List<File> rootProjects = getRootProjects();
+            if (getLog().isDebugEnabled()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("rootProjects=").append(this.rootProjects);
+                for (int i = 0; i < rootProjects.size(); i++) {
+                    sb.append("rootProject[").append(i).append("]=").append(toString(rootProjects.get(i))).append('\n');
+                }
+                getLog().debug(sb.toString());
             }
-        }
 
-        // testSuite
-        File testSuiteLocation = null;
-        if (testSuite != null) {
-            ArtifactDescriptor bundle = platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, testSuite, null);
-            if (bundle != null) {
-                testSuiteLocation = bundle.getLocation();
-            }
-        }
-
-        Set<File> projects = new LinkedHashSet<>();
-
-        // always add baseDir
-        projects.add(baseDirs.get(0));
-
-        if (rootProjects.size() > 0) {
-            if (testSuiteLocation != null) {
-                rootProjects.add(testSuiteLocation);
-            }
-            for (File rootProject : rootProjects) {
-                getLog().info("Resolving root project " + toString(rootProject));
-                if (isUpdateSiteProject(rootProject)) {
-                    projects.addAll(getSiteFeaturesAndPlugins(rootProject));
-                    projects.add(rootProject);
-                } else if (isFeatureProject(rootProject)) {
-                    projects.addAll(getFeatureFeaturesAndPlugins(rootProject));
-                    projects.add(rootProject);
-                } else if (isPluginProject(rootProject)) {
-                    addPluginImpl(projects, rootProject); // TODO getPluginAndDependencies
-                    projects.add(rootProject);
-                } else {
-                    getLog().warn("Unsupported root project " + toString(rootProject));
+            for (File dir : candidateDirs) {
+                if (isPluginProject(dir)) {
+                    OsgiManifest mf = bundleReader.loadManifest(dir);
+                    platform.addArtifactFile(mf.toArtifactKey(), dir, null);
                 }
             }
-        } else {
-            projects.addAll(candidateDirs);
-        }
 
-        if (getLog().isDebugEnabled()) {
-            getLog().debug("Collected " + projects.size() + " projects");
-            for (File dir : projects) {
-                getLog().debug("\t" + toString(dir));
+            // testSuite
+            File testSuiteLocation = null;
+            if (testSuite != null) {
+                ArtifactDescriptor bundle = platform.getArtifact(ArtifactType.TYPE_ECLIPSE_PLUGIN, testSuite, null);
+                if (bundle != null) {
+                    testSuiteLocation = bundle.getLocation();
+                }
             }
-        }
 
-        // write poms
-        Iterator<File> projectIter = projects.iterator();
-        File parentDir = projectIter.next();
-        if (!projectIter.hasNext()) {
-            if (isProjectDir(parentDir)) {
-                generatePom(null, parentDir);
+            Set<File> projects = new LinkedHashSet<>();
+
+            // always add baseDir
+            projects.add(baseDirs.get(0));
+
+            if (rootProjects.size() > 0) {
+                if (testSuiteLocation != null) {
+                    rootProjects.add(testSuiteLocation);
+                }
+                for (File rootProject : rootProjects) {
+                    getLog().info("Resolving root project " + toString(rootProject));
+                    if (isUpdateSiteProject(rootProject)) {
+                        projects.addAll(getSiteFeaturesAndPlugins(rootProject));
+                        projects.add(rootProject);
+                    } else if (isFeatureProject(rootProject)) {
+                        projects.addAll(getFeatureFeaturesAndPlugins(rootProject));
+                        projects.add(rootProject);
+                    } else if (isPluginProject(rootProject)) {
+                        addPluginImpl(projects, rootProject); // TODO getPluginAndDependencies
+                        projects.add(rootProject);
+                    } else {
+                        getLog().warn("Unsupported root project " + toString(rootProject));
+                    }
+                }
             } else {
-                throw new MojoExecutionException("Could not find any valid projects");
+                projects.addAll(candidateDirs);
             }
-        } else {
-            Model parent = readPomTemplate("parent-pom.xml");
-            parent.setGroupId(groupId);
-            parent.setArtifactId(parentDir.getName());
-            parent.setVersion(version);
-            while (projectIter.hasNext()) {
-                File projectDir = projectIter.next();
-                generatePom(parent, projectDir);
-                parent.addModule(getModuleName(parentDir, projectDir));
+
+            if (getLog().isDebugEnabled()) {
+                getLog().debug("Collected " + projects.size() + " projects");
+                for (File dir : projects) {
+                    getLog().debug("\t" + toString(dir));
+                }
             }
-            reorderModules(parent, parentDir, testSuiteLocation);
-            addTychoExtension(parent);
-            writePom(parentDir, parent);
-            generateAggregatorPoms(testSuiteLocation);
+
+            // write poms
+            Iterator<File> projectIter = projects.iterator();
+            File parentDir = projectIter.next();
+            if (!projectIter.hasNext()) {
+                if (isProjectDir(parentDir)) {
+                    generatePom(null, parentDir);
+                } else {
+                    throw new MojoExecutionException("Could not find any valid projects");
+                }
+            } else {
+                Model parent = readPomTemplate("parent-pom.xml");
+                parent.setGroupId(groupId);
+                parent.setArtifactId(parentDir.getName());
+                parent.setVersion(version);
+                while (projectIter.hasNext()) {
+                    File projectDir = projectIter.next();
+                    generatePom(parent, projectDir);
+                    parent.addModule(getModuleName(parentDir, projectDir));
+                }
+                reorderModules(parent, parentDir, testSuiteLocation);
+                addTychoExtension(parent);
+                writePom(parentDir, parent);
+                generateAggregatorPoms(testSuiteLocation);
+            }
         }
     }
 
@@ -417,10 +420,9 @@ public class GeneratePomsMojo extends AbstractMojo {
             generateEclipseRepositoryPom(parent, basedir);
         } else if (isUpdateSiteProject(basedir)) {
             getLog().debug("Found update site PDE project " + toString(basedir));
-            getLog().warn(
-                    "Old style update site found for " + toString(basedir)
-                            + ". It is recommended you rename your site.xml to category.xml "
-                            + "and use packaging type eclipse-repository instead.");
+            getLog().warn("Old style update site found for " + toString(basedir)
+                    + ". It is recommended you rename your site.xml to category.xml "
+                    + "and use packaging type eclipse-repository instead.");
             generateUpdateSitePom(parent, basedir);
         } else {
             getLog().debug("Not a PDE project " + toString(basedir));
@@ -442,10 +444,10 @@ public class GeneratePomsMojo extends AbstractMojo {
     }
 
     private boolean isPluginProject(File dir) {
-        return new File(dir, "META-INF/MANIFEST.MF").canRead() /*
-                                                                * || new File(dir,
-                                                                * "plugin.xml").canRead()
-                                                                */;
+        return new File(dir, "META-INF/MANIFEST.MF")
+                .canRead() /*
+                            * || new File(dir, "plugin.xml").canRead()
+                            */;
     }
 
     private void generateUpdateSitePom(Model parent, File basedir) throws MojoExecutionException {
@@ -506,8 +508,8 @@ public class GeneratePomsMojo extends AbstractMojo {
         }
     }
 
-    private void addFeature(Set<File> result, String name) throws IOException, XmlPullParserException,
-            MojoExecutionException {
+    private void addFeature(Set<File> result, String name)
+            throws IOException, XmlPullParserException, MojoExecutionException {
         if (name != null) {
             File dir = getModuleDir(name);
             if (dir != null && isFeatureProject(dir)) {
@@ -597,8 +599,8 @@ public class GeneratePomsMojo extends AbstractMojo {
                 State state = resolver.newResolvedState(basedir, ee, platform);
                 BundleDescription bundle = state.getBundleByLocation(basedir.getAbsolutePath());
                 if (bundle != null) {
-                    for (DependencyComputer.DependencyEntry entry : dependencyComputer.computeDependencies(
-                            state.getStateHelper(), bundle)) {
+                    for (DependencyComputer.DependencyEntry entry : dependencyComputer
+                            .computeDependencies(state.getStateHelper(), bundle)) {
                         BundleDescription supplier = entry.desc;
                         File suppliedDir = new File(supplier.getLocation());
                         if (supplier.getHost() == null && isModuleDir(suppliedDir)) {
