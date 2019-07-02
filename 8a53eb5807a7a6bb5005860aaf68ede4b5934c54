@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f256a87c_0845dc9b",
+        "filename": "tycho-bundles/org.eclipse.tycho.core.shared/src/main/java/org/eclipse/tycho/artifacts/TargetPlatformFilter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 209389
+      },
+      "writtenOn": "2019-07-02T18:42:57Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "020e6c45_38caf9b0",
+      "revId": "8a53eb5807a7a6bb5005860aaf68ede4b5934c54",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8055d75_908b7b1b",
         "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/proxy/ProxyServiceFacadeImpl.java",
         "patchSetId": 1
