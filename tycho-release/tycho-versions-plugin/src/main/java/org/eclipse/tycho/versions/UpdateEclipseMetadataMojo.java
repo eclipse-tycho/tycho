@@ -26,8 +26,9 @@ import org.eclipse.tycho.versions.engine.ProjectMetadataReader;
  * Update Eclipse/OSGi metadata (MANIFEST.MF, feature.xml, product.xml) version to match
  * corresponding pom.xml.
  */
-@Mojo(name = "update-eclipse-metadata", aggregator = true, requiresDirectInvocation = true)
+@Mojo(name = "update-eclipse-metadata", aggregator = true, requiresDirectInvocation = true, threadSafe = true)
 public class UpdateEclipseMetadataMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "session", readonly = true)
     private MavenSession session;
@@ -40,12 +41,14 @@ public class UpdateEclipseMetadataMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try {
-            pomReader.addBasedir(session.getCurrentProject().getBasedir());
-            metadataUpdater.setProjects(pomReader.getProjects());
-            metadataUpdater.apply();
-        } catch (IOException e) {
-            throw new MojoExecutionException("Could not set version", e);
+        synchronized (LOCK) {
+            try {
+                pomReader.addBasedir(session.getCurrentProject().getBasedir());
+                metadataUpdater.setProjects(pomReader.getProjects());
+                metadataUpdater.apply();
+            } catch (IOException e) {
+                throw new MojoExecutionException("Could not set version", e);
+            }
         }
     }
 

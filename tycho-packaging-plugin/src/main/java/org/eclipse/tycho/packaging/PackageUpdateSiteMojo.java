@@ -24,8 +24,9 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.zip.ZipArchiver;
 
-@Mojo(name = "update-site-packaging")
+@Mojo(name = "update-site-packaging", threadSafe = true)
 public class PackageUpdateSiteMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "project", required = true, readonly = true)
     protected MavenProject project;
@@ -61,24 +62,26 @@ public class PackageUpdateSiteMojo extends AbstractMojo {
                     "Update site folder does not exist at: " + target != null ? target.getAbsolutePath() : "null");
         }
 
-        try {
-            ZipArchiver siteZipper = new ZipArchiver();
-            File siteDestination = new File(target.getParentFile(), "site.zip");
-            siteZipper.addFile(new File(target, "site.xml"), "site.xml");
-            siteZipper.setDestFile(siteDestination);
-            siteZipper.createArchive();
-            project.getArtifact().setFile(siteDestination);
-            if (archiveSite) {
-                ZipArchiver asssemblyZipper = new ZipArchiver();
-                File asssemblyDestFile = new File(target.getParentFile(), "site_assembly.zip");
-                asssemblyZipper.addDirectory(target);
-                asssemblyZipper.setDestFile(asssemblyDestFile);
-                asssemblyZipper.createArchive();
-                projectHelper.attachArtifact(project, "zip", "assembly", asssemblyDestFile);
-            }
+        synchronized (LOCK) {
+            try {
+                ZipArchiver siteZipper = new ZipArchiver();
+                File siteDestination = new File(target.getParentFile(), "site.zip");
+                siteZipper.addFile(new File(target, "site.xml"), "site.xml");
+                siteZipper.setDestFile(siteDestination);
+                siteZipper.createArchive();
+                project.getArtifact().setFile(siteDestination);
+                if (archiveSite) {
+                    ZipArchiver asssemblyZipper = new ZipArchiver();
+                    File asssemblyDestFile = new File(target.getParentFile(), "site_assembly.zip");
+                    asssemblyZipper.addDirectory(target);
+                    asssemblyZipper.setDestFile(asssemblyDestFile);
+                    asssemblyZipper.createArchive();
+                    projectHelper.attachArtifact(project, "zip", "assembly", asssemblyDestFile);
+                }
 
-        } catch (IOException | ArchiverException e) {
-            throw new MojoExecutionException("Error packing update site", e);
+            } catch (IOException | ArchiverException e) {
+                throw new MojoExecutionException("Error packing update site", e);
+            }
         }
     }
 

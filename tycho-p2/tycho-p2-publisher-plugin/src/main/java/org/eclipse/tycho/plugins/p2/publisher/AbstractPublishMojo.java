@@ -23,6 +23,7 @@ import org.eclipse.tycho.p2.facade.RepositoryReferenceTool;
 import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
 
 public abstract class AbstractPublishMojo extends AbstractP2Mojo {
+    private static final Object LOCK = new Object();
 
     @Component
     private RepositoryReferenceTool repositoryReferenceTool;
@@ -32,9 +33,11 @@ public abstract class AbstractPublishMojo extends AbstractP2Mojo {
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
-        PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
-        Collection<DependencySeed> units = publishContent(publisherServiceFactory);
-        postPublishedIUs(units);
+        synchronized (LOCK) {
+            PublisherServiceFactory publisherServiceFactory = osgiServices.getService(PublisherServiceFactory.class);
+            Collection<DependencySeed> units = publishContent(publisherServiceFactory);
+            postPublishedIUs(units);
+        }
     }
 
     /**
