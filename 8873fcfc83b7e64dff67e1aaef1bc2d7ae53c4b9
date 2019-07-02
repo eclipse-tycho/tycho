@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ef511b5_e9a219fe",
+        "filename": "tycho-packaging-plugin/src/main/java/org/eclipse/tycho/packaging/PackageTargetDefinitionMojo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-07-02T09:28:46Z",
+      "side": 1,
+      "message": "Why do you need a lock here?",
+      "revId": "8873fcfc83b7e64dff67e1aaef1bc2d7ae53c4b9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
