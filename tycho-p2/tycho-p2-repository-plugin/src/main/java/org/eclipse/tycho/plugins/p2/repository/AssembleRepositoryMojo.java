@@ -60,7 +60,7 @@ import org.eclipse.tycho.p2.tools.mirroring.facade.MirrorApplicationService;
  * </p>
  * 
  */
-@Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "assemble-repository", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
     /**
      * <p>
@@ -138,35 +138,38 @@ public class AssembleRepositoryMojo extends AbstractRepositoryMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try {
-            File destination = getAssemblyRepositoryLocation();
-            destination.mkdirs();
-            copyResources(destination);
+        synchronized (LOCK) {
+            try {
+                File destination = getAssemblyRepositoryLocation();
+                destination.mkdirs();
+                copyResources(destination);
 
-            Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
-            if (projectSeeds.isEmpty()) {
-                throw new MojoFailureException("No content specified for p2 repository");
+                Collection<DependencySeed> projectSeeds = TychoProjectUtils.getDependencySeeds(getProject());
+                if (projectSeeds.isEmpty()) {
+                    throw new MojoFailureException("No content specified for p2 repository");
+                }
+
+                RepositoryReferences sources = getVisibleRepositories();
+
+                TargetPlatformConfiguration configuration = TychoProjectUtils
+                        .getTargetPlatformConfiguration(getProject());
+
+                MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
+
+                List<RepositoryReference> repositoryRefrences = getCategories().stream()//
+                        .map(Category::getRepositoryReferences)//
+                        .flatMap(List::stream)//
+                        .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
+                        .collect(toList());
+
+                DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(
+                        destination, repositoryName, compress, xzCompress, keepNonXzIndexFiles,
+                        !createArtifactRepository, true, extraArtifactRepositoryProperties, repositoryRefrences);
+                mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
+                        includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
+            } catch (FacadeException e) {
+                throw new MojoExecutionException("Could not assemble p2 repository", e);
             }
-
-            RepositoryReferences sources = getVisibleRepositories();
-
-            TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(getProject());
-
-            MirrorApplicationService mirrorApp = p2.getService(MirrorApplicationService.class);
-
-            List<RepositoryReference> repositoryRefrences = getCategories().stream()//
-                    .map(Category::getRepositoryReferences)//
-                    .flatMap(List::stream)//
-                    .map(ref -> new RepositoryReference(ref.getName(), ref.getLocation(), ref.isEnabled()))//
-                    .collect(toList());
-
-            DestinationRepositoryDescriptor destinationRepoDescriptor = new DestinationRepositoryDescriptor(destination,
-                    repositoryName, compress, xzCompress, keepNonXzIndexFiles, !createArtifactRepository, true,
-                    extraArtifactRepositoryProperties, repositoryRefrences);
-            mirrorApp.mirrorReactor(sources, destinationRepoDescriptor, projectSeeds, getBuildContext(),
-                    includeAllDependencies, configuration.isIncludePackedArtifacts(), profileProperties);
-        } catch (FacadeException e) {
-            throw new MojoExecutionException("Could not assemble p2 repository", e);
         }
     }
 

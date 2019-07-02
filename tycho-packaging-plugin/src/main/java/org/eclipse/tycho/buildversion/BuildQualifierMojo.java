@@ -80,8 +80,9 @@ import org.osgi.framework.Version;
  * </pre>
  * 
  */
-@Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "build-qualifier", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class BuildQualifierMojo extends AbstractVersionMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "session", readonly = true)
     protected MavenSession session;
@@ -132,12 +133,14 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        TychoProjectVersion projectVersion = calculateQualifiedVersion();
-        project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
-        project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
-        project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
+        synchronized (LOCK) {
+            TychoProjectVersion projectVersion = calculateQualifiedVersion();
+            project.getProperties().put(BUILD_QUALIFIER, projectVersion.qualifier);
+            project.getProperties().put(UNQUALIFIED_VERSION, projectVersion.unqualifiedVersion);
+            project.getProperties().put(QUALIFIED_VERSION, projectVersion.getOSGiVersion());
 
-        getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
+            getLog().info("The project's OSGi version is " + projectVersion.getOSGiVersion());
+        }
     }
 
     private TychoProjectVersion calculateQualifiedVersion() throws MojoFailureException, MojoExecutionException {
@@ -186,8 +189,8 @@ public class BuildQualifierMojo extends AbstractVersionMojo {
         try {
             Version.parseVersion("1.0.0." + qualifier);
         } catch (IllegalArgumentException e) {
-            throw new MojoFailureException(
-                    "Invalid build qualifier '" + qualifier + "', it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')");
+            throw new MojoFailureException("Invalid build qualifier '" + qualifier
+                    + "', it does not match the OSGi qualifier constraint ([0..9]|[a..zA..Z]|'_'|'-')");
         }
     }
 

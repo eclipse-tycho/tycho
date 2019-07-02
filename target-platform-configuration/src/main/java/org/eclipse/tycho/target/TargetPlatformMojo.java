@@ -33,8 +33,9 @@ import org.eclipse.tycho.p2.repository.GAV;
 import org.eclipse.tycho.p2.repository.RepositoryLayoutHelper;
 import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFacade;
 
-@Mojo(name = "target-platform")
+@Mojo(name = "target-platform", threadSafe = true)
 public class TargetPlatformMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     // TODO site doc (including steps & parameters handled in afterProjectsRead?)
     @Parameter(property = "project", readonly = true)
@@ -48,10 +49,12 @@ public class TargetPlatformMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        ReactorRepositoryManagerFacade repositoryManager = osgiServices
-                .getService(ReactorRepositoryManagerFacade.class);
-        List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects();
-        repositoryManager.computeFinalTargetPlatform(DefaultReactorProject.adapt(project), upstreamProjects);
+        synchronized (LOCK) {
+            ReactorRepositoryManagerFacade repositoryManager = osgiServices
+                    .getService(ReactorRepositoryManagerFacade.class);
+            List<ReactorProjectIdentities> upstreamProjects = getReferencedTychoProjects();
+            repositoryManager.computeFinalTargetPlatform(DefaultReactorProject.adapt(project), upstreamProjects);
+        }
     }
 
     private List<ReactorProjectIdentities> getReferencedTychoProjects() throws MojoExecutionException {
@@ -135,8 +138,8 @@ public class TargetPlatformMojo extends AbstractMojo {
             throws MojoExecutionException {
         File expectedLocation = project.getBuildDirectory().getChild(expectedPathInTarget);
         if (!expectedLocation.isFile()) {
-            throw new MojoExecutionException("Unexpected build result of " + project + ": File \"" + expectedLocation
-                    + "\" is missing");
+            throw new MojoExecutionException(
+                    "Unexpected build result of " + project + ": File \"" + expectedLocation + "\" is missing");
         }
     }
 

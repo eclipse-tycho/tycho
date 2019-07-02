@@ -33,8 +33,9 @@ import org.eclipse.tycho.repository.registry.facade.ReactorRepositoryManagerFaca
  * reactor.
  * </p>
  */
-@Mojo(name = "attach-artifacts")
+@Mojo(name = "attach-artifacts", threadSafe = true)
 public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
+    private static final Object LOCK = new Object();
 
     @Component
     private MavenProjectHelper projectHelper;
@@ -44,27 +45,28 @@ public class AttachPublishedArtifactsMojo extends AbstractP2Mojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        synchronized (LOCK) {
+            ReactorRepositoryManagerFacade reactorRepoManager = osgiServices
+                    .getService(ReactorRepositoryManagerFacade.class);
+            PublishingRepositoryFacade publishingRepo = reactorRepoManager
+                    .getPublishingRepository(getProjectIdentities());
+            Map<String, File> artifacts = publishingRepo.getArtifactLocations();
 
-        ReactorRepositoryManagerFacade reactorRepoManager = osgiServices
-                .getService(ReactorRepositoryManagerFacade.class);
-        PublishingRepositoryFacade publishingRepo = reactorRepoManager.getPublishingRepository(getProjectIdentities());
-        Map<String, File> artifacts = publishingRepo.getArtifactLocations();
-
-        for (Entry<String, File> entry : artifacts.entrySet()) {
-            String classifier = entry.getKey();
-            File artifactLocation = entry.getValue();
-            if (classifier == null) {
-                getProject().getArtifact().setFile(artifactLocation);
-
-            } else {
-                String type = getExtension(artifactLocation);
-                projectHelper.attachArtifact(getProject(), type, classifier, artifactLocation);
+            for (Entry<String, File> entry : artifacts.entrySet()) {
+                String classifier = entry.getKey();
+                File artifactLocation = entry.getValue();
+                if (classifier == null) {
+                    getProject().getArtifact().setFile(artifactLocation);
+                } else {
+                    String type = getExtension(artifactLocation);
+                    projectHelper.attachArtifact(getProject(), type, classifier, artifactLocation);
+                }
             }
-        }
 
-        ReactorProject reactorProject = getReactorProject();
-        reactorProject.setDependencyMetadata(true, publishingRepo.getInstallableUnits());
-        reactorProject.setDependencyMetadata(false, Collections.emptySet());
+            ReactorProject reactorProject = getReactorProject();
+            reactorProject.setDependencyMetadata(true, publishingRepo.getInstallableUnits());
+            reactorProject.setDependencyMetadata(false, Collections.emptySet());
+        }
     }
 
     private static String getExtension(File file) {

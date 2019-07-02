@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
@@ -23,8 +25,9 @@ import org.eclipse.sisu.equinox.launching.internal.P2ApplicationLauncher;
  * http://help.eclipse.org/galileo/index.jsp?topic
  * =/org.eclipse.platform.doc.isv/guide/p2_publisher.html
  */
-@Mojo(name = "category-p2-metadata")
+@Mojo(name = "category-p2-metadata", threadSafe = true)
 public class CategoryP2MetadataMojo extends AbstractP2MetadataMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(defaultValue = "${project.basedir}/category.xml")
     private File categoryDefinition;
@@ -38,5 +41,12 @@ public class CategoryP2MetadataMojo extends AbstractP2MetadataMojo {
     protected void addArguments(P2ApplicationLauncher cli) throws IOException, MalformedURLException {
         cli.addArguments("-metadataRepository", getUpdateSiteLocation().toURL().toExternalForm(), //
                 "-categoryDefinition", categoryDefinition.toURL().toExternalForm());
+    }
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        synchronized (LOCK) {
+            super.execute();
+        }
     }
 }

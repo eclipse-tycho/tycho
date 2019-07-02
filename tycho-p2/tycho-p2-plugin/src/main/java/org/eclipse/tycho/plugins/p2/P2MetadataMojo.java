@@ -54,8 +54,9 @@ import org.eclipse.tycho.p2.metadata.IP2Artifact;
 import org.eclipse.tycho.p2.metadata.P2Generator;
 import org.eclipse.tycho.p2.metadata.PublisherOptions;
 
-@Mojo(name = "p2-metadata")
+@Mojo(name = "p2-metadata", threadSafe = true)
 public class P2MetadataMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "project")
     protected MavenProject project;
@@ -132,7 +133,9 @@ public class P2MetadataMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        attachP2Metadata();
+        synchronized (LOCK) {
+            attachP2Metadata();
+        }
     }
 
     private <T> T getService(Class<T> type) {

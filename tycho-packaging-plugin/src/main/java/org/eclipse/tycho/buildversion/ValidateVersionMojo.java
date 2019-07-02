@@ -26,7 +26,7 @@ import org.eclipse.tycho.model.IU;
  * ".qualifier" and unqualified Maven and OSGi versions must be equal. For RELEASE versions, OSGi
  * and Maven versions must be equal.
  */
-@Mojo(name = "validate-version", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "validate-version", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class ValidateVersionMojo extends AbstractVersionMojo {
     /**
      * If <code>true</code> (the default) will fail the build if Maven and OSGi project versions do
@@ -92,8 +92,8 @@ public class ValidateVersionMojo extends AbstractVersionMojo {
             String unqualifiedOSGiVersion = osgiVersion.substring(0,
                     osgiVersion.length() - VersioningHelper.QUALIFIER.length() - 1);
             if (!unqualifiedMavenVersion.equals(unqualifiedOSGiVersion)) {
-                fail("Unqualified OSGi version " + osgiVersion + " must match unqualified Maven version "
-                        + mavenVersion + " for SNAPSHOT builds");
+                fail("Unqualified OSGi version " + osgiVersion + " must match unqualified Maven version " + mavenVersion
+                        + " for SNAPSHOT builds");
             }
         }
     }

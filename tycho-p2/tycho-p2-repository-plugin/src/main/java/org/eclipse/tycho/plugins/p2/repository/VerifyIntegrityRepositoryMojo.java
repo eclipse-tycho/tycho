@@ -31,8 +31,9 @@ import org.eclipse.tycho.p2.tools.verifier.facade.VerifierService;
  * </p>
  * 
  */
-@Mojo(name = "verify-repository", defaultPhase = LifecyclePhase.VERIFY)
+@Mojo(name = "verify-repository", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements LogEnabled {
+    private static final Object LOCK = new Object();
     private Logger logger;
 
     @Component
@@ -40,16 +41,18 @@ public class VerifyIntegrityRepositoryMojo extends AbstractP2Mojo implements Log
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File repositoryDir = getBuildDirectory().getChild("repository");
-        logger.info("Verifying p2 repositories in " + repositoryDir);
-        VerifierService verifier = p2.getService(VerifierService.class);
-        URI repositoryUri = repositoryDir.toURI();
-        try {
-            if (!verifier.verify(repositoryUri, repositoryUri, getBuildDirectory())) {
-                throw new MojoFailureException("The repository is invalid.");
+        synchronized (LOCK) {
+            File repositoryDir = getBuildDirectory().getChild("repository");
+            logger.info("Verifying p2 repositories in " + repositoryDir);
+            VerifierService verifier = p2.getService(VerifierService.class);
+            URI repositoryUri = repositoryDir.toURI();
+            try {
+                if (!verifier.verify(repositoryUri, repositoryUri, getBuildDirectory())) {
+                    throw new MojoFailureException("The repository is invalid.");
+                }
+            } catch (FacadeException e) {
+                throw new MojoExecutionException("Verification failed", e);
             }
-        } catch (FacadeException e) {
-            throw new MojoExecutionException("Verification failed", e);
         }
     }
 
