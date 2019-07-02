@@ -21,9 +21,8 @@ import org.apache.maven.plugins.annotations.Parameter;
  * additional artifacts or post process standard artifacts using custom goals bound to package
  * phase.
  */
-@Mojo(name = "p2-metadata-default")
+@Mojo(name = "p2-metadata-default", threadSafe = true)
 public class P2MetadataDefaultMojo extends P2MetadataMojo {
-
     @Parameter(defaultValue = "true")
     private boolean defaultP2Metadata;
 

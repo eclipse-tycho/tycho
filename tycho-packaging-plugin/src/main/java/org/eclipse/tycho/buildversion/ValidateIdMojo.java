@@ -20,7 +20,7 @@ import org.eclipse.tycho.PackagingType;
 /**
  * Validates that project Maven and OSGi ids match.
  */
-@Mojo(name = "validate-id", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "validate-id", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class ValidateIdMojo extends AbstractVersionMojo {
 
     @Override

@@ -46,8 +46,9 @@ import org.eclipse.tycho.packaging.sourceref.SourceReferencesProvider;
 /**
  * Creates a jar-based plugin and attaches it as an artifact
  */
-@Mojo(name = "package-plugin")
+@Mojo(name = "package-plugin", threadSafe = true)
 public class PackagePluginMojo extends AbstractTychoPackagingMojo {
+    private static final Object LOCK = new Object();
 
     /**
      * The output directory of the jar file
@@ -116,10 +117,10 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
     private MavenArchiveConfiguration archive = new MavenArchiveConfiguration();
 
     /**
-     * Whether to generate an <a
-     * href="http://wiki.eclipse.org/PDE/UI/SourceReferences">Eclipse-SourceReferences</a> MANIFEST
-     * header. When using this parameter, property ${tycho.scmUrl} must be set and be a valid <a
-     * href="http://maven.apache.org/scm/scm-url-format.html">maven SCM URL</a>.
+     * Whether to generate an
+     * <a href="http://wiki.eclipse.org/PDE/UI/SourceReferences">Eclipse-SourceReferences</a>
+     * MANIFEST header. When using this parameter, property ${tycho.scmUrl} must be set and be a
+     * valid <a href="http://maven.apache.org/scm/scm-url-format.html">maven SCM URL</a>.
      * 
      * Example configuration:
      * 
@@ -147,13 +148,15 @@ public class PackagePluginMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        pdeProject = (EclipsePluginProject) project.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
+        synchronized (LOCK) {
+            pdeProject = (EclipsePluginProject) project.getContextValue(TychoConstants.CTX_ECLIPSE_PLUGIN_PROJECT);
 
-        createSubJars();
+            createSubJars();
 
-        File pluginFile = createPluginJar();
+            File pluginFile = createPluginJar();
 
-        project.getArtifact().setFile(pluginFile);
+            project.getArtifact().setFile(pluginFile);
+        }
     }
 
     private void createSubJars() throws MojoExecutionException {

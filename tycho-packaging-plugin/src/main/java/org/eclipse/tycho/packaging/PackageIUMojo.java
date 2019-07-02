@@ -32,8 +32,9 @@ import org.eclipse.tycho.model.IU;
 /**
  * Creates the zip for the IU and attaches it as an artifact
  */
-@Mojo(name = "package-iu", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME)
+@Mojo(name = "package-iu", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageIUMojo extends AbstractTychoPackagingMojo {
+    private static final Object LOCK = new Object();
 
     @Parameter(property = "project.build.directory", required = true, readonly = true)
     protected File outputDirectory;
@@ -55,24 +56,25 @@ public class PackageIUMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        outputDirectory.mkdirs();
+        synchronized (LOCK) {
+            outputDirectory.mkdirs();
 
-        IU iu = IU.loadIU(basedir);
-        File iuXML = new File(outputDirectory, IU.SOURCE_FILE_NAME);
-        try {
-            addSelfCapability(iu);
-            addArtifactReference(iu);
-            addMavenProperties(iu);
-            expandVersions(iu);
-            IU.write(iu, iuXML);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error updating " + IU.SOURCE_FILE_NAME, e);
+            IU iu = IU.loadIU(basedir);
+            File iuXML = new File(outputDirectory, IU.SOURCE_FILE_NAME);
+            try {
+                addSelfCapability(iu);
+                addArtifactReference(iu);
+                addMavenProperties(iu);
+                expandVersions(iu);
+                IU.write(iu, iuXML);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error updating " + IU.SOURCE_FILE_NAME, e);
+            }
+
+            //Create the artifact
+            File artifactForIU = createArtifact();
+            project.getArtifact().setFile(artifactForIU);
         }
-
-        //Create the artifact
-        File artifactForIU = createArtifact();
-        project.getArtifact().setFile(artifactForIU);
-
     }
 
     private void addMavenProperties(IU iu) {
