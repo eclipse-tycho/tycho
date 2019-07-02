@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 SAP AG and others.
+ * Copyright (c) 2010, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,12 +26,12 @@ import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.maven.shared.utils.io.IOUtil;
 import org.eclipse.tycho.testing.AbstractTychoMojoTestCase;
+import org.junit.Assert;
 
 import de.pdark.decentxml.Document;
 import de.pdark.decentxml.Element;
 import de.pdark.decentxml.XMLIOSource;
 import de.pdark.decentxml.XMLParser;
-import junit.framework.Assert;
 
 public class PublishFeaturesAndBundlesMojoTest extends AbstractTychoMojoTestCase {
 
