@@ -34,6 +34,24 @@
       "revId": "5da19ba1b0937a50bb1d97a90b81bc18092457d0",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a37d7a86_45452e06",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-07-02T10:07:38Z",
+      "side": 1,
+      "message": "\u003e I\u0027m a bit concerned over growing this list that much. Can we have different solution?\n\nI don\u0027t see much possible workaround here.\nThe root causes are much deeper IMO: in p2 that should rebuild the available EE at startup according to the actually available ones at installation-time instead of assuming the EE are published statically and that a statically published EE is immediately available; and in OSGi itself that the BREE are becoming meaningless and not practical now that Java has abandonned backward compatibility (removed APIs).\nI wouldn\u0027t recommend trying to put more effort in Tycho on that matter, this would better be covered by p2 first so we wouldn\u0027t need to publish EEs statically.",
+      "parentUuid": "bfda58b0_acec76a8",
+      "revId": "5da19ba1b0937a50bb1d97a90b81bc18092457d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
