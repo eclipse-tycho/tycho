@@ -53,7 +53,7 @@ import org.osgi.framework.Version;
  * 
  * @see http://wiki.eclipse.org/Equinox/p2/Publisher
  */
-@Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "publish-products", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public final class PublishProductMojo extends AbstractPublishMojo {
 
     // as per http://download.eclipse.org/releases/luna/201502271000/features/org.eclipse.equinox.executable_3.6.102.v20150204-1316.jar

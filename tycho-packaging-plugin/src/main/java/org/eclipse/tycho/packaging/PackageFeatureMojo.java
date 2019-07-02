@@ -42,8 +42,9 @@ import org.eclipse.tycho.core.shared.BuildPropertiesParser;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.model.Feature;
 
-@Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME)
+@Mojo(name = "package-feature", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
+    private static final Object LOCK = new Object();
 
     private static final String FEATURE_PROPERTIES = "feature.properties";
 
@@ -108,59 +109,61 @@ public class PackageFeatureMojo extends AbstractTychoPackagingMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        outputDirectory.mkdirs();
+        synchronized (LOCK) {
+            outputDirectory.mkdirs();
 
-        Feature feature = Feature.loadFeature(basedir);
+            Feature feature = Feature.loadFeature(basedir);
 
-        File licenseFeature = licenseFeatureHelper.getLicenseFeature(feature, project);
+            File licenseFeature = licenseFeatureHelper.getLicenseFeature(feature, project);
 
-        updateLicenseProperties(feature, licenseFeature);
+            updateLicenseProperties(feature, licenseFeature);
 
-        File featureXml = new File(outputDirectory, Feature.FEATURE_XML);
-        try {
-            expandVersionQualifiers(feature);
-            Feature.write(feature, featureXml);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error updating feature.xml", e);
-        }
-
-        BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
-        checkBinIncludesExist(buildProperties);
-
-        File featureProperties = getFeatureProperties(licenseFeature, buildProperties);
-
-        File outputJar = new File(outputDirectory, finalName + ".jar");
-        outputJar.getParentFile().mkdirs();
-
-        MavenArchiver archiver = new MavenArchiver();
-        JarArchiver jarArchiver = getJarArchiver();
-        archiver.setArchiver(jarArchiver);
-        archiver.setOutputFile(outputJar);
-        jarArchiver.setDestFile(outputJar);
-
-        try {
-            archiver.getArchiver().addFileSet(getManuallyIncludedFiles(buildProperties));
-            if (licenseFeature != null) {
-                archiver.getArchiver()
-                        .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
+            File featureXml = new File(outputDirectory, Feature.FEATURE_XML);
+            try {
+                expandVersionQualifiers(feature);
+                Feature.write(feature, featureXml);
+            } catch (IOException e) {
+                throw new MojoExecutionException("Error updating feature.xml", e);
             }
-            archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
-            if (featureProperties != null) {
-                archiver.getArchiver().addFile(featureProperties, FEATURE_PROPERTIES);
-            }
-            if (archive == null) {
-                archive = new MavenArchiveConfiguration();
-                archive.setAddMavenDescriptor(false);
-            }
-            archiver.createArchive(session, project, archive);
-        } catch (Exception e) {
-            throw new MojoExecutionException("Error creating feature package", e);
-        }
 
-        project.getArtifact().setFile(outputJar);
+            BuildProperties buildProperties = buildPropertiesParser.parse(project.getBasedir());
+            checkBinIncludesExist(buildProperties);
 
-        if (deployableFeature) {
-            assembleDeployableFeature();
+            File featureProperties = getFeatureProperties(licenseFeature, buildProperties);
+
+            File outputJar = new File(outputDirectory, finalName + ".jar");
+            outputJar.getParentFile().mkdirs();
+
+            MavenArchiver archiver = new MavenArchiver();
+            JarArchiver jarArchiver = getJarArchiver();
+            archiver.setArchiver(jarArchiver);
+            archiver.setOutputFile(outputJar);
+            jarArchiver.setDestFile(outputJar);
+
+            try {
+                archiver.getArchiver().addFileSet(getManuallyIncludedFiles(buildProperties));
+                if (licenseFeature != null) {
+                    archiver.getArchiver()
+                            .addArchivedFileSet(licenseFeatureHelper.getLicenseFeatureFileSet(licenseFeature));
+                }
+                archiver.getArchiver().addFile(featureXml, Feature.FEATURE_XML);
+                if (featureProperties != null) {
+                    archiver.getArchiver().addFile(featureProperties, FEATURE_PROPERTIES);
+                }
+                if (archive == null) {
+                    archive = new MavenArchiveConfiguration();
+                    archive.setAddMavenDescriptor(false);
+                }
+                archiver.createArchive(session, project, archive);
+            } catch (Exception e) {
+                throw new MojoExecutionException("Error creating feature package", e);
+            }
+
+            project.getArtifact().setFile(outputJar);
+
+            if (deployableFeature) {
+                assembleDeployableFeature();
+            }
         }
     }
 
