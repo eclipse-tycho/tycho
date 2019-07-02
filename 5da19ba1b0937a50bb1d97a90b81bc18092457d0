@@ -16,6 +16,24 @@
       "revId": "5da19ba1b0937a50bb1d97a90b81bc18092457d0",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfda58b0_acec76a8",
+        "filename": "tycho-p2/tycho-p2-publisher-plugin/src/main/java/org/eclipse/tycho/plugins/p2/publisher/PublishOsgiEEMojo.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 663
+      },
+      "writtenOn": "2019-07-02T10:01:21Z",
+      "side": 1,
+      "message": "I don\u0027t have much idea about PublishOsgiEEMojo. But I see that this affecting the existing tests as well as the newly added ones in Java12ResolutionTest and Java13ResolutionTest. May be I should remove the new ones or make them expect the same result as Java11ResolutionTest?",
+      "parentUuid": "9f333758_32bee987",
+      "revId": "5da19ba1b0937a50bb1d97a90b81bc18092457d0",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
