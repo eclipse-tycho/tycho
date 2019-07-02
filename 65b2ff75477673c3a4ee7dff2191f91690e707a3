@@ -22,6 +22,30 @@
       "revId": "65b2ff75477673c3a4ee7dff2191f91690e707a3",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3fd4819f_63724512",
+        "filename": "tycho-bundles/org.eclipse.tycho.p2.resolver.impl/src/main/java/org/eclipse/tycho/p2/impl/proxy/ProxyServiceFacadeImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-07-02T19:08:38Z",
+      "side": 1,
+      "message": "Please do so.",
+      "parentUuid": "aa32af3d_33ab5be3",
+      "range": {
+        "startLine": 80,
+        "startChar": 21,
+        "endLine": 80,
+        "endChar": 23
+      },
+      "revId": "65b2ff75477673c3a4ee7dff2191f91690e707a3",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
