@@ -32,7 +32,7 @@ import org.eclipse.tycho.p2.tools.publisher.facade.PublisherServiceFactory;
  * 
  * @since 1.2.0
  */
-@Mojo(name = "publish-osgi-ee", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "publish-osgi-ee", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public final class PublishOsgiEEMojo extends AbstractPublishMojo {
 
     /**

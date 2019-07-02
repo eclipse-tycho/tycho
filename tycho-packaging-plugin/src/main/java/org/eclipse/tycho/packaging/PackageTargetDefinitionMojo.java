@@ -25,8 +25,9 @@ import org.apache.maven.project.MavenProject;
  * project as maven artifact.
  * 
  */
-@Mojo(name = "package-target-definition", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "package-target-definition", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true)
 public class PackageTargetDefinitionMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     private static final String FILE_EXTENSION = ".target";
 
@@ -35,11 +36,13 @@ public class PackageTargetDefinitionMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        File targetFile = new File(project.getBasedir(), project.getArtifactId() + FILE_EXTENSION);
-        if (!targetFile.isFile()) {
-            throw new MojoExecutionException("Expected target definition file '" + targetFile.getAbsolutePath()
-                    + "' could not be found.");
+        synchronized (LOCK) {
+            File targetFile = new File(project.getBasedir(), project.getArtifactId() + FILE_EXTENSION);
+            if (!targetFile.isFile()) {
+                throw new MojoExecutionException(
+                        "Expected target definition file '" + targetFile.getAbsolutePath() + "' could not be found.");
+            }
+            project.getArtifact().setFile(targetFile);
         }
-        project.getArtifact().setFile(targetFile);
     }
 }

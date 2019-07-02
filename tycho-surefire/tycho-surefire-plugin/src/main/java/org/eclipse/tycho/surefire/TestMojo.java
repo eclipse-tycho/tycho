@@ -110,8 +110,9 @@ import org.osgi.framework.Version;
  * configuration on the <tt>target-platform-configuration</tt> plugin.
  * </p>
  */
-@Mojo(name = "test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.RUNTIME)
+@Mojo(name = "test", defaultPhase = LifecyclePhase.INTEGRATION_TEST, requiresDependencyResolution = ResolutionScope.RUNTIME, threadSafe = true)
 public class TestMojo extends AbstractMojo {
+    private static final Object LOCK = new Object();
 
     /**
      * Root directory (<a href=
@@ -689,17 +690,19 @@ public class TestMojo extends AbstractMojo {
             return;
         }
 
-        EquinoxInstallation equinoxTestRuntime;
-        if ("p2Installed".equals(testRuntime)) {
-            equinoxTestRuntime = createProvisionedInstallation();
-        } else if ("default".equals(testRuntime)) {
-            equinoxTestRuntime = createEclipseInstallation();
-        } else {
-            throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
-                    + "' is unkown. Allowed values: 'default', 'p2Installed'.");
-        }
+        synchronized (LOCK) {
+            EquinoxInstallation equinoxTestRuntime;
+            if ("p2Installed".equals(testRuntime)) {
+                equinoxTestRuntime = createProvisionedInstallation();
+            } else if ("default".equals(testRuntime)) {
+                equinoxTestRuntime = createEclipseInstallation();
+            } else {
+                throw new MojoExecutionException("Configured testRuntime parameter value '" + testRuntime
+                        + "' is unkown. Allowed values: 'default', 'p2Installed'.");
+            }
 
-        runTest(equinoxTestRuntime);
+            runTest(equinoxTestRuntime);
+        }
     }
 
     protected boolean shouldSkip() {
