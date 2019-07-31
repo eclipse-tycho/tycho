@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6076f525_4a808af5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-07-31T16:09:44Z",
+      "side": 1,
+      "message": "Please add \"Bug 549589 -\" as prefix for easier navigation.",
+      "revId": "2e07db0828d8468dcef83982112bf5291350a4a2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
