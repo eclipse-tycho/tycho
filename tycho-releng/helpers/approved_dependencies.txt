@@ -31,8 +31,8 @@ org.apache.maven:maven-toolchain:jar:2.2.1:compile https://dev.eclipse.org/ipzil
 org.codehaus.plexus:plexus-archiver:jar:3.4:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=13048
 org.codehaus.plexus:plexus-classworlds:jar:2.2.3:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.codehaus.plexus:plexus-classworlds:jar:2.5.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
-org.codehaus.plexus:plexus-compiler-api:jar:2.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=7559
-org.codehaus.plexus:plexus-compiler-manager:jar:2.2:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=7560
+org.codehaus.plexus:plexus-compiler-api:jar:2.8.5:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=20658
+org.codehaus.plexus:plexus-compiler-manager:jar:2.8.5:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=20659
 org.codehaus.plexus:plexus-component-annotations:jar:1.7.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.codehaus.plexus:plexus-interpolation:jar:1.14:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=5149
 org.codehaus.plexus:plexus-io:jar:2.7.1:compile https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15477
