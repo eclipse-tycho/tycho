@@ -125,7 +125,7 @@ public class EclipseRepositoryProject extends AbstractArtifactBasedProject {
         File projectLocation = project.getBasedir();
         List<File> res = new ArrayList<>();
         for (File f : projectLocation.listFiles()) {
-            if (f.isFile() && f.getName().endsWith(".product")) {
+            if (f.isFile() && f.getName().endsWith(".product") && !f.getName().startsWith(".polyglot")) {
                 res.add(f);
             }
         }
