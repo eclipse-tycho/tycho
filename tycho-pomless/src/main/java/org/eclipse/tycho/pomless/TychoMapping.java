@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.tycho.pomless;
 
+import java.io.File;
+
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 import org.sonatype.maven.polyglot.mapping.MappingSupport;
@@ -22,9 +24,21 @@ public class TychoMapping extends MappingSupport {
         // can't check for META-INF/MANIFEST.MF as this is in a subfolder and maven (and tycho) assumes
         // in many places that the pom file is located in the project base dir, so we just use build.properties as a marker file
         setPomNames("build.properties");
-        setAcceptLocationExtensions("build.properties");
+        setAcceptLocationExtensions("build.properties", ".product");
         // make sure priority is lower than pom.xml (XmlMapping) so we can still override and use pom.xml if needed
         setPriority(-2);
+    }
+    
+    @Override
+    public File locatePom(File dir) {
+        File pom = super.locatePom(dir);
+        if (pom == null) {
+            File productFile = TychoModelReader.getProductFile(dir);
+            if (productFile != null) {
+                return productFile;
+            }
+        }
+        return pom;
     }
 
 }

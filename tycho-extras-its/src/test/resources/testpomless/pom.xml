@@ -46,6 +46,7 @@
 		<module>bundle1</module>
 		<module>bundle1.tests</module>
 		<module>feature</module>
+		<module>product</module>
 	</modules>
 
 	<build>

@@ -37,6 +37,7 @@ import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.maven.polyglot.PolyglotModelManager;
 import org.sonatype.maven.polyglot.PolyglotModelUtil;
 import org.sonatype.maven.polyglot.io.ModelReaderSupport;
@@ -115,10 +116,19 @@ public class TychoModelReader extends ModelReaderSupport {
         materialize.setId("materialize-prodcuts");
         materialize.setGoals(Arrays.asList("materialize-products"));
         plugin.addExecution(materialize);
-
+        Xpp3Dom config = new Xpp3Dom("configuration");
+        Xpp3Dom products = new Xpp3Dom("products");
+        Xpp3Dom product = new Xpp3Dom("product");
+        Xpp3Dom id = new Xpp3Dom("id");
+        id.setValue(model.getArtifactId());
+        config.addChild(products);
+        products.addChild(product);
+        product.addChild(id);
+        materialize.setConfiguration(config);
         PluginExecution archive = new PluginExecution();
         archive.setId("archive-prodcuts");
         archive.setGoals(Arrays.asList("archive-products"));
+        archive.setConfiguration(config);
         plugin.addExecution(archive);
 
         model.setBuild(build);
@@ -206,8 +216,8 @@ public class TychoModelReader extends ModelReaderSupport {
         }
     }
 
-    private File getProductFile(File projectRoot) {
-        File[] productFiles = projectRoot.listFiles((File dir, String name) -> name.endsWith(".product"));
+    public static File getProductFile(File projectRoot) {
+        File[] productFiles = projectRoot.listFiles((File dir, String name) -> name.endsWith(".product") && !name.startsWith(".polyglot"));
         if (productFiles.length > 0 && productFiles[0].isFile()) {
             return productFiles[0];
         }
