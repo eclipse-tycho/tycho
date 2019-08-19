@@ -260,8 +260,8 @@ public final class TargetDefinitionResolver {
 
         private AbstractResolutionStrategy getPlannerResolutionStrategy() throws TargetDefinitionResolutionException {
             if (includeAllEnvironments) {
-                throw new TargetDefinitionResolutionException(
-                        "includeAllPlatforms='true' and includeMode='planner' are incompatible.");
+                logger.warn(
+                        "includeAllPlatforms='true' and includeMode='planner' are incompatible. ignore includeAllPlatforms flag");
             }
             return new ProjectorResolutionStrategy(logger);
         }
