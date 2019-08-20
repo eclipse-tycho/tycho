@@ -101,7 +101,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
             tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing id attribute in root element"));
+            assertThat(e.getMessage(), containsString("missing or empty id attribute in root element"));
         }
     }
 
@@ -112,7 +112,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
             tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing version attribute in root element"));
+            assertThat(e.getMessage(), containsString("missing or empty version attribute in root element"));
         }
     }
 
@@ -176,7 +176,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
             tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing uid attribute"));
+            assertThat(e.getMessage(), containsString("missing or empty uid attribute"));
         }
     }
 
@@ -187,7 +187,7 @@ public class TychoModelReaderTest extends PlexusTestCase {
             tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing version attribute"));
+            assertThat(e.getMessage(), containsString("missing or empty version attribute"));
         }
     }
 

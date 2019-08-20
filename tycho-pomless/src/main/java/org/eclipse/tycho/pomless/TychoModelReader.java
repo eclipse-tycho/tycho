@@ -14,10 +14,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -29,6 +31,7 @@ import org.apache.maven.model.Build;
 import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.InputSource;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Organization;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -93,17 +96,57 @@ public class TychoModelReader extends ModelReaderSupport {
         model.setVersion(getPomVersion(bundleVersion));
         model.setPackaging(getPackagingType(bundleSymbolicName));
         setLocation(model, manifestFile);
+        String bundleName = getManifestAttributeValue(headers, "Bundle-Name", manifestFile);
+        if (bundleName != null) {
+            model.setName(bundleName);
+        } else {
+            model.setName(bundleSymbolicName);
+        }
+        String vendorName = getManifestAttributeValue(headers, "Bundle-Vendor", manifestFile);
+        if (vendorName != null) {
+            Organization organization = new Organization();
+            organization.setName(vendorName);
+            model.setOrganization(organization);
+        }
         return model;
     }
 
+    private static String getManifestAttributeValue(Attributes headers, String attributeName, File manifestFile)
+            throws IOException {
+        String location = headers.getValue("Bundle-Localization");
+        if (location == null || location.isEmpty()) {
+            location="OSGI-INF/l10n/bundle.properties";
+        }
+        String rawValue = headers.getValue(attributeName);
+        if (rawValue != null && !rawValue.isEmpty()) {
+            if (rawValue.startsWith("%")) {
+                String key = rawValue.substring(1);
+                //we always use the default here to have consistent build regardless of locale settings
+                File l10nFile = new File(manifestFile.getParentFile().getParentFile(), location);
+                if (l10nFile.exists()) {
+                    Properties properties = new Properties();
+                    try (InputStream stream = new FileInputStream(l10nFile)) {
+                        properties.load(stream);
+                    }
+                    String translation = properties.getProperty(key);
+                    if (translation != null && !translation.isEmpty()) {
+                        return translation;
+                    }
+                }
+                return key;
+            }
+        }
+        return null;
+    }
+
     private Model createPomFromFeatureXml(File featureXml) throws IOException, ModelParseException {
-        Model model = createPomFromXmlFile(featureXml, "id", "version");
+        Model model = createPomFromXmlFile(featureXml, "id", "version", "label", "provider-name");
         model.setPackaging("eclipse-feature");
         return model;
     }
 
     private Model createPomFromProductXml(File productXml) throws IOException, ModelParseException {
-        Model model = createPomFromXmlFile(productXml, "uid", "version");
+        Model model = createPomFromXmlFile(productXml, "uid", "version", "name", null);
         model.setPackaging("eclipse-repository");
 
         Build build = new Build();
@@ -135,8 +178,8 @@ public class TychoModelReader extends ModelReaderSupport {
         return model;
     }
 
-    private Model createPomFromXmlFile(File xmlFile, String idAttributeName, String versionAttributeName)
-            throws IOException, ModelParseException {
+    private Model createPomFromXmlFile(File xmlFile, String idAttributeName, String versionAttributeName,
+            String nameAttributeName, String vendorAttributeName) throws IOException, ModelParseException {
         Document doc;
         try {
             DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -149,21 +192,47 @@ public class TychoModelReader extends ModelReaderSupport {
         Element root = doc.getDocumentElement();
         Model model = createModel();
         model.setParent(findParent(xmlFile.getParentFile()));
-        Attr idNode = root.getAttributeNode(idAttributeName);
-        if (idNode == null) {
-            throw new ModelParseException(String.format("missing %s attribute in root element (%s)", idAttributeName,
-                    xmlFile.getAbsolutePath()), -1, -1);
+        String id = getXMLAttributeValue(root, idAttributeName);
+        if (id == null) {
+            throw new ModelParseException(String.format("missing or empty %s attribute in root element (%s)",
+                    idAttributeName, xmlFile.getAbsolutePath()), -1, -1);
         }
-        model.setArtifactId(idNode.getValue());
-        Attr versionNode = root.getAttributeNode(versionAttributeName);
-        if (versionNode == null) {
-            throw new ModelParseException(String.format("missing %s attribute in root element (%s)",
+        model.setArtifactId(id);
+        model.setName(id);
+        String version = getXMLAttributeValue(root, versionAttributeName);
+        if (version == null) {
+            throw new ModelParseException(String.format("missing or empty %s attribute in root element (%s)",
                     versionAttributeName, xmlFile.getAbsolutePath()), -1, -1);
         }
-        model.setVersion(getPomVersion(versionNode.getValue()));
+        model.setVersion(getPomVersion(version));
+        if (nameAttributeName != null) {
+            String name = getXMLAttributeValue(root, nameAttributeName);
+            if (name != null) {
+                model.setName(name);
+            }
+        }
+        if (vendorAttributeName != null) {
+            String vendor = getXMLAttributeValue(root, vendorAttributeName);
+            if (vendor != null) {
+                Organization organization = new Organization();
+                organization.setName(vendor);
+                model.setOrganization(organization);
+            }
+        }
         // groupId is inherited from parent pom
         setLocation(model, xmlFile);
         return model;
+    }
+
+    private static String getXMLAttributeValue(Element element, String attributeName) {
+        Attr idNode = element.getAttributeNode(attributeName);
+        if (idNode != null) {
+            String value = idNode.getValue();
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private Model createModel() {
@@ -217,7 +286,8 @@ public class TychoModelReader extends ModelReaderSupport {
     }
 
     public static File getProductFile(File projectRoot) {
-        File[] productFiles = projectRoot.listFiles((File dir, String name) -> name.endsWith(".product") && !name.startsWith(".polyglot"));
+        File[] productFiles = projectRoot
+                .listFiles((File dir, String name) -> name.endsWith(".product") && !name.startsWith(".polyglot"));
         if (productFiles.length > 0 && productFiles[0].isFile()) {
             return productFiles[0];
         }
