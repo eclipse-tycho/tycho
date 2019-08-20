@@ -47,7 +47,6 @@ import org.sonatype.maven.polyglot.io.ModelReaderSupport;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -59,6 +58,7 @@ import org.xml.sax.SAXException;
 @Component(role = ModelReader.class, hint = "tycho")
 public class TychoModelReader extends ModelReaderSupport {
 
+    private static final String UPDATE_SITE_SUFFIX = ".eclipse-repository";
     private static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
     private static final String QUALIFIER_SUFFIX = ".qualifier";
 
@@ -119,7 +119,7 @@ public class TychoModelReader extends ModelReaderSupport {
             throws IOException {
         String location = headers.getValue("Bundle-Localization");
         if (location == null || location.isEmpty()) {
-            location="OSGI-INF/l10n/bundle.properties";
+            location = "OSGI-INF/l10n/bundle.properties";
         }
         String rawValue = headers.getValue(attributeName);
         if (rawValue != null && !rawValue.isEmpty()) {
@@ -235,23 +235,18 @@ public class TychoModelReader extends ModelReaderSupport {
         model.setPackaging("eclipse-repository");
         Parent parent = findParent(categoryXml.getParentFile());
         model.setParent(parent);
-        String projectName = getProjectName(categoryXml.getParentFile());
-        model.setArtifactId(projectName);
+        String name = categoryXml.getParentFile().getName();
+        if (!name.endsWith(UPDATE_SITE_SUFFIX)) {
+            name = name + UPDATE_SITE_SUFFIX;
+        }
+        String prefix = parent.getArtifactId() + ".";
+        if (!name.startsWith(prefix)) {
+            name = prefix + name;
+        }
+        model.setArtifactId(name);
+        model.setName(name);
         model.setVersion(parent.getVersion());
         return model;
-    }
-
-    private String getProjectName(File projectRoot) throws IOException {
-        File projectFile = new File(projectRoot, ".project");
-        if (!projectFile.isFile()) {
-            throw new IOException("No .project file could be found in project directory: " + projectRoot);
-        }
-        Element projectDescription = getRootXmlElement(projectFile);
-        Node nameNode = projectDescription.getElementsByTagName("name").item(0);
-        if (nameNode == null) {
-            throw new IOException("No name element found in .project file " + projectFile);
-        }
-        return nameNode.getTextContent();
     }
 
     private Element getRootXmlElement(File xmlFile) throws IOException, ModelParseException {

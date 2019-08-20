@@ -207,34 +207,10 @@ public class TychoModelReaderTest extends PlexusTestCase {
         File buildProperties = new File(getPolyglotTestDir(), "updatesite/build.properties");
         Model model = tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
-        assertEquals("myUpdateSite", model.getArtifactId());
+        assertEquals("testparent.updatesite.eclipse-repository", model.getArtifactId());
         assertEquals("0.0.1-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-repository", model.getPackaging());
         assertParent(model.getParent());
-    }
-
-    @Test
-    public void testReadUpdateSiteWithMissingProjectFile() {
-        File buildProperties = new File(getTestResourcesDir(),
-                "modelreader/updatesites/missingProjectFile/build.properties");
-        try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
-            fail();
-        } catch (IOException e) {
-            assertTrue(e.getMessage().startsWith("No .project file could be found in project directory:"));
-        }
-    }
-
-    @Test
-    public void testReadUpdateSiteWithMissingNameElement() {
-        File buildProperties = new File(getTestResourcesDir(),
-                "modelreader/updatesites/missingNameElement/build.properties");
-        try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
-            fail();
-        } catch (IOException e) {
-            assertTrue(e.getMessage().startsWith("No name element found in .project file"));
-        }
     }
 
     private void assertParent(Parent parent) {

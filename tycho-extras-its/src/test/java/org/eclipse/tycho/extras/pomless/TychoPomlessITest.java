@@ -34,8 +34,15 @@ public class TychoPomlessITest extends AbstractTychoExtrasIntegrationTest {
         assertThat(new File(baseDir, "bundle1.tests/target/pomless.bundle.tests-1.0.1.jar"), isFile());
         assertThat(new File(baseDir, "feature/target/pomless.feature-1.0.0-SNAPSHOT.jar"), isFile());
         assertThat(new File(baseDir, "product/target/my.test.product.pomless-1.0.0.zip"), isFile());
-        assertThat(new File(baseDir, "product/target/repository/artifacts.jar"), isFile());
-        assertThat(new File(baseDir, "product/target/repository/content.jar"), isFile());
+        isRepository(baseDir, "product");
+        assertThat(new File(baseDir, "site1/target/testparent.site1.eclipse-repository-0.0.1-SNAPSHOT.zip"), isFile());
+        isRepository(baseDir, "site1");
+
+    }
+
+    private void isRepository(File baseDir, String subdir) {
+        assertThat(new File(baseDir, subdir + "/target/repository/artifacts.jar"), isFile());
+        assertThat(new File(baseDir, subdir + "/target/repository/content.jar"), isFile());
     }
 
 }
