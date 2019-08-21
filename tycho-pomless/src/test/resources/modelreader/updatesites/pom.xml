@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>testParent.groupId</groupId>
-	<artifactId>updatesites-testparent</artifactId>
+	<artifactId>testparent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 

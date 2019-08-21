@@ -15,7 +15,6 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,21 +26,17 @@ import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
 import org.codehaus.plexus.PlexusTestCase;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.junit.Test;
+import org.sonatype.maven.polyglot.mapping.Mapping;
 
 public class TychoModelReaderTest extends PlexusTestCase {
 
-    private TychoModelReader tychoModelReader;
-
-    @Override
-    protected void setUp() throws Exception {
-        tychoModelReader = (TychoModelReader) lookup(ModelReader.class, "tycho");
-    }
-
     @Test
     public void testReadBundle() throws Exception {
-        File buildProperties = new File(getPolyglotTestDir(), "bundle1/build.properties");
-        Model model = tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+        File buildProperties = new File(getPolyglotTestDir(), "bundle1/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                createReaderOptions(buildProperties));
         assertEquals("4.0.0", model.getModelVersion());
         assertEquals("pomless.bundle", model.getArtifactId());
         assertEquals("0.1.0-SNAPSHOT", model.getVersion());
@@ -52,8 +47,9 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testReadTestBundle() throws Exception {
-        File buildProperties = new File(getPolyglotTestDir(), "bundle1.tests/build.properties");
-        Model model = tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+        File buildProperties = new File(getPolyglotTestDir(), "bundle1.tests/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                createReaderOptions(buildProperties));
         assertEquals("pomless.bundle.tests", model.getArtifactId());
         assertEquals("1.0.1", model.getVersion());
         assertEquals("eclipse-test-plugin", model.getPackaging());
@@ -63,8 +59,8 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testReadFeature() throws Exception {
-        File buildProperties = new File(getPolyglotTestDir(), "feature/build.properties");
-        Model model = tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+        File feature = new File(getPolyglotTestDir(), "feature/feature.xml");
+        Model model = getTychoModelReader(TychoFeatureMapping.PACKAGING).read(feature, createReaderOptions(feature));
         assertEquals("pomless.feature", model.getArtifactId());
         assertEquals("1.0.0-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-feature", model.getPackaging());
@@ -74,20 +70,18 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testMissingManifestOrFeature() throws Exception {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/missingManifestOrFeature/build.properties");
-        try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
-            fail();
-        } catch (IOException e) {
-            // expected
-        }
+        File buildDir = new File(getTestResourcesDir(), "modelreader/missingManifestOrFeature/");
+        assertNull(getMapping(TychoBundleMapping.PACKAGING).locatePom(buildDir));
+        assertNull(getMapping(TychoFeatureMapping.PACKAGING).locatePom(buildDir));
+        assertNull(getMapping(TychoRepositoryMapping.PACKAGING).locatePom(buildDir));
+        assertNull(getMapping(TychoTargetMapping.PACKAGING).locatePom(buildDir));
     }
 
     @Test
     public void testIllFormedFeature() throws Exception {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/features/illFormed/build.properties");
+        File featureXml = new File(getTestResourcesDir(), "modelreader/features/illFormed/feature.xml");
         try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+            getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml, createReaderOptions(featureXml));
             fail();
         } catch (ModelParseException e) {
             // expected
@@ -96,31 +90,33 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testFeatureWithoutId() throws Exception {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/features/missingId/build.properties");
+        File featureXml = new File(getTestResourcesDir(), "modelreader/features/missingId/feature.xml");
         try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+            getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml, createReaderOptions(featureXml));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing or empty id attribute in root element"));
+            assertThat(e.getMessage(), containsString("missing or empty 'id' attribute in element 'feature'"));
         }
     }
 
     @Test
     public void testFeatureWithoutVersion() throws Exception {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/features/missingVersion/build.properties");
+        File featureXml = new File(getTestResourcesDir(), "modelreader/features/missingVersion/feature.xml");
         try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+            getTychoModelReader(TychoFeatureMapping.PACKAGING).read(featureXml, createReaderOptions(featureXml));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing or empty version attribute in root element"));
+            assertThat(e.getMessage(), containsString("missing or empty 'version' attribute in element 'feature'"));
         }
     }
 
     @Test
     public void testBundleWithoutSymbolicName() throws Exception {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/plugins/missingBsn/build.properties");
+        File buildProperties = new File(getTestResourcesDir(),
+                "modelreader/plugins/missingBsn/" + TychoBundleMapping.MANIFEST_MF_MARKER);
         try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+            getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                    createReaderOptions(buildProperties));
             fail();
         } catch (ModelParseException e) {
             assertThat(e.getMessage(), containsString("Bundle-SymbolicName missing in"));
@@ -129,9 +125,11 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testBundleWithoutVersion() throws Exception {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/plugins/missingVersion/build.properties");
+        File buildProperties = new File(getTestResourcesDir(),
+                "modelreader/plugins/missingVersion/" + TychoBundleMapping.MANIFEST_MF_MARKER);
         try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+            getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                    createReaderOptions(buildProperties));
             fail();
         } catch (ModelParseException e) {
             assertThat(e.getMessage(), containsString("Bundle-Version missing in"));
@@ -140,9 +138,11 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testNoParent() throws Exception {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/noParent/bundle/build.properties");
+        File buildProperties = new File(getTestResourcesDir(),
+                "modelreader/noParent/bundle/" + TychoBundleMapping.MANIFEST_MF_MARKER);
         try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+            getTychoModelReader(TychoBundleMapping.PACKAGING).read(buildProperties,
+                    createReaderOptions(buildProperties));
             fail();
         } catch (IOException e) {
             assertThat(e.getMessage(), containsString("No parent pom file found in"));
@@ -151,17 +151,20 @@ public class TychoModelReaderTest extends PlexusTestCase {
 
     @Test
     public void testFindParent() throws Exception {
-        Parent parentReference = tychoModelReader
-                .findParent(new File(getTestResourcesDir(), "modelreader/grandparentInheritance/bundle/"));
+        File location = new File(getTestResourcesDir(),
+                "modelreader/grandparentInheritance/bundle/" + TychoBundleMapping.MANIFEST_MF_MARKER);
+        Model model = getTychoModelReader(TychoBundleMapping.PACKAGING).read(location, createReaderOptions(location));
+        assertNotNull(model);
+        Parent parentReference = model.getParent();
         assertEquals("bundle-parent", parentReference.getArtifactId());
         assertEquals("grandparent.groupid", parentReference.getGroupId());
         assertEquals("1.2.3", parentReference.getVersion());
     }
 
     @Test
-    public void testReadProduct() throws ModelParseException, IOException {
-        File buildProperties = new File(getPolyglotTestDir(), "product/build.properties");
-        Model model = tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+    public void testReadProduct() throws ModelParseException, IOException, ComponentLookupException {
+        File product = new File(getPolyglotTestDir(), "product/myproduct.product");
+        Model model = getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(product, createReaderOptions(product));
         assertEquals("4.0.0", model.getModelVersion());
         assertEquals("pomless.product.validproduct", model.getArtifactId());
         assertEquals("0.0.2-SNAPSHOT", model.getVersion());
@@ -169,45 +172,49 @@ public class TychoModelReaderTest extends PlexusTestCase {
         assertParent(model.getParent());
     }
 
+    public ModelReader getTychoModelReader(String packaging) throws ComponentLookupException {
+        return getMapping(packaging).getReader();
+    }
+
+    private Mapping getMapping(String packaging) throws ComponentLookupException {
+        return lookup(Mapping.class, packaging);
+    }
+
     @Test
-    public void testProductWithoutUid() throws IOException {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/products/missingUid/build.properties");
+    public void testProductWithoutUid() throws IOException, ComponentLookupException {
         try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+            File product = new File(getTestResourcesDir(), "modelreader/products/missingUid/myproduct.product");
+            getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(product, createReaderOptions(product));
             fail();
         } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing or empty uid attribute"));
+            assertThat(e.getMessage(), containsString("missing or empty 'uid' attribute in element 'product'"));
         }
     }
 
     @Test
-    public void testProductWithoutVersion() throws IOException {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/products/missingVersion/build.properties");
-        try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
-            fail();
-        } catch (ModelParseException e) {
-            assertThat(e.getMessage(), containsString("missing or empty version attribute"));
-        }
+    public void testProductWithoutVersion() throws IOException, ComponentLookupException {
+        File product = new File(getTestResourcesDir(), "modelreader/products/missingVersion/myproduct.product");
+        getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(product, createReaderOptions(product));
     }
 
-    @Test
+    @Test()
     public void testIllFormedProduct() throws Exception {
-        File buildProperties = new File(getTestResourcesDir(), "modelreader/products/illFormed/build.properties");
+        File product = new File(getTestResourcesDir(), "modelreader/products/illFormed/myproduct.product");
         try {
-            tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+            getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(product, createReaderOptions(product));
             fail();
         } catch (ModelParseException e) {
-            // expected
+            //expected
         }
     }
 
     @Test
-    public void testReadUpdateSite() throws ModelParseException, IOException {
-        File buildProperties = new File(getPolyglotTestDir(), "updatesite/build.properties");
-        Model model = tychoModelReader.read((Reader) null, createReaderOptions(buildProperties));
+    public void testReadUpdateSite() throws ModelParseException, IOException, ComponentLookupException {
+        File updatesite = new File(getTestResourcesDir(), "modelreader/updatesites/site/category.xml");
+        Model model = getTychoModelReader(TychoRepositoryMapping.PACKAGING).read(updatesite,
+                createReaderOptions(updatesite));
         assertEquals("4.0.0", model.getModelVersion());
-        assertEquals("testparent.updatesite.eclipse-repository", model.getArtifactId());
+        assertEquals("site.eclipse-repository", model.getArtifactId());
         assertEquals("0.0.1-SNAPSHOT", model.getVersion());
         assertEquals("eclipse-repository", model.getPackaging());
         assertParent(model.getParent());

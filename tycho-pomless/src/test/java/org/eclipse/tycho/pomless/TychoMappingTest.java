@@ -26,11 +26,13 @@ public class TychoMappingTest extends PlexusTestCase {
 
     public void testLocateBuildProperties() throws Exception {
         File pom = polyglotModelManager.locatePom(new File(getMappingTestDir(), "simple"));
-        assertEquals("build.properties", pom.getName());
+        assertNotNull(pom);
+        assertEquals(TychoBundleMapping.MANIFEST_MF_MARKER, pom.getName());
     }
 
     public void testPriority() throws Exception {
         File pom = polyglotModelManager.locatePom(new File(getMappingTestDir(), "precedence"));
+        assertNotNull(pom);
         assertEquals("pom.xml must win over build.properties", "pom.xml", pom.getName());
     }
 
