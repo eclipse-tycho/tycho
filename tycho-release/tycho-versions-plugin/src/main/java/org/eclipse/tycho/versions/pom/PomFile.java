@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Sonatype Inc. - initial API and implementation
  *    Bachmann electronic GmbH. - #472579 - Support setting the version for pomless builds
+ *    Christoph Läubrich - Bug 550313 - tycho-versions-plugin uses hard-coded polyglot file 
  *******************************************************************************/
 package org.eclipse.tycho.versions.pom;
 
@@ -40,7 +41,6 @@ import de.pdark.decentxml.XMLWriter;
 public class PomFile {
 
     public static final String POM_XML = "pom.xml";
-    public static final String POLYGLOT_POM_XML = ".polyglot.build.properties";
     private static final String DEFAULT_XML_ENCODING = "UTF-8";
 
     private static XMLParser parser = new XMLParser();
