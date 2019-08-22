@@ -37,7 +37,7 @@ public class ProjectMetadataReaderTest extends PlexusTestCase {
         File basedir = new File("src/test/resources/projects/simple/pom.xml_expected");
         Assert.assertTrue(basedir.exists()); // sanity check
         reader.addBasedir(basedir);
-        Assert.assertEquals(0, reader.getProjects().size());
+        Assert.assertEquals(1, reader.getProjects().size());
     }
 
     public void test_missingBasedir() throws Exception {
