@@ -400,7 +400,7 @@
 			<id>bootstrap-0</id>
 			<activation>
 				<property>
-					<name>!tycho.testTargetPlatform</name>
+					<name>tycho.testTargetPlatform</name>
 				</property>
 			</activation>
 			<properties>
