@@ -445,7 +445,7 @@
 						<executions>
 							<execution>
 								<id>unpack-eclipse-sdk</id>
-								<phase>generate-resources</phase>
+								<phase>compile</phase>
 								<goals>
 									<goal>unpack</goal>
 								</goals>
