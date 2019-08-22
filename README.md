@@ -23,3 +23,5 @@ Building Tycho from sources:
 For more details, see [Developing Tycho](http://wiki.eclipse.org/Developing_Tycho)
 
 You can also [set up the Tycho Development Environment using the Eclipse Installer](setup/README.md)
+
+Trigger the its profile to force download updatesite to magic tmp location
