@@ -16,6 +16,24 @@
       "revId": "b14a83e26afd6c313ad5e4f8c24e30f70e0b079d",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2c6a646_52113713",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/java/org/eclipse/tycho/versions/engine/tests/ProjectMetadataReaderTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 171685
+      },
+      "writtenOn": "2019-08-23T13:31:16Z",
+      "side": 1,
+      "message": "I\u0027m not completely sure, but from the code it seems you can call the version-plugin either on a directory or on a file.\n\nSo the basedir is either a directory or a files. If it is a file, then its folder is used for further processing.\n\nBecuase the code assumed before that the file is always called \"pom.xml\" these check makes sure it only reads files that contain a pom.xml and skips other.\n\nThe problem is, that then a NPE occurs later on (I added a check for that in this change), so I suspect that was either of no use at all (hypothetical use-case) or has worked in an older version and got broken somewhere without getting noticed by any user.\n\nThats why I decided to remove the case because now we don\u0027t hard-code pom.xml for finding the pom, and added a useful exception on that place where before the NPE occurs if someone is still using it in a way where we still can\u0027t find a pom.",
+      "parentUuid": "fe643e2a_9a6ac540",
+      "revId": "b14a83e26afd6c313ad5e4f8c24e30f70e0b079d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
     }
   ]
 }
