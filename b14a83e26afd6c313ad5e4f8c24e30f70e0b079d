@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe643e2a_9a6ac540",
+        "filename": "tycho-release/tycho-versions-plugin/src/test/java/org/eclipse/tycho/versions/engine/tests/ProjectMetadataReaderTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 587
+      },
+      "writtenOn": "2019-08-23T13:20:28Z",
+      "side": 1,
+      "message": "I don\u0027t fully get what use-case this test is initially checking. Can you please clarify?",
+      "revId": "b14a83e26afd6c313ad5e4f8c24e30f70e0b079d",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
