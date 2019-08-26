@@ -87,6 +87,10 @@ public class TychoBundleMapping extends AbstractTychoMapping {
             organization.setName(vendorName);
             model.setOrganization(organization);
         }
+        String description = getManifestAttributeValue(manifestHeaders, "Bundle-Description", manifestFile);
+        if (description != null) {
+            model.setDescription(description);
+        }
     }
 
     @Override
