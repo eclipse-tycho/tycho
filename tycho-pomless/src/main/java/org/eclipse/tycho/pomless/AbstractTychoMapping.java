@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.InputSource;
@@ -239,6 +240,17 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     protected abstract void initModel(Model model, Reader artifactReader, File artifactFile)
             throws ModelParseException, IOException;
+
+    protected static Properties getBuildProperties(File dir) throws IOException {
+        Properties properties = new Properties();
+        File buildProperties = new File(dir, "build.properties");
+        if (buildProperties.exists()) {
+            try (FileInputStream stream = new FileInputStream(buildProperties)) {
+                properties.load(stream);
+            }
+        }
+        return properties;
+    }
 
     private static void setLocation(Model model, File modelSource) {
         InputSource inputSource = new InputSource();

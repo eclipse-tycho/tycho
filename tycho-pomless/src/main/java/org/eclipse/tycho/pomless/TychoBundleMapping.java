@@ -65,14 +65,15 @@ public class TychoBundleMapping extends AbstractTychoMapping {
     @Override
     protected void initModel(Model model, Reader artifactReader, File artifactFile)
             throws ModelParseException, IOException {
-        File manifestFile = new File(artifactFile.getParentFile(), MANIFEST_MF);
+        File bundleRoot = artifactFile.getParentFile();
+        File manifestFile = new File(bundleRoot, MANIFEST_MF);
         Attributes manifestHeaders = readManifestHeaders(manifestFile);
         String bundleSymbolicName = getBundleSymbolicName(manifestHeaders, manifestFile);
         // groupId is inherited from parent pom
         model.setArtifactId(bundleSymbolicName);
         String bundleVersion = getRequiredHeaderValue("Bundle-Version", manifestHeaders, manifestFile);
         model.setVersion(getPomVersion(bundleVersion));
-        if (isTestBundle(bundleSymbolicName, manifestHeaders)) {
+        if (isTestBundle(bundleSymbolicName, manifestHeaders, bundleRoot)) {
             model.setPackaging(PACKAGING_TEST);
         }
         String bundleName = getManifestAttributeValue(manifestHeaders, "Bundle-Name", manifestFile);
@@ -128,7 +129,14 @@ public class TychoBundleMapping extends AbstractTychoMapping {
         return value;
     }
 
-    private boolean isTestBundle(String bundleSymbolicName, Attributes manifestHeaders) {
+    private boolean isTestBundle(String bundleSymbolicName, Attributes manifestHeaders, File bundleRoot)
+            throws IOException {
+        Properties buildProperties = getBuildProperties(bundleRoot);
+        String property = buildProperties.getProperty("tycho.pomless.testbundle");
+        if (property != null) {
+            //if property is given it take precedence over our guesses...
+            return Boolean.valueOf(property);
+        }
         if (bundleSymbolicName.endsWith(".tests") || bundleSymbolicName.endsWith(".test")) {
             //TODO can we improve this? maybe also if the import/require bundle contains junit we should assume its a test bundle?
             // or should we search for Test classes annotations? 
