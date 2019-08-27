@@ -57,6 +57,24 @@ public class TychoPomlessITest extends AbstractTychoExtrasIntegrationTest {
 
     }
 
+    @Test
+    public void testPomlessStructuredBuildExtension() throws Exception {
+        Verifier verifier = getVerifier("testpomless-structured", false);
+        verifier.addCliOption("-Dp2.repo=" + new File("repositories/kepler").getAbsoluteFile().toURI().toString());
+        verifier.executeGoals(asList("clean", "verify"));
+        verifier.verifyErrorFreeLog();
+        // sanity check pom-less if bundle, test bundle and feature have been built
+        File baseDir = new File(verifier.getBasedir());
+        assertThat(new File(baseDir, "bundles/bundle1/target/pomless.bundle-0.1.0-SNAPSHOT.jar"), isFile());
+        assertThat(new File(baseDir, "tests/bundle1.tests/target/pomless.bundle.tests-1.0.1.jar"), isFile());
+        assertThat(new File(baseDir, "features/feature/target/pomless.feature-1.0.0-SNAPSHOT.jar"), isFile());
+        assertThat(new File(baseDir, "releng/product/target/my.test.product.pomless-1.0.0.zip"), isFile());
+        isRepository(baseDir, "releng/product");
+        assertThat(new File(baseDir, "releng/site1/target/site1.eclipse-repository-0.0.1-SNAPSHOT.zip"), isFile());
+        isRepository(baseDir, "releng/site1");
+
+    }
+
     private void isRepository(File baseDir, String subdir) {
         assertThat(new File(baseDir, subdir + "/target/repository/artifacts.jar"), isFile());
         assertThat(new File(baseDir, subdir + "/target/repository/content.jar"), isFile());

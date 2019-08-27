@@ -188,15 +188,14 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         Properties buildProperties = getBuildProperties(projectRoot);
         // assumption parent pom must be physically located in parent directory if not given by build.properties
         String parentRef = buildProperties.getProperty(TYCHO_POMLESS_PARENT, PARENT_POM_DEFAULT_VALUE);
-        File fileOrFolder = new File(projectRoot, parentRef);
+        File fileOrFolder = new File(projectRoot, parentRef).getCanonicalFile();
         File parentPom;
         if (fileOrFolder.isFile()) {
             parentPom = fileOrFolder;
         } else if (fileOrFolder.isDirectory()) {
             parentPom = polyglotModelManager.locatePom(fileOrFolder);
         } else {
-            throw new FileNotFoundException(
-                    "parent pom file/folder " + fileOrFolder.getCanonicalPath() + " is not accessible");
+            throw new FileNotFoundException("parent pom file/folder " + fileOrFolder + " is not accessible");
         }
         if (parentPom == null) {
             throw new FileNotFoundException("No parent pom file found in " + fileOrFolder.getCanonicalPath());
@@ -219,7 +218,11 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
             version = parentModel.getParent().getVersion();
         }
         parentReference.setVersion(version);
-        parentReference.setRelativePath(projectRoot.toPath().relativize(parentPom.toPath()).toString());
+        parentReference
+                .setRelativePath(projectRoot.getCanonicalFile().toPath().relativize(parentPom.toPath()).toString());
+        logger.debug("Derived parent for path " + projectRoot + " is goupId: " + parentReference.getGroupId()
+                + ", artifactId: " + parentReference.getArtifactId() + ", relativePath: "
+                + parentReference.getRelativePath());
         return parentReference;
     }
 
