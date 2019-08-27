@@ -49,6 +49,8 @@ import org.sonatype.maven.polyglot.mapping.Mapping;
  */
 public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
+    private static final String TYCHO_POMLESS_PARENT = "tycho.pomless.parent";
+    private static final String PARENT_POM_DEFAULT_VALUE = System.getProperty(TYCHO_POMLESS_PARENT, "..");
     private static final String QUALIFIER_SUFFIX = ".qualifier";
     private static final String ISSUE_192 = ".takari_issue_192";
     private static final String MODEL_PARENT = "TychoMapping.model.parent";
@@ -183,12 +185,21 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
             //if the parent is given by the options we don't neet to search it!
             return parent;
         }
-
-        // assumption/limitation: parent pom must be physically located in
-        // parent directory
-        File parentPom = polyglotModelManager.locatePom(projectRoot.getParentFile());
+        Properties buildProperties = getBuildProperties(projectRoot);
+        // assumption parent pom must be physically located in parent directory if not given by build.properties
+        String parentRef = buildProperties.getProperty(TYCHO_POMLESS_PARENT, PARENT_POM_DEFAULT_VALUE);
+        File fileOrFolder = new File(projectRoot, parentRef);
+        File parentPom;
+        if (fileOrFolder.isFile()) {
+            parentPom = fileOrFolder;
+        } else if (fileOrFolder.isDirectory()) {
+            parentPom = polyglotModelManager.locatePom(fileOrFolder);
+        } else {
+            throw new FileNotFoundException(
+                    "parent pom file/folder " + fileOrFolder.getCanonicalPath() + " is not accessible");
+        }
         if (parentPom == null) {
-            throw new FileNotFoundException("No parent pom file found in " + projectRoot.getParentFile());
+            throw new FileNotFoundException("No parent pom file found in " + fileOrFolder.getCanonicalPath());
         }
         Map<String, File> options = new HashMap<>(4);
         options.put(ModelProcessor.SOURCE, parentPom);
@@ -208,7 +219,7 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
             version = parentModel.getParent().getVersion();
         }
         parentReference.setVersion(version);
-        parentReference.setRelativePath("../" + parentPom.getName());
+        parentReference.setRelativePath(projectRoot.toPath().relativize(parentPom.toPath()).toString());
         return parentReference;
     }
 

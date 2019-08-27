@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 SAP SE and others.
+ * Copyright (c) 2015, 2019 SAP SE and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP SE - initial API and implementation
+ *     Christoph Läubrich - add testPomlessFlatBuildExtension
  *******************************************************************************/
 package org.eclipse.tycho.extras.pomless;
 
@@ -29,7 +30,11 @@ public class TychoPomlessITest extends AbstractTychoExtrasIntegrationTest {
         verifier.executeGoals(asList("clean", "verify"));
         verifier.verifyErrorFreeLog();
         // sanity check pom-less if bundle, test bundle and feature have been built
-        File baseDir = new File(verifier.getBasedir());
+        check(new File(verifier.getBasedir()));
+
+    }
+
+    private void check(File baseDir) {
         assertThat(new File(baseDir, "bundle1/target/pomless.bundle-0.1.0-SNAPSHOT.jar"), isFile());
         assertThat(new File(baseDir, "bundle1.tests/target/pomless.bundle.tests-1.0.1.jar"), isFile());
         assertThat(new File(baseDir, "feature/target/pomless.feature-1.0.0-SNAPSHOT.jar"), isFile());
@@ -37,6 +42,18 @@ public class TychoPomlessITest extends AbstractTychoExtrasIntegrationTest {
         isRepository(baseDir, "product");
         assertThat(new File(baseDir, "site1/target/site1.eclipse-repository-0.0.1-SNAPSHOT.zip"), isFile());
         isRepository(baseDir, "site1");
+    }
+
+    @Test
+    public void testPomlessFlatBuildExtension() throws Exception {
+        Verifier verifier = getVerifier("testpomless-flat", false);
+        verifier.addCliOption("-Dp2.repo=" + new File("repositories/kepler").getAbsoluteFile().toURI().toString());
+        verifier.addCliOption("-f");
+        verifier.addCliOption("aggregate/pom.xml");
+        verifier.executeGoals(asList("clean", "verify"));
+        verifier.verifyErrorFreeLog();
+        // sanity check pom-less if bundle, test bundle and feature have been built
+        check(new File(verifier.getBasedir()));
 
     }
 
