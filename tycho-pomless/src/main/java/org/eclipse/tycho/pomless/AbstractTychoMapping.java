@@ -23,6 +23,7 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,6 +31,7 @@ import org.apache.maven.model.InputLocation;
 import org.apache.maven.model.InputSource;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
+import org.apache.maven.model.building.FileModelSource;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.model.io.ModelParseException;
 import org.apache.maven.model.io.ModelReader;
@@ -38,7 +40,6 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
-import org.sonatype.maven.polyglot.PolyglotModelManager;
 import org.sonatype.maven.polyglot.PolyglotModelUtil;
 import org.sonatype.maven.polyglot.mapping.Mapping;
 
@@ -57,9 +58,6 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
 
     @Requirement
     protected PlexusContainer container;
-
-    @Requirement
-    protected PolyglotModelManager polyglotModelManager;
 
     @Requirement
     protected Logger logger;
@@ -189,21 +187,20 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
         // assumption parent pom must be physically located in parent directory if not given by build.properties
         String parentRef = buildProperties.getProperty(TYCHO_POMLESS_PARENT, PARENT_POM_DEFAULT_VALUE);
         File fileOrFolder = new File(projectRoot, parentRef).getCanonicalFile();
-        File parentPom;
+        PomReference parentPom;
         if (fileOrFolder.isFile()) {
-            parentPom = fileOrFolder;
+            parentPom = locatePomReference(fileOrFolder.getParentFile(), fileOrFolder.getName());
         } else if (fileOrFolder.isDirectory()) {
-            parentPom = polyglotModelManager.locatePom(fileOrFolder);
+            parentPom = locatePomReference(fileOrFolder, null);
         } else {
             throw new FileNotFoundException("parent pom file/folder " + fileOrFolder + " is not accessible");
         }
         if (parentPom == null) {
             throw new FileNotFoundException("No parent pom file found in " + fileOrFolder.getCanonicalPath());
         }
-        Map<String, File> options = new HashMap<>(4);
-        options.put(ModelProcessor.SOURCE, parentPom);
-        ModelReader reader = polyglotModelManager.getReaderFor(options);
-        Model parentModel = reader.read(parentPom, options);
+        Map<String, Object> options = new HashMap<>(1);
+        options.put(ModelProcessor.SOURCE, new FileModelSource(parentPom.getPomFile()));
+        Model parentModel = parentPom.getReader().read(parentPom.getPomFile(), options);
         Parent parentReference = new Parent();
         String groupId = parentModel.getGroupId();
         if (groupId == null) {
@@ -218,12 +215,38 @@ public abstract class AbstractTychoMapping implements Mapping, ModelReader {
             version = parentModel.getParent().getVersion();
         }
         parentReference.setVersion(version);
-        parentReference
-                .setRelativePath(projectRoot.getCanonicalFile().toPath().relativize(parentPom.toPath()).toString());
+        parentReference.setRelativePath(
+                projectRoot.getCanonicalFile().toPath().relativize(parentPom.getPomFile().toPath()).toString());
         logger.debug("Derived parent for path " + projectRoot + " is goupId: " + parentReference.getGroupId()
                 + ", artifactId: " + parentReference.getArtifactId() + ", relativePath: "
                 + parentReference.getRelativePath());
         return parentReference;
+    }
+
+    /**
+     * Locates the {@link PomReference} for the given folder and the given nameHint
+     * 
+     * @param folder
+     *            the folder to search
+     * @param nameHint
+     *            the name hint to use
+     * @return the {@link PomReference} or <code>null</code>
+     */
+    protected PomReference locatePomReference(File folder, String nameHint) {
+        PomReference reference = null;
+        try {
+            List<ModelProcessor> lookupList = container.lookupList(ModelProcessor.class);
+            for (ModelProcessor processor : lookupList) {
+                File pom = processor.locatePom(folder);
+                if (pom != null && pom.exists()) {
+                    if (reference == null || pom.getName().equals(nameHint)) {
+                        reference = new PomReference(pom, processor);
+                    }
+                }
+            }
+        } catch (ComponentLookupException e) {
+        }
+        return reference;
     }
 
     @Override

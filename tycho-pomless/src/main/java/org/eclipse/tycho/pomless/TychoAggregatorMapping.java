@@ -55,11 +55,11 @@ public class TychoAggregatorMapping extends AbstractTychoMapping {
             if (subFolders != null) {
                 Set<String> modules = new TreeSet<>();
                 for (File subfolder : subFolders) {
-                    File pom = polyglotModelManager.locatePom(subfolder);
-                    if (pom.exists()) {
+                    PomReference reference = locatePomReference(subfolder, null);
+                    if (reference != null) {
                         String name = subfolder.getName();
                         modules.add(name);
-                        logger.debug("Found pom " + pom.getName() + " in subfolder " + name);
+                        logger.debug("Found pom " + reference.getPomFile().getName() + " in subfolder " + name);
                     }
                 }
                 if (!modules.isEmpty()) {
