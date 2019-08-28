@@ -44,6 +44,7 @@ import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -115,7 +116,7 @@ public class JDTCompiler extends AbstractCompiler {
 
             messages = compileOutOfProcess(config.getWorkingDirectory(), executable, args);
         } else {
-            messages = compileInProcess(args, custom);
+            messages = compileInProcess(args, config, custom);
         }
 
         return messages;
@@ -334,7 +335,7 @@ public class JDTCompiler extends AbstractCompiler {
      * @return CompilerResult with the errors and warnings encountered.
      * @throws CompilerException
      */
-    CompilerResult compileInProcess(String[] args, CustomCompilerConfiguration custom) throws CompilerException {
+    CompilerResult compileInProcess(String[] args, CompilerConfiguration config, CustomCompilerConfiguration custom) throws CompilerException {
 
         List<CompilerMessage> messages;
 
@@ -345,7 +346,10 @@ public class JDTCompiler extends AbstractCompiler {
         compiler.options.put(CompilerOptions.OPTION_ReportForbiddenReference, CompilerOptions.ERROR);
         List<String> jdtCompilerArgs = new ArrayList<>(Arrays.asList(args));
         if (custom.javaHome != null) {
-            addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
+        	String sourceLevel = config.getSourceVersion();
+        	if (sourceLevel == null || CompilerOptions.releaseToJDKLevel(sourceLevel) <= ClassFileConstants.JDK1_8) {
+        		addExternalJavaHomeArgs(jdtCompilerArgs, custom.javaHome);
+        	}
         }
         getLogger().debug("JDT compiler args: " + jdtCompilerArgs);
         boolean success = compiler.compile(jdtCompilerArgs.toArray(new String[0]));
