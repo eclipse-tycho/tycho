@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1366ab01_b36b6a9a",
+        "filename": "tycho-compiler-jdt/src/main/java/org/eclipse/tycho/compiler/jdt/JDTCompiler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-08-28T08:18:34Z",
+      "side": 1,
+      "message": "This would remove not only -bootclasspath but also -extdirs and -endorseddirs but as they are used only for pre 1.9 it looks correct.\nMy concern is whether checking sourceVersion only is enough? E.g. what happens if one specifies only target or release ? Looking at the CompilerConfiguration source it\u0027s plain POJO so one can set the targetVersion without touching sourceVersion at all.",
+      "range": {
+        "startLine": 351,
+        "startChar": 10,
+        "endLine": 351,
+        "endChar": 33
+      },
+      "revId": "bb25b17181038b7c14bf420bad7f361bde25fee9",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
