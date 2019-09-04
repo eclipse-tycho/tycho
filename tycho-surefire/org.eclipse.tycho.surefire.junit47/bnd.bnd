@@ -5,6 +5,7 @@ Import-Package: \
 	org.junit.*;version='[4.7,5)',\
 	!org.apache.maven.surefire.*,\
 	!org.apache.maven.shared.utils.*,\
+	!net.jcip.*,\
 	*
 Fragment-Host: org.eclipse.tycho.surefire.osgibooter
 -removeheaders: Tool, Bnd-*, Created-By, Private-Package
