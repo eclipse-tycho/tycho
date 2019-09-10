@@ -46,12 +46,6 @@ public class ListDependenciesMojo extends AbstractMojo {
             getLog().info("Skipped");
             return;
         }
-        List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(project).getArtifacts()
-                .stream().filter(desc -> !desc.getLocation().equals(project.getBasedir())) // remove self
-                .collect(Collectors.toList());
-        if (dependencies.isEmpty()) {
-            return;
-        }
         File outputFile = new File(project.getBuild().getDirectory(), "dependencies-list.txt");
         try {
             outputFile.getParentFile().mkdirs();
@@ -60,6 +54,9 @@ public class ListDependenciesMojo extends AbstractMojo {
             throw new MojoFailureException(ex.getMessage(), ex);
         }
         try (BufferedWriter writer = Files.newBufferedWriter(outputFile.toPath())) {
+        	List<ArtifactDescriptor> dependencies = TychoProjectUtils.getDependencyArtifacts(project).getArtifacts()
+                    .stream().filter(desc -> !desc.getLocation().equals(project.getBasedir())) // remove self
+                    .collect(Collectors.toList());
             for (ArtifactDescriptor dependnecy : dependencies) {
                 if (dependnecy.getMavenProject() == null) {
                     writer.write(dependnecy.getLocation().getAbsolutePath());
