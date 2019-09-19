@@ -95,7 +95,7 @@
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.1.500</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<ecjVersion>3.18.0</ecjVersion>
+		<ecjVersion>3.19.0.v20190903-0936</ecjVersion>
 		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
 
 		<!-- version of Tycho used by this build -->
@@ -331,7 +331,18 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
+	<pluginRepositories>
+		<pluginRepository>
+			<id>cbi-jdt</id>
+			<url>https://repo.eclipse.org/content/repositories/eclipse/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<build>
 		<plugins>
 			<plugin>
