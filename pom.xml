@@ -58,7 +58,7 @@
 		</developer>
 	</developers>
 	<prerequisites>
-		<maven>3.0.5</maven>
+		<maven>3.1.0</maven>
 	</prerequisites>
 
 	<groupId>org.eclipse.tycho</groupId>
@@ -142,16 +142,15 @@
 				<version>${plexusVersion}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-container-default</artifactId>
-				<version>${plexusVersion}</version>
+				<groupId>org.eclipse.sisu</groupId>
+				<artifactId>org.eclipse.sisu.plexus</artifactId>
+				<version>0.3.3</version>
 				<!-- classes from plexus-container-default come with the maven installation -->
 				<!-- BUT groupId/artifactId was changed from
 				       plexus-container-default (maven 2.0.x)
 				       sisu-inject-plexus (maven 3.0.x)
 				       org.eclipse.sisu.plexus (maven 3.1.x)
-				     so we use oldest version with scope provided to stay compatible and make sure
-				     we don't have a conflicting injection container at runtime -->
+				     by using org.eclipse.sisu.plexus we effectively require maven 3.1.x as min version at runitme-->
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
