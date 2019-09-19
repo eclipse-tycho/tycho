@@ -95,7 +95,7 @@
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.1.500</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<ecjVersion>3.18.0</ecjVersion>
+		<ecjVersion>3.19.0</ecjVersion>
 		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
 
 		<!-- version of Tycho used by this build -->
@@ -331,7 +331,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -487,7 +486,6 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
   <reporting>
     <plugins>
       <plugin>
