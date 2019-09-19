@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 Sonatype Inc. and others.
+ * Copyright (c) 2008, 2019 Sonatype Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -167,7 +167,6 @@ public class Platform {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static Platform read(File file) throws IOException, XmlPullParserException {
         try (XmlStreamReader reader = ReaderFactory.newXmlReader(file)) {
             return new Platform(Xpp3DomBuilder.build(reader));
