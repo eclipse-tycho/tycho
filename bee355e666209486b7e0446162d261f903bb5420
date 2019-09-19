@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbe23aa0_b38539a9",
+        "filename": "pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-09-19T11:14:35Z",
+      "side": 1,
+      "message": "This change is problematic as until ecj 3.19.0 is available in repo1.maven.org tycho compiler will fail to resolve for everyone that haven\u0027t added this repo to his master pom.  We have to wait a bit more for the actual upload repo1.maven.org to happen.",
+      "revId": "bee355e666209486b7e0446162d261f903bb5420",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    }
+  ]
+}
