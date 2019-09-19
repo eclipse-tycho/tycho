@@ -95,7 +95,7 @@
 		<equinoxVersionMaven>${equinoxVersion}</equinoxVersionMaven>
 		<equinoxCompatVersion>1.1.500</equinoxCompatVersion>
 		<equinoxCompatVersionMaven>${equinoxCompatVersion}</equinoxCompatVersionMaven>
-		<ecjVersion>3.18.0</ecjVersion>
+		<ecjVersion>3.19.0.v20190903-0936</ecjVersion>
 		<ecjVersionMaven>${ecjVersion}</ecjVersionMaven>
 
 		<!-- version of Tycho used by this build -->
@@ -331,7 +331,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -487,7 +486,27 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
+	 <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>eclipse</id>
+      <url>https://repo.eclipse.org/content/repositories/eclipse/</url>
+    </repository>
+  </repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>eclipse</id>
+			<url>https://repo.eclipse.org/content/repositories/eclipse/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
   <reporting>
     <plugins>
       <plugin>
