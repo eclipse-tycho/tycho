@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "772ddae5_b494e0c9",
+        "filename": "pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-09-19T11:22:12Z",
+      "side": 1,
+      "message": "Should be just 3.19.0 as in https://repo1.maven.org/maven2/org/eclipse/jdt/ecj/3.19.0/",
+      "range": {
+        "startLine": 98,
+        "startChar": 14,
+        "endLine": 98,
+        "endChar": 35
+      },
+      "revId": "bee355e666209486b7e0446162d261f903bb5420",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dbe23aa0_b38539a9",
         "filename": "pom.xml",
         "patchSetId": 3
@@ -13,6 +36,29 @@
       "writtenOn": "2019-09-19T11:14:35Z",
       "side": 1,
       "message": "This change is problematic as until ecj 3.19.0 is available in repo1.maven.org tycho compiler will fail to resolve for everyone that haven\u0027t added this repo to his master pom.  We have to wait a bit more for the actual upload repo1.maven.org to happen.",
+      "revId": "bee355e666209486b7e0446162d261f903bb5420",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef9984ce_261b4999",
+        "filename": "pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 726
+      },
+      "writtenOn": "2019-09-19T11:22:12Z",
+      "side": 1,
+      "message": "Remove this part it\u0027s not needed as the artifact is on the main repo.",
+      "range": {
+        "startLine": 489,
+        "startChar": 1,
+        "endLine": 509,
+        "endChar": 22
+      },
       "revId": "bee355e666209486b7e0446162d261f903bb5420",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": true
